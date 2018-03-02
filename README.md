@@ -102,7 +102,11 @@ kubectl logs $POD_NAME
 kubectl exec -ti $POD_NAME bash
 # now I should have a bash shell prompt on my pod
 exit # exit from the shell/pod
+
+# if we want to delete our deployment we'll do
+kubectl delete deployment kubernetes-das2go
 ```
+
 We already listed command how you can login into your pod and inspect your app
 within it. It's time to expose it to be visible outside of internal cluster.
 
@@ -129,11 +133,16 @@ NodePort:               <unset> 30695/TCP
 Endpoints:              10.100.39.6:8212
 Session Affinity:       None
 No events.
+
+# if we want to delete our service we'll do
+kubectl delete services -l run=kubernetes-das2go
 ```
+
 Above we shown that our service is up and running and has open port `30695`.
 This port and IP addresses above will change in your setup. In order to
 access our app we need to know an external IP and PORT numbers. Here how
 we can find them:
+
 ```
 # get external port number from service template
 export NODE_PORT=$(kubectl get services/kubernetes-das2go -o go-template='{{(index .spec.ports 0).nodePort}}')
