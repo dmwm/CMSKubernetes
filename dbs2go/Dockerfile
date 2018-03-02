@@ -7,7 +7,7 @@ EXPOSE 8989
 ADD dbs_start.sh $WDIR/dbs_start.sh
 ADD oci8.pc $WDIR/oci8.pc
 ENV PKG_CONFIG_PATH=$WDIR
-ADD cernonly2.repo /etc/yum.repos.d/cernonly2.repo
+ADD cernonly2.repo /etc/yum.repos.d/cernonlyw.repo
 
 RUN yum update -y && yum clean all
 RUN yum install -y git-core krb5-devel readline-devel\
@@ -49,7 +49,7 @@ RUN sed -i -e "s,_ \"gopkg.in/rana/ora.v4\",,g" web/server.go
 RUN sed -i -e "s,_ \"github.com/mattn/go-sqlite3\",,g" web/server.go
 RUN sed -i -e "s,_ \"github.com/go-sql-driver/mysql\",,g" web/server.go
 RUN make
-ENV PATH="${GOPATH}/src/github.com/dmwm/dbs2go:${GOPATH}/src/github.com/dmwm/dbs2go/bin:${PATH}"
+ENV PATH="${GOPATH}/src/github.com/vkuznet/dbs2go:${GOPATH}/src/github.com/vkuznet/dbs2go/bin:${PATH}"
 
 # run the service
 WORKDIR ${WDIR}
