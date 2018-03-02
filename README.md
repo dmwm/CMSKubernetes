@@ -13,45 +13,17 @@ openstack.cern.ch
 ### How to build docker image for CMS data-service
 In order to build docker image please login to CMS build (docker) node and
 navigate to your favorite directory. The docker commands immitate unix ones
-and here just few examples you will need to know:
-```
-### build image
-docker build -t das2go .
+and easy to follow.
 
-### list images
-docker images
-
-### list of running containers
-docker ps --no-trunc -aq
-
-### remove all running containers
-docker rm -f `docker ps --no-trunc -aq`
-
-### run given image
-docker run --rm -h `hostname -f` -v /tmp:/tmp -i -t das2go /bin/bash
-
-### remove existing image
-docker rmi das2go
-
-### inspect running container
-docker ps # find docker id
-docker inspect <docker_id> | grep IPAddress
-
-### references
-https://stackoverflow.com/questions/18497688/run-a-docker-image-as-a-container#18498313
-https://stackoverflow.com/questions/17236796/how-to-remove-old-docker-containers#17237701
-http://goinbigdata.com/docker-run-vs-cmd-vs-entrypoint/
-```
-
-So, the first step is to create a Docker file. Here is an example for
+The first step is to create a Docker file. Here is an example for
 [das2go](https://github.com/vkuznet/CMSKubernetes/blob/master/das2go/Dockerfile) package.
 
-Now with this file we can build our docker image as simple as following:
+With this file we can build our docker image as following:
 ```
 docker build -t USERNAME/das2go .
 ```
-Here, USERNAME should point to your docker username account. This command will build a docker image
-in USERNAME namespace. Once build we should see it with output from this command:
+Here, `USERNAME` should point to your docker username account. This command will build a docker image
+in `USERNAME` namespace. Once build we should see it with output from this command:
 ```
 docker images
 ```
