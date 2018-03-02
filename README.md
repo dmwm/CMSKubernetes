@@ -44,7 +44,7 @@ http://goinbigdata.com/docker-run-vs-cmd-vs-entrypoint/
 ```
 
 So, the first step is to create a Docker file. Here is an example for
-[das2go](github.com/vkuznet/CMSKubernetes/Dockerfile) package.
+[das2go](https://github.com/vkuznet/CMSKubernetes/blob/master/das2go/Dockerfile) package.
 
 Now with this file we can build our docker image as simple as following:
 ```

@@ -1,7 +1,10 @@
+Here we present simple list of instructions/commands to build, run and upload
+das2go docker image. Please replace `USERNAME` with appropriate user name
+of your docker account.
 
-
+```
 ### build image
-docker build -t dbs2go .
+docker build -t USERNAME/dbs2go .
 
 ### list images
 docker images
@@ -22,7 +25,6 @@ docker rmi dbs2go
 docker ps # find docker id
 docker inspect <docker_id> | grep IPAddress
 
-### references
-https://stackoverflow.com/questions/18497688/run-a-docker-image-as-a-container#18498313
-https://stackoverflow.com/questions/17236796/how-to-remove-old-docker-containers#17237701
-http://goinbigdata.com/docker-run-vs-cmd-vs-entrypoint/
+### upload image to docker
+docker push USERNAME/dbs2go
+```
