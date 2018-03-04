@@ -82,14 +82,15 @@ selfLink: ""
 Then, we create our proxy using `voms-proxy-init -voms cms -rfc` which refer to
 `/tmp/x509up_uXXXXX` file. We copy this file to /tmp/das-proxy and, finally, we create proxy secret as following:
 ```
-kubectl create secret generic das-proxy --from-file=/tmp/das-proxy
+# create common secret from three files, they will be placed under das-secret name
+kubectl create secret generic das-secrets --from-file=/tmp/das-proxy --from-file=server.key --from-file=server.crt
 
 # verify the secret
 kubectl get secrets
-kubectl describe secret/das-proxy
+kubectl describe secret/das-secrets
 
 # later we can delete if we wish as following
-kubectl delete secret/das-proxy
+kubectl delete secret/das-secrets
 ```
 
 Now, let's deploy our app:
@@ -104,5 +105,21 @@ kubectl get deployments
 
 # we can event login to our app now
 kubectl exec -it kubernetes-das2go-XXX-yyy bash
+```
+To make this app visible outside of kubernetes cluster we do the following:
+```
+# expose app
+kubectl expose deployment/kubernetes-das2go --type="NodePort" --port 8212
+
+# find out our external host name
+host=`openstack coe cluster show vkcluster | grep node_addresses | awk '{print $4}' | sed -e "s,\[u',,g" -e "s,'\],,g"`
+kubehost=`host $host | awk '{print $5}'`
+echo "Kubernetes host: $kubehost"
+
+# find out our external port number
+port=`kubectl get services/kubernetes-das2go -o go-template='{{(index .spec.ports 0).nodePort}}'`
+
+# and we are ready to go
+scurl https://$kubehost:$port/das/
 ```
 
