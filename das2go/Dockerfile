@@ -8,9 +8,7 @@ ADD mongodb.conf $WDIR/mongodb.conf
 ADD das_start.sh $WDIR/das_start.sh
 
 RUN yum update -y && yum clean all
-RUN yum install -y HEP_OSlibs_CC7 git-core krb5-devel readline-devel\
-            bzip2 git-core krb5-devel readline-devel openssl \
-            glibc-devel.x86_64 e2fsprogs e2fsprogs-libs compat-libstdc++-33 make vim-enhanced
+RUN yum install -y git-core krb5-devel readline-devel openssl
 RUN yum clean all
 
 # We need to run under a user different from root, since our software will not install using the root account
@@ -25,8 +23,8 @@ WORKDIR ${WDIR}
 RUN curl -k -L -O https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-rhel70-3.6.2.tgz
 RUN tar xfz mongodb-linux-x86_64-rhel70-3.6.2.tgz
 ENV MROOT=$WDIR/mongodb-linux-x86_64-rhel70-3.6.2
-# ENV PATH=$PATH:$PWD/mongodb-linux-x86_64-rhel70-3.6.2/bin
 RUN mkdir -p $WDIR/mongodb/{logs,db}
+RUN rm mongodb-linux-x86_64-rhel70-3.6.2.tgz
 
 # get latest DASMaps
 RUN git clone https://github.com/dmwm/DASMaps.git
@@ -35,6 +33,7 @@ RUN git clone https://github.com/dmwm/DASMaps.git
 RUN curl -k -L -O https://dl.google.com/go/go1.9.4.linux-amd64.tar.gz
 RUN tar xfz go1.9.4.linux-amd64.tar.gz
 RUN mkdir $WDIR/gopath
+RUN rm go1.9.4.linux-amd64.tar.gz
 ENV GOROOT=$WDIR/go
 ENV GOPATH=$WDIR/gopath
 ENV PATH="${GOROOT}/bin:${MROOT}/bin:${WDIR}:${PATH}"
@@ -47,16 +46,9 @@ RUN go get github.com/dmwm/das2go
 # build das2go
 WORKDIR $GOPATH/src/github.com/dmwm/das2go
 RUN make
-RUN cat dasconfig.json | sed -e "s,/Users/vk/Work/Languages/Go/gopath,$GOPATH,g" -e "s,/Users/vk/.globus/userkey.pem,/tmp/das/key.pem,g" -e "s,/Users/vk/.globus/usercert.pem,/tmp/das/cert.pem,g" -e "s,/opt/certs,/tmp/das,g" > das.json
+RUN cat dasconfig.json | grep -v X509_USER_KEY | sed -e "s,/Users/vk/Work/Languages/Go/gopath,$GOPATH,g" -e "s,X509_USER_CERT,X509_USER_PROXY,g" -e "s,/Users/vk/.globus/usercert.pem,/etc/secrets/das-proxy,g" -e "s,/opt/certs,/etc/secrets,g" > das.json
 ENV PATH="${GOPATH}/src/github.com/dmwm/das2go:${GOPATH}/src/github.com/dmwm/das2go/bin:${PATH}"
 
 # run the service
 WORKDIR ${WDIR}
-# start mongodb
-# ENTRYPOINT mongod --config $WDIR/mongodb.conf
-# upload DASMaps into MongoDB
-# ENTRYPOINT das_js_import /data/DASMaps/js localhost 8230
-# start das2go server
-# ENTRYPOINT das_server $GOPATH/src/github.com/dmwm/das2go/das.json 2>&1 1>& das.log < /dev/null &
-
 CMD ["das_start.sh"]
