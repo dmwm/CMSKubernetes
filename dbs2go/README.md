@@ -15,8 +15,11 @@ docker ps --no-trunc -aq
 ### remove all running containers
 docker rm -f `docker ps --no-trunc -aq`
 
-### run given image
-docker run --rm -h `hostname -f` -v /tmp:/tmp -i -t dbs2go /bin/bash
+### run given image, here we map local /tmp/dbs2go area to /etc/secrets in container for app to use
+### in this area we can store dbs-proxy as well as dbfile, server.{crt,key}
+docker run --rm -h `hostname -f` -v /tmp/dbs2go:/etc/secrets -i -t veknet/dbs2go /bin/bash
+### within a container app we can query DBS
+curl -k --key /etc/secrets/dbs-proxy --cert /etc/secrets/dbs-proxy "https://localhost:8989/dbs/datasets?dataset=/ZMM*/*/*"
 
 ### remove existing image
 docker rmi dbs2go

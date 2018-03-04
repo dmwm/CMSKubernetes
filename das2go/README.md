@@ -15,8 +15,9 @@ docker ps --no-trunc -aq
 ### remove all running containers
 docker rm -f `docker ps --no-trunc -aq`
 
-### run given image
-docker run --rm -h `hostname -f` -v /tmp:/tmp -i -t das2go /bin/bash
+### run given image, here we map local /tmp/das2go area to /etc/secrets in container for app to use
+### in this area we can store das-proxy as well as server.{crt,key}
+docker run --rm -h `hostname -f` -v /tmp/das2go:/etc/secrets -i -t veknet/dbs2go /bin/bash
 
 ### remove existing image
 docker rmi das2go
