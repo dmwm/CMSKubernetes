@@ -10,6 +10,35 @@ using custom image of CMS data-service. We need few pieces to start with:
 We'll assume that you can get an account on CMS build node as well as on
 openstack.cern.ch
 
+### How to use personal VM for docker builds
+You can use OpenStack personal VM to setup docker and make your custom builds.
+Full documentation can be found at
+[docker](https://docs.docker.com/install/linux/docker-ce/centos/#install-docker-ce-1).
+installation guide. Here we describe bare steps you need to do:
+```
+# install required packages:
+sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+
+# get docker repository
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+# install docker CE
+sudo yum install docker-ce
+
+# start docker daemon
+sudo systemctl start docker
+
+# test docker daemon
+sudo docker run hello-world
+
+# setup docker group and add yourself to it
+sudo groupadd docker
+sudo usermod -aG docker $USER
+
+# test docker from your personal account
+docker run hello-world
+```
+
 ### How to build docker image for CMS data-service
 In order to build docker image please login to CMS build (docker) node and
 navigate to your favorite directory. The docker commands immitate unix ones
