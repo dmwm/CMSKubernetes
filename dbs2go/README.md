@@ -77,8 +77,9 @@ selfLink: ""
 
 Then we create dbs secrets we're going to use in our server
 ```
-# create common secret from db file (this file contains DB driver login/password)
-kubectl create secret generic dbs-secrets --from-file=/path/dbfile
+# create common secret, it contains all necessary secrets files our app will use
+# they will be accessible under /etc/secrets within a container
+kubectl create secret generic dbs-secrets --from-file=/path/dbfile --from-file=/tmp/dbs-proxy --from-file=server.key --from-file=server.crt
 
 # verify the secret
 kubectl get secrets
