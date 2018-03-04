@@ -122,4 +122,3 @@ port=`kubectl get services/kubernetes-das2go -o go-template='{{(index .spec.port
 # and we are ready to go
 scurl https://$kubehost:$port/das/
 ```
-
