@@ -26,6 +26,8 @@ Here, `USERNAME` should point to your docker username account. This command will
 in `USERNAME` namespace. Once build we should see it with output from this command:
 ```
 docker images
+# to remove all images (including cached ones)
+docker rmi $(docker images -qf "dangling=true")
 ```
 To access/run the image we can run the following command:
 ```
