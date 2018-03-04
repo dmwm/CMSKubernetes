@@ -48,6 +48,7 @@ WORKDIR $GOPATH/src/github.com/dmwm/das2go
 RUN make
 RUN cat dasconfig.json | grep -v X509_USER_KEY | sed -e "s,/Users/vk/Work/Languages/Go/gopath,$GOPATH,g" -e "s,X509_USER_CERT,X509_USER_PROXY,g" -e "s,/Users/vk/.globus/usercert.pem,/etc/secrets/das-proxy,g" -e "s,/opt/certs,/etc/secrets,g" > das.json
 ENV PATH="${GOPATH}/src/github.com/dmwm/das2go:${GOPATH}/src/github.com/dmwm/das2go/bin:${PATH}"
+ENV X509_USER_PROXY=/etc/secrets/das-proxy
 
 # run the service
 WORKDIR ${WDIR}
