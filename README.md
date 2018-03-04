@@ -194,3 +194,4 @@ We are done.
 1. http://clouddocs.web.cern.ch/clouddocs/containers/quickstart.html
 2. https://kubernetes.io/docs/tutorials/kubernetes-basics/
 3. https://kubernetes.io/docs/reference/kubectl/docker-cli-to-kubectl/
+4. http://blog.kubernetes.io/2015/10/some-things-you-didnt-know-about-kubectl_28.html
