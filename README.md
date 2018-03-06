@@ -10,6 +10,17 @@ using custom image of CMS data-service. We need few pieces to start with:
 We'll assume that you can get an account on CMS build node as well as on
 openstack.cern.ch
 
+### Prerequisite
+In order to access openstack nodes we need to create and upload rsa ssh key.
+You may create and upload your rsa key as following:
+```
+# create new key, here we give a key name as: cloud
+ssh-keygen -t rsa -f cloud
+
+# upload you key to openstack with name cloud
+openstack keypair create --public-key ~/.ssh/cloud.pub cloud
+```
+
 ### How to use personal VM for docker builds
 You can use OpenStack personal VM to setup docker and make your custom builds.
 Full documentation can be found at
@@ -80,9 +91,12 @@ find out appropriate template
 ```
 openstack coe cluster list
 openstack coe cluster template show kubernetes
-# here you need to create your ssh keypair (named lxplus here)
+# here you need to create your ssh keypair (named cloud here)
 # and upload it to openstack.cern.ch
-openstack coe cluster create --name vkcluster --keypair lxplus --cluster-template kubernetes
+openstack coe cluster create --name vkcluster --keypair cloud --cluster-template kubernetes-preview
+
+# at later time the cluster can be deleted as following
+openstack coe cluster delete vkcluster
 ```
 
 Here, we first list existing clusters, then existing template kubernetes and finally created
