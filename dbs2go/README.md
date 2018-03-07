@@ -89,6 +89,16 @@ kubectl describe secret/dbs-secrets
 kubectl delete secret/dbs-secrets
 ```
 
+When we need to update our secrets on a pod we propose the following method
+(it is based on [make_dbs_secret.sh](https://github.com/vkuznet/CMSKubernetes/blob/master/dbs2go/make_dbs_secret.sh) script):
+```
+# run make_das_secret.sh script to generate new das-secret.yaml file
+make_dbs_secret.sh /tmp/das-proxy server.key server.crt /path/dbfile
+
+# apply new secret to the running pod
+kubectl apply -f ./dbs-secret.yaml --validate=false
+```
+
 Now, let's deploy our app:
 ```
 kubectl apply -f ./kubernetes-dbs2go.yaml --validate=false
@@ -101,6 +111,17 @@ kubectl get deployments
 
 # we can event login to our app now
 kubectl exec -it kubernetes-dbs2go-XXX-yyy bash
+
+# if deployment failed due to lack of disk space we need to clean-up docker images
+# first obtain node IP address:
+node=`openstack coe cluster show vkcluster | grep node_addresses | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b"`
+
+# then we can login to our node (under fedora account) and using our ssh key
+# and clean-up the node
+ssh -i ~/.ssh/cloud -o ConnectTimeout=30 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no fedora@${node} "sudo docker images"
+
+# and finally (if necessary) we can perform clean-up
+ssh -i ~/.ssh/cloud -o ConnectTimeout=30 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no fedora@${node} "sudo docker system prune -f -a"
 ```
 To make this app visible outside of kubernetes cluster we do the following:
 ```
@@ -109,7 +130,7 @@ kubectl expose deployment/kubernetes-dbs2go --type="NodePort" --port 8989
 
 # find out our external host name
 host=`openstack coe cluster show vkcluster | grep node_addresses | awk '{print $4}' | sed -e "s,\[u',,g" -e "s,'\],,g"`
-kubehost=`host $host | awk '{print $5}'`
+kubehost=`host $host | awk '{print $5}' | sed -e "s,ch.,ch,g"`
 echo "Kubernetes host: $kubehost"
 
 # find out our external port number
