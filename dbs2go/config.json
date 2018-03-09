@@ -1,0 +1,11 @@
+{
+    "base": "",
+    "port": 8989,
+    "staticdir": "GOPATH/src/github.com/vkuznet/dbs2go/static",
+    "dbfile": "/etc/secrets/dbfile",
+    "servercrt": "/etc/secrets/server.crt",
+    "serverkey": "/etc/secrets/server.key",
+    "hkey": "",
+    "updateDNs": 60,
+    "verbose": 0
+}

@@ -43,7 +43,7 @@ RUN sed -i -e "s,_ \"gopkg.in/rana/ora.v4\",,g" web/server.go
 RUN sed -i -e "s,_ \"github.com/mattn/go-sqlite3\",,g" web/server.go
 RUN sed -i -e "s,_ \"github.com/go-sql-driver/mysql\",,g" web/server.go
 RUN make
-RUN cat config.json | sed -e "s,/Users/vk/Work/Languages/Go/gopath,$GOPATH,g" -e "s,/opt/certs,/etc/secrets,g" > config_prod.json
+RUN cat $WDIR/config.json | sed -e "s,GOPATH,$GOPATH,g" > dbsconfig.json
 ENV PATH="${GOPATH}/src/github.com/vkuznet/dbs2go:${GOPATH}/src/github.com/vkuznet/dbs2go/bin:${PATH}"
 ENV X509_USER_PROXY=/etc/secrets/dbs-proxy
 

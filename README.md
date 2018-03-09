@@ -80,6 +80,12 @@ docker push USERNAME/das2go:tagname
 Here `:tagname` is optional originally, but you may substitute it with any given tag, e.g.
 `:v1`. Then login to docker.com and verify that you can see your image.
 
+Finally, if we need to clean-up and/or remove old images we can perform the
+following command:
+```
+sudo docker system prune -f -a
+```
+
 
 ### Setup kubernetes cluster
 You can create your kubernetes cluster either by login to openstack.cern.ch and

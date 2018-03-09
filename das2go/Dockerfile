@@ -6,6 +6,7 @@ ENV USER=das
 EXPOSE 8212
 ADD mongodb.conf $WDIR/mongodb.conf
 ADD das_start.sh $WDIR/das_start.sh
+ADD config.json $WDIR/config.json
 
 RUN yum update -y && yum clean all
 RUN yum install -y git-core krb5-devel readline-devel openssl
@@ -46,7 +47,7 @@ RUN go get github.com/dmwm/das2go
 # build das2go
 WORKDIR $GOPATH/src/github.com/dmwm/das2go
 RUN make
-RUN cat dasconfig.json | grep -v X509_USER_KEY | sed -e "s,/Users/vk/Work/Languages/Go/gopath,$GOPATH,g" -e "s,X509_USER_CERT,X509_USER_PROXY,g" -e "s,/Users/vk/.globus/usercert.pem,/etc/secrets/das-proxy,g" -e "s,/opt/certs,/etc/secrets,g" > das.json
+RUN cat $WDIR/config.json | sed -e "s,GOPATH,$GOPATH,g" > dasconfig.json
 ENV PATH="${GOPATH}/src/github.com/dmwm/das2go:${GOPATH}/src/github.com/dmwm/das2go/bin:${PATH}"
 ENV X509_USER_PROXY=/etc/secrets/das-proxy
 
