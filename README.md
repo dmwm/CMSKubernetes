@@ -89,10 +89,11 @@ sudo docker system prune -f -a
 
 ### Setup kubernetes cluster
 You can create your kubernetes cluster either by login to openstack.cern.ch and
-navigating to *Container infra* -> *Cluster Templates* and click on *CREATE CLUSTER*
-or you can login to lxplus-cloud.cern.ch and create it via command line. We'll provide
-instruction here how to do the later. First, login to lxplus-cloud.cern.ch. Then
-find out appropriate template
+navigating to *Container infra* -> *Cluster Templates* and click on *CREATE
+CLUSTER* or you can login to lxplus-cloud.cern.ch (or lxplus7-cloud-testing)
+and create it via command line. We'll provide instruction here how to do the
+later. First, login to lxplus-cloud.cern.ch or lxplus7-cloud-testing.cern.ch.
+Then find out appropriate template
 
 ```
 openstack coe cluster list
