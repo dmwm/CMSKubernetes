@@ -1,0 +1,50 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: dbs2go
+spec:
+  selector:
+    app: dbs2go
+#     tier: backend
+  ports:
+  - protocol: TCP
+    port: 8989
+    targetPort: 8989
+  type: NodePort
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: dbs2go
+  name: dbs2go
+spec:
+  selector:
+    matchLabels:
+      app: dbs2go
+#       tier: backend
+#       track: stable
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dbs2go
+#         tier: backend
+#         track: stable
+    spec:
+      containers:
+      - image: veknet/dbs2go
+        name: dbs2go
+        tty: true
+        stdin: true
+        ports:
+        - containerPort: 8989
+          protocol: TCP
+        volumeMounts:
+        - name: secrets
+          mountPath: "/etc/secrets"
+          readOnly: true
+      volumes:
+      - name: secrets
+        secret:
+          secretName: dbs-secrets

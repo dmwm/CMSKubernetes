@@ -1,0 +1,46 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: frontend
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - secretName: ing-secret
+  replicas: 1
+  rules:
+  - host: cmsweb-testkub.web.cern.ch
+    http:
+      paths:
+      - path: /cmsweb-testkub/das
+        backend:
+          serviceName: das2go
+          servicePort: 8212
+      - path: /cmsweb-testkub/dbs
+        backend:
+          serviceName: dbs2go
+          servicePort: 8989
+    https:
+      paths:
+      - path: /cmsweb-testkub/das
+        backend:
+          serviceName: das2go
+          servicePort: 8212
+      - path: /cmsweb-testkub/dbs
+        backend:
+          serviceName: dbs2go
+          servicePort: 8989
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 80
+    targetPort: http
+  - name: https
+    port: 443
+    targetPort: https

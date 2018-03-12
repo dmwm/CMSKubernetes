@@ -1,0 +1,50 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: das2go
+spec:
+  selector:
+    app: das2go
+#     tier: backend
+  ports:
+  - protocol: TCP
+    port: 8212
+    targetPort: 8212
+  type: NodePort
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: das2go
+  name: das2go
+spec:
+  selector:
+    matchLabels:
+      app: das2go
+#       tier: backend
+#       track: stable
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: das2go
+#         tier: backend
+#         track: stable
+    spec:
+      containers:
+      - image: veknet/das2go
+        name: das2go
+        tty: true
+        stdin: true
+        ports:
+        - containerPort: 8212
+          protocol: TCP
+        volumeMounts:
+        - name: secrets
+          mountPath: "/etc/secrets"
+          readOnly: true
+      volumes:
+      - name: secrets
+        secret:
+          secretName: das-secrets
