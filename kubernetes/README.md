@@ -41,3 +41,9 @@ das2go       10.254.6.121    <nodes>       8212:32259/TCP   57m
 dbs2go       10.254.139.45   <nodes>       8989:30739/TCP   57m
 kubernetes   10.254.0.1      <none>        443/TCP          2d
 ```
+
+### References
+- Concepts: https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/
+- Tutorials: https://kubernetes.io/docs/tutorials/kubernetes-basics/
+- Ingress: https://kubernetes.io/docs/concepts/services-networking/ingress/
+- References: https://kubernetes.io/docs/reference/
