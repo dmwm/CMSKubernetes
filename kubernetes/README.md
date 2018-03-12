@@ -5,9 +5,9 @@ This can be done using kubernetes yaml/json files which describe
 the deployment procedure.
 
 We provide the following examples:
-- DAS service backend [das2go]()
-- DBS service backend [dbs2go]()
-- Frontend services [ing]()
+- DAS service backend [das2go](https://github.com/vkuznet/CMSKubernetes/blob/master/kubernetes/das2go.yaml)
+- DBS service backend [dbs2go](https://github.com/vkuznet/CMSKubernetes/blob/master/kubernetes/dbs2go.yaml)
+- Frontend services [ing](https://github.com/vkuznet/CMSKubernetes/blob/master/kubernetes/ing.yaml)
 These files specify deployment rules for our apps/services.
 With these files we can deploy our services as following:
 
