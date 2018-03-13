@@ -3,30 +3,39 @@ kind: Ingress
 metadata:
   name: frontend
   annotations:
-    ingress.kubernetes.io/rewrite-target: /
+    ingress.kub.webernetes.io/rewrite-target: /
 spec:
   tls:
   - secretName: ing-secret
   replicas: 1
+  template:
+    metadata:
+      labels:
+        k8s-app: nginx-ingress-lb
+  containers:
+  - args:
+    - /nginx-ingress-controller
+    - "--default-backend-service=$(POD_NAMESPACE)/default-http-backend"
+    - "--default-ssl-certificate=$(POD_NAMESPACE)/ing-secret"
+  env:
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+    - name: POD_NAMESPACE
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.namespace
+  image: "gcr.io/google_containers/nginx-ingress-controller:0.9.0-beta.5"
   rules:
-  - host: cmsweb-testkub.web.cern.ch
-    http:
-      paths:
-      - path: /cmsweb-testkub/das
-        backend:
-          serviceName: das2go
-          servicePort: 8212
-      - path: /cmsweb-testkub/dbs
-        backend:
-          serviceName: dbs2go
-          servicePort: 8989
+  - host: MYHOST.XXX.COM # replace with actual host name
     https:
       paths:
-      - path: /cmsweb-testkub/das
+      - path: /das
         backend:
           serviceName: das2go
           servicePort: 8212
-      - path: /cmsweb-testkub/dbs
+      - path: /dbs
         backend:
           serviceName: dbs2go
           servicePort: 8989
@@ -38,9 +47,8 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-  - name: http
-    port: 80
-    targetPort: http
   - name: https
     port: 443
     targetPort: https
+  selector:
+    k8s-app: nginx-ingress-lb
