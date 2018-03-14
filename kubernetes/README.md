@@ -80,15 +80,18 @@ kubectl label node <cluster name> role=ingress
 kubectl label node $kubehost role=ingress
 
 # check node(s) with our label
-kubectl get no -l role=ingress
+kubectl get node -l role=ingress
 # it should print something like this
 NAME                              STATUS    AGE
 myclusrer-lsdjflksdjfl-minion-0   Ready     23h
 
 # check that ingress traefik is running
-kubectl -n kube-system get po | grep traefik
+kubectl -n kube-system get pod | grep traefik
 # it should print something like this:
 ingress-traefik-lkjsdl                   1/1       Running   0          1h
+
+# if necessary we can delete it in order for it be restarted
+kubectl delete pod ingress-traefik-lkjsdl -n kube-system
 
 # deploy ingress resource
 kubectl apply -f ing.yaml
@@ -124,3 +127,7 @@ No events.
 - [Kubernetes Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/)
 - [Kubernetes NodePort vs LoadBalancer vs Ingress](https://medium.com/google-cloud/kubernetes-nodeport-vs-loadbalancer-vs-ingress-when-should-i-use-what-922f010849e0)
 - [Kubernetes deployment](https://pascalnaber.wordpress.com/2017/10/27/configure-ingress-on-kubernetes-using-azure-container-service/)
+- [Traefik configuration](https://medium.com/@patrickeasters/using-traefik-with-tls-on-kubernetes-cb67fb43a948)
+- [Traefik files](https://github.com/patrickeasters/traefik-k8s-tls-example)
+- [Traefik Kubernetes](https://docs.traefik.io/configuration/backends/kubernetes/)
+- [Ingress+Traefik+LetsEncrypt](https://blog.osones.com/en/kubernetes-ingress-controller-with-traefik-and-lets-encrypt.html)
