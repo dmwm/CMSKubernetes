@@ -18,12 +18,12 @@ make_dbs_secret.sh /tmp/das-proxy server.key server.crt dbfile
 make_ing_secret.sh server.key server.crt
 
 # deploy our services
-kubectl apply -f ./das2go.yaml
-kubectl apply -f ./dbs2go.yaml
+kubectl apply -f das2go.yaml
+kubectl apply -f dbs2go.yaml
 
 # on CERN AFS you will need to use the following commands:
-kubectl apply -f ./das2go.yaml --validate=false
-kubectl apply -f ./dbs2go.yaml --validate=false
+kubectl apply -f das2go.yaml --validate=false
+kubectl apply -f dbs2go.yaml --validate=false
 
 # check our apps are running
 kubectl get pods
@@ -48,15 +48,73 @@ on our cluster.
 
 The final piece is to put *smart router* (entry point) for our cluster
 which will route requests to different backends. For that purpose we'll
-use kubernetes Ingress. Its manifest file can be found
+use kubernetes Ingress resource. Its manifest file can be found
 [here](https://github.com/vkuznet/CMSKubernetes/blob/master/kubernetes/ing.yaml).
-It provides basic rules how to route requests to our application. First,
-we need to obtain a domain name for our cluster. In provided manifest file
-it is `MYHOST.XXX.COM` which you need to replace with your actual name.
-The rest is trivial, we route DAS traffic to `/das` path and DBS traffic
-to `/dbs` endpoint. To deploy our frontend we apply the following:
+It provides basic rules how to route requests to our application.
+
+First, we need to obtain a domain name for our cluster. In provided manifest
+file it is `MYHOST.XXX.COM` which you need to replace with your actual name.
+The rest is trivial, we route DAS traffic to `/das` path and DBS traffic to
+`/dbs` endpoint. 
+
+Second, we need to start ingress daemon on our cluster and label our node
+to have its ingress role. After that we need to deploy inress resource
+with redirect rules.
+
+Here is full procedure for our frontend:
 ```
-kubectl apply -f ./ing.yaml
+# verify that our cluster has ingress controller enabled
+openstack coe cluster show vkcluster | grep labels
+# it should yield these label (among others): 'ingress_controller': 'traefik'
+
+# obtain cluster name
+host=`openstack coe cluster show vkcluster | grep node_addresses | awk '{print $4}' | sed -e "s,\[u',,g" -e "s,'\],,g"`
+kubehost=`host $host | awk '{print $5}' | sed -e "s,ch.,ch,g"`
+
+# start daemon
+kubectl get daemonset -n kube-system
+
+# apply label to the node, the 
+kubectl label node <cluster name> role=ingress
+# or via obtained kubehost variables
+kubectl label node $kubehost role=ingress
+
+# check node(s) with our label
+kubectl get no -l role=ingress
+# it should print something like this
+NAME                              STATUS    AGE
+myclusrer-lsdjflksdjfl-minion-0   Ready     23h
+
+# check that ingress traefik is running
+kubectl -n kube-system get po | grep traefik
+# it should print something like this:
+ingress-traefik-lkjsdl                   1/1       Running   0          1h
+
+# deploy ingress resource
+kubectl apply -f ing.yaml
+
+# verify that it runs and check its redirect rules:
+kubectl get ing
+NAME       HOSTS                ADDRESS   PORTS     AGE
+frontend   MYHOST.web.cern.ch             80, 443   49m
+
+kubectl describe ing frontend
+Name:                   frontend
+Namespace:              default
+Address:
+Default backend:        default-http-backend:80 (<none>)
+TLS:
+  ing-secret terminates
+Rules:
+  Host                          Path    Backends
+  ----                          ----    --------
+  MYHOST.web.cern.ch
+                                /das            das2go:8212 (<none>)
+                                /dbs            dbs2go:8989 (<none>)
+                                /httpgo         httpgo:8888 (<none>)
+Annotations:
+  rewrite-target:       /
+No events.
 ```
 
 ### References
@@ -65,3 +123,4 @@ kubectl apply -f ./ing.yaml
 - [Kubernetes references](https://kubernetes.io/docs/reference/)
 - [Kubernetes Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/)
 - [Kubernetes NodePort vs LoadBalancer vs Ingress](https://medium.com/google-cloud/kubernetes-nodeport-vs-loadbalancer-vs-ingress-when-should-i-use-what-922f010849e0)
+- [Kubernetes deployment](https://pascalnaber.wordpress.com/2017/10/27/configure-ingress-on-kubernetes-using-azure-container-service/)

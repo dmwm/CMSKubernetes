@@ -100,7 +100,7 @@ openstack coe cluster list
 openstack coe cluster template show kubernetes
 # here you need to create your ssh keypair (named cloud here)
 # and upload it to openstack.cern.ch
-openstack coe cluster create --name vkcluster --keypair cloud --cluster-template kubernetes-preview
+openstack coe cluster create vkcluster --keypair cloud --cluster-template kubernetes-preview
 
 # at later time the cluster can be deleted as following
 openstack coe cluster delete vkcluster
