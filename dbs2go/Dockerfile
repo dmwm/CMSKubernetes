@@ -3,7 +3,7 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
 ENV USER=dbs
-EXPOSE 8989
+EXPOSE 443
 ADD dbs_start.sh $WDIR/dbs_start.sh
 ADD config.json $WDIR/config.json
 ADD oci8.pc $WDIR/oci8.pc
@@ -16,8 +16,8 @@ RUN yum install -y git-core make gcc \
 RUN yum clean all
 
 # We need to run under a user different from root, since our software will not install using the root account
-RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
-USER ${USER}
+# RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
+# USER ${USER}
 
 # start the setup
 RUN mkdir -p $WDIR
@@ -49,7 +49,7 @@ ENV X509_USER_PROXY=/etc/secrets/dbs-proxy
 
 USER root
 RUN yum remove gcc make perl tcl pinetry -y
-USER ${USER}
+# USER ${USER}
 
 # run the service
 WORKDIR ${WDIR}

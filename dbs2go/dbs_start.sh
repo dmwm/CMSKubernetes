@@ -1,4 +1,8 @@
 #!/bin/bash
 # start dbs2go server
 cd $GOPATH/src/github.com/vkuznet/dbs2go
-dbs2go -config dbsconfig.json 2>&1 1>& dbs.log
+if [ -f /etc/secrets/dasconfig.json ]; then
+    dbs2go -config /etc/secrets/dbsconfig.json
+else
+    dbs2go -config dbsconfig.json
+fi

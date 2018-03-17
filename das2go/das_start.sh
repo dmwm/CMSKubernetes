@@ -4,4 +4,8 @@ mongod --config $WDIR/mongodb.conf
 # upload DASMaps into MongoDB
 das_js_import /data/DASMaps/js localhost 8230
 # start das2go server
-das_server $GOPATH/src/github.com/dmwm/das2go/dasconfig.json 2>&1 1>& das.log
+if [ -f /etc/secrets/dasconfig.json ]; then
+    das2go_server /etc/secrets/dasconfig.json
+else
+    das2go_server $GOPATH/src/github.com/dmwm/das2go/dasconfig.json
+fi

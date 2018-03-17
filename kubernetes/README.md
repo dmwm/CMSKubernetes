@@ -44,16 +44,19 @@ On openstack it should be deployed (check) in kube-system namesapce.
 Below are instructions how to manually deploy it to the kubernetes.
 ```
 # start daemon
+kubectl apply -f traefik.yaml --validate=false
+
+# check that daemon is running
 kubectl get daemonset -n kube-system
 
 # apply label to the node
 kubectl label node <cluster name> role=ingress
 
 # check node(s) with our label
-kubectl get no -l role=ingress
+kubectl get node -l role=ingress
 
 # check that ingress traefik is running
-kubectl -n kube-system get po | grep traefik
+kubectl -n kube-system get pod | grep traefik
 
 # if necessary we can delete the traefik daemon
 kubectl delete daemonset ingress-traefik -n kube-system
