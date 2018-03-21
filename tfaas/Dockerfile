@@ -2,18 +2,13 @@ FROM cern/cc7-base
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
-ENV USER=tfaas
-EXPOSE 8212
+EXPOSE 8083
 ADD tfaas_start.sh $WDIR/tfaas_start.sh
 ADD config.json $WDIR/config.json
 
 RUN yum update -y && yum clean all
 RUN yum install -y git-core krb5-devel readline-devel openssl autoconf automake libtool make gcc gcc-c++ unzip
 RUN yum clean all
-
-# We need to run under a user different from root, since our software will not install using the root account
-RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
-USER ${USER}
 
 # start the setup
 RUN mkdir -p $WDIR
@@ -64,6 +59,8 @@ ENV PATH="${WDIR}/TFaaS/src/Go:${PATH}"
 
 # run the service
 WORKDIR ${WDIR}
+RUN mkdir models
+RUN touch labels.csv
 RUN rm ${TF_LIB}
 RUN cat $WDIR/config.json | sed -e "s,GOPATH,$GOPATH,g" > $WDIR/tfaas-config.json
 CMD ["tfaas_start.sh"]
