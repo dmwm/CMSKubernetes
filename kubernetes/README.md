@@ -194,3 +194,5 @@ No events.
 - [Traefik files](https://github.com/patrickeasters/traefik-k8s-tls-example)
 - [Traefik Kubernetes](https://docs.traefik.io/configuration/backends/kubernetes/)
 - [Ingress+Traefik+LetsEncrypt](https://blog.osones.com/en/kubernetes-ingress-controller-with-traefik-and-lets-encrypt.html)
+- [Manage LetsEncrypt](https://github.com/vkuznet/kube-cert-manager)
+- [Auto LetsEncrypt](https://github.com/jetstack/kube-lego)
