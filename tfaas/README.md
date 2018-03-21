@@ -56,21 +56,25 @@ Finally, we can:
 For the demo I used the following:
 
 1. check existing models in tfaas
+
    `scurl -i https://localhost:8083/models`
 
 2. upload TF model and labels into tfaas
+
    `scurl -i -X POST https://localhost:8083/upload -F 'model=@model_0228.pb' -F 'labels=@labels.txt'`
 
 3. check existing model parameters
+
    `scurl -i https://localhost:8083/params`
 
 4. create params.json with your parameters and upload it to tfaas server
+
    `scurl -i -X POST -H "Content-type: application/json" -d @params.json https://localhost:8083/params`
 
-5. do #3 again just to be sure that your params will fit with your model
-(inputNode, outputNode, etc.)
+5. do #3 again just to be sure that your params will fit with your model (inputNode, outputNode, etc.)
 
 6. place your HTTP call e.g. via curl
+
    `scurl -H "Content-type: application/json" -d '{"key":[...], "values":[...]}' https://localhost:8083/json`
 
 Full demo can be found [here](https://youtu.be/TPI2odQm7hE)
