@@ -183,6 +183,26 @@ Annotations:
 No events.
 ```
 
+### Access Kubernetes dashboard
+
+```
+# get cluster token
+token=`kubectl -n kube-system get secret | grep kubernetes-dashboard-token | awk '{print $1}'`
+# this command will print your token
+kubectl -n kube-system describe secret $token | grep token | awk '{print $2}'
+
+# run proxy on port 8888
+kubect proxy -p 8888
+
+# create SSH tunnel to our proxy host (change lxhost.domain.name with your host name)
+ssh -S none -L 8888:localhost:8888 valya@lxhost.domain.name
+
+# open browser
+http://localhost:8888/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/login
+
+# and choose Token authentication where enter your token from above
+```
+
 ### References
 - [Kubernetes concepts](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/)
 - [Kubernetes tutorials](https://kubernetes.io/docs/tutorials/kubernetes-basics/)
