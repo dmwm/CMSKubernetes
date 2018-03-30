@@ -43,11 +43,15 @@ Traefik will serve all incoming requests and redirect them to our backend.
 On openstack it should be deployed (check) in kube-system namesapce.
 Below are instructions how to manually deploy it to the kubernetes.
 ```
-# start daemon
+# start daemon (this step is required once the daemon is already runnign
+# see next step and when I want to change the traefik configuration)
 kubectl apply -f traefik.yaml --validate=false
 
-# check that daemon is running
+# check that daemon is running (or it will start the daemonset on new cluster)
 kubectl get daemonset -n kube-system
+
+# get cluster node name
+kubectl get node
 
 # apply label to the node
 kubectl label node <cluster name> role=ingress
@@ -216,3 +220,7 @@ http://localhost:8888/api/v1/namespaces/kube-system/services/https:kubernetes-da
 - [Ingress+Traefik+LetsEncrypt](https://blog.osones.com/en/kubernetes-ingress-controller-with-traefik-and-lets-encrypt.html)
 - [Manage LetsEncrypt](https://github.com/vkuznet/kube-cert-manager)
 - [Auto LetsEncrypt](https://github.com/jetstack/kube-lego)
+- [Kubernetes Prometheus and Grafana](https://grafana.com/dashboards/315)
+- [Kubernetes monitoring with Prometheus](https://itnext.io/kubernetes-monitoring-with-prometheus-in-15-minutes-8e54d1de2e13)
+- [Prometheus setup for Kubernetes](https://devopscube.com/setup-prometheus-monitoring-on-kubernetes/)
+
