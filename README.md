@@ -107,10 +107,10 @@ openstack coe cluster delete vkcluster
 
 # to deal with different project-name namespace we need to use the following commands
 # here "CMS Webtools Mig" is our project-name namespace
-# k8s is a name of a cluster we create and delete
+# cmswebk8s is a name of a cluster we create and delete
 openstack --os-project-name "CMS Webtools Mig" coe cluster list
-openstack --os-project-name "CMS Webtools Mig" coe cluster create k8s --keypair cloud --cluster-template kubernetes-preview
-openstack --os-project-name "CMS Webtools Mig" coe cluster delete k8s
+openstack --os-project-name "CMS Webtools Mig" coe cluster create cmswebk8s --keypair cloud --cluster-template kubernetes-preview --flavor m2.2xlarge --node-count 2
+openstack --os-project-name "CMS Webtools Mig" coe cluster delete cmswebk8s
 ```
 
 Here, we first list existing clusters, then existing template kubernetes and finally created
