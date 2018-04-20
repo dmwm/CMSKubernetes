@@ -109,7 +109,11 @@ openstack coe cluster delete vkcluster
 # here "CMS Webtools Mig" is our project-name namespace
 # cmswebk8s is a name of a cluster we create and delete
 openstack --os-project-name "CMS Webtools Mig" coe cluster list
+# example of create command
 openstack --os-project-name "CMS Webtools Mig" coe cluster create cmswebk8s --keypair cloud --cluster-template kubernetes-preview --flavor m2.2xlarge --node-count 2
+# another example to allow every node in a cluster to have
+# host certificates and krb5
+openstack --os-project-name "CMS Webtools Mig" coe cluster create k8s --keypair cloud --cluster-template kubernetes-preview --flavor m2.2xlarge --labels cern_enabled=True
 openstack --os-project-name "CMS Webtools Mig" coe cluster delete cmswebk8s
 ```
 

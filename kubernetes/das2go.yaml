@@ -5,11 +5,10 @@ metadata:
 spec:
   selector:
     app: das2go
-#     tier: backend
   ports:
   - protocol: TCP
-    port: 8212
-    targetPort: 8212
+    port: 443
+    targetPort: 443
   type: NodePort
 ---
 kind: Deployment
@@ -22,29 +21,31 @@ spec:
   selector:
     matchLabels:
       app: das2go
-#       tier: backend
-#       track: stable
   replicas: 1
   template:
     metadata:
       labels:
         app: das2go
-#         tier: backend
-#         track: stable
     spec:
+      hostNetwork: true
       containers:
       - image: veknet/das2go
         name: das2go
         tty: true
         stdin: true
         ports:
-        - containerPort: 8212
+        - containerPort: 443
           protocol: TCP
         volumeMounts:
         - name: secrets
           mountPath: "/etc/secrets"
           readOnly: true
+        - name: etc-grid-security
+          mountPath: /etc/grid-security
       volumes:
       - name: secrets
         secret:
           secretName: das-secrets
+      - name: etc-grid-security
+        hostPath:
+            path: /etc/grid-security
