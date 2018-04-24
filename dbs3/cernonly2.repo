@@ -1,0 +1,9 @@
+[cernonly2]
+name=CentOS-7 - CERN Only [20180225]
+baseurl=http://linuxsoft.cern.ch/internal/yumsnapshot/20180225/cern/centos/7/cernonly/x86_64
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-cern
+exclude=koji,libxerces-c-3_1,python-logilab-*,cvmfs,puppet,puppet-server,facter,mcollective*,hiera,puppet-agent
+includepkgs=
+priority=10
