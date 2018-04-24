@@ -28,4 +28,7 @@ docker inspect <docker_id> | grep IPAddress
 
 ### upload image to docker
 docker push USERNAME/dbs3
+
+### clean-up docker images
+docker system prune -f -a
 ```
