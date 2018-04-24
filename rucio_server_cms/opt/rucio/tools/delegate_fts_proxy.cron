@@ -1,0 +1,1 @@
+5 * * * * /opt/rucio/tools/delegate_fts_proxy.sh > /var/log/rucio/delegate_fts_proxy.out 2>&1

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<gacl>
+ <entry>
+  <any-user/>
+  <allow><read/><list/></allow>
+ </entry>
+ 
+ <entry>
+  <person>
+	<dn>/O=Fermi National Accelerator Laboratory/CN=FIRST LAST</dn>
+  </person>
+  <allow><read/><list/><write/></allow>
+ </entry>
+ 
+</gacl>
