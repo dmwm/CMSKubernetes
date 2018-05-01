@@ -5,11 +5,10 @@ metadata:
 spec:
   selector:
     app: dbs2go
-#     tier: backend
   ports:
-  - protocol: TCP
-    port: 8989
-    targetPort: 8989
+    - port: 8989
+      targetPort: 8989
+      nodePort: 30989
   type: NodePort
 ---
 kind: Deployment
@@ -22,16 +21,13 @@ spec:
   selector:
     matchLabels:
       app: dbs2go
-#       tier: backend
-#       track: stable
   replicas: 1
   template:
     metadata:
       labels:
         app: dbs2go
-#         tier: backend
-#         track: stable
     spec:
+      hostNetwork: true
       containers:
       - image: veknet/dbs2go
         name: dbs2go
@@ -44,7 +40,12 @@ spec:
         - name: secrets
           mountPath: "/etc/secrets"
           readOnly: true
+        - name: etc-grid-security
+          mountPath: /etc/grid-security
       volumes:
       - name: secrets
         secret:
           secretName: dbs-secrets
+      - name: etc-grid-security
+        hostPath:
+            path: /etc/grid-security

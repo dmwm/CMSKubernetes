@@ -6,9 +6,9 @@ spec:
   selector:
     app: das2go
   ports:
-  - protocol: TCP
-    port: 443
-    targetPort: 443
+    - port: 8212
+      targetPort: 8212
+      nodePort: 30212
   type: NodePort
 ---
 kind: Deployment
@@ -34,7 +34,7 @@ spec:
         tty: true
         stdin: true
         ports:
-        - containerPort: 443
+        - containerPort: 8212
           protocol: TCP
         volumeMounts:
         - name: secrets
