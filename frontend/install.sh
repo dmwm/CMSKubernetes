@@ -43,3 +43,16 @@ if [ $? -ne 0 ]; then
     cat $WDIR/srv/.deploy/*-post.log
     exit 1
 fi
+
+# tweak rewrite rules, we adopt ports to k8s setup
+files=`ls $WDIR/cfg/frontend/app_*_ssl.conf`
+for f in $files; do
+    sed -i -e "s,:8,:30,g" $f
+done
+
+# replace backend nodes
+files=`ls $WDIR/cfg/frontend/backend*.txt`
+for f in $files; do
+    sed -i -e "s,vocms[0-9]*,cmsweb-k8s,g" $f
+    sed -i -e "s,|cmsweb-k8s.cern.ch,,g" $f
+done
