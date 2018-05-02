@@ -3,7 +3,6 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
 ENV USER=das
-EXPOSE 443
 ADD mongodb.conf $WDIR/mongodb.conf
 ADD das_start.sh $WDIR/das_start.sh
 ADD config.json $WDIR/config.json

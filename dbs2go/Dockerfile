@@ -3,7 +3,6 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
 ENV USER=dbs
-EXPOSE 443
 ADD dbs_start.sh $WDIR/dbs_start.sh
 ADD config.json $WDIR/config.json
 ADD oci8.pc $WDIR/oci8.pc
