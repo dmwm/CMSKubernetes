@@ -54,3 +54,4 @@ RUN crontab /opt/rucio/tools/delegate_fts_proxy.cron
 RUN systemctl enable httpd.service
 RUN systemctl enable supervisord.service
 
+CMD ["/bin/bash", "-c", "/opt/rucio/tools/rewrite_config.py && exec /sbin/init"]
