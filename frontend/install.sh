@@ -14,20 +14,26 @@ mkdir $WDIR/srv
 cd $WDIR/cfg
 git reset --hard $VER
 
-# we do not use InstallDev script since it has three phases: prep, sw, post
-# which setup accounts and crontab. Instead, we invoke bare Deploy script
-# only to install sw part
+# tweak rewrite rules, we adopt ports to k8s setup
+files=`ls $WDIR/cfg/frontend/app_*_ssl.conf`
+for f in $files; do
+    sed -i -e "s,:8,:30,g" $f
+done
 
-# here is an example how to do installation through InstallDev
-# sed -i -e "s,ssh,#ssh,g" $AREA/InstallDev
-# $AREA/InstallDev -A $ARCH -R comp@$VER -S -s image -v $VER -r comp=$REPO -u $USER -p "$PKGS"
-# lastLog=`ls -lt $WDIR/srv/.deploy/*.log | awk '{print $9}' | head -1`
-# cat $lastLog
+# replace backend nodes
+files=`ls $WDIR/cfg/frontend/backend*.txt`
+for f in $files; do
+    sed -i -e "s,vocms[0-9]*,cmsweb-k8s.web,g" $f
+    sed -i -e "s,|cmsweb-k8s.web.cern.ch,,g" $f
+done
 
 # Deploy services
+# we do not use InstallDev script directly since we want to capture the status of
+# install step script. Therefore we call Deploy script and capture its status every step
 cd $WDIR
 curl -sO http://cmsrep.cern.ch/cmssw/repos/bootstrap.sh
 sh -x ./bootstrap.sh -architecture $ARCH -path $WDIR/tmp/$VER/sw -repository $REPO -server $SERVER setup
+# deploy services
 $WDIR/cfg/Deploy -A $ARCH -R comp@$VER -r comp=$REPO -t $VER -w $SERVER -s prep $WDIR/srv "$PKGS"
 if [ $? -ne 0 ]; then
     cat $WDIR/srv/.deploy/*-prep.log
@@ -43,16 +49,3 @@ if [ $? -ne 0 ]; then
     cat $WDIR/srv/.deploy/*-post.log
     exit 1
 fi
-
-# tweak rewrite rules, we adopt ports to k8s setup
-files=`ls $WDIR/cfg/frontend/app_*_ssl.conf`
-for f in $files; do
-    sed -i -e "s,:8,:30,g" $f
-done
-
-# replace backend nodes
-files=`ls $WDIR/cfg/frontend/backend*.txt`
-for f in $files; do
-    sed -i -e "s,vocms[0-9]*,cmsweb-k8s,g" $f
-    sed -i -e "s,|cmsweb-k8s.cern.ch,,g" $f
-done

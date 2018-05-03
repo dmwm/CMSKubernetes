@@ -6,12 +6,14 @@ ENV USER=sw
 ADD install.sh $WDIR/install.sh
 ADD run.sh $WDIR/run.sh
 ADD egi-trustanchors.repo /etc/yum.repos.d/egi-trustanchors.repo
+ADD wlcg.slc6.repo /etc/yum.repos.d/wlcg.slc6.repo
+ADD RPM-GPG-KEY-wlcg /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg
 
 RUN yum update -y && yum clean all
 RUN yum install -y cern-get-certificate fetch-crl
 RUN yum install -y git-core zip unzip which file bzip2 e2fsprogs e2fsprogs-libs compat-libstdc++-33 \
     CERN-CA-certs ca-certificates dummy-ca-certs  ca_CERN-GridCA ca_CERN-LCG-IOTA-CA ca_CERN-Root-2 \
-    krb5-workstation krb5-libs pam_krb5 \
+    wlcg-voms-cms krb5-workstation krb5-libs pam_krb5 \
     sudo openssl openssl-libs openssh openssh-clients \
     perl-Thread-Queue zsh tk freetype perl-ExtUtils-Embed fontconfig \
     perl-Test-Harness perl-Data-Dumper perl-Digest-MD5 perl-Switch perl-Env \
