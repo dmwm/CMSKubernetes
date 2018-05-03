@@ -65,6 +65,9 @@ kubectl -n kube-system get pod | grep traefik
 # if necessary we can delete the traefik daemon
 kubectl delete daemonset ingress-traefik -n kube-system
 
+# create configmap for traefik
+kubectl -n kube-system create configmap traefik-conf --from-file=traefik.toml
+
 # and later we can create it again with our custom traefik manifest file
 kubectl apply -f traefik.yaml --validate=false
 kubectl -n kube-system get pod | grep traefik
