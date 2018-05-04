@@ -5,7 +5,7 @@ metadata:
   name: rucio-all
 spec:
   selector:
-    app: rucio-mono
+    app: rucio-server-cms
 
 # All the ports that are open in the container. Label correctly as we figure out what they are
   ports:

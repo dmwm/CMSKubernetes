@@ -31,3 +31,7 @@ spec:
         backend:
           serviceName: my-nginx
           servicePort: 80
+      - path: /r1
+        backend:
+          serviceName: rucio-all
+          servicePort: 80
