@@ -1,3 +1,45 @@
+### Kubernetes terminology
+All definitions here are taken from [kubernetes](https://kubernetes.io/docs/concepts/) guide.
+- Master: is a collection of three processes that run on a single node in your
+  cluster, which is designated as the master node. Those processes are:
+  kube-apiserver, kube-controller-manager and kube-scheduler.
+- Node: a working machine (VM or physical node) that run your applications and
+  cloud workflows. The Kubernetes master controls each node; you’ll rarely
+  interact with nodes directly.
+- Pod: is a group of one or more containers, with shared storage/network, and a
+  specification for how to run the containers.
+  A Pod is the basic building block of Kubernetes–the smallest and simplest
+  unit in the Kubernetes object model that you create or deploy. A Pod
+  represents a running process on your cluster.
+
+  A Pod encapsulates an application container (or, in some cases, multiple
+  containers), storage resources, a unique network IP, and options that govern
+  how the container(s) should run. A Pod represents a unit of deployment: a
+  single instance of an application in Kubernetes, which might consist of either
+  a single container or a small number of containers that are tightly coupled and
+  that share resources.
+
+  Docker is the most common container runtime used in a Kubernetes Pod, but Pods
+  support other container runtimes as well.
+
+  Pods in a Kubernetes cluster can be used in two main ways:
+
+  Pods that run a single container. The “one-container-per-Pod” model is the most
+  common Kubernetes use case; in this case, you can think of a Pod as a wrapper
+  around a single container, and Kubernetes manages the Pods rather than the
+  containers directly.  Pods that run multiple containers that need to work
+  together. A Pod might encapsulate an application composed of multiple
+  co-located containers that are tightly coupled and need to share resources.
+  These co-located containers might form a single cohesive unit of service–one
+  container serving files from a shared volume to the public, while a separate
+  “sidecar” container refreshes or updates those files. The Pod wraps these
+  containers and storage resources together as a single manageable entity.
+- Service: an abstractions which defines logical set of pods and a policy by
+  which to access them - sometimes called a micro-service.
+- Ingress: collection of rules that allow inbound traffic reach cluster services.
+- Traefik: is a proxy and load balancer in front of k8s cluster to route
+  incomong user requests, for more information see [traefik documentation](https://docs.traefik.io/basics/).
+
 ### Kubernetes deployment procedure
 
 Here we describe how to deploy our services into kubernetes cluster.
@@ -7,7 +49,8 @@ the deployment procedure.
 We provide the following examples:
 - DAS service backend [das2go](https://github.com/vkuznet/CMSKubernetes/blob/master/kubernetes/das2go.yaml)
 - DBS service backend [dbs2go](https://github.com/vkuznet/CMSKubernetes/blob/master/kubernetes/dbs2go.yaml)
-- Frontend services [ing](https://github.com/vkuznet/CMSKubernetes/blob/master/kubernetes/ing.yaml)
+- Frontend services [ing](https://github.com/vkuznet/CMSKubernetes/blob/master/kubernetes/frontend.yaml)
+- Ingress controller [ing](https://github.com/vkuznet/CMSKubernetes/blob/master/kubernetes/ing.yaml)
 - Traefik daemon [traefik](https://github.com/vkuznet/CMSKubernetes/blob/master/kubernetes/traefik.yaml)
 These files specify deployment rules for our apps/services.
 With these files we can deploy our services as following:
@@ -81,6 +124,12 @@ Also, please use the following posts for further details:
 - [Traefik files](https://github.com/patrickeasters/traefik-k8s-tls-example)
 - [Traefik Kubernetes](https://docs.traefik.io/configuration/backends/kubernetes/)
 - [Ingress+Traefik+LetsEncrypt](https://blog.osones.com/en/kubernetes-ingress-controller-with-traefik-and-lets-encrypt.html)
+
+
+### Deployment proceudre
+Current deployment procedure can be found
+[here](https://github.com/vkuznet/CMSKubernetes/blob/master/kubernetes/deploy.sh).
+Below we break it down into different sub-components and explain each step.
 
 #### Backend services
 Now it's time to deploy our backend services

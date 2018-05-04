@@ -1,10 +1,11 @@
 ## Kubernetes for CMS data-service
-This document describe procedure how to setup kubernetes data-service
-using custom image of CMS data-service. We need few pieces to start with:
+This document describes procedure how to setup kubernetes (k8s) cluster 
+with CMS data-services using docker images. Here is a list of items
+we need:
 - an account on CMS build (docker) node, e.g. cmsdev15
 - an account on openstack.cern.ch
 - an account on docker.com to upload your docker image
-- a docker image we want to deploy
+- a docker image(s) we want to deploy to k8s
 - a kubernetes cluster where we'll deploy our image
 
 We'll assume that you can get an account on CMS build node as well as on
@@ -19,71 +20,6 @@ ssh-keygen -t rsa -f cloud
 
 # upload you key to openstack with name cloud
 openstack keypair create --public-key ~/.ssh/cloud.pub cloud
-```
-
-### How to use personal VM for docker builds
-You can use OpenStack personal VM to setup docker and make your custom builds.
-Full documentation can be found at
-[docker](https://docs.docker.com/install/linux/docker-ce/centos/#install-docker-ce-1).
-installation guide. Here we describe bare steps you need to do:
-```
-# install required packages:
-sudo yum install -y yum-utils device-mapper-persistent-data lvm2
-
-# get docker repository
-sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-
-# install docker CE
-sudo yum install docker-ce
-
-# start docker daemon
-sudo systemctl start docker
-
-# test docker daemon
-sudo docker run hello-world
-
-# setup docker group and add yourself to it
-sudo groupadd docker
-sudo usermod -aG docker $USER
-
-# test docker from your personal account
-docker run hello-world
-```
-
-### How to build docker image for CMS data-service
-In order to build docker image please login to CMS build (docker) node and
-navigate to your favorite directory. The docker commands immitate unix ones
-and easy to follow.
-
-The first step is to create a Docker file. Here is an example for
-[das2go](https://github.com/vkuznet/CMSKubernetes/blob/master/das2go/Dockerfile) package.
-
-With this file we can build our docker image as following:
-```
-docker build -t USERNAME/das2go .
-```
-Here, `USERNAME` should point to your docker username account. This command will build a docker image
-in `USERNAME` namespace. Once build we should see it with output from this command:
-```
-docker images
-# to remove all images (including cached ones)
-docker rmi $(docker images -qf "dangling=true")
-```
-To access/run the image we can run the following command:
-```
-docker run --rm -h `hostname -f` -v /tmp:/tmp -i -t USERNAME/das2go /bin/bash
-```
-If it is visible and you can access it it's time to upload it to docker hub:
-```
-docker push USERNAME/das2go:tagname
-```
-Here `:tagname` is optional originally, but you may substitute it with any given tag, e.g.
-`:v1`. Then login to docker.com and verify that you can see your image.
-
-Finally, if we need to clean-up and/or remove old images we can perform the
-following command:
-```
-sudo docker system prune -f -a
 ```
 
 
