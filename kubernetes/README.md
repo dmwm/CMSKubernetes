@@ -34,11 +34,57 @@ All definitions here are taken from [kubernetes](https://kubernetes.io/docs/conc
   container serving files from a shared volume to the public, while a separate
   “sidecar” container refreshes or updates those files. The Pod wraps these
   containers and storage resources together as a single manageable entity.
+
 - Service: an abstractions which defines logical set of pods and a policy by
   which to access them - sometimes called a micro-service.
+
+- Deployment controller provides declarative updates for Pods and ReplicaSets.
+
+  You describe a desired state in a Deployment object, and the Deployment
+  controller changes the actual state to the desired state at a controlled
+  rate. You can define Deployments to create new ReplicaSets, or to remove
+  existing Deployments and adopt all their resources with new Deployments.
+
 - Ingress: collection of rules that allow inbound traffic reach cluster services.
+
 - Traefik: is a proxy and load balancer in front of k8s cluster to route
-  incomong user requests, for more information see [traefik documentation](https://docs.traefik.io/basics/).
+  incomong user requests, for more information see
+  [traefik documentation](https://docs.traefik.io/basics/).
+  Traefik architecture consists of several sub-systems:
+  - incoming requests end on entrypoints, as the name suggests, they are the
+    network entry points into Traefik (listening port, SSL, traffic
+    redirection...).
+  - traffic is then forwarded to a matching frontend. A frontend defines routes
+    from entrypoints to backends. Routes are created using requests fields
+    (Host, Path, Headers...) and can match or not a request.
+  - the frontend will then send the request to a backend. A backend can be
+    composed by one or more servers, and by a load-balancing strategy.
+  - Finally, the server will forward the request to the corresponding
+    microservice in the private network.
+  They can be explicitly defined in traefik configuration or parts of them
+  can be delegated to the k8s, e.g. ingress controller.
+
+### Network configuration
+The network configuration on k8s cluster is quite complex and consists of
+multiple layers. Probably, it is better to describe it via concrete example:
+- first the incoming request arrives to traefik entry point, e.g. http port 80,
+  then it can be routed to secure port 443 (https):
+```
+request -> traefik:entry_point:80 -> traefik:entry_point:443
+```
+- after that request can be either routed via traefik frontend routes to
+  backends servers which will route it to corresponding app services within
+  k8s cluster network or traefik can communicate with k8s ingress controller
+  which will take care of this. We'll describe the later:
+```
+traefik:entry_point:443 -> ingress controller
+  # here ingress controller uses routing rules to propagate
+  # incoming request to destination path, e.g. /path
+  # which is served by backend server with
+  # serviceName: app  # app is a name of our microservice
+  # servicePort: 1234 # is an internal port of our microservice 
+  -> request to app internal port
+```
 
 ### Kubernetes deployment procedure
 
