@@ -7,7 +7,7 @@ spec:
     app: frontend
   ports:
     - port: 8443
-      targetPort: 8443
+#       targetPort: 8443
       nodePort: 31443
   type: NodePort
 ---
@@ -49,7 +49,7 @@ spec:
       volumes:
       - name: secrets
         secret:
-          secretName: das-secrets
+          secretName: frontend-secrets
       - name: hostkey
         hostPath:
             path: /etc/grid-security/hostkey.pem

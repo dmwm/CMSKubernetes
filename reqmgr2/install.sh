@@ -4,7 +4,7 @@ ARCH=slc7_amd64_gcc630
 VER=HG1805a
 REPO="comp"
 AREA=/data/cfg/admin
-PKGS="admin backend frontend"
+PKGS="admin backend reqmgr2"
 SERVER=cmsrep.cern.ch
 
 cd $WDIR
@@ -27,16 +27,12 @@ for f in $files; do
     sed -i -e "s,|cmsweb-k8s.web.cern.ch,,g" $f
 done
 
-# overwrite dev/preprod backends with production one for k8s
-/bin/cp -r $WDIR/cfg/frontend/backends-prod.txt $WDIR/cfg/frontend/backends-dev.txt
-/bin/cp -r $WDIR/cfg/frontend/backends-prod.txt $WDIR/cfg/frontend/backends-preprod.txt
-
+# Deploy services
 # we do not use InstallDev script directly since we want to capture the status of
 # install step script. Therefore we call Deploy script and capture its status every step
 cd $WDIR
 curl -sO http://cmsrep.cern.ch/cmssw/repos/bootstrap.sh
 sh -x ./bootstrap.sh -architecture $ARCH -path $WDIR/tmp/$VER/sw -repository $REPO -server $SERVER setup
-
 # deploy services
 $WDIR/cfg/Deploy -A $ARCH -R comp@$VER -r comp=$REPO -t $VER -w $SERVER -s prep $WDIR/srv "$PKGS"
 if [ $? -ne 0 ]; then
@@ -53,8 +49,3 @@ if [ $? -ne 0 ]; then
     cat $WDIR/srv/.deploy/*-post.log
     exit 1
 fi
-
-# replace usage of hostkey/hostcert in crontab to frontend-proxy
-crontab -l | \
-    sed -e "s,/data/certs/hostcert.pem,/etc/secrets/frontend-proxy,g" \
-        -e "s,/data/certs/hostkey.pem,/etc/secrets/frontend-proxy,g" | crontab -

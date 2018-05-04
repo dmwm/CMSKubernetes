@@ -1,0 +1,47 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: httpsgo
+spec:
+  selector:
+    app: httpsgo
+  ports:
+    - port: 8443
+      nodePort: 30443
+  type: NodePort
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: httpsgo
+  name: httpsgo
+spec:
+  selector:
+    matchLabels:
+      app: httpsgo
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: httpsgo
+    spec:
+      containers:
+      - image: veknet/httpsgo
+        name: httpsgo
+        ports:
+        - containerPort: 8443
+          protocol: TCP
+        volumeMounts:
+        - name: secrets
+          mountPath: "/etc/secrets"
+          readOnly: true
+        - name: etc-grid-security
+          mountPath: /etc/grid-security
+      volumes:
+      - name: secrets
+        secret:
+          secretName: httpsgo-secrets
+      - name: etc-grid-security
+        hostPath:
+            path: /etc/grid-security

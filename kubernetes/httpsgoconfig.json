@@ -1,0 +1,5 @@
+{
+    "port":8443,
+    "servercrt": "/etc/grid-security/hostcert.pem",
+    "serverkey": "/etc/grid-security/hostkey.pem"
+}
