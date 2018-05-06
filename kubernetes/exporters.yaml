@@ -1,0 +1,60 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: exporters
+spec:
+  selector:
+    app: exporters
+  ports:
+    - port: 7200
+      targetPort: 7200
+      nodePort: 30200
+  type: NodePort
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: exporters
+  name: exporters
+spec:
+  selector:
+    matchLabels:
+      app: exporters
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: exporters
+    spec:
+      hostNetwork: true
+      containers:
+      - image: veknet/exporters
+        name: exporters
+        tty: true
+        stdin: true
+        ports:
+        - containerPort: 7200
+          protocol: TCP
+        volumeMounts:
+        - name: secrets
+          mountPath: "/etc/secrets"
+          readOnly: true
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+      volumes:
+      - name: secrets
+        secret:
+          secretName: exporters-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File
