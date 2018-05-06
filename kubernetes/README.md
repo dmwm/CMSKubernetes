@@ -332,4 +332,4 @@ http://localhost:8888/api/v1/namespaces/kube-system/services/https:kubernetes-da
 - [Kubernetes Prometheus and Grafana](https://grafana.com/dashboards/315)
 - [Kubernetes monitoring with Prometheus](https://itnext.io/kubernetes-monitoring-with-prometheus-in-15-minutes-8e54d1de2e13)
 - [Prometheus setup for Kubernetes](https://devopscube.com/setup-prometheus-monitoring-on-kubernetes/)
-
+- [Kubernetes blogs](https://vitalflux.com/category/kubernetes/)
