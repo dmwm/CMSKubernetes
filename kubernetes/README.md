@@ -86,6 +86,17 @@ traefik:entry_point:443 -> ingress controller
   -> request to app internal port
 ```
 
+##### Kubernetes ports
+- Port: Port is the port number which makes a service visible to other services
+  running within the same k8s cluster.  In other words, in case a service wants
+  to invoke another service running within the same Kubernetes cluster, it will
+  be able to do so using port specified against "port" in the service spec file.
+- Target Port: Target port is the port on the POD where the service is running.
+  It is a port used by the application/microservice itself when it runs.
+- Nodeport: Node port is the port on which the service can be accessed from
+  external users using Kube-Proxy.
+
+
 ### Kubernetes deployment procedure
 
 Here we describe how to deploy our services into kubernetes cluster.
