@@ -1,4 +1,5 @@
-FROM cern/cc7-base
+FROM veknet/cmsweb
+# FROM cern/cc7-base
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
@@ -18,12 +19,12 @@ RUN mkdir -p $WDIR/bin
 WORKDIR ${WDIR}
 
 # download golang and install it
-RUN curl -k -L -O https://dl.google.com/go/go1.10.1.linux-amd64.tar.gz
-RUN tar xfz go1.10.1.linux-amd64.tar.gz
-RUN mkdir $WDIR/gopath
-RUN rm go1.10.1.linux-amd64.tar.gz
-ENV GOROOT=$WDIR/go
-ENV GOPATH=$WDIR/gopath
+# RUN curl -k -L -O https://dl.google.com/go/go1.10.1.linux-amd64.tar.gz
+# RUN tar xfz go1.10.1.linux-amd64.tar.gz
+# RUN mkdir $WDIR/gopath
+# RUN rm go1.10.1.linux-amd64.tar.gz
+# ENV GOROOT=$WDIR/go
+# ENV GOPATH=$WDIR/gopath
 ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
 RUN go get github.com/vkuznet/x509proxy
 RUN go get github.com/buger/jsonparser
