@@ -9,6 +9,11 @@ spec:
     - port: 7200
       targetPort: 7200
       nodePort: 30200
+      name: das-exporter
+    - port: 3000
+      targetPort: 3000
+      nodePort: 30003
+      name: grafana
   type: NodePort
 ---
 kind: Deployment
@@ -36,6 +41,10 @@ spec:
         ports:
         - containerPort: 7200
           protocol: TCP
+          name: das-exporter
+        - containerPort: 3000
+          protocol: TCP
+          name: grafana
         volumeMounts:
         - name: secrets
           mountPath: "/etc/secrets"

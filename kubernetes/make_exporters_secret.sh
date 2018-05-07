@@ -7,7 +7,7 @@ proxy=`cat $1 | base64 | awk '{ORS=""; print $0}'`
 cat > exporters-secrets.yaml << EOF
 apiVersion: v1
 data:
-  exporters-proxy: $proxy
+  proxy: $proxy
 kind: Secret
 metadata:
   name: exporters-secrets

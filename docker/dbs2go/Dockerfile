@@ -3,7 +3,7 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
 ENV USER=dbs
-ADD dbs_start.sh $WDIR/dbs_start.sh
+ADD run.sh $WDIR/run.sh
 ADD config.json $WDIR/config.json
 ADD oci8.pc $WDIR/oci8.pc
 ENV PKG_CONFIG_PATH=$WDIR
@@ -23,9 +23,9 @@ RUN mkdir -p $WDIR
 WORKDIR ${WDIR}
 
 # download golang and install it
-RUN curl -k -L -O https://dl.google.com/go/go1.9.4.linux-amd64.tar.gz
-RUN tar xfz go1.9.4.linux-amd64.tar.gz
-RUN rm go1.9.4.linux-amd64.tar.gz
+RUN curl -k -L -O https://dl.google.com/go/go1.10.1.linux-amd64.tar.gz
+RUN tar xfz go1.10.1.linux-amd64.tar.gz
+RUN rm go1.10.1.linux-amd64.tar.gz
 RUN mkdir $WDIR/gopath
 ENV GOROOT=$WDIR/go
 ENV GOPATH=$WDIR/gopath
@@ -44,12 +44,12 @@ RUN sed -i -e "s,_ \"github.com/go-sql-driver/mysql\",,g" web/server.go
 RUN make
 RUN cat $WDIR/config.json | sed -e "s,GOPATH,$GOPATH,g" > dbsconfig.json
 ENV PATH="${GOPATH}/src/github.com/vkuznet/dbs2go:${GOPATH}/src/github.com/vkuznet/dbs2go/bin:${PATH}"
-ENV X509_USER_PROXY=/etc/secrets/dbs-proxy
+ENV X509_USER_PROXY=/etc/secrets/proxy
 
-USER root
-RUN yum remove gcc make perl tcl pinetry -y
+# USER root
+# RUN yum remove gcc make perl tcl pinetry -y
 # USER ${USER}
 
 # run the service
 WORKDIR ${WDIR}
-CMD ["dbs_start.sh"]
+CMD ["run.sh"]

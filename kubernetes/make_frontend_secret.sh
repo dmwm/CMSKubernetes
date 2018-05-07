@@ -7,7 +7,7 @@ proxy=`cat $1 | base64 | awk '{ORS=""; print $0}'`
 cat > frontend-secrets.yaml << EOF
 apiVersion: v1
 data:
-  frontend-proxy: $proxy
+  proxy: $proxy
 kind: Secret
 metadata:
   name: frontend-secrets

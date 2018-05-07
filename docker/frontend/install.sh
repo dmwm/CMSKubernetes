@@ -15,10 +15,10 @@ cd $WDIR/cfg
 git reset --hard $VER
 
 # tweak rewrite rules, we adopt ports to k8s setup
-files=`ls $WDIR/cfg/frontend/app_*_ssl.conf`
-for f in $files; do
-    sed -i -e "s,:8,:30,g" $f
-done
+#files=`ls $WDIR/cfg/frontend/app_*_ssl.conf`
+#for f in $files; do
+#    sed -i -e "s,:8,:30,g" $f
+#done
 
 # replace backend nodes
 files=`ls $WDIR/cfg/frontend/backend*.txt`
@@ -54,7 +54,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# replace usage of hostkey/hostcert in crontab to frontend-proxy
+# replace usage of hostkey/hostcert in crontab to frontend proxy
 crontab -l | \
-    sed -e "s,/data/certs/hostcert.pem,/etc/secrets/frontend-proxy,g" \
-        -e "s,/data/certs/hostkey.pem,/etc/secrets/frontend-proxy,g" | crontab -
+    sed -e "s,/data/certs/hostcert.pem,/etc/secrets/proxy,g" \
+        -e "s,/data/certs/hostkey.pem,/etc/secrets/proxy,g" | crontab -

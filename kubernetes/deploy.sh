@@ -40,7 +40,8 @@ kubectl apply -f httpsgo-secrets.yaml --validate=false
 kubectl -n kube-system create secret generic traefik-cert \
     --from-file=$server_crt \
     --from-file=$server_key \
-rm das-secrets.yaml dbs-secrets.yaml ing-secrets.yaml frontend-secrets.yaml httpsgo-secrets.yaml
+#rm das-secrets.yaml dbs-secrets.yaml ing-secrets.yaml frontend-secrets.yaml httpsgo-secrets.yaml
+rm *secrets.yaml
 
 kubectl -n kube-system create configmap traefik-conf --from-file=traefik.toml
 
@@ -79,7 +80,7 @@ kubectl apply -f dbs2go.yaml --validate=false
 kubectl apply -f httpgo.yaml --validate=false
 kubectl apply -f httpsgo.yaml --validate=false
 kubectl apply -f frontend.yaml --validate=false
-kubectl apply -f exporters --validate=false
+kubectl apply -f exporters.yaml --validate=false
 kubectl apply -f ing.yaml --validate=false
 
 echo "deploy prometheus: https://devopscube.com/setup-prometheus-monitoring-on-kubernetes/"

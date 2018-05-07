@@ -5,10 +5,10 @@ if [ $# != 2 ]; then
 fi
 skey=`cat $1 | base64 | awk '{ORS=""; print $0}'`
 cert=`cat $2 | base64 | awk '{ORS=""; print $0}'`
-cat > ing-secret.yaml << EOF
+cat > ing-secrets.yaml << EOF
 apiVersion: v1
 data:
-  ing-proxy: $proxy
+  proxy: $proxy
   server.crt: $cert
   server.key: $skey
 kind: Secret

@@ -11,7 +11,7 @@
     "images": "GOPATH/src/github.com/dmwm/das2go/images",
     "dbsInstances": ["prod/global", "prod/phys01", "prod/phys02", "prod/phys03"],
     "views": ["list", "plain", "table", "json", "xml"],
-    "X509_USER_PROXY": "/etc/secrets/das-proxy",
+    "X509_USER_PROXY": "/etc/secrets/proxy",
     "servercrt": "/etc/secrets/server.crt",
     "serverkey": "/etc/secrets/server.key",
     "updateDNs": 60,

@@ -16,9 +16,9 @@ if [ -f /etc/grid-security/hostkey.pem ]; then
     sudo cp /etc/grid-security/hostcert.pem /data/certs/
 
     # obtain original voms-gridmap to be used by frontend
-    if [ -f /etc/secrets/frontend-proxy ] && [ -f /data/srv/current/config/frontend/mkvomsmap ]; then
+    if [ -f /etc/secrets/proxy ] && [ -f /data/srv/current/config/frontend/mkvomsmap ]; then
         /data/srv/current/config/frontend/mkvomsmap \
-            --key /etc/secrets/frontend-proxy --cert /etc/secrets/frontend-proxy \
+            --key /etc/secrets/proxy --cert /etc/secrets/proxy \
             -c /data/srv/current/config/frontend/mkgridmap.conf \
             -o /data/srv/state/frontend/etc/voms-gridmap.txt --vo cms
     fi
