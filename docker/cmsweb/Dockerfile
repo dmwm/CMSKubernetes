@@ -11,7 +11,7 @@ RUN yum update -y && yum clean all
 RUN yum install -y cern-get-certificate fetch-crl
 RUN yum install -y git-core zip unzip which file bzip2 e2fsprogs e2fsprogs-libs compat-libstdc++-33 \
     CERN-CA-certs ca-certificates dummy-ca-certs  ca_CERN-GridCA ca_CERN-LCG-IOTA-CA ca_CERN-Root-2 \
-    wlcg-voms-cms krb5-workstation krb5-libs pam_krb5 \
+    wlcg-voms-cms krb5-workstation krb5-libs pam_krb5 myproxy voms-clients-cpp voms-clients-java \
     sudo openssl openssl-libs openssh openssh-clients python-backports-ssl_match_hostname \
     globus-gsi-openssl-error globus-gsi-proxy-ssl globus-openssl-module \
     perl-Thread-Queue zsh tk freetype perl-ExtUtils-Embed fontconfig \
