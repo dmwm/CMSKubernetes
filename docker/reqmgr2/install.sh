@@ -14,19 +14,6 @@ mkdir $WDIR/srv
 cd $WDIR/cfg
 git reset --hard $VER
 
-# tweak rewrite rules, we adopt ports to k8s setup
-files=`ls $WDIR/cfg/frontend/app_*_ssl.conf`
-for f in $files; do
-    sed -i -e "s,:8,:30,g" $f
-done
-
-# replace backend nodes
-files=`ls $WDIR/cfg/frontend/backend*.txt`
-for f in $files; do
-    sed -i -e "s,vocms[0-9]*,cmsweb-k8s.web,g" $f
-    sed -i -e "s,|cmsweb-k8s.web.cern.ch,,g" $f
-done
-
 # Deploy services
 # we do not use InstallDev script directly since we want to capture the status of
 # install step script. Therefore we call Deploy script and capture its status every step
