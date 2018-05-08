@@ -1,15 +1,12 @@
 {
     "port": 8083,
-    "auth": "true",
+    "auth": "false",
     "modelDir": "models",
-    "model": "model.pb",
-    "labels": "labels.csv",
-    "inputNode": "input_1",
-    "outputNode": "output_node0",
+    "staticDir": "/data/TFaaS/src/Go/static",
     "configProto": "",
     "base": "",
-    "serverKey": "/etc/secrets/server.key",
-    "serverCrt": "/etc/secrets/server.crt",
+    "serverKey": "",
+    "serverCrt": "",
     "logFormatter": "text",
     "verbose": 0
 }

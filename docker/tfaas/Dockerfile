@@ -1,8 +1,7 @@
-FROM cern/cc7-base
+FROM cmssw/cmsweb
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
-EXPOSE 8083
 ADD tfaas_start.sh $WDIR/tfaas_start.sh
 ADD config.json $WDIR/config.json
 
@@ -15,18 +14,15 @@ RUN mkdir -p $WDIR
 WORKDIR ${WDIR}
 
 # download golang and install it
-RUN curl -k -L -O https://dl.google.com/go/go1.9.4.linux-amd64.tar.gz
-RUN tar xfz go1.9.4.linux-amd64.tar.gz
-RUN mkdir $WDIR/gopath
-RUN rm go1.9.4.linux-amd64.tar.gz
-ENV GOROOT=$WDIR/go
 ENV GOPATH=$WDIR/gopath
+RUN mkdir $WDIR/gopath
 ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
 
 # install Go dependencies
 RUN go get github.com/dmwm/cmsauth
 RUN go get github.com/vkuznet/x509proxy
 RUN go get github.com/sirupsen/logrus
+RUN go get github.com/shirou/gopsutil
 
 # download and insta TensorFlow libraries
 # https://www.tensorflow.org/versions/master/install/install_go
@@ -60,7 +56,6 @@ ENV PATH="${WDIR}/TFaaS/src/Go:${PATH}"
 # run the service
 WORKDIR ${WDIR}
 RUN mkdir models
-RUN touch labels.csv
 RUN rm ${TF_LIB}
 RUN cat $WDIR/config.json | sed -e "s,GOPATH,$GOPATH,g" > $WDIR/tfaas-config.json
 CMD ["tfaas_start.sh"]
