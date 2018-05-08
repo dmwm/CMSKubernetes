@@ -15,14 +15,16 @@ RUN yum install -y git-core make gcc \
 RUN yum clean all
 
 # We need to run under a user different from root, since our software will not install using the root account
-# RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
-# USER ${USER}
+RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
+USER ${USER}
 
 # start the setup
 RUN mkdir -p $WDIR
 WORKDIR ${WDIR}
 
 # get go dependencies
+ENV GOPATH=$WDIR/gopath
+RUN mkdir -p $GOPATH
 ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
 RUN go get github.com/dmwm/cmsauth
 RUN go get github.com/vkuznet/x509proxy
@@ -40,10 +42,6 @@ RUN make
 RUN cat $WDIR/config.json | sed -e "s,GOPATH,$GOPATH,g" > dbsconfig.json
 ENV PATH="${GOPATH}/src/github.com/vkuznet/dbs2go:${GOPATH}/src/github.com/vkuznet/dbs2go/bin:${PATH}"
 ENV X509_USER_PROXY=/etc/secrets/proxy
-
-# USER root
-# RUN yum remove gcc make perl tcl pinetry -y
-# USER ${USER}
 
 # run the service
 WORKDIR ${WDIR}

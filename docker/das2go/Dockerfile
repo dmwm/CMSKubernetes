@@ -12,8 +12,8 @@ RUN yum install -y git-core krb5-devel readline-devel openssl
 RUN yum clean all
 
 # Create new user account
-# RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
-# USER ${USER}
+RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
+USER ${USER}
 # if I want to run service under user account I need to run it on non-priveleged
 # port. But if kubernetes can't redirect traffic to non-privileged port
 # I'll need to add iptables routing of https traffict to local port
@@ -36,6 +36,8 @@ RUN rm mongodb-linux-x86_64-rhel70-3.6.2.tgz
 RUN git clone https://github.com/dmwm/DASMaps.git
 
 # get go dependencies
+ENV GOPATH=$WDIR/gopath
+RUN mkdir -p $GOPATH
 ENV PATH="${GOROOT}/bin:${MROOT}/bin:${WDIR}:${PATH}"
 RUN go get github.com/dmwm/cmsauth
 RUN go get github.com/vkuznet/x509proxy
