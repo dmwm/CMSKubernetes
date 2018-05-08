@@ -1,5 +1,4 @@
-FROM veknet/cmsweb
-# FROM cern/cc7-base
+FROM cmssw/cmsweb
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data

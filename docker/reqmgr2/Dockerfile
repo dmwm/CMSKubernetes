@@ -1,4 +1,4 @@
-FROM veknet/cmsweb
+FROM cmssw/cmsweb
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data

@@ -1,5 +1,4 @@
-FROM veknet/cmsweb
-# FROM cern/cc7-base
+FROM cmssw/cmsweb
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
@@ -23,19 +22,14 @@ RUN yum clean all
 RUN mkdir -p $WDIR
 WORKDIR ${WDIR}
 
-# download golang and install it
-# RUN curl -k -L -O https://dl.google.com/go/go1.10.1.linux-amd64.tar.gz
-# RUN tar xfz go1.10.1.linux-amd64.tar.gz
-# RUN rm go1.10.1.linux-amd64.tar.gz
-# RUN mkdir $WDIR/gopath
-# ENV GOROOT=$WDIR/go
-# ENV GOPATH=$WDIR/gopath
+# get go dependencies
 ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
 RUN go get github.com/dmwm/cmsauth
 RUN go get github.com/vkuznet/x509proxy
 RUN go get github.com/mattn/go-oci8
 RUN go get github.com/sirupsen/logrus
 RUN go get github.com/vkuznet/dbs2go
+RUN go get github.com/shirou/gopsutil
 
 # build dbs2go
 WORKDIR $GOPATH/src/github.com/vkuznet/dbs2go
