@@ -1,0 +1,83 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: dbs
+spec:
+  selector:
+    app: dbs
+  ports:
+    - port: 8252
+      targetPort: 8252
+      nodePort: 30252
+      name: dbs-global-r
+    - port: 8253
+      targetPort: 8253
+      nodePort: 30253
+      name: dbs-global-w
+    - port: 8254
+      targetPort: 8254
+      nodePort: 30254
+      name: dbs-phys03-r
+    - port: 8255
+      targetPort: 8255
+      nodePort: 30255
+      name: dbs-phys03-w
+  type: NodePort
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: dbs
+  name: dbs
+spec:
+  selector:
+    matchLabels:
+      app: dbs
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dbs
+    spec:
+      hostNetwork: true
+      containers:
+      - image: veknet/dbs
+        name: dbs
+        tty: true
+        stdin: true
+        ports:
+        - containerPort: 8252
+          protocol: TCP
+          name: dbs-global-r
+        - containerPort: 8253
+          protocol: TCP
+          name: dbs-global-w
+        - containerPort: 8254
+          protocol: TCP
+          name: dbs-phys03-r
+        - containerPort: 8255
+          protocol: TCP
+          name: dbs-phys03-w
+        volumeMounts:
+        - name: secrets
+          mountPath: "/etc/secrets"
+          readOnly: true
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+      volumes:
+      - name: secrets
+        secret:
+          secretName: dbs-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File

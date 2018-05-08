@@ -9,6 +9,7 @@ kubectl delete secret/das-secrets
 kubectl delete secret/dbs-secrets
 kubectl delete secret/ing-secrets
 kubectl delete secret/frontend-secrets
+kubectl delete secret/reqmgr-secrets
 kubectl delete secret/httpsgo-secrets
 kubectl delete secret/exporters-secrets
 kubectl -n kube-system delete secret/traefik-cert
@@ -16,7 +17,10 @@ kubectl -n kube-system delete configmap traefik-conf
 
 sleep 2
 
-voms-proxy-init -voms cms -rfc
+echo "create new proxy which we'll use for deployment"
+myproxy-init -x -c 720 -t 36 -s myproxy.cern.ch -R '*/CN=cmsweb-k8s.web.cern.ch' -l cmsweb_k8s_sw
+echo "run voms-proxy-init"
+voms-proxy-init -voms cms -rfc -valid 36:00
 voms_file="/tmp/x509up_u`id -u`"
 dbsconfig=dbsconfig.json
 dasconfig=dasconfig.json
@@ -25,16 +29,19 @@ user_crt=/afs/cern.ch/user/v/valya/.globus/usercert.pem
 server_key=/afs/cern.ch/user/v/valya/private/certificates/server.key
 server_crt=/afs/cern.ch/user/v/valya/private/certificates/server.crt
 dbfile=/afs/cern.ch/user/v/valya/private/dbfile
+dbssecrets=/afs/cern.ch/user/v/valya/private/DBSSecrets.py
 ./make_das_secret.sh $voms_file $server_key $server_crt $dasconfig
-./make_dbs_secret.sh $voms_file $server_key $server_crt $dbsconfig $dbfile
+./make_dbs_secret.sh $voms_file $server_key $server_crt $dbsconfig $dbfile $dbssecrets
 ./make_ing_secret.sh $server_key $server_crt
 ./make_frontend_secret.sh $voms_file
+./make_reqmgr_secret.sh $voms_file
 ./make_exporters_secret.sh $voms_file
 ./make_httpsgo_secret.sh $httpsgoconfig
 kubectl apply -f das-secrets.yaml --validate=false
 kubectl apply -f dbs-secrets.yaml --validate=false
 kubectl apply -f ing-secrets.yaml --validate=false
 kubectl apply -f frontend-secrets.yaml --validate=false
+kubectl apply -f reqmgr-secrets.yaml --validate=false
 kubectl apply -f exporters-secrets.yaml --validate=false
 kubectl apply -f httpsgo-secrets.yaml --validate=false
 kubectl -n kube-system create secret generic traefik-cert \
@@ -70,6 +77,8 @@ kubectl delete -f dbs2go.yaml
 kubectl delete -f httpgo.yaml
 kubectl delete -f httpsgo.yaml
 kubectl delete -f frontend.yaml
+kubectl delete -f reqmgr.yaml
+kubectl delete -f dbs.yaml
 kubectl delete -f exporters.yaml
 kubectl delete -f ing.yaml
 
@@ -80,6 +89,8 @@ kubectl apply -f dbs2go.yaml --validate=false
 kubectl apply -f httpgo.yaml --validate=false
 kubectl apply -f httpsgo.yaml --validate=false
 kubectl apply -f frontend.yaml --validate=false
+kubectl apply -f reqmgr.yaml --validate=false
+kubectl apply -f dbs.yaml --validate=false
 kubectl apply -f exporters.yaml --validate=false
 kubectl apply -f ing.yaml --validate=false
 
