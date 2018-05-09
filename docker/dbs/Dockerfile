@@ -16,11 +16,6 @@ RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
 RUN echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 # switch to user
 USER ${USER}
-# add fake host certs since we'll pass them via docker at run time
-RUN mkdir -p /data/certs
-RUN touch /data/certs/hostcert.pem
-RUN touch /data/certs/hostkey.pem
-RUN chmod 0600 /data/certs/hostkey.pem
 
 # start the setup
 RUN mkdir -p $WDIR
