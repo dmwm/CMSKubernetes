@@ -18,6 +18,9 @@ fi
 if [ -f /etc/secrets/hmac ]; then
     sudo rm /data/srv/current/auth/wmcore-auth/header-auth-key
     cp /etc/secrets/hmac /data/srv/current/auth/wmcore-auth/header-auth-key
+    # generate new hmac key for couch
+    chmod u+w /data/srv/current/auth/couchdb/hmackey.ini
+    perl -e 'undef $/; print "[couch_cms_auth]\n"; print "hmac_secret = ", unpack("h*", <STDIN>), "\n"' < /etc/secrets/hmac > /data/srv/current/auth/couchdb/hmackey.ini
 fi
 
 /data/srv/current/config/reqmgr2/manage start 'I did read documentation'
