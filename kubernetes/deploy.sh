@@ -83,6 +83,16 @@ kubectl apply -f dbs.yaml --validate=false
 kubectl apply -f exporters.yaml --validate=false
 kubectl apply -f ing.yaml --validate=false
 
+sleep 2
+echo
+echo "### ingress-traefik, will sleep for 10 sec to allow frontend to start"
+kubectl delete daemonset ingress-traefik -n kube-system
+sleep 2
+echo "traefik"
+kubectl -n kube-system create secret generic traefik-cert --from-file=$server_crt --from-file=$server_key
+kubectl -n kube-system create configmap traefik-conf --from-file=traefik.toml
+kubectl -n kube-system apply -f traefik.yaml --validate=false
+
 echo "deploy prometheus: https://devopscube.com/setup-prometheus-monitoring-on-kubernetes/"
 sleep 2
 
@@ -101,12 +111,3 @@ echo "### we may access prometheus locally as following"
 echo "kubectl -n monitoring port-forward $prom 8080:9090"
 echo "### to access prometheus externally we should do the following:"
 echo "ssh -S none -L 30000:$kubehost:30000 $USER@lxplus.cern.ch"
-
-echo
-echo "### ingress-traefik, will sleep for 10 sec to allow frontend to start"
-kubectl delete daemonset ingress-traefik -n kube-system
-sleep 10
-echo "traefik"
-kubectl -n kube-system create secret generic traefik-cert --from-file=$server_crt --from-file=$server_key \
-kubectl -n kube-system create configmap traefik-conf --from-file=traefik.toml
-kubectl -n kube-system apply -f traefik.yaml --validate=false
