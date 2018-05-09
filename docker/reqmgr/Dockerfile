@@ -15,12 +15,6 @@ RUN echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 # switch to user
 USER ${USER}
 
-# add fake host certs since we'll manage them at run time
-RUN mkdir -p /data/certs
-RUN echo "bla" > /data/certs/hostcert.pem
-RUN echo "bla" > /data/certs/hostkey.pem
-RUN chmod 0600 /data/certs/hostkey.pem
-
 # start the setup
 RUN mkdir -p $WDIR
 WORKDIR ${WDIR}
