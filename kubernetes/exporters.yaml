@@ -34,7 +34,7 @@ spec:
     spec:
       hostNetwork: true
       containers:
-      - image: veknet/exporters
+      - image: cmssw/exporters
         name: exporters
         tty: true
         stdin: true

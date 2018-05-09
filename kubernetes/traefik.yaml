@@ -48,6 +48,7 @@ spec:
         - -d
         - --configfile=config/traefik.toml
         - --web
+        - --web.address=:8888
         - --kubernetes
         - --logLevel=DEBUG
       nodeSelector:

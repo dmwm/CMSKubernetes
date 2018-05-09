@@ -30,11 +30,12 @@ server_key=/afs/cern.ch/user/v/valya/private/certificates/server.key
 server_crt=/afs/cern.ch/user/v/valya/private/certificates/server.crt
 dbfile=/afs/cern.ch/user/v/valya/private/dbfile
 dbssecrets=/afs/cern.ch/user/v/valya/private/DBSSecrets.py
-./make_das_secret.sh $voms_file $server_key $server_crt $dasconfig
-./make_dbs_secret.sh $voms_file $server_key $server_crt $dbsconfig $dbfile $dbssecrets
+hmac="/afs/cern.ch/user/v/valya/private/header-auth-key"
+./make_das_secret.sh $voms_file $server_key $server_crt $dasconfig $hmac
+./make_dbs_secret.sh $voms_file $server_key $server_crt $dbsconfig $dbfile $dbssecrets $hmac
 ./make_ing_secret.sh $server_key $server_crt
-./make_frontend_secret.sh $voms_file
-./make_reqmgr_secret.sh $voms_file
+./make_frontend_secret.sh $voms_file $hmac
+./make_reqmgr_secret.sh $voms_file $hmac
 ./make_exporters_secret.sh $voms_file
 ./make_httpsgo_secret.sh $httpsgoconfig
 kubectl apply -f das-secrets.yaml --validate=false
@@ -44,13 +45,7 @@ kubectl apply -f frontend-secrets.yaml --validate=false
 kubectl apply -f reqmgr-secrets.yaml --validate=false
 kubectl apply -f exporters-secrets.yaml --validate=false
 kubectl apply -f httpsgo-secrets.yaml --validate=false
-kubectl -n kube-system create secret generic traefik-cert \
-    --from-file=$server_crt \
-    --from-file=$server_key \
-#rm das-secrets.yaml dbs-secrets.yaml ing-secrets.yaml frontend-secrets.yaml httpsgo-secrets.yaml
 rm *secrets.yaml
-
-kubectl -n kube-system create configmap traefik-conf --from-file=traefik.toml
 
 sleep 2
 
@@ -65,18 +60,12 @@ kubectl label node $clsname role=ingress --overwrite
 kubectl get node -l role=ingress
 
 echo
-echo "### ingress"
-kubectl delete daemonset ingress-traefik -n kube-system
-sleep 2
-kubectl -n kube-system apply -f traefik.yaml --validate=false
-
-echo
 echo "### app services"
-kubectl delete -f das2go.yaml
-kubectl delete -f dbs2go.yaml
+kubectl delete -f frontend.yaml
 kubectl delete -f httpgo.yaml
 kubectl delete -f httpsgo.yaml
-kubectl delete -f frontend.yaml
+kubectl delete -f das2go.yaml
+kubectl delete -f dbs2go.yaml
 kubectl delete -f reqmgr.yaml
 kubectl delete -f dbs.yaml
 kubectl delete -f exporters.yaml
@@ -84,11 +73,11 @@ kubectl delete -f ing.yaml
 
 sleep 2
 
-kubectl apply -f das2go.yaml --validate=false
-kubectl apply -f dbs2go.yaml --validate=false
+kubectl apply -f frontend.yaml --validate=false
 kubectl apply -f httpgo.yaml --validate=false
 kubectl apply -f httpsgo.yaml --validate=false
-kubectl apply -f frontend.yaml --validate=false
+kubectl apply -f das2go.yaml --validate=false
+kubectl apply -f dbs2go.yaml --validate=false
 kubectl apply -f reqmgr.yaml --validate=false
 kubectl apply -f dbs.yaml --validate=false
 kubectl apply -f exporters.yaml --validate=false
@@ -112,3 +101,12 @@ echo "### we may access prometheus locally as following"
 echo "kubectl -n monitoring port-forward $prom 8080:9090"
 echo "### to access prometheus externally we should do the following:"
 echo "ssh -S none -L 30000:$kubehost:30000 $USER@lxplus.cern.ch"
+
+echo
+echo "### ingress-traefik, will sleep for 10 sec to allow frontend to start"
+kubectl delete daemonset ingress-traefik -n kube-system
+sleep 10
+echo "traefik"
+kubectl -n kube-system create secret generic traefik-cert --from-file=$server_crt --from-file=$server_key \
+kubectl -n kube-system create configmap traefik-conf --from-file=traefik.toml
+kubectl -n kube-system apply -f traefik.yaml --validate=false

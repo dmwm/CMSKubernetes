@@ -1,4 +1,4 @@
-FROM veknet/cmsweb
+FROM cmssw/cmsweb
 # FROM cern/cc7-base
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
@@ -32,4 +32,4 @@ RUN $WDIR/install.sh
 # run the service
 USER $USER
 WORKDIR $WDIR
-CMD ["run.sh"]
+CMD ["./run.sh"]

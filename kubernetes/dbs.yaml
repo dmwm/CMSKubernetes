@@ -42,7 +42,7 @@ spec:
     spec:
       hostNetwork: true
       containers:
-      - image: veknet/dbs
+      - image: cmssw/dbs
         name: dbs
         tty: true
         stdin: true

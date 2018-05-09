@@ -1,6 +1,6 @@
 #!/bin/bash
-if [ $# != 6 ]; then
-    echo "make_dbs_secret.sh <proxy> <server.key> <server.crt> <dbsconfig.json> <dbfile> <dbssecrets>"
+if [ $# != 7 ]; then
+    echo "make_dbs_secret.sh <proxy> <server.key> <server.crt> <dbsconfig.json> <dbfile> <dbssecrets> <hmac>"
     exit 1
 fi
 proxy=`cat $1 | base64 | awk '{ORS=""; print $0}'`
@@ -9,6 +9,7 @@ cert=`cat $3 | base64 | awk '{ORS=""; print $0}'`
 conf=`cat $4 | base64 | awk '{ORS=""; print $0}'`
 dbfile=`cat $5 | base64 | awk '{ORS=""; print $0}'`
 dbssecrets=`cat $6 | base64 | awk '{ORS=""; print $0}'`
+hmac=`cat $7 | base64 | awk '{ORS=""; print $0}'`
 cat > dbs-secrets.yaml << EOF
 apiVersion: v1
 data:
@@ -18,6 +19,7 @@ data:
   dbfile: $dbfile
   dbsconfig.json: $conf
   DBSSecrets.py: $dbssecrets
+  hmac: $hmac
 kind: Secret
 metadata:
   name: dbs-secrets

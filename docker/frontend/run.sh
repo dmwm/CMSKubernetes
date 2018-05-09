@@ -10,30 +10,34 @@
 #    sudo cp $cert /data/certs/hostcert.pem
 #fi
 if [ -f /etc/grid-security/hostkey.pem ]; then
-
     # overwrite host PEM files in /data/certs since we used them during installation time
     sudo cp /etc/grid-security/hostkey.pem /data/certs/
     sudo cp /etc/grid-security/hostcert.pem /data/certs/
-
-    # obtain original voms-gridmap to be used by frontend
-    if [ -f /etc/secrets/proxy ] && [ -f /data/srv/current/config/frontend/mkvomsmap ]; then
-        /data/srv/current/config/frontend/mkvomsmap \
-            --key /etc/secrets/proxy --cert /etc/secrets/proxy \
-            -c /data/srv/current/config/frontend/mkgridmap.conf \
-            -o /data/srv/state/frontend/etc/voms-gridmap.txt --vo cms
-    fi
-
-    # run frontend server
-    /data/cfg/admin/InstallDev -s start
-    ps auxw | grep httpd
-
-    # start monitoring access log
-    while true
-    do
-        log=`ls -t /data/srv/logs/frontend/access_log* | head -1`
-        tail -1 $log
-        sleep 1
-    done
-else
-    echo "Unable to start frontend, host PEM files are not found"
 fi
+# obtain original voms-gridmap to be used by frontend
+if [ -f /etc/secrets/proxy ] && [ -f /data/srv/current/config/frontend/mkvomsmap ]; then
+    /data/srv/current/config/frontend/mkvomsmap \
+        --key /etc/secrets/proxy --cert /etc/secrets/proxy \
+        -c /data/srv/current/config/frontend/mkgridmap.conf \
+        -o /data/srv/state/frontend/etc/voms-gridmap.txt --vo cms
+fi
+
+# overwrite header-auth key file with one from secrets
+if [ -f /etc/secrets/hmac ]; then
+    sudo rm /data/srv/current/auth/wmcore-auth/header-auth-key
+    sudo rm /data/srv/state/frontend/etc/keys/authz-headers
+    cp /etc/secrets/hmac /data/srv/current/auth/wmcore-auth/header-auth-key
+    cp /etc/secrets/hmac /data/srv/state/frontend/etc/keys/authz-headers
+fi
+
+# run frontend server
+/data/cfg/admin/InstallDev -s start
+ps auxw | grep httpd
+
+# start monitoring access log
+while true
+do
+    log=`ls -t /data/srv/logs/frontend/access_log* | head -1`
+    tail -1 $log
+    sleep 1
+done

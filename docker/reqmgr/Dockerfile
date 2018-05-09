@@ -31,4 +31,4 @@ RUN $WDIR/install.sh
 # run the service
 USER $USER
 WORKDIR $WDIR
-CMD ["/data/run.sh"]
+CMD ["./run.sh"]

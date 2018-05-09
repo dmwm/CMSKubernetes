@@ -15,8 +15,9 @@ RUN yum install -y git-core make gcc \
 RUN yum clean all
 
 # We need to run under a user different from root, since our software will not install using the root account
-RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
-USER ${USER}
+# TODO: if we'll use local account I need to use proxy instead of /etc/grid-security/hostcert.pem
+# RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
+# USER ${USER}
 
 # start the setup
 RUN mkdir -p $WDIR

@@ -29,7 +29,7 @@ spec:
     spec:
       hostNetwork: true
       containers:
-      - image: veknet/dbs2go
+      - image: cmssw/dbs2go
         name: dbs2go
         tty: true
         stdin: true

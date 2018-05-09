@@ -1,10 +1,10 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: reqmgr2
+  name: reqmgr
 spec:
   selector:
-    app: reqmgr2
+    app: reqmgr
   ports:
     - port: 8246
       targetPort: 8246
@@ -15,22 +15,22 @@ kind: Deployment
 apiVersion: extensions/v1beta1
 metadata:
   labels:
-    app: reqmgr2
-  name: reqmgr2
+    app: reqmgr
+  name: reqmgr
 spec:
   selector:
     matchLabels:
-      app: reqmgr2
+      app: reqmgr
   replicas: 1
   template:
     metadata:
       labels:
-        app: reqmgr2
+        app: reqmgr
     spec:
       hostNetwork: true
       containers:
-      - image: cmssw/reqmgr2
-        name: reqmgr2
+      - image: cmssw/reqmgr
+        name: reqmgr
         tty: true
         stdin: true
         ports:
@@ -49,7 +49,7 @@ spec:
       volumes:
       - name: secrets
         secret:
-          secretName: reqmgr2-secrets
+          secretName: reqmgr-secrets
       - name: hostkey
         hostPath:
             path: /etc/grid-security/hostkey.pem

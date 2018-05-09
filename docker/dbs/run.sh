@@ -8,12 +8,26 @@
 #  fi
 #done
 
+# overwrite DBSSecrerts if it is present in /etc/secrets
 if [ -f /etc/secrets/DBSSecrets.py ]; then
     if [ -f /data/srv/current/auth/dbs/DBSSecrets.py ]; then
         /bin/rm -f /data/srv/current/auth/dbs/DBSSecrets.py
     fi
     cp /etc/secrets/DBSSecrets.py /data/srv/current/auth/dbs/DBSSecrets.py
 fi
+
+# overwrite proxy if it is present in /etc/secrets
+if [ -f /etc/secrets/proxy ]; then
+    mkdir -p /data/srv/state/dbs/proxy
+    /bin/cp -f /etc/secrets/proxy /data/srv/state/dbs/proxy/proxy.cert
+fi
+
+# overwrite header-auth key file if it is present in /etc/secrets
+if [ -f /etc/secrets/hmac ]; then
+    sudo rm /data/srv/current/auth/wmcore-auth/header-auth-key
+    cp /etc/secrets/hmac /data/srv/current/auth/wmcore-auth/header-auth-key
+fi
+
 sh -c "/data/srv/current/config/dbs/manage setinstances 'I did read documentation'"
 sh -c "/data/srv/current/config/dbs/manage start 'I did read documentation'"
 while true;
