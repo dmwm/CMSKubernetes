@@ -3,16 +3,16 @@
 host=`openstack --os-project-name "CMS Webtools Mig" coe cluster show k8s | grep node_addresses | awk '{print $4}' | sed -e "s,\[u',,g" -e "s,'\],,g"`
 kubehost=`host $host | awk '{print $5}' | sed -e "s,ch.,ch,g"`
 echo "Kubernetes host: $kubehost"
+echo "generate hmac secret"
+hmac=$PWD/hmac.random
+perl -e 'open(R, "< /dev/urandom") or die; sysread(R, $K, 20) or die; print $K' > $hmac
+
+pkgs="das dbs ing frontend couchdb reqmgr httpsgo exporters"
 
 echo "### secrets"
-kubectl delete secret/das-secrets
-kubectl delete secret/dbs-secrets
-kubectl delete secret/ing-secrets
-kubectl delete secret/frontend-secrets
-kubectl delete secret/couchdb-secrets
-kubectl delete secret/reqmgr-secrets
-kubectl delete secret/httpsgo-secrets
-kubectl delete secret/exporters-secrets
+for p in $pkgs; do
+    kubectl delete secret/${p}-secrets
+done
 kubectl -n kube-system delete secret/traefik-cert
 kubectl -n kube-system delete configmap traefik-conf
 
@@ -31,23 +31,20 @@ server_key=/afs/cern.ch/user/v/valya/private/certificates/server.key
 server_crt=/afs/cern.ch/user/v/valya/private/certificates/server.crt
 dbfile=/afs/cern.ch/user/v/valya/private/dbfile
 dbssecrets=/afs/cern.ch/user/v/valya/private/DBSSecrets.py
-hmac="/afs/cern.ch/user/v/valya/private/header-auth-key"
 ./make_das_secret.sh $voms_file $server_key $server_crt $dasconfig $hmac
 ./make_dbs_secret.sh $voms_file $server_key $server_crt $dbsconfig $dbfile $dbssecrets $hmac
 ./make_ing_secret.sh $server_key $server_crt
 ./make_frontend_secret.sh $voms_file $hmac
+./make_couchdb_secret.sh $voms_file $hmac
 ./make_reqmgr_secret.sh $voms_file $hmac
 ./make_exporters_secret.sh $voms_file
 ./make_httpsgo_secret.sh $httpsgoconfig
-kubectl apply -f das-secrets.yaml --validate=false
-kubectl apply -f dbs-secrets.yaml --validate=false
-kubectl apply -f ing-secrets.yaml --validate=false
-kubectl apply -f frontend-secrets.yaml --validate=false
-kubectl apply -f couchdb-secrets.yaml --validate=false
-kubectl apply -f reqmgr-secrets.yaml --validate=false
-kubectl apply -f exporters-secrets.yaml --validate=false
-kubectl apply -f httpsgo-secrets.yaml --validate=false
-rm *secrets.yaml
+
+echo "### apply secrets"
+for p in $pkgs; do
+    kubectl apply -f ${p}-secrets.yaml --validate=false
+done
+rm *secrets.yaml $hmac
 
 sleep 2
 
@@ -62,37 +59,35 @@ kubectl label node $clsname role=ingress --overwrite
 kubectl get node -l role=ingress
 
 echo
-echo "### app services"
-kubectl delete -f frontend.yaml
+echo "### delete services"
+for p in $pkgs; do
+    if [ -f ${p}.yaml ]; then
+        kubectl delete -f ${p}.yaml
+    fi
+done
 kubectl delete -f httpgo.yaml
-kubectl delete -f httpsgo.yaml
 kubectl delete -f das2go.yaml
 kubectl delete -f dbs2go.yaml
-kubectl delete -f couchdb.yaml
-kubectl delete -f reqmgr.yaml
-kubectl delete -f dbs.yaml
-kubectl delete -f exporters.yaml
-kubectl delete -f ing.yaml
 
 sleep 2
 
-kubectl apply -f frontend.yaml --validate=false
+echo
+echo "### deploy services"
+for p in $pkgs; do
+    if [ -f ${p}.yaml ]; then
+        kubectl apply -f ${p}.yaml --validate=false
+    fi
+done
 kubectl apply -f httpgo.yaml --validate=false
-kubectl apply -f httpsgo.yaml --validate=false
 kubectl apply -f das2go.yaml --validate=false
 kubectl apply -f dbs2go.yaml --validate=false
-kubectl apply -f couchdb.yaml --validate=false
-kubectl apply -f reqmgr.yaml --validate=false
-kubectl apply -f dbs.yaml --validate=false
-kubectl apply -f exporters.yaml --validate=false
-kubectl apply -f ing.yaml --validate=false
 
 sleep 2
 echo
-echo "### ingress-traefik, will sleep for 10 sec to allow frontend to start"
+echo "### delete daemon ingress-traefik"
 kubectl delete daemonset ingress-traefik -n kube-system
 sleep 2
-echo "traefik"
+echo "### deploy traefik"
 kubectl -n kube-system create secret generic traefik-cert --from-file=$server_crt --from-file=$server_key
 kubectl -n kube-system create configmap traefik-conf --from-file=traefik.toml
 kubectl -n kube-system apply -f traefik.yaml --validate=false
