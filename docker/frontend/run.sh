@@ -34,10 +34,9 @@ fi
 /data/cfg/admin/InstallDev -s start
 ps auxw | grep httpd
 
-# start monitoring access log
+# start infinitive loop to show that we run the service
+# since we're dealing with logs rotation we'll inspect them manually
 while true
 do
-    log=`ls -t /data/srv/logs/frontend/access_log* | head -1`
-    tail -1 $log
-    sleep 1
+    sleep 10
 done

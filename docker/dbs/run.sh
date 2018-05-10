@@ -28,11 +28,13 @@ if [ -f /etc/secrets/hmac ]; then
     cp /etc/secrets/hmac /data/srv/current/auth/wmcore-auth/header-auth-key
 fi
 
-sh -c "/data/srv/current/config/dbs/manage setinstances 'I did read documentation'"
-sh -c "/data/srv/current/config/dbs/manage start 'I did read documentation'"
+# start the servuce
+/data/srv/current/config/dbs/manage setinstances 'I did read documentation'
+/data/srv/current/config/dbs/manage start 'I did read documentation'
+
+# start infinitive loop to show that we run the service
+# since we're dealing with logs rotation we'll inspect them manually
 while true;
 do
-    msg=`curl http://localhost:8252/dbs | grep Welcome`
-    cat $msg
     sleep 10
 done
