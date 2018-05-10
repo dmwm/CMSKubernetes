@@ -9,6 +9,7 @@ spec:
     - port: 8246
       targetPort: 8246
       nodePort: 30246
+      name: reqmgr
   type: NodePort
 ---
 kind: Deployment
@@ -36,6 +37,7 @@ spec:
         ports:
         - containerPort: 8246
           protocol: TCP
+          name: reqmgr
         volumeMounts:
         - name: secrets
           mountPath: "/etc/secrets"

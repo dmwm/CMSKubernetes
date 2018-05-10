@@ -9,6 +9,7 @@ kubectl delete secret/das-secrets
 kubectl delete secret/dbs-secrets
 kubectl delete secret/ing-secrets
 kubectl delete secret/frontend-secrets
+kubectl delete secret/couchdb-secrets
 kubectl delete secret/reqmgr-secrets
 kubectl delete secret/httpsgo-secrets
 kubectl delete secret/exporters-secrets
@@ -42,6 +43,7 @@ kubectl apply -f das-secrets.yaml --validate=false
 kubectl apply -f dbs-secrets.yaml --validate=false
 kubectl apply -f ing-secrets.yaml --validate=false
 kubectl apply -f frontend-secrets.yaml --validate=false
+kubectl apply -f couchdb-secrets.yaml --validate=false
 kubectl apply -f reqmgr-secrets.yaml --validate=false
 kubectl apply -f exporters-secrets.yaml --validate=false
 kubectl apply -f httpsgo-secrets.yaml --validate=false
@@ -66,6 +68,7 @@ kubectl delete -f httpgo.yaml
 kubectl delete -f httpsgo.yaml
 kubectl delete -f das2go.yaml
 kubectl delete -f dbs2go.yaml
+kubectl delete -f couchdb.yaml
 kubectl delete -f reqmgr.yaml
 kubectl delete -f dbs.yaml
 kubectl delete -f exporters.yaml
@@ -78,6 +81,7 @@ kubectl apply -f httpgo.yaml --validate=false
 kubectl apply -f httpsgo.yaml --validate=false
 kubectl apply -f das2go.yaml --validate=false
 kubectl apply -f dbs2go.yaml --validate=false
+kubectl apply -f couchdb.yaml --validate=false
 kubectl apply -f reqmgr.yaml --validate=false
 kubectl apply -f dbs.yaml --validate=false
 kubectl apply -f exporters.yaml --validate=false
