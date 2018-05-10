@@ -8,7 +8,6 @@ cert=`cat $2 | base64 | awk '{ORS=""; print $0}'`
 cat > ing-secrets.yaml << EOF
 apiVersion: v1
 data:
-  proxy: $proxy
   server.crt: $cert
   server.key: $skey
 kind: Secret

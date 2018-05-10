@@ -5,6 +5,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: traefik
     traefik.frontend.rule.type: PathPrefixStrip
+    ingress.kubernetes.io/force-hsts: "true"
 
 #     ingress.kubernetes.io/rewrite-target: /
 
@@ -13,7 +14,6 @@ metadata:
 #     ingress.kubernetes.io/ssl-proxy-headers: "SSL-Header:VK"
 #     ingress.kubernetes.io/enablePassTLSCert: "true"
 #     ingress.kubernetes.io/ssl-redirect: "true"
-#     ingress.kubernetes.io/force-hsts: "true"
 
 #     ingress.kubernetes.io/allowed-hosts: ""
 #     ingress.kubernetes.io/proxy-headers: "SSL-Header2: VK2"
