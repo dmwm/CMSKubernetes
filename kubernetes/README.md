@@ -115,22 +115,37 @@ With these files we can deploy our services as following:
 #### Secret files
 Secret files, like DB passwords, server certificates, can be easily
 added to kubernetes setup. To simplify the process we wrote helper scripts
-for our services. Below you can see full procedure:
+for our services. Below you can see full procedure for creating and
+deploying ingress secret file:
 
 ```
 # create service secret files
-make_das_secret.sh /tmp/das-proxy server.key server.crt
-make_dbs_secret.sh /tmp/das-proxy server.key server.crt dbfile
 make_ing_secret.sh server.key server.crt
 
 # deploy secret files
-kubectl apply -f ./das-secrets.yaml --validate=false
-kubectl apply -f ./dbs-secrets.yaml --validate=false
 kubectl apply -f ./ing-secrets.yaml --validate=false
 
 # create secret file for traefik daemon,
 # we create it in different namespace (kube-system)
 kubectl -n kube-system create secret generic traefik-cert --from-file=server.crt --from-file=server.key
+```
+
+For k8s cluster we need the following secret files
+- proxy file, can be obtained via `voms-proxy-init -voms cms -rfc` and
+  delegated to myproxy server or lcgvoms. The support for long live proxies
+  can be done either through myproxy renewal (using host keys) or
+  through setting up robot proxy in lcgvoms.
+- server key/cert files, they can be obtained via CERN CA service (eventally we
+  need service account)
+- db secret file(s), those are DB specific files obtained through CERN DBAs
+- wmcore auth key file, this is a specific hmac file which we generate
+  randonmly
+```
+# create new hmac random secret
+perl -e 'open(R, "< /dev/urandom") or die; sysread(R, $K, 20) or die; print $K' > hmac.random
+# decode back hmac random key
+perl -e 'undef $/; print "hmac_secret = ", unpack("h*", <STDIN>), "\n"' < hmac.random
+
 ```
 
 #### Traefik daemon deployment
