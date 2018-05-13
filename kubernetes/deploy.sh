@@ -7,7 +7,7 @@ echo "generate hmac secret"
 hmac=$PWD/hmac.random
 perl -e 'open(R, "< /dev/urandom") or die; sysread(R, $K, 20) or die; print $K' > $hmac
 
-pkgs="das dbs ing frontend couchdb reqmgr httpsgo exporters"
+pkgs="das dbs ing frontend couchdb reqmgr httpsgo exporters reqmon workqueue"
 
 echo "### secrets"
 for p in $pkgs; do
@@ -37,6 +37,8 @@ dbssecrets=/afs/cern.ch/user/v/valya/private/DBSSecrets.py
 ./make_frontend_secret.sh $voms_file $hmac
 ./make_couchdb_secret.sh $voms_file $hmac
 ./make_reqmgr_secret.sh $voms_file $hmac
+./make_reqmon_secret.sh $voms_file $hmac
+./make_workqueue_secret.sh $voms_file $hmac
 ./make_exporters_secret.sh $voms_file
 ./make_httpsgo_secret.sh $httpsgoconfig
 

@@ -1,0 +1,60 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: workqueue
+spec:
+  selector:
+    app: workqueue
+  ports:
+    - port: 8240
+      targetPort: 8240
+      nodePort: 30240
+  type: NodePort
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: workqueue
+  name: workqueue
+spec:
+  selector:
+    matchLabels:
+      app: workqueue
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: workqueue
+    spec:
+      hostNetwork: true
+      containers:
+      - image: veknet/workqueue
+        name: workqueue
+        tty: true
+        stdin: true
+        ports:
+        - containerPort: 8240
+          protocol: TCP
+        volumeMounts:
+        - name: secrets
+          mountPath: "/etc/secrets"
+          readOnly: true
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+      volumes:
+      - name: secrets
+        secret:
+          secretName: workqueue-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File

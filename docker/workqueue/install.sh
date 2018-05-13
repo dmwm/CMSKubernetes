@@ -4,7 +4,7 @@ ARCH=slc7_amd64_gcc630
 VER=HG1805a
 REPO="comp"
 AREA=/data/cfg/admin
-PKGS="admin backend reqmgr2"
+PKGS="admin backend workqueue"
 SERVER=cmsrep.cern.ch
 
 cd $WDIR
@@ -22,7 +22,7 @@ sed -i -e "s,https://cmsweb.cern.ch,https://cmsweb-k8s.web.cern.ch:31443,g" \
     -e "s,dbs_ins=\"int\",dbs_inst=\"prod\",g" \
     -e "s,dbs_ins=\"dev\",dbs_inst=\"prod\",g" \
     -e "s,dbs_ins=\"private_vm\",dbs_inst=\"prod\",g" \
-    reqmgr2/deploy
+    workqueue/deploy
 
 # Deploy services
 # we do not use InstallDev script directly since we want to capture the status of

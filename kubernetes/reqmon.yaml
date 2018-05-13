@@ -1,0 +1,60 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: reqmon
+spec:
+  selector:
+    app: reqmon
+  ports:
+    - port: 8249
+      targetPort: 8249
+      nodePort: 30249
+  type: NodePort
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: reqmon
+  name: reqmon
+spec:
+  selector:
+    matchLabels:
+      app: reqmon
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: reqmon
+    spec:
+      hostNetwork: true
+      containers:
+      - image: veknet/reqmon
+        name: reqmon
+        tty: true
+        stdin: true
+        ports:
+        - containerPort: 8249
+          protocol: TCP
+        volumeMounts:
+        - name: secrets
+          mountPath: "/etc/secrets"
+          readOnly: true
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+      volumes:
+      - name: secrets
+        secret:
+          secretName: reqmon-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File
