@@ -25,7 +25,7 @@ fi
 # adjust configuration for k8s
 # VK: so far I disable cms_host_authentication_hander since it requires fixed
 #     list of hostnames which is not the case in k8s setup
-sed -i -e "s/,{couch_cms_auth, cms_host_authentication_hander}//g" /data/srv/current/config/couchdb/local.ini
+#sed -i -e "s/,{couch_cms_auth, cms_host_authentication_hander}//g" /data/srv/current/config/couchdb/local.ini
 
 # start the service
 /data/srv/current/config/couchdb/manage start 'I did read documentation'
