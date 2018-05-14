@@ -1,11 +1,12 @@
 # rucio-traefik.toml
-defaultEntryPoints = ["http","https"]
+#defaultEntryPoints = ["http","https"]
+defaultEntryPoints = ["http"]
 
 [entryPoints]
   [entryPoints.http]
-  address = ":80"
-  [entryPoints.rucio1]
-  address = ":8088"
+    address = ":80"
+#  [entryPoints.rucio1]
+#  address = ":8088"
 #   [entryPoints.http.redirect]
 #     entryPoint = "https"
 #  [entryPoints.https]
@@ -15,7 +16,7 @@ defaultEntryPoints = ["http","https"]
 #      CertFile = "/ssl/server.crt"
 #      KeyFile = "/ssl/server.key"
   [entryPoints.ping]
-  address = ":8082"
+    address = ":8082"
 
 # Enable Kubernetes Ingress configuration backend.
 [kubernetes]
@@ -50,4 +51,11 @@ defaultEntryPoints = ["http","https"]
   # Default: false
   #
   debug = true
-
+#
+#[traefikLog]
+#  filePath = "/var/log/traefik.log"
+#  format   = "json"
+#
+[accessLog]
+#  filePath = "/var/log/traefik-access.log"
+#  format = "json"

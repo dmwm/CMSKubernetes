@@ -45,9 +45,9 @@ spec:
         securityContext:
           privileged: true
         args:
-        - -d
+#        - -d
         - --configfile=config/rucio-traefik.toml
-        - --logLevel=DEBUG
+        - --logLevel=INFO
       nodeSelector:
         role: ingress
 ...
@@ -65,7 +65,7 @@ spec:
     - name: http
       protocol: TCP
       port: 80
-    - name: rucio1
+    - name: supervisord
       protocol: TCP
       port: 8088
     - name: https

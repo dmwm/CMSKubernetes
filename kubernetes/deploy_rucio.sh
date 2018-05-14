@@ -11,6 +11,9 @@ kubectl -n kube-system create configmap traefik-conf --from-file=rucio-traefik.t
 
 kubectl delete daemonset ingress-traefik -n kube-system
 kubectl delete service ingress-traefik -n kube-system
+kubectl delete -f rucio-ingress.yaml
+
 kubectl apply -f rucio-traefik.yaml
+kubectl apply -f rucio-ingress.yaml
 
 
