@@ -13,6 +13,9 @@ RUN yum clean all
 
 # Create new user account
 RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
+# add user to sudoers file
+RUN echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+# switch to user
 USER ${USER}
 # if I want to run service under user account I need to run it on non-priveleged
 # port. But if kubernetes can't redirect traffic to non-privileged port
