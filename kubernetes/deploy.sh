@@ -7,12 +7,13 @@ echo "generate hmac secret"
 hmac=$PWD/hmac.random
 perl -e 'open(R, "< /dev/urandom") or die; sysread(R, $K, 20) or die; print $K' > $hmac
 
-pkgs="das dbs ing frontend couchdb reqmgr httpsgo exporters reqmon workqueue"
+pkgs="das dbs ing frontend couchdb reqmgr httpsgo reqmon workqueue"
 
 echo "### secrets"
 for p in $pkgs; do
     kubectl delete secret/${p}-secrets
 done
+kubectl delete secret/exporters-secrets
 kubectl -n kube-system delete secret/traefik-cert
 kubectl -n kube-system delete configmap traefik-conf
 
@@ -48,6 +49,7 @@ echo "### apply secrets"
 for p in $pkgs; do
     kubectl apply -f ${p}-secrets.yaml --validate=false
 done
+kubectl apply -f exporters-secrets.yaml --validate=false
 rm *secrets.yaml $hmac
 
 sleep 2
@@ -69,6 +71,7 @@ for p in $pkgs; do
         kubectl delete -f ${p}.yaml
     fi
 done
+kubectl delete -f exporters.yaml
 kubectl delete -f httpgo.yaml
 kubectl delete -f das2go.yaml
 kubectl delete -f dbs2go.yaml
@@ -114,3 +117,16 @@ echo "### we may access prometheus locally as following"
 echo "kubectl -n monitoring port-forward $prom 8080:9090"
 echo "### to access prometheus externally we should do the following:"
 echo "ssh -S none -L 30000:$kubehost:30000 $USER@lxplus.cern.ch"
+
+# we can deploy explorers.yaml once all services which it monitors are started
+while true; do
+    notRun=`kubectl get pods | grep -v Running | grep -v READY`
+    if [ -n "$notRun" ]; then
+        echo "Services that are not run yet:"
+        echo $notRun
+        sleep 10
+        continue
+    fi
+    kubectl apply -f exporters.yaml --validate=false
+    break
+done
