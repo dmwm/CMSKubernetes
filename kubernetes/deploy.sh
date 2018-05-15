@@ -27,18 +27,20 @@ dbsconfig=dbsconfig.json
 dasconfig=dasconfig.json
 httpsgoconfig=httpsgoconfig.json
 user_crt=/afs/cern.ch/user/v/valya/.globus/usercert.pem
+robot_key=/afs/cern.ch/user/v/valya/private/certificates/robotkey.pem
+robot_crt=/afs/cern.ch/user/v/valya/private/certificates/robotcert.pem
 server_key=/afs/cern.ch/user/v/valya/private/certificates/server.key
 server_crt=/afs/cern.ch/user/v/valya/private/certificates/server.crt
 dbfile=/afs/cern.ch/user/v/valya/private/dbfile
 dbssecrets=/afs/cern.ch/user/v/valya/private/DBSSecrets.py
-./make_das_secret.sh $voms_file $server_key $server_crt $dasconfig $hmac
-./make_dbs_secret.sh $voms_file $server_key $server_crt $dbsconfig $dbfile $dbssecrets $hmac
+./make_das_secret.sh $voms_file $robot_key $robot_crt $server_key $server_crt $hmac $dasconfig
+./make_dbs_secret.sh $voms_file $robot_key $robot_crt $server_key $server_crt $hmac $dbsconfig $dbfile $dbssecrets
 ./make_ing_secret.sh $server_key $server_crt
-./make_frontend_secret.sh $voms_file $hmac
-./make_couchdb_secret.sh $voms_file $hmac
-./make_reqmgr_secret.sh $voms_file $hmac
-./make_reqmon_secret.sh $voms_file $hmac
-./make_workqueue_secret.sh $voms_file $hmac
+./make_frontend_secret.sh $voms_file $robot_key $robot_crt $server_key $server_crt $hmac
+./make_couchdb_secret.sh $voms_file $robot_key $robot_crt $server_key $server_crt $hmac
+./make_reqmgr_secret.sh $voms_file $robot_key $robot_crt $server_key $server_crt $hmac
+./make_reqmon_secret.sh $voms_file $robot_key $robot_crt $server_key $server_crt $hmac
+./make_workqueue_secret.sh $voms_file $robot_key $robot_crt $server_key $server_crt $hmac
 ./make_exporters_secret.sh $voms_file
 ./make_httpsgo_secret.sh $httpsgoconfig
 
