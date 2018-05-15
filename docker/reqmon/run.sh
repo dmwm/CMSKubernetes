@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # overwrite host PEM files in /data/srv area
-if [ -f /etc/grid-security/hostkey.pem ]; then
-    sudo cp /etc/grid-security/hostkey.pem /data/srv/current/auth/reqmon/dmwm-service-key.pem
-    sudo cp /etc/grid-security/hostcert.pem /data/srv/current/auth/reqmon/dmwm-service-cert.pem
+if [ -f /etc/secrets/robotkey.pem ]; then
+    sudo cp /etc/secrets/robotkey.pem /data/srv/current/auth/reqmon/dmwm-service-key.pem
+    sudo cp /etc/secrets/robotcert.pem /data/srv/current/auth/reqmon/dmwm-service-cert.pem
 fi
 
 # overwrite proxy file with one from secrets
