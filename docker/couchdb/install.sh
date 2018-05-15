@@ -36,3 +36,8 @@ if [ $? -ne 0 ]; then
     cat $WDIR/srv/.deploy/*-post.log
     exit 1
 fi
+# add proxy generation via robot certificate
+crontab -l > /tmp/mycron
+echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" >> /tmp/mycron
+crontab /tmp/mycron
+rm /tmp/mycron

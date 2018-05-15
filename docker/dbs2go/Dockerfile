@@ -8,6 +8,7 @@ ADD config.json $WDIR/config.json
 ADD oci8.pc $WDIR/oci8.pc
 ENV PKG_CONFIG_PATH=$WDIR
 ADD cernonly2.repo /etc/yum.repos.d/cernonlyw.repo
+ADD proxy.sh $WDIR/proxy.sh
 
 RUN yum update -y && yum clean all
 RUN yum install -y git-core make gcc \
@@ -43,6 +44,12 @@ RUN make
 RUN cat $WDIR/config.json | sed -e "s,GOPATH,$GOPATH,g" > dbsconfig.json
 ENV PATH="${GOPATH}/src/github.com/vkuznet/dbs2go:${GOPATH}/src/github.com/vkuznet/dbs2go/bin:${PATH}"
 ENV X509_USER_PROXY=/etc/secrets/proxy
+
+# add proxy generation via robot certificate
+crontab -l > /tmp/mycron
+echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" >> /tmp/mycron
+crontab /tmp/mycron
+rm /tmp/mycron
 
 # run the service
 WORKDIR ${WDIR}

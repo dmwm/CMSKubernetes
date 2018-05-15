@@ -6,6 +6,7 @@ ENV USER=das
 ADD mongodb.conf $WDIR/mongodb.conf
 ADD run.sh $WDIR/run.sh
 ADD config.json $WDIR/config.json
+ADD proxy.sh $WDIR/proxy.sh
 
 RUN yum update -y && yum clean all
 RUN yum install -y git-core krb5-devel readline-devel openssl
@@ -55,6 +56,12 @@ RUN make
 RUN cat $WDIR/config.json | sed -e "s,GOPATH,$GOPATH,g" > dasconfig.json
 ENV PATH="${GOPATH}/src/github.com/dmwm/das2go:${GOPATH}/src/github.com/dmwm/das2go/bin:${PATH}"
 ENV X509_USER_PROXY=/etc/secrets/proxy
+
+# add proxy generation via robot certificate
+crontab -l > /tmp/mycron
+echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" >> /tmp/mycron
+crontab /tmp/mycron
+rm /tmp/mycron
 
 # run the service
 WORKDIR ${WDIR}

@@ -7,6 +7,7 @@ ENV USER=dbs
 
 ADD install.sh $WDIR/install.sh
 ADD run.sh $WDIR/run.sh
+ADD proxy.sh $WDIR/proxy.sh
 
 RUN yum update -y && yum clean all
 
