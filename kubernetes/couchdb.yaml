@@ -30,7 +30,7 @@ spec:
     spec:
       hostNetwork: true
       containers:
-      - image: veknet/couchdb
+      - image: cmssw/couchdb
         name: couchdb
         tty: true
         stdin: true
