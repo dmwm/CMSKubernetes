@@ -34,6 +34,13 @@ spec:
         name: couchdb
         tty: true
         stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - bash
+              - -c
+              - sudo chmod 0400 /etc/secrets/server.key /etc/secrets/robotkey.pem
         ports:
         - containerPort: 5984
           protocol: TCP
@@ -41,7 +48,8 @@ spec:
         volumeMounts:
         - name: secrets
           mountPath: "/etc/secrets"
-          readOnly: true
+          defaultMode: 0400
+#           readOnly: true
         - name: hostkey
           mountPath: /etc/grid-security/hostkey.pem
           readOnly: true 

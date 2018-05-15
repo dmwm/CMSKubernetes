@@ -34,14 +34,21 @@ spec:
         name: reqmgr
         tty: true
         stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - bash
+              - -c
+              - sudo chmod 0400 /etc/secrets/server.key /etc/secrets/robotkey.pem
         ports:
         - containerPort: 8246
           protocol: TCP
           name: reqmgr
         volumeMounts:
         - name: secrets
-          mountPath: "/etc/secrets"
-          readOnly: true
+          mountPath: /etc/secrets
+          defaultMode: 0400
         - name: hostkey
           mountPath: /etc/grid-security/hostkey.pem
           readOnly: true 
