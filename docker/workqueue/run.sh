@@ -29,6 +29,9 @@ if [ -f /data/srv/state/couchdb/stagingarea/workqueue ]; then
     source /data/srv/state/couchdb/stagingarea/workqueue
 fi
 
+# get proxy
+sudo /data/proxy.sh $USER
+
 # start the service
 /data/srv/current/config/workqueue/manage start 'I did read documentation'
 

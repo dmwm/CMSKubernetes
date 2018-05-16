@@ -1,6 +1,8 @@
 #!/bin/bash
-echo "dbs_start.sh"
-ls -al /etc/secrets
+# get proxy
+echo "USER=$USER"
+sudo /data/proxy.sh $USER
+ls -la /data/srv/current/auth/proxy/proxy
 # start dbs2go server
 cd $GOPATH/src/github.com/vkuznet/dbs2go
 if [ -f /etc/secrets/dbsconfig.json ]; then

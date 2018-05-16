@@ -15,10 +15,12 @@ RUN yum install -y git-core make gcc \
             oracle-instantclient-devel oracle-instantclient-basic
 RUN yum clean all
 
-# We need to run under a user different from root, since our software will not install using the root account
-# TODO: if we'll use local account I need to use proxy instead of /etc/grid-security/hostcert.pem
-# RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
-# USER ${USER}
+# Create new user account
+RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
+# add user to sudoers file
+RUN echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+# switch to user
+USER ${USER}
 
 # start the setup
 RUN mkdir -p $WDIR
@@ -43,13 +45,10 @@ RUN sed -i -e "s,_ \"github.com/go-sql-driver/mysql\",,g" web/server.go
 RUN make
 RUN cat $WDIR/config.json | sed -e "s,GOPATH,$GOPATH,g" > dbsconfig.json
 ENV PATH="${GOPATH}/src/github.com/vkuznet/dbs2go:${GOPATH}/src/github.com/vkuznet/dbs2go/bin:${PATH}"
-ENV X509_USER_PROXY=/etc/secrets/proxy
 
 # add proxy generation via robot certificate
-crontab -l > /tmp/mycron
-echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" >> /tmp/mycron
-crontab /tmp/mycron
-rm /tmp/mycron
+RUN echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" | crontab -
+ENV X509_USER_PROXY=/data/srv/current/auth/proxy/proxy
 
 # run the service
 WORKDIR ${WDIR}

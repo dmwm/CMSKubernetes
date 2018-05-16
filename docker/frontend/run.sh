@@ -32,6 +32,9 @@ if [ -f /etc/secrets/hmac ]; then
     cp /etc/secrets/hmac /data/srv/state/frontend/etc/keys/authz-headers
 fi
 
+# get proxy
+sudo /data/proxy.sh $USER
+
 # run frontend server
 /data/cfg/admin/InstallDev -s start
 ps auxw | grep httpd

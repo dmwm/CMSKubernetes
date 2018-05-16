@@ -1,4 +1,8 @@
 #!/bin/bash
+# get proxy
+echo "USER=$USER"
+sudo /data/proxy.sh $USER
+ls -la /data/srv/current/auth/proxy/proxy
 # start mongodb
 mongod --config $WDIR/mongodb.conf
 # upload DASMaps into MongoDB
