@@ -1,6 +1,6 @@
 #!/bin/bash
 if [ $# != 7 ]; then
-    echo "make_dbs_secret.sh <robot_key> <robot_cert< <server_key> <server_crt> <hmac> <dbsconfig.json> <dbfile>"
+    echo "make_dbs_secret.sh <robot_key> <robot_cert> <server_key> <server_crt> <hmac> <dbsconfig.json> <dbfile>"
     exit 1
 fi
 rkey=`cat $1 | base64 | awk '{ORS=""; print $0}'`

@@ -56,7 +56,7 @@ spec:
       volumes:
       - name: secrets
         secret:
-          secretName: dbs-secrets
+          secretName: dbs2go-secrets
       - name: hostkey
         hostPath:
             path: /etc/grid-security/hostkey.pem
