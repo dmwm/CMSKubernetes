@@ -35,3 +35,7 @@ spec:
         backend:
           serviceName: rucio-server-cms
           servicePort: 8088
+      - path: /graphite
+        backend:
+          serviceName: rucio-graphite
+          servicePort: 80
