@@ -14,14 +14,6 @@ if [ -f /etc/grid-security/hostkey.pem ]; then
     sudo cp /etc/grid-security/hostkey.pem /data/certs/
     sudo cp /etc/grid-security/hostcert.pem /data/certs/
 fi
-# obtain original voms-gridmap to be used by frontend
-if [ -f /etc/secrets/proxy ] && [ -f /data/srv/current/config/frontend/mkvomsmap ]; then
-    /data/srv/current/config/frontend/mkvomsmap \
-        --key /etc/secrets/proxy --cert /etc/secrets/proxy \
-        -c /data/srv/current/config/frontend/mkgridmap.conf \
-        -o /data/srv/state/frontend/etc/voms-gridmap.txt --vo cms
-fi
-
 # overwrite header-auth key file with one from secrets
 if [ -f /etc/secrets/hmac ]; then
     cp /data/srv/current/auth/wmcore-auth/header-auth-key /data/srv/current/auth/wmcore-auth/header-auth-key.orig
@@ -34,6 +26,15 @@ fi
 
 # get proxy
 sudo /data/proxy.sh $USER
+
+# obtain original voms-gridmap to be used by frontend
+if [ -f /data/srv/current/auth/proxy/proxy ] && [ -f /data/srv/current/config/frontend/mkvomsmap ]; then
+    /data/srv/current/config/frontend/mkvomsmap \
+        --key /data/srv/current/auth/proxy/proxy \
+        --cert /data/srv/current/auth/proxy/proxy \
+        -c /data/srv/current/config/frontend/mkgridmap.conf \
+        -o /data/srv/state/frontend/etc/voms-gridmap.txt --vo cms
+fi
 
 # run frontend server
 /data/cfg/admin/InstallDev -s start
