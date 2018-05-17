@@ -1,0 +1,37 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.frontend.rule.type: PathPrefixStrip
+
+#     ingress.kubernetes.io/rewrite-target: /
+
+#     ingress.kubernetes.io/force-ssl-redirect: "true"
+#     ingress.kubernetes.io/pass-tls-cert: "true"
+#     ingress.kubernetes.io/ssl-proxy-headers: "SSL-Header:VK"
+#     ingress.kubernetes.io/enablePassTLSCert: "true"
+#     ingress.kubernetes.io/ssl-redirect: "true"
+#     ingress.kubernetes.io/force-hsts: "true"
+
+#     ingress.kubernetes.io/allowed-hosts: ""
+#     ingress.kubernetes.io/proxy-headers: "SSL-Header2: VK2"
+#     ingress.kubernetes.io/entryPoints: "https"
+#     ingress.kubernetes.io/whitelist-source-range: ""
+#     traefik.frontend.entryPoints: "https"
+#     traefik.frontend.passTLSCert: "true"
+
+spec:
+  rules:
+  - host: "ewvk8s-ggimapr6rucs-minion-0.cern.ch"
+    http:
+      paths:
+      - path: /ng
+        backend:
+          serviceName: my-nginx
+          servicePort: 80
+      - path: /supervisord
+        backend:
+          serviceName: rucio-server-cms
+          servicePort: 8088

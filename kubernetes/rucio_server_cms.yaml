@@ -2,10 +2,10 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: rucio-all
+  name: rucio-server-cms
 spec:
   selector:
-    app: rucio-mono
+    run: rucio-server-cms
 
 # All the ports that are open in the container. Label correctly as we figure out what they are
   ports:
@@ -25,7 +25,7 @@ spec:
     protocol: TCP
     port: 8080
     targetPort: 8080
-  - name: rucio5
+  - name: supervisord
     protocol: TCP
     port: 8088
     targetPort: 8088
@@ -35,24 +35,26 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rucio-server-deployment
+  name: rucio-server-cms
   labels:
-    app: rucio-server-cms
+    run: rucio-server-cms
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: rucio-server-cms
+      run: rucio-server-cms
   template:
     metadata:
       labels:
-        app: rucio-server-cms
+        run: rucio-server-cms
     spec:
 
     # Main container containing all the Rucio stuff
       containers:
       - name: rucio-server-cms
         image: ericvaandering/rucio_server_cms
+        securityContext:
+          privileged: true
         ports:
         - containerPort: 80
         - containerPort: 443
