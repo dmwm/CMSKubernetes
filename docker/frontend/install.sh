@@ -50,8 +50,8 @@ fi
 
 # replace usage of hostkey/hostcert in crontab to frontend proxy
 crontab -l | \
-    sed -e "s,/data/certs/hostcert.pem,/etc/secrets/proxy,g" \
-        -e "s,/data/certs/hostkey.pem,/etc/secrets/proxy,g" | crontab -
+    sed -e "s,/data/certs/hostcert.pem,/data/srv/current/auth/proxy/proxy,g" \
+        -e "s,/data/certs/hostkey.pem,/data/srv/current/auth/proxy/proxy,g" | crontab -
 
 # add proxy generation via robot certificate
 crontab -l > /tmp/mycron
