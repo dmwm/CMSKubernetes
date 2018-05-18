@@ -52,7 +52,7 @@ spec:
     # Main container containing all the Rucio stuff
       containers:
       - name: rucio-server-cms
-        image: ericvaandering/rucio_server_cms
+        image: cmssw/rucio_server_cms
         securityContext:
           privileged: true
         ports:
