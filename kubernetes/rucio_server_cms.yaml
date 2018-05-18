@@ -32,6 +32,29 @@ spec:
 ...
 
 ---
+kind: Service
+apiVersion: v1
+metadata:
+  name: rucio-graphite
+spec:
+  selector:
+    run: rucio-graphite
+
+# Just some for now, rest are not needed?
+  ports:
+  - name: graphite
+    protocol: TCP
+    port: 80
+    targetPort: 80
+  - port: 8125
+    name: statsd
+    protocol: UDP
+  - port: 8126
+    name: admin
+    protocol: TCP
+...
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -87,4 +110,42 @@ spec:
         hostPath:
           path: /etc/grid-security/hostcert.pem
           type: File
+...
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rucio-graphite
+  labels:
+    run: rucio-graphite
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: rucio-graphite
+  template:
+    metadata:
+      labels:
+        run: rucio-graphite
+    spec:
+
+    # Main container containing all the Rucio stuff
+      containers:
+      # Graphite server
+      - name: rucio-graphite
+        image: graphiteapp/graphite-statsd
+        securityContext:
+          privileged: false
+        ports:
+        - containerPort: 80
+        - containerPort: 2003
+        - containerPort: 2004
+        - containerPort: 2023
+        - containerPort: 2024
+        - containerPort: 8125
+          protocol: UDP
+          name: statsd
+        - containerPort: 8126
+          name: admin
 ...
