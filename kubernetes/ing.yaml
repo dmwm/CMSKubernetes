@@ -46,4 +46,4 @@ spec:
       - path: /https
         backend:
           serviceName: httpsgo
-          servicePort: 443
+          servicePort: 8443
