@@ -11,6 +11,9 @@ RUN yum clean all
 
 # Create new user account
 RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
+# add user to sudoers file
+RUN echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+# switch to user
 USER ${USER}
 
 # start the setup
@@ -45,7 +48,6 @@ WORKDIR $GOPATH/src/github.com/vkuznet/cmsweb-exporters
 RUN go build das2go_exporter.go
 RUN cp das2go_exporter $WDIR/bin
 ENV PATH="${GOPATH}/src/github.com/vkuznet/cmsweb-exporters:${GOPATH}/src/github.com/vkuznet/cmsweb-exporters/bin:${PATH}"
-ENV X509_USER_PROXY=/etc/secrets/proxy
 
 # run the service
 WORKDIR ${WDIR}

@@ -22,6 +22,18 @@ ssh-keygen -t rsa -f cloud
 openstack keypair create --public-key ~/.ssh/cloud.pub cloud
 ```
 
+##### Robot certificates
+For cmsweb operations we need to have a valid proxy on our backends.
+Originally, we used operator proxy and uploaded it to myproxy server. The
+cmsweb ProxySeed and ProxyRenew scripts were used.
+
+Now, we can obtain CERN service account and apply for a Robot certificate.
+Once received and we obtain robotcert.pem/robotkey.pem files and we need to
+register them in [LCG VOMS server](https://lcg-voms2.cern.ch:8443).  Then,
+we'll mount them in secrets volume in k8s cluster and use for acquiring proxies
+within k8s pods, see
+[proxy.sh](https://github.com/dmwm/CMSKubernetes/blob/master/docker/frontend/proxy.sh)
+frontend file for example.
 
 ### Setup kubernetes cluster
 You can create your kubernetes cluster either by login to openstack.cern.ch and

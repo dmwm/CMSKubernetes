@@ -29,6 +29,9 @@ if [ -f /data/srv/state/couchdb/stagingarea/reqmgr2 ]; then
     source /data/srv/state/couchdb/stagingarea/reqmgr2
 fi
 
+# get proxy
+sudo /data/proxy.sh $USER
+
 # start the service
 /data/srv/current/config/reqmgr2/manage start 'I did read documentation'
 

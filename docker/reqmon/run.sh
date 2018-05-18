@@ -29,6 +29,9 @@ if [ -f /data/srv/state/couchdb/stagingarea/reqmon ]; then
     source /data/srv/state/couchdb/stagingarea/reqmon
 fi
 
+# get proxy
+sudo /data/proxy.sh $USER
+
 # start the service
 /data/srv/current/config/reqmon/manage start 'I did read documentation'
 

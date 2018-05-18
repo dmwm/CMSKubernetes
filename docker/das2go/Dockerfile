@@ -55,13 +55,10 @@ WORKDIR $GOPATH/src/github.com/dmwm/das2go
 RUN make
 RUN cat $WDIR/config.json | sed -e "s,GOPATH,$GOPATH,g" > dasconfig.json
 ENV PATH="${GOPATH}/src/github.com/dmwm/das2go:${GOPATH}/src/github.com/dmwm/das2go/bin:${PATH}"
-ENV X509_USER_PROXY=/etc/secrets/proxy
 
 # add proxy generation via robot certificate
-crontab -l > /tmp/mycron
-echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" >> /tmp/mycron
-crontab /tmp/mycron
-rm /tmp/mycron
+RUN echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" | crontab -
+ENV X509_USER_PROXY=/data/srv/current/auth/proxy/proxy
 
 # run the service
 WORKDIR ${WDIR}

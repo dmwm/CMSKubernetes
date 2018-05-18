@@ -28,7 +28,10 @@ if [ -f /etc/secrets/hmac ]; then
     cp /etc/secrets/hmac /data/srv/current/auth/wmcore-auth/header-auth-key
 fi
 
-# start the servuce
+# get proxy
+sudo /data/proxy.sh $USER
+
+# start the service
 /data/srv/current/config/dbs/manage setinstances 'I did read documentation'
 /data/srv/current/config/dbs/manage start 'I did read documentation'
 
