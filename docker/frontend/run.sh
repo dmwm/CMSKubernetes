@@ -40,9 +40,5 @@ fi
 /data/cfg/admin/InstallDev -s start
 ps auxw | grep httpd
 
-# start infinitive loop to show that we run the service
-# since we're dealing with logs rotation we'll inspect them manually
-while true
-do
-    sleep 10
-done
+# start cron daemon
+sudo /usr/sbin/crond -n

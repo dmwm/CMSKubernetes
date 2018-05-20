@@ -35,9 +35,5 @@ sudo /data/proxy.sh $USER
 # start the service
 /data/srv/current/config/reqmon/manage start 'I did read documentation'
 
-# start infinitive loop to show that we run the service
-# since we're dealing with logs rotation we'll inspect them manually
-while true
-do
-    sleep 10
-done
+# start cron daemon
+sudo /usr/sbin/crond -n
