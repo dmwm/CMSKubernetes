@@ -2,10 +2,10 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: rucio-all
+  name: rucio-server-cms
 spec:
   selector:
-    app: rucio-mono
+    run: rucio-server-cms
 
 # All the ports that are open in the container. Label correctly as we figure out what they are
   ports:
@@ -25,34 +25,59 @@ spec:
     protocol: TCP
     port: 8080
     targetPort: 8080
-  - name: rucio5
+  - name: supervisord
     protocol: TCP
     port: 8088
     targetPort: 8088
 ...
 
 ---
+kind: Service
+apiVersion: v1
+metadata:
+  name: rucio-graphite
+spec:
+  selector:
+    run: rucio-graphite
+
+# Just some for now, rest are not needed?
+  ports:
+  - name: graphite
+    protocol: TCP
+    port: 80
+    targetPort: 80
+  - port: 8125
+    name: statsd
+    protocol: UDP
+  - port: 8126
+    name: admin
+    protocol: TCP
+...
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rucio-server-deployment
+  name: rucio-server-cms
   labels:
-    app: rucio-server-cms
+    run: rucio-server-cms
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: rucio-server-cms
+      run: rucio-server-cms
   template:
     metadata:
       labels:
-        app: rucio-server-cms
+        run: rucio-server-cms
     spec:
 
     # Main container containing all the Rucio stuff
       containers:
       - name: rucio-server-cms
-        image: ericvaandering/rucio_server_cms
+        image: cmssw/rucio_server_cms
+        securityContext:
+          privileged: true
         ports:
         - containerPort: 80
         - containerPort: 443
@@ -85,4 +110,42 @@ spec:
         hostPath:
           path: /etc/grid-security/hostcert.pem
           type: File
+...
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rucio-graphite
+  labels:
+    run: rucio-graphite
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: rucio-graphite
+  template:
+    metadata:
+      labels:
+        run: rucio-graphite
+    spec:
+
+    # Main container containing all the Rucio stuff
+      containers:
+      # Graphite server
+      - name: rucio-graphite
+        image: graphiteapp/graphite-statsd
+        securityContext:
+          privileged: false
+        ports:
+        - containerPort: 80
+        - containerPort: 2003
+        - containerPort: 2004
+        - containerPort: 2023
+        - containerPort: 2024
+        - containerPort: 8125
+          protocol: UDP
+          name: statsd
+        - containerPort: 8126
+          name: admin
 ...
