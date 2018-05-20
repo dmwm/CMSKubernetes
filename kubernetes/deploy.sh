@@ -122,9 +122,10 @@ echo "Wait until pods will be running and deploy exporters"
 sleep 60
 
 # we can deploy explorers.yaml once all services which it monitors are started
-for i in 1 2 3; do
+for i in 1 2 3 4 5; do
     notRun=`kubectl get pods | grep -v Running | grep -v READY`
     if [ -n "$notRun" ]; then
+        echo "attempt: $i"
         echo "Services that are not run yet:"
         echo $notRun
         sleep 60
