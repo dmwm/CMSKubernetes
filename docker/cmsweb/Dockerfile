@@ -19,7 +19,7 @@ RUN yum install -y git-core zip unzip which file bzip2 e2fsprogs e2fsprogs-libs 
     libX11-devel libX11 libXmu libSM libICE libXcursor libXext libXrandr libXft \
     mesa-libGLU mesa-libGL libXi libXinerama libXft-devel libXrender libXpm \
     libXpm-devel libXext-devel mesa-libGLU-devel \
-    libaio libaio-devel net-tools lsof bind-utils
+    libaio libaio-devel net-tools lsof bind-utils initscripts
 RUN yum clean all
 
 # create bashs link to bash
