@@ -8,7 +8,7 @@ rcert=`cat $2 | base64 | awk '{ORS=""; print $0}'`
 skey=`cat $3 | base64 | awk '{ORS=""; print $0}'`
 cert=`cat $4 | base64 | awk '{ORS=""; print $0}'`
 hmac=`cat $5 | base64 | awk '{ORS=""; print $0}'`
-conf=`cat $6 | base64 | awk '{ORS=""; print $0}'`
+dbssecrets=`cat $6 | base64 | awk '{ORS=""; print $0}'`
 cat > dbs-secrets.yaml << EOF
 apiVersion: v1
 data:
