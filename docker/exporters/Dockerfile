@@ -3,7 +3,6 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
 ENV USER=exporters
-ADD run.sh $WDIR/run.sh
 
 RUN yum update -y && yum clean all
 RUN yum install -y git-core krb5-devel readline-devel openssl
@@ -50,5 +49,6 @@ RUN cp das2go_exporter $WDIR/bin
 ENV PATH="${GOPATH}/src/github.com/vkuznet/cmsweb-exporters:${GOPATH}/src/github.com/vkuznet/cmsweb-exporters/bin:${PATH}"
 
 # run the service
+ADD run.sh $WDIR/run.sh
 WORKDIR ${WDIR}
 CMD ["run.sh"]

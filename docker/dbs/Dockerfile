@@ -6,8 +6,6 @@ ENV WDIR=/data
 ENV USER=dbs
 
 ADD install.sh $WDIR/install.sh
-ADD run.sh $WDIR/run.sh
-ADD proxy.sh $WDIR/proxy.sh
 
 RUN yum update -y && yum clean all
 
@@ -26,6 +24,8 @@ WORKDIR ${WDIR}
 RUN $WDIR/install.sh
 
 # run the service
+ADD run.sh $WDIR/run.sh
+ADD proxy.sh $WDIR/proxy.sh
 USER $USER
 WORKDIR $WDIR
 CMD ["./run.sh"]

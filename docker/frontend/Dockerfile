@@ -3,9 +3,6 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
 ENV USER=sw
-ADD install.sh $WDIR/install.sh
-ADD run.sh $WDIR/run.sh
-ADD proxy.sh $WDIR/proxy.sh
 
 RUN yum update -y && yum clean all
 
@@ -29,8 +26,11 @@ RUN mkdir -p $WDIR
 WORKDIR ${WDIR}
 
 # install
+ADD install.sh $WDIR/install.sh
 RUN $WDIR/install.sh
 
 # run the service
+ADD run.sh $WDIR/run.sh
+ADD proxy.sh $WDIR/proxy.sh
 WORKDIR $WDIR
 CMD ["./run.sh"]

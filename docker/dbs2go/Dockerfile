@@ -3,12 +3,9 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
 ENV USER=dbs
-ADD run.sh $WDIR/run.sh
-ADD config.json $WDIR/config.json
 ADD oci8.pc $WDIR/oci8.pc
 ENV PKG_CONFIG_PATH=$WDIR
 ADD cernonly2.repo /etc/yum.repos.d/cernonlyw.repo
-ADD proxy.sh $WDIR/proxy.sh
 
 RUN yum update -y && yum clean all
 RUN yum install -y git-core make gcc \
@@ -38,6 +35,7 @@ RUN go get github.com/vkuznet/dbs2go
 RUN go get github.com/shirou/gopsutil
 
 # build dbs2go
+ADD config.json $WDIR/config.json
 WORKDIR $GOPATH/src/github.com/vkuznet/dbs2go
 RUN sed -i -e "s,_ \"gopkg.in/rana/ora.v4\",,g" web/server.go
 RUN sed -i -e "s,_ \"github.com/mattn/go-sqlite3\",,g" web/server.go
@@ -51,5 +49,7 @@ RUN echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" | crontab -
 ENV X509_USER_PROXY=/data/srv/current/auth/proxy/proxy
 
 # run the service
+ADD run.sh $WDIR/run.sh
+ADD proxy.sh $WDIR/proxy.sh
 WORKDIR ${WDIR}
 CMD ["run.sh"]
