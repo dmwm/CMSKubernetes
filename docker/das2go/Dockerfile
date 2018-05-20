@@ -4,9 +4,6 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 ENV WDIR=/data
 ENV USER=das
 ADD mongodb.conf $WDIR/mongodb.conf
-ADD run.sh $WDIR/run.sh
-ADD config.json $WDIR/config.json
-ADD proxy.sh $WDIR/proxy.sh
 
 RUN yum update -y && yum clean all
 RUN yum install -y git-core krb5-devel readline-devel openssl
@@ -51,6 +48,7 @@ RUN go get github.com/dmwm/das2go
 RUN go get github.com/shirou/gopsutil
 
 # build das2go
+ADD config.json $WDIR/config.json
 WORKDIR $GOPATH/src/github.com/dmwm/das2go
 RUN make
 RUN cat $WDIR/config.json | sed -e "s,GOPATH,$GOPATH,g" > dasconfig.json
@@ -61,5 +59,7 @@ RUN echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" | crontab -
 ENV X509_USER_PROXY=/data/srv/current/auth/proxy/proxy
 
 # run the service
+ADD run.sh $WDIR/run.sh
+ADD proxy.sh $WDIR/proxy.sh
 WORKDIR ${WDIR}
 CMD ["run.sh"]
