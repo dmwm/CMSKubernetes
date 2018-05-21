@@ -1,0 +1,67 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: tfaas
+spec:
+  selector:
+    app: tfaas
+  ports:
+    - port: 8083
+      targetPort: 8083
+      nodePort: 30883
+  type: NodePort
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: tfaas
+  name: tfaas
+spec:
+  selector:
+    matchLabels:
+      app: tfaas
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: tfaas
+    spec:
+      hostNetwork: true
+      containers:
+      - image: veknet/tfaas
+        name: tfaas
+        tty: true
+        stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - bash
+              - -c
+              - sudo chmod 0400 /etc/secrets/server.key /etc/secrets/robotkey.pem
+        ports:
+        - containerPort: 8083
+          protocol: TCP
+        volumeMounts:
+        - name: secrets
+          mountPath: /etc/secrets
+          defaultMode: 0400
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+      volumes:
+      - name: secrets
+        secret:
+          secretName: tfaas-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File

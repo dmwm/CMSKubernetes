@@ -1,13 +1,20 @@
 FROM cmssw/cmsweb
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
+# add environment
 ENV WDIR=/data
-ADD tfaas_start.sh $WDIR/tfaas_start.sh
-ADD config.json $WDIR/config.json
+ENV USER=tfaas
 
 RUN yum update -y && yum clean all
 RUN yum install -y git-core krb5-devel readline-devel openssl autoconf automake libtool make gcc gcc-c++ unzip
 RUN yum clean all
+
+# Create new user account
+RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
+# add user to sudoers file
+RUN echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+# switch to user
+USER ${USER}
 
 # start the setup
 RUN mkdir -p $WDIR
@@ -43,19 +50,26 @@ RUN ./configure --prefix=${WDIR}
 RUN make
 RUN make install
 RUN go get -u github.com/golang/protobuf/protoc-gen-go
-#RUN go get github.com/golang/protobuf
 
 # build tfaas
 WORKDIR ${WDIR}
-RUN git clone https://github.com/vkuznet/TFaaS.git
+RUN git  clone https://github.com/vkuznet/TFaaS.git
 WORKDIR $WDIR/TFaaS/src/Go
 RUN make
-ENV X509_USER_PROXY=/etc/secrets/tfaas-proxy
 ENV PATH="${WDIR}/TFaaS/src/Go:${PATH}"
+
+# add proxy generation via robot certificate
+RUN echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" | crontab -
+ENV X509_USER_PROXY=/data/srv/current/auth/proxy/proxy
+
+# add scripts to run and configuration
+ADD run.sh $WDIR/run.sh
+ADD proxy.sh $WDIR/proxy.sh
+ADD config.json $WDIR/config.json
 
 # run the service
 WORKDIR ${WDIR}
 RUN mkdir models
 RUN rm ${TF_LIB}
 RUN cat $WDIR/config.json | sed -e "s,GOPATH,$GOPATH,g" > $WDIR/tfaas-config.json
-CMD ["tfaas_start.sh"]
+CMD ["run.sh"]

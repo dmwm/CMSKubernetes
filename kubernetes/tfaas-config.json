@@ -1,0 +1,12 @@
+{
+    "port": 8083,
+    "auth": "false",
+    "modelDir": "models",
+    "staticDir": "/data/TFaaS/src/Go/static",
+    "configProto": "",
+    "base": "",
+    "serverKey": "",
+    "serverCrt": "",
+    "logFormatter": "text",
+    "verbose": 0
+}
