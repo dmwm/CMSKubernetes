@@ -23,7 +23,7 @@ sleep 2
 # prepare secrets
 dbsconfig=dbsconfig.json
 dasconfig=dasconfig.json
-dasconfig=tfaas-config.json
+tfaasconfig=tfaas-config.json
 httpsgoconfig=httpsgoconfig.json
 user_crt=/afs/cern.ch/user/v/valya/.globus/usercert.pem
 robot_key=/afs/cern.ch/user/v/valya/private/certificates/robotkey.pem
