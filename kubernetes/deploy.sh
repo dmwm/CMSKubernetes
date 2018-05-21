@@ -7,7 +7,7 @@ echo "generate hmac secret"
 hmac=$PWD/hmac.random
 perl -e 'open(R, "< /dev/urandom") or die; sysread(R, $K, 20) or die; print $K' > $hmac
 
-pkgs="das dbs ing frontend couchdb reqmgr httpsgo reqmon workqueue"
+pkgs="das dbs ing frontend couchdb reqmgr httpsgo reqmon workqueue tfaas"
 
 echo "### secrets"
 for p in $pkgs; do
@@ -23,6 +23,7 @@ sleep 2
 # prepare secrets
 dbsconfig=dbsconfig.json
 dasconfig=dasconfig.json
+dasconfig=tfaas-config.json
 httpsgoconfig=httpsgoconfig.json
 user_crt=/afs/cern.ch/user/v/valya/.globus/usercert.pem
 robot_key=/afs/cern.ch/user/v/valya/private/certificates/robotkey.pem
@@ -40,6 +41,7 @@ dbssecrets=/afs/cern.ch/user/v/valya/private/DBSSecrets.py
 ./make_reqmgr_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
 ./make_reqmon_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
 ./make_workqueue_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
+./make_tfaas_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac $tfaasconfig
 ./make_exporters_secret.sh $robot_key $robot_crt
 ./make_httpsgo_secret.sh $httpsgoconfig
 
