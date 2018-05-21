@@ -7,7 +7,7 @@ spec:
     app: httpsgo
   ports:
     - port: 8443
-      nodePort: 30443
+      nodePort: 30843
   type: NodePort
 ---
 kind: Deployment
