@@ -1,8 +1,9 @@
 #!/bin/bash
 # get proxy
 echo "USER=$USER"
-sudo /data/proxy.sh $USER
+/data/proxy.sh $USER
 ls -la /data/srv/current/auth/proxy/proxy
+sleep 2
 # start server
 if [ -f /etc/secrets/tfaas-config.json ]; then
     echo "Start with /etc/secrets/tfaas-config.json"
