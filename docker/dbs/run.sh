@@ -29,7 +29,8 @@ if [ -f /etc/secrets/hmac ]; then
 fi
 
 # get proxy
-sudo /data/proxy.sh $USER
+/data/proxy.sh $USER
+sleep 2
 
 # start the service
 /data/srv/current/config/dbs/manage setinstances 'I did read documentation'

@@ -1,7 +1,8 @@
 #!/bin/bash
 # get proxy
 echo "USER=$USER"
-sudo /data/proxy.sh $USER
+/data/proxy.sh $USER
+sleep 2
 # start dbs2go server
 cd $GOPATH/src/github.com/vkuznet/dbs2go
 if [ -f /etc/secrets/dbsconfig.json ]; then

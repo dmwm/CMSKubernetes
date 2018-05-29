@@ -25,7 +25,8 @@ if [ -f /etc/secrets/hmac ]; then
 fi
 
 # get proxy
-sudo /data/proxy.sh $USER
+/data/proxy.sh $USER
+sleep 2
 
 # obtain original voms-gridmap to be used by frontend
 if [ -f /data/srv/current/auth/proxy/proxy ] && [ -f /data/srv/current/config/frontend/mkvomsmap ]; then

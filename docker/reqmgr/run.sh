@@ -30,7 +30,8 @@ if [ -f /data/srv/state/couchdb/stagingarea/reqmgr2 ]; then
 fi
 
 # get proxy
-sudo /data/proxy.sh $USER
+/data/proxy.sh $USER
+sleep 2
 
 # start the service
 /data/srv/current/config/reqmgr2/manage start 'I did read documentation'
