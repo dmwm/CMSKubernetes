@@ -1,11 +1,5 @@
 #!/bin/bash
 
-# overwrite host PEM files in /data/certs since we used them during installation time
-if [ -f /etc/grid-security/hostkey.pem ]; then
-    sudo cp /etc/grid-security/hostkey.pem /data/certs/
-    sudo cp /etc/grid-security/hostcert.pem /data/certs/
-fi
-
 # overwrite proxy file with one from secrets
 if [ -f /etc/secrets/proxy ]; then
     mkdir -p /data/srv/state/couchdb/proxy
@@ -29,7 +23,8 @@ host=`host $hostname | awk '/has address/ { print $4 }'`
 sed -i -e "s/{127.0.0.1, _admin, _admin}/{127.0.0.1, _admin, _admin},{$host, _admin, _admin}/g" /data/srv/current/config/couchdb/local.ini
 
 # get proxy
-sudo /data/proxy.sh $USER
+/data/proxy.sh $USER
+sleep 2
 
 # start the service
 /data/srv/current/config/couchdb/manage start 'I did read documentation'
