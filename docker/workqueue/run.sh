@@ -30,7 +30,8 @@ if [ -f /data/srv/state/couchdb/stagingarea/workqueue ]; then
 fi
 
 # get proxy
-sudo /data/proxy.sh $USER
+/data/proxy.sh $USER
+sleep 2
 
 # start the service
 /data/srv/current/config/workqueue/manage start 'I did read documentation'
