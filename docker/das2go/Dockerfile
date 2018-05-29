@@ -55,7 +55,7 @@ RUN cat $WDIR/config.json | sed -e "s,GOPATH,$GOPATH,g" > dasconfig.json
 ENV PATH="${GOPATH}/src/github.com/dmwm/das2go:${GOPATH}/src/github.com/dmwm/das2go/bin:${PATH}"
 
 # add proxy generation via robot certificate
-RUN echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" | crontab -
+RUN echo "3 */3 * * * /data/proxy.sh $USER 2>&1 1>& /dev/null" | crontab -
 ENV X509_USER_PROXY=/data/srv/current/auth/proxy/proxy
 
 # run the service

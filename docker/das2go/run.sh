@@ -1,7 +1,8 @@
 #!/bin/bash
 # get proxy
 echo "USER=$USER"
-sudo /data/proxy.sh $USER
+/data/proxy.sh $USER
+sleep 2
 ls -la /data/srv/current/auth/proxy/proxy
 # start mongodb
 mongod --config $WDIR/mongodb.conf
