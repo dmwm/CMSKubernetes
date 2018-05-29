@@ -47,12 +47,27 @@ spec:
         - name: secrets
           mountPath: /etc/secrets
           defaultMode: 0400
-        - name: etc-grid-security
-          mountPath: /etc/grid-security
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+#       livenessProbe:
+#         httpGet:
+#           path: /das/status
+#           port: 8212
+#         initialDelaySeconds: 3
+#         periodSeconds: 3
       volumes:
       - name: secrets
         secret:
           secretName: das-secrets
-      - name: etc-grid-security
+      - name: hostkey
         hostPath:
-            path: /etc/grid-security
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File
