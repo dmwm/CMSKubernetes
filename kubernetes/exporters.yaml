@@ -10,6 +10,10 @@ spec:
       targetPort: 7200
       nodePort: 30200
       name: das-exporter
+    - port: 7300
+      targetPort: 7300
+      nodePort: 30300
+      name: reqmgr-exporter
     - port: 3000
       targetPort: 3000
       nodePort: 30003
@@ -49,6 +53,9 @@ spec:
         - containerPort: 7200
           protocol: TCP
           name: das-exporter
+        - containerPort: 7300
+          protocol: TCP
+          name: reqmgr-exporter
         - containerPort: 3000
           protocol: TCP
           name: grafana
@@ -62,6 +69,25 @@ spec:
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
           readOnly: true 
+#       initContainers:
+#       - name: checkdas2go
+#         image: radial/busyboxplus:curl
+#         command: ['sh', '-c', 'until curl http://das2go:8212; do echo "Waiting for das2go"; sleep 10; done;']
+#       - name: checkdbs2go
+#         image: busybox
+#         command: ['sh', '-c', 'until nslookup dbs2go.default.svc; do echo "Waiting for dbs2go"; sleep 10; done;']
+#       - name: checkdbs
+#         image: busybox
+#         command: ['sh', '-c', 'until nslookup dbs.default.svc; do echo "Waiting for dbs"; sleep 10; done;']
+#       - name: checkreqmgr
+#         image: busybox
+#         command: ['sh', '-c', 'until nslookup reqmgr.default.svc; do echo "Waiting for reqmgr"; sleep 10; done;']
+#       - name: checkreqmon
+#         image: busybox
+#         command: ['sh', '-c', 'until nslookup reqmon.default.svc; do echo "Waiting for reqmon"; sleep 10; done;']
+#       - name: checkworkqueue
+#         image: busybox
+#         command: ['sh', '-c', 'until nslookup workqueue.default.svc; do echo "Waiting for workqueue"; sleep 10; done;']
       volumes:
       - name: secrets
         secret:
