@@ -85,6 +85,8 @@ traefik:entry_point:443 -> ingress controller
   # servicePort: 1234 # is an internal port of our microservice 
   -> request to app internal port
 ```
+We also use hostNetwork option in all cmsweb specific pods since we rely
+on explicit ports and redirect rules among our services.
 
 ##### Kubernetes ports
 - Port: Port is the port number which makes a service visible to other services
@@ -348,3 +350,6 @@ http://localhost:8888/api/v1/namespaces/kube-system/services/https:kubernetes-da
 - [Kubernetes monitoring with Prometheus](https://itnext.io/kubernetes-monitoring-with-prometheus-in-15-minutes-8e54d1de2e13)
 - [Prometheus setup for Kubernetes](https://devopscube.com/setup-prometheus-monitoring-on-kubernetes/)
 - [Kubernetes blogs](https://vitalflux.com/category/kubernetes/)
+- [Kubernetes networking](http://alesnosek.com/blog/2017/02/14/accessing-kubernetes-pods-from-outside-of-the-cluster/)
+- [Kubernetes DNS](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/)
+- [Kubernetes cheatsheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
