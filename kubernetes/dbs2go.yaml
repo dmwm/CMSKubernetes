@@ -28,6 +28,7 @@ spec:
         app: dbs2go
     spec:
       hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
       - image: cmssw/dbs2go
         name: dbs2go

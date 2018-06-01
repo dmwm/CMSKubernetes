@@ -27,7 +27,7 @@ spec:
       labels:
         app: tfaas
     spec:
-      hostNetwork: true
+#       hostNetwork: true
       containers:
       - image: veknet/tfaas
         name: tfaas

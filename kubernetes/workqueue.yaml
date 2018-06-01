@@ -28,6 +28,7 @@ spec:
         app: workqueue
     spec:
       hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
       - image: cmssw/workqueue
         name: workqueue

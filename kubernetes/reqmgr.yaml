@@ -29,6 +29,7 @@ spec:
         app: reqmgr
     spec:
       hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
       - image: cmssw/reqmgr
         name: reqmgr

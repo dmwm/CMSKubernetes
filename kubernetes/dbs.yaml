@@ -41,6 +41,7 @@ spec:
         app: dbs
     spec:
       hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
       - image: cmssw/dbs
         name: dbs
