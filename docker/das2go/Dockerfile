@@ -46,13 +46,26 @@ RUN go get gopkg.in/mgo.v2
 RUN go get github.com/sirupsen/logrus
 RUN go get github.com/dmwm/das2go
 RUN go get github.com/shirou/gopsutil
+RUN go get github.com/uber/go-torch
+RUN go get github.com/divan/expvarmon
+RUN go get gopkg.in/yaml.v2
+
+# build das2go tools
+WORKDIR $GOPATH/src/github.com/dmwm
+RUN git clone https://github.com/dmwm/DASTools.git
+WORKDIR $GOPATH/src/github.com/dmwm/DASTools
+RUN make
 
 # build das2go
 ADD config.json $WDIR/config.json
 WORKDIR $GOPATH/src/github.com/dmwm/das2go
 RUN make
+RUN go build monitor/das2go_monitor.go
 RUN cat $WDIR/config.json | sed -e "s,GOPATH,$GOPATH,g" > dasconfig.json
-ENV PATH="${GOPATH}/src/github.com/dmwm/das2go:${GOPATH}/src/github.com/dmwm/das2go/bin:${PATH}"
+RUN git clone https://github.com/brendangregg/FlameGraph.git
+ENV PATH="${GOPATH}/src/github.com/dmwm/das2go:${PATH}"
+ENV PATH="${GOPATH}/src/github.com/dmwm/das2go/FlameGraph:${PATH}"
+ENV PATH="${GOPATH}/src/github.com/dmwm/DASTools/bin:${PATH}"
 
 # add proxy generation via robot certificate
 RUN echo "3 */3 * * * /data/proxy.sh $USER 2>&1 1>& /dev/null" | crontab -
