@@ -15,10 +15,10 @@ cd $WDIR/cfg
 git reset --hard $VER
 
 # adjust deploy script
-sed -i -e "s,https://cmsweb.cern.ch,https://cmsweb-k8s.web.cern.ch:31443,g" \
-    -e "s,https://cmsweb-testbed.cern.ch,https://cmsweb-k8s.web.cern.ch:31443,g" \
-    -e "s,https://cmsweb-dev.cern.ch,https://cmsweb-k8s.web.cern.ch:31443,g" \
-    -e "s,https://\`hostname -f\`,https://cmsweb-k8s.web.cern.ch:31443,g" \
+sed -i -e "s,https://cmsweb.cern.ch,https://cmsweb-test.web.cern.ch:31443,g" \
+    -e "s,https://cmsweb-testbed.cern.ch,https://cmsweb-test.web.cern.ch:31443,g" \
+    -e "s,https://cmsweb-dev.cern.ch,https://cmsweb-test.web.cern.ch:31443,g" \
+    -e "s,https://\`hostname -f\`,https://cmsweb-test.web.cern.ch:31443,g" \
     -e "s,dbs_ins=\"int\",dbs_inst=\"prod\",g" \
     -e "s,dbs_ins=\"dev\",dbs_inst=\"prod\",g" \
     -e "s,dbs_ins=\"private_vm\",dbs_inst=\"prod\",g" \

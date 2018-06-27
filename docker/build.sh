@@ -41,6 +41,6 @@ echo "### build cmssw/workqueue"
 docker build -t cmssw/workqueue workqueue
 docker push cmssw/workqueue
 
-echo "### build veknet/tfaas"
-docker build -t veknet/tfaas tfaas
-docker push veknet/tfaas
+#echo "### build veknet/tfaas"
+#docker build -t veknet/tfaas tfaas
+#docker push veknet/tfaas

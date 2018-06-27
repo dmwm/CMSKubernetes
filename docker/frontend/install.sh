@@ -17,8 +17,8 @@ git reset --hard $VER
 # replace backend nodes
 files=`ls $WDIR/cfg/frontend/backend*.txt`
 for f in $files; do
-    sed -i -e "s,vocms[0-9]*,cmsweb-k8s.web,g" $f
-    sed -i -e "s,|cmsweb-k8s.web.cern.ch,,g" $f
+    sed -i -e "s,vocms[0-9]*,cmsweb-test.web,g" $f
+    sed -i -e "s,|cmsweb-test.web.cern.ch,,g" $f
 done
 
 # overwrite dev/preprod backends with production one for k8s
