@@ -4,46 +4,30 @@ metadata:
   name: ingress
   annotations:
     kubernetes.io/ingress.class: traefik
-    traefik.frontend.rule.type: PathPrefixStrip
-    ingress.kubernetes.io/force-hsts: "true"
+    traefik.frontend.entryPoints: "https"
 
+#     traefik.frontend.passTLSCert: "true"
 #     ingress.kubernetes.io/rewrite-target: /
-
+#     traefik.frontend.rule.type: PathPrefixStrip
+#     ingress.kubernetes.io/force-hsts: "true"
 #     ingress.kubernetes.io/force-ssl-redirect: "true"
 #     ingress.kubernetes.io/pass-tls-cert: "true"
 #     ingress.kubernetes.io/ssl-proxy-headers: "SSL-Header:VK"
 #     ingress.kubernetes.io/enablePassTLSCert: "true"
 #     ingress.kubernetes.io/ssl-redirect: "true"
 
-#     ingress.kubernetes.io/allowed-hosts: ""
-#     ingress.kubernetes.io/proxy-headers: "SSL-Header2: VK2"
-#     ingress.kubernetes.io/entryPoints: "https"
-#     ingress.kubernetes.io/whitelist-source-range: ""
-#     traefik.frontend.entryPoints: "https"
-#     traefik.frontend.passTLSCert: "true"
-
 spec:
-  tls:
-  - secretName: ing-secrets
-    hosts:
-      - "cmsweb-k8s.web.cern.ch"
   rules:
-  - host: "cmsweb-k8s.web.cern.ch"
+  - host: "cmsweb-test.web.cern.ch"
     http:
       paths:
-      - path: /das
-        backend:
-          serviceName: das2go
-          servicePort: 8212
-      - path: /dbs
-        backend:
-          serviceName: dbs2go
-          servicePort: 8989
-      - path: /http
-        backend:
-          serviceName: httpgo
-          servicePort: 8888
-      - path: /https
+#       - path: /
+#         backend:
+#           serviceName: frontend
+#           servicePort: 8443
+      - path: /httpsgo
         backend:
           serviceName: httpsgo
           servicePort: 8443
+  tls:
+      - secretName: cluster-tls-cert

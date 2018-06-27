@@ -2,39 +2,34 @@
 kind: DaemonSet
 apiVersion: extensions/v1beta1
 metadata:
-  name: ingress-traefik
-  namespace: kube-system
-  annotations:
-    traefik.frontend.redirect.entryPoint: "https"
-    traefik.frontend.passTLSCert: "true"
   labels:
     k8s-app: ingress-traefik-backend
+  name: ingress-traefik
+  namespace: kube-system
 spec:
+  selector:
+    matchLabels:
+      k8s-app: ingress-traefik-backend
+      name: ingress-traefik-backend
   template:
     metadata:
       labels:
         k8s-app: ingress-traefik-backend
         name: ingress-traefik-backend
     spec:
-      serviceAccountName: ingress-traefik
-      terminationGracePeriodSeconds: 60
-      hostNetwork: true
-      volumes:
-      - name: ssl
-        secret:
-          secretName: traefik-cert
-      - name: config
-        configMap:
-          name: traefik-conf
       containers:
-      - image: gitlab-registry.cern.ch/cloud/atomic-system-containers/traefik
+      - args:
+        - --api
+        - --kubernetes
+        - --logLevel=INFO
+        - --entrypoints=Name:http Address::80
+        - --entrypoints=Name:admin Address::8180
+        - --entrypoints=Name:traefik Address::8181
+        - --entrypoints=Name:https Address::443 tls
+        - --kubernetes.enablepasstlscert=true
+      image: traefik
+        imagePullPolicy: Always
         name: ingress-traefik-backend
-        volumeMounts:
-        - mountPath: "/ssl"
-          name: "ssl"
-          readOnly: true
-        - mountPath: "/config"
-          name: "config"
         ports:
         - name: http
           containerPort: 80
@@ -42,17 +37,17 @@ spec:
         - name: https
           containerPort: 443
           hostPort: 443
+        - name: admin
+          containerPort: 8180
+          hostPort: 8180
         securityContext:
           privileged: true
-        args:
-        - -d
-        - --configfile=config/traefik.toml
-        - --web
-        - --web.address=:8888
-        - --kubernetes
-        - --logLevel=DEBUG
+        resources: {}
+      hostNetwork: true
       nodeSelector:
         role: ingress
+      restartPolicy: Always
+      serviceAccountName: ingress-traefik
 ---
 kind: Service
 apiVersion: v1
@@ -69,47 +64,7 @@ spec:
     - name: https
       protocol: TCP
       port: 443
+    - name: admin
+      protocol: TCP
+      port: 8180
   type: NodePort
----
-kind: ClusterRole
-apiVersion: rbac.authorization.k8s.io/v1beta1
-metadata:
-  name: ingress-traefik
-rules:
-  - apiGroups:
-      - ""
-    resources:
-      - services
-      - endpoints
-      - secrets
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - extensions
-    resources:
-      - ingresses
-    verbs:
-      - get
-      - list
-      - watch
----
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1beta1
-metadata:
-  name: ingress-traefik
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: ingress-traefik
-subjects:
-- kind: ServiceAccount
-  name: ingress-traefik
-  namespace: kube-system
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: ingress-traefik
-  namespace: kube-system

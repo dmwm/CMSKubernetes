@@ -7,7 +7,6 @@ spec:
     app: frontend
   ports:
     - port: 8443
-#       targetPort: 8443
       nodePort: 31443
   type: NodePort
 ---
@@ -32,15 +31,15 @@ spec:
       containers:
       - image: cmssw/frontend
         name: frontend
-        tty: true
-        stdin: true
-        lifecycle:
-          postStart:
-            exec:
-              command:
-              - bash
-              - -c
-              - sudo chmod 0400 /etc/secrets/server.key /etc/secrets/robotkey.pem
+#         tty: true
+#         stdin: true
+#         lifecycle:
+#           postStart:
+#             exec:
+#               command:
+#               - bash
+#               - -c
+#               - sudo chmod 0400 /etc/secrets/server.key /etc/secrets/robotkey.pem
         ports:
         - containerPort: 8443
           protocol: TCP

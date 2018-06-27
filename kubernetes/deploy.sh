@@ -14,6 +14,8 @@ for p in $pkgs; do
     kubectl delete secret/${p}-secrets
 done
 kubectl delete secret/dbs2go-secrets
+kubectl delete secret/cluster-tls-secret
+kubectl -n kube-system delete secret/cluster-tls-secret
 kubectl -n kube-system delete secret/traefik-cert
 kubectl -n kube-system delete configmap traefik-conf
 
@@ -29,12 +31,14 @@ robot_key=/afs/cern.ch/user/v/valya/private/certificates/robotkey.pem
 robot_crt=/afs/cern.ch/user/v/valya/private/certificates/robotcert.pem
 server_key=/afs/cern.ch/user/v/valya/private/certificates/server.key
 server_crt=/afs/cern.ch/user/v/valya/private/certificates/server.crt
+tls_key=/afs/cern.ch/user/v/valya/private/certificates/tls.key
+tls_crt=/afs/cern.ch/user/v/valya/private/certificates/tls.crt
 dbfile=/afs/cern.ch/user/v/valya/private/dbfile
 dbssecrets=/afs/cern.ch/user/v/valya/private/DBSSecrets.py
 ./make_das_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac $dasconfig
 ./make_dbs_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac $dbssecrets
 ./make_dbs2go_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac $dbsconfig $dbfile
-./make_ing_secret.sh $robot_key $robot_crt $server_key $server_crt
+./make_ing_secret.sh $tls_key $tls_crt
 ./make_frontend_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
 ./make_couchdb_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
 ./make_reqmgr_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
@@ -50,6 +54,10 @@ for p in $pkgs; do
 done
 kubectl apply -f dbs2go-secrets.yaml --validate=false
 rm *secrets.yaml $hmac
+
+echo "### create secrets for TLS case"
+kubectl create secret tls cluster-tls-secret --key=$tls_key --cert=$tls_crt
+kubectl -n kube-system create secret tls cluster-tls-secret --key=$tls_key --cert=$tls_crt
 
 sleep 2
 
@@ -90,8 +98,9 @@ kubectl apply -f dbs2go.yaml --validate=false
 sleep 2
 echo
 echo "### delete daemon ingress-traefik"
-if [ -z "`kubectl get daemonset -n kube-system | grep ingress-traefik`" ]; then
-    kubectl delete daemonset ingress-traefik -n kube-system
+if [ -n "`kubectl get daemonset -n kube-system | grep ingress-traefik`" ]; then
+    kubectl -n kube-system delete daemonset ingress-traefik
+    kubectl -n kube-system delete svc ingress-traefik
 fi
 sleep 2
 echo "### deploy traefik"

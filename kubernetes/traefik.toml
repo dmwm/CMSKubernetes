@@ -8,11 +8,11 @@ defaultEntryPoints = ["http","https"]
       entryPoint = "https"
   [entryPoints.https]
   address = ":443"
-    [entryPoints.https.tls]
-      [[entryPoints.https.tls.certificates]]
-      CertFile = "/ssl/server.crt"
-      KeyFile = "/ssl/server.key"
+#     [entryPoints.https.tls]
+#       [[entryPoints.https.tls.certificates]]
+#       CertFile = "/ssl/server.crt"
+#       KeyFile = "/ssl/server.key"
 
 # Enable Kubernetes Ingress configuration backend.
-[kubernetes]
-    enablePassTLSCert = true
+# [kubernetes]
+#     enablePassTLSCert = true

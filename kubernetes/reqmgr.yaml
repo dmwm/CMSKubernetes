@@ -33,15 +33,15 @@ spec:
       containers:
       - image: cmssw/reqmgr
         name: reqmgr
-        tty: true
-        stdin: true
-        lifecycle:
-          postStart:
-            exec:
-              command:
-              - bash
-              - -c
-              - sudo chmod 0400 /etc/secrets/server.key /etc/secrets/robotkey.pem
+#         tty: true
+#         stdin: true
+#         lifecycle:
+#           postStart:
+#             exec:
+#               command:
+#               - bash
+#               - -c
+#               - sudo chmod 0400 /etc/secrets/server.key /etc/secrets/robotkey.pem
         ports:
         - containerPort: 8246
           protocol: TCP
