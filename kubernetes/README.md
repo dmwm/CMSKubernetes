@@ -333,6 +333,23 @@ http://localhost:8888/api/v1/namespaces/kube-system/services/https:kubernetes-da
 # and choose Token authentication where enter your token from above
 ```
 
+### Administration of kubernetes
+We can perform some administration commands on master node of kubernetes
+cluster. For example, clean-up or look-up docker images. To do that we need
+to know our kube hostname
+```
+cluster=cmsweb # replace accordingly to your settings
+host=`openstack --os-project-name "CMS Webtools Mig" coe cluster show $cluster | grep node_addresses | awk '{print $4}' | sed -e "s,\[u',,g" -e "s,'\],,g"`
+kubehost=`host $host | awk '{print $5}' | sed -e "s,ch.,ch,g"`
+```
+and then we can issue some command against our kubehost, e.g.
+```
+# look-up docker images on master node
+ssh -i ~/.ssh/cloud -o ConnectTimeout=30 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no fedora@${kubehost} "sudo docker images"
+# clean-up docker images on master node
+ssh -i ~/.ssh/cloud -o ConnectTimeout=30 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no fedora@${kubehost} "sudo docker system prune -f -a"
+```
+
 ### References
 - [Kubernetes concepts](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/)
 - [Kubernetes tutorials](https://kubernetes.io/docs/tutorials/kubernetes-basics/)
