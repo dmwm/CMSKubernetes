@@ -17,7 +17,7 @@ docker rm -f `docker ps --no-trunc -aq`
 
 ### run given image, here we map local /tmp/cmsmon area to /etc/secrets in container for app to use
 ### in this area we can store proxy as well as server.{crt,key}
-docker run --rm -h `hostname -f` -v /tmp/cmsmon:/etc/secrets -i -t veknet/cmsmon /bin/bash
+docker run --rm -h `hostname -f` -v /tmp/cmsmon:/etc/secrets -p 127.0.0.1:8181:8181 -i -t veknet/cmsmon /bin/bash
 
 ### remove existing image
 docker rmi cmsmon
