@@ -1,0 +1,6 @@
+{
+    "base": "",
+    "port": 8181,
+    "static": "/data/Go/gopath/src/github.com/vkuznet/cmsmon/static",
+    "verbose": 0
+}
