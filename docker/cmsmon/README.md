@@ -19,6 +19,15 @@ docker rm -f `docker ps --no-trunc -aq`
 ### in this area we can store proxy as well as server.{crt,key}
 docker run --rm -h `hostname -f` -v /tmp/cmsmon:/etc/secrets -p 127.0.0.1:8181:8181 -i -t veknet/cmsmon /bin/bash
 
+### run docker image detached from stdin/stdout
+docker run --rm -h `hostname -f` -p 8181:8181 -d -t veknet/cmsmon
+
+### we can find running containers as following
+docker container ls
+
+### we can kill running container as following
+docker kill <container_name|container_id>
+
 ### remove existing image
 docker rmi cmsmon
 
@@ -32,3 +41,6 @@ docker push USERNAME/cmsmon
 ### clean-up docker images
 docker system prune -f -a
 ```
+
+Docker commands guide can be found
+[here](https://docs.docker.com/engine/reference/commandline/docker/)
