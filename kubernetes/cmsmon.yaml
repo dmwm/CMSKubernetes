@@ -1,0 +1,34 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: cmsmon
+spec:
+  selector:
+    app: cmsmon
+  ports:
+    - port: 8181
+      nodePort: 30181
+  type: NodePort
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: cmsmon
+  name: cmsmon
+spec:
+  selector:
+    matchLabels:
+      app: cmsmon
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cmsmon
+    spec:
+      containers:
+      - image: veknet/cmsmon
+        name: cmsmon
+        ports:
+        - containerPort: 8181
+          protocol: TCP
