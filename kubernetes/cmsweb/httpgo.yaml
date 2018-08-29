@@ -1,0 +1,34 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: httpgo
+spec:
+  selector:
+    app: httpgo
+  ports:
+    - port: 8888
+      nodePort: 30888
+  type: NodePort
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: httpgo
+  name: httpgo
+spec:
+  selector:
+    matchLabels:
+      app: httpgo
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: httpgo
+    spec:
+      containers:
+      - image: veknet/httpgo
+        name: httpgo
+        ports:
+        - containerPort: 8888
+          protocol: TCP

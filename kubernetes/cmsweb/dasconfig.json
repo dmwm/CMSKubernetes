@@ -1,0 +1,19 @@
+{
+    "uri":"mongodb://localhost:8230",
+    "base": "",
+    "port": 8212,
+    "services": ["combined","conddb","dashboard","dbs3","mcm","phedex","reqmgr2","runregistry","sitedb2"],
+    "urlQueueLimit": 1000,
+    "urlRetry": 3,
+    "templates": "/data/gopath/src/github.com/dmwm/das2go/templates",
+    "jscripts": "/data/gopath/src/github.com/dmwm/das2go/js",
+    "styles": "/data/gopath/src/github.com/dmwm/das2go/css",
+    "images": "/data/gopath/src/github.com/dmwm/das2go/images",
+    "dbsInstances": ["prod/global", "prod/phys01", "prod/phys02", "prod/phys03"],
+    "views": ["list", "plain", "table", "json", "xml"],
+    "servercrt": "",
+    "serverkey": "",
+    "updateDNs": 60,
+    "hkey": "",
+    "verbose": 0
+}
