@@ -1,6 +1,5 @@
----
-kind: DaemonSet
 apiVersion: extensions/v1beta1
+kind: DaemonSet
 metadata:
   labels:
     k8s-app: ingress-traefik-backend
@@ -21,50 +20,34 @@ spec:
       - args:
         - --api
         - --kubernetes
-        - --logLevel=INFO
+        - --logLevel=DEBUG
         - --entrypoints=Name:http Address::80
         - --entrypoints=Name:admin Address::8180
         - --entrypoints=Name:traefik Address::8181
-        - --entrypoints=Name:https Address::443 tls
-        - --kubernetes.enablepasstlscert=true
-      image: traefik
+        - --entrypoints=Name:https Address::443 TLS
+        - --insecureskipverify
+#         - --kubernetes.enablepasstlscert=true
+        image: traefik
         imagePullPolicy: Always
         name: ingress-traefik-backend
         ports:
-        - name: http
-          containerPort: 80
+        - containerPort: 80
           hostPort: 80
-        - name: https
-          containerPort: 443
-          hostPort: 443
-        - name: admin
-          containerPort: 8180
+          name: http
+          protocol: TCP
+        - containerPort: 8180
           hostPort: 8180
+          name: admin
+          protocol: TCP
+        - containerPort: 443
+          hostPort: 443
+          name: https
+          protocol: TCP
+        resources: {}
         securityContext:
           privileged: true
-        resources: {}
       hostNetwork: true
       nodeSelector:
         role: ingress
       restartPolicy: Always
       serviceAccountName: ingress-traefik
----
-kind: Service
-apiVersion: v1
-metadata:
-  name: ingress-traefik
-  namespace: kube-system
-spec:
-  selector:
-    k8s-app: ingress-traefik-backend
-  ports:
-    - name: http
-      protocol: TCP
-      port: 80
-    - name: https
-      protocol: TCP
-      port: 443
-    - name: admin
-      protocol: TCP
-      port: 8180
-  type: NodePort

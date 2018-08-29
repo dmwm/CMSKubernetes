@@ -6,7 +6,7 @@ spec:
   selector:
     app: httpsgo
   ports:
-    - port: 8443
+    - port: 443
       nodePort: 30843
   type: NodePort
 ---
@@ -30,7 +30,7 @@ spec:
       - image: veknet/httpsgo
         name: httpsgo
         ports:
-        - containerPort: 8443
+        - containerPort: 443
           protocol: TCP
         volumeMounts:
         - name: secrets

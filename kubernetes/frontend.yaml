@@ -6,9 +6,10 @@ spec:
   selector:
     app: frontend
   ports:
-    - port: 8443
-      nodePort: 31443
-  type: NodePort
+    - port: 443
+      targetPort: 8443
+#       nodePort: 31443
+#   type: NodePort
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1

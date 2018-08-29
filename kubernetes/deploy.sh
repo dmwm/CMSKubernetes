@@ -14,10 +14,10 @@ for p in $pkgs; do
     kubectl delete secret/${p}-secrets
 done
 kubectl delete secret/dbs2go-secrets
-kubectl delete secret/cluster-tls-secret
-kubectl -n kube-system delete secret/cluster-tls-secret
-kubectl -n kube-system delete secret/traefik-cert
-kubectl -n kube-system delete configmap traefik-conf
+kubectl delete secret/cluster-tls-cert
+#kubectl -n kube-system delete secret/cluster-tls-cert
+#kubectl -n kube-system delete secret/traefik-cert
+#kubectl -n kube-system delete configmap traefik-conf
 
 sleep 2
 
@@ -31,14 +31,11 @@ robot_key=/afs/cern.ch/user/v/valya/private/certificates/robotkey.pem
 robot_crt=/afs/cern.ch/user/v/valya/private/certificates/robotcert.pem
 server_key=/afs/cern.ch/user/v/valya/private/certificates/server.key
 server_crt=/afs/cern.ch/user/v/valya/private/certificates/server.crt
-tls_key=/afs/cern.ch/user/v/valya/private/certificates/tls.key
-tls_crt=/afs/cern.ch/user/v/valya/private/certificates/tls.crt
 dbfile=/afs/cern.ch/user/v/valya/private/dbfile
 dbssecrets=/afs/cern.ch/user/v/valya/private/DBSSecrets.py
 ./make_das_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac $dasconfig
 ./make_dbs_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac $dbssecrets
 ./make_dbs2go_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac $dbsconfig $dbfile
-./make_ing_secret.sh $tls_key $tls_crt
 ./make_frontend_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
 ./make_couchdb_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
 ./make_reqmgr_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
@@ -56,8 +53,8 @@ kubectl apply -f dbs2go-secrets.yaml --validate=false
 rm *secrets.yaml $hmac
 
 echo "### create secrets for TLS case"
-kubectl create secret tls cluster-tls-secret --key=$tls_key --cert=$tls_crt
-kubectl -n kube-system create secret tls cluster-tls-secret --key=$tls_key --cert=$tls_crt
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=vkcluster.web.cern.ch"
+kubectl create secret tls cluster-tls-cert --key=tls.key --cert=tls.crt
 
 sleep 2
 
@@ -104,8 +101,8 @@ if [ -n "`kubectl get daemonset -n kube-system | grep ingress-traefik`" ]; then
 fi
 sleep 2
 echo "### deploy traefik"
-kubectl -n kube-system create secret generic traefik-cert --from-file=$server_crt --from-file=$server_key
-kubectl -n kube-system create configmap traefik-conf --from-file=traefik.toml
+#kubectl -n kube-system create secret generic traefik-cert --from-file=$server_crt --from-file=$server_key
+#kubectl -n kube-system create configmap traefik-conf --from-file=traefik.toml
 kubectl -n kube-system apply -f traefik.yaml --validate=false
 
 echo "deploy prometheus: https://devopscube.com/setup-prometheus-monitoring-on-kubernetes/"

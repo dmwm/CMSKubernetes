@@ -2,32 +2,28 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: ingress
+  namespace: default
   annotations:
     kubernetes.io/ingress.class: traefik
-    traefik.frontend.entryPoints: "https"
-
-#     traefik.frontend.passTLSCert: "true"
-#     ingress.kubernetes.io/rewrite-target: /
-#     traefik.frontend.rule.type: PathPrefixStrip
-#     ingress.kubernetes.io/force-hsts: "true"
-#     ingress.kubernetes.io/force-ssl-redirect: "true"
-#     ingress.kubernetes.io/pass-tls-cert: "true"
-#     ingress.kubernetes.io/ssl-proxy-headers: "SSL-Header:VK"
-#     ingress.kubernetes.io/enablePassTLSCert: "true"
-#     ingress.kubernetes.io/ssl-redirect: "true"
-
+    traefik.ingress.kubernetes.io/frontend-entry-points: "https"
+    traefik.ingress.kubernetes.io/preserve-host: "true"
+#     traefik.ingress.kubernetes.io/pass-tls-cert: "true"
 spec:
   rules:
   - host: "cmsweb-test.web.cern.ch"
     http:
       paths:
-#       - path: /
-#         backend:
-#           serviceName: frontend
-#           servicePort: 8443
-      - path: /httpsgo
+      - path: /http
+        backend:
+          serviceName: httpgo
+          servicePort: 8888
+      - path: /https
         backend:
           serviceName: httpsgo
-          servicePort: 8443
+          servicePort: 443
+      - path: /
+        backend:
+          serviceName: frontend
+          servicePort: 443
   tls:
       - secretName: cluster-tls-cert
