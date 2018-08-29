@@ -5,6 +5,8 @@ of your docker account.
 ```
 ### build image
 docker build -t USERNAME/cmsmon .
+### or with specific tag
+docker build -t USERNAME/cmsmon:v0.1 cmsmon
 
 ### list images
 docker images
@@ -37,6 +39,8 @@ docker inspect <docker_id> | grep IPAddress
 
 ### upload image to docker
 docker push USERNAME/cmsmon
+### or specific tag
+docker push USERNAME/cmsmon:v0.1
 
 ### clean-up docker images
 docker system prune -f -a
