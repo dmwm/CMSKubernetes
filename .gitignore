@@ -1,0 +1,6 @@
+*.pem
+*.log
+*.crt
+*.key
+*.orig
+config
