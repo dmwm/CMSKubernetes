@@ -53,23 +53,11 @@ RUN go get -u github.com/golang/protobuf/protoc-gen-go
 
 # build tfaas
 WORKDIR ${WDIR}
-RUN git  clone https://github.com/vkuznet/TFaaS.git
+RUN git clone https://github.com/vkuznet/TFaaS.git
 WORKDIR $WDIR/TFaaS/src/Go
 RUN make
 ENV PATH="${WDIR}/TFaaS/src/Go:${PATH}"
 
-# add proxy generation via robot certificate
-RUN echo "3 */3 * * * /data/proxy.sh $USER 2>&1 1>& /dev/null" | crontab -
-ENV X509_USER_PROXY=/data/srv/current/auth/proxy/proxy
-
-# add scripts to run and configuration
-ADD run.sh $WDIR/run.sh
-ADD proxy.sh $WDIR/proxy.sh
-ADD config.json $WDIR/config.json
-
 # run the service
-WORKDIR ${WDIR}
 RUN mkdir models
-RUN rm ${TF_LIB}
-RUN cat $WDIR/config.json | sed -e "s,GOPATH,$GOPATH,g" > $WDIR/tfaas-config.json
-CMD ["run.sh"]
+CMD ["tfaas",  "-config", "config.json"]
