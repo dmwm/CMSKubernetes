@@ -1,7 +1,13 @@
-#!/bin/bsh
-wdir=/afs/cern.ch/user/v/valya/private/CMSKubernetes/kubernetes
-cluster=k8s
-cluster=cmsweb
+#!/bin/bash
+
+if [ $# -eq 0 ] || [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ]; then
+    echo "Usage: setup.sh <cluster name>"
+    exit 0
+fi
+
+#wdir=/afs/cern.ch/user/v/valya/private/CMSKubernetes/kubernetes
+wdir=$PWD
+cluster=$1
 export KUBECONFIG=$wdir/$cluster/config
 #host=`openstack coe cluster show vkcluster | grep node_addresses | awk '{print $4}' | sed -e "s,\[u',,g" -e "s,'\],,g"`
 host=`openstack --os-project-name "CMS Webtools Mig" coe cluster show $cluster | grep node_addresses | awk '{print $4}' | sed -e "s,\[u',,g" -e "s,'\],,g"`
