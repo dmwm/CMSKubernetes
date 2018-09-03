@@ -14,9 +14,9 @@ kubectl get node -l role=ingress
 echo
 echo "### delete services"
 kubectl delete -f cmsmon.yaml
-kubectl delete -f ing-cmsmon.yaml
+kubectl delete -f ing.yaml
 kubectl apply -f cmsmon.yaml --validate=false
-kubectl apply -f ing-cmsmon.yaml --validate=false
+kubectl apply -f ing.yaml --validate=false
 
 sleep 2
 echo
@@ -27,4 +27,4 @@ if [ -n "`kubectl get daemonset -n kube-system | grep ingress-traefik`" ]; then
 fi
 sleep 2
 echo "### deploy traefik"
-kubectl -n kube-system apply -f traefik-cmsmon.yaml --validate=false
+kubectl -n kube-system apply -f traefik.yaml --validate=false

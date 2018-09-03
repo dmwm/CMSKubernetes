@@ -27,7 +27,7 @@ spec:
         app: cmsmon
     spec:
       containers:
-      - image: veknet/cmsmon
+      - image: veknet/cmsmon:v0.2
         name: cmsmon
         ports:
         - containerPort: 8181
