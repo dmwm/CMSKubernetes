@@ -60,4 +60,8 @@ ENV PATH="${WDIR}/TFaaS/src/Go:${PATH}"
 
 # run the service
 RUN mkdir models
-CMD ["tfaas",  "-config", "config.json"]
+RUN mv config.json config.json.orig
+ADD config.json config.json
+ADD run.sh run.sh
+#CMD ["tfaas",  "-config", "config.json"]
+CMD ["run.sh"]

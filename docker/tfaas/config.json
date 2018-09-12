@@ -2,7 +2,7 @@
     "port": 8083,
     "auth": "false",
     "modelDir": "models",
-    "staticDir": "/data/TFaaS/src/Go/static",
+    "staticDir": "static",
     "configProto": "",
     "base": "",
     "serverKey": "",
