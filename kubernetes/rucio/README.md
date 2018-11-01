@@ -119,7 +119,7 @@ As root (`sudo su`) install some general packages and docker:
     systemctl start docker
     systemctl enable docker
     docker run hello-world
-    sudo usermod -a -G docker ewv
+    sudo usermod -a -G docker [your user name]
     exit
 
 Also add what's needed to make this also where we generate and delegate proxies
