@@ -5,23 +5,30 @@ Adapted from rucio instructions here: https://github.com/rucio/helm-charts/tree/
 
 ## Setup a new cluster in the CMSRucio project:
 
+Begin by logging into the CERN cloud infrastructure `slogin lxplus7-cloud.cern.ch` then:
 
     openstack coe cluster delete --os-project-name CMSRucio  cmsruciotest
     openstack coe cluster create cmsruciotest --keypair lxplus  --os-project-name CMSRucio   --cluster-template kubernetes-preview --node-count 4
     openstack coe cluster list --os-project-name CMSRucio # Monitor creation status
 
+Note that you can set up a cluster in your personal project space by omitting `--os-project-name CMSRucio`. 
+CMSRucio is a project space CERN has setup for us to contain our production and testbed servers.
 
 ### If setting up a new/changed cluster:
 
-
+    cd [some directory] # or use $HOME
+    export BASEDIR=`pwd`
     rm key.pem cert.pem ca.pem config
     openstack coe cluster config  --os-project-name CMSRucio  cmsruciotest
-    export KUBECONFIG=/afs/cern.ch/user/e/ewv/config
+    
+This command will show you the proper value of your `KUBECONFIG` variable which should be this:   
+    
+    export KUBECONFIG=$BASEDIR/config
 
 
 Copy and paste the last line. On subsequent logins it is all that is needed. Now make sure that your nodes exist:
 
-    -bash-4.2$ export KUBECONFIG=/afs/cern.ch/user/e/ewv/config
+    -bash-4.2$ export KUBECONFIG=[as above]
     -bash-4.2$ kubectl get nodes
     NAME                                 STATUS    ROLES     AGE       VERSION
     cmsruciotest-mzvha4weztri-minion-0   Ready     <none>    5m        v1.11.2
@@ -31,17 +38,21 @@ Copy and paste the last line. On subsequent logins it is all that is needed. Now
 
 ## Install helm if needed
 
+Download helm using instructions at https://docs.helm.sh/using_helm/#installing-helm and install it in your path like:
+
     mkdir $HOME/bin
     export PATH=$PATH:$HOME/bin
     cp helm $HOME/bin
 
 ## Setup helm if needed
 
-    export KUBECONFIG=/afs/cern.ch/user/e/ewv/config
+    export KUBECONFIG=[as above]
     kubectl config current-context
     helm repo add rucio https://rucio.github.io/helm-charts
 
-## Label nodes for ingress (pick from above list) and add the same nodes to the DNS registration
+## Label nodes for ingress and add the same nodes to the DNS registration
+
+Pick at least two of the nodes from the output of the `kubectl get nodes` command above. (Two for load balancing/redundancy.)
 
     kubectl label node cmsruciotest-mzvha4weztri-minion-0 role=ingress
     kubectl label node cmsruciotest-mzvha4weztri-minion-3 role=ingress
@@ -76,7 +87,7 @@ helm install --name cms-ruciod-testbed --values cms-rucio-common.yaml --values c
 
 The above is what is needed to get things bootstrapped the first time. After this, you can modify the various yaml files and
 
-    export KUBECONFIG=/afs/cern.ch/user/e/ewv/config
+    export KUBECONFIG=[as above]
     helm upgrade --values cms-rucio-common.yaml --values cms-rucio-server.yaml cms-rucio-testbed rucio/rucio-server
     helm upgrade --values cms-rucio-common.yaml --values cms-rucio-daemons.yaml cms-ruciod-testbed rucio/rucio-daemons
 
@@ -133,14 +144,15 @@ For now this is not in a cron job:
 # Get a client running and connect to your server
 
 It can be easiest just to create another container with a client installed to connect to your new server. There is a client YAML file
-that can also be installed into your newly formed kubernetes cluster.
+that can also be installed into your newly formed kubernetes cluster. 
+Find the client name below from the output of `kubectl get pods`
 
     kubectl create -f rucio-client.yaml 
     kubectl exec -it client-6c4466d746-gwl9g /bin/bash
     
 And then in your client container, setup a proxy or use user/password etc. and
     
-    export RUCIO_ACCOUNT=ewv
+    export RUCIO_ACCOUNT=[an account your identity maps to]
     rucio whoami 
 
-
+From here you should be able to use any rucio command line commands you need to.
