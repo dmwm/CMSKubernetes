@@ -16,4 +16,6 @@ conveyorTransferSubmitter:
 
 reaper:
   greedy: 1
+  # Must be kept larger than the number of RSEs for now
+  workers: 14
 
