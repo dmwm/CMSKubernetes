@@ -122,13 +122,13 @@ As root (`sudo su`) install some general packages and docker:
     sudo usermod -a -G docker [your user name]
     exit
 
-Also add what's needed to make this also where we generate and delegate proxies
+Also add what's needed to make this also where we generate and delegate proxies. Also to accept proxies for auth server
 
-    sudo yum install voms-clients-cpp
+    sudo yum -y install voms-clients-cpp
     sudo yum -y install http://linuxsoft.cern.ch/wlcg/centos7/x86_64/wlcg-repo-1.0.0-1.el7.noarch.rpm
     sudo curl -o  /etc/yum.repos.d/ca.repo https://raw.githubusercontent.com/rucio/rucio/master/etc/docker/dev/ca.repo
-    sudo yum update; sudo yum -y install ca-certificates.noarch lcg-CA voms-clients-cpp wlcg-voms-cms 
-    sudo yum install fts-rest-cli
+    sudo yum update 
+    sudo yum -y install ca-certificates.noarch lcg-CA voms-clients-cpp wlcg-voms-cms fetch-crl fts-rest-cli
 
 ## Start (or restart) the docker image
 
