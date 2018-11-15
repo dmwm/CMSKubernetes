@@ -8,6 +8,7 @@ judgeCleanerCount: 1
 judgeEvaluatorCount: 1
 judgeInjectorCount: 1
 judgeRepairerCount: 1
+transmogrifierCount: 1
 undertakerCount: 0
 reaperCount: 1
 
@@ -16,4 +17,6 @@ conveyorTransferSubmitter:
 
 reaper:
   greedy: 1
+  # Must be kept larger than the number of RSEs for now
+  workers: 14
 
