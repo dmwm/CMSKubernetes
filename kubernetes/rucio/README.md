@@ -82,6 +82,7 @@ Create the other secrets with (on lxplus7-cloud.cern.ch):
 
 helm install --name cms-rucio-testbed --values cms-rucio-common.yaml --values cms-rucio-server.yaml rucio/rucio-server
 helm install --name cms-ruciod-testbed --values cms-rucio-common.yaml --values cms-rucio-daemons.yaml rucio/rucio-daemons
+helm install --name graphite --values rucio-graphite.yaml  stable/graphite
 
 # To upgrade the servers
 
@@ -90,7 +91,8 @@ The above is what is needed to get things bootstrapped the first time. After thi
     export KUBECONFIG=[as above]
     helm upgrade --values cms-rucio-common.yaml --values cms-rucio-server.yaml cms-rucio-testbed rucio/rucio-server
     helm upgrade --values cms-rucio-common.yaml --values cms-rucio-daemons.yaml cms-ruciod-testbed rucio/rucio-daemons
-
+    helm upgrade --values rucio-graphite.yaml graphite stable/graphite 
+    
 # Use a node outside of kubernetes as an authorization server and to delegate FTS proxies
 
 While we expect that eventually the authorization server will be able to run inside of kubernetes, at the moment it cannot.
@@ -156,3 +158,15 @@ And then in your client container, setup a proxy or use user/password etc. and
     rucio whoami 
 
 From here you should be able to use any rucio command line commands you need to.
+
+# Connect to graphite from a web browser
+
+This is complicated at the moment. One needs to figure out what node the server is exposed on using kubectl tools and 
+use tunneling if connecting from outside of CERN. 
+
+Setup the tunnel with 
+
+    ssh -D 8089 -N ${USER}@lxplus.cern.ch
+
+and configure your browser appropriately (Firefox works well with SOCK5 proxies) then visit the URL for the graphite server
+which at the time of writing was http://cmsruciotest-73m6rlb5qg4p-minion-3.cern.ch:30862 
