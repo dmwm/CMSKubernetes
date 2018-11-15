@@ -8,6 +8,7 @@ judgeCleanerCount: 1
 judgeEvaluatorCount: 1
 judgeInjectorCount: 1
 judgeRepairerCount: 1
+transmogrifierCount: 1
 undertakerCount: 0
 reaperCount: 1
 
