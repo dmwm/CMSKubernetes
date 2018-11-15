@@ -1,5 +1,5 @@
 image:
-  tag: release-1.18.1
+  tag: release-1.18.4
 
 config:
     database:
@@ -22,3 +22,6 @@ config:
         voname: "cms"    
     conveyor:
         ftshosts: "https://cmsfts3.fnal.gov:8446,https://fts3.cern.ch:8446,https://lcgfts3.gridpp.rl.ac.uk:8446"
+    monitor:
+        carbon_server: graphite
+        user_scope: rucio
