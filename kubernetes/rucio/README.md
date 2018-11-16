@@ -59,7 +59,7 @@ Pick at least two of the nodes from the output of the `kubectl get nodes` comman
     openstack server set  --os-project-name CMSRucio  --property landb-alias=cms-rucio-test--load-1- cmsruciotest-73m6rlb5qg4p-minion-0 
     openstack server set  --os-project-name CMSRucio  --property landb-alias=cms-rucio-test--load-2- cmsruciotest-73m6rlb5qg4p-minion-3
 
-`openstack server unset` will undo this
+`openstack server unset` will undo this. More details are here: https://clouddocs.web.cern.ch/clouddocs/containers/tutorials/lb.html
 
 ## Install helm into the kubernetes project
 
