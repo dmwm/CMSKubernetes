@@ -91,7 +91,7 @@ The above is what is needed to get things bootstrapped the first time. After thi
     export KUBECONFIG=[as above]
     helm upgrade --values cms-rucio-common.yaml --values cms-rucio-server.yaml cms-rucio-testbed rucio/rucio-server
     helm upgrade --values cms-rucio-common.yaml --values cms-rucio-daemons.yaml cms-ruciod-testbed rucio/rucio-daemons
-    helm upgrade --values rucio-graphite.yaml graphite stable/graphite 
+    helm upgrade --values rucio-graphite.yaml --values rucio-graphite-ingress.yaml graphite stable/graphite 
     
 # Use a node outside of kubernetes as an authorization server and to delegate FTS proxies
 
