@@ -1,6 +1,5 @@
 image:
   repository: cmssw/rucio_server
-  tag: latest
 
 replicaCount: 1
 authReplicaCount: 0
