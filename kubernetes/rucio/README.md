@@ -61,6 +61,11 @@ Pick at least two of the nodes from the output of the `kubectl get nodes` comman
 
 `openstack server unset` will undo this. One must wait up to 15 minutes after the openstack commands for the DNS registration to become active. More details are here: https://clouddocs.web.cern.ch/clouddocs/containers/tutorials/lb.html
 
+Repeat this process for the graphite ingress node
+
+    kubectl label node cmsruciotest-73m6rlb5qg4p-minion-1 role=ingress
+    openstack server set  --os-project-name CMSRucio  --property landb-alias=cms-rucio-graphite-test--load-1- cmsruciotest-73m6rlb5qg4p-minion-1
+
 ## Install helm into the kubernetes project
 
     helm init
@@ -80,9 +85,9 @@ Create the other secrets with (on lxplus7-cloud.cern.ch):
 
 ## Install CMS server into the kubernetes project. Later we can add another set of values files for testbed, integration, production
 
-helm install --name cms-rucio-testbed --values cms-rucio-common.yaml --values cms-rucio-server.yaml rucio/rucio-server
-helm install --name cms-ruciod-testbed --values cms-rucio-common.yaml --values cms-rucio-daemons.yaml rucio/rucio-daemons
-helm install --name graphite --values rucio-graphite.yaml  stable/graphite
+    helm install --name cms-rucio-testbed --values cms-rucio-common.yaml --values cms-rucio-server.yaml rucio/rucio-server
+    helm install --name cms-ruciod-testbed --values cms-rucio-common.yaml --values cms-rucio-daemons.yaml rucio/rucio-daemons
+    helm install --name graphite --values rucio-graphite.yaml  stable/graphite
 
 # To upgrade the servers
 
