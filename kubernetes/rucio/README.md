@@ -11,7 +11,8 @@ Begin by logging into the CERN cloud infrastructure `slogin lxplus7-cloud.cern.c
     openstack coe cluster create cmsruciotest --keypair lxplus  --os-project-name CMSRucio   --cluster-template kubernetes-preview --node-count 4
     openstack coe cluster list --os-project-name CMSRucio # Monitor creation status
 
-Note that you can set up a cluster in your personal project space by omitting `--os-project-name CMSRucio`. 
+If you are creating your own project for development, please omit `--os-project-name CMSRucio`. 
+This will create a kubernetes cluster in your own openstack space rather than the central group space.
 CMSRucio is a project space CERN has setup for us to contain our production and testbed servers.
 
 ### If setting up a new/changed cluster:
