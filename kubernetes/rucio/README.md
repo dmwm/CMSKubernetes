@@ -3,6 +3,12 @@ Adapted from rucio instructions here: https://github.com/rucio/helm-charts/tree/
 
 # First time setup
 
+## OpenStack project
+
+You need to request a personal OpenStack project in which to install your kubernetes cluster. 
+You might also want to request a quota for "Shares" in the "Geneva CephFS Testing" type for persistent data storage. 
+This is used right now by Graphite.
+
 ## Setup a new cluster in the CMSRucio project:
 
 Begin by logging into the CERN cloud infrastructure `slogin lxplus7-cloud.cern.ch` then:
@@ -66,6 +72,12 @@ Repeat this process for the graphite ingress node
 
     kubectl label node cmsruciotest-73m6rlb5qg4p-minion-1 role=ingress
     openstack server set  --os-project-name CMSRucio  --property landb-alias=cms-rucio-graphite-test--load-1- cmsruciotest-73m6rlb5qg4p-minion-1
+
+## Setup StorageClass (if needed)
+
+If we have CephFS storage needs, one makes a single storage class for the entire claim:
+
+    kubectl create -f cms-rucio-storage.yaml
 
 ## Install helm into the kubernetes project
 
