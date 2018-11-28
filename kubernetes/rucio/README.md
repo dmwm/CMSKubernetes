@@ -149,6 +149,8 @@ Also add what's needed to make this also where we generate and delegate proxies.
     sudo curl -o  /etc/yum.repos.d/ca.repo https://raw.githubusercontent.com/rucio/rucio/master/etc/docker/dev/ca.repo
     sudo yum update 
     sudo yum -y install ca-certificates.noarch lcg-CA voms-clients-cpp wlcg-voms-cms fetch-crl fts-rest-cli
+    sudo systemctl start fetch-crl-cron
+    sund systemctl enable fetch-crl-cron 
 
 ## Start (or restart) the docker image
 
