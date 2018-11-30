@@ -1,3 +1,6 @@
+image:
+  repository: cmssw/rucio-daemons
+
 abacusAccountCount: 0
 abacusRseCount: 0
 conveyorTransferSubmitterCount: 1
