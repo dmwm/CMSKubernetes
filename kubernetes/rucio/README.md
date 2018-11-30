@@ -93,7 +93,8 @@ run `CMSKubernetes/kubernetes/rucio/renew_fts_proxy.sh` on `cms-rucio-authz` nod
 Create the other secrets with (on lxplus7-cloud.cern.ch):
 
     kubectl create secret generic  cms-ruciod-testbed-rucio-ca-bundle --from-file=/etc/pki/tls/certs/CERN-bundle.pem
-    ./CMSKubernetes/kubernetes/rucio/renew_fts_proxy.sh/rucio_reaper_secret.sh 
+    kubectl create secret generic  cms-analysisd-testbed-rucio-ca-bundle --from-file=/etc/pki/tls/certs/CERN-bundle.pem
+    ./CMSKubernetes/kubernetes/rucio/rucio_reaper_secret.sh 
     kubectl get secrets
 
 ## Install CMS server into the kubernetes project. Later we can add another set of values files for testbed, integration, production
