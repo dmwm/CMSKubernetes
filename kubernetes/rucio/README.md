@@ -43,13 +43,13 @@ Copy and paste the last line. On subsequent logins it is all that is needed. Now
     cmsruciotest-mzvha4weztri-minion-2   Ready     <none>    6m        v1.11.2
     cmsruciotest-mzvha4weztri-minion-3   Ready     <none>    6m        v1.11.2
 
-## Install helm if needed
+## Install or upgrade helm if needed
 
-Download helm using instructions at https://docs.helm.sh/using_helm/#installing-helm and install it in your path like:
-
-    mkdir $HOME/bin
-    export PATH=$PATH:$HOME/bin
-    cp helm $HOME/bin
+You can download helm using instructions at https://docs.helm.sh/using_helm/#installing-helm and install it in your path. 
+However CERN has recently added helm to the cluster. If you get a version incompatibility you may need to upgrade helm 
+(in kubernetes) with 
+    
+    helm init --upgrade
 
 ## Setup helm if needed
 
