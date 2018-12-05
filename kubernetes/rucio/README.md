@@ -94,7 +94,7 @@ Create the other secrets with (on lxplus7-cloud.cern.ch):
 
     kubectl create secret generic  cms-ruciod-testbed-rucio-ca-bundle --from-file=/etc/pki/tls/certs/CERN-bundle.pem
     kubectl create secret generic  cms-analysisd-testbed-rucio-ca-bundle --from-file=/etc/pki/tls/certs/CERN-bundle.pem
-    ./CMSKubernetes/kubernetes/rucio/rucio_reaper_secret.sh 
+    ./CMSKubernetes/kubernetes/rucio/rucio_reaper_secret.sh  # Currently needs to be done after helm install below 
     kubectl get secrets
 
 ## Install CMS server into the kubernetes project. Later we can add another set of values files for testbed, integration, production
