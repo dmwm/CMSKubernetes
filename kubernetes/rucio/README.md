@@ -140,19 +140,21 @@ As root (`sudo su`) install some general packages and docker:
     systemctl start docker
     systemctl enable docker
     docker run hello-world
-    sudo usermod -a -G docker [your user name]
+    usermod -a -G docker [your user name]
+
+
+Continuing as root, add what's needed to make this also where we generate and delegate proxies. 
+Also to accept proxies for auth server
+
+    yum -y install voms-clients-cpp
+    yum -y install http://linuxsoft.cern.ch/wlcg/centos7/x86_64/wlcg-repo-1.0.0-1.el7.noarch.rpm
+    curl -o  /etc/yum.repos.d/ca.repo https://raw.githubusercontent.com/rucio/rucio/master/etc/docker/dev/ca.repo
+    yum update 
+    yum -y install ca-certificates.noarch lcg-CA voms-clients-cpp wlcg-voms-cms fetch-crl fts-rest-cli
+    systemctl start fetch-crl-cron
+    systemctl enable fetch-crl-cron 
     exit
-
-Also add what's needed to make this also where we generate and delegate proxies. Also to accept proxies for auth server
-
-    sudo yum -y install voms-clients-cpp
-    sudo yum -y install http://linuxsoft.cern.ch/wlcg/centos7/x86_64/wlcg-repo-1.0.0-1.el7.noarch.rpm
-    sudo curl -o  /etc/yum.repos.d/ca.repo https://raw.githubusercontent.com/rucio/rucio/master/etc/docker/dev/ca.repo
-    sudo yum update 
-    sudo yum -y install ca-certificates.noarch lcg-CA voms-clients-cpp wlcg-voms-cms fetch-crl fts-rest-cli
-    sudo systemctl start fetch-crl-cron
-    sund systemctl enable fetch-crl-cron 
-
+    
 ## Start (or restart) the docker image
 
     ./CMSKubernetes/kubernetes/rucio/start_rucio_auth.sh
