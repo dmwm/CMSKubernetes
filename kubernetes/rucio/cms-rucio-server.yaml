@@ -1,5 +1,5 @@
 image:
-  repository: cmssw/rucio_server
+  repository: cmssw/rucio-server
 
 replicaCount: 1
 authReplicaCount: 0

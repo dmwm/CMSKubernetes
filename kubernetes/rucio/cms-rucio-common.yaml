@@ -1,9 +1,7 @@
 image:
-  tag: release-1.18.5.post1
+  tag: release-1.18.5.post2
 
 config:
-    database:
-        default: "oracle://cms_rucio_testbed:L9ow2_r2entEdb8OZe_1nPAh7aR@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=devdb12-s.cern.ch)(PORT=10121))(CONNECT_DATA=(SERVICE_NAME=devdb12_s.cern.ch)))"
     policy:
         permission: "cms"
         schema: "cms"
