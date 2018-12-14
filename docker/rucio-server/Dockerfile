@@ -7,8 +7,8 @@
 # Authors:
 # - Eric Vaandering, <ewv@fnal.gov>, 2018
 
-FROM rucio/rucio-server:release-1.18.5.post1
+FROM rucio/rucio-server:release-1.18.7
 
-ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/cmstfc_lfn2pfn.py  /usr/lib/python2.7/site-packages/cmstfc.py
+ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/cmstfc.py  /usr/lib/python2.7/site-packages/cmstfc.py
 
 RUN chmod 755 /usr/lib/python2.7/site-packages/cmstfc.py
