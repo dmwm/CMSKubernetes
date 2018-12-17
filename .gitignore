@@ -8,6 +8,8 @@ config
 # Files containing DB passwords
 
 kubernetes/rucio/DBURL.txt
+kubernetes/rucio/cms-rucio-oldtest-db.yaml
 kubernetes/rucio/cms-rucio-testbed-db.yaml
 kubernetes/rucio/testbed_db.txt
+kubernetes/rucio/prod_db.txt
 
