@@ -2,13 +2,17 @@ image:
   tag: release-1.18.5.post2
 
 config:
+    accounts:
+        special_accounts: "tier0"
     policy:
         permission: "cms"
         schema: "cms"
         lfn2pfn_module: "cmstfc"
+        support: "https://its.cern.ch/jira/projects/CMSRUCIO/summary"
     messaging_hermes:
         brokers: "localhost"
         voname: "cms"    
+        email_from: "cms-rucio-dev@cern.ch"
     messaging_cache:
         brokers: "localhost"
         voname: "cms"    
