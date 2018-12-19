@@ -1,5 +1,5 @@
 image:
-  tag: release-1.18.5.post2
+  tag: release-1.18.7
 
 config:
     accounts:
