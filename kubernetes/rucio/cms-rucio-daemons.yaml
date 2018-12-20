@@ -1,8 +1,8 @@
 image:
   repository: cmssw/rucio-daemons
 
-abacusAccountCount: 0
-abacusRseCount: 0
+abacusAccountCount: 1
+abacusRseCount: 1
 conveyorTransferSubmitterCount: 1
 conveyorPollerCount: 1
 conveyorFinisherCount: 1
@@ -12,7 +12,7 @@ judgeEvaluatorCount: 1
 judgeInjectorCount: 1
 judgeRepairerCount: 1
 transmogrifierCount: 1
-undertakerCount: 0
+undertakerCount: 1
 reaperCount: 1
 
 conveyorTransferSubmitter:
