@@ -1,0 +1,22 @@
+# This is not used in an automated way. Just a way to get a k8s client running in the cluster
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: k8s-client
+  labels:
+    app: k8s-client
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: k8s-client
+    spec:
+      serviceAccountName: rucio-admin
+      containers:
+        - name: k8s-client
+          image: ericvaandering/rucio-cron
+          imagePullPolicy: Always
+          command: ["/bin/sleep"]
+          args: ["3600"]

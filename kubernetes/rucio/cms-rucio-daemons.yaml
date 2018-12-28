@@ -23,3 +23,12 @@ reaper:
   # Must be kept larger than the number of RSEs for now
   workers: 14
 
+# Settings to renew FTS	proxy
+ftsRenewal:
+  enabled: 1
+  image:
+    repository: rucio/fts-cron
+    tag: latest
+  voms: "cms:/cms/Role=production"
+  servers: "https://fts3-devel.cern.ch:8446,https://cmsfts3.fnal.gov:8446,https://fts3.cern.ch:8446,https://lcgfts3.gridpp.rl.ac.uk:8446,https://fts3-pilot.cern.ch:8446"
+
