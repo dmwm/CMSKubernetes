@@ -88,10 +88,10 @@ If we have CephFS storage needs, one makes a single storage class for the entire
 
 ## Create relevant secrets 
 
-run `CMSKubernetes/kubernetes/rucio/renew_fts_proxy.sh` on `cms-rucio-authz` node to make the secret `cms-ruciod-testbed-rucio-x509up`.
+Create the other secrets with (on lxplus7-cloud.cern.ch and/or other machines):
 
-Create the other secrets with (on lxplus7-cloud.cern.ch):
-
+    kubectl create secret generic fts-cert --from-file=[robot certificate]
+    kubectl create secret generic fts-key --from-file=[robot key, unencrypted]
     kubectl create secret generic  cms-ruciod-testbed-rucio-ca-bundle --from-file=/etc/pki/tls/certs/CERN-bundle.pem
     kubectl create secret generic  cms-analysisd-testbed-rucio-ca-bundle --from-file=/etc/pki/tls/certs/CERN-bundle.pem
     ./CMSKubernetes/kubernetes/rucio/rucio_reaper_secret.sh  # Currently needs to be done after helm install below 
@@ -99,32 +99,34 @@ Create the other secrets with (on lxplus7-cloud.cern.ch):
 
 ## Install CMS server into the kubernetes project. Later we can add another set of values files for testbed, integration, production
 
-    helm install --name cms-rucio-testbed --values cms-rucio-common.yaml --values cms-rucio-server.yaml rucio/rucio-server
-    helm install --name cms-ruciod-testbed --values cms-rucio-common.yaml --values cms-rucio-daemons.yaml rucio/rucio-daemons
-    helm install --name graphite --values rucio-graphite.yaml  stable/graphite
+    export KUBECONFIG=[as above]
+    cd CMSKubernetes/kubernetes/rucio
+    ./install_rucio_[production, testbed, etc].sh
 
 # To upgrade the servers
 
 The above is what is needed to get things bootstrapped the first time. After this, you can modify the various yaml files and
 
     export KUBECONFIG=[as above]
-    helm upgrade --values cms-rucio-common.yaml --values cms-rucio-server.yaml cms-rucio-testbed rucio/rucio-server
-    helm upgrade --values cms-rucio-common.yaml --values cms-rucio-daemons.yaml cms-ruciod-testbed rucio/rucio-daemons
-    helm upgrade --values rucio-graphite.yaml --values rucio-graphite-ingress.yaml graphite stable/graphite 
+    cd CMSKubernetes/kubernetes/rucio
+    ./upgrade_rucio_[production, testbed, etc].sh
     
 # Use a node outside of kubernetes as an authorization server and to delegate FTS proxies
 
 While we expect that eventually the authorization server will be able to run inside of kubernetes, at the moment it cannot.
-This is because of how kubernetes/traefik handles (or doesn't) client certificates. For the moment, it's easiest just to turn 
-an OpenStack node into the authorization server. The same VM can be used to manage the FTS proxies.
+This is because of how kubernetes/traefik handles (or doesn't) client certificates. 
+For the moment, it's easiest just to turn an OpenStack node into the authorization server. 
+The same VM can be used to manage the FTS proxies.
 
 ## Setup the VM node itself
 
-This recipe is for starting with an OpenStack CC7 node which we assume is named `cms-rucio-authz`. The OpenStack "small" type is fine.
+This recipe is for starting with an OpenStack CC7 node which we assume is named `cms-rucio-authz`. 
+The OpenStack "small" type is fine.
 
 ### Get a host certificate installed
 
-Use CERN CA https://ca.cern.ch/ca/ to generate a host cert, scp the cert to lxplus:~/.globus/ and then create certificate and key:
+Use CERN CA https://ca.cern.ch/ca/ to generate a host cert, 
+scp the cert to lxplus:~/.globus/ and then create certificate and key:
 
     sudo mkdir /etc/grid-security
     sudo openssl pkcs12 -in ~/.globus/cms-rucio-authz.p12  -clcerts -nokeys -out /etc/grid-security/hostcert.pem
@@ -142,15 +144,13 @@ As root (`sudo su`) install some general packages and docker:
     docker run hello-world
     usermod -a -G docker [your user name]
 
-
-Continuing as root, add what's needed to make this also where we generate and delegate proxies. 
-Also to accept proxies for auth server
+Continuing as root, add what's needed to accept proxies for the auth server:
 
     yum -y install voms-clients-cpp
     yum -y install http://linuxsoft.cern.ch/wlcg/centos7/x86_64/wlcg-repo-1.0.0-1.el7.noarch.rpm
     curl -o  /etc/yum.repos.d/ca.repo https://raw.githubusercontent.com/rucio/rucio/master/etc/docker/dev/ca.repo
     yum update 
-    yum -y install ca-certificates.noarch lcg-CA voms-clients-cpp wlcg-voms-cms fetch-crl fts-rest-cli
+    yum -y install ca-certificates.noarch lcg-CA voms-clients-cpp wlcg-voms-cms fetch-crl 
     systemctl start fetch-crl-cron
     systemctl enable fetch-crl-cron 
     exit
@@ -159,13 +159,6 @@ Also to accept proxies for auth server
 
     ./CMSKubernetes/kubernetes/rucio/start_rucio_auth.sh
    
-## Delegate proxies
-
-For now this is not in a cron job:
-
-    ./CMSKubernetes/kubernetes/rucio/renew_fts_proxy.sh
-
-
 # Get a client running and connect to your server
 
 It can be easiest just to create another container with a client installed to connect to your new server. There is a client YAML file
