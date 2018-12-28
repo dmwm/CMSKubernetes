@@ -31,7 +31,7 @@ docker run -d --privileged  \
   -v /etc/grid-security/hostcert.pem:/etc/grid-security/hostcert.pem:z \
   -v /etc/grid-security/hostkey.pem:/etc/grid-security/hostkey.pem:z \
   -v /etc/pki/tls/certs/CERN_Root_CA.pem:/etc/grid-security/ca.pem:z \
-rucio/rucio-server:release-1.18.5
+rucio/rucio-server:latest
 
 export RUCIO_CFG_DATABASE_DEFAULT=`cat /afs/cern.ch/user/e/ewv/DBURL.txt`
 
@@ -50,6 +50,6 @@ docker run -d --privileged  \
   -v /etc/grid-security/hostcert.pem:/etc/grid-security/hostcert.pem:z \
   -v /etc/grid-security/hostkey.pem:/etc/grid-security/hostkey.pem:z \
   -v /etc/pki/tls/certs/CERN_Root_CA.pem:/etc/grid-security/ca.pem:z \
-rucio/rucio-server:release-1.18.5
+rucio/rucio-server:latest
 
 
