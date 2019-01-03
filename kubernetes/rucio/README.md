@@ -43,15 +43,7 @@ Copy and paste the last line. On subsequent logins it is all that is needed. Now
     cmsruciotest-mzvha4weztri-minion-2   Ready     <none>    6m        v1.11.2
     cmsruciotest-mzvha4weztri-minion-3   Ready     <none>    6m        v1.11.2
 
-## Install or upgrade helm if needed
-
-You can download helm using instructions at https://docs.helm.sh/using_helm/#installing-helm and install it in your path. 
-However CERN has recently added helm to the cluster. If you get a version incompatibility you may need to upgrade helm 
-(in kubernetes) with 
-    
-    helm init --upgrade
-
-## Setup helm if needed
+## Setup the helm repos if needed
 
     export KUBECONFIG=[as above]
     kubectl config current-context
@@ -111,6 +103,14 @@ The above is what is needed to get things bootstrapped the first time. After thi
     cd CMSKubernetes/kubernetes/rucio
     ./upgrade_rucio_[production, testbed, etc].sh
     
+## Upgrade helm if needed
+
+CERN has added helm to the lxplus-cloud machines. 
+If you get a version incompatibility warning from helm, 
+you may need to upgrade tiller (installed in kubernetes) with 
+    
+    helm init --upgrade
+    
 # Use a node outside of kubernetes as an authorization server and to delegate FTS proxies
 
 While we expect that eventually the authorization server will be able to run inside of kubernetes, at the moment it cannot.
@@ -133,7 +133,7 @@ scp the cert to lxplus:~/.globus/ and then create certificate and key:
     sudo openssl pkcs12 -in ~/.globus/cms-rucio-authz.p12   -nocerts -nodes -out /etc/grid-security/hostkey.pem
     sudo chmod 0600 /etc/grid-security/hostkey.pem
 
-As root (`sudo su`) install some general packages and docker:
+Become root (`sudo su`) and install some general packages and docker:
 
     yum install -y yum-utils device-mapper-persistent-data lvm2 nano git
     yum update -y
@@ -155,14 +155,14 @@ Continuing as root, add what's needed to accept proxies for the auth server:
     systemctl enable fetch-crl-cron 
     exit
     
-## Start (or restart) the docker image
+## Start (or restart) the authorization server docker image
 
-    ./CMSKubernetes/kubernetes/rucio/start_rucio_auth.sh
+    ./CMSKubernetes/kubernetes/rucio/start_rucio_auth.sh  # Or similar depending on which auth server you want to start
    
 # Get a client running and connect to your server
 
-It can be easiest just to create another container with a client installed to connect to your new server. There is a client YAML file
-that can also be installed into your newly formed kubernetes cluster. 
+It can be easiest just to create another container with a client installed to connect to your new server. 
+There is a client YAML file that can also be installed into your newly formed kubernetes cluster. 
 Find the client name below from the output of `kubectl get pods`
 
     kubectl create -f rucio-client.yaml 
