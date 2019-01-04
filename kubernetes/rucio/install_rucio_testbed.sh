@@ -7,4 +7,4 @@ helm install --name cms-ruciod-testbed --values cms-rucio-common.yaml,cms-rucio-
 helm install --name cms-analysisd-testbed --values cms-rucio-common.yaml,cms-rucio-analysis-daemons.yaml,cms-rucio-testbed-db.yaml rucio/rucio-daemons
 
 # Graphite and other services
-helm install --name graphite --values rucio-graphite.yaml,rucio-graphite-ingress.yaml,rucio-graphite-pvc.yaml stable/graphite
+helm install --name graphite --values rucio-graphite.yaml,rucio-graphite-ingress.yaml,rucio-graphite-pvc.yaml kiwigrid/graphite
