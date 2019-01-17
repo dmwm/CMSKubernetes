@@ -96,6 +96,13 @@ Create the other secrets with (on lxplus7-cloud.cern.ch and/or other machines):
     cd CMSKubernetes/kubernetes/rucio
     ./install_rucio_[production, testbed, etc].sh
 
+After helm has installed everything and the fts-cert and fts-key secretes are made, 
+the daemons still won't have started because the CronJob which creates the proxy secret will not have run.
+Fix this by manually running the proxy generating job:
+
+    kubectl create job --from=cronjob/cms-ruciod-testbed-renew-fts-proxy fts1
+    kubectl create job --from=cronjob/cms-analysisd-testbed-renew-fts-proxy fts2
+
 # To upgrade the servers
 
 The above is what is needed to get things bootstrapped the first time. After this, you can modify the various yaml files and
