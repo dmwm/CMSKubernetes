@@ -1,0 +1,9 @@
+ingress:
+  hosts: 
+    - cms-rucio-test.cern.ch
+config:
+    messaging_hermes:
+        email_test: "ewv@fnal.gov"
+    messaging:
+        email_test: "ewv@fnal.gov"
+
