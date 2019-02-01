@@ -1,0 +1,16 @@
+config:
+    messaging_hermes:
+        email_test: "ewv@fnal.gov"
+    messaging:
+        email_test: "ewv@fnal.gov"
+hermes:
+    useSSL: 1
+config:
+    messaging_hermes:
+        port: "61323"
+#        brokers: "cms-test-mb.cern.ch"
+        ssl_key_file: "/opt/rucio/keys/new_userkey.pem"
+        ssl_cert_file: "/opt/rucio/certs/usercert.pem"
+        destination: "/topic/cms.rucio.events"
+
+
