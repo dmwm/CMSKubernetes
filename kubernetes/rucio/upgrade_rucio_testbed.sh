@@ -5,4 +5,9 @@ helm upgrade --values cms-rucio-common.yaml,cms-rucio-server.yaml,cms-rucio-serv
 helm upgrade --values cms-rucio-common.yaml,cms-rucio-daemons.yaml,cms-rucio-testbed-db.yaml cms-ruciod-testbed rucio/rucio-daemons
 helm upgrade --values cms-rucio-common.yaml,cms-rucio-analysis-daemons.yaml,cms-rucio-testbed-db.yaml cms-analysisd-testbed rucio/rucio-daemons
 
+# Filebeat and logstash
+
+helm upgrade --values cms-rucio-logstash.yml,logstash-filter-testbed.yml logstash stable/logstash
+helm upgrade --values cms-rucio-filebeat.yml filebeat stable/filebeat
+
 kubectl get pods
