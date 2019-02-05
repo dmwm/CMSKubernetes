@@ -92,6 +92,9 @@ Create the other secrets with (on lxplus7-cloud.cern.ch and/or other machines):
     ./CMSKubernetes/kubernetes/rucio/rucio_reaper_secret.sh  # Currently needs to be done after helm install below 
     kubectl get secrets
 
+N.b. In the past we also used /etc/pki/tls/certs/CERN-bundle.pem as a volume mount for logstash. 
+That no longer seems to be needed.
+
 ## Install CMS server into the kubernetes project. Later we can add another set of values files for testbed, integration, production
 
     export KUBECONFIG=[as above]
