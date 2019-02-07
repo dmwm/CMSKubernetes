@@ -1,3 +1,6 @@
+ingress:
+  hosts: 
+    - cms-rucio-test.cern.ch
 hermes:
     useSSL: 1
 config:

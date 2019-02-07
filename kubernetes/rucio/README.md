@@ -83,12 +83,17 @@ If we have CephFS storage needs, one makes a single storage class for the entire
 
 Create the other secrets with (on lxplus7-cloud.cern.ch and/or other machines):
 
-    kubectl create secret generic fts-cert --from-file=[robot certificate]
-    kubectl create secret generic fts-key --from-file=[robot key, unencrypted]
+    kubectl create secret generic fts-cert --from-file=[robot certificate] # Must be named usercert.pem
+    kubectl create secret generic fts-key --from-file=[robot key, unencrypted] # Must be named new_userkey.pem
+    kubectl create secret generic hermes-cert --from-file=[robot certificate] # Same as for FTS
+    kubectl create secret generic hermes-key --from-file=[robot key, unencrypted] # Same as for FTS
     kubectl create secret generic  cms-ruciod-testbed-rucio-ca-bundle --from-file=/etc/pki/tls/certs/CERN-bundle.pem
     kubectl create secret generic  cms-analysisd-testbed-rucio-ca-bundle --from-file=/etc/pki/tls/certs/CERN-bundle.pem
     ./CMSKubernetes/kubernetes/rucio/rucio_reaper_secret.sh  # Currently needs to be done after helm install below 
     kubectl get secrets
+
+N.b. In the past we also used /etc/pki/tls/certs/CERN-bundle.pem as a volume mount for logstash. 
+That no longer seems to be needed.
 
 ## Install CMS server into the kubernetes project. Later we can add another set of values files for testbed, integration, production
 
