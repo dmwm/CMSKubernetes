@@ -13,7 +13,10 @@ RUN yum install -y git-core zip unzip which file bzip2 e2fsprogs e2fsprogs-libs 
     CERN-CA-certs ca-certificates dummy-ca-certs  ca_CERN-GridCA ca_CERN-LCG-IOTA-CA ca_CERN-Root-2 \
     wlcg-voms-cms krb5-workstation krb5-libs pam_krb5 myproxy voms-clients-cpp voms-clients-java \
     sudo openssl openssl-libs openssh openssh-clients python-backports-ssl_match_hostname \
+    cmake voms-devel globus-gsi-credential-devel globus-gsi-cert-utils-devel \
+    globus-common-devel globus-gsi-sysconfig-devel globus-gsi-callback-devel \
     globus-gsi-openssl-error globus-gsi-proxy-ssl globus-openssl-module \
+    shibboleth log4shib xmltooling-schemas opensaml-schemas \
     perl-Thread-Queue zsh tk freetype perl-ExtUtils-Embed fontconfig \
     perl-Test-Harness perl-Data-Dumper perl-Digest-MD5 perl-Switch perl-Env \
     libX11-devel libX11 libXmu libSM libICE libXcursor libXext libXrandr libXft \
