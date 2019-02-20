@@ -1,0 +1,9 @@
+image:
+  tag: 6.5.4
+
+config:
+  output:
+    file.enabled:
+      false
+    logstash:
+      hosts: ['logstash:5044']

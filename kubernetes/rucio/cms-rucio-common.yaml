@@ -1,16 +1,18 @@
 image:
-  tag: release-1.18.1
+  tag: release-1.18.9
 
 config:
-    database:
-        default: "oracle://cms_rucio_testbed:L9ow2_r2entEdb8OZe_1nPAh7aR@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=devdb12-s.cern.ch)(PORT=10121))(CONNECT_DATA=(SERVICE_NAME=devdb12_s.cern.ch)))"
+    accounts:
+        special_accounts: "tier0"
     policy:
         permission: "cms"
         schema: "cms"
         lfn2pfn_module: "cmstfc"
+        support: "https://its.cern.ch/jira/projects/CMSRUCIO/summary"
     messaging_hermes:
         brokers: "localhost"
         voname: "cms"    
+        email_from: "cms-rucio-dev@cern.ch"
     messaging_cache:
         brokers: "localhost"
         voname: "cms"    
@@ -22,3 +24,6 @@ config:
         voname: "cms"    
     conveyor:
         ftshosts: "https://cmsfts3.fnal.gov:8446,https://fts3.cern.ch:8446,https://lcgfts3.gridpp.rl.ac.uk:8446"
+    monitor:
+        carbon_server: graphite
+        user_scope: rucio

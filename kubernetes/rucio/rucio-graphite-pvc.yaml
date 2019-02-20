@@ -1,0 +1,4 @@
+persistence:
+  enabled: false   # Problems here still
+  storageClass: manila-cephfs-share
+  size: 2Gi
