@@ -1,0 +1,23 @@
+image:
+  repository: cmssw/rucio-server
+
+replicaCount: 1
+authReplicaCount: 0
+
+httpd_config:
+  encoded_slashes: "True"
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/frontend-entry-points: http
+  hosts: 
+    - cms-rucio-test.cern.ch
+  tls: []
+
+# For HTTPS config should look more like
+#    traefik.ingress.kubernetes.io/frontend-entry-points: http, https
+#    traefik.ingress.kubernetes.io/redirect-entry-point: https
+#  tls: 
+#    - secretName: rucio-server.tls-secret

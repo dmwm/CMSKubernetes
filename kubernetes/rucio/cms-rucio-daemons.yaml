@@ -1,0 +1,34 @@
+image:
+  repository: cmssw/rucio-daemons
+
+abacusAccountCount: 1
+abacusRseCount: 1
+conveyorTransferSubmitterCount: 1
+conveyorPollerCount: 1
+conveyorFinisherCount: 1
+hermesCount: 1
+judgeCleanerCount: 1
+judgeEvaluatorCount: 1
+judgeInjectorCount: 1
+judgeRepairerCount: 1
+transmogrifierCount: 1
+undertakerCount: 1
+reaperCount: 1
+
+conveyorTransferSubmitter:
+    activities: "'User Subscriptions'"
+
+reaper:
+  greedy: 1
+  # Must be kept larger than the number of RSEs for now
+  workers: 14
+
+# Settings to renew FTS	proxy
+ftsRenewal:
+  enabled: 1
+  image:
+    repository: rucio/fts-cron
+    tag: latest
+  voms: "cms:/cms/Role=production"
+  servers: "https://fts3-devel.cern.ch:8446,https://cmsfts3.fnal.gov:8446,https://fts3.cern.ch:8446,https://lcgfts3.gridpp.rl.ac.uk:8446,https://fts3-pilot.cern.ch:8446"
+

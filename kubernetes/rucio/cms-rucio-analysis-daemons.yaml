@@ -1,0 +1,34 @@
+image:
+  repository: cmssw/rucio-daemons
+
+abacusAccountCount: 0
+abacusRseCount: 0
+conveyorTransferSubmitterCount: 1
+conveyorPollerCount: 0
+conveyorFinisherCount: 0
+hermesCount: 0
+judgeCleanerCount: 0
+judgeEvaluatorCount: 0
+judgeInjectorCount: 0
+judgeRepairerCount: 0
+transmogrifierCount: 0
+undertakerCount: 0
+reaperCount: 0
+
+conveyorTransferSubmitter:
+    activities: "'Analysis Output'"
+
+config:
+    conveyor:
+        user_activities: "['Analysis Output']"
+        user_transfers: "cms" 
+
+# Settings to renew FTS proxy
+ftsRenewal:
+  enabled: 1
+  image:
+    repository: rucio/fts-cron
+    tag: latest
+  voms: "cms:/cms/Role=production"
+  servers: "https://fts3-devel.cern.ch:8446,https://cmsfts3.fnal.gov:8446,https://fts3.cern.ch:8446,https://lcgfts3.gridpp.rl.ac.uk:8446,https://fts3-pilot.cern.ch:8446"
+
