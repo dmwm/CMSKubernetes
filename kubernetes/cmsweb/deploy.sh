@@ -1,6 +1,7 @@
 #!/bin/bash
 
-host=`openstack --os-project-name "CMS Webtools Mig" coe cluster show k8s | grep node_addresses | awk '{print $4}' | sed -e "s,\[u',,g" -e "s,'\],,g"`
+cluster=cmsweb
+host=`openstack --os-project-name "CMS Webtools Mig" coe cluster show $cluster | grep node_addresses | awk '{print $4}' | sed -e "s,\[u',,g" -e "s,'\],,g"`
 kubehost=`host $host | awk '{print $5}' | sed -e "s,ch.,ch,g"`
 echo "Kubernetes host: $kubehost"
 echo "generate hmac secret"
@@ -31,6 +32,8 @@ robot_key=/afs/cern.ch/user/v/valya/private/certificates/robotkey.pem
 robot_crt=/afs/cern.ch/user/v/valya/private/certificates/robotcert.pem
 server_key=/afs/cern.ch/user/v/valya/private/certificates/server.key
 server_crt=/afs/cern.ch/user/v/valya/private/certificates/server.crt
+cmsweb_key=/afs/cern.ch/user/v/valya/private/certificates/cmsweb-hostkey.pem
+cmsweb_crt=/afs/cern.ch/user/v/valya/private/certificates/cmsweb-hostcert.pem
 dbfile=/afs/cern.ch/user/v/valya/private/dbfile
 dbssecrets=/afs/cern.ch/user/v/valya/private/DBSSecrets.py
 ./make_das_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac $dasconfig
@@ -53,8 +56,9 @@ kubectl apply -f dbs2go-secrets.yaml --validate=false
 rm *secrets.yaml $hmac
 
 echo "### create secrets for TLS case"
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=vkcluster.web.cern.ch"
-kubectl create secret tls cluster-tls-cert --key=tls.key --cert=tls.crt
+#openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=cmsweb-test.web.cern.ch"
+#kubectl create secret tls cluster-tls-cert --key=tls.key --cert=tls.crt
+kubectl create secret tls cluster-tls-cert --key=$cmsweb_key --cert=$cmsweb_crt
 
 sleep 2
 
@@ -96,8 +100,8 @@ sleep 2
 echo
 echo "### delete daemon ingress-traefik"
 if [ -n "`kubectl get daemonset -n kube-system | grep ingress-traefik`" ]; then
-    kubectl -n kube-system delete daemonset ingress-traefik
     kubectl -n kube-system delete svc ingress-traefik
+    kubectl -n kube-system delete daemonset ingress-traefik
 fi
 sleep 2
 echo "### deploy traefik"
