@@ -19,15 +19,14 @@ spec:
       containers:
       - args:
         - --api
-        - --kubernetes
         - --logLevel=DEBUG
+        - --kubernetes
+        - --kubernetes.enablepasstlscert=true
         - --entrypoints=Name:http Address::80
         - --entrypoints=Name:admin Address::8180
         - --entrypoints=Name:traefik Address::8181
-        - --entrypoints=Name:https Address::443 TLS
-        - --insecureskipverify
-#         - --kubernetes.enablepasstlscert=true
-        image: traefik
+        - --entrypoints=Name:https Address::443 TLS CA:/etc/kubernetes/ca-bundle.crt
+        image: gitlab-registry.cern.ch/cloud/atomic-system-containers/traefik
         imagePullPolicy: Always
         name: ingress-traefik-backend
         ports:
@@ -46,8 +45,22 @@ spec:
         resources: {}
         securityContext:
           privileged: true
+          procMount: Default
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/kubernetes/ca-bundle.crt
+          name: ca-bundle
+      volumes:
+      - hostPath:
+          path: /etc/kubernetes/ca-bundle.crt
+          type: File
+        name: ca-bundle
+      dnsPolicy: ClusterFirst
       hostNetwork: true
       nodeSelector:
         role: ingress
       restartPolicy: Always
+      serviceAccount: ingress-traefik
       serviceAccountName: ingress-traefik
+      terminationGracePeriodSeconds: 60
