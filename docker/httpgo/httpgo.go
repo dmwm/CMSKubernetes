@@ -20,7 +20,7 @@ func RequestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Fprintf(w, "Host = %q\n", r.Host)
 	fmt.Fprintf(w, "RemoteAddr= %q\n", r.RemoteAddr)
-	fmt.Fprintf(w, "\n\nFinding value of \"Accept\" %q", r.Header["Accept"])
+	fmt.Fprintf(w, "\n\nFinding value of \"Accept\" %q\n", r.Header["Accept"])
 
 	w.WriteHeader(http.StatusOK)
 	page := "Hello Go world!!!"
