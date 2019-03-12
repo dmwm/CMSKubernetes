@@ -1,0 +1,5 @@
+{
+    "port": 443,
+    "servercrt": "/etc/secrets/server.crt",
+    "serverkey": "/etc/secrets/server.key"
+}
