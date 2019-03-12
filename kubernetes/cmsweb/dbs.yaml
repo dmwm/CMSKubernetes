@@ -6,6 +6,10 @@ spec:
   selector:
     app: dbs
   ports:
+    - port: 8250
+      targetPort: 8250
+      nodePort: 30250
+      name: dbs
     - port: 8252
       targetPort: 8252
       nodePort: 30252
@@ -55,6 +59,9 @@ spec:
 #               - -c
 #               - sudo chmod 0400 /etc/secrets/server.key /etc/secrets/robotkey.pem
         ports:
+        - containerPort: 8250
+          protocol: TCP
+          name: dbs
         - containerPort: 8252
           protocol: TCP
           name: dbs-global-r
