@@ -6,9 +6,9 @@ spec:
   selector:
     app: das2go
   ports:
-    - port: 8212
-      targetPort: 8212
-      nodePort: 30212
+    - port: 8217
+      targetPort: 8217
+      nodePort: 30217
   type: NodePort
 ---
 kind: Deployment
@@ -42,7 +42,7 @@ spec:
 #               - -c
 #               - sudo chmod 0400 /etc/secrets/server.key /etc/secrets/robotkey.pem
         ports:
-        - containerPort: 8212
+        - containerPort: 8217
           protocol: TCP
         volumeMounts:
         - name: secrets
@@ -57,7 +57,7 @@ spec:
 #       livenessProbe:
 #         httpGet:
 #           path: /das/status
-#           port: 8212
+#           port: 8217
 #         initialDelaySeconds: 3
 #         periodSeconds: 3
       volumes:
