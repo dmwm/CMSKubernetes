@@ -4,7 +4,7 @@
     "modelDir": "models",
     "staticDir": "static",
     "configProto": "",
-    "base": "/core",
+    "base": "",
     "serverKey": "",
     "serverCrt": "",
     "logFormatter": "text",
