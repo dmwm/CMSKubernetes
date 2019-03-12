@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG1805a
+VER=HG1903g
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend frontend"
@@ -30,6 +30,15 @@ done
 cd $WDIR
 curl -sO http://cmsrep.cern.ch/cmssw/repos/bootstrap.sh
 sh -x ./bootstrap.sh -architecture $ARCH -path $WDIR/tmp/$VER/sw -repository $REPO -server $SERVER setup
+
+# TMP: add traefik headers support for our frontend
+cd $WDIR/cfg
+curl -ksLO https://github.com/dmwm/deployment/pull/716.patch
+patch -p1 < 716.patch
+sed -i -e "s,X-Forwarded-Ssl-Client-Cert,X-Forwarded-Tls-Client-Cert,g" frontend/cmsauth.pm
+sed -i -e "s,X-Forwarded-Ssl-Client-Cert,X-Forwarded-Tls-Client-Cert,g" frontend/cmsnuke.pm
+cd $WDIR
+# end of TMP block, will be removed once we get it in frontend codebase
 
 # deploy services
 $WDIR/cfg/Deploy -A $ARCH -R comp@$VER -r comp=$REPO -t $VER -w $SERVER -s prep $WDIR/srv "$PKGS"
