@@ -8,19 +8,33 @@ metadata:
     traefik.ingress.kubernetes.io/frontend-entry-points: "https"
     traefik.ingress.kubernetes.io/preserve-host: "true"
 #     traefik.ingress.kubernetes.io/pass-tls-cert: "true"
+    traefik.ingress.kubernetes.io/pass-client-tls-cert: |
+      pem: true
+      infos:
+        notafter: true
+        notbefore: true
+        sans: true
+        subject:
+          country: true
+          province: true
+          locality: true
+          organization: true
+          commonname: true
+          serialnumber: true
+          domaincomponent: true
 spec:
   rules:
   - host: "cmsweb-test.web.cern.ch"
     http:
       paths:
-      - path: /http
-        backend:
-          serviceName: httpgo
-          servicePort: 8888
       - path: /https
         backend:
           serviceName: httpsgo
           servicePort: 443
+      - path: /http
+        backend:
+          serviceName: httpgo
+          servicePort: 8888
       - path: /
         backend:
           serviceName: frontend
