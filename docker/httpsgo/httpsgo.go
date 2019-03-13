@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -64,6 +65,10 @@ func main() {
 	http.HandleFunc("/", RequestHandler)
 	server := &http.Server{
 		Addr: fmt.Sprintf(":%d", Config.Port),
+		TLSConfig: &tls.Config{
+			InsecureSkipVerify: true,
+			//             ClientAuth: tls.RequestClientCert,
+		},
 	}
 	err = server.ListenAndServeTLS(Config.ServerCrt, Config.ServerKey)
 	if err != nil {
