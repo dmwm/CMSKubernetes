@@ -27,17 +27,19 @@ spec:
   - host: "whoami.web.cern.ch"
     http:
       paths:
-#       - path: /
+      - path: /
+        backend:
+          serviceName: httpgo
+          servicePort: 8888 # the port here should match httpgo port (see httpgo.yaml)
+#
+# example how to configure multiple end-points with different services
+#       - path: /https
+#         backend:
+#           serviceName: httpsgo
+#           servicePort: 443
+#       - path: /http
 #         backend:
 #           serviceName: httpgo
 #           servicePort: 8888
-      - path: /https
-        backend:
-          serviceName: httpsgo
-          servicePort: 443
-      - path: /http
-        backend:
-          serviceName: httpgo
-          servicePort: 8888
   tls:
   - secretName: cluster-tls-cert
