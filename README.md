@@ -44,8 +44,15 @@ later. First, login to lxplus-cloud.cern.ch or lxplus7-cloud-testing.cern.ch.
 Then find out appropriate template
 
 ```
+# list existing clusters
 openstack coe cluster list
+
+# list existing cluster templates
+openstack coe cluster template list
+
+# look-up details of concrete template
 openstack coe cluster template show kubernetes
+
 # here you need to create your ssh keypair (named cloud here)
 # and upload it to openstack.cern.ch
 openstack coe cluster create vkcluster --keypair cloud --cluster-template kubernetes-preview
@@ -175,3 +182,4 @@ We are done.
 2. https://kubernetes.io/docs/tutorials/kubernetes-basics/
 3. https://kubernetes.io/docs/reference/kubectl/docker-cli-to-kubectl/
 4. http://blog.kubernetes.io/2015/10/some-things-you-didnt-know-about-kubectl_28.html
+5. https://docs.openstack.org/magnum/latest/contributor/quickstart.html
