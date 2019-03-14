@@ -1,4 +1,11 @@
 ### k8s-whoami cluster deployment
+The k8s-whoami service will be deployed on k8s cluster using `veknet/httpgo`
+container. This container is build using the
+[httpgo](https://github.com/dmwm/CMSKubernetes/tree/master/docker/httpgo)
+Go code. The later is a simple HTTP web-service which responses to
+incoming request with Hello world message and prints out all requests
+headers.
+
 To create k8s-whoami app on kubernetes cluster please follow these steps:
 
 1. create new cluster by login to `lxplus-cloud.cern.ch` and execute the
@@ -49,7 +56,7 @@ ingress-traefik-lk85w                   1/1       Running            0  15h
 kubectl get svc
 ...
 # we should see hostname and port mapping
-k8s-whoami       NodePort    10.254.136.150   <none>        8181:30181/TCP   15h
+httpgo       ClusterIP   10.254.40.241   <none>        8888/TCP   40m
 ```
 
 3. create new DNS alias at `https://webservices.web.cern.ch/webservices/`
