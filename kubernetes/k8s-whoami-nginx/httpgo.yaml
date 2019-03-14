@@ -1,7 +1,9 @@
-kind: Service
 apiVersion: v1
+kind: Service
 metadata:
   name: httpgo
+  labels:
+    app: httpgo
 spec:
   type: ClusterIP
   ports:
@@ -11,12 +13,10 @@ spec:
   selector:
     app: httpgo
 ---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
-apiVersion: extensions/v1beta1
 metadata:
-  labels:
-    app: httpgo
-  name: httpgo
+  name: httpgo-deployment
 spec:
   selector:
     matchLabels:
@@ -28,7 +28,7 @@ spec:
         app: httpgo
     spec:
       containers:
-      - image: veknet/httpgo
-        name: httpgo
+      - name: httpgo
+        image: veknet/httpgo
         ports:
-        - containerPort: 8888
+        - containerPort: 8888 # the port here is matching port used in veknet/httpgo cotainer

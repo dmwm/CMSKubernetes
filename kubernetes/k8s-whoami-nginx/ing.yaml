@@ -1,0 +1,49 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/frontend-entry-points: "https"
+#     traefik.ingress.kubernetes.io/pass-tls-cert: "true"
+    traefik.ingress.kubernetes.io/pass-client-tls-cert: |
+      pem: true
+      infos:
+        notafter: true
+        notbefore: true
+        sans: true
+        subject:
+          country: true
+          province: true
+          locality: true
+          organization: true
+          commonname: true
+          serialnumber: true
+          domaincomponent: true
+
+spec:
+  rules:
+  - host: "k8s-whoami.web.cern.ch"
+    http:
+      paths:
+      - path: /frontend
+        backend:
+          serviceName: frontend
+          servicePort: 443
+      - path: /
+        backend:
+          serviceName: httpgo
+          servicePort: 8888 # the port here should match httpgo port (see httpgo.yaml)
+#
+# example how to configure multiple end-points with different services
+#       - path: /https
+#         backend:
+#           serviceName: httpsgo
+#           servicePort: 443
+#       - path: /http
+#         backend:
+#           serviceName: httpgo
+#           servicePort: 8888
+  tls:
+  - secretName: cluster-tls-cert
