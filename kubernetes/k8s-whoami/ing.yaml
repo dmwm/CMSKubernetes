@@ -24,7 +24,7 @@ metadata:
 
 spec:
   rules:
-  - host: "whoami.web.cern.ch"
+  - host: "k8s-whoami.web.cern.ch"
     http:
       paths:
       - path: /
