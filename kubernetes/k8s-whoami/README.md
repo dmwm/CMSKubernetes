@@ -57,6 +57,27 @@ using our k8s node name which we can obtain via `kubectl get node` command.
 Use this name with .cern.ch suffix to create a DNS alias we need, e.g.
 `k8s-whoami`. The new DNS alias will be accessible as `<aliasName>.web.cern.ch`
 
-4. check that new service is running, e.g. call `curl http://k8s-whoami.web.cern.ch`
+4. check that new service is running, e.g. 
+```
+# issue curl command with your certificates
+curl -L -k --key ~/.globus/userkey.pem --cert ~/.globus/usercert.pem http://k8s-whoami.web.cern.ch
+# it should print something like this
+GET / HTTP/1.1
+Header field "X-Forwarded-Proto", Value ["https"]
+Header field "X-Forwarded-Server", Value ["k8s-whoami-sds42p2lfiup-minion-0.cern.ch"]
+Header field "X-Real-Ip", Value ["188.184.108.51"]
+Header field "Accept", Value ["*/*"]
+Header field "X-Forwarded-Port", Value ["443"]
+Header field "X-Forwarded-Tls-Client-Cert", Value ["..."]
+Header field "X-Real-Ip", Value ["188.184.108.51"]
+Header field "Accept-Encoding", Value ["gzip"]
+Header field "User-Agent", Value ["curl/7.29.0"]
+Header field "Accept", Value ["*/*"]
+Header field "X-Forwarded-Host", Value ["k8s-whoami.web.cern.ch"]
+Header field "X-Forwarded-Tls-Client-Cert", Value ["..."]
+Host = "k8s-whoami.web.cern.ch"
+RemoteAddr= "10.100.22.1:39198"
 
 
+Finding value of "Accept" ["*/*"]Hello Go world!!!
+```
