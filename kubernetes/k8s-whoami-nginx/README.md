@@ -47,6 +47,12 @@ openstack server set --property landb-alias=k8s-whoami k8s-whoami-sds42p2lfiup-m
 # create new tiller resource
 kubectl create -f tiller-rbac.yaml
 
+# init tiller
+helm init --service-account tiller --upgrade
+
+# delete previous ingress-traefik
+kubectl -n kube-system delete ds/ingress-traefik
+
 # install tiller
 helm init --history-max 200
 helm install stable/nginx-ingress --namespace kube-system --name ingress-nginx --set rbac.create=true --values nginx-values.yaml
