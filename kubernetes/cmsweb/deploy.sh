@@ -116,7 +116,7 @@ create()
     dasconfig=dasconfig.json
     tfaasconfig=tfaas-config.json
     httpsgoconfig=httpsgoconfig.json
-    ./make_das_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac $dasconfig
+    ./make_das2go_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac $dasconfig
     ./make_dbs_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac $dbssecrets
     ./make_frontend_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
     ./make_couchdb_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
@@ -128,8 +128,8 @@ create()
     ./make_httpsgo_secret.sh $httpsgoconfig
     ./make_dbs2go_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac $dbsconfig $dbfile
 
-    echo "+++ apply secrets"
     for p in $pkgs; do
+        echo "+++ apply secrets: $p-secrets.yaml"
         kubectl apply -f ${p}-secrets.yaml --validate=false
     done
     rm *secrets.yaml $hmac
