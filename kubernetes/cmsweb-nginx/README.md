@@ -42,7 +42,7 @@ The next series of steps is required until CERN IT will deploy new flag for
 ingress nginx controller
 ```
 # this command didn't work for me but was listed in CERN IT instructions
-openstack server set --property landb-alias=k8s-whoami k8s-whoami-sds42p2lfiup-minion-0
+openstack server set --property landb-alias=cmsweb-test cmsweb-test-sds42p2lfiup-minion-0
 
 # create new tiller-rbac.yaml file
 # see example on http://clouddocs.web.cern.ch/clouddocs/containers/tutorials/helm.html
