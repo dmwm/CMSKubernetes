@@ -1,0 +1,11 @@
+{
+    "base": "",
+    "port": 8989,
+    "staticdir": "/data/gopath/src/github.com/vkuznet/dbs2go/static",
+    "dbfile": "/data/srv/current/auth/proxy/dbfile",
+    "servercrt": "",
+    "serverkey": "",
+    "hkey": "",
+    "updateDNs": 600,
+    "verbose": 0
+}

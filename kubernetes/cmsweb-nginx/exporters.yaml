@@ -1,0 +1,103 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: exporters
+spec:
+  selector:
+    app: exporters
+  ports:
+    - port: 7200
+      targetPort: 7200
+      nodePort: 30200
+      name: das-exporter
+    - port: 7300
+      targetPort: 7300
+      nodePort: 30300
+      name: reqmgr-exporter
+    - port: 3000
+      targetPort: 3000
+      nodePort: 30003
+      name: grafana
+  type: NodePort
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: exporters
+  name: exporters
+spec:
+  selector:
+    matchLabels:
+      app: exporters
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: exporters
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: cmssw/exporters
+        name: exporters
+#         tty: true
+#         stdin: true
+#         lifecycle:
+#           postStart:
+#             exec:
+#               command:
+#               - bash
+#               - -c
+#               - sudo chmod 0400 /etc/secrets/robotkey.pem
+        ports:
+        - containerPort: 7200
+          protocol: TCP
+          name: das-exporter
+        - containerPort: 7300
+          protocol: TCP
+          name: reqmgr-exporter
+        - containerPort: 3000
+          protocol: TCP
+          name: grafana
+        volumeMounts:
+        - name: secrets
+          mountPath: /etc/secrets
+          defaultMode: 0400
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+      initContainers:
+      - name: checkdas2go
+        image: busybox
+        command: ['sh', '-c', 'until nslookup das2go.default; do echo "Waiting for das2go"; sleep 10; done;']
+      - name: checkreqmgr
+        image: busybox
+        command: ['sh', '-c', 'until nslookup reqmgr.default; do echo "Waiting for reqmgr"; sleep 10; done;']
+      - name: checkdbs2go
+        image: busybox
+        command: ['sh', '-c', 'until nslookup dbs2go.default; do echo "Waiting for dbs2go"; sleep 10; done;']
+      - name: checkdbs
+        image: busybox
+        command: ['sh', '-c', 'until nslookup dbs.default; do echo "Waiting for dbs"; sleep 10; done;']
+      - name: checkreqmon
+        image: busybox
+        command: ['sh', '-c', 'until nslookup reqmon.default; do echo "Waiting for reqmon"; sleep 10; done;']
+      - name: checkworkqueue
+        image: busybox
+        command: ['sh', '-c', 'until nslookup workqueue.default; do echo "Waiting for workqueue"; sleep 10; done;']
+      volumes:
+      - name: secrets
+        secret:
+          secretName: exporters-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File

@@ -1,0 +1,70 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: reqmgr
+spec:
+  selector:
+    app: reqmgr
+  ports:
+    - port: 8246
+      targetPort: 8246
+      nodePort: 30246
+      name: reqmgr
+  type: NodePort
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: reqmgr
+  name: reqmgr
+spec:
+  selector:
+    matchLabels:
+      app: reqmgr
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: reqmgr
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: cmssw/reqmgr
+        name: reqmgr
+#         tty: true
+#         stdin: true
+#         lifecycle:
+#           postStart:
+#             exec:
+#               command:
+#               - bash
+#               - -c
+#               - sudo chmod 0400 /etc/secrets/server.key /etc/secrets/robotkey.pem
+        ports:
+        - containerPort: 8246
+          protocol: TCP
+          name: reqmgr
+        volumeMounts:
+        - name: secrets
+          mountPath: /etc/secrets
+          defaultMode: 0400
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+      volumes:
+      - name: secrets
+        secret:
+          secretName: reqmgr-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File
