@@ -88,3 +88,26 @@ RemoteAddr= "10.100.22.1:39198"
 
 Finding value of "Accept" ["*/*"]Hello Go world!!!
 ```
+
+### Troubleshooting
+If you find that some of the pods didn't start you may use the following
+commands to trace down the problem:
+```
+# get list of pods, secrets, ingress
+kubectl get pods
+kubectl get secrets
+kubectl get ing
+
+# get description of pod,secret,ingress
+kubectl describe pod/<pod_name>
+kubectl describe ing/<ingress_name>
+kubectl describe secrets/<secret_name>
+
+# get log information from the pod
+kubectl logs <pod_name>
+
+# if necessary you can login to your pod as following:
+kubectl exec -ti <pod_name> bash
+# here is a concrete example
+kubectl exec -ti httpsgo-deployment-5b654d8f99-lfmg5 bash
+```
