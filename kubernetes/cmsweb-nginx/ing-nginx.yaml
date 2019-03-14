@@ -8,21 +8,13 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   rules:
-  - host: k8s-whoami.web.cern.ch
+  - host: cmsweb-test.web.cern.ch
     http:
       paths:
-      - path: /dbs
-        backend:
-          serviceName: dbs
-          servicePort: 8250
-      - path: /das
-        backend:
-          serviceName: das2go
-          servicePort: 8217
       - path: /
         backend:
           serviceName: frontend
           servicePort: 443
   tls:
   - hosts:
-    - k8s-whoami.web.cern.ch
+    - cmsweb-test.web.cern.ch
