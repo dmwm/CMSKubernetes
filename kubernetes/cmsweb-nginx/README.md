@@ -38,11 +38,29 @@ the following command:
 kubectl get node
 `
 
-The deployment script for our cluster also setup Prometheus server. But its
-source should be fetched externally, e.g.
+The next series of steps is required until CERN IT will deploy new flag for
+ingress nginx controller
 ```
-git clone git@github.com:vkuznet/kubernetes-prometheus.git
+# this command didn't work for me but was listed in CERN IT instructions
+openstack server set --property landb-alias=k8s-whoami k8s-whoami-sds42p2lfiup-minion-0
+
+# create new tiller-rbac.yaml file
+# see example on http://clouddocs.web.cern.ch/clouddocs/containers/tutorials/helm.html
+
+# create new tiller resource
+kubectl create -f tiller-rbac.yaml
+
+# init tiller
+helm init --service-account tiller --upgrade
+
+# delete previous ingress-traefik
+kubectl -n kube-system delete ds/ingress-traefik
+
+# install tiller
+helm init --history-max 200
+helm install stable/nginx-ingress --namespace kube-system --name ingress-nginx --set rbac.create=true --values nginx-values.yaml
 ```
+
 
 2. Now, we can deploy our k8s app using `deploy.sh` script. You may verify apps
    creation by using these commands:
