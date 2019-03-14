@@ -7,7 +7,7 @@
 ##H   create     create services
 ##H
 
-cluster=k8s-whoami
+cluster=cmsweb
 host=`openstack --os-project-name "CMS Webtools Mig" coe cluster show $cluster | grep node_addresses | awk '{print $4}' | sed -e "s,\[u',,g" -e "s,'\],,g"`
 kubehost=`host $host | awk '{print $5}' | sed -e "s,ch.,ch,g"`
 echo "Kubernetes host: $kubehost"
@@ -125,18 +125,18 @@ create()
 
     echo "+++ create secrets for TLS case"
     # generate tls.key/tls.crt for custom CA
-    openssl genrsa -out tls.key 3072 -config openssl.cnf; openssl req -new -x509 -key tls.key -sha256 -out tls.crt -days 730 -config openssl.cnf -subj "/CN=k8s-whoami.web.cern.ch"
+#    openssl genrsa -out tls.key 3072 -config openssl.cnf; openssl req -new -x509 -key tls.key -sha256 -out tls.crt -days 730 -config openssl.cnf -subj "/CN=cmsweb-test.web.cern.ch"
 
     # generate tls.key/tls.crt
     #openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=cmsweb-test.web.cern.ch"
 
     # create secret with our tls.key/tls.crt
-    kubectl create secret tls cluster-tls-cert --key=tls.key --cert=tls.crt
+#    kubectl create secret tls cluster-tls-cert --key=tls.key --cert=tls.crt
 
     # create secret with our key/crt (they can be generated at ca.cern.ch/ca, see Host certificates)
-#    echo
-#    echo "+++ create cluster tls secret from key=$cmsweb_key, cert=$cmsweb_crt"
-#    kubectl create secret tls cluster-tls-cert --key=$cmsweb_key --cert=$cmsweb_crt
+    echo
+    echo "+++ create cluster tls secret from key=$cmsweb_key, cert=$cmsweb_crt"
+    kubectl create secret tls cluster-tls-cert --key=$cmsweb_key --cert=$cmsweb_crt
 
     echo
     echo "+++ list sercres and configmap"
@@ -146,7 +146,7 @@ create()
 
     echo
     echo "+++ label node"
-    for n in `kubectl get nodes | grep -v master | awk '{print $1}'`; do
+    for n in `kubectl get nodes | grep -v master | grep -v NAME | awk '{print $1}'`; do
         kubectl label node $n role=ingress --overwrite
         kubectl get node -l role=ingress
     done
