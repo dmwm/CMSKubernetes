@@ -38,6 +38,12 @@ the following command:
 kubectl get node
 `
 
+The deployment script for our cluster also setup Prometheus server. But its
+source should be fetched externally, e.g.
+```
+git clone git@github.com:vkuznet/kubernetes-prometheus.git
+```
+
 2. Now, we can deploy our k8s app using `deploy.sh` script. You may verify apps
    creation by using these commands:
 ```
