@@ -130,7 +130,9 @@ create()
 
     for p in $pkgs; do
         echo "+++ apply secrets: $p-secrets.yaml"
-        kubectl apply -f ${p}-secrets.yaml --validate=false
+        if [ -f ${p}-secrets.yaml ]; then
+            kubectl apply -f ${p}-secrets.yaml --validate=false
+        fi
     done
     rm *secrets.yaml $hmac
 
