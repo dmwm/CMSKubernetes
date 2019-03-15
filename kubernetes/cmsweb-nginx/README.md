@@ -96,6 +96,11 @@ Use this name with .cern.ch suffix to create a DNS alias we need, e.g.
 
 4. check that new service is running, e.g. call `curl http://cmsweb.web.cern.ch`
 
+### Additional features
+
+- [Load balancing](https://clouddocs.web.cern.ch/clouddocs/containers/tutorials/lb.html)
+- [Horizontal pod autoscale]https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale)
+- [Using configmap](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap)
 
 ### Troubleshooting
 If you find that some of the pods didn't start you may use the following
