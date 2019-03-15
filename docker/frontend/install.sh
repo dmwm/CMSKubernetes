@@ -40,6 +40,13 @@ sed -i -e "s,X-Forwarded-Ssl-Client-Cert,X-Forwarded-Tls-Client-Cert,g" frontend
 cd $WDIR
 # end of TMP block, will be removed once we get it in frontend codebase
 
+# TMP: https://stackoverflow.com/questions/18742156/certificate-verification-error-20-unable-to-get-local-issuer-certificate-c
+# disable SSLVerifyClient optional to test ingress-nginx
+#cd $WDIR/cfg
+#sed -i -e "s,SSLVerifyClient optional,#SSLVerifyClient optional,g" frontend/frontend.conf
+#cd $WDIR
+# end of TMP block
+
 # deploy services
 $WDIR/cfg/Deploy -A $ARCH -R comp@$VER -r comp=$REPO -t $VER -w $SERVER -s prep $WDIR/srv "$PKGS"
 if [ $? -ne 0 ]; then
