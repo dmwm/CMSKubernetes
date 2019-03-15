@@ -13,8 +13,8 @@ RUN yum install -y git-core zip unzip which file bzip2 e2fsprogs e2fsprogs-libs 
     CERN-CA-certs ca-certificates dummy-ca-certs  ca_CERN-GridCA ca_CERN-LCG-IOTA-CA ca_CERN-Root-2 \
     wlcg-voms-cms krb5-workstation krb5-libs pam_krb5 myproxy voms-clients-cpp voms-clients-java \
     sudo openssl openssl-libs openssh openssh-clients python-backports-ssl_match_hostname \
-    cmake voms-devel globus-gsi-credential-devel globus-gsi-cert-utils-devel \
-    globus-common-devel globus-gsi-sysconfig-devel globus-gsi-callback-devel \
+    cmake voms voms-devel globus-gsi-credential-devel globus-gsi-cert-utils-devel \
+    globus-common-devel globus-gsi-sysconfig globus-gsi-sysconfig-devel globus-gsi-callback-devel \
     globus-gsi-openssl-error globus-gsi-proxy-ssl globus-openssl-module \
     shibboleth log4shib xmltooling-schemas opensaml-schemas \
     perl-Thread-Queue zsh tk freetype perl-ExtUtils-Embed fontconfig \
@@ -25,6 +25,24 @@ RUN yum install -y git-core zip unzip which file bzip2 e2fsprogs e2fsprogs-libs 
     libaio libaio-devel net-tools lsof bind-utils initscripts patch
 RUN yum install -y voms-devel globus-gsi-credential-devel globus-gsi-cert-utils-devel \
     globus-common-devel globus-gsi-sysconfig-devel globus-gsi-callback-devel
+RUN yum install -y ca_DigiCertAssuredIDRootCA-Root ca_DigiCertGridRootCA-Root ca_UKeScienceRoot-2007 \
+    ca_QuoVadis-Root-CA2G3 ca_AddTrust-External-CA-Root ca_COMODO-RSA-CA ca_QuoVadis-Root-CA3G3 \
+    ca_DarkMatterPrivateRootCAG4 ca_KENETROOTCA ca_CNRS2 ca_CNRS2-Projets ca_CERN-Root-2 \
+    ca_CESNET-CA-Root ca_CESNET-CA-3 ca_CERN-GridCA ca_CNRS2-Grid-FR ca_KENETCA-ICA-2015 \
+    ca_DarkMatterIGTFCA ca_DarkMatterAssuredCA ca_InCommon-IGTF-Server-CA ca_DarkMatterSecureCA \
+    ca_UKeScienceCA-2B ca_DigiCertGridCA-1-Classic ca_DigiCertGridCA-1G2-Classic-2015 \
+    ca_TERENAeSciencePersonalCA3 ca_DigiCertGridTrustCAG2-Classic ca_TERENA-eScience-SSL-CA-3 \
+    ca_DigiCertGridTrustCA-Classic ca_AustrianGrid ca_NCSA-tfca-2013 ca_IHEP-2013 \
+    ca_DFN-GridGermany-Root ca_REUNA-ca ca_NorduGrid-2015 ca_cilogon-osg ca_EG-GRID \
+    ca_NERSC-SLCS ca_MD-Grid-CA-T ca_AC-GRID-FR-Robots ca_ANSPGrid ca_IRAN-GRID ca_TSU-GE \
+    ca_KISTIv3 ca_QuoVadis-Root-CA2 ca_GridCanada ca_SDG-G2 ca_SRCE ca_CNIC ca_ArmeSFo \
+    ca_NIKHEF ca_CyGrid ca_PolishGrid ca_MARGI ca_PK-Grid-2007 ca_DCAROOT-G1 ca_BYGCA \
+    ca_GermanGrid ca_LIPCA ca_IGCA2 ca_SlovakGrid ca_TRGrid ca_HKU ca_UNLPGrid ca_cilogon-silver \
+    ca_DZeScience ca_ASGCCA-2007 ca_NCSA-slcs-2013 ca_MYIFAM ca_KEK ca_PKIUNAMgrid ca_PSC-Myproxy-CA \
+    ca_QuoVadis-Grid-ICA-G2 ca_RomanianGRID ca_IRAN-GRID-GCG-G2 ca_UGRID-G2 ca_HKU-CA-2 ca_SiGNET-CA \
+    ca_UNAMgrid-ca ca_NIIF-Root-CA-2 ca_AC-GRID-FR ca_AC-GRID-FR-Personnels ca_MREN-CA ca_INFN-CA-2015 \
+    ca_seegrid-ca-2013 ca_AEGIS ca_RDIG ca_AC-GRID-FR-Services ca_HPCI ca_QuoVadis-Root-CA1 ca_MaGrid \
+    ca_HellasGrid-CA-2016 ca_BG-ACAD-CA ca_CERN-LCG-IOTA-CA ca-policy-lcg ca-policy-egi-core
 RUN yum clean all
 
 # create bashs link to bash
