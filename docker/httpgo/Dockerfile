@@ -19,10 +19,10 @@ RUN mkdir -p $WDIR
 WORKDIR ${WDIR}
 
 # download golang and install it
-RUN curl -k -L -O https://dl.google.com/go/go1.9.4.linux-amd64.tar.gz
-RUN tar xfz go1.9.4.linux-amd64.tar.gz
+RUN curl -k -L -O https://dl.google.com/go/go1.12.1.linux-amd64.tar.gz
+RUN tar xfz go1.12.1.linux-amd64.tar.gz
 RUN mkdir $WDIR/gopath
-RUN rm go1.9.4.linux-amd64.tar.gz
+RUN rm go1.12.1.linux-amd64.tar.gz
 ENV GOROOT=$WDIR/go
 ENV GOPATH=$WDIR/gopath
 ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
