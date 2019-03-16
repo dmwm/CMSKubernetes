@@ -53,6 +53,11 @@ RUN go build das2go_exporter.go
 RUN cp das2go_exporter $WDIR/bin
 RUN go build reqmgr_exporter.go
 RUN cp reqmgr_exporter $WDIR/bin
+RUN go build process_exporter.go
+RUN cp process_exporter $WDIR/bin
+RUN cp process_monitor.sh $WDIR/bin
+RUN go build wmcore_exporter.go
+RUN cp wmcore_exporter $WDIR/bin
 ENV PATH="${GOPATH}/src/github.com/vkuznet/cmsweb-exporters:${GOPATH}/src/github.com/vkuznet/cmsweb-exporters/bin:${PATH}"
 
 # add proxy generation via robot certificate
