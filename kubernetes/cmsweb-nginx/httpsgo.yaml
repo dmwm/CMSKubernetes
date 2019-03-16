@@ -3,12 +3,19 @@ apiVersion: v1
 metadata:
   name: httpsgo
 spec:
+  type: ClusterIP
+  ports:
+  - port: 443
+    protocol: TCP
+    name: http
   selector:
     app: httpsgo
-  ports:
-    - port: 443
-      nodePort: 30843
-  type: NodePort
+#   selector:
+#     app: httpsgo
+#   ports:
+#     - port: 443
+#       nodePort: 30843
+#   type: NodePort
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
