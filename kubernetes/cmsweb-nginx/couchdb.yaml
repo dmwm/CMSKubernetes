@@ -49,7 +49,7 @@ spec:
         volumeMounts:
         - name: secrets
           mountPath: "/etc/secrets"
-          defaultMode: 0400
+          defaultMode: 256
 #           readOnly: true
         - name: hostkey
           mountPath: /etc/grid-security/hostkey.pem
@@ -61,6 +61,8 @@ spec:
       - name: secrets
         secret:
           secretName: couchdb-secrets
+          defaultMode: 256
+          # https://github.com/kubernetes/kubernetes/issues/34982
       - name: hostkey
         hostPath:
             path: /etc/grid-security/hostkey.pem
