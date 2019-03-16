@@ -8,9 +8,9 @@ spec:
   ports:
     - port: 8246
       targetPort: 8246
-      nodePort: 30246
       name: reqmgr
-  type: NodePort
+#       nodePort: 30246
+#   type: NodePort
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1

@@ -8,9 +8,9 @@ spec:
   ports:
     - port: 5984
       targetPort: 5984
-      nodePort: 30984
       name: couchdb
-  type: NodePort
+#       nodePort: 30984
+#   type: NodePort
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1

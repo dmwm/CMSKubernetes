@@ -8,8 +8,8 @@ spec:
   ports:
     - port: 8217
       targetPort: 8217
-      nodePort: 30217
-  type: NodePort
+#       nodePort: 30217
+#   type: NodePort
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1

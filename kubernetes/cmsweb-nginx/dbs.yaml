@@ -8,25 +8,25 @@ spec:
   ports:
     - port: 8250
       targetPort: 8250
-      nodePort: 30250
       name: dbs
+#       nodePort: 30250
     - port: 8252
       targetPort: 8252
-      nodePort: 30252
       name: dbs-global-r
+#       nodePort: 30252
     - port: 8253
       targetPort: 8253
-      nodePort: 30253
       name: dbs-global-w
+#       nodePort: 30253
     - port: 8254
       targetPort: 8254
-      nodePort: 30254
       name: dbs-phys03-r
+#       nodePort: 30254
     - port: 8255
       targetPort: 8255
-      nodePort: 30255
       name: dbs-phys03-w
-  type: NodePort
+#       nodePort: 30255
+#   type: NodePort
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1

@@ -8,8 +8,8 @@ spec:
   ports:
     - port: 8249
       targetPort: 8249
-      nodePort: 30249
-  type: NodePort
+#       nodePort: 30249
+#   type: NodePort
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1

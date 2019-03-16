@@ -8,17 +8,17 @@ spec:
   ports:
     - port: 7200
       targetPort: 7200
-      nodePort: 30200
       name: das-exporter
+#       nodePort: 30200
     - port: 7300
       targetPort: 7300
-      nodePort: 30300
       name: reqmgr-exporter
+#       nodePort: 30300
     - port: 3000
       targetPort: 3000
-      nodePort: 30003
       name: grafana
-  type: NodePort
+#       nodePort: 30003
+#   type: NodePort
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
