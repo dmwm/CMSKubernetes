@@ -4,6 +4,10 @@
 *.key
 *.orig
 config
+tmp
+
+# 3rd party packages
+kubernetes-prometheus
 
 # Files containing DB passwords
 
