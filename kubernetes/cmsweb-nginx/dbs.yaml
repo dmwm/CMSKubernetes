@@ -77,7 +77,7 @@ spec:
         volumeMounts:
         - name: secrets
           mountPath: /etc/secrets
-          defaultMode: 0400
+          defaultMode: 256
         - name: hostkey
           mountPath: /etc/grid-security/hostkey.pem
           readOnly: true 
@@ -88,6 +88,8 @@ spec:
       - name: secrets
         secret:
           secretName: dbs-secrets
+          defaultMode: 256
+          # https://github.com/kubernetes/kubernetes/issues/34982
       - name: hostkey
         hostPath:
             path: /etc/grid-security/hostkey.pem
