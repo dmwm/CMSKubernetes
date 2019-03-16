@@ -14,6 +14,6 @@ kind: Secret
 metadata:
   name: exporters-secrets
   namespace: default
-  selfLink: /api/v1/namespaces/default/secrets/couchdb-secrets
+  selfLink: /api/v1/namespaces/default/secrets/exporters-secrets
 type: Opaque
 EOF
