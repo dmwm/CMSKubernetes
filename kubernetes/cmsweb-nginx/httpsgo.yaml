@@ -49,6 +49,8 @@ spec:
       - name: secrets
         secret:
           secretName: httpsgo-secrets
+          defaultMode: 256
+          # https://github.com/kubernetes/kubernetes/issues/34982
       - name: etc-grid-security
         hostPath:
             path: /etc/grid-security
