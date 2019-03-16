@@ -52,13 +52,56 @@ RUN ln -s /bin/bash /usr/bin/bashs
 WORKDIR $WDIR
 
 # download golang and install it
-RUN curl -k -L -O https://dl.google.com/go/go1.10.1.linux-amd64.tar.gz
-RUN tar xfz go1.10.1.linux-amd64.tar.gz
-RUN rm go1.10.1.linux-amd64.tar.gz
+RUN curl -k -L -O https://dl.google.com/go/go1.12.1.linux-amd64.tar.gz
+RUN tar xfz go1.12.1.linux-amd64.tar.gz
+RUN rm go1.12.1.linux-amd64.tar.gz
 ENV GOROOT=$WDIR/go
 # RUN mkdir -p $WDIR/gopath
 # ENV GOPATH=$WDIR/gopath
 ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
+
+# get go dependencies which we'll use on all cmsweb nodes
+ENV GOPATH=$WDIR/gopath
+RUN mkdir -p $GOPATH
+ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
+RUN go get github.com/vkuznet/x509proxy
+RUN go get github.com/buger/jsonparser
+RUN go get github.com/Lusitaniae/apache_exporter
+RUN go get github.com/prometheus/client_golang/prometheus
+RUN go get github.com/prometheus/common/log
+RUN go get -d github.com/vkuznet/cmsweb-exporters
+
+# make bin area in WDIR
+RUN mkdir ${WDIR}/bin
+
+# download and install grafana for prometheus
+WORKDIR ${WDIR}
+RUN curl -L -O https://grafanarel.s3.amazonaws.com/builds/grafana-2.5.0.linux-x64.tar.gz
+RUN tar zxf grafana-2.5.0.linux-x64.tar.gz
+RUN mv grafana-2.5.0 grafana
+RUN rm grafana-2.5.0.linux-x64.tar.gz
+
+# download node exporter
+WORKDIR ${WDIR}
+RUN curl -k -L -O https://github.com/prometheus/node_exporter/releases/download/v0.15.2/node_exporter-0.15.2.linux-amd64.tar.gz
+RUN tar xfz node_exporter-0.15.2.linux-amd64.tar.gz
+RUN cp node_exporter*/node_exporter $WDIR/bin
+
+# build exporters
+WORKDIR $GOPATH/src/github.com/vkuznet/cmsweb-exporters
+RUN go build das2go_exporter.go
+RUN cp das2go_exporter $WDIR/bin
+RUN go build reqmgr_exporter.go
+RUN cp reqmgr_exporter $WDIR/bin
+RUN go build process_exporter.go
+RUN cp process_exporter $WDIR/bin
+RUN cp process_monitor.sh $WDIR/bin
+RUN go build wmcore_exporter.go
+RUN cp wmcore_exporter $WDIR/bin
+ENV PATH="${GOPATH}/src/github.com/vkuznet/cmsweb-exporters:${GOPATH}/src/github.com/vkuznet/cmsweb-exporters/bin:${PATH}"
+
+# setup final environment
+ENV PATH="${WDIR}/bin:${GOPATH}/bin:${PATH}"
 
 # start the setup
 WORKDIR ${WDIR}
