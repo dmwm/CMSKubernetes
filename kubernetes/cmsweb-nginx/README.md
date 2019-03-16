@@ -98,6 +98,7 @@ Use this name with .cern.ch suffix to create a DNS alias we need, e.g.
 - [Load balancing](https://clouddocs.web.cern.ch/clouddocs/containers/tutorials/lb.html)
 - [Horizontal pod autoscale]https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale)
 - [Using configmap](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap)
+- [Using secrets](https://kubernetes.io/docs/concepts/configuration/secret)
 
 ### Troubleshooting
 If you find that some of the pods didn't start you may use the following
