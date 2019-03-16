@@ -64,12 +64,14 @@ ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
 ENV GOPATH=$WDIR/gopath
 RUN mkdir -p $GOPATH
 ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
+RUN go get github.com/dmwm/cmsauth
 RUN go get github.com/vkuznet/x509proxy
 RUN go get github.com/buger/jsonparser
 RUN go get github.com/Lusitaniae/apache_exporter
 RUN go get github.com/prometheus/client_golang/prometheus
 RUN go get github.com/prometheus/common/log
 RUN go get -d github.com/vkuznet/cmsweb-exporters
+RUN go get github.com/shirou/gopsutil
 
 # make bin area in WDIR
 RUN mkdir ${WDIR}/bin
