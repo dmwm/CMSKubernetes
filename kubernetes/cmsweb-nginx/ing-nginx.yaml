@@ -11,6 +11,10 @@ spec:
   - host: cmsweb-test.web.cern.ch
     http:
       paths:
+      - path: /whoami
+        backend:
+          serviceName: httpsgo
+          servicePort: 443
       - path: /
         backend:
           serviceName: frontend
