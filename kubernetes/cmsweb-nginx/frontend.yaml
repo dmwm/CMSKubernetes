@@ -39,6 +39,7 @@ spec:
       containers:
       - image: cmssw/frontend
         name: frontend
+# example how to run some command once pod is created and apps are running
 #         tty: true
 #         stdin: true
 #         lifecycle:
@@ -51,25 +52,55 @@ spec:
         ports:
         - containerPort: 8443
           protocol: TCP
+
         volumeMounts:
         - name: secrets
-          mountPath: /etc/secrets
-          defaultMode: 0400
-        - name: hostkey
-          mountPath: /etc/grid-security/hostkey.pem
-          readOnly: true 
+          mountPath: "/etc/secrets"
+          readOnly: true
+        # mount hostcert/hostkey.pem files from the minion node
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
-          readOnly: true 
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+        # mount certificates from the minion node
+#         - name: certificates
+#           mountPath: /etc/grid-security/certificates
       volumes:
       - name: secrets
         secret:
           secretName: frontend-secrets
-      - name: hostkey
-        hostPath:
-            path: /etc/grid-security/hostkey.pem
-            type: File
       - name: hostcert
         hostPath:
             path: /etc/grid-security/hostcert.pem
-            type: File
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+#       - name: certificates
+#         hostPath:
+#             path: /etc/grid-security/certificates
+
+# original working solution
+#
+#         volumeMounts:
+#         - name: secrets
+#           mountPath: /etc/secrets
+#           defaultMode: 0400
+#         - name: hostkey
+#           mountPath: /etc/grid-security/hostkey.pem
+#           readOnly: true 
+#         - name: hostcert
+#           mountPath: /etc/grid-security/hostcert.pem
+#           readOnly: true 
+#       volumes:
+#       - name: secrets
+#         secret:
+#           secretName: frontend-secrets
+#       - name: hostkey
+#         hostPath:
+#             path: /etc/grid-security/hostkey.pem
+#             type: File
+#       - name: hostcert
+#         hostPath:
+#             path: /etc/grid-security/hostcert.pem
+#             type: File
+
