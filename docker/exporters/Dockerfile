@@ -25,14 +25,14 @@ ADD install.sh $WDIR/install.sh
 RUN $WDIR/install.sh
 
 # get go dependencies
-#ENV GOPATH=$WDIR/gopath
-#RUN mkdir -p $GOPATH
-#ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
-#RUN go get github.com/vkuznet/x509proxy
-#RUN go get github.com/buger/jsonparser
-#RUN go get github.com/prometheus/client_golang/prometheus
-#RUN go get github.com/prometheus/common/log
-#RUN go get -d github.com/vkuznet/cmsweb-exporters
+ENV GOPATH=$WDIR/gopath
+RUN mkdir -p $GOPATH
+ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
+RUN go get github.com/vkuznet/x509proxy
+RUN go get github.com/buger/jsonparser
+RUN go get github.com/prometheus/client_golang/prometheus
+RUN go get github.com/prometheus/common/log
+RUN go get -d github.com/vkuznet/cmsweb-exporters
 
 # download and install grafana for prometheus
 #WORKDIR ${WDIR}
@@ -42,23 +42,23 @@ RUN $WDIR/install.sh
 #RUN rm grafana-2.5.0.linux-x64.tar.gz
 
 # download node exporter
-#WORKDIR ${WDIR}
-#RUN curl -k -L -O https://github.com/prometheus/node_exporter/releases/download/v0.15.2/node_exporter-0.15.2.linux-amd64.tar.gz
-#RUN tar xfz node_exporter-0.15.2.linux-amd64.tar.gz
-#RUN cp node_exporter*/node_exporter $WDIR/bin
+WORKDIR ${WDIR}
+RUN curl -k -L -O https://github.com/prometheus/node_exporter/releases/download/v0.15.2/node_exporter-0.15.2.linux-amd64.tar.gz
+RUN tar xfz node_exporter-0.15.2.linux-amd64.tar.gz
+RUN cp node_exporter*/node_exporter $WDIR/bin
 
 # build exporters
-#WORKDIR $GOPATH/src/github.com/vkuznet/cmsweb-exporters
-#RUN go build das2go_exporter.go
-#RUN cp das2go_exporter $WDIR/bin
-#RUN go build reqmgr_exporter.go
-#RUN cp reqmgr_exporter $WDIR/bin
-#RUN go build process_exporter.go
-#RUN cp process_exporter $WDIR/bin
-#RUN cp process_monitor.sh $WDIR/bin
-#RUN go build wmcore_exporter.go
-#RUN cp wmcore_exporter $WDIR/bin
-#ENV PATH="${GOPATH}/src/github.com/vkuznet/cmsweb-exporters:${GOPATH}/src/github.com/vkuznet/cmsweb-exporters/bin:${PATH}"
+WORKDIR $GOPATH/src/github.com/vkuznet/cmsweb-exporters
+RUN go build das2go_exporter.go
+RUN cp das2go_exporter $WDIR/bin
+RUN go build reqmgr_exporter.go
+RUN cp reqmgr_exporter $WDIR/bin
+RUN go build process_exporter.go
+RUN cp process_exporter $WDIR/bin
+RUN cp process_monitor.sh $WDIR/bin
+RUN go build wmcore_exporter.go
+RUN cp wmcore_exporter $WDIR/bin
+ENV PATH="$WDIR/bin:${GOPATH}/src/github.com/vkuznet/cmsweb-exporters:${GOPATH}/src/github.com/vkuznet/cmsweb-exporters/bin:${PATH}"
 
 # add proxy generation via robot certificate
 RUN echo "3 */3 * * * /data/proxy.sh $USER 2>&1 1>& /dev/null" | crontab -
