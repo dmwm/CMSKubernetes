@@ -27,12 +27,12 @@ WORKDIR ${WDIR}
 ENV GOPATH=$WDIR/gopath
 RUN mkdir -p $GOPATH
 ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
-#RUN go get github.com/dmwm/cmsauth
-#RUN go get github.com/vkuznet/x509proxy
+RUN go get github.com/dmwm/cmsauth
+RUN go get github.com/vkuznet/x509proxy
 RUN go get github.com/mattn/go-oci8
-#RUN go get github.com/sirupsen/logrus
+RUN go get github.com/sirupsen/logrus
 RUN go get github.com/vkuznet/dbs2go
-#RUN go get github.com/shirou/gopsutil
+RUN go get github.com/shirou/gopsutil
 
 # build dbs2go
 ADD config.json $WDIR/config.json
