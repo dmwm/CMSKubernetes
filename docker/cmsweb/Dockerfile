@@ -1,7 +1,8 @@
 FROM cern/cc7-base
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
-ENV WDIR=/data
+ENV WDIR=/data/cmsweb
+RUN mkdir -p $WDIR
 ADD egi-trustanchors.repo /etc/yum.repos.d/egi-trustanchors.repo
 ADD wlcg.slc6.repo /etc/yum.repos.d/wlcg.slc6.repo
 ADD epel.repo /etc/yum.repos.d/epel.repo
@@ -56,8 +57,6 @@ RUN curl -k -L -O https://dl.google.com/go/go1.12.1.linux-amd64.tar.gz
 RUN tar xfz go1.12.1.linux-amd64.tar.gz
 RUN rm go1.12.1.linux-amd64.tar.gz
 ENV GOROOT=$WDIR/go
-# RUN mkdir -p $WDIR/gopath
-# ENV GOPATH=$WDIR/gopath
 ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
 
 # get go dependencies which we'll use on all cmsweb nodes
@@ -80,7 +79,7 @@ RUN mkdir ${WDIR}/bin
 WORKDIR ${WDIR}
 RUN curl -L -O https://grafanarel.s3.amazonaws.com/builds/grafana-2.5.0.linux-x64.tar.gz
 RUN tar zxf grafana-2.5.0.linux-x64.tar.gz
-RUN mv grafana-2.5.0 grafana
+RUN mv grafana-2.5.0 ${WDIR}/grafana
 RUN rm grafana-2.5.0.linux-x64.tar.gz
 
 # download node exporter
@@ -88,6 +87,8 @@ WORKDIR ${WDIR}
 RUN curl -k -L -O https://github.com/prometheus/node_exporter/releases/download/v0.15.2/node_exporter-0.15.2.linux-amd64.tar.gz
 RUN tar xfz node_exporter-0.15.2.linux-amd64.tar.gz
 RUN cp node_exporter*/node_exporter $WDIR/bin
+RUN rm -r node_exporter-0.15.2.linux-amd64/
+RUN rm -r node_exporter-0.15.2.linux-amd64.tar.gz
 
 # build exporters
 WORKDIR $GOPATH/src/github.com/vkuznet/cmsweb-exporters
