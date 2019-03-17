@@ -5,14 +5,17 @@ pdir=/data/srv/current/auth/proxy
 if [ ! -d $pdir ]; then
     mkdir -p $pdir
 fi
+if [ ! -d /data/certs ]; then
+    mkdir /data/certs
+fi
 # TMP solution until k8s fix file permission for secret volume
 # https://github.com/kubernetes/kubernetes/issues/34982
 if [ ! -f /data/certs/robotkey.pem ] && [ -f /etc/secrets/robotkey.pem ]; then
-    cp /etc/secrets/robotkey.pem /data/certs
-    chmod 0400 /data/certs/robotkey.pem
+    sudo cp /etc/secrets/robotkey.pem /data/certs
+    sudo chmod 0400 /data/certs/robotkey.pem
 fi
 if [ ! -f /data/certs/robotcert.pem ] && [ -f /etc/secrets/robotcert.pem ]; then
-    cp /etc/secrets/robotcert.pem /data/certs
+    sudo cp /etc/secrets/robotcert.pem /data/certs
 fi
 if [ -f /etc/secrets/robotkey.pem ]; then
     sudo voms-proxy-init -voms cms -rfc -key /data/certs/robotkey.pem -cert /data/certs/robotcert.pem
