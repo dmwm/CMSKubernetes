@@ -58,8 +58,6 @@ spec:
       - name: secrets
         secret:
           secretName: dbs2go-secrets
-          defaultMode: 256
-          # https://github.com/kubernetes/kubernetes/issues/34982
       - name: hostkey
         hostPath:
             path: /etc/grid-security/hostkey.pem
