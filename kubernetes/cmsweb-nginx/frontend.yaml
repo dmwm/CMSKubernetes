@@ -16,6 +16,8 @@ spec:
   ports:
     - port: 443
       targetPort: 8443
+    - port: 18443
+      targetPort: 18443
 
 ---
 kind: Deployment
@@ -52,6 +54,8 @@ spec:
         ports:
         - containerPort: 8443
           protocol: TCP
+        - containerPort: 18443
+          protocol: TCP
 
         volumeMounts:
         - name: secrets
@@ -69,8 +73,6 @@ spec:
       - name: secrets
         secret:
           secretName: frontend-secrets
-          defaultMode: 256
-          # https://github.com/kubernetes/kubernetes/issues/34982
       - name: hostcert
         hostPath:
             path: /etc/grid-security/hostcert.pem
