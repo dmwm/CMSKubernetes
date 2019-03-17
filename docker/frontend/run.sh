@@ -41,5 +41,8 @@ fi
 /data/cfg/admin/InstallDev -s start
 ps auxw | grep httpd
 
+# run apache exporter
+nohup apache_exporter -telemetry.address ":18443" 2>&1 1>& apache_exporter.log < /dev/null &
+
 # start cron daemon
 sudo /usr/sbin/crond -n
