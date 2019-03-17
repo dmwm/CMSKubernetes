@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG1806j
+VER=HG1903c
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend reqmgr2"
@@ -46,6 +46,14 @@ if [ $? -ne 0 ]; then
     cat $WDIR/srv/.deploy/*-post.log
     exit 1
 fi
+
+# TMP: add patch to WMCore to lower case Cms headers
+cd $WDIR/srv/HG1903c/sw/slc7_amd64_gcc630/cms/reqmgr2/*/lib/python2.7/site-packages/
+curl -ksLO https://github.com/dmwm/WMCore/pull/9100.patch
+patch -p3 < 9100.patch
+cd $WDIR
+# end of TMP block, will be removed once we get it in WMCore condebase
+
 # add proxy generation via robot certificate
 crontab -l > /tmp/mycron
 echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" >> /tmp/mycron
