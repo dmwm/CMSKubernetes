@@ -27,8 +27,9 @@ spec:
       labels:
         app: reqmon
     spec:
-#       hostNetwork: true
-#       dnsPolicy: ClusterFirstWithHostNet
+      # use hostNetwork to allow communication between reqmgr/reqmon/workqueue and couch
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
       - image: cmssw/reqmon
         name: reqmon

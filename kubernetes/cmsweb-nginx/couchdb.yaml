@@ -28,8 +28,9 @@ spec:
       labels:
         app: couchdb
     spec:
-#       hostNetwork: true
-#       dnsPolicy: ClusterFirstWithHostNet
+      # use hostNetwork to allow communication between reqmgr/reqmon/workqueue and couch
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
       - image: cmssw/couchdb
         name: couchdb
@@ -62,13 +63,13 @@ spec:
         secret:
           secretName: couchdb-secrets
           # https://github.com/kubernetes/kubernetes/issues/34982
-          defaultMode: 256
-          items:
-            - key: "robotcert.pem"
-              path: "robotcert.pem"
-              mode: 0640
-            - key: "robotkey.pem"
-              path: "robotkey.pem"
+#           defaultMode: 256
+#           items:
+#             - key: "robotcert.pem"
+#               path: "robotcert.pem"
+#               mode: 0640
+#             - key: "robotkey.pem"
+#               path: "robotkey.pem"
       - name: hostkey
         hostPath:
             path: /etc/grid-security/hostkey.pem
