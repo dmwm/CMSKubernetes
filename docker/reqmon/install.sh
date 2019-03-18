@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG1805a
+VER=HG1902f
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend reqmon"
@@ -47,7 +47,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 # add proxy generation via robot certificate
-crontab -l > /tmp/mycron
+crontab -l | egrep -v "reqmgr2|workqueue|couch" > /tmp/mycron
 echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" >> /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron
