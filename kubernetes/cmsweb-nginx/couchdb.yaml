@@ -28,8 +28,8 @@ spec:
       labels:
         app: couchdb
     spec:
-      hostNetwork: true
-      dnsPolicy: ClusterFirstWithHostNet
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - image: cmssw/couchdb
         name: couchdb
