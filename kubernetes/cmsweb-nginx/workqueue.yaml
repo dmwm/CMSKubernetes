@@ -28,8 +28,8 @@ spec:
       labels:
         app: workqueue
     spec:
-      hostNetwork: true
-      dnsPolicy: ClusterFirstWithHostNet
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - image: cmssw/workqueue
         name: workqueue
