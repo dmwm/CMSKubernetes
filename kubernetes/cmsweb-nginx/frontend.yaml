@@ -14,10 +14,20 @@ spec:
   selector:
     app: frontend
   ports:
+    - port: 80
+      targetPort: 8443
+      name: http
     - port: 443
       targetPort: 8443
+      name: https
+    - port: 8443
+      targetPort: 8443
+      name: https-machine
     - port: 18443
       targetPort: 18443
+      name: http-monitoring
+      nodePort: 30443
+  type: NodePort
 
 ---
 kind: Deployment
@@ -36,8 +46,8 @@ spec:
       labels:
         app: frontend
     spec:
-      hostNetwork: true
-      dnsPolicy: ClusterFirstWithHostNet
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - image: cmssw/frontend
         name: frontend
@@ -52,10 +62,18 @@ spec:
 #               - -c
 #               - sudo chmod 0400 /etc/secrets/server.key /etc/secrets/robotkey.pem
         ports:
+        - containerPort: 80
+          protocol: TCP
+          name: http
+        - containerPort: 443
+          protocol: TCP
+          name: https
         - containerPort: 8443
           protocol: TCP
+          name: https-machine
         - containerPort: 18443
           protocol: TCP
+          name: http-monitoring
 
         volumeMounts:
         - name: secrets
