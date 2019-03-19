@@ -1,0 +1,65 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: crabserver
+spec:
+  selector:
+    app: crabserver
+  ports:
+    - port: 8270
+      targetPort: 8270
+#       nodePort: 30270
+#   type: NodePort
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: crabserver
+  name: crabserver
+spec:
+  selector:
+    matchLabels:
+      app: crabserver
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: crabserver
+    spec:
+      containers:
+      - image: cmssw/crabserver
+        name: crabserver
+        ports:
+        - containerPort: 8270
+          protocol: TCP
+        volumeMounts:
+        - name: secrets
+          mountPath: /etc/secrets
+          defaultMode: 256
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+      volumes:
+      - name: secrets
+        secret:
+          secretName: crabserver-secrets
+          # https://github.com/kubernetes/kubernetes/issues/34982
+          defaultMode: 256
+          items:
+            - key: "robotcert.pem"
+              path: "robotcert.pem"
+              mode: 0640
+            - key: "robotkey.pem"
+              path: "robotkey.pem"
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File
