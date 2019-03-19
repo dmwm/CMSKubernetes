@@ -111,6 +111,8 @@ create()
     ./make_reqmgr_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
     ./make_reqmon_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
     ./make_workqueue_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
+    ./make_crabserver_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
+    ./make_crabcache_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
     ./make_tfaas_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac $tfaasconfig
     ./make_exporters_secret.sh $robot_key $robot_crt
     ./make_httpsgo_secret.sh $httpsgoconfig
