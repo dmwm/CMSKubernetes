@@ -63,4 +63,4 @@ docker push veknet/httpsgo
 
 echo
 echo "To remove all images please use this command"
-echo "docker rmi $(docker images -qf \"dangling=true\")"
+echo "docker rmi \$(docker images -qf \"dangling=true\")"
