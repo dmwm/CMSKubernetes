@@ -48,15 +48,12 @@ spec:
       containers:
       - image: cmssw/dbs
         name: dbs
-#         tty: true
-#         stdin: true
-#         lifecycle:
-#           postStart:
-#             exec:
-#               command:
-#               - bash
-#               - -c
-#               - sudo chmod 0400 /etc/secrets/server.key /etc/secrets/robotkey.pem
+        tty: true
+        stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "/data/monitor.sh"]
         ports:
         - containerPort: 8250
           protocol: TCP

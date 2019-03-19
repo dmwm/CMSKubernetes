@@ -30,6 +30,12 @@ spec:
       containers:
       - image: cmssw/crabserver
         name: crabserver
+        tty: true
+        stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "/data/monitor.sh"]
         ports:
         - containerPort: 8270
           protocol: TCP

@@ -9,8 +9,8 @@ spec:
     - port: 8246
       targetPort: 8246
       name: reqmgr
-#       nodePort: 30246
-#   type: NodePort
+      nodePort: 30246
+  type: NodePort
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
@@ -34,15 +34,12 @@ spec:
       containers:
       - image: cmssw/reqmgr
         name: reqmgr
-#         tty: true
-#         stdin: true
-#         lifecycle:
-#           postStart:
-#             exec:
-#               command:
-#               - bash
-#               - -c
-#               - sudo chmod 0400 /etc/secrets/server.key /etc/secrets/robotkey.pem
+        tty: true
+        stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "/data/monitor.sh"]
         ports:
         - containerPort: 8246
           protocol: TCP
