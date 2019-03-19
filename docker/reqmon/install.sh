@@ -46,8 +46,24 @@ if [ $? -ne 0 ]; then
     cat $WDIR/srv/.deploy/*-post.log
     exit 1
 fi
+
+# NOTE: we separated workqueue, reqmon, reqmgr2 and couchdb into individual
+# containers. In k8s cluster we need to remove monitoring of services which are
+# not part of the container/pod. The action items below perform that.
+
+# remove monitoring configs for services which are not run in this container
+for srv in "workqueue" "reqmgr2" "couchdb"; do
+    fname=/data/srv/current/config/$srv/monitoring.ini
+    if [ -f $fname ]; then
+        rm $fname
+    fi
+done
+
+# Adjust ServerMonitor to be specific
+sed -i -e "s#ServerMonitor/2.0#ServerMonitor-reqmon#g" /data/srv/current/config/admin/ServerMonitor
+
 # add proxy generation via robot certificate
-crontab -l | egrep -v "reqmgr2|workqueue|couch" > /tmp/mycron
+crontab -l | egrep -v "reqmgr2|workqueue|couchdb" > /tmp/mycron
 echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" >> /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron
