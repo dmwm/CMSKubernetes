@@ -41,6 +41,14 @@ echo "### build cmssw/workqueue"
 docker build -t cmssw/workqueue workqueue
 docker push cmssw/workqueue
 
+echo "### build cmssw/crabserver"
+docker build -t cmssw/crabserver crabserver
+docker push cmssw/crabserver
+
+echo "### build cmssw/crabcache"
+docker build -t cmssw/crabcache crabcache
+docker push cmssw/crabcache
+
 echo "### build veknet/httpgo"
 docker build -t veknet/httpgo httpgo
 docker push veknet/httpgo
