@@ -32,5 +32,6 @@ RUN $WDIR/install.sh
 # run the service
 ADD run.sh $WDIR/run.sh
 ADD proxy.sh $WDIR/proxy.sh
+ADD apache_exporter.sh $WDIR/apache_exporter.sh
 WORKDIR $WDIR
 CMD ["./run.sh"]
