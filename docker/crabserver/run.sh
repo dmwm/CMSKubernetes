@@ -25,8 +25,5 @@ sleep 2
 # start the service
 /data/srv/current/config/crabserver/manage start 'I did read documentation'
 
-# start process exporter
-nohup process_monitor.sh ".*crabserver/config.py" crabserver_exporter ":18270" 15 2>&1 1>& crabserver_exporter.log < /dev/null &
-
 # start cron daemon
 sudo /usr/sbin/crond -n

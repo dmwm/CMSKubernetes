@@ -36,8 +36,5 @@ sleep 2
 # start the service
 /data/srv/current/config/reqmgr2/manage start 'I did read documentation'
 
-# start process exporter
-nohup process_monitor.sh ".*reqmgr2/config.py" reqmgr2_exporter ":18240" 15 2>&1 1>& reqmgr2_exporter.log < /dev/null &
-
 # start cron daemon
 sudo /usr/sbin/crond -n

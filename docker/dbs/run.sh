@@ -36,8 +36,5 @@ sleep 2
 /data/srv/current/config/dbs/manage setinstances 'I did read documentation'
 /data/srv/current/config/dbs/manage start 'I did read documentation'
 
-# start process exporter
-nohup process_monitor.sh ".*DBSGlobalReader" dbs_global_exporter ":18250" 15 2>&1 1>& dbs_global_exporter.log < /dev/null &
-
 # start cron daemon
 sudo /usr/sbin/crond -n
