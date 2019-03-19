@@ -43,16 +43,12 @@ spec:
       containers:
       - image: cmssw/frontend
         name: frontend
-# example how to run some command once pod is created and apps are running
-#         tty: true
-#         stdin: true
-#         lifecycle:
-#           postStart:
-#             exec:
-#               command:
-#               - bash
-#               - -c
-#               - sudo chmod 0400 /etc/secrets/server.key /etc/secrets/robotkey.pem
+        tty: true
+        stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "/data/apache_exporter.sh"]
         ports:
         - containerPort: 80
           protocol: TCP
