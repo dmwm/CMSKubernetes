@@ -60,3 +60,7 @@ docker push veknet/httpsgo
 #echo "### build veknet/tfaas"
 #docker build -t veknet/tfaas tfaas
 #docker push veknet/tfaas
+
+echo
+echo "To remove all images please use this command"
+echo "docker rmi $(docker images -qf \"dangling=true\")"
