@@ -63,7 +63,7 @@ done
 sed -i -e "s#ServerMonitor/2.0#ServerMonitor-workqueue#g" /data/srv/current/config/admin/ServerMonitor
 
 # add proxy generation via robot certificate
-crontab -l | egrep -v "reqmgr2|reqmon|couchdb" > /tmp/mycron
+crontab -l | egrep -v "reqmgr2|reqmon|couchdb|reboot" > /tmp/mycron
 echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" >> /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron

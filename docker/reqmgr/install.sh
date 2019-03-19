@@ -77,7 +77,7 @@ sed -i -e "s#ServerMonitor/2.0#ServerMonitor-reqmgr#g" /data/srv/current/config/
 
 # add proxy generation via robot certificate
 # disable workqueue/reqmon/couch on reqmgr pod
-crontab -l | egrep -v "workqueue|reqmon|couchdb" > /tmp/mycron
+crontab -l | egrep -v "workqueue|reqmon|couchdb|reboot" > /tmp/mycron
 echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" >> /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron

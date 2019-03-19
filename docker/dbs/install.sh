@@ -44,7 +44,7 @@ crontab -l | \
     sed -e "s,/data/certs/hostcert.pem,/etc/secrets/proxy,g" \
         -e "s,/data/certs/hostkey.pem,/etc/secrets/proxy,g" | crontab -
 # add proxy generation via robot certificate
-crontab -l > /tmp/mycron
+crontab -l | egrep -v "reboot" > /tmp/mycron
 echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" >> /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron

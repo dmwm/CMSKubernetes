@@ -41,7 +41,7 @@ fi
 sed -i -e "s#ServerMonitor/2.0#ServerMonitor-crabserver#g" /data/srv/current/config/admin/ServerMonitor
 
 # add proxy generation via robot certificate
-crontab -l > /tmp/mycron
+crontab -l | grep -v "reboot" > /tmp/mycron
 echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" >> /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron
