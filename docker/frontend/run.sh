@@ -41,12 +41,5 @@ fi
 /data/cfg/admin/InstallDev -s start
 ps auxw | grep httpd
 
-# run apache exporter, first check on which port it is running
-suri="http://localhost/server-status/?auto"
-if [ -n "`netstat -lntu | grep 8080`" ]; then
-    suri="http://localhost:8080/server-status/?auto"
-fi
-nohup apache_exporter -scrape_uri $suri -telemetry.address ":18443" 2>&1 1>& apache_exporter.log < /dev/null &
-
 # start cron daemon
 sudo /usr/sbin/crond -n
