@@ -9,7 +9,7 @@ spec:
     - port: 5984
       targetPort: 5984
       name: couchdb
-    - port: 15984
+    - port: 9984
       targetPort: 9984
       name: couchdb-mon
 ---
@@ -40,7 +40,7 @@ spec:
         lifecycle:
           postStart:
             exec:
-              command: ["/bin/sh", "-c", "/data/monitor.sh"]
+              command: ["/bin/sh", "-c", "sleep 20 && /data/monitor.sh"]
         ports:
         - containerPort: 5984
           protocol: TCP
