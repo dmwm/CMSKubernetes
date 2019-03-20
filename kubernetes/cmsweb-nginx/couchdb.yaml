@@ -10,7 +10,7 @@ spec:
       targetPort: 5984
       name: couchdb
     - port: 15984
-      targetPort: 15984
+      targetPort: 9984
       name: couchdb-mon
 ---
 kind: Deployment
@@ -45,7 +45,7 @@ spec:
         - containerPort: 5984
           protocol: TCP
           name: couchdb
-        - containerPort: 15984
+        - containerPort: 9984
           protocol: TCP
           name: couchdb-mon
         volumeMounts:
