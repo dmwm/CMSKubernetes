@@ -8,8 +8,10 @@ spec:
   ports:
     - port: 8271
       targetPort: 8271
-#       nodePort: 30271
-#   type: NodePort
+      name: crabcache
+    - port: 18271
+      targetPort: 18271
+      name: crabcache-mon
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
@@ -28,7 +30,7 @@ spec:
         app: crabcache
     spec:
       containers:
-      - image: cmssw/crabcache
+      - image: veknet/crabcache
         name: crabcache
         tty: true
         stdin: true
@@ -39,6 +41,10 @@ spec:
         ports:
         - containerPort: 8271
           protocol: TCP
+          name: crabcache
+        - containerPort: 18271
+          protocol: TCP
+          name: crabcache-mon
         volumeMounts:
         - name: secrets
           mountPath: /etc/secrets
