@@ -8,8 +8,10 @@ spec:
   ports:
     - port: 8249
       targetPort: 8249
-#       nodePort: 30249
-#   type: NodePort
+      name: reqmon
+    - port: 18249
+      targetPort: 18249
+      name: reqmon-mon
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
@@ -33,18 +35,19 @@ spec:
       containers:
       - image: cmssw/reqmon
         name: reqmon
-#         tty: true
-#         stdin: true
-#         lifecycle:
-#           postStart:
-#             exec:
-#               command:
-#               - bash
-#               - -c
-#               - sudo chmod 0400 /etc/secrets/server.key /etc/secrets/robotkey.pem
+        tty: true
+        stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "/data/monitor.sh"]
         ports:
         - containerPort: 8249
           protocol: TCP
+          name: reqmon
+        - containerPort: 18249
+          protocol: TCP
+          name: reqmon-mon
         volumeMounts:
         - name: secrets
           mountPath: /etc/secrets
