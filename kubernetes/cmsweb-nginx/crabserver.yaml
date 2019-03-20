@@ -8,8 +8,10 @@ spec:
   ports:
     - port: 8270
       targetPort: 8270
-#       nodePort: 30270
-#   type: NodePort
+      name: crabserver
+    - port: 18270
+      targetPort: 18270
+      name: crabserver-mon
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
@@ -28,7 +30,7 @@ spec:
         app: crabserver
     spec:
       containers:
-      - image: cmssw/crabserver
+      - image: veknet/crabserver
         name: crabserver
         tty: true
         stdin: true
@@ -39,6 +41,10 @@ spec:
         ports:
         - containerPort: 8270
           protocol: TCP
+          name: crabserver
+        - containerPort: 18270
+          protocol: TCP
+          name: crabserver-mon
         volumeMounts:
         - name: secrets
           mountPath: /etc/secrets
