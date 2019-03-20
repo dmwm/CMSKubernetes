@@ -9,8 +9,8 @@ spec:
     - port: 8246
       targetPort: 8246
       name: reqmgr
-      nodePort: 30246
-  type: NodePort
+#       nodePort: 30246
+#   type: NodePort
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
@@ -61,6 +61,9 @@ spec:
           # https://github.com/kubernetes/kubernetes/issues/34982
           defaultMode: 256
           items:
+            - key: "hmac"
+              path: "hmac"
+              mode: 0640
             - key: "robotcert.pem"
               path: "robotcert.pem"
               mode: 0640
