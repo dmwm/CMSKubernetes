@@ -37,6 +37,9 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# add production auth method
+sed -i -e "s/authentication_handlers =/authentication_handlers = {couch_httpd_auth, default_authentication_handler},/g" /data/srv/current/config/couchdb/local.ini
+
 # NOTE: we separated workqueue, reqmon, reqmgr2 and couchdb into individual
 # containers. In k8s cluster we need to remove monitoring of services which are
 # not part of the container/pod. The action items below perform that.

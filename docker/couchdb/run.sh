@@ -18,9 +18,9 @@ fi
 
 # adjust configuration for k8s
 # VK temp fix: so far backend auth fails, but we'll trust our host auth
-hostname=`hostname -f`
-host=`host $hostname | awk '/has address/ { print $4 }'`
-sed -i -e "s/{127.0.0.1, _admin, _admin}/{127.0.0.1, _admin, _admin},{$host, _admin, _admin}/g" /data/srv/current/config/couchdb/local.ini
+#hostname=`hostname -f`
+#host=`host $hostname | awk '/has address/ { print $4 }'`
+#sed -i -e "s/{127.0.0.1, _admin, _admin}/{127.0.0.1, _admin, _admin},{$host, _admin, _admin}/g" /data/srv/current/config/couchdb/local.ini
 
 # get proxy
 /data/proxy.sh $USER
