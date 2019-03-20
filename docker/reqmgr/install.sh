@@ -14,7 +14,7 @@ mkdir $WDIR/srv
 cd $WDIR/cfg
 git reset --hard $VER
 
-# adjust deploy script
+# adjust deploy script to use k8s host name
 sed -i -e "s,https://cmsweb.cern.ch,https://cmsweb-test.web.cern.ch,g" \
     -e "s,https://cmsweb-testbed.cern.ch,https://cmsweb-test.web.cern.ch,g" \
     -e "s,https://cmsweb-dev.cern.ch,https://cmsweb-test.web.cern.ch,g" \
@@ -46,6 +46,12 @@ if [ $? -ne 0 ]; then
     cat $WDIR/srv/.deploy/*-post.log
     exit 1
 fi
+
+# change COUCH_URL to use localhost, we'll be using hostNetwork option in k8s setup
+# the change of COUCH_URL is required since frontend backends data-services
+# are now pods running on local private network instead of individual real IPs
+sed -i -e "s,COUCH_URL = \"%s/couchdb\" % BASE_URL,COUCH_URL = \"http://localhost:5984\",g" \
+    /data/srv/current/config/reqmgr2/config.py
 
 # TMP: add patch to WMCore to lower case Cms headers
 # I still need to enable pycurl in

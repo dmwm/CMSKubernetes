@@ -15,10 +15,11 @@ fi
 # overwrite header-auth key file with one from secrets
 if [ -f /etc/secrets/hmac ]; then
     sudo rm /data/srv/current/auth/wmcore-auth/header-auth-key
-    cp /etc/secrets/hmac /data/srv/current/auth/wmcore-auth/header-auth-key
+    sudo cp /etc/secrets/hmac /data/srv/current/auth/wmcore-auth/header-auth-key
+    sudo chown sw.sw /data/srv/current/auth/wmcore-auth/header-auth-key
     # generate new hmac key for couch
     chmod u+w /data/srv/current/auth/couchdb/hmackey.ini
-    perl -e 'undef $/; print "[couch_cms_auth]\n"; print "hmac_secret = ", unpack("h*", <STDIN>), "\n"' < /etc/secrets/hmac > /data/srv/current/auth/couchdb/hmackey.ini
+    perl -e 'undef $/; print "[couch_cms_auth]\n"; print "hmac_secret = ", unpack("h*", <STDIN>), "\n"' < /data/srv/current/auth/wmcore-auth/header-auth-key > /data/srv/current/auth/couchdb/hmackey.ini
 fi
 
 # we need to populate reqmgr2 dbs into couch first
