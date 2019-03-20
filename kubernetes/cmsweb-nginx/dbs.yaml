@@ -24,8 +24,6 @@ spec:
     - port: 18250
       targetPort: 18250
       name: dbs-monitoring
-#       nodePort: 30250
-#   type: NodePort
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
