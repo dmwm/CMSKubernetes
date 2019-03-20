@@ -32,12 +32,12 @@ curl -sO http://cmsrep.cern.ch/cmssw/repos/bootstrap.sh
 sh -x ./bootstrap.sh -architecture $ARCH -path $WDIR/tmp/$VER/sw -repository $REPO -server $SERVER setup
 
 # TMP: add traefik headers support for our frontend
-cd $WDIR/cfg
-curl -ksLO https://github.com/dmwm/deployment/pull/716.patch
-patch -p1 < 716.patch
-sed -i -e "s,X-Forwarded-Ssl-Client-Cert,X-Forwarded-Tls-Client-Cert,g" frontend/cmsauth.pm
-sed -i -e "s,X-Forwarded-Ssl-Client-Cert,X-Forwarded-Tls-Client-Cert,g" frontend/cmsnuke.pm
-cd $WDIR
+#cd $WDIR/cfg
+#curl -ksLO https://github.com/dmwm/deployment/pull/716.patch
+#patch -p1 < 716.patch
+#sed -i -e "s,X-Forwarded-Ssl-Client-Cert,X-Forwarded-Tls-Client-Cert,g" frontend/cmsauth.pm
+#sed -i -e "s,X-Forwarded-Ssl-Client-Cert,X-Forwarded-Tls-Client-Cert,g" frontend/cmsnuke.pm
+#cd $WDIR
 # end of TMP block, will be removed once we get it in frontend codebase
 
 # TMP: https://stackoverflow.com/questions/18742156/certificate-verification-error-20-unable-to-get-local-issuer-certificate-c
