@@ -37,7 +37,7 @@ spec:
         lifecycle:
           postStart:
             exec:
-              command: ["/bin/sh", "-c", "/data/monitor.sh"]
+              command: ["/bin/sh", "-c", "sleep 20 && /data/monitor.sh"]
         ports:
         - containerPort: 8270
           protocol: TCP
