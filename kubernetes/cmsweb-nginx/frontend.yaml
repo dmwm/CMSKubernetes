@@ -10,7 +10,7 @@ spec:
       targetPort: 80
       name: http
     - port: 443
-      targetPort: 443
+      targetPort: 8443
       name: https
     - port: 8443
       targetPort: 8443
@@ -18,8 +18,8 @@ spec:
     - port: 18443
       targetPort: 18443
       name: http-monitoring
-      nodePort: 30443
-  type: NodePort
+#       nodePort: 30443
+#   type: NodePort
 
 ---
 kind: Deployment
