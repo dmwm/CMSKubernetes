@@ -18,8 +18,6 @@ spec:
     - port: 18443
       targetPort: 18443
       name: http-monitoring
-#       nodePort: 30443
-#   type: NodePort
 
 ---
 kind: Deployment
