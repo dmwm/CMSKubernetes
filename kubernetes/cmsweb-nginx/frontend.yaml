@@ -17,7 +17,7 @@ spec:
       name: https-machine
     - port: 18443
       targetPort: 18443
-      name: http-monitoring
+      name: http-mon
 
 ---
 kind: Deployment
@@ -59,7 +59,7 @@ spec:
           name: https-machine
         - containerPort: 18443
           protocol: TCP
-          name: http-monitoring
+          name: http-mon
 
         volumeMounts:
         - name: secrets

@@ -11,7 +11,7 @@ spec:
       name: das
     - port: 18217
       targetPort: 18217
-      name: das-monitoring
+      name: das-mon
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1

@@ -23,7 +23,7 @@ spec:
       name: dbs-phys03-w
     - port: 18250
       targetPort: 18250
-      name: dbs-monitoring
+      name: dbs-mon
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
@@ -68,6 +68,9 @@ spec:
         - containerPort: 8255
           protocol: TCP
           name: dbs-phys03-w
+        - containerPort: 18250
+          protocol: TCP
+          name: dbs-mon
         volumeMounts:
         - name: secrets
           mountPath: /etc/secrets
