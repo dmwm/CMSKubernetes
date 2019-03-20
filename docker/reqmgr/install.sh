@@ -50,8 +50,8 @@ fi
 # change COUCH_URL to use localhost, we'll be using hostNetwork option in k8s setup
 # the change of COUCH_URL is required since frontend backends data-services
 # are now pods running on local private network instead of individual real IPs
-sed -i -e "s,COUCH_URL = \"%s/couchdb\" % BASE_URL,COUCH_URL = \"http://localhost:5984\",g" \
-    /data/srv/current/config/reqmgr2/config.py
+#sed -i -e "s,COUCH_URL = \"%s/couchdb\" % BASE_URL,COUCH_URL = \"http://localhost:5984\",g" \
+#    /data/srv/current/config/reqmgr2/config.py
 
 # TMP: add patch to WMCore to lower case Cms headers
 # I still need to enable pycurl in
