@@ -8,8 +8,6 @@ spec:
   ports:
     - port: 8083
       targetPort: 8083
-#       nodePort: 30883
-#   type: NodePort
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
