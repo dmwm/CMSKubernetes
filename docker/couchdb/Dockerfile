@@ -23,6 +23,7 @@ RUN $WDIR/install.sh
 
 # run the service
 ADD run.sh $WDIR/run.sh
+ADD proxy.sh $WDIR/proxy.sh
 USER $USER
 WORKDIR $WDIR
 CMD ["./run.sh"]
