@@ -10,12 +10,6 @@ spec:
     name: http
   selector:
     app: httpsgo
-#   selector:
-#     app: httpsgo
-#   ports:
-#     - port: 443
-#       nodePort: 30843
-#   type: NodePort
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
