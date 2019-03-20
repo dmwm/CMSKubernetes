@@ -78,7 +78,7 @@ check()
 create()
 {
     # adjust as necessary
-    pkgs="ing-nginx frontend dbs das2go httpsgo couchdb reqmgr httpsgo reqmon workqueue tfaas"
+    pkgs="ing-nginx frontend dbs das2go httpsgo couchdb reqmgr httpsgo reqmon workqueue tfaas crabcache"
 
     # adjust as necessary
     user_crt=/afs/cern.ch/user/v/valya/.globus/usercert.pem
