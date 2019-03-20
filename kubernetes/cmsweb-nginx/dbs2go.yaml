@@ -8,8 +8,6 @@ spec:
   ports:
     - port: 8989
       targetPort: 8989
-      nodePort: 30989
-  type: NodePort
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
