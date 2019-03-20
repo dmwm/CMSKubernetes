@@ -9,8 +9,9 @@ spec:
     - port: 8246
       targetPort: 8246
       name: reqmgr
-#       nodePort: 30246
-#   type: NodePort
+    - port: 18246
+      targetPort: 18246
+      name: reqmgr-mon
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
@@ -44,6 +45,9 @@ spec:
         - containerPort: 8246
           protocol: TCP
           name: reqmgr
+        - containerPort: 18246
+          protocol: TCP
+          name: reqmgr-mon
         volumeMounts:
         - name: secrets
           mountPath: /etc/secrets
