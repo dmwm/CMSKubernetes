@@ -4,7 +4,7 @@ ARCH=slc7_amd64_gcc630
 VER=HG1902f
 REPO="comp"
 AREA=/data/cfg/admin
-PKGS="admin backend crabserver"
+PKGS="backend crabserver"
 SERVER=cmsrep.cern.ch
 
 cd $WDIR
