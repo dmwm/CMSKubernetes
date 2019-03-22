@@ -39,6 +39,12 @@ fi
 ln -s /data/srv/$VER /data/srv/current
 ln -s /data/srv/current/apps.sw /data/srv/current/apps
 
+# TMP: add patch to WMCore to lower case Cms headers
+cd $WDIR/srv/$VER/sw/$ARCH/cms/dbs3/*/lib/python2.7/site-packages
+curl -ksLO https://github.com/dmwm/WMCore/pull/9112.patch
+patch -p3 < 9112.patch
+# end of TMP block, will be removed once we get it in WMCore condebase
+
 # replace usage of hostkey/hostcert in crontab to frontend proxy
 crontab -l | \
     sed -e "s,/data/certs/hostcert.pem,/etc/secrets/proxy,g" \
