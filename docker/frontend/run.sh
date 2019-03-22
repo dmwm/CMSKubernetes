@@ -9,8 +9,14 @@
 #    sudo cp $ckey /data/certs/hostkey.pem
 #    sudo cp $cert /data/certs/hostcert.pem
 #fi
-if [ -f /etc/grid-security/hostkey.pem ]; then
+if [ -f /etc/secrets/hostkey.pem ]; then
     # overwrite host PEM files in /data/certs since we used them during installation time
+    echo "Use /etc/secrets/host{key,cert}.pem for /data/certs"
+    sudo cp /etc/secrets/hostkey.pem /data/certs/
+    sudo cp /etc/secrets/hostcert.pem /data/certs/
+elif [ -f /etc/grid-security/hostkey.pem ]; then
+    # overwrite host PEM files in /data/certs since we used them during installation time
+    echo "Use /etc/grid-security/host{key,cert}.pem for /data/certs"
     sudo cp /etc/grid-security/hostkey.pem /data/certs/
     sudo cp /etc/grid-security/hostcert.pem /data/certs/
 fi
