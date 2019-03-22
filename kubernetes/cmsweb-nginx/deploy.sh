@@ -104,19 +104,20 @@ create()
     dasconfig=dasconfig.json
     tfaasconfig=tfaas-config.json
     httpsgoconfig=httpsgoconfig.json
-    ./make_das2go_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac $dasconfig
-    ./make_dbs_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac $dbssecrets
-    ./make_frontend_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
-    ./make_couchdb_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
-    ./make_reqmgr_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
-    ./make_reqmon_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
-    ./make_workqueue_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
-    ./make_crabserver_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
-    ./make_crabcache_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac
-    ./make_tfaas_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac $tfaasconfig
+    ./make_ing-nginx_secret.sh $cmsweb_key $cmsweb_crt
+    ./make_das2go_secret.sh $robot_key $robot_crt $hmac $dasconfig
+    ./make_dbs_secret.sh $robot_key $robot_crt $hmac $dbssecrets
+    ./make_frontend_secret.sh $robot_key $robot_crt $hmac $cmsweb_key $cmsweb_crt
+    ./make_couchdb_secret.sh $robot_key $robot_crt $hmac
+    ./make_reqmgr_secret.sh $robot_key $robot_crt $hmac
+    ./make_reqmon_secret.sh $robot_key $robot_crt $hmac
+    ./make_workqueue_secret.sh $robot_key $robot_crt $hmac
+    ./make_crabserver_secret.sh $robot_key $robot_crt $hmac
+    ./make_crabcache_secret.sh $robot_key $robot_crt $hmac
+    ./make_tfaas_secret.sh $robot_key $robot_crt $hmac $tfaasconfig
     ./make_exporters_secret.sh $robot_key $robot_crt
     ./make_httpsgo_secret.sh $httpsgoconfig
-    ./make_dbs2go_secret.sh $robot_key $robot_crt $server_key $server_crt $hmac $dbsconfig $dbfile
+    ./make_dbs2go_secret.sh $robot_key $robot_crt $hmac $dbsconfig $dbfile
 
     for p in $pkgs; do
         echo "+++ apply secrets: $p-secrets.yaml"
