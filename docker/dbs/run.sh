@@ -28,6 +28,14 @@ if [ -f /etc/secrets/hmac ]; then
     cp /etc/secrets/hmac /data/srv/current/auth/wmcore-auth/header-auth-key
 fi
 
+# get fresh copy of tnsnames.ora from secrets or local area
+tfile=`find /data/srv/current/sw/ -name tnsnames.ora`
+if [ -f /etc/secrets/tnsnames.ora ] && [ -f $tfile ]; then
+    /bin/cp -f /etc/secrets/tnsnames.ora $tfile
+elif [ -f /data/tnsnames.ora ] && [ -f $tfile ]; then
+    /bin/cp -f /data/tnsnames.ora $tfile
+fi
+
 # get proxy
 /data/proxy.sh $USER
 sleep 2
@@ -39,10 +47,11 @@ sleep 2
 # place test request to DBS
 port=`grep ^config.Webtools.port /data/srv/current/config/dbs/DBSGlobalReader.py | awk '{split($0,a,"="); print a[2]}' | sed -e "s, ,,g"`
 inst=`grep ^VARIAN /data/srv/current/config/dbs/DBSGlobalReader.py | awk '{split($0,a,"="); print a[2]}' | sed -e "s, ,,g" -e "s,\",,g"`
-if [ -n "$inst" == "default" ]; then
+if [ "$inst" == "default" ]; then
     inst="dev"
 fi
-curl -v -H "cms-auth-status":"NONE" http://localhost:$port/dbs/$inst/global/DBSReader/datatiers?data_tier_name=RAW
+echo "We can test DBS from local host as following:"
+echo "curl -v -H "cms-auth-status":"NONE" http://localhost:$port/dbs/$inst/global/DBSReader/datatiers?data_tier_name=RAW"
 
 # start cron daemon
 sudo /usr/sbin/crond -n
