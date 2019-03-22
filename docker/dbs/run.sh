@@ -36,5 +36,13 @@ sleep 2
 /data/srv/current/config/dbs/manage setinstances 'I did read documentation'
 /data/srv/current/config/dbs/manage start 'I did read documentation'
 
+# place test request to DBS
+port=`grep ^config.Webtools.port /data/srv/current/config/dbs/DBSGlobalReader.py | awk '{split($0,a,"="); print a[2]}' | sed -e "s, ,,g"`
+inst=`grep ^VARIAN /data/srv/current/config/dbs/DBSGlobalReader.py | awk '{split($0,a,"="); print a[2]}' | sed -e "s, ,,g" -e "s,\",,g"`
+if [ -n "$inst" == "default" ]; then
+    inst="dev"
+fi
+curl -v -H "cms-auth-status":"NONE" http://localhost:$port/dbs/$inst/global/DBSReader/datatiers?data_tier_name=RAW
+
 # start cron daemon
 sudo /usr/sbin/crond -n
