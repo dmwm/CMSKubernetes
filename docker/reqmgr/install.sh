@@ -52,9 +52,12 @@ fi
 # /data/srv/$VER/sw/$ARCH/cms/reqmgr2/*/lib/python2.7/site-packages/WMCore/Services/Requests.py
 cd $WDIR/srv/$VER/sw/$ARCH/cms/reqmgr2/*/lib/python2.7/site-packages/
 curl -ksLO https://github.com/dmwm/WMCore/pull/9100.patch
-curl -ksLO https://github.com/dmwm/WMCore/pull/9101.patch
 patch -p3 < 9100.patch
-patch -p3 < 9101.patch
+# patch to not verify host in pycurl
+#curl -ksLO https://github.com/dmwm/WMCore/pull/9101.patch
+#patch -p3 < 9101.patch
+#
+# switch to use pycurl in Requests.py instead of default httplib2
 fname=`find /data/srv/$VER/sw/$ARCH/cms/reqmgr2/ -name Requests.py`
 sed -i -e "s#self.pycurl = idict.get('pycurl', None)#self.pycurl = True#g" $fname
 cd $WDIR
