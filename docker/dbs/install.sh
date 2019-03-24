@@ -31,13 +31,18 @@ if [ $? -ne 0 ]; then
     cat $WDIR/srv/.deploy/*-sw.log
     exit 1
 fi
-#$WDIR/cfg/Deploy -A $ARCH -R comp@$VER -r comp=$REPO -t $VER -w $SERVER -s post $WDIR/srv "$PKGS"
-#if [ $? -ne 0 ]; then
-#    cat $WDIR/srv/.deploy/*-post.log
-#    exit 1
-#fi
-ln -s /data/srv/$VER /data/srv/current
-ln -s /data/srv/current/apps.sw /data/srv/current/apps
+
+# make fake proxy to allow post install step to succeed
+mkdir -p /data/srv/$VER/auth/proxy
+rm /data/srv/$VER/auth/proxy/*
+
+$WDIR/cfg/Deploy -A $ARCH -R comp@$VER -r comp=$REPO -t $VER -w $SERVER -s post $WDIR/srv "$PKGS"
+if [ $? -ne 0 ]; then
+    cat $WDIR/srv/.deploy/*-post.log
+    exit 1
+fi
+#ln -s /data/srv/$VER /data/srv/current
+#ln -s /data/srv/current/apps.sw /data/srv/current/apps
 
 # TMP: add patch to WMCore to lower case Cms headers
 cd $WDIR/srv/$VER/sw/$ARCH/cms/dbs3/*/lib/python2.7/site-packages
