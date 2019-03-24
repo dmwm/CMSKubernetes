@@ -49,6 +49,10 @@ echo "### build veknet/crabcache"
 docker build -t veknet/crabcache crabcache
 docker push veknet/crabcache
 
+echo "### build veknet/dqmgui"
+docker build -t veknet/dqmgui dqmgui
+docker push veknet/dqmgui
+
 echo "### build veknet/httpgo"
 docker build -t veknet/httpgo httpgo
 docker push veknet/httpgo
