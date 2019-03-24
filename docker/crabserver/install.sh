@@ -4,7 +4,7 @@ ARCH=slc7_amd64_gcc630
 VER=HG1902f
 REPO="comp"
 AREA=/data/cfg/admin
-PKGS="backend crabserver"
+PKGS="admin backend crabserver"
 SERVER=cmsrep.cern.ch
 
 cd $WDIR
@@ -31,6 +31,11 @@ if [ $? -ne 0 ]; then
     cat $WDIR/srv/.deploy/*-sw.log
     exit 1
 fi
+
+# make fake proxy to allow post install step to succeed
+mkdir -p /data/srv/$VER/auth/proxy
+rm /data/srv/$VER/auth/proxy/*
+
 $WDIR/cfg/Deploy -A $ARCH -R comp@$VER -r comp=$REPO -t $VER -w $SERVER -s post $WDIR/srv "$PKGS"
 if [ $? -ne 0 ]; then
     cat $WDIR/srv/.deploy/*-post.log
