@@ -1,0 +1,92 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: dqmgui
+spec:
+  selector:
+    app: dqmgui
+  ports:
+    - port: 8060
+      targetPort: 8060
+      name: dqmgui-dev
+    - port: 8081
+      targetPort: 8081
+      name: dqmgui-relval
+    - port: 8080
+      targetPort: 8080
+      name: dqmgui-offline
+    - port: 18060
+      targetPort: 18060
+      name: dqmgui-mon
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: dqmgui
+  name: dqmgui
+spec:
+  selector:
+    matchLabels:
+      app: dqmgui
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dqmgui
+    spec:
+        # use hostNetwork to allow interval communication between cmsweb data-services
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: veknet/dqmgui
+        name: dqmgui
+        tty: true
+        stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "sleep 20 && /data/monitor.sh"]
+        ports:
+        - containerPort: 8060
+          protocol: TCP
+          name: dqmgui-dev
+        - containerPort: 8081
+          protocol: TCP
+          name: dqmgui-relval
+        - containerPort: 8080
+          protocol: TCP
+          name: dqmgui-offline
+        - containerPort: 18060
+          protocol: TCP
+          name: dqmgui-mon
+        volumeMounts:
+        - name: secrets
+          mountPath: /etc/secrets
+          defaultMode: 256
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+      volumes:
+      - name: secrets
+        secret:
+          secretName: dqmgui-secrets
+          # https://github.com/kubernetes/kubernetes/issues/34982
+          defaultMode: 256
+          items:
+            - key: "robotcert.pem"
+              path: "robotcert.pem"
+              mode: 0640
+            - key: "robotkey.pem"
+              path: "robotkey.pem"
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File
