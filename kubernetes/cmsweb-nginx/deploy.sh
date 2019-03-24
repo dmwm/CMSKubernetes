@@ -5,6 +5,7 @@
 ##H   help       show this help
 ##H   cleanup    cleanup services
 ##H   create     create services
+##H   secrets    secrets services
 ##H
 
 cluster=cmsweb
@@ -75,11 +76,8 @@ check()
 
 }
 
-create()
+secrets()
 {
-    # adjust as necessary
-    pkgs="ing-nginx frontend dbs das2go httpsgo couchdb reqmgr httpsgo reqmon workqueue tfaas crabcache crabserver"
-
     # adjust as necessary
     user_crt=/afs/cern.ch/user/v/valya/.globus/usercert.pem
     robot_key=/afs/cern.ch/user/v/valya/private/certificates/robotkey.pem
@@ -91,22 +89,20 @@ create()
     dbfile=/afs/cern.ch/user/v/valya/private/dbfile
     dbssecrets=/afs/cern.ch/user/v/valya/private/DBSSecrets.py
 
-    echo "### CREATE ACTION ###"
-    echo "+++ Will install the following services: $pkgs"
-
     echo "+++ generate hmac secret"
     hmac=$PWD/hmac.random
     perl -e 'open(R, "< /dev/urandom") or die; sysread(R, $K, 20) or die; print $K' > $hmac
 
-    echo
-    echo "+++ prepare secrets"
+    echo "+++ generate secrets"
     dbsconfig=dbsconfig.json
     dasconfig=dasconfig.json
     tfaasconfig=tfaas-config.json
     httpsgoconfig=httpsgoconfig.json
     ./make_ing-nginx_secret.sh $cmsweb_key $cmsweb_crt
+    ./make_acdcserver_secret.sh $robot_key $robot_crt $hmac
     ./make_das2go_secret.sh $robot_key $robot_crt $hmac $dasconfig
     ./make_dbs_secret.sh $robot_key $robot_crt $hmac $dbssecrets
+    ./make_dqmgui_secret.sh $robot_key $robot_crt $hmac
     ./make_frontend_secret.sh $robot_key $robot_crt $hmac $cmsweb_key $cmsweb_crt
     ./make_couchdb_secret.sh $robot_key $robot_crt $hmac
     ./make_reqmgr_secret.sh $robot_key $robot_crt $hmac
@@ -119,15 +115,9 @@ create()
     ./make_httpsgo_secret.sh $httpsgoconfig
     ./make_dbs2go_secret.sh $robot_key $robot_crt $hmac $dbsconfig $dbfile
 
-    for p in $pkgs; do
-        echo "+++ apply secrets: $p-secrets.yaml"
-        if [ -f ${p}-secrets.yaml ]; then
-            kubectl apply -f ${p}-secrets.yaml --validate=false
-        fi
-    done
-    rm *secrets.yaml $hmac
+    ls -1 *secrets.yaml
 
-    echo "+++ create secrets for TLS case"
+#    echo "+++ create secrets for TLS case"
     # generate tls.key/tls.crt for custom CA
 #    openssl genrsa -out tls.key 3072 -config openssl.cnf; openssl req -new -x509 -key tls.key -sha256 -out tls.crt -days 730 -config openssl.cnf -subj "/CN=cmsweb-test.web.cern.ch"
 
@@ -138,9 +128,31 @@ create()
 #    kubectl create secret tls cluster-tls-cert --key=tls.key --cert=tls.crt
 
     # create secret with our key/crt (they can be generated at ca.cern.ch/ca, see Host certificates)
-    echo
-    echo "+++ create cluster tls secret from key=$cmsweb_key, cert=$cmsweb_crt"
-    kubectl create secret tls cluster-tls-cert --key=$cmsweb_key --cert=$cmsweb_crt
+#    echo
+#    echo "+++ create cluster tls secret from key=$cmsweb_key, cert=$cmsweb_crt"
+#    kubectl create secret tls cluster-tls-cert --key=$cmsweb_key --cert=$cmsweb_crt
+
+}
+
+create()
+{
+    # adjust as necessary
+    pkgs="ing-nginx frontend dbs das2go httpsgo couchdb reqmgr httpsgo reqmon workqueue tfaas crabcache crabserver dqmgui"
+
+    echo "### CREATE ACTION ###"
+    echo "+++ Will install the following services: $pkgs"
+
+    echo "### DEPLOY SECRETS ###"
+    # call secrets function
+    secrets
+
+    for p in $pkgs; do
+        echo "+++ apply secrets: $p-secrets.yaml"
+        if [ -f ${p}-secrets.yaml ]; then
+            kubectl apply -f ${p}-secrets.yaml --validate=false
+        fi
+    done
+    rm *secrets.yaml $hmac
 
     echo
     echo "+++ list sercres and configmap"
@@ -196,6 +208,10 @@ case ${1:-status} in
 
   create )
     create
+    ;;
+
+  secrets )
+    secrets
     ;;
 
   check )
