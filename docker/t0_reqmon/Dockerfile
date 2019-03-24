@@ -1,10 +1,8 @@
 FROM cmssw/cmsweb
-# FROM cern/cc7-base
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
-ENV USER=dbs
-
+ENV USER=sw
 ADD install.sh $WDIR/install.sh
 
 RUN yum update -y && yum clean all
@@ -27,9 +25,6 @@ RUN $WDIR/install.sh
 ADD run.sh $WDIR/run.sh
 ADD proxy.sh $WDIR/proxy.sh
 ADD monitor.sh $WDIR/monitor.sh
-
-# TMP: add tnsnames.ora file
-ADD tnsnames.ora $WDIR/tnsnames.ora
 
 USER $USER
 WORKDIR $WDIR
