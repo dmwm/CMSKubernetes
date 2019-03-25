@@ -28,9 +28,6 @@ ADD run.sh $WDIR/run.sh
 ADD proxy.sh $WDIR/proxy.sh
 ADD monitor.sh $WDIR/monitor.sh
 
-# TMP: add tnsnames.ora file
-ADD tnsnames.ora $WDIR/tnsnames.ora
-
 USER $USER
 WORKDIR $WDIR
 CMD ["./run.sh"]
