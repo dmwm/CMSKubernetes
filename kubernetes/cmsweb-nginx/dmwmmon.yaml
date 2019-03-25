@@ -1,0 +1,79 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: dmwmmon
+spec:
+  selector:
+    app: dmwmmon
+  ports:
+    - port: 8280
+      targetPort: 8280
+      name: dmwmmon
+    - port: 18280
+      targetPort: 18280
+      name: dmwmmon-mon
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: dmwmmon
+  name: dmwmmon
+spec:
+  selector:
+    matchLabels:
+      app: dmwmmon
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dmwmmon
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: veknet/dmwmmon
+        name: dmwmmon
+        tty: true
+        stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "sleep 20 && /data/monitor.sh"]
+        ports:
+        - containerPort: 8280
+          protocol: TCP
+          name: dmwmmon
+        - containerPort: 18280
+          protocol: TCP
+          name: dmwmmon-mon
+        volumeMounts:
+        - name: secrets
+          mountPath: /etc/secrets
+          defaultMode: 256
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+      volumes:
+      - name: secrets
+        secret:
+          secretName: dmwmmon-secrets
+          # https://github.com/kubernetes/kubernetes/issues/34982
+          defaultMode: 256
+          items:
+            - key: "robotcert.pem"
+              path: "robotcert.pem"
+              mode: 0640
+            - key: "robotkey.pem"
+              path: "robotkey.pem"
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File
