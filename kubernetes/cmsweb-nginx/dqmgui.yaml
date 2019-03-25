@@ -35,11 +35,10 @@ spec:
       labels:
         app: dqmgui
     spec:
-        # use hostNetwork to allow interval communication between cmsweb data-services
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: veknet/dqmgui
+      - image: cmssw/dqmgui
         name: dqmgui
         tty: true
         stdin: true

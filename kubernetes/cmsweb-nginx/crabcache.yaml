@@ -30,7 +30,7 @@ spec:
         app: crabcache
     spec:
       containers:
-      - image: veknet/crabcache
+      - image: cmssw/crabcache
         name: crabcache
         tty: true
         stdin: true

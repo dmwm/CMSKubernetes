@@ -32,7 +32,7 @@ spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: veknet/dmwmmon
+      - image: cmssw/dmwmmon
         name: dmwmmon
         tty: true
         stdin: true

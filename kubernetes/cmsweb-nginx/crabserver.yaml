@@ -30,7 +30,7 @@ spec:
         app: crabserver
     spec:
       containers:
-      - image: veknet/crabserver
+      - image: cmssw/crabserver
         name: crabserver
         tty: true
         stdin: true

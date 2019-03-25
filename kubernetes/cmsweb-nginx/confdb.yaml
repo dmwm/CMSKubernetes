@@ -32,7 +32,7 @@ spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: veknet/confdb
+      - image: cmssw/confdb
         name: confdb
         tty: true
         stdin: true
