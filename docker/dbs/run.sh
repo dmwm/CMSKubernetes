@@ -30,10 +30,9 @@ fi
 
 # get fresh copy of tnsnames.ora from secrets or local area
 tfile=`find /data/srv/current/sw/ -name tnsnames.ora`
-if [ -f /etc/secrets/tnsnames.ora ] && [ -f $tfile ]; then
-    /bin/cp -f /etc/secrets/tnsnames.ora $tfile
-elif [ -f /data/tnsnames.ora ] && [ -f $tfile ]; then
-    /bin/cp -f /data/tnsnames.ora $tfile
+if [ -f /etc/tnsnames.ora ] && [ -f $tfile ]; then
+    rm $tfile
+    ln -s /etc/tnsnames.ora $tfile
 fi
 
 # get proxy
