@@ -6,6 +6,7 @@ RUN mkdir -p $WDIR
 ADD egi-trustanchors.repo /etc/yum.repos.d/egi-trustanchors.repo
 ADD wlcg.slc6.repo /etc/yum.repos.d/wlcg.slc6.repo
 ADD epel.repo /etc/yum.repos.d/epel.repo
+ADD slc6-cernonly.repo /etc/yum.repos.d/slc6-cernonly.repo
 ADD RPM-GPG-KEY-wlcg /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg
 
 RUN yum update -y && yum clean all
@@ -44,6 +45,7 @@ RUN yum install -y ca_DigiCertAssuredIDRootCA-Root ca_DigiCertGridRootCA-Root ca
     ca_UNAMgrid-ca ca_NIIF-Root-CA-2 ca_AC-GRID-FR ca_AC-GRID-FR-Personnels ca_MREN-CA ca_INFN-CA-2015 \
     ca_seegrid-ca-2013 ca_AEGIS ca_RDIG ca_AC-GRID-FR-Services ca_HPCI ca_QuoVadis-Root-CA1 ca_MaGrid \
     ca_HellasGrid-CA-2016 ca_BG-ACAD-CA ca_CERN-LCG-IOTA-CA ca-policy-lcg ca-policy-egi-core
+RUN yum install -y oracle-instantclient-tnsnames.ora
 RUN yum clean all
 
 # create bashs link to bash
