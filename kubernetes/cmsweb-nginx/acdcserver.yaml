@@ -29,7 +29,6 @@ spec:
       labels:
         app: acdcserver
     spec:
-      # use hostNetwork to allow communication between reqmgr/acdcserver/workqueue and couch
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
