@@ -41,8 +41,6 @@ if [ $? -ne 0 ]; then
     cat $WDIR/srv/.deploy/*-post.log
     exit 1
 fi
-#ln -s /data/srv/$VER /data/srv/current
-#ln -s /data/srv/current/apps.sw /data/srv/current/apps
 
 # TMP: add patch to WMCore to lower case Cms headers
 cd $WDIR/srv/$VER/sw/$ARCH/cms/dbs3/*/lib/python2.7/site-packages
