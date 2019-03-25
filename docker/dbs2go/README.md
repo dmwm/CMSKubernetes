@@ -1,7 +1,7 @@
 
 
 ### build image
-docker build -t veknet/dbs2go .
+docker build -t cmssw/dbs2go .
 
 ### list images
 docker images
@@ -13,12 +13,12 @@ docker ps --no-trunc -aq
 docker rm -f `docker ps --no-trunc -aq`
 
 ### run given image
-docker run --rm -h `hostname -f` -v /tmp/dbs2go:/etc/secrets -i -t veknet/dbs2go /bin/bash
+docker run --rm -h `hostname -f` -v /tmp/dbs2go:/etc/secrets -i -t cmssw/dbs2go /bin/bash
 ### within a container app we can query DBS
 curl -k --key /etc/secrets/dbs-proxy --cert /etc/secrets/dbs-proxy "https://localhost:8989/dbs/datasets?dataset=/ZMM*/*/*"
 
 ### remove existing image
-docker rmi veknet/dbs2go
+docker rmi cmssw/dbs2go
 ### remove all images
 docker rmi $(docker images -qf "dangling=true")
 

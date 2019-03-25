@@ -1,7 +1,7 @@
 
 
 ### build image
-docker build -t cmssw/dbsmigration .
+docker build -t cmssw/dmwmmon .
 
 ### list images
 docker images
@@ -13,17 +13,17 @@ docker ps --no-trunc -aq
 docker rm -f `docker ps --no-trunc -aq`
 
 ### run given image
-docker run --rm -h `hostname -f` -v /tmp/vk:/etc/secrets -i -t cmssw/dbsmigration /bin/bash
+docker run --rm -h `hostname -f` -v /tmp/vk:/etc/secrets -i -t cmssw/dmwmmon /bin/bash
 
 ### remove existing image
-docker rmi cmssw/dbsmigration
+docker rmi cmssw/dmwmmon
 
 ### inspect running container
 docker ps # find docker id
 docker inspect <docker_id> | grep IPAddress
 
 ### push image to docker.com
-docker push cmssw/dbsmigration
+docker push cmssw/dmwmmon
 
 ### references
 https://stackoverflow.com/questions/18497688/run-a-docker-image-as-a-container#18498313
