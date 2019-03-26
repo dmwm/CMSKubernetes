@@ -37,6 +37,29 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# add mod_status to dmwmmon configuration
+sconf=/data/srv/state/dmwmmon/server.conf
+if [ -f $sconf ]; then
+cd $WDIR
+cat $sconf | sed -e "s,</VirtualHost>,,g" > server.conf
+cat > addition.conf << EOF
+<Location /server-status>
+   SetHandler server-status
+   Order allow,deny
+   Deny from all
+   Allow from all 
+</Location>
+</VirtualHost>
+EOF
+cat addition.conf >> server.conf
+rm addition.conf
+
+mod=`grep mime_module $sconf`
+smod=`echo $mod | sed "s,mime,status,g"`
+sed -i -e "s,$mod,$mod\n$smod,g" server.conf
+mv server.conf /data/srv/state/dmwmmon/server.conf
+fi
+
 # Adjust ServerMonitor to be specific
 sed -i -e "s#ServerMonitor/2.0#ServerMonitor-dmwmmon#g" /data/srv/current/config/admin/ServerMonitor
 

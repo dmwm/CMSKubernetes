@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# start process exporter
-pid=`ps axjfwww | grep "wmc-httpd.*dmwmmon" | grep -v grep | grep -v process_monitor | grep -v " 1 " | awk '{print $1}'`
-prefix=dmwmmon_exporter
-address=":18280"
-nohup process_exporter -pid $pid -prefix $prefix -address $address 2>&1 1>& ${prefix}.log < /dev/null &
+# determine which port httpd server uses
+aport=8280
+suri="http://localhost:$aport/server-status/?auto"
+echo "Start apache_exporter with $suri"
+nohup apache_exporter -scrape_uri $suri -telemetry.address ":18280" 2>&1 1>& apache_exporter.log < /dev/null &
