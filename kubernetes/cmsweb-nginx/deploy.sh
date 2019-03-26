@@ -87,21 +87,24 @@ secrets()
     cmsweb_key=/afs/cern.ch/user/v/valya/private/certificates/cmsweb-hostkey.pem
     cmsweb_crt=/afs/cern.ch/user/v/valya/private/certificates/cmsweb-hostcert.pem
     dbfile=/afs/cern.ch/user/v/valya/private/dbfile
-    dbssecrets=/afs/cern.ch/user/v/valya/private/DBSSecrets.py
+    dbs_secret=/afs/cern.ch/user/v/valya/private/DBSSecrets.py
+    confdb_secret=/afs/cern.ch/user/v/valya/private/confdb_secret.json
+    phedex_secret=/afs/cern.ch/user/v/valya/private/phedex_secret.json
+    sitedb_secret=/afs/cern.ch/user/v/valya/private/sitedb_secret.json
 
     echo "+++ generate hmac secret"
     hmac=$PWD/hmac.random
     perl -e 'open(R, "< /dev/urandom") or die; sysread(R, $K, 20) or die; print $K' > $hmac
 
     echo "+++ generate secrets"
-    dbsconfig=dbsconfig.json
-    dasconfig=dasconfig.json
+    dbs_config=dbsconfig.json
+    das_config=dasconfig.json
     tfaasconfig=tfaas-config.json
-    httpsgoconfig=httpsgoconfig.json
+    httpsgo_config=httpsgoconfig.json
     ./make_ing-nginx_secret.sh $cmsweb_key $cmsweb_crt
     ./make_acdcserver_secret.sh $robot_key $robot_crt $hmac
-    ./make_das2go_secret.sh $robot_key $robot_crt $hmac $dasconfig
-    ./make_dbs_secret.sh $robot_key $robot_crt $hmac $dbssecrets
+    ./make_das2go_secret.sh $robot_key $robot_crt $hmac $das_config
+    ./make_dbs_secret.sh $robot_key $robot_crt $hmac $dbs_secret
     ./make_dqmgui_secret.sh $robot_key $robot_crt $hmac
     ./make_frontend_secret.sh $robot_key $robot_crt $hmac $cmsweb_key $cmsweb_crt
     ./make_couchdb_secret.sh $robot_key $robot_crt $hmac
@@ -112,32 +115,43 @@ secrets()
     ./make_crabcache_secret.sh $robot_key $robot_crt $hmac
     ./make_tfaas_secret.sh $robot_key $robot_crt $hmac $tfaasconfig
     ./make_exporters_secret.sh $robot_key $robot_crt
-    ./make_httpsgo_secret.sh $httpsgoconfig
-    ./make_dbs2go_secret.sh $robot_key $robot_crt $hmac $dbsconfig $dbfile
+    ./make_httpsgo_secret.sh $httpsgo_config
+    ./make_dbs2go_secret.sh $robot_key $robot_crt $hmac $dbs_config $dbfile
+    ./make_dmwmmon_secret.sh $robot_key $robot_crt $hmac
+    ./make_confdb_secret.sh $robot_key $robot_crt $hmac $confdb_secret
+    ./make_alertsconllector_secret.sh $robot_key $robot_crt $hmac
+    ./make_phedex_secret.sh $robot_key $robot_crt $hmac $phedex_secret
+    ./make_sitedb_secret.sh $robot_key $robot_crt $hmac $sitedb_secret
+    ./make_dbsmig_secret.sh $robot_key $robot_crt $hmac $dbs_secret
+    ./make_dqmgui_secret.sh $robot_key $robot_crt $hmac
 
     ls -1 *secrets.yaml
 
+    # use one of the option below
+    # generate tls.key/tls.crt for custom CA and openssl config
 #    echo "+++ create secrets for TLS case"
-    # generate tls.key/tls.crt for custom CA
 #    openssl genrsa -out tls.key 3072 -config openssl.cnf; openssl req -new -x509 -key tls.key -sha256 -out tls.crt -days 730 -config openssl.cnf -subj "/CN=cmsweb-test.web.cern.ch"
 
-    # generate tls.key/tls.crt
+    # generate tls.key/tls.crt without openssl config
     #openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=cmsweb-test.web.cern.ch"
 
     # create secret with our tls.key/tls.crt
 #    kubectl create secret tls cluster-tls-cert --key=tls.key --cert=tls.crt
 
     # create secret with our key/crt (they can be generated at ca.cern.ch/ca, see Host certificates)
-#    echo
-#    echo "+++ create cluster tls secret from key=$cmsweb_key, cert=$cmsweb_crt"
-#    kubectl create secret tls cluster-tls-cert --key=$cmsweb_key --cert=$cmsweb_crt
+    # we need to use this option if ing-nginx.yaml will contain the following configuration
+    # tls:
+    #    - secretName: cluster-tls-cert
+    echo
+    echo "+++ create cluster tls secret from key=$cmsweb_key, cert=$cmsweb_crt"
+    kubectl create secret tls cluster-tls-cert --key=$cmsweb_key --cert=$cmsweb_crt
 
 }
 
 create()
 {
     # adjust as necessary
-    pkgs="ing-nginx frontend dbs das2go httpsgo couchdb reqmgr httpsgo reqmon workqueue tfaas crabcache crabserver dqmgui"
+    pkgs="ing-nginx frontend dbs das2go httpsgo couchdb reqmgr httpsgo reqmon workqueue tfaas crabcache crabserver dqmgui dmwmmon"
 
     echo "### CREATE ACTION ###"
     echo "+++ Will install the following services: $pkgs"
