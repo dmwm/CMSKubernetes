@@ -10,3 +10,4 @@ config:
         ssl_key_file: "/opt/rucio/keys/new_userkey.pem"
         ssl_cert_file: "/opt/rucio/certs/usercert.pem"
         destination: "/topic/cms.rucio.events"
+        voname: "cms"

@@ -1,0 +1,4 @@
+ingress:
+  hosts: 
+    - cms-rucio-graphite-dev.cern.ch
+

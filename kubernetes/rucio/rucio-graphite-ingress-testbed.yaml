@@ -1,0 +1,4 @@
+ingress:
+  hosts: 
+    - cms-rucio-graphite-testbed.cern.ch
+

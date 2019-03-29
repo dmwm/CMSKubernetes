@@ -1,0 +1,5 @@
+image:
+  tag: release-1.18.9
+ingress:
+  hosts: 
+    - cms-rucio-testbed.cern.ch
