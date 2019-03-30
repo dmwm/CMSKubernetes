@@ -109,6 +109,7 @@ secrets()
     ./make_frontend_secret.sh $robot_key $robot_crt $hmac $cmsweb_key $cmsweb_crt
     ./make_couchdb_secret.sh $robot_key $robot_crt $hmac
     ./make_reqmgr_secret.sh $robot_key $robot_crt $hmac
+    ./make_reqmgr2ms_secret.sh $robot_key $robot_crt $hmac
     ./make_reqmon_secret.sh $robot_key $robot_crt $hmac
     ./make_workqueue_secret.sh $robot_key $robot_crt $hmac
     ./make_crabserver_secret.sh $robot_key $robot_crt $hmac
