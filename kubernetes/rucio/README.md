@@ -86,6 +86,9 @@ Add Service alternate names for the load balanced hostname, e.g. cms-rucio-dev.c
 
 Download this certificate file and use the relevant openssl commands to create tls.crt and tls.key (exactly those names)
 
+    openssl pkcs12 -in cms-rucio-dev--load-1-.p12 -clcerts -nokeys -out ./tls.crt
+    openssl pkcs12 -in cms-rucio-dev--load-1-.p12 -nocerts -nodes -out ./tls.key
+
 ## Create relevant secrets 
 
 Create the other secrets with (on lxplus7-cloud.cern.ch and/or other machines):
