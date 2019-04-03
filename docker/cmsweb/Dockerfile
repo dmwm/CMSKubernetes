@@ -6,7 +6,7 @@ RUN mkdir -p $WDIR
 ADD egi-trustanchors.repo /etc/yum.repos.d/egi-trustanchors.repo
 ADD wlcg.slc6.repo /etc/yum.repos.d/wlcg.slc6.repo
 ADD epel.repo /etc/yum.repos.d/epel.repo
-ADD slc6-cernonly.repo /etc/yum.repos.d/slc6-cernonly.repo
+ADD slc7-cernonly.repo /etc/yum.repos.d/slc7-cernonly.repo
 ADD RPM-GPG-KEY-wlcg /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg
 
 RUN yum update -y && yum clean all
