@@ -2,7 +2,7 @@ FROM cmssw/cmsweb
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
-ENV USER=dbs
+ENV USER=_dbs
 ADD oci8.pc $WDIR/oci8.pc
 ENV PKG_CONFIG_PATH=$WDIR
 ADD cernonly2.repo /etc/yum.repos.d/cernonlyw.repo

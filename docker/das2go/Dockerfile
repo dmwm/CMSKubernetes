@@ -2,7 +2,7 @@ FROM cmssw/cmsweb
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
-ENV USER=das
+ENV USER=_das
 ADD mongodb.conf $WDIR/mongodb.conf
 
 RUN yum update -y && yum clean all

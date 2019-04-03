@@ -2,7 +2,7 @@ FROM cmssw/cmsweb
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
-ENV USER=sw
+ENV USER=_frontend
 
 RUN yum update -y && yum clean all
 

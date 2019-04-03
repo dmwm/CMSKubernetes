@@ -3,7 +3,7 @@ FROM cmssw/cmsweb
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
-ENV USER=dbs
+ENV USER=_dbs
 
 ADD install.sh $WDIR/install.sh
 
