@@ -6,10 +6,10 @@ To create cmsweb app on kubernetes cluster please follow these steps:
 
 ```
 # create new cluster
-openstack --os-project-name "CMS Webtools Mig" coe cluster create cmsweb --keypair cloud --cluster-template kubernetes-1.13.3-1 --labels cern_enabled=True,kube_tag=v1.13.3-12,kube_csi_enabled=True,kube_csi_version=v0.3.2,container_infra_prefix=gitlab-registry.cern.ch/cloud/atomic-system-containers/,cvmfs_tag=qa,ceph_csi_enabled=True,flannel_backend=vxlan,ingress_controller=traefik,cern_tag=qa
+openstack --os-project-name "CMS Webtools Mig" coe cluster create cmsweb --keypair cloud --cluster-template kubernetes-1.13.3-1 --labels cern_enabled=True,kube_tag=v1.13.3-12,kube_csi_enabled=True,kube_csi_version=v0.3.2,container_infra_prefix=gitlab-registry.cern.ch/cloud/atomic-system-containers/,cvmfs_tag=qa,ceph_csi_enabled=True,flannel_backend=vxlan,ingress_controller=nginx,cern_tag=qa
 
 # create new cluster with specific flavor and number of nodes
-openstack --os-project-name "CMS Webtools Mig" coe cluster create cmsweb --keypair cloud --cluster-template kubernetes-1.13.3-1 --labels cern_enabled=True,kube_tag=v1.13.3-12,kube_csi_enabled=True,kube_csi_version=v0.3.2,container_infra_prefix=gitlab-registry.cern.ch/cloud/atomic-system-containers/,cvmfs_tag=qa,ceph_csi_enabled=True,flannel_backend=vxlan,ingress_controller=traefik,cern_tag=qa --flavor m2.2xlarge
+openstack --os-project-name "CMS Webtools Mig" coe cluster create cmsweb --keypair cloud --cluster-template kubernetes-1.13.3-1 --labels cern_enabled=True,kube_tag=v1.13.3-12,kube_csi_enabled=True,kube_csi_version=v0.3.2,container_infra_prefix=gitlab-registry.cern.ch/cloud/atomic-system-containers/,cvmfs_tag=qa,ceph_csi_enabled=True,flannel_backend=vxlan,ingress_controller=nginx,cern_tag=qa --flavor m2.2xlarge --node-count 2
 ```
 
 You will need to wait once cluster is created. You may verify its existence
@@ -53,8 +53,8 @@ kubectl create -f tiller-rbac.yaml
 # init tiller
 helm init --service-account tiller --upgrade
 
-# delete previous ingress-traefik
-kubectl -n kube-system delete ds/ingress-traefik
+# delete previous ingress-traefik, NO LONGER NEEDED when we create cluster with nginx ingress controller
+# kubectl -n kube-system delete ds/ingress-traefik
 
 # install tiller
 helm init --history-max 200
@@ -72,12 +72,15 @@ kubectl get pods
 # we should see cluster name and Running status
 cmsweb-5556f46d6c-phkmq   1/1       Running   0          15h
 
-# get list of pods in kube-system namespace, here we should see traefik controller
+# get list of pods in kube-system namespace, here we should see traefik/nginx controllers
 kubectl get pods -n kube-system
 ...
-# we should see cluster name and traefik Running status
+# we should see cluster name and traefik/nginx Running status
+# example of traefik ingress
 ingress-traefik-lk85w                   1/1       Running            0  15h
-
+# example of nginx ingress
+ingress-nginx-nginx-ingress-controller-qv8vj                   1/1 Running   0          18d
+ingress-nginx-nginx-ingress-default-backend-85474bb488-5s8mb   1/1 Running   0          18d
 
 # get list of deployed services, here we should see our cmsweb with port 80
 kubectl get svc
