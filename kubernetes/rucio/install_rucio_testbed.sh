@@ -27,3 +27,14 @@ kubectl create job --from=cronjob/${DAEMON_NAME}-renew-fts-proxy fts
 # Label is key to prevent it from also syncing datasets
 kubectl apply -f testbed-sync-jobs.yaml -l syncs=rses
 
+# Set up landb loadbalance
+numberIngressNodes=3
+n=0
+kubectl get node -o name | while read node; do
+  [[ $((n++)) == $numberIngressNodes ]] && break
+  kubectl label node ${node##node/} role=ingress
+  cnames="cms-rucio-grafana-testbed--load-${n}-,cms-rucio-graphite-testbed--load-${n}-,cms-rucio-testbed--load-${n}-"
+  openstack server set --os-project-name CMSRucio --property landb-alias=$cnames ${node##node/}
+  # teardown:
+  # openstack server unset --os-project-name CMSRucio --property landb-alias ${node##node/}
+done
