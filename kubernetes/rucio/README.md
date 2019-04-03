@@ -55,18 +55,11 @@ Copy and paste the last line. On subsequent logins it is all that is needed. Now
 
 ## Label nodes for ingress and add the same nodes to the DNS registration
 
-There is no reason not to add all the nodes to ingress. For instance, with the int server we add all five and then make two the frontends for the server, two for the auth server, and one for graphite. Nodes are from the output of the `kubectl get nodes` command above.
+Ingress nodes are labeled with `role=ingress`, which triggers installation of a `traefik` pod on that node.
+The number of nodes is configurable in the install script.  For posterity, here is how to do it manually:
 
-    kubectl label node cmsrucioint1-bq3vg65v6uge-minion-0 role=ingress
-    kubectl label node cmsrucioint1-bq3vg65v6uge-minion-1 role=ingress
-    kubectl label node cmsrucioint1-bq3vg65v6uge-minion-2 role=ingress
-    kubectl label node cmsrucioint1-bq3vg65v6uge-minion-3 role=ingress
-    kubectl label node cmsrucioint1-bq3vg65v6uge-minion-4 role=ingress
-    openstack server set  --os-project-name CMSRucio  --property landb-alias=cms-rucio-int--load-1- cmsrucioint1-bq3vg65v6uge-minion-0
-    openstack server set  --os-project-name CMSRucio  --property landb-alias=cms-rucio-int--load-2- cmsrucioint1-bq3vg65v6uge-minion-1
-    openstack server set  --os-project-name CMSRucio  --property landb-alias=cms-rucio-auth-int--load-1- cmsrucioint1-bq3vg65v6uge-minion-2
-    openstack server set  --os-project-name CMSRucio  --property landb-alias=cms-rucio-auth-int--load-2- cmsrucioint1-bq3vg65v6uge-minion-3
-    openstack server set  --os-project-name CMSRucio  --property landb-alias=cms-rucio-graphite-int--load-1- cmsrucioint1-bq3vg65v6uge-minion-4
+    kubectl label node cmsruciotest-mzvha4weztri-minion-0 role=ingress
+    openstack server set  --os-project-name CMSRucio  --property landb-alias=cms-rucio-test--load-1- cmsruciotest-73m6rlb5qg4p-minion-0 
 
 `openstack server unset` will undo this. One must wait up to 15 minutes after the openstack commands for the DNS registration to become active. More details are here: https://clouddocs.web.cern.ch/clouddocs/containers/tutorials/lb.html
 
