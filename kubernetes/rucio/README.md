@@ -79,16 +79,27 @@ If we have CephFS storage needs, one makes a single storage class for the entire
     kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
     kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'
 
+## Get a host certificate for the server
+
+Go to ca.cern.ch and get the host certificate for one of the load balanced names above. 
+Add Service alternate names for the load balanced hostname, e.g. cms-rucio-dev.cern.ch and cms-rucio-dev
+
+Download this certificate file and use the relevant openssl commands to create tls.crt and tls.key (exactly those names)
+
+    openssl pkcs12 -in cms-rucio-dev--load-1-.p12 -clcerts -nokeys -out ./tls.crt
+    openssl pkcs12 -in cms-rucio-dev--load-1-.p12 -nocerts -nodes -out ./tls.key
+
 ## Create relevant secrets 
 
 Create the other secrets with (on lxplus7-cloud.cern.ch and/or other machines):
 
+    kubectl create secret tls rucio-server.tls-secret --key=tls.key --cert=tls.crt # Same as just created above
     kubectl create secret generic fts-cert --from-file=[robot certificate] # Must be named usercert.pem
     kubectl create secret generic fts-key --from-file=[robot key, unencrypted] # Must be named new_userkey.pem
     kubectl create secret generic hermes-cert --from-file=[robot certificate] # Same as for FTS
     kubectl create secret generic hermes-key --from-file=[robot key, unencrypted] # Same as for FTS
-    kubectl create secret generic  cms-ruciod-testbed-rucio-ca-bundle --from-file=/etc/pki/tls/certs/CERN-bundle.pem
-    kubectl create secret generic  cms-analysisd-testbed-rucio-ca-bundle --from-file=/etc/pki/tls/certs/CERN-bundle.pem
+    kubectl create secret generic cms-ruciod-testbed-rucio-ca-bundle --from-file=/etc/pki/tls/certs/CERN-bundle.pem
+    kubectl create secret generic cms-analysisd-testbed-rucio-ca-bundle --from-file=/etc/pki/tls/certs/CERN-bundle.pem
     ./CMSKubernetes/kubernetes/rucio/rucio_reaper_secret.sh  # Currently needs to be done after helm install below 
     kubectl get secrets
 
