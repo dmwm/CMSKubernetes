@@ -1,4 +1,4 @@
-FROM cern/cc7-base
+FROM cern/cc7-base:20181210
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data/cmsweb
