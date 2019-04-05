@@ -7,8 +7,19 @@
 # Authors:
 # - Eric Vaandering, <ewv@fnal.gov>, 2018
 
-FROM rucio/rucio-server:release-1.19.0.post1
+
+FROM rucio/rucio-server:release-1.19.5
 
 ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/cmstfc.py  /usr/lib/python2.7/site-packages/cmstfc.py
 
 RUN chmod 755 /usr/lib/python2.7/site-packages/cmstfc.py
+
+RUN yum -y install http://linuxsoft.cern.ch/wlcg/centos7/x86_64/wlcg-repo-1.0.0-1.el7.noarch.rpm
+ADD http://repository.egi.eu/sw/production/cas/1/current/repo-files/EGI-trustanchors.repo /etc/yum.repos.d/egi.repo
+RUN yum update  -y
+RUN yum -y install ca-policy-egi-core
+RUN yum -y install ca-certificates.noarch fetch-crl cronie
+
+ADD cms-entrypoint.sh /
+
+ENTRYPOINT ["/cms-entrypoint.sh"]

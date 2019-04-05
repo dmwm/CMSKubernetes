@@ -1,0 +1,34 @@
+image:
+  repository: cmssw/rucio-server
+
+replicaCount: 1
+authReplicaCount: 1
+
+httpd_config:
+  encoded_slashes: "True"
+
+# The server runs on port 80 and there is no need for SSL passthrough
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/frontend-entry-points: http, https
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  hosts:
+    - cms-rucio-nginx.cern.ch
+  tls: 
+    - secretName: rucio-server.tls-secret
+
+# Auth server runs on 443 and needs the connection forwarded straight through
+
+authIngress:
+  enabled: true
+  annotations: 
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  path: /
+  hosts: 
+    - cms-rucio-auth-nginx.cern.ch
+
