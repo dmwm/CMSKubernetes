@@ -1,3 +1,5 @@
+# Used with traefik without an auth server. Eventually goes away.
+
 image:
   repository: cmssw/rucio-server
 
