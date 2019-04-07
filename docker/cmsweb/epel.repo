@@ -1,20 +1,8 @@
 [epel]
-name=Extra Packages for Enterprise Linux 7 - $basearch
-baseurl=http://linuxsoft.cern.ch/epel/7/$basearch
+name=Extra Packages for Enterprise Linux [20190324]
+baseurl=http://linuxsoft.cern.ch/internal/yumsnapshot/20190324/epel/7/x86_64
 enabled=1
 gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7
-
-[epel-debuginfo]
-name=Extra Packages for Enterprise Linux 7 - $basearch - Debug
-baseurl=http://linuxsoft.cern.ch/epel/7/$basearch/debug
-enabled=0
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7
-gpgcheck=1
-
-[epel-source]
-name=Extra Packages for Enterprise Linux 7 - $basearch - Source
-baseurl=http://linuxsoft.cern.ch/epel/7/SRPMS
-enabled=0
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7
-gpgcheck=1
+gpgkey=http://linuxsoft.cern.ch/epel/RPM-GPG-KEY-EPEL-7
+exclude=koji,python2-koji,fail2ban*,gearmand,libgearmand,collectd*,puppet,puppet-server,facter,mcollective*,hiera,puppet-agent
+priority=20
