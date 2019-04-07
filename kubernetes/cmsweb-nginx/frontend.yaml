@@ -46,7 +46,7 @@ spec:
         lifecycle:
           postStart:
             exec:
-              command: ["/bin/sh", "-c", "/data/apache_exporter.sh"]
+              command: ["/bin/sh", "-c", "/data/monitor.sh"]
         ports:
         - containerPort: 80
           protocol: TCP
