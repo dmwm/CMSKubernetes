@@ -1,0 +1,31 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: sync-rses
+spec:
+  schedule: "20 0 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          volumes:
+          - name: usercert
+            secret:
+              secretName: fts-cert
+          - name: userkey
+            secret:
+              secretName: fts-key
+          containers:
+            - name: renew-fts-cron
+              image: "cmssw/rucio_client:latest"
+              imagePullPolicy: Always
+              volumeMounts:
+                - name: usercert
+                  mountPath: /opt/rucio/certs/
+                - name: userkey
+                  mountPath: /opt/rucio/keys/
+              env:
+                - name: RUCIO_HOME
+                  value: "/opt/rucio"
+              command: ['/scripts/k8s_sync_sites.sh']
+          restartPolicy: OnFailure

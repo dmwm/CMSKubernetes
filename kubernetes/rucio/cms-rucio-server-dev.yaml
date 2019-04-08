@@ -1,5 +1,9 @@
+replicaCount: 4
 image:
-  tag: release-1.19.0.post1
+  tag: release-1.19.0.post2
 ingress:
   hosts: 
     - cms-rucio-dev.cern.ch
+resources:
+  limits:
+    memory: 950Mi

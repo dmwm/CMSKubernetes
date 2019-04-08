@@ -7,7 +7,7 @@ helm install --name cms-ruciod-testbed --values cms-rucio-common.yaml,cms-rucio-
 helm install --name cms-analysisd-testbed --values cms-rucio-common.yaml,cms-rucio-analysis-daemons.yaml,cms-rucio-daemons-testbed.yaml,cms-rucio-testbed-db.yaml rucio/rucio-daemons
 
 # Graphite and other services
-helm install --name graphite --values rucio-graphite.yaml,rucio-graphite-ingress.yaml,rucio-graphite-pvc.yaml kiwigrid/graphite
+helm install --name graphite --values rucio-graphite.yaml,rucio-graphite-ingress.yaml,rucio-graphite-ingress-testbed.yaml,rucio-graphite-pvc.yaml kiwigrid/graphite
 
 # Filebeat and logstash
 helm install --name logstash --values cms-rucio-logstash.yml,logstash-filter-testbed.yml stable/logstash
