@@ -1,6 +1,12 @@
 image:
   tag: release-1.19.5
 
+authServer:
+  useSSL: true
+  servicePort: 443
+  targetPort: https
+  portName: https
+
 config:
     accounts:
         special_accounts: "tier0"

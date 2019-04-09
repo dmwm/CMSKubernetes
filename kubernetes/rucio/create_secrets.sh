@@ -15,7 +15,7 @@ kubectl create secret tls rucio-server.tls-secret --key=tls.key --cert=tls.crt
 
 # Secrets for the auth server
 cp tls.key hostkey.pem
-cp tls.cert hostcert.pem
+cp tls.crt hostcert.pem
 cp /etc/pki/tls/certs/CERN_Root_CA.pem ca.pem
 
 kubectl create secret generic host-cert --from-file=hostcert.pem
