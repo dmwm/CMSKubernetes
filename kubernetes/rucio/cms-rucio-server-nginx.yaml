@@ -4,6 +4,12 @@ image:
 replicaCount: 1
 authReplicaCount: 1
 
+authServer:
+  useSSL: true
+  servicePort: 443
+  targetPort: https
+  portName: https
+
 httpd_config:
   encoded_slashes: "True"
 
