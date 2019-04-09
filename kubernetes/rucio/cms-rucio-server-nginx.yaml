@@ -4,12 +4,6 @@ image:
 replicaCount: 1
 authReplicaCount: 1
 
-authServer:
-  useSSL: true
-  servicePort: 443
-  targetPort: https
-  portName: https
-
 httpd_config:
   encoded_slashes: "True"
 
@@ -27,6 +21,12 @@ ingress:
     - secretName: rucio-server.tls-secret
 
 # Auth server runs on 443 and needs the connection forwarded straight through
+
+authServer:
+  useSSL: true
+  servicePort: 443
+  targetPort: https
+  portName: https
 
 authIngress:
   enabled: true
