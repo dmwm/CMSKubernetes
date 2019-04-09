@@ -6,6 +6,11 @@
 # ROBOTCERT - The robot certificate (named usercert.pem)
 # ROBOTKEY  - The robot certificate key (unencrypted, named new_userkey.pem)
 
+echo "Removing existing secrets"
+
+kubectl delete secret rucio-server.tls-secret host-cert host-key ca fts-cert fts-key hermes-cert hermes-key cms-ruciod-testbed-rucio-ca-bundle
+
+echo
 echo "When prompted, enter the password used to encrypt the P12 file"
 
 # Secret for redirecting server traffic from 443 to 80
@@ -17,13 +22,14 @@ kubectl create secret tls rucio-server.tls-secret --key=tls.key --cert=tls.crt
 cp tls.key hostkey.pem
 cp tls.crt hostcert.pem
 cp /etc/pki/tls/certs/CERN_Root_CA.pem ca.pem
+chmod 600 ca.pem
 
 kubectl create secret generic host-cert --from-file=hostcert.pem
 kubectl create secret generic host-key --from-file=hostkey.pem
 kubectl create secret generic ca  --from-file=ca.pem
 
 # Clean up
-rm tls.key tls.cert hostkey.pem hostcert.pem ca.pem
+rm tls.key tls.crt hostkey.pem hostcert.pem ca.pem
 
 # Secrets for FTS, hermes
 
