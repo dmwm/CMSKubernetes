@@ -74,6 +74,9 @@ If we have CephFS storage needs, one makes a single storage class for the entire
 
 ## Install helm into the kubernetes project
 
+    ./install_helm.sh
+
+    # Will replace all of this
     helm init
     kubectl create serviceaccount --namespace kube-system tiller
     kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
@@ -83,6 +86,14 @@ If we have CephFS storage needs, one makes a single storage class for the entire
 
 Go to ca.cern.ch and get the host certificate for one of the load balanced names above. 
 Add Service alternate names for the load balanced hostname, e.g. cms-rucio-dev.cern.ch and cms-rucio-dev
+
+Set the following environment variables. The filenames must match these exactly.
+
+    export HOSTP12=[path to host cert for ]-minion-0.p12 
+    export ROBOTCERT=[path to robot cert]/usercert.pem
+    export ROBOTKEY=[path to unencrypted robot]/new_userkey.pem
+    # Replaces the rest of this section and all of the next except the reaper secrets
+
 
 Download this certificate file and use the relevant openssl commands to create tls.crt and tls.key (exactly those names)
 
@@ -127,15 +138,9 @@ The above is what is needed to get things bootstrapped the first time. After thi
     cd CMSKubernetes/kubernetes/rucio
     ./upgrade_rucio_[production, testbed, etc].sh
     
-## Upgrade helm if needed
-
-CERN has added helm to the lxplus-cloud machines. 
-If you get a version incompatibility warning from helm, 
-you may need to upgrade tiller (installed in kubernetes) with 
-    
-    helm init --upgrade
-    
 # Use a node outside of kubernetes as an authorization server and to delegate FTS proxies
+
+This entire section will be obsolete and replaced with much simpler instructions for using a VM as a client: https://github.com/dmwm/CMSRucio/wiki/Setting-up-a-VM-as-a-client
 
 While we expect that eventually the authorization server will be able to run inside of kubernetes, at the moment it cannot.
 This is because of how kubernetes/traefik handles (or doesn't) client certificates. 
@@ -184,6 +189,8 @@ Continuing as root, add what's needed to accept proxies for the auth server:
     ./CMSKubernetes/kubernetes/rucio/start_rucio_auth.sh  # Or similar depending on which auth server you want to start
    
 # Get a client running and connect to your server
+
+See above.....
 
 It can be easiest just to create another container with a client installed to connect to your new server. 
 There is a client YAML file that can also be installed into your newly formed kubernetes cluster. 
