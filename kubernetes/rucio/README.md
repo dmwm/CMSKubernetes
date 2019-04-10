@@ -126,7 +126,8 @@ That no longer seems to be needed.
 After helm has installed everything and the fts-cert and fts-key secretes are made, 
 the daemons still won't have started because the CronJob which creates the proxy secret will not have run.
 Fix this by manually running the proxy generating job:
-
+    
+    # This has been moved into the bleeding install script and can be removed here when propogated
     kubectl create job --from=cronjob/cms-ruciod-testbed-renew-fts-proxy fts1
     ###kubectl create job --from=cronjob/cms-analysisd-testbed-renew-fts-proxy fts2
 
