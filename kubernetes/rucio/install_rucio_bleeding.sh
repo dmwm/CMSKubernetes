@@ -12,7 +12,7 @@ helm install --name $SERVER_NAME --values cms-rucio-common.yaml,cms-rucio-server
 helm install --name $DAEMON_NAME --values cms-rucio-common.yaml,cms-rucio-daemons.yaml,cms-rucio-daemons-oldtest.yaml,cms-rucio-dev-db.yaml ~/rucio-helm-charts/rucio-daemons
 
 # Graphite and other services
-helm install --name graphite --values rucio-graphite.yaml,rucio-graphite-ingress.yaml,rucio-graphite-pvc.yaml kiwigrid/graphite
+helm install --name graphite --values rucio-graphite.yaml,rucio-graphite-nginx.yaml,rucio-graphite-pvc.yaml kiwigrid/graphite
 
 # Filebeat and logstash
 helm install --name logstash --values cms-rucio-logstash.yml,logstash-filter-oldtest.yml stable/logstash
