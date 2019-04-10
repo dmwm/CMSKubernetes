@@ -1,3 +1,5 @@
+# For NGINX ingress. Eventually becomes plain server
+
 image:
   repository: cmssw/rucio-server
 
@@ -16,7 +18,7 @@ ingress:
     nginx.ingress.kubernetes.io/frontend-entry-points: http, https
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
   hosts:
-    - cms-rucio-nginx.cern.ch
+    - cms-rucio-dev.cern.ch
   tls: 
     - secretName: rucio-server.tls-secret
 
@@ -36,5 +38,5 @@ authIngress:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
   path: /
   hosts: 
-    - cms-rucio-auth-nginx.cern.ch
+    - cms-rucio-auth-dev.cern.ch
 

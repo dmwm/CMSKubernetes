@@ -6,7 +6,7 @@ helm install stable/nginx-ingress --namespace kube-system --name ingress-nginx -
 
 # Rucio server, daemons, and daemons for analysis
 
-helm install --name cms-rucio-testbed --values cms-rucio-common.yaml,cms-rucio-server.yaml,cms-rucio-server-testbed.yaml,cms-rucio-testbed-db.yaml rucio/rucio-server
+helm install --name cms-rucio-testbed --values cms-rucio-common.yaml,cms-rucio-server-traefik.yaml,cms-rucio-server-testbed.yaml,cms-rucio-testbed-db.yaml rucio/rucio-server
 helm install --name cms-ruciod-testbed --values cms-rucio-common.yaml,cms-rucio-daemons.yaml,cms-rucio-daemons-testbed.yaml,cms-rucio-testbed-db.yaml rucio/rucio-daemons
 
 # Graphite and other services
