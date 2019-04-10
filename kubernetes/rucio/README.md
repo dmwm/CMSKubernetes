@@ -128,7 +128,7 @@ the daemons still won't have started because the CronJob which creates the proxy
 Fix this by manually running the proxy generating job:
 
     kubectl create job --from=cronjob/cms-ruciod-testbed-renew-fts-proxy fts1
-    kubectl create job --from=cronjob/cms-analysisd-testbed-renew-fts-proxy fts2
+    ###kubectl create job --from=cronjob/cms-analysisd-testbed-renew-fts-proxy fts2
 
 # To upgrade the servers
 
