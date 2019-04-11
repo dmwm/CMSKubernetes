@@ -14,7 +14,10 @@ This is used right now by Graphite.
 Begin by logging into the CERN cloud infrastructure `slogin lxplus7-cloud.cern.ch` then:
 
     openstack coe cluster delete --os-project-name CMSRucio  cmsruciotest
-    openstack coe cluster create cmsruciotest --keypair lxplus  --os-project-name CMSRucio   --cluster-template kubernetes-preview --node-count 4
+    # openstack coe cluster create cmsruciotest --keypair lxplus  --os-project-name CMSRucio   --cluster-template kubernetes-preview --node-count 4
+    
+    # Currently the the command is this one:
+    openstack coe cluster create [CLUSTERNAME] --keypair lxplus  --os-project-name CMSRucio   --cluster-template kubernetes-1.13.3-1 --node-count 5 --labels cern_enabled=True,ingress_controller=nginx,cern_tag=qa   --master-flavor m2.small    
     openstack coe cluster list --os-project-name CMSRucio # Monitor creation status
 
 If you are creating your own project for development, please omit `--os-project-name CMSRucio`. 
