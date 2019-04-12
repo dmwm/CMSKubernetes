@@ -1,0 +1,8 @@
+ingress:
+  hosts:
+    - cms-rucio-nginx.cern.ch
+
+authIngress:
+  hosts: 
+    - cms-rucio-auth-nginx.cern.ch
+

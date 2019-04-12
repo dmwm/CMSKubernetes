@@ -1,0 +1,30 @@
+## nginx configuration
+## Ref: https://github.com/kubernetes/ingress/blob/master/controllers/nginx/configuration.md
+
+controller:
+  # Required for use with CNI based kubernetes installations (such as ones set up by kubeadm),
+  # since CNI and hostport don't mix yet. Can be deprecated once https://github.com/kubernetes/kubernetes/issues/23920
+  # is merged
+  hostNetwork: true
+
+  ## Use host ports 80 and 443
+  daemonset:
+    useHostPort: true
+
+  ## Additional command line arguments to pass to nginx-ingress-controller
+  extraArgs:
+    enable-ssl-passthrough: ""
+    v: 2 # FIXME: remove extra debugging
+
+  ## DaemonSet or Deployment
+  kind: DaemonSet
+
+service:
+    type: NodePort
+    nodePorts:
+      http: "32080"
+      https: "32443"
+
+rbac:
+  create: true
+

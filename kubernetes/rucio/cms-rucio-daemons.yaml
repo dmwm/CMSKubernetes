@@ -32,3 +32,15 @@ ftsRenewal:
   voms: "cms:/cms/Role=production"
   servers: "https://fts3-devel.cern.ch:8446,https://cmsfts3.fnal.gov:8446,https://fts3.cern.ch:8446,https://lcgfts3.gridpp.rl.ac.uk:8446,https://fts3-pilot.cern.ch:8446"
 
+hermes:
+    useSSL: 1
+
+config:
+    messaging_hermes:
+        port: "61323"
+        brokers: "cms-mb.cern.ch"
+        ssl_key_file: "/opt/rucio/keys/new_userkey.pem"
+        ssl_cert_file: "/opt/rucio/certs/usercert.pem"
+        destination: "/topic/cms.rucio.events"
+        voname: "cms"
+
