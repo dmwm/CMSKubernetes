@@ -55,19 +55,20 @@ Copy and paste the last line. On subsequent logins it is all that is needed. Now
 
 ## Label nodes for ingress and add the same nodes to the DNS registration
 
-Pick at least two of the nodes from the output of the `kubectl get nodes` command above. (Two for load balancing/redundancy.)
+There is no reason not to add all the nodes to ingress. For instance, with the int server we add all five and then make two the frontends for the server, two for the auth server, and one for graphite. Nodes are from the output of the `kubectl get nodes` command above.
 
-    kubectl label node cmsruciotest-mzvha4weztri-minion-0 role=ingress
-    kubectl label node cmsruciotest-mzvha4weztri-minion-3 role=ingress
-    openstack server set  --os-project-name CMSRucio  --property landb-alias=cms-rucio-test--load-1- cmsruciotest-73m6rlb5qg4p-minion-0 
-    openstack server set  --os-project-name CMSRucio  --property landb-alias=cms-rucio-test--load-2- cmsruciotest-73m6rlb5qg4p-minion-3
+    kubectl label node cmsrucioint1-bq3vg65v6uge-minion-0 role=ingress
+    kubectl label node cmsrucioint1-bq3vg65v6uge-minion-1 role=ingress
+    kubectl label node cmsrucioint1-bq3vg65v6uge-minion-2 role=ingress
+    kubectl label node cmsrucioint1-bq3vg65v6uge-minion-3 role=ingress
+    kubectl label node cmsrucioint1-bq3vg65v6uge-minion-4 role=ingress
+    openstack server set  --os-project-name CMSRucio  --property landb-alias=cms-rucio-int--load-1- cmsrucioint1-bq3vg65v6uge-minion-0
+    openstack server set  --os-project-name CMSRucio  --property landb-alias=cms-rucio-int--load-2- cmsrucioint1-bq3vg65v6uge-minion-1
+    openstack server set  --os-project-name CMSRucio  --property landb-alias=cms-rucio-auth-int--load-1- cmsrucioint1-bq3vg65v6uge-minion-2
+    openstack server set  --os-project-name CMSRucio  --property landb-alias=cms-rucio-auth-int--load-2- cmsrucioint1-bq3vg65v6uge-minion-3
+    openstack server set  --os-project-name CMSRucio  --property landb-alias=cms-rucio-graphite-int--load-1- cmsrucioint1-bq3vg65v6uge-minion-4
 
 `openstack server unset` will undo this. One must wait up to 15 minutes after the openstack commands for the DNS registration to become active. More details are here: https://clouddocs.web.cern.ch/clouddocs/containers/tutorials/lb.html
-
-Repeat this process for the graphite ingress node
-
-    kubectl label node cmsruciotest-73m6rlb5qg4p-minion-1 role=ingress
-    openstack server set  --os-project-name CMSRucio  --property landb-alias=cms-rucio-graphite-test--load-1- cmsruciotest-73m6rlb5qg4p-minion-1
 
 ## Setup StorageClass (if needed)
 
@@ -77,45 +78,27 @@ If we have CephFS storage needs, one makes a single storage class for the entire
 
 ## Install helm into the kubernetes project
 
+    cd CMSKubernetes/kubernetes/rucio
     ./install_helm.sh
-
-    # Will replace all of this
-    helm init
-    kubectl create serviceaccount --namespace kube-system tiller
-    kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
-    kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'
 
 ## Get a host certificate for the server
 
 Go to ca.cern.ch and get the host certificate for one of the load balanced names above. 
-Add Service alternate names for the load balanced hostname, e.g. cms-rucio-dev.cern.ch and cms-rucio-dev
-
-Set the following environment variables. The filenames must match these exactly.
-
-    export HOSTP12=[path to host cert for ]-minion-0.p12 
-    export ROBOTCERT=[path to robot cert]/usercert.pem
-    export ROBOTKEY=[path to unencrypted robot]/new_userkey.pem
-    # Replaces the rest of this section and all of the next except the reaper secrets
-
-
-Download this certificate file and use the relevant openssl commands to create tls.crt and tls.key (exactly those names)
-
-    openssl pkcs12 -in cms-rucio-dev--load-1-.p12 -clcerts -nokeys -out ./tls.crt
-    openssl pkcs12 -in cms-rucio-dev--load-1-.p12 -nocerts -nodes -out ./tls.key
+Add Service alternate names for the load balanced hostname, e.g. cms-rucio-auth-dev.cern.ch and cms-rucio-auth-dev
 
 ## Create relevant secrets 
 
-Create the other secrets with (on lxplus7-cloud.cern.ch and/or other machines):
+Set the following environment variables. The filenames must match these exactly.
 
-    kubectl create secret tls rucio-server.tls-secret --key=tls.key --cert=tls.crt # Same as just created above
-    kubectl create secret generic fts-cert --from-file=[robot certificate] # Must be named usercert.pem
-    kubectl create secret generic fts-key --from-file=[robot key, unencrypted] # Must be named new_userkey.pem
-    kubectl create secret generic hermes-cert --from-file=[robot certificate] # Same as for FTS
-    kubectl create secret generic hermes-key --from-file=[robot key, unencrypted] # Same as for FTS
-    kubectl create secret generic cms-ruciod-testbed-rucio-ca-bundle --from-file=/etc/pki/tls/certs/CERN-bundle.pem
-    kubectl create secret generic cms-analysisd-testbed-rucio-ca-bundle --from-file=/etc/pki/tls/certs/CERN-bundle.pem
+    cd CMSKubernetes/kubernetes/rucio
+    export HOSTP12=[path to host cert for ]-minion-0.p12 
+    export ROBOTCERT=[path to robot cert]/usercert.pem
+    export ROBOTKEY=[path to unencrypted robot]/new_userkey.pem
+    ./create_secrets.sh
+
+*This needs to be relocated
     ./CMSKubernetes/kubernetes/rucio/rucio_reaper_secret.sh  # Currently needs to be done after helm install below 
-    kubectl get secrets
+ *
 
 N.b. In the past we also used /etc/pki/tls/certs/CERN-bundle.pem as a volume mount for logstash. 
 That no longer seems to be needed.
