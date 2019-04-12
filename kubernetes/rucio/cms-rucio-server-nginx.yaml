@@ -40,3 +40,6 @@ authIngress:
   hosts: 
     - cms-rucio-auth-dev.cern.ch
 
+resources:
+  limits:
+    memory: 1450Mi

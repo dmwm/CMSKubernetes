@@ -22,4 +22,4 @@ kubernetes/rucio/cms-rucio-oldtest-db.yaml
 kubernetes/rucio/cms-rucio-testbed-db.yaml
 kubernetes/rucio/cms-rucio-dev-db.yaml
 kubernetes/rucio/cms-rucio-prod-db.yaml
-kubernetes/rucio/cms-rucio-int-db.yaml
+kubernetes/rucio/int-db.yaml

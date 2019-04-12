@@ -61,7 +61,7 @@ filters:
       mutate {
         add_field => { "producer" => "cms-rucio"
                        "type" => "rucio-k8s-logs"
-                       "instance" => "cms-rucio-test"
+                       "instance" => "cms-rucio-int"
                      }
       }
     }
