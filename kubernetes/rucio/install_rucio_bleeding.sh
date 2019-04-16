@@ -1,4 +1,7 @@
 #! /bin/sh
+
+REPO=~/rucio-helm-charts # or rucio
+
 SERVER_NAME=cms-rucio-testbed
 DAEMON_NAME=cms-ruciod-testbed
 
@@ -8,8 +11,8 @@ helm install stable/nginx-ingress --namespace kube-system --name ingress-nginx -
 
 # Rucio server, daemons, and daemons for analysis
 
-helm install --name $SERVER_NAME --values cms-rucio-common.yaml,cms-rucio-server-nginx.yaml,nginxtest-rucio-server.yaml,cms-rucio-dev-db.yaml ~/rucio-helm-charts/rucio-server
-helm install --name $DAEMON_NAME --values cms-rucio-common.yaml,cms-rucio-daemons.yaml,cms-rucio-daemons-oldtest.yaml,cms-rucio-dev-db.yaml ~/rucio-helm-charts/rucio-daemons
+helm install --name $SERVER_NAME --values cms-rucio-common.yaml,cms-rucio-server-nginx.yaml,nginxtest-rucio-server.yaml,cms-rucio-dev-db.yaml $REPO/rucio-server
+helm install --name $DAEMON_NAME --values cms-rucio-common.yaml,cms-rucio-daemons.yaml,cms-rucio-daemons-oldtest.yaml,cms-rucio-dev-db.yaml $REPO/rucio-daemons
 
 # Graphite and other services
 helm install --name graphite --values rucio-graphite.yaml,rucio-graphite-nginx.yaml,rucio-graphite-pvc.yaml kiwigrid/graphite

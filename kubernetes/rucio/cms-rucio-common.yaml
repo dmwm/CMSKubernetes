@@ -1,4 +1,5 @@
 image:
+  repository: cmssw/rucio-server
   tag: release-1.19.5
 
 config:
@@ -27,3 +28,14 @@ config:
     monitor:
         carbon_server: graphite
         user_scope: rucio
+
+# Configure database connections for Oracle Database Resident Connection Pool (DRCP)
+
+    database:
+      pool_reset_on_return: "rollback"
+      pool_timeout: "600"
+      echo: "0"
+      max_overflow: "10"
+      pool_size: "2"
+      pool_recycle: "600"
+
