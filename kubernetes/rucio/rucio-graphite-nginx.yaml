@@ -1,3 +1,5 @@
+# Eventually fold this into rucio-graphite
+
 ingress:
   enabled: true
   annotations:

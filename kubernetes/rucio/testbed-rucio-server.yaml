@@ -1,0 +1,8 @@
+replicaCount: 2
+authReplicaCount: 2
+ingress:
+  hosts:
+    - cms-rucio-testbed.cern.ch
+authIngress:
+  hosts:
+    - cms-rucio-auth-testbed.cern.ch
