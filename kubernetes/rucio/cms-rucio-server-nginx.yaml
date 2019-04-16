@@ -1,13 +1,19 @@
 # For NGINX ingress. Eventually becomes plain server
 
-image:
-  repository: cmssw/rucio-server
-
 replicaCount: 1
 authReplicaCount: 1
 
+# Use http worker mode and elsewhere configure database connections for Oracle Database Resident Connection Pool (DRCP)
+
 httpd_config:
   encoded_slashes: "True"
+  mpm_mode: "worker"
+  start_servers: "1"
+  min_spare_threads: "1"
+  max_spare_threads: "20"
+  threads_per_child: "5"
+  max_clients: "20"
+  max_requests_per_child: "8192"
 
 # The server runs on port 80 and there is no need for SSL passthrough
 
