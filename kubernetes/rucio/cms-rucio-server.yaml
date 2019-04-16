@@ -16,3 +16,8 @@ ingress:
     - cms-rucio-test.cern.ch
   tls: 
     - secretName: rucio-server.tls-secret
+
+resources:
+  limits:
+    memory: 1450Mi
+
