@@ -6,7 +6,7 @@ ingress:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/frontend-entry-points: http
   hosts: 
-    - cms-rucio-graphite-test.cern.ch
+    - cms-rucio-graphite-testbed.cern.ch
   tls: []
 
 
