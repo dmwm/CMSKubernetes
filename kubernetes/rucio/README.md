@@ -196,3 +196,21 @@ Setup the tunnel with
 
 and configure your browser appropriately (Firefox works well with SOCK5 proxies) then visit the URL for the graphite server
 which at the time of writing was http://cmsruciotest-73m6rlb5qg4p-minion-3.cern.ch:30862 
+
+# Decommission a cluster
+
+It's probably best to do this in a controlled fashion. First remove any DNS aliases from the cluster:
+
+    openstack server unset  --property landb-alias --os-project-name CMSRucio cmsruciotestbed-ga3x5mujvho7-minion-0 
+    openstack server unset  --property landb-alias --os-project-name CMSRucio cmsruciotestbed-ga3x5mujvho7-minion-1 
+    ...
+    
+Then wait 30-60 minutes for DNS to reflect this removal. Then you can delete the cluster with 
+
+    openstack coe cluster delete --os-project-name CMSRucio  MYOLDCLUSTER
+    
+or remove the kubernetes parts of the cluster and THEN delete the cluster
+
+    helm del --purge cms-rucio-testbed cms-ruciod-testbed filebeat logstash graphite 
+    openstack coe cluster delete --os-project-name CMSRucio  MYOLDCLUSTER
+    
