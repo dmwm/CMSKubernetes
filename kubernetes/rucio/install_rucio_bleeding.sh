@@ -21,5 +21,5 @@ helm install --name graphite --values rucio-graphite.yaml,rucio-graphite-nginx.y
 helm install --name logstash --values cms-rucio-logstash.yml,logstash-filter-oldtest.yml stable/logstash
 helm install --name filebeat --values cms-rucio-filebeat.yml  stable/filebeat
 
-kubectl delete job fts
+kubectl delete job --ignore-not-found=true fts
 kubectl create job --from=cronjob/${DAEMON_NAME}-renew-fts-proxy fts
