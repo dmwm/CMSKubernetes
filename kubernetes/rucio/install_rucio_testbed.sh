@@ -35,7 +35,7 @@ n=0
 kubectl get node -o name | while read node; do
   [[ $((n++)) == $numberIngressNodes ]] && break
   kubectl label node ${node##node/} role=ingress
-  cnames="cms-rucio-grafana-testbed--load-${n}-,cms-rucio-graphite-testbed--load-${n}-,cms-rucio-testbed--load-${n}-"
+  cnames="cms-rucio-grafana-testbed--load-${n}-,cms-rucio-graphite-testbed--load-${n}-,cms-rucio-testbed--load-${n}-,cms-rucio-auth-testbed--load-${n}-"
   openstack server set --os-project-name CMSRucio --property landb-alias=$cnames ${node##node/}
   # teardown:
   # openstack server unset --os-project-name CMSRucio --property landb-alias ${node##node/}

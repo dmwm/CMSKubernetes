@@ -55,7 +55,7 @@ Copy and paste the last line. On subsequent logins it is all that is needed. Now
 
 ## Label nodes for ingress and add the same nodes to the DNS registration
 
-Ingress nodes are labeled with `role=ingress`, which triggers installation of a `traefik` pod on that node.
+Ingress nodes are labeled with `role=ingress`, which triggers installation of a `nginx` pod on that node.
 The number of nodes is configurable in the install script.  For posterity, here is how to do it manually:
 
     kubectl label node cmsruciotest-mzvha4weztri-minion-0 role=ingress
