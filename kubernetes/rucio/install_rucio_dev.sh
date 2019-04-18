@@ -16,7 +16,7 @@ helm install --name $DAEMON_NAME --values cms-rucio-common.yaml,cms-rucio-daemon
 
 # Graphite and other services
 helm install --name graphite --values rucio-graphite.yaml,rucio-graphite-nginx.yaml,rucio-graphite-pvc.yaml,dev-graphite.yaml kiwigrid/graphite
-helm install --name grafana --values rucio-grafana.yaml, dev-grafana.yaml stable/grafana
+helm install --name grafana --values rucio-grafana.yaml,dev-grafana.yaml stable/grafana
 kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode > dev_grafana_password.txt
 
 # Filebeat and logstash
@@ -27,18 +27,18 @@ kubectl delete job --ignore-not-found=true fts
 kubectl create job --from=cronjob/${DAEMON_NAME}-renew-fts-proxy fts
 
 # Label is key to prevent it from also syncing datasets
-kubectl apply -f testbed-sync-jobs.yaml -l syncs=rses
-
-exit
+kubectl apply -f dev-sync-jobs.yaml -l syncs=rses
 
 # Set up landb loadbalance
 numberIngressNodes=3
-n=2
-kubectl get node -o name | while read node; do
+offset=2
+n=0
+kubectl get node -o name | grep minion | while read node; do
   [[ $((n++)) == $numberIngressNodes ]] && break
   kubectl label node ${node##node/} role=ingress
-  cnames="cms-rucio-grafana-dev--load-${n}-,cms-rucio-graphite-dev--load-${n}-,cms-rucio-dev--load-${n}-,cms-rucio-auth-dev--load-${n}-"
+  # Remove any existing aliases
+  openstack server unset --os-project-name CMSRucio --property landb-alias ${node##node/}
+  ndns=$(($n + $offset))
+  cnames="cms-rucio-grafana-dev--load-${ndns}-,cms-rucio-graphite-dev--load-${ndns}-,cms-rucio-dev--load-${ndns}-,cms-rucio-auth-dev--load-${ndns}-"
   openstack server set --os-project-name CMSRucio --property landb-alias=$cnames ${node##node/}
-  # teardown:
-  # openstack server unset --os-project-name CMSRucio --property landb-alias ${node##node/}
 done

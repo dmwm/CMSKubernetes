@@ -8,7 +8,7 @@
 # - Eric Vaandering, <ewv@fnal.gov>, 2018
 
 
-FROM rucio/rucio-server:release-1.19.5
+FROM rucio/rucio-server:release-1.19.6
 
 ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/cmstfc.py  /usr/lib/python2.7/site-packages/cmstfc.py
 
