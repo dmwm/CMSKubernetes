@@ -14,8 +14,8 @@ echo
 echo "When prompted, enter the password used to encrypt the P12 file"
 
 # Secret for redirecting server traffic from 443 to 80
-openssl pkcs12 -in ~/.globus/Rucio/nginxtest4-4epk5oj55wka-minion-0.p12 -clcerts -nokeys -out ./tls.crt
-openssl pkcs12 -in ~/.globus/Rucio/nginxtest4-4epk5oj55wka-minion-0.p12  -nocerts -nodes -out ./tls.key
+openssl pkcs12 -in $HOSTP12 -clcerts -nokeys -out ./tls.crt
+openssl pkcs12 -in $HOSTP12 -nocerts -nodes -out ./tls.key
 kubectl create secret tls rucio-server.tls-secret --key=tls.key --cert=tls.crt
 
 # Secrets for the auth server

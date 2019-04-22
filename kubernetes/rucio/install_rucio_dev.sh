@@ -36,9 +36,9 @@ n=0
 kubectl get node -o name | grep minion | while read node; do
   [[ $((n++)) == $numberIngressNodes ]] && break
   kubectl label node ${node##node/} role=ingress
+  # Remove any existing aliases
   openstack server unset --os-project-name CMSRucio --property landb-alias ${node##node/}
   ndns=$(($n + $offset))
   cnames="cms-rucio-grafana-dev--load-${ndns}-,cms-rucio-graphite-dev--load-${ndns}-,cms-rucio-dev--load-${ndns}-,cms-rucio-auth-dev--load-${ndns}-"
   openstack server set --os-project-name CMSRucio --property landb-alias=$cnames ${node##node/}
-  # teardown:
 done
