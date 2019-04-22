@@ -22,4 +22,7 @@ RUN yum -y install ca-certificates.noarch fetch-crl cronie
 
 ADD cms-entrypoint.sh /
 
+RUN echo "32 */6 * * * root ! /usr/sbin/fetch-crl -q -r 360 " > /etc/cron.d/fetch-crl-docker
+
+
 ENTRYPOINT ["/cms-entrypoint.sh"]
