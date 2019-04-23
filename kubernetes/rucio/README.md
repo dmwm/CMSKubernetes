@@ -1,5 +1,24 @@
 Adapted from rucio instructions here: https://github.com/rucio/helm-charts/tree/master/rucio-server
 
+# Accessing the existing kubernetes clusters
+
+The instructions below are for a fresh setup of a new kubernetes cluster. 
+Most people will only need to access an existing cluster to view logs, change configs, etc. 
+This is much simpler:
+
+    ssh lxplus-cloud.cern.ch
+
+    mkdir [directory to hold cluster files]
+    cd [directory to hold cluster files]
+    `openstack coe cluster config  --os-project-name CMSRucio [cluster name, eg. cmsruciodev1]`
+    
+even that is only needed the first time one accesses a particular cluster. On subsequent logins, just     
+
+    ssh lxplus-cloud.cern.ch
+
+    export KUBECONFIG=[directory to hold cluster files]/config
+
+You can now issue all kubectl commands mentioned below as well as run the upgrade scripts.
 
 # First time setup
 
@@ -35,10 +54,8 @@ This command will show you the proper value of your `KUBECONFIG` variable which 
     
     export KUBECONFIG=$BASEDIR/config
 
-
 Copy and paste the last line. On subsequent logins it is all that is needed. Now make sure that your nodes exist:
 
-    -bash-4.2$ export KUBECONFIG=[as above]
     -bash-4.2$ kubectl get nodes
     NAME                                 STATUS    ROLES     AGE       VERSION
     cmsruciotest-mzvha4weztri-minion-0   Ready     <none>    5m        v1.11.2
@@ -48,20 +65,9 @@ Copy and paste the last line. On subsequent logins it is all that is needed. Now
 
 ## Setup the helm repos if needed
 
-    export KUBECONFIG=[as above]
     kubectl config current-context
     helm repo add rucio https://rucio.github.io/helm-charts
     helm repo add kiwigrid https://kiwigrid.github.io
-
-## Label nodes for ingress and add the same nodes to the DNS registration
-
-Ingress nodes are labeled with `role=ingress`, which triggers installation of a `nginx` pod on that node.
-The number of nodes is configurable in the install script.  For posterity, here is how to do it manually:
-
-    kubectl label node cmsruciotest-mzvha4weztri-minion-0 role=ingress
-    openstack server set  --os-project-name CMSRucio  --property landb-alias=cms-rucio-test--load-1- cmsruciotest-73m6rlb5qg4p-minion-0 
-
-`openstack server unset` will undo this. One must wait up to 15 minutes after the openstack commands for the DNS registration to become active. More details are here: https://clouddocs.web.cern.ch/clouddocs/containers/tutorials/lb.html
 
 ## Setup StorageClass (if needed)
 
@@ -110,65 +116,18 @@ The above is what is needed to get things bootstrapped the first time. After thi
     cd CMSKubernetes/kubernetes/rucio
     ./upgrade_rucio_[production, testbed, etc].sh
     
-# Use a node outside of kubernetes as an authorization server and to delegate FTS proxies
-
-This entire section will be obsolete and replaced with much simpler instructions for using a VM as a client: https://github.com/dmwm/CMSRucio/wiki/Setting-up-a-VM-as-a-client
-
-While we expect that eventually the authorization server will be able to run inside of kubernetes, at the moment it cannot.
-This is because of how kubernetes/traefik handles (or doesn't) client certificates. 
-For the moment, it's easiest just to turn an OpenStack node into the authorization server. 
-The same VM can be used to manage the FTS proxies.
-
-## Setup the VM node itself
-
-This recipe is for starting with an OpenStack CC7 node which we assume is named `cms-rucio-authz`. 
-The OpenStack "small" type is fine.
-
-### Get a host certificate installed
-
-Use CERN CA https://ca.cern.ch/ca/ to generate a host cert, 
-scp the cert to lxplus:~/.globus/ and then create certificate and key:
-
-    sudo mkdir /etc/grid-security
-    sudo openssl pkcs12 -in ~/.globus/cms-rucio-authz.p12  -clcerts -nokeys -out /etc/grid-security/hostcert.pem
-    sudo openssl pkcs12 -in ~/.globus/cms-rucio-authz.p12   -nocerts -nodes -out /etc/grid-security/hostkey.pem
-    sudo chmod 0600 /etc/grid-security/hostkey.pem
-
-Become root (`sudo su`) and install some general packages and docker:
-
-    yum install -y yum-utils device-mapper-persistent-data lvm2 nano git
-    yum update -y
-    yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-    yum install -y docker-ce
-    systemctl start docker
-    systemctl enable docker
-    docker run hello-world
-    usermod -a -G docker [your user name]
-
-Continuing as root, add what's needed to accept proxies for the auth server:
-
-    yum -y install voms-clients-cpp
-    yum -y install http://linuxsoft.cern.ch/wlcg/centos7/x86_64/wlcg-repo-1.0.0-1.el7.noarch.rpm
-    curl -o  /etc/yum.repos.d/ca.repo https://raw.githubusercontent.com/rucio/rucio/master/etc/docker/dev/ca.repo
-    yum update 
-    yum -y install ca-certificates.noarch lcg-CA voms-clients-cpp wlcg-voms-cms fetch-crl 
-    systemctl start fetch-crl-cron
-    systemctl enable fetch-crl-cron 
-    exit
-    
-## Start (or restart) the authorization server docker image
-
-    ./CMSKubernetes/kubernetes/rucio/start_rucio_auth.sh  # Or similar depending on which auth server you want to start
-   
 # Get a client running and connect to your server
 
-See above.....
+There are two ways of doing this. 
+The first is best for most people and involves setting up a VM inside CERN with docker installed. 
+Instructions are at https://github.com/dmwm/CMSRucio/wiki/Setting-up-a-VM-as-a-client
 
-It can be easiest just to create another container with a client installed to connect to your new server. 
-There is a client YAML file that can also be installed into your newly formed kubernetes cluster. 
+You can also install, into k8s, another pod running a client installed to connect to your new server. 
+There is a client YAML file which is used for this. 
 Find the client name below from the output of `kubectl get pods`
 
     kubectl create -f rucio-client.yaml 
+    kubectl get pods
     kubectl exec -it client-6c4466d746-gwl9g /bin/bash
     
 And then in your client container, setup a proxy or use user/password etc. and
