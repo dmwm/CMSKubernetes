@@ -1,3 +1,5 @@
+image:
+  repository: cmssw/rucio-daemons
 
 abacusAccountCount: 1
 abacusRseCount: 1

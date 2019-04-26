@@ -7,7 +7,7 @@ main:
     sleep: 60
 #
 # Verbosity. Default is SUMMARY
-#    verbosity: VNOTICE
+    verbosity: VNOTICE
 #
 # run status: 
 # True: run (default), 
@@ -15,7 +15,7 @@ main:
 # until:YYYY-MM-DD:HH:mm:SS run until date
 # for:NN run for NN seconds
     run: 
-      "for:5000"   # True YAML does not work
+      "for:6000"   # True YAML does not work
 
 
 # Default site conf can be overwritten by site specific

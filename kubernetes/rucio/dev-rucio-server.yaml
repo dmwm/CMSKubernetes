@@ -1,0 +1,10 @@
+replicaCount: 3
+authReplicaCount: 2
+ingress:
+  hosts: 
+    - cms-rucio-dev.cern.ch
+authIngress:
+  hosts: 
+    - cms-rucio-auth-dev.cern.ch
+
+

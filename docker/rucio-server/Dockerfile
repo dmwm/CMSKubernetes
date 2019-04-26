@@ -8,7 +8,7 @@
 # - Eric Vaandering, <ewv@fnal.gov>, 2018
 
 
-FROM rucio/rucio-server:release-1.19.5
+FROM rucio/rucio-server:release-1.19.6
 
 ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/cmstfc.py  /usr/lib/python2.7/site-packages/cmstfc.py
 
@@ -21,5 +21,8 @@ RUN yum -y install ca-policy-egi-core
 RUN yum -y install ca-certificates.noarch fetch-crl cronie
 
 ADD cms-entrypoint.sh /
+
+RUN echo "32 */6 * * * root ! /usr/sbin/fetch-crl -q -r 360 " > /etc/cron.d/fetch-crl-docker
+
 
 ENTRYPOINT ["/cms-entrypoint.sh"]

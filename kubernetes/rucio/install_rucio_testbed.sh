@@ -7,7 +7,7 @@ DAEMON_NAME=cms-ruciod-testbed
 
 # Ingress server
 
-helm install stable/nginx-ingress --namespace kube-system --name ingress-nginx --set rbac.create=true --values nginx-ingress.yaml
+helm install stable/nginx-ingress --namespace kube-system --name ingress-nginx --values nginx-ingress.yaml
 
 # Rucio server, daemons, and daemons for analysis
 
