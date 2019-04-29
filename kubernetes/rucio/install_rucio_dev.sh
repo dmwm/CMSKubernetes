@@ -27,6 +27,8 @@ kubectl delete job --ignore-not-found=true fts
 kubectl create job --from=cronjob/${DAEMON_NAME}-renew-fts-proxy fts
 
 # Label is key to prevent it from also syncing datasets
+kubectl delete configmap dataset-config
+kubectl create configmap dataset-config --from-file=site-sync.yaml
 kubectl apply -f dev-sync-jobs.yaml -l syncs=rses
 
 # Set up landb loadbalance
