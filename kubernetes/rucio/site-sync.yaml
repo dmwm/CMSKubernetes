@@ -15,7 +15,7 @@ main:
 # until:YYYY-MM-DD:HH:mm:SS run until date
 # for:NN run for NN seconds
     run: 
-      "for:6000"   # True YAML does not work
+      "for:1800"   # True YAML does not work
 
 
 # Default site conf can be overwritten by site specific

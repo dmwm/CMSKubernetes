@@ -42,7 +42,7 @@ spec:
   schedule: "20 */2 * * *"
   jobTemplate:
     spec:
-      activeDeadlineSeconds: 7000
+      activeDeadlineSeconds: 2000
       template:
         spec:
           volumes:

@@ -1,1 +1,5 @@
-reaperCount: 0
+reaperCount: 1
+
+reaper:
+  rses: T3_CH_CERN_EOS_Test T2_US_Nebraska_Test
+  workers: 2
