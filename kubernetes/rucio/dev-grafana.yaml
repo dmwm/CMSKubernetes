@@ -1,4 +1,4 @@
 ingress:
   hosts:
-    - cms-rucio-grafana-testbed.cern.ch
+    - cms-rucio-grafana-dev.cern.ch
 

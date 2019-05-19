@@ -1,4 +1,12 @@
-persistence:
-  enabled: false   # Problems here still
-  storageClass: manila-cephfs-share
-  size: 2Gi
+# eventually should be a separate pvc for each instance
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: graphite-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2G
+  storageClassName: manila-cephfs-share

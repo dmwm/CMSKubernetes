@@ -15,7 +15,9 @@ helm install --name $SERVER_NAME --values cms-rucio-common.yaml,cms-rucio-server
 helm install --name $DAEMON_NAME --values cms-rucio-common.yaml,cms-rucio-daemons.yaml,dev-rucio-daemons.yaml,dev-db.yaml,dev-release.yaml $REPO/rucio-daemons
 
 # Graphite and other services
-helm install --name graphite --values rucio-graphite.yaml,rucio-graphite-nginx.yaml,rucio-graphite-pvc.yaml,dev-graphite.yaml kiwigrid/graphite
+kubectl create -f cms-rucio-storage.yaml
+kubectl create -f rucio-graphite-pvc.yaml
+helm install --name graphite --values rucio-graphite.yaml,rucio-graphite-nginx.yaml,dev-graphite.yaml kiwigrid/graphite
 helm install --name grafana --values rucio-grafana.yaml,dev-grafana.yaml stable/grafana
 kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode > dev_grafana_password.txt
 
