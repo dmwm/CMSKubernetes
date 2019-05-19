@@ -35,8 +35,10 @@ Begin by logging into the CERN cloud infrastructure `slogin lxplus7-cloud.cern.c
     openstack coe cluster delete --os-project-name CMSRucio  cmsruciotest
     # openstack coe cluster create cmsruciotest --keypair lxplus  --os-project-name CMSRucio   --cluster-template kubernetes-preview --node-count 4
     
-    # Currently the the command is this one (one must specify all the labels, even the unchanged ones)
-    openstack coe cluster create [CLUSTERNAME] --keypair lxplus  --os-project-name CMSRucio   --cluster-template kubernetes-1.13.3-1 --node-count 5 --labels cern_enabled=True,kube_tag=v1.13.3-12,kube_csi_enabled=True,kube_csi_version=v0.3.2,container_infra_prefix=gitlab-registry.cern.ch/cloud/atomic-system-containers/,cvmfs_tag=qa,ceph_csi_enabled=True,flannel_backend=vxlan,ingress_controller=nginx,cern_tag=qa --master-flavor m2.small    
+    # Currently the the command is this one
+    # one must specify all the labels, even the unchanged ones, which can be found via:
+    # openstack --os-project-name CMSRucio coe cluster template show kubernetes-1.13.3-1
+    openstack coe cluster create [CLUSTERNAME] --keypair lxplus --os-project-name CMSRucio --cluster-template kubernetes-1.13.3-1 --node-count 5 --labels cern_enabled=True,kube_tag=v1.13.3-12,kube_csi_enabled=True,kube_csi_version=v0.3.2,container_infra_prefix=gitlab-registry.cern.ch/cloud/atomic-system-containers/,cvmfs_csi_version=v0.3.0,cvmfs_tag=qa,cephfs_csi_enabled=True,cephfs_csi_version=v0.3.0,manila_enabled=True,manila_version=v0.3.0,flannel_backend=vxlan,ingress_controller=nginx,cern_tag=qa,influx_grafana_dashboard_enabled=True --master-flavor m2.small    
     openstack coe cluster list --os-project-name CMSRucio # Monitor creation status
 
 If you are creating your own project for development, please omit `--os-project-name CMSRucio`. 
