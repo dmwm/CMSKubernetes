@@ -1,0 +1,211 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dataset-config
+data:
+  site-sync.yaml: |+
+    # Main configuration
+    main:
+        pool: 3
+        sleep: 60
+        verbosity: SUMMARY
+        run:
+          "for:13000"   # True YAML does not work
+    default:
+        pool: 1
+        chunck: 1000
+    T1_DE_KIT_Disk:
+        pool: 5
+        multi_das_calls: True
+        select:
+          - '\S+NANOAOD\S+'
+    T1_ES_PIC_Disk:
+        pool: 5
+        multi_das_calls: True
+        select:
+          - '\S+NANOAOD\S+'
+    T1_FR_CCIN2P3_Disk:
+        pool: 5
+        multi_das_calls: True
+        select:
+          - '\S+NANOAOD\S+'
+    T1_IT_CNAF_Disk:
+        pool: 5
+        multi_das_calls: True
+        select:
+          - '\S+NANOAOD\S+'
+        ignore:
+            - '\S+/Commissioning09\S+'
+            - '\S+/CRUZET\S+'
+            - '\S+/Commissioning08\S+'
+            - '\S+/CRAFT09\S+'
+            - '\S+/BeamCommissioning09\S+'
+            - '\S+/BeamCommissioning08\S+'
+    T1_RU_JINR_Disk:
+        pool: 5
+        multi_das_calls: True
+        select:
+          - '\S+NANOAOD\S+'
+    T1_US_FNAL_Disk:
+        pool: 5
+        multi_das_calls: True
+        select:
+          - '\S+NANOAOD\S+'
+    #    T1_UK_RAL_Disk
+    #        pool: 5
+    #        multi_das_calls: True
+    #        select:
+    #          - '\S+NANOAOD\S+'
+    #T1_DE_KIT_Buffer
+    #T1_ES_PIC_Buffer
+    #T1_FR_CCIN2P3_Buffer
+    #T1_IT_CNAF_Buffer
+    #T1_RU_JINR_Buffer
+    #T1_UK_RAL_Buffer
+    #T1_US_FNAL_Buffer
+    T2_AT_Vienna:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_BE_IIHE:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_BE_UCL:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_BR_SPRACE:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_BR_UERJ:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_CH_CERN:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_CH_CSCS:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_CN_Beijing:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_DE_DESY:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_DE_RWTH:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_EE_Estonia:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_ES_CIEMAT:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_ES_IFCA:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_FI_HIP:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_FR_CCIN2P3:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_FR_GRIF_LLR:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_FR_GRIF_IRFU:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_FR_IPHC:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_GR_Ioannina:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_HU_Budapest:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_IN_TIFR:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_IT_Bari:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_IT_Legnaro:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_IT_Pisa:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_IT_Rome:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_KR_KISTI:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_KR_KNU:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_PK_NCP:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_PL_Swierk:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_PL_Warsaw:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_PT_NCG_Lisbon:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_US_Nebraska:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_US_UCSD:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_US_Florida:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_US_Caltech:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_US_MIT:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_US_Purdue:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_US_Wisconsin:
+        select:
+          - '\S+NANOAOD\S+'
+    T3_FR_IPNL:
+        select:
+          - '\S+NANOAOD\S+'
+    #T1_FR_CCIN2P3_Buffer:
+    #    chunck: 3000
+    #    pool: 1
+    #    multi_das_calls: True
+    #    ignore:
+    #        - '\S+/Commissioning09\S+'
+    #        - '\S+/CRUZET\S+'
+    #        - '\S+/Commissioning08\S+'
+    #        - '\S+/CRAFT09\S+'
+    #        - '\S+/BeamCommissioning09\S+'
+    #        - '\S+/BeamCommissioning08\S+'
+    #    run: False
+    #T1_UK_RAL_Disk:
+    #    pool: 10
+#    T2_RU_IHEP
+#    T2_RU_INR
+#    T2_RU_ITEP
+#    T2_RU_JINR
+#    T2_RU_PNPI
+#    T2_RU_SINP
+#    T2_TH_CUNSTDA
+#    T2_TR_METU
+#    T2_TW_NCHC
+#    T2_UA_KIPT
+#    T2_UK_London_Brunel
+#    T2_UK_London_IC
+#    T2_UK_SGrid_Bristol
+#    T2_US_Vanderbilt
+#    T3_FR_IPNL
