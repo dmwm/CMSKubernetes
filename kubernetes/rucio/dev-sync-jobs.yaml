@@ -5,7 +5,7 @@ metadata:
   labels:
     syncs: rses
 spec:
-  schedule: "20 0 * * *"
+  schedule: "5 0 * * *"
   jobTemplate:
     spec:
       template:
@@ -39,10 +39,10 @@ metadata:
   labels:
     syncs: datasets
 spec:
-  schedule: "20 */2 * * *"
+  schedule: "20 */4 * * *"
   jobTemplate:
     spec:
-      activeDeadlineSeconds: 6000
+      activeDeadlineSeconds: 14000
       template:
         spec:
           volumes:
@@ -70,5 +70,10 @@ spec:
                 - name: RUCIO_HOME
                   value: "/opt/rucio-dev/"
               command: ['/scripts/k8s_sync_datasets.sh']
+              resources:
+                limits:
+                  memory: "1200Mi"
+                requests:
+                  memory: "1200Mi"
           restartPolicy: OnFailure
 
