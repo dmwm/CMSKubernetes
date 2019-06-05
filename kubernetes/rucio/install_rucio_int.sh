@@ -2,6 +2,7 @@
 PREFIX=int
 SERVER_NAME=cms-rucio-$PREFIX
 DAEMON_NAME=cms-ruciod-$PREFIX
+UI_NAME=cms-webui-$PREFIX
 
 # Ingress server
 
@@ -11,6 +12,7 @@ helm install stable/nginx-ingress --namespace kube-system --name ingress-nginx -
 
 helm install --name $SERVER_NAME --values cms-rucio-common.yaml,cms-rucio-server.yaml,${PREFIX}-rucio-server.yaml,${PREFIX}-db.yaml ~/rucio-helm-charts/rucio-server
 helm install --name $DAEMON_NAME --values cms-rucio-common.yaml,cms-rucio-daemons.yaml,${PREFIX}-rucio-daemons.yaml,${PREFIX}-db.yaml ~/rucio-helm-charts/rucio-daemons
+helm install --name $UI_NAME --values cms-rucio-common.yaml,cms-rucio-webui.yaml,${PREFIX}-rucio-webui.yaml,${PREFIX}-db.yaml,${PREFIX}-release.yaml $REPO/rucio-ui
 
 # Graphite and other services
 helm install --name graphite --values rucio-graphite.yaml,rucio-graphite-nginx.yaml,int-graphite.yaml,rucio-graphite-pvc.yaml kiwigrid/graphite

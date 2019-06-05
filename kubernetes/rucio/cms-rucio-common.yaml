@@ -8,6 +8,7 @@ config:
     policy:
         permission: "cms"
         schema: "cms"
+        lfn2pfn_algorithm_default: "identity"
         lfn2pfn_module: "cmstfc"
         support: "https://its.cern.ch/jira/projects/CMSRUCIO/summary"
     messaging_hermes:
