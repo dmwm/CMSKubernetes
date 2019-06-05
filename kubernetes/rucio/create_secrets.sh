@@ -8,7 +8,7 @@
 
 echo "Removing existing secrets"
 
-kubectl delete secret rucio-server.tls-secret host-cert host-key ca fts-cert fts-key hermes-cert hermes-key cms-ruciod-testbed-rucio-ca-bundle
+kubectl delete secret rucio-server.tls-secret host-cert host-key ca fts-cert fts-key hermes-cert hermes-key cms-ruciod-testbed-rucio-ca-bundle webui-host-cert webui-host-key webui-cafile
 
 echo
 echo "When prompted, enter the password used to encrypt the P12 file"
@@ -27,6 +27,11 @@ chmod 600 ca.pem
 kubectl create secret generic host-cert --from-file=hostcert.pem
 kubectl create secret generic host-key --from-file=hostkey.pem
 kubectl create secret generic ca  --from-file=ca.pem
+
+# Can these be parameterized in helm to be the same as above?
+kubectl create secret generic webui-host-cert --from-file=hostcert.pem
+kubectl create secret generic webui-host-key --from-file=hostkey.pem
+kubectl create secret generic webui-cafile --from-file=ca.pem
 
 # Clean up
 rm tls.key tls.crt hostkey.pem hostcert.pem ca.pem
