@@ -8,7 +8,7 @@
 
 echo "Removing existing secrets"
 
-kubectl delete secret rucio-server.tls-secret host-cert host-key ca fts-cert fts-key hermes-cert hermes-key cms-ruciod-testbed-rucio-ca-bundle webui-host-cert webui-host-key webui-cafile webui-usercert
+kubectl delete secret rucio-server.tls-secret host-cert host-key ca fts-cert fts-key hermes-cert hermes-key cms-ruciod-testbed-rucio-ca-bundle webui-host-cert webui-host-key webui-cafile
 
 echo
 echo "When prompted, enter the password used to encrypt the P12 file"
