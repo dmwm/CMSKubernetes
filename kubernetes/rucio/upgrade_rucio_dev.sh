@@ -10,7 +10,7 @@ UI_NAME=cms-webui-$PREFIX
 #helm upgrade --values rucio-graphite.yaml  graphite kiwigrid/graphite # Don't do PVC again
 helm upgrade --recreate-pods --values cms-rucio-common.yaml,cms-rucio-server.yaml,dev-rucio-server.yaml,dev-db.yaml,dev-release.yaml  $SERVER_NAME $REPO/rucio-server
 helm upgrade --recreate-pods --values cms-rucio-common.yaml,cms-rucio-daemons.yaml,dev-rucio-daemons.yaml,dev-db.yaml,dev-release.yaml $DAEMON_NAME $REPO/rucio-daemons
-helm upgrade --recreate-pods --values cms-rucio-common.yaml,cms-rucio-webui.yaml,${PREFIX}-rucio-webui.yaml,${PREFIX}-db.yaml,${PREFIX}-release.yaml $REPO/rucio-ui
+helm upgrade --recreate-pods --values cms-rucio-common.yaml,cms-rucio-webui.yaml,${PREFIX}-rucio-webui.yaml,${PREFIX}-db.yaml,${PREFIX}-release.yaml $UI_NAME $REPO/rucio-ui
 
 # Graphite and other services (currently not doing anything with them)
 # helm install --name graphite --values rucio-graphite.yaml,rucio-graphite-nginx.yaml,rucio-graphite-pvc.yaml,dev-graphite.yaml kiwigrid/graphite
