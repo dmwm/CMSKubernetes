@@ -156,6 +156,45 @@ data:
     T2_PT_NCG_Lisbon:
         select:
           - '\S+NANOAOD\S+'
+    T2_RU_IHEP:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_RU_INR:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_RU_ITEP:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_RU_JINR:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_RU_PNPI:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_RU_SINP:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_TH_CUNSTDA:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_TR_METU:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_TW_NCHC:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_UA_KIPT:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_UK_London_Brunel:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_UK_London_IC:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_UK_SGrid_Bristol:
+        select:
+          - '\S+NANOAOD\S+'
     T2_US_Nebraska:
         select:
           - '\S+NANOAOD\S+'
@@ -172,6 +211,9 @@ data:
         select:
           - '\S+NANOAOD\S+'
     T2_US_Purdue:
+        select:
+          - '\S+NANOAOD\S+'
+    T2_US_Vanderbilt:
         select:
           - '\S+NANOAOD\S+'
     T2_US_Wisconsin:
@@ -194,18 +236,3 @@ data:
     #    run: False
     #T1_UK_RAL_Disk:
     #    pool: 10
-#    T2_RU_IHEP
-#    T2_RU_INR
-#    T2_RU_ITEP
-#    T2_RU_JINR
-#    T2_RU_PNPI
-#    T2_RU_SINP
-#    T2_TH_CUNSTDA
-#    T2_TR_METU
-#    T2_TW_NCHC
-#    T2_UA_KIPT
-#    T2_UK_London_Brunel
-#    T2_UK_London_IC
-#    T2_UK_SGrid_Bristol
-#    T2_US_Vanderbilt
-#    T3_FR_IPNL
