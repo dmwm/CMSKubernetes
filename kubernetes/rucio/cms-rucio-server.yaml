@@ -1,3 +1,6 @@
+image:
+  repository: cmssw/rucio-server
+
 # For NGINX ingress. Eventually becomes plain server
 
 replicaCount: 1
