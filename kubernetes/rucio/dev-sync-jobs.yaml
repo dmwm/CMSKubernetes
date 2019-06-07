@@ -70,5 +70,10 @@ spec:
                 - name: RUCIO_HOME
                   value: "/opt/rucio-dev/"
               command: ['/scripts/k8s_sync_datasets.sh']
+              resources:
+                limits:
+                  memory: "1200Mi"
+                requests:
+                  memory: "1200Mi"
           restartPolicy: OnFailure
 
