@@ -31,6 +31,7 @@ kubectl create secret generic ca  --from-file=ca.pem
 # Can these be parameterized in helm to be the same as above?
 kubectl create secret generic webui-host-cert --from-file=hostcert.pem
 kubectl create secret generic webui-host-key --from-file=hostkey.pem
+cp /etc/pki/tls/certs/CERN-bundle.pem ca.pem
 kubectl create secret generic webui-cafile --from-file=ca.pem
 
 # Clean up
@@ -44,5 +45,10 @@ kubectl create secret generic hermes-cert --from-file=$ROBOTCERT
 kubectl create secret generic hermes-key --from-file=$ROBOTKEY
 kubectl create secret generic cms-ruciod-testbed-rucio-ca-bundle --from-file=/etc/pki/tls/certs/CERN-bundle.pem
 
+# Secret for WebUI (should not be the robot cert, not needed now)
+
+# cat $ROBOTCERT $ROBOTKEY > usercert_with_key.pem
+# kubectl create secret generic webui-usercert --from-file=usercert_with_key.pem
+# rm usercert_with_key.pem
 
 kubectl get secrets
