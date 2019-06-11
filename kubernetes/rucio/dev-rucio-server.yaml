@@ -1,5 +1,6 @@
 replicaCount: 2
 authReplicaCount: 1
+
 ingress:
   hosts: 
     - cms-rucio-dev.cern.ch
@@ -7,6 +8,3 @@ authIngress:
   hosts: 
     - cms-rucio-auth-dev.cern.ch
 
-config:
-    database:
-      pool_timeout: "30"
