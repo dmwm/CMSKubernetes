@@ -1,4 +1,0 @@
-ingress:
-  hosts:
-    - cms-rucio-grafana-dev.cern.ch
-
