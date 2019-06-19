@@ -3,4 +3,5 @@ ingress:
     - cms-rucio-graphite-dev.cern.ch
 persistence:
   # eventually should be a separate pvc for each instance
-  existingClaim: graphite-pvc
+  enabled: true
+  existingClaim: graphite-dev-pvc

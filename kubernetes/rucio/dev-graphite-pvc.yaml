@@ -1,12 +1,11 @@
-# eventually should be a separate pvc for each instance
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: graphite-pvc
+  name: graphite-dev-pvc
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
-      storage: 2G
+      storage: 30G
   storageClassName: manila-cephfs-share

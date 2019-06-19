@@ -16,7 +16,7 @@ helm install --name $DAEMON_NAME --values cms-rucio-common.yaml,cms-rucio-daemon
 
 # Graphite and other services
 kubectl create -f cms-rucio-storage.yaml
-kubectl create -f rucio-graphite-pvc.yaml
+kubectl create -f dev-graphite-pvc.yaml
 helm install --name graphite --values rucio-graphite.yaml,rucio-graphite-nginx.yaml,dev-graphite.yaml kiwigrid/graphite
 
 # Filebeat and logstash

@@ -1,10 +1,6 @@
-persistence:
-  enabled: true
-  accessModes:
-    - ReadWriteMany
-  size: 2G
 service:
   type: NodePort
+
 configMaps:
   carbon.conf: |-
     # cephfs does not support fallocate, and graphite
