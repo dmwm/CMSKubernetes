@@ -1,5 +1,4 @@
 image:
-  repository: cmssw/rucio-server
   tag: release-1.19.5
 
 config:
@@ -8,6 +7,7 @@ config:
     policy:
         permission: "cms"
         schema: "cms"
+        lfn2pfn_algorithm_default: "identity"
         lfn2pfn_module: "cmstfc"
         support: "https://its.cern.ch/jira/projects/CMSRUCIO/summary"
     messaging_hermes:
@@ -33,9 +33,8 @@ config:
 
     database:
       pool_reset_on_return: "rollback"
-      pool_timeout: "600"
+      pool_timeout: "30"
       echo: "0"
       max_overflow: "10"
       pool_size: "2"
       pool_recycle: "600"
-

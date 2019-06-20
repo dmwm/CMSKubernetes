@@ -5,7 +5,7 @@ metadata:
   labels:
     syncs: rses
 spec:
-  schedule: "20 0 * * *"
+  schedule: "5 0 * * *"
   jobTemplate:
     spec:
       template:
@@ -39,9 +39,10 @@ metadata:
   labels:
     syncs: datasets
 spec:
-  schedule: "20 */2 * * *"
+  schedule: "20 */4 * * *"
   jobTemplate:
     spec:
+      activeDeadlineSeconds: 14000
       template:
         spec:
           volumes:
