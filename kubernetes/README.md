@@ -98,6 +98,17 @@ on explicit ports and redirect rules among our services.
 - Nodeport: Node port is the port on which the service can be accessed from
   external users using Kube-Proxy.
 
+### Auto-scaling
+It is possible to perform auto-scaling of the cluster to add extra
+nodes. This can be done using the following command:
+```
+openstack coe cluster update <cluster_name> --os-project-name <Project Namespace> replace node_count=4
+```
+
+It won’t start new pods on the new nodes except for DaemonSets and so forth.
+But newly started pods after an upgrade or crojobs or whatever will start to
+use the new resources. You can also shrink it this way in which case killed
+pods will be redistributed.
 
 ### Kubernetes deployment procedure
 
