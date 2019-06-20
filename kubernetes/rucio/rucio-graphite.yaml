@@ -18,7 +18,6 @@ configMaps:
     MIN_TIMESTAMP_RESOLUTION = 1
     LINE_RECEIVER_INTERFACE = 0.0.0.0
     LINE_RECEIVER_PORT = 2003
-    ENABLE_UDP_LISTENER = False
     UDP_RECEIVER_INTERFACE = 0.0.0.0
     UDP_RECEIVER_PORT = 2003
     PICKLE_RECEIVER_INTERFACE = 0.0.0.0
@@ -30,12 +29,16 @@ configMaps:
     LOG_UPDATES = False
     LOG_CREATES = False
     LOG_CACHE_HITS = False
-    LOG_CACHE_QUEUE_SORTS = False
+    LOG_CACHE_QUEUE_SORTS = True
     CACHE_WRITE_STRATEGY = sorted
     WHISPER_AUTOFLUSH = False
-    WHISPER_FALLOCATE_CREATE = False
     CARBON_METRIC_INTERVAL = 10
     GRAPHITE_URL = http://127.0.0.1:8080
+    # Non-standard:
+    WHISPER_FALLOCATE_CREATE = False
+    ENABLE_UDP_LISTENER = True
+    LOG_CACHE_QUEUE_SORTS = True
+    USE_WHITELIST = True
     [relay]
     LINE_RECEIVER_INTERFACE = 0.0.0.0
     LINE_RECEIVER_PORT = 2013
@@ -67,3 +70,21 @@ configMaps:
     MAX_DATAPOINTS_PER_MESSAGE = 500
     MAX_AGGREGATION_INTERVALS = 5
     CARBON_METRIC_INTERVAL = 10
+  blacklist.conf: |-
+    # ATLAS blacklist
+    ^.*90$
+    ^.*sum_squares$
+    ^.*median$
+    ^.*std$
+  storage-schemas.conf: |-
+    [carbon]
+    pattern = ^carbon\.
+    retentions = 10s:6h,1m:90d
+
+    [http_monitoring]
+    pattern = rucio.http-monitoring.*
+    retentions = 1m:30d,60m:5y
+
+    [default_1min_for_1day]
+    pattern = .*
+    retentions = 10s:6h,1m:6d,10m:30d,60m:5y
