@@ -18,8 +18,6 @@ helm install --name $UI_NAME --values cms-rucio-common.yaml,cms-rucio-webui.yaml
 
 # Graphite and other services
 helm install --name graphite --values rucio-graphite.yaml,rucio-graphite-nginx.yaml,rucio-graphite-pvc.yaml,testbed-graphite.yaml kiwigrid/graphite
-helm install --name grafana --values rucio-grafana-testbed.yaml stable/grafana
-kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode > grafana_password.txt
 
 # Filebeat and logstash
 helm install --name logstash --values cms-rucio-logstash.yml,testbed-logstash-filter.yaml stable/logstash
@@ -37,7 +35,7 @@ n=0
 kubectl get node -o name | while read node; do
   [[ $((n++)) == $numberIngressNodes ]] && break
   kubectl label node ${node##node/} role=ingress
-  cnames="cms-rucio-grafana-testbed--load-${n}-,cms-rucio-graphite-testbed--load-${n}-,cms-rucio-testbed--load-${n}-,cms-rucio-auth-testbed--load-${n}-,cms-rucio-webui-testbed--load-${ndns}-"
+  cnames="cms-rucio-graphite-testbed--load-${n}-,cms-rucio-testbed--load-${n}-,cms-rucio-auth-testbed--load-${n}-,cms-rucio-webui-testbed--load-${ndns}-"
   openstack server set --os-project-name CMSRucio --property landb-alias=$cnames ${node##node/}
   # teardown:
   # openstack server unset --os-project-name CMSRucio --property landb-alias ${node##node/}

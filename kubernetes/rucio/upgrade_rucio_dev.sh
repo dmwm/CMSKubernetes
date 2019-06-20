@@ -13,9 +13,7 @@ helm upgrade --recreate-pods --values cms-rucio-common.yaml,cms-rucio-daemons.ya
 helm upgrade --recreate-pods --values cms-rucio-common.yaml,cms-rucio-webui.yaml,${PREFIX}-rucio-webui.yaml,${PREFIX}-db.yaml,${PREFIX}-release.yaml $UI_NAME $REPO/rucio-ui
 
 # Graphite and other services (currently not doing anything with them)
-# helm install --name graphite --values rucio-graphite.yaml,rucio-graphite-nginx.yaml,rucio-graphite-pvc.yaml,dev-graphite.yaml kiwigrid/graphite
-# helm install --name grafana --values rucio-grafana.yaml,dev-grafana.yaml stable/grafana
-# kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode > dev_grafana_password.txt
+helm upgrade --values rucio-graphite.yaml,rucio-graphite-nginx.yaml,dev-graphite.yaml graphite kiwigrid/graphite
 
 # Filebeat and logstash
 

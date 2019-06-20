@@ -1,4 +1,7 @@
 ingress:
   hosts: 
     - cms-rucio-graphite-dev.cern.ch
-
+persistence:
+  # eventually should be a separate pvc for each instance
+  enabled: true
+  existingClaim: graphite-dev-pvc
