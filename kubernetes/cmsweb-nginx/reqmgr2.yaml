@@ -1,40 +1,40 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: reqmgr
+  name: reqmgr2
 spec:
   selector:
-    app: reqmgr
+    app: reqmgr2
   ports:
     - port: 8246
       targetPort: 8246
-      name: reqmgr
+      name: reqmgr2
     - port: 18246
       targetPort: 18246
-      name: reqmgr-mon
+      name: reqmgr2-mon
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
 metadata:
   labels:
-    app: reqmgr
-  name: reqmgr
+    app: reqmgr2
+  name: reqmgr2
 spec:
   selector:
     matchLabels:
-      app: reqmgr
+      app: reqmgr2
   replicas: 1
   template:
     metadata:
       labels:
-        app: reqmgr
+        app: reqmgr2
     spec:
-      # use hostNetwork to allow communication between reqmgr/reqmon/workqueue and couch
+      # use hostNetwork to allow communication between reqmgr2/reqmon/workqueue and couch
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/reqmgr
-        name: reqmgr
+      - image: cmssw/reqmgr2
+        name: reqmgr2
         tty: true
         stdin: true
         lifecycle:
@@ -44,10 +44,10 @@ spec:
         ports:
         - containerPort: 8246
           protocol: TCP
-          name: reqmgr
+          name: reqmgr2
         - containerPort: 18246
           protocol: TCP
-          name: reqmgr-mon
+          name: reqmgr2-mon
         volumeMounts:
         - name: secrets
           mountPath: /etc/secrets
@@ -65,7 +65,7 @@ spec:
       volumes:
       - name: secrets
         secret:
-          secretName: reqmgr-secrets
+          secretName: reqmgr2-secrets
           # https://github.com/kubernetes/kubernetes/issues/34982
           defaultMode: 256
           items:
