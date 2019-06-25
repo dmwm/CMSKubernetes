@@ -108,7 +108,7 @@ secrets()
     ./make_dqmgui_secret.sh $robot_key $robot_crt $hmac
     ./make_frontend_secret.sh $robot_key $robot_crt $hmac $cmsweb_key $cmsweb_crt
     ./make_couchdb_secret.sh $robot_key $robot_crt $hmac
-    ./make_reqmgr_secret.sh $robot_key $robot_crt $hmac
+    ./make_reqmgr2_secret.sh $robot_key $robot_crt $hmac
     ./make_reqmgr2ms_secret.sh $robot_key $robot_crt $hmac
     ./make_reqmon_secret.sh $robot_key $robot_crt $hmac
     ./make_workqueue_secret.sh $robot_key $robot_crt $hmac
@@ -152,7 +152,7 @@ secrets()
 create()
 {
     # adjust as necessary
-    pkgs="ing-nginx frontend dbs das2go httpsgo couchdb reqmgr httpsgo reqmon workqueue tfaas crabcache crabserver dqmgui dmwmmon"
+    pkgs="ing-nginx frontend dbs das2go httpsgo couchdb reqmgr2 httpsgo reqmon workqueue tfaas crabcache crabserver dqmgui dmwmmon"
 
     echo "### CREATE ACTION ###"
     echo "+++ Will install the following services: $pkgs"
