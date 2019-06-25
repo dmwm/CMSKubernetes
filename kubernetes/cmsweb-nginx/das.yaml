@@ -1,0 +1,76 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: das
+spec:
+  selector:
+    app: das
+  ports:
+    - port: 8217
+      targetPort: 8217
+      name: das
+    - port: 18217
+      targetPort: 18217
+      name: das-mon
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: das
+  name: das
+spec:
+  selector:
+    matchLabels:
+      app: das
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: das
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: cmssw/das
+        name: das
+#         tty: true
+#         stdin: true
+#         lifecycle:
+#           postStart:
+#             exec:
+#               command:
+#               - bash
+#               - -c
+#               - sudo chmod 0400 /etc/secrets/server.key /etc/secrets/robotkey.pem
+        ports:
+        - containerPort: 8217
+          protocol: TCP
+        volumeMounts:
+        - name: secrets
+          mountPath: /etc/secrets
+          defaultMode: 256
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+#       livenessProbe:
+#         httpGet:
+#           path: /das/status
+#           port: 8217
+#         initialDelaySeconds: 3
+#         periodSeconds: 3
+      volumes:
+      - name: secrets
+        secret:
+          secretName: das-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File
