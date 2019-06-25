@@ -1,12 +1,22 @@
 #!/bin/bash
-##H Usage: deploy.sh ACTION
+##H Usage: deploy.sh ACTION CONFIGURATION_AREA CERTIFICATES_AREA
 ##H
 ##H Available actions:
 ##H   help       show this help
 ##H   cleanup    cleanup services
 ##H   create     create services
-##H   secrets    secrets services
+##H   secrets    create secrets files
 ##H
+
+usage="Usage: deploy.sh ACTION CONFIGURATION_AREA CERTIFICATES_AREA"
+if [ $# -ne 3 ]; then
+    echo $usage
+    exit 1
+fi
+if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ]; then
+    echo $usage
+    exit 1
+fi
 
 cluster=cmsweb
 host=`openstack --os-project-name "CMS Webtools Mig" coe cluster show $cluster | grep node_addresses | awk '{print $4}' | sed -e "s,\[u',,g" -e "s,'\],,g"`
@@ -78,53 +88,108 @@ check()
 
 secrets()
 {
+    # cmsweb configuration area
+    conf=$1
+    echo "+++ configuration: $conf"
+    certificates=$2
+    echo "+++ certificates : $certificates"
+
     # adjust as necessary
-    user_crt=/afs/cern.ch/user/v/valya/.globus/usercert.pem
-    robot_key=/afs/cern.ch/user/v/valya/private/certificates/robotkey.pem
-    robot_crt=/afs/cern.ch/user/v/valya/private/certificates/robotcert.pem
-    server_key=/afs/cern.ch/user/v/valya/private/certificates/server.key
-    server_crt=/afs/cern.ch/user/v/valya/private/certificates/server.crt
-    cmsweb_key=/afs/cern.ch/user/v/valya/private/certificates/cmsweb-hostkey.pem
-    cmsweb_crt=/afs/cern.ch/user/v/valya/private/certificates/cmsweb-hostcert.pem
-    dbfile=/afs/cern.ch/user/v/valya/private/dbfile
-    dbs_secret=/afs/cern.ch/user/v/valya/private/DBSSecrets.py
-    confdb_secret=/afs/cern.ch/user/v/valya/private/confdb_secret.json
-    phedex_secret=/afs/cern.ch/user/v/valya/private/phedex_secret.json
-    sitedb_secret=/afs/cern.ch/user/v/valya/private/sitedb_secret.json
+    robot_key=$certificates/robotkey.pem
+    robot_crt=$certificates/robotcert.pem
+    cmsweb_key=$certificates/cmsweb-hostkey.pem
+    cmsweb_crt=$certificates/cmsweb-hostcert.pem
+#    dbfile=/afs/cern.ch/user/v/valya/private/dbfile
+#    dbs_secret=$conf/dbs/DBSSecrets.py
+#    confdb_secret=$conf/confdb/confdb_secret.json
+#    phedex_secret=$conf/phedex/phedex_secret.json
+#    sitedb_secret=$conf/sitedb/sitedb_secret.json
 
     echo "+++ generate hmac secret"
     hmac=$PWD/hmac.random
     perl -e 'open(R, "< /dev/urandom") or die; sysread(R, $K, 20) or die; print $K' > $hmac
 
+    # create secret files for deployment, they are based on
+    # - robot key (pem file)
+    # - robot certificate (pem file)
+    # - cmsweb hostkey (pem file)
+    # - cmsweb hostcert (pem file)
+    # - hmac secret file
+    # - configuration files from service configuration area
     echo "+++ generate secrets"
-    dbs_config=dbsconfig.json
-    das_config=dasconfig.json
-    tfaasconfig=tfaas-config.json
-    httpsgo_config=httpsgoconfig.json
-    ./make_ing-nginx_secret.sh $cmsweb_key $cmsweb_crt
-    ./make_acdcserver_secret.sh $robot_key $robot_crt $hmac
-    ./make_das2go_secret.sh $robot_key $robot_crt $hmac $das_config
-    ./make_dbs_secret.sh $robot_key $robot_crt $hmac $dbs_secret
-    ./make_dqmgui_secret.sh $robot_key $robot_crt $hmac
-    ./make_frontend_secret.sh $robot_key $robot_crt $hmac $cmsweb_key $cmsweb_crt
-    ./make_couchdb_secret.sh $robot_key $robot_crt $hmac
-    ./make_reqmgr2_secret.sh $robot_key $robot_crt $hmac
-    ./make_reqmgr2ms_secret.sh $robot_key $robot_crt $hmac
-    ./make_reqmon_secret.sh $robot_key $robot_crt $hmac
-    ./make_workqueue_secret.sh $robot_key $robot_crt $hmac
-    ./make_crabserver_secret.sh $robot_key $robot_crt $hmac
-    ./make_crabcache_secret.sh $robot_key $robot_crt $hmac
-    ./make_tfaas_secret.sh $robot_key $robot_crt $hmac $tfaasconfig
-    ./make_exporters_secret.sh $robot_key $robot_crt
-    ./make_httpsgo_secret.sh $httpsgo_config
-    ./make_dbs2go_secret.sh $robot_key $robot_crt $hmac $dbs_config $dbfile
-    ./make_dmwmmon_secret.sh $robot_key $robot_crt $hmac
-    ./make_confdb_secret.sh $robot_key $robot_crt $hmac $confdb_secret
-    ./make_alertsconllector_secret.sh $robot_key $robot_crt $hmac
-    ./make_phedex_secret.sh $robot_key $robot_crt $hmac $phedex_secret
-    ./make_sitedb_secret.sh $robot_key $robot_crt $hmac $sitedb_secret
-    ./make_dbsmig_secret.sh $robot_key $robot_crt $hmac $dbs_secret
-    ./make_dqmgui_secret.sh $robot_key $robot_crt $hmac
+    local rkey=`cat $robot_key | base64 | awk '{ORS=""; print $0}'`
+    local rcert=`cat $robot_crt | base64 | awk '{ORS=""; print $0}'`
+    local hhmac=`cat $hmac | base64 | awk '{ORS=""; print $0}'`
+    for sdir in $conf/*; do
+        srv=$(basename "$sdir")
+        echo "+++ generate secrets for $srv"
+        local secrets=""
+        for entry in $sdir/*; do
+            echo "+++ $entry"
+            fname=$(basename "$entry")
+            secret=`cat $entry | base64 | awk '{ORS=""; print $0}'`
+            if [ -n "$secret" ]; then
+                secrets="$secrets"$'\n'"  $fname: $secret"
+            fi
+        done
+        cat > ${srv}-secrets.yaml << EOF
+apiVersion: v1
+data:
+  robotcert.pem: $rcert
+  robotkey.pem: $rkey
+  hmac: $hhmac
+$secrets
+kind: Secret
+metadata:
+  name: ${srv}-secrets
+  namespace: default
+  selfLink: /api/v1/namespaces/default/secrets/${srv}-secrets
+type: Opaque
+EOF
+    done
+    local skey=`cat $cmsweb_key | base64 | awk '{ORS=""; print $0}'`
+    local cert=`cat $cmsweb_crt | base64 | awk '{ORS=""; print $0}'`
+    cat > ing-secrets.yaml << EOF
+apiVersion: v1
+data:
+  tls.crt: $cert
+  tls.key: $skey
+kind: Secret
+metadata:
+  name: ing-secrets
+  namespace: default
+  selfLink: /api/v1/namespaces/default/secrets/ing-secrets
+type: Opaque
+EOF
+
+#    dbs_config=dbsconfig.json
+#    das_config=dasconfig.json
+#    tfaasconfig=tfaas-config.json
+#    httpsgo_config=httpsgoconfig.json
+#    ./make_ing-nginx_secret.sh $cmsweb_key $cmsweb_crt
+#    ./make_acdcserver_secret.sh $robot_key $robot_crt $hmac
+#    ./make_das2go_secret.sh $robot_key $robot_crt $hmac $das_config
+#    ./make_dbs_secret.sh $robot_key $robot_crt $hmac $dbs_secret
+#    ./make_dqmgui_secret.sh $robot_key $robot_crt $hmac
+#    ./make_frontend_secret.sh $robot_key $robot_crt $hmac $cmsweb_key $cmsweb_crt
+#    ./make_couchdb_secret.sh $robot_key $robot_crt $hmac
+#    ./make_reqmgr2_secret.sh $robot_key $robot_crt $hmac
+#    ./make_reqmgr2ms_secret.sh $robot_key $robot_crt $hmac
+#    ./make_reqmon_secret.sh $robot_key $robot_crt $hmac
+#    ./make_workqueue_secret.sh $robot_key $robot_crt $hmac
+#    ./make_crabserver_secret.sh $robot_key $robot_crt $hmac
+#    ./make_crabcache_secret.sh $robot_key $robot_crt $hmac
+#    ./make_tfaas_secret.sh $robot_key $robot_crt $hmac $tfaasconfig
+#    ./make_exporters_secret.sh $robot_key $robot_crt
+#    ./make_httpsgo_secret.sh $httpsgo_config
+#    ./make_dbs2go_secret.sh $robot_key $robot_crt $hmac $dbs_config $dbfile
+#    ./make_dmwmmon_secret.sh $robot_key $robot_crt $hmac
+#    ./make_confdb_secret.sh $robot_key $robot_crt $hmac $confdb_secret
+#    ./make_alertsconllector_secret.sh $robot_key $robot_crt $hmac
+#    ./make_phedex_secret.sh $robot_key $robot_crt $hmac $phedex_secret
+#    ./make_sitedb_secret.sh $robot_key $robot_crt $hmac $sitedb_secret
+#    ./make_dbsmig_secret.sh $robot_key $robot_crt $hmac $dbs_secret
+#    ./make_dqmgui_secret.sh $robot_key $robot_crt $hmac
 
     ls -1 *secrets.yaml
 
@@ -152,14 +217,14 @@ secrets()
 create()
 {
     # adjust as necessary
-    pkgs="ing-nginx frontend dbs das2go httpsgo couchdb reqmgr2 httpsgo reqmon workqueue tfaas crabcache crabserver dqmgui dmwmmon"
+    pkgs="ing-nginx frontend dbs das httpsgo couchdb reqmgr2 httpsgo reqmon workqueue tfaas crabcache crabserver dqmgui dmwmmon"
 
     echo "### CREATE ACTION ###"
-    echo "+++ Will install the following services: $pkgs"
+    echo "+++ install services: $pkgs"
 
     echo "### DEPLOY SECRETS ###"
     # call secrets function
-    secrets
+    secrets $1 $2
 
     for p in $pkgs; do
         echo "+++ apply secrets: $p-secrets.yaml"
@@ -215,6 +280,17 @@ create()
     echo "ssh -S none -L 30000:$kubehost:30000 $USER@lxplus.cern.ch"
 }
 
+if [ -z "$2" ]; then
+    echo "Please provide cmsweb configuration area to use"
+    exit 1
+fi
+conf=$2
+if [ -z "$3" ]; then
+    echo "Please provide certificates area to use"
+    exit 1
+fi
+certificates=$3
+
 # Main routine, perform action requested on command line.
 case ${1:-status} in
   cleanup )
@@ -222,11 +298,11 @@ case ${1:-status} in
     ;;
 
   create )
-    create
+    create $conf $certificates
     ;;
 
   secrets )
-    secrets
+    secrets $conf $certificates
     ;;
 
   check )
