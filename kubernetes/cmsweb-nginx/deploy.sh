@@ -217,7 +217,7 @@ EOF
 create()
 {
     # adjust as necessary
-    pkgs="ing-nginx frontend dbs das httpsgo couchdb reqmgr2 httpsgo reqmon workqueue tfaas crabcache crabserver dqmgui dmwmmon"
+    pkgs="ing-nginx frontend dbs das couchdb reqmgr2 reqmon workqueue tfaas crabcache crabserver dqmgui dmwmmon"
 
     echo "### CREATE ACTION ###"
     echo "+++ install services: $pkgs"
