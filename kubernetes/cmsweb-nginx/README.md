@@ -6,10 +6,12 @@ To create cmsweb app on kubernetes cluster please follow these steps:
 
 ```
 # create new cluster
-openstack --os-project-name "CMS Webtools Mig" coe cluster create cmsweb --keypair cloud --cluster-template kubernetes-1.13.3-1 --labels cern_enabled=True,kube_tag=v1.13.3-12,kube_csi_enabled=True,kube_csi_version=v0.3.2,container_infra_prefix=gitlab-registry.cern.ch/cloud/atomic-system-containers/,cvmfs_tag=qa,ceph_csi_enabled=True,flannel_backend=vxlan,ingress_controller=nginx,cern_tag=qa
+openstack --os-project-name "CMS Webtools Mig" coe cluster create cmsweb --keypair cloud --cluster-template kubernetes-1.13.3-1 --labels cern_enabled=True,kube_tag=v1.13.3-12,kube_csi_enabled=True,kube_csi_version=v0.3.2,container_infra_prefix=gitlab-registry.cern.ch/cloud/atomic-system-containers/,cvmfs_tag=qa,ceph_csi_enabled=True,flannel_backend=vxlan,ingress_controller=nginx,cern_tag=qa,tiller_enabled=true
 
 # create new cluster with specific flavor and number of nodes
-openstack --os-project-name "CMS Webtools Mig" coe cluster create cmsweb --keypair cloud --cluster-template kubernetes-1.13.3-1 --labels cern_enabled=True,kube_tag=v1.13.3-12,kube_csi_enabled=True,kube_csi_version=v0.3.2,container_infra_prefix=gitlab-registry.cern.ch/cloud/atomic-system-containers/,cvmfs_tag=qa,ceph_csi_enabled=True,flannel_backend=vxlan,ingress_controller=nginx,cern_tag=qa --flavor m2.2xlarge --node-count 2
+openstack --os-project-name "CMS Webtools Mig" coe cluster create cmsweb --keypair cloud --cluster-template kubernetes-1.13.3-1 --labels cern_enabled=True,kube_tag=v1.13.3-12,kube_csi_enabled=True,kube_csi_version=v0.3.2,container_infra_prefix=gitlab-registry.cern.ch/cloud/atomic-system-containers/,cvmfs_tag=qa,ceph_csi_enabled=True,flannel_backend=vxlan,ingress_controller=nginx,cern_tag=qa,tiller_enabled=true --flavor m2.2xlarge --node-count 2
+
+openstack --os-project-name "CMS Webtools Mig" coe cluster create cmsweb --keypair cloud --cluster-template kubernetes-1.14.1-1 --labels cern_enabled=True,kube_tag=v1.14.1,kube_csi_enabled=True,kube_csi_version=v0.3.2,container_infra_prefix=gitlab-registry.cern.ch/cloud/atomic-system-containers/,cvmfs_tag=qa,ceph_csi_enabled=True,flannel_backend=vxlan,ingress_controller=nginx,cern_tag=qa,tiller_enabled=true,manila_enabled=True,manila_version=v0.3.0,heat_container_agent_tag=stein-dev-1 --flavor m2.2xlarge --node-count 2
 ```
 
 You will need to wait once cluster is created. You may verify its existence
@@ -17,6 +19,13 @@ with this command:
 ```
 openstack --os-project-name "CMS Webtools Mig" coe cluster list
 # it should have CREATE_COMPLETE status
+```
+
+We can also create an additional volume, e.g. to store our cmsweb logs, via the
+following command:
+```
+openstack --os-project-name "CMS Webtools Mig" volume create cmsweb_logs --size 50
+openstack --os-project-name "CMS Webtools Mig" volume list
 ```
 
 Once cluster is created we need to perform one-time operation to get pem files
