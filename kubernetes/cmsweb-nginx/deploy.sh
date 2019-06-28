@@ -8,14 +8,30 @@
 ##H   secrets    create secrets files
 ##H
 
-usage="Usage: deploy.sh ACTION CONFIGURATION_AREA CERTIFICATES_AREA"
-if [ $# -ne 3 ]; then
+# define help
+usage="Usage: deploy.sh ACTION <CONFIGURATION_AREA> <CERTIFICATES_AREA>"
+if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ]; then
     echo $usage
     exit 1
 fi
-if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ]; then
-    echo $usage
-    exit 1
+
+# for create/secrets actions check if conf/cert areas are provided
+if [ "$1" == "create" ] || [ "$1" == "secrets" ]; then
+    if [ $# -ne 3 ]; then
+        echo $usage
+        exit 1
+    fi
+
+    if [ -z "$2" ]; then
+        echo "Please provide cmsweb configuration area to use"
+        exit 1
+    fi
+    conf=$2
+    if [ -z "$3" ]; then
+        echo "Please provide certificates area to use"
+        exit 1
+    fi
+    certificates=$3
 fi
 
 cluster=cmsweb
@@ -99,11 +115,6 @@ secrets()
     robot_crt=$certificates/robotcert.pem
     cmsweb_key=$certificates/cmsweb-hostkey.pem
     cmsweb_crt=$certificates/cmsweb-hostcert.pem
-#    dbfile=/afs/cern.ch/user/v/valya/private/dbfile
-#    dbs_secret=$conf/dbs/DBSSecrets.py
-#    confdb_secret=$conf/confdb/confdb_secret.json
-#    phedex_secret=$conf/phedex/phedex_secret.json
-#    sitedb_secret=$conf/sitedb/sitedb_secret.json
 
     echo "+++ generate hmac secret"
     hmac=$PWD/hmac.random
@@ -120,6 +131,7 @@ secrets()
     local rkey=`cat $robot_key | base64 | awk '{ORS=""; print $0}'`
     local rcert=`cat $robot_crt | base64 | awk '{ORS=""; print $0}'`
     local hhmac=`cat $hmac | base64 | awk '{ORS=""; print $0}'`
+    # loop over service directories in configration area and create k8s secrets
     for sdir in $conf/*; do
         srv=$(basename "$sdir")
         echo "+++ generate secrets for $srv"
@@ -147,6 +159,8 @@ metadata:
 type: Opaque
 EOF
     done
+
+    # create ingress secrets file
     local skey=`cat $cmsweb_key | base64 | awk '{ORS=""; print $0}'`
     local cert=`cat $cmsweb_crt | base64 | awk '{ORS=""; print $0}'`
     cat > ing-secrets.yaml << EOF
@@ -162,35 +176,7 @@ metadata:
 type: Opaque
 EOF
 
-#    dbs_config=dbsconfig.json
-#    das_config=dasconfig.json
-#    tfaasconfig=tfaas-config.json
-#    httpsgo_config=httpsgoconfig.json
-#    ./make_ing-nginx_secret.sh $cmsweb_key $cmsweb_crt
-#    ./make_acdcserver_secret.sh $robot_key $robot_crt $hmac
-#    ./make_das2go_secret.sh $robot_key $robot_crt $hmac $das_config
-#    ./make_dbs_secret.sh $robot_key $robot_crt $hmac $dbs_secret
-#    ./make_dqmgui_secret.sh $robot_key $robot_crt $hmac
-#    ./make_frontend_secret.sh $robot_key $robot_crt $hmac $cmsweb_key $cmsweb_crt
-#    ./make_couchdb_secret.sh $robot_key $robot_crt $hmac
-#    ./make_reqmgr2_secret.sh $robot_key $robot_crt $hmac
-#    ./make_reqmgr2ms_secret.sh $robot_key $robot_crt $hmac
-#    ./make_reqmon_secret.sh $robot_key $robot_crt $hmac
-#    ./make_workqueue_secret.sh $robot_key $robot_crt $hmac
-#    ./make_crabserver_secret.sh $robot_key $robot_crt $hmac
-#    ./make_crabcache_secret.sh $robot_key $robot_crt $hmac
-#    ./make_tfaas_secret.sh $robot_key $robot_crt $hmac $tfaasconfig
-#    ./make_exporters_secret.sh $robot_key $robot_crt
-#    ./make_httpsgo_secret.sh $httpsgo_config
-#    ./make_dbs2go_secret.sh $robot_key $robot_crt $hmac $dbs_config $dbfile
-#    ./make_dmwmmon_secret.sh $robot_key $robot_crt $hmac
-#    ./make_confdb_secret.sh $robot_key $robot_crt $hmac $confdb_secret
-#    ./make_alertsconllector_secret.sh $robot_key $robot_crt $hmac
-#    ./make_phedex_secret.sh $robot_key $robot_crt $hmac $phedex_secret
-#    ./make_sitedb_secret.sh $robot_key $robot_crt $hmac $sitedb_secret
-#    ./make_dbsmig_secret.sh $robot_key $robot_crt $hmac $dbs_secret
-#    ./make_dqmgui_secret.sh $robot_key $robot_crt $hmac
-
+    # list all secrets files we created
     ls -1 *secrets.yaml
 
     # use one of the option below
@@ -218,6 +204,7 @@ create()
 {
     # adjust as necessary
     pkgs="ing-nginx frontend dbs das couchdb reqmgr2 reqmon workqueue tfaas crabcache crabserver dqmgui dmwmmon"
+    pkgs="ing-nginx frontend dbs"
 
     echo "### CREATE ACTION ###"
     echo "+++ install services: $pkgs"
@@ -279,17 +266,6 @@ create()
     echo "### to access prometheus externally we should do the following:"
     echo "ssh -S none -L 30000:$kubehost:30000 $USER@lxplus.cern.ch"
 }
-
-if [ -z "$2" ]; then
-    echo "Please provide cmsweb configuration area to use"
-    exit 1
-fi
-conf=$2
-if [ -z "$3" ]; then
-    echo "Please provide certificates area to use"
-    exit 1
-fi
-certificates=$3
 
 # Main routine, perform action requested on command line.
 case ${1:-status} in
