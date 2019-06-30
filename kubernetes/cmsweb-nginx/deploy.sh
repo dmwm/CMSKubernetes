@@ -110,16 +110,43 @@ secrets()
     certificates=$2
     echo "+++ certificates : $certificates"
 
-    # adjust as necessary
+    # robot keys and cmsweb host certificates
     robot_key=$certificates/robotkey.pem
     robot_crt=$certificates/robotcert.pem
     cmsweb_key=$certificates/cmsweb-hostkey.pem
     cmsweb_crt=$certificates/cmsweb-hostcert.pem
 
+    tls_key=/tmp/$USER/tls.key
+    tls_crt=/tmp/$USER/tls.crt
+    proxy=/tmp/$USER/proxy
+
+    # clean-up if these files exists
+    for fname in $tls_key $tls_crt $proxy; do
+        if [ -f $fname ]; then
+            rm $fname
+        fi
+    done
+
+    # for ingress controller we need tls.key/tls.crt
+    ln -s $cmsweb_key /$tls_key
+    ln -s $cmsweb_key /$tls_crt
+
     echo "+++ generate hmac secret"
-    hmac=$PWD/hmac.random
+    hmac=/tmp/$USER/hmac
     perl -e 'open(R, "< /dev/urandom") or die; sysread(R, $K, 20) or die; print $K' > $hmac
 
+    # create proxy secrets
+    voms-proxy-init -voms cms -rfc \
+        --key $robot_key --cert $robot_crt --out $proxy
+    if [ -f $proxy ]; then
+        kubectl create secret generic proxy-secrets \
+            --from-file=$robot_key --from-file=$robot_crt \
+            --from-file=proxy --dry-run -o yaml | \
+            kubectl apply --validate=false -f -
+        rm $proxy
+    fi
+
+    echo "+++ generate secrets"
     # create secret files for deployment, they are based on
     # - robot key (pem file)
     # - robot certificate (pem file)
@@ -127,57 +154,28 @@ secrets()
     # - cmsweb hostcert (pem file)
     # - hmac secret file
     # - configuration files from service configuration area
-    echo "+++ generate secrets"
-    local rkey=`cat $robot_key | base64 | awk '{ORS=""; print $0}'`
-    local rcert=`cat $robot_crt | base64 | awk '{ORS=""; print $0}'`
-    local hhmac=`cat $hmac | base64 | awk '{ORS=""; print $0}'`
-    # loop over service directories in configration area and create k8s secrets
     for sdir in $conf/*; do
         srv=$(basename "$sdir")
-        echo "+++ generate secrets for $srv"
-        local secrets=""
-        for entry in $sdir/*; do
-            echo "+++ $entry"
-            fname=$(basename "$entry")
-            secret=`cat $entry | base64 | awk '{ORS=""; print $0}'`
-            if [ -n "$secret" ]; then
-                secrets="$secrets"$'\n'"  $fname: $secret"
-            fi
-        done
-        cat > ${srv}-secrets.yaml << EOF
-apiVersion: v1
-data:
-  robotcert.pem: $rcert
-  robotkey.pem: $rkey
-  hmac: $hhmac
-$secrets
-kind: Secret
-metadata:
-  name: ${srv}-secrets
-  namespace: default
-  selfLink: /api/v1/namespaces/default/secrets/${srv}-secrets
-type: Opaque
-EOF
+        # the underscrore is not allowed in secert names
+        srv=`echo $srv | sed -e "s,_,,g"`
+        local files=""
+        if [ -n "`ls $sdir`" ]; then
+            for fname in $sdir/*; do
+                files="$files --from-file=$fname"
+            done
+        fi
+        kubectl create secret generic ${srv}-secrets \
+            --from-file=$robot_key --from-file=$robot_crt \
+            --from-file=$hmac \
+            $files --dry-run -o yaml | \
+            kubectl apply --validate=false -f -
     done
 
-    # create ingress secrets file
-    local skey=`cat $cmsweb_key | base64 | awk '{ORS=""; print $0}'`
-    local cert=`cat $cmsweb_crt | base64 | awk '{ORS=""; print $0}'`
-    cat > ing-secrets.yaml << EOF
-apiVersion: v1
-data:
-  tls.crt: $cert
-  tls.key: $skey
-kind: Secret
-metadata:
-  name: ing-secrets
-  namespace: default
-  selfLink: /api/v1/namespaces/default/secrets/ing-secrets
-type: Opaque
-EOF
-
-    # list all secrets files we created
-    ls -1 *secrets.yaml
+    # create ingress secrets file, it requires tls.key/tls.crt files
+    kubectl create secret generic ing-secrets \
+        --from-file=$tls_key --from-file=$tls_crt --dry-run -o yaml | \
+        kubectl apply --validate=false -f -
+    rm $hmac $tls_key $tls_crt
 
     # use one of the option below
     # generate tls.key/tls.crt for custom CA and openssl config
@@ -198,13 +196,18 @@ EOF
     echo "+++ create cluster tls secret from key=$cmsweb_key, cert=$cmsweb_crt"
     kubectl create secret tls cluster-tls-cert --key=$cmsweb_key --cert=$cmsweb_crt
 
+    echo
+    echo "+++ list sercres and configmap"
+    kubectl get secrets
+    kubectl -n kube-system get secrets
+
 }
 
 create()
 {
     # adjust as necessary
     pkgs="ing-nginx frontend dbs das couchdb reqmgr2 reqmon workqueue tfaas crabcache crabserver dqmgui dmwmmon"
-    pkgs="ing-nginx frontend dbs"
+    pkgs="ing-nginx proxy-cron frontend dbs"
 
     echo "### CREATE ACTION ###"
     echo "+++ install services: $pkgs"
@@ -213,18 +216,8 @@ create()
     # call secrets function
     secrets $1 $2
 
-    for p in $pkgs; do
-        echo "+++ apply secrets: $p-secrets.yaml"
-        if [ -f ${p}-secrets.yaml ]; then
-            kubectl apply -f ${p}-secrets.yaml --validate=false
-        fi
-    done
-    rm *secrets.yaml $hmac
-
     echo
-    echo "+++ list sercres and configmap"
-    kubectl get secrets
-    kubectl -n kube-system get secrets
+    echo "+++ list configmap"
     kubectl -n kube-system get configmap
 
     echo
