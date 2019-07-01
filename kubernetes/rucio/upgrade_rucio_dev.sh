@@ -13,7 +13,7 @@ helm upgrade --recreate-pods --values cms-rucio-common.yaml,cms-rucio-daemons.ya
 helm upgrade --recreate-pods --values cms-rucio-common.yaml,cms-rucio-webui.yaml,${PREFIX}-rucio-webui.yaml,${PREFIX}-db.yaml $UI_NAME $REPO/rucio-ui
 
 # statsd exporter to prometheus
-kubectl apply -f statsd-exporter.yaml
+kubectl apply -f dev-statsd-exporter.yaml
 
 # Filebeat and logstash
 

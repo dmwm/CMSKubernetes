@@ -17,7 +17,7 @@ helm install --name $DAEMON_NAME --values cms-rucio-common.yaml,cms-rucio-daemon
 helm install --name $UI_NAME --values cms-rucio-common.yaml,cms-rucio-webui.yaml,dev-rucio-webui.yaml,dev-db.yaml,dev-release.yaml $REPO/rucio-ui
 
 # statsd exporter to prometheus
-kubectl apply -f statsd-exporter.yaml
+kubectl apply -f dev-statsd-exporter.yaml
 
 # Filebeat and logstash
 helm install --name logstash --values cms-rucio-logstash.yml,dev-logstash-filter.yaml stable/logstash
