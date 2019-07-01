@@ -29,7 +29,6 @@ configMaps:
     LOG_UPDATES = False
     LOG_CREATES = False
     LOG_CACHE_HITS = False
-    LOG_CACHE_QUEUE_SORTS = True
     CACHE_WRITE_STRATEGY = sorted
     WHISPER_AUTOFLUSH = False
     CARBON_METRIC_INTERVAL = 10

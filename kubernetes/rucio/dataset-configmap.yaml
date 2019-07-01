@@ -240,5 +240,6 @@ data:
     #        - '\S+/BeamCommissioning09\S+'
     #        - '\S+/BeamCommissioning08\S+'
     #    run: False
+    #    rse: T1_FR_CCIN2P3_Tape
     #T1_UK_RAL_Disk:
     #    pool: 10
