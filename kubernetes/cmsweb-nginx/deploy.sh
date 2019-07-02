@@ -128,7 +128,6 @@ secrets()
         --key $robot_key --cert $robot_crt --out $proxy
     if [ -f $proxy ]; then
         kubectl create secret generic proxy-secrets \
-            --from-file=$robot_key --from-file=$robot_crt \
             --from-file=$proxy --dry-run -o yaml | \
             kubectl apply --validate=false -f -
         rm $proxy
