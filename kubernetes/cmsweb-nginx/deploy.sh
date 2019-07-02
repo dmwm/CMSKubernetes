@@ -76,27 +76,15 @@ cleanup()
 check()
 {
     echo
-    for ns in "monitoring" "kube-system"; do
-        echo
-        echo "*** check pods in $ns namespace"
-        kubectl get pods -n $ns
-        echo
-        echo "*** check services in $ns namesapce"
-        kubectl get svc -n $ns
-        echo
-        echo "*** check pods in $ns namespace"
-        kubectl get secrets -n $ns
-    done
-
-    echo
     echo "*** check pods"
-    kubectl get pods
+    kubectl get pods --all-namespaces
     echo
     echo "*** check services"
-    kubectl get svc
+    kubectl get svc --all-namespaces
     echo
     echo "*** check secrets"
-    kubectl get secrets
+    kubectl get secrets --all-namespaces
+    echo
     echo "*** check ingress"
     kubectl get ing
 
