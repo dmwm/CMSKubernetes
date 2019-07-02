@@ -194,7 +194,7 @@ create()
 {
     # adjust as necessary
     pkgs="ing-nginx frontend dbs das couchdb reqmgr2 reqmon workqueue tfaas crabcache crabserver dqmgui dmwmmon"
-    pkgs="ing-nginx proxy-cron frontend dbs"
+    pkgs="ing-nginx proxy-account proxy-cron frontend dbs"
 
     echo "### CREATE ACTION ###"
     echo "+++ install services: $pkgs"
