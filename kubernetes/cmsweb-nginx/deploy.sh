@@ -123,6 +123,12 @@ secrets()
     hmac=/tmp/$USER/hmac
     perl -e 'open(R, "< /dev/urandom") or die; sysread(R, $K, 20) or die; print $K' > $hmac
 
+    # create secrets with our robot certificates
+    kubectl create secret generic robot-secrets \
+        --from-file=$robot_key --from-file=$robot_crt \
+        $files --dry-run -o yaml | \
+        kubectl apply --validate=false -f -
+
     # create proxy secrets
     voms-proxy-init -voms cms -rfc \
         --key $robot_key --cert $robot_crt --out $proxy
@@ -133,7 +139,7 @@ secrets()
         rm $proxy
     fi
 
-    echo "+++ generate secrets"
+    echo "+++ generate cmsweb service secrets"
     # create secret files for deployment, they are based on
     # - robot key (pem file)
     # - robot certificate (pem file)
