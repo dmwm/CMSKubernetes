@@ -12,6 +12,20 @@ openstack --os-project-name "CMS Webtools Mig" coe cluster create cmsweb --keypa
 openstack --os-project-name "CMS Webtools Mig" coe cluster create cmsweb --keypair cloud --cluster-template kubernetes-1.13.3-1 --labels cern_enabled=True,kube_tag=v1.13.3-12,kube_csi_enabled=True,kube_csi_version=v0.3.2,container_infra_prefix=gitlab-registry.cern.ch/cloud/atomic-system-containers/,cvmfs_tag=qa,ceph_csi_enabled=True,flannel_backend=vxlan,ingress_controller=nginx,cern_tag=qa,tiller_enabled=true --flavor m2.2xlarge --node-count 2
 
 openstack --os-project-name "CMS Webtools Mig" coe cluster create cmsweb --keypair cloud --cluster-template kubernetes-1.14.1-1 --labels cern_enabled=True,kube_tag=v1.14.1,kube_csi_enabled=True,kube_csi_version=v0.3.2,container_infra_prefix=gitlab-registry.cern.ch/cloud/atomic-system-containers/,cvmfs_tag=qa,ceph_csi_enabled=True,flannel_backend=vxlan,ingress_controller=nginx,cern_tag=qa,tiller_enabled=true,manila_enabled=True,manila_version=v0.3.0,heat_container_agent_tag=stein-dev-1 --flavor m2.2xlarge --node-count 2
+
+openstack --os-project-name "CMS Webtools Mig" coe cluster create cmsweb --keypair cloud --cluster-template kubernetes-1.13.3-2 --labels cern_enabled=True,kube_tag=v1.13.3-12,kube_csi_enabled=True,kube_csi_version=v0.3.2,container_infra_prefix=gitlab-registry.cern.ch/cloud/atomic-system-containers/,cvmfs_tag=qa,ceph_csi_enabled=True,flannel_backend=vxlan,ingress_controller=nginx,cern_tag=qa,tiller_enabled=true,manila_enabled=True,manila_version=v0.3.0,heat_container_agent_tag=stein-dev-1 --flavor m2.2xlarge --node-count 2
+
+# large template
+openstack coe cluster template create cmsweb-template-2xlarge --labels influx_grafana_dashboard_enabled="true" --labels ingress_controller="nginx" --labels tiller_enabled=true --labels kube_csi_enabled="true" --labels kube_csi_version="v0.3.2" --labels kube_tag="v1.13.3-12" --labels container_infra_prefix="gitlab-registry.cern.ch/cloud/atomic-system-containers/" --labels manila_enabled="true" --labels cgroup_driver="cgroupfs" --labels cephfs_csi_enabled="true" --labels cvmfs_csi_version="v0.3.0" --labels admission_control_list="NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,DefaultTolerationSeconds,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority" --labels flannel_backend="vxlan" --labels manila_version="v0.3.0" --labels cvmfs_csi_enabled="true" --labels cvmfs_tag="qa" --labels cephfs_csi_version="v0.3.0" --labels cern_enabled="true" --coe kubernetes --image 26666ca8-bda9-4356-982f-4a92845ec361 --external-network CERN_NETWORK --fixed-network CERN_NETWORK --network-driver flannel --dns-nameserver 137.138.17.5 --flavor m2.2xlarge --master-flavor m2.medium --docker-storage-driver overlay2 --server-type vm
+
+# create new template
+openstack coe cluster template create cmsweb-template-medium --labels influx_grafana_dashboard_enabled="true" --labels ingress_controller="nginx" --labels tiller_enabled=true --labels kube_csi_enabled="true" --labels kube_csi_version="v0.3.2" --labels kube_tag="v1.13.3-12" --labels container_infra_prefix="gitlab-registry.cern.ch/cloud/atomic-system-containers/" --labels manila_enabled="true" --labels cgroup_driver="cgroupfs" --labels cephfs_csi_enabled="true" --labels cvmfs_csi_version="v0.3.0" --labels admission_control_list="NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,DefaultTolerationSeconds,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority" --labels flannel_backend="vxlan" --labels manila_version="v0.3.0" --labels cvmfs_csi_enabled="true" --labels cvmfs_tag="qa" --labels cephfs_csi_version="v0.3.0" --labels cern_enabled="true" --coe kubernetes --image 26666ca8-bda9-4356-982f-4a92845ec361 --external-network CERN_NETWORK --fixed-network CERN_NETWORK --network-driver flannel --dns-nameserver 137.138.17.5 --flavor m2.medium --master-flavor m2.medium --docker-storage-driver overlay2 --server-type vm
+
+# manage templates
+openstack --os-project-name "CMS Webtools Mig" coe cluster template list
+openstack --os-project-name "CMS Webtools Mig" coe cluster template delete 89073ecc-d416-452f-84a9-278612b63d1e
+openstack --os-project-name "CMS Webtools Mig" coe cluster create --keypair cloud --cluster-template cmsweb-template-2xlarge cmsweb
+
 ```
 
 You will need to wait once cluster is created. You may verify its existence
@@ -26,6 +40,22 @@ following command:
 ```
 openstack --os-project-name "CMS Webtools Mig" volume create cmsweb_logs --size 50
 openstack --os-project-name "CMS Webtools Mig" volume list
+
+# create new cephfs storage
+kubectl apply -f storage-cephfs.yaml
+# check its quota
+kubectl get pvc
+
+# delete storage
+kubectl delete -f storage-cephfs.yaml
+manila list
+manila delete <ID>
+kubectl delete pv --all
+
+# check if resources are freed
+kubectl get pvc
+manila list
+
 ```
 
 Once cluster is created we need to perform one-time operation to get pem files
