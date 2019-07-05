@@ -30,9 +30,13 @@ if [ -f /etc/secrets/hmac ]; then
     cp /etc/secrets/hmac /data/srv/state/frontend/etc/keys/authz-headers
 fi
 
-# get proxy
-/data/proxy.sh $USER
-sleep 2
+# overwrite proxy if it is present in /etc/proxy
+if [ -f /etc/proxy/proxy ]; then
+    mkdir -p /data/srv/state/frontend/proxy
+    ln -s /etc/proxy/proxy /data/srv/state/frontend/proxy/proxy.cert
+    mkdir -p /data/srv/current/auth/proxy
+    ln -s /etc/proxy/proxy /data/srv/current/auth/proxy/proxy
+fi
 
 # obtain original voms-gridmap to be used by frontend
 if [ -f /data/srv/current/auth/proxy/proxy ] && [ -f /data/srv/current/config/frontend/mkvomsmap ]; then

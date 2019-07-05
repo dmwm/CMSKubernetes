@@ -92,5 +92,8 @@ ENV PATH="${GOPATH}/src/github.com/vkuznet/cmsweb-exporters:${GOPATH}/src/github
 # setup final environment
 ENV PATH="${WDIR}/bin:${GOPATH}/bin:${PATH}"
 
+ADD print_hmac $WDIR/bin/print_hmac
+ADD proxy.sh $WDIR/bin/proxy.sh
+
 # start the setup
 WORKDIR ${WDIR}

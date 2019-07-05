@@ -44,12 +44,9 @@ RUN make
 RUN cat $WDIR/config.json | sed -e "s,GOPATH,$GOPATH,g" > dbsconfig.json
 ENV PATH="${GOPATH}/src/github.com/vkuznet/dbs2go:${GOPATH}/src/github.com/vkuznet/dbs2go/bin:${PATH}"
 
-# add proxy generation via robot certificate
-RUN echo "3 */3 * * * /data/proxy.sh $USER 2>&1 1>& /dev/null" | crontab -
 ENV X509_USER_PROXY=/data/srv/current/auth/proxy/proxy
 
 # run the service
 ADD run.sh $WDIR/run.sh
-ADD proxy.sh $WDIR/proxy.sh
 WORKDIR ${WDIR}
 CMD ["run.sh"]

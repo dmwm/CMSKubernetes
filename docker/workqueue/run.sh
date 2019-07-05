@@ -6,10 +6,12 @@ if [ -f /etc/secrets/robotkey.pem ]; then
     sudo cp /etc/secrets/robotcert.pem /data/srv/current/auth/workqueue/dmwm-service-cert.pem
 fi
 
-# overwrite proxy file with one from secrets
-if [ -f /etc/secrets/proxy ]; then
+# overwrite proxy if it is present in /etc/proxy
+if [ -f /etc/proxy/proxy ]; then
     mkdir -p /data/srv/state/workqueue/proxy
-    /bin/cp -f /etc/secrets/proxy /data/srv/state/workqueue/proxy/proxy.cert
+    ln -s /etc/proxy/proxy /data/srv/state/workqueue/proxy/proxy.cert
+    mkdir -p /data/srv/current/auth/proxy
+    ln -s /etc/proxy/proxy /data/srv/current/auth/proxy/proxy
 fi
 
 # overwrite header-auth key file with one from secrets
@@ -28,10 +30,6 @@ if [ -f /data/srv/state/couchdb/stagingarea/workqueue ]; then
     source /data/srv/current/sw/$arch/external/couchapp/$ver/etc/profile.d/init.sh
     source /data/srv/state/couchdb/stagingarea/workqueue
 fi
-
-# get proxy
-/data/proxy.sh $USER
-sleep 2
 
 # start the service
 /data/srv/current/config/workqueue/manage start 'I did read documentation'

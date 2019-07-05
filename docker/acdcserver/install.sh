@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG1902f
+VER=HG1907f
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend acdcserver"
@@ -55,6 +55,5 @@ sed -i -e "s#ServerMonitor/2.0#ServerMonitor-acdcserver#g" /data/srv/current/con
 # add proxy generation via robot certificate
 # disable workqueue/reqmon/couch on acdcserver pod
 crontab -l | egrep -v "workqueue|reqmon|couchdb|reboot" > /tmp/mycron
-echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" >> /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron

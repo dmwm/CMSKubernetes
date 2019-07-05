@@ -16,10 +16,12 @@ if [ -f /etc/secrets/DBSSecrets.py ]; then
     cp /etc/secrets/DBSSecrets.py /data/srv/current/auth/dbsmigration/DBSSecrets.py
 fi
 
-# overwrite proxy if it is present in /etc/secrets
-if [ -f /etc/secrets/proxy ]; then
+# overwrite proxy if it is present in /etc/proxy
+if [ -f /etc/proxy/proxy ]; then
     mkdir -p /data/srv/state/dbsmigration/proxy
-    /bin/cp -f /etc/secrets/proxy /data/srv/state/dbsmigration/proxy/proxy.cert
+    ln -s /etc/proxy/proxy /data/srv/state/dbsmigration/proxy/proxy.cert
+    mkdir -p /data/srv/current/auth/proxy
+    ln -s /etc/proxy/proxy /data/srv/current/auth/proxy/proxy
 fi
 
 # overwrite header-auth key file if it is present in /etc/secrets
@@ -35,10 +37,6 @@ if [ -f /etc/secrets/tnsnames.ora ] && [ -f $tfile ]; then
 elif [ -f /data/tnsnames.ora ] && [ -f $tfile ]; then
     /bin/cp -f /data/tnsnames.ora $tfile
 fi
-
-# get proxy
-/data/proxy.sh $USER
-sleep 2
 
 # start the service
 /data/srv/current/config/dbsmigration/manage setinstances 'I did read documentation'

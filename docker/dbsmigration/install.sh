@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG1902f
+VER=HG1907f
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend dbsmigration"
@@ -43,18 +43,18 @@ if [ $? -ne 0 ]; then
 fi
 
 # TMP: add patch to WMCore to lower case Cms headers
-cd $WDIR/srv/$VER/sw/$ARCH/cms/dbs3-migration/*/lib/python2.7/site-packages
-curl -ksLO https://github.com/dmwm/WMCore/pull/9112.patch
-patch -p3 < 9112.patch
+#cd $WDIR/srv/$VER/sw/$ARCH/cms/dbs3-migration/*/lib/python2.7/site-packages
+#curl -ksLO https://github.com/dmwm/WMCore/pull/9112.patch
+#patch -p3 < 9112.patch
 # end of TMP block, will be removed once we get it in WMCore condebase
 
 # replace usage of hostkey/hostcert in crontab to frontend proxy
 crontab -l | \
-    sed -e "s,/data/certs/hostcert.pem,/etc/secrets/proxy,g" \
-        -e "s,/data/certs/hostkey.pem,/etc/secrets/proxy,g" | crontab -
+    sed -e "s,/data/certs/hostcert.pem,/etc/proxy/proxy,g" \
+        -e "s,/data/certs/hostkey.pem,/etc/proxy/proxy,g" | crontab -
 
 # add proxy generation via robot certificate
+# adjust crontab
 crontab -l | egrep -v "reboot" > /tmp/mycron
-echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" >> /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron

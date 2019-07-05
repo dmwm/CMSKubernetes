@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG1902f
+VER=HG1907f
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend reqmgr2"
@@ -49,10 +49,9 @@ fi
 
 # TMP: add patch to WMCore to lower case Cms headers
 # I still need to enable pycurl in
-# /data/srv/$VER/sw/$ARCH/cms/reqmgr2/*/lib/python2.7/site-packages/WMCore/Services/Requests.py
-cd $WDIR/srv/$VER/sw/$ARCH/cms/reqmgr2/*/lib/python2.7/site-packages/
-curl -ksLO https://github.com/dmwm/WMCore/pull/9100.patch
-patch -p3 < 9100.patch
+#cd $WDIR/srv/$VER/sw/$ARCH/cms/reqmgr2/*/lib/python2.7/site-packages/
+#curl -ksLO https://github.com/dmwm/WMCore/pull/9100.patch
+#patch -p3 < 9100.patch
 # patch to not verify host in pycurl
 #curl -ksLO https://github.com/dmwm/WMCore/pull/9101.patch
 #patch -p3 < 9101.patch
@@ -78,9 +77,8 @@ done
 # Adjust ServerMonitor to be specific
 sed -i -e "s#ServerMonitor/2.0#ServerMonitor-reqmgr#g" /data/srv/current/config/admin/ServerMonitor
 
-# add proxy generation via robot certificate
+# adjust crontabs
 # disable workqueue/reqmon/couch on reqmgr pod
 crontab -l | egrep -v "workqueue|reqmon|couchdb|reboot" > /tmp/mycron
-echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" >> /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron

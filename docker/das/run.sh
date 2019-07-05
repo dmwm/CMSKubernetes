@@ -1,9 +1,11 @@
 #!/bin/bash
-# get proxy
-echo "USER=$USER"
-/data/proxy.sh $USER
-sleep 2
-ls -la /data/srv/current/auth/proxy/proxy
+# overwrite proxy if it is present in /etc/proxy
+if [ -f /etc/proxy/proxy ]; then
+    mkdir -p /data/srv/state/das/proxy
+    ln -s /etc/proxy/proxy /data/srv/state/das/proxy/proxy.cert
+    mkdir -p /data/srv/current/auth/proxy
+    ln -s /etc/proxy/proxy /data/srv/current/auth/proxy/proxy
+fi
 # start mongodb
 mongod --config $WDIR/mongodb.conf
 # upload DASMaps into MongoDB

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG1903g
+VER=HG1907f
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend frontend"
@@ -71,6 +71,6 @@ crontab -l | \
 
 # add proxy generation via robot certificate
 crontab -l > /tmp/mycron
-echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" >> /tmp/mycron
+echo "0 0 * * * sudo /usr/sbin/fetch-crl" >> /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron

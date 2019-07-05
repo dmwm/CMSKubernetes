@@ -1,8 +1,13 @@
 #!/bin/bash
-# get proxy
-echo "USER=$USER"
-/data/proxy.sh $USER
-sleep 2
+
+# overwrite proxy if it is present in /etc/proxy
+if [ -f /etc/proxy/proxy ]; then
+    mkdir -p /data/srv/state/dbs/proxy
+    ln -s /etc/proxy/proxy /data/srv/state/dbs/proxy/proxy.cert
+    mkdir -p /data/srv/current/auth/proxy
+    ln -s /etc/proxy/proxy /data/srv/current/auth/proxy/proxy
+fi
+
 # start dbs2go server
 cd $GOPATH/src/github.com/vkuznet/dbs2go
 if [ -f /etc/secrets/dbsconfig.json ]; then
