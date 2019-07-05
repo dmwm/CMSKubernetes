@@ -47,6 +47,9 @@ spec:
         - containerPort: 8217
           protocol: TCP
         volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
         - name: secrets
           mountPath: /etc/secrets
           defaultMode: 256
@@ -63,6 +66,9 @@ spec:
 #         initialDelaySeconds: 3
 #         periodSeconds: 3
       volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
       - name: secrets
         secret:
           secretName: das-secrets

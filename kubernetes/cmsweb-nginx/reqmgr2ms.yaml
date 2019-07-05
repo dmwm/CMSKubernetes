@@ -49,6 +49,9 @@ spec:
           protocol: TCP
           name: reqmgr2ms-mon
         volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
         - name: secrets
           mountPath: /etc/secrets
           defaultMode: 256
@@ -63,6 +66,9 @@ spec:
         image: busybox
         command: ['sh', '-c', 'until nslookup couchdb.default; do echo "Waiting for couchdb"; sleep 10; done;']
       volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
       - name: secrets
         secret:
           secretName: reqmgr2ms-secrets

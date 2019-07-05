@@ -62,18 +62,23 @@ spec:
           name: http-mon
 
         volumeMounts:
+#         - name: logs-pvc
+#           mountPath: /logs/frontend
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
         - name: secrets
-          mountPath: "/etc/secrets"
+          mountPath: /etc/secrets
           readOnly: true
         # mount hostcert/hostkey.pem files from the minion node
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
         - name: hostkey
           mountPath: /etc/grid-security/hostkey.pem
-        # mount certificates from the minion node
-#         - name: certificates
-#           mountPath: /etc/grid-security/certificates
       volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
       - name: secrets
         secret:
           secretName: frontend-secrets
@@ -83,32 +88,7 @@ spec:
       - name: hostkey
         hostPath:
             path: /etc/grid-security/hostkey.pem
-#       - name: certificates
-#         hostPath:
-#             path: /etc/grid-security/certificates
-
-# original working solution
-#
-#         volumeMounts:
-#         - name: secrets
-#           mountPath: /etc/secrets
-#           defaultMode: 256
-#         - name: hostkey
-#           mountPath: /etc/grid-security/hostkey.pem
-#           readOnly: true 
-#         - name: hostcert
-#           mountPath: /etc/grid-security/hostcert.pem
-#           readOnly: true 
-#       volumes:
-#       - name: secrets
-#         secret:
-#           secretName: frontend-secrets
-#       - name: hostkey
-#         hostPath:
-#             path: /etc/grid-security/hostkey.pem
-#             type: File
-#       - name: hostcert
-#         hostPath:
-#             path: /etc/grid-security/hostcert.pem
-#             type: File
-
+#       - name: logs-pvc
+#         persistentVolumeClaim:
+#           claimName: cmsweb-pvc
+#           readOnly: false

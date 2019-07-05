@@ -42,6 +42,9 @@ spec:
         - containerPort: 8083
           protocol: TCP
         volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
         - name: secrets
           mountPath: /etc/secrets
           defaultMode: 256
@@ -52,6 +55,9 @@ spec:
           mountPath: /etc/grid-security/hostcert.pem
           readOnly: true 
       volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
       - name: secrets
         secret:
           secretName: tfaas-secrets

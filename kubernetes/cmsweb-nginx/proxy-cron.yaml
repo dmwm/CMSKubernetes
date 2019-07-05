@@ -18,7 +18,7 @@ spec:
             - -c
             - echo "run proxy.sh"; ls -al ; echo "### /etc/secrets"; ls -la /etc/secrets; echo "### /tmp"; ls -al /tmp; cat /data/proxy.sh; /data/proxy.sh; echo "### /tmp"; ls -al /tmp;
             volumeMounts:
-            - name: secrets
+            - name: robot-secrets
               mountPath: /etc/secrets
               defaultMode: 256
           restartPolicy: Never

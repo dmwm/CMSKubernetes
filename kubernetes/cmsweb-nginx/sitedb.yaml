@@ -48,6 +48,9 @@ spec:
           protocol: TCP
           name: sitedb-mon
         volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
         - name: secrets
           mountPath: /etc/secrets
           defaultMode: 256
@@ -58,6 +61,9 @@ spec:
           mountPath: /etc/grid-security/hostcert.pem
           readOnly: true 
       volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
       - name: secrets
         secret:
           secretName: sitedb-secrets

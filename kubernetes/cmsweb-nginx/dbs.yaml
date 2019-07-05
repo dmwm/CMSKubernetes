@@ -72,6 +72,11 @@ spec:
           protocol: TCP
           name: dbs-mon
         volumeMounts:
+#         - name: logs-pvc
+#           mountPath: /logs/dbs
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          defaultMode: 256
         - name: secrets
           mountPath: /etc/secrets
           defaultMode: 256
@@ -82,6 +87,9 @@ spec:
           mountPath: /etc/grid-security/hostcert.pem
           readOnly: true 
       volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
       - name: secrets
         secret:
           secretName: dbs-secrets
@@ -93,3 +101,7 @@ spec:
         hostPath:
             path: /etc/grid-security/hostcert.pem
             type: File
+#       - name: logs-pvc
+#         persistentVolumeClaim:
+#           claimName: cmsweb-pvc
+#           readOnly: false
