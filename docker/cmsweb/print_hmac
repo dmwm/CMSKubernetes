@@ -1,0 +1,2 @@
+#!/bin/bash
+perl -e 'print "hmac = ", unpack("h*", <STDIN>), "\n"' < $1
