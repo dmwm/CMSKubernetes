@@ -50,6 +50,11 @@ cleanup()
     done
 
     echo
+    echo "--- delete proxy cron/account"
+    kubectl delete -f proxy-cron.yaml
+    kubectl delete -f proxy-account.yaml
+
+    echo
     echo "--- delete services"
     services=`kubectl get svc | grep -v NAME | grep -v default | awk '{print $1}'`
     for s in $services; do
@@ -199,8 +204,8 @@ secrets()
 create()
 {
     # adjust as necessary
-    pkgs="ing-nginx frontend dbs das couchdb reqmgr2 reqmon workqueue tfaas crabcache crabserver dqmgui dmwmmon"
-    pkgs="ing-nginx proxy-account proxy-cron frontend dbs"
+    pkgs="ing-nginx proxy-account proxy-cron frontend acdcserver alertscollector cmsmon confdb couchdb crabcache crabserver das dbs dbsmigration dmwmmon dqmgui exporters httpgo httpsgo phedex reqmgr2 reqmgr2ms reqmon sitedb t0_reqmon t0wmadatasvc workqueue"
+    pkgs="ing-nginx proxy-account proxy-cron frontend dbs das couchdb reqmgr2 reqmon workqueue crabcache crabserver dqmgui dmwmmon"
 
     echo "### CREATE ACTION ###"
     echo "+++ install services: $pkgs"
