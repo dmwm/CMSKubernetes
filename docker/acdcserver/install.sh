@@ -14,6 +14,17 @@ mkdir $WDIR/srv
 cd $WDIR/cfg
 git reset --hard $VER
 
+# adjust deploy script to use k8s host name
+cmsk8s_prod=${CMSK8S_PROD:-https://cmsweb.cern.ch}
+cmsk8s_prep=${CMSK8S_PREP:-https://cmsweb-testbed.cern.ch}
+cmsk8s_dev=${CMSK8S_DEV:-https://cmsweb-dev.cern.ch}
+cmsk8s_priv=${CMSK8S_PRIV:-`hostname -f`}
+sed -i -e "s,https://cmsweb.cern.ch,$cmsk8s_prod,g" \
+    -e "s,https://cmsweb-testbed.cern.ch,$cmsk8s_prep,g" \
+    -e "s,https://cmsweb-dev.cern.ch,$cmsk8s_dev,g" \
+    -e "s,https://\`hostname -f\`,$cmsk8s_priv,g" \
+    acdcserver/deploy
+
 # Deploy services
 # we do not use InstallDev script directly since we want to capture the status of
 # install step script. Therefore we call Deploy script and capture its status every step
@@ -36,6 +47,12 @@ if [ $? -ne 0 ]; then
     cat $WDIR/srv/.deploy/*-post.log
     exit 1
 fi
+
+# comment out usage of port 8443 in k8s setup
+files=`find /data/srv/$VER/sw/$ARCH -type f | xargs grep ":8443" | awk '{print $1}' | sed -e "s,:,,g" | grep py$`
+for fname in $files; do
+    sed -i -e "s,:8443,,g" $fname
+done
 
 # NOTE: we separated workqueue, reqmon, acdcserver and couchdb into individual
 # containers. In k8s cluster we need to remove monitoring of services which are

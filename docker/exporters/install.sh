@@ -14,6 +14,17 @@ mkdir $WDIR/srv
 cd $WDIR/cfg
 git reset --hard $VER
 
+# adjust deploy script to use k8s host name
+cmsk8s_prod=${CMSK8S_PROD:-https://cmsweb.cern.ch}
+cmsk8s_prep=${CMSK8S_PREP:-https://cmsweb-testbed.cern.ch}
+cmsk8s_dev=${CMSK8S_DEV:-https://cmsweb-dev.cern.ch}
+cmsk8s_priv=${CMSK8S_PRIV:-`hostname -f`}
+sed -i -e "s,https://cmsweb.cern.ch,$cmsk8s_prod,g" \
+    -e "s,https://cmsweb-testbed.cern.ch,$cmsk8s_prep,g" \
+    -e "s,https://cmsweb-dev.cern.ch,$cmsk8s_dev,g" \
+    -e "s,https://\`hostname -f\`,$cmsk8s_priv,g" \
+    exporters/deploy
+
 # Deploy services
 # we do not use InstallDev script directly since we want to capture the status of
 # install step script. Therefore we call Deploy script and capture its status every step
