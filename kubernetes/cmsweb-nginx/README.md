@@ -26,6 +26,8 @@ openstack --os-project-name "CMS Webtools Mig" coe cluster template list
 openstack --os-project-name "CMS Webtools Mig" coe cluster template delete 89073ecc-d416-452f-84a9-278612b63d1e
 openstack --os-project-name "CMS Webtools Mig" coe cluster create --keypair cloud --cluster-template cmsweb-template-2xlarge cmsweb
 
+# update cluster, to use 4 nodes
+openstack --os-project-name "CMS Webtools Mig" coe cluster update cmsweb replace node_count=4
 ```
 
 You will need to wait once cluster is created. You may verify its existence
