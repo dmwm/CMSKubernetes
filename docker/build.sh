@@ -1,8 +1,40 @@
 #!/bin/bash
-echo "prune all images"
+##H Usage: build.sh <pkgs>
+##H
+##H Available actions:
+##H   help       show this help
+##H   pkgs       quoted list of packages to build
+##H
+
+# build.sh: script to build docker images for cmsweb services
+# for each data service we can adjust which host to use via
+# CMSK8S_PROD, CMSK8S_PREP, CMSK8S_DEV, CMSK8S_PRIV environments
+# which defiles a hostname to use for cmsweb production, preproduction,
+# development and private instance on k8s cluster
+
+# define help
+usage="Usage: build.sh <pkgs>"
+if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ]; then
+    echo $usage
+    exit 1
+fi
+
+# adjust if necessary
+CMSK8S_PROD=${CMSK8S_PROD:-https://cmsweb-test.web.cern.ch}
+CMSK8S_PREP=${CMSK8S_PREP:-https://cmsweb-test.web.cern.ch}
+CMSK8S_DEV=${CMSK8S_DEV:-https://cmsweb-test.web.cern.ch}
+CMSK8S_PRIV=${CMSK8S_PRIV:-https://cmsweb-test.web.cern.ch}
+
+echo "to prune all images"
 echo "docker system prune -f -a"
 
 cmssw_pkgs="cmsweb proxy frontend exporters das dbs2go dbs couchdb reqmgr reqmgr2ms reqmon workqueue acdcserver alertscollector confdb crabserver crabcache cmsmon dmwmmon dqmgui t0_reqmon t0wmadatasvc dbsmigration phedex sitedb httpgo httpsgo tfaas"
+
+if [ $# -eq 1 ]; then
+    cmssw_pkgs="$1"
+fi
+echo "Build: $cmssw_pkgs"
+
 repo=cmssw
 for pkg in $cmssw_pkgs; do
     echo "### build $repo/$pkg"
