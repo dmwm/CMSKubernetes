@@ -11,7 +11,7 @@ spec:
       name: alertscollector
     - port: 15984
       targetPort: 15984
-      name: alertscollector-mon
+      name: alertscol-mon
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
@@ -46,7 +46,7 @@ spec:
           name: alertscollector
         - containerPort: 15984
           protocol: TCP
-          name: alertscollector-mon
+          name: alertscol-mon
         volumeMounts:
         - name: proxy-secrets
           mountPath: /etc/proxy
