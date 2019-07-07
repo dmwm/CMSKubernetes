@@ -120,9 +120,9 @@ secrets()
         fi
     done
 
-    # for ingress controller we need tls.key/tls.crt
-    ln -s $cmsweb_key /$tls_key
-    ln -s $cmsweb_key /$tls_crt
+    # for ingress controller we need tls.key/tls.crt names
+    cp $cmsweb_key $tls_key
+    cp $cmsweb_crt $tls_crt
 
     echo "+++ generate hmac secret"
     hmac=/tmp/$USER/hmac
