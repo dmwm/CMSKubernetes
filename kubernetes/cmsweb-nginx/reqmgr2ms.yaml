@@ -61,10 +61,10 @@ spec:
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
           readOnly: true 
-      initContainers:
-      - name: checkcouchdb
-        image: busybox
-        command: ['sh', '-c', 'until nslookup couchdb.default; do echo "Waiting for couchdb"; sleep 10; done;']
+#       initContainers:
+#       - name: checkcouchdb
+#         image: busybox
+#         command: ['sh', '-c', 'until nslookup couchdb.default; do echo "Waiting for couchdb"; sleep 10; done;']
       volumes:
       - name: proxy-secrets
         secret:
