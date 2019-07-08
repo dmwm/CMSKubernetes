@@ -15,10 +15,10 @@ cd $WDIR/cfg
 git reset --hard $VER
 
 # adjust deploy script to use k8s host name
-cmsk8s_prod=${CMSK8S_PROD:-https://cmsweb.cern.ch}
-cmsk8s_prep=${CMSK8S_PREP:-https://cmsweb-testbed.cern.ch}
-cmsk8s_dev=${CMSK8S_DEV:-https://cmsweb-dev.cern.ch}
-cmsk8s_priv=${CMSK8S_PRIV:-`hostname -f`}
+cmsk8s_prod=${CMSK8S:-https://cmsweb.cern.ch}
+cmsk8s_prep=${CMSK8S:-https://cmsweb-testbed.cern.ch}
+cmsk8s_dev=${CMSK8S:-https://cmsweb-dev.cern.ch}
+cmsk8s_priv=${CMSK8S:-https://cmsweb-test.web.cern.ch}
 sed -i -e "s,https://cmsweb.cern.ch,$cmsk8s_prod,g" \
     -e "s,https://cmsweb-testbed.cern.ch,$cmsk8s_prep,g" \
     -e "s,https://cmsweb-dev.cern.ch,$cmsk8s_dev,g" \
@@ -58,9 +58,9 @@ fi
 #patch -p3 < 9101.patch
 #
 # switch to use pycurl in Requests.py instead of default httplib2
-#fname=`find /data/srv/$VER/sw/$ARCH/cms/reqmgr2/ -name Requests.py`
-#sed -i -e "s#self.pycurl = idict.get('pycurl', None)#self.pycurl = True#g" $fname
-#cd $WDIR
+fname=`find /data/srv/$VER/sw/$ARCH/cms/reqmgr2/ -name Requests.py`
+sed -i -e "s#self.pycurl = idict.get('pycurl', None)#self.pycurl = True#g" $fname
+cd $WDIR
 # end of TMP block, will be removed once we get it in WMCore condebase
 
 # comment out usage of port 8443 in k8s setup

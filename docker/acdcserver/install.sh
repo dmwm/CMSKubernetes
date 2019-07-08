@@ -15,10 +15,10 @@ cd $WDIR/cfg
 git reset --hard $VER
 
 # adjust deploy script to use k8s host name
-cmsk8s_prod=${CMSK8S_PROD:-https://cmsweb.cern.ch}
-cmsk8s_prep=${CMSK8S_PREP:-https://cmsweb-testbed.cern.ch}
-cmsk8s_dev=${CMSK8S_DEV:-https://cmsweb-dev.cern.ch}
-cmsk8s_priv=${CMSK8S_PRIV:-`hostname -f`}
+cmsk8s_prod=${CMSK8S:-https://cmsweb.cern.ch}
+cmsk8s_prep=${CMSK8S:-https://cmsweb-testbed.cern.ch}
+cmsk8s_dev=${CMSK8S:-https://cmsweb-dev.cern.ch}
+cmsk8s_priv=${CMSK8S:-`hostname -f`}
 sed -i -e "s,https://cmsweb.cern.ch,$cmsk8s_prod,g" \
     -e "s,https://cmsweb-testbed.cern.ch,$cmsk8s_prep,g" \
     -e "s,https://cmsweb-dev.cern.ch,$cmsk8s_dev,g" \

@@ -20,10 +20,7 @@ if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == 
 fi
 
 # adjust if necessary
-CMSK8S_PROD=${CMSK8S_PROD:-https://cmsweb-test.web.cern.ch}
-CMSK8S_PREP=${CMSK8S_PREP:-https://cmsweb-test.web.cern.ch}
-CMSK8S_DEV=${CMSK8S_DEV:-https://cmsweb-test.web.cern.ch}
-CMSK8S_PRIV=${CMSK8S_PRIV:-https://cmsweb-test.web.cern.ch}
+CMSK8S=${CMSK8S:-https://cmsweb-test.web.cern.ch}
 
 echo "to prune all images"
 echo "docker system prune -f -a"
@@ -38,7 +35,7 @@ echo "Build: $cmssw_pkgs"
 repo=cmssw
 for pkg in $cmssw_pkgs; do
     echo "### build $repo/$pkg"
-    docker build -t $repo/$pkg $pkg
+    docker build CMSK8S=$CMSK8S -t $repo/$pkg $pkg
     echo "### existing images"
     docker images
     docker push $repo/$pkg

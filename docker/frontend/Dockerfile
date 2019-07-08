@@ -25,6 +25,10 @@ RUN chmod 0600 /data/certs/hostkey.pem
 RUN mkdir -p $WDIR
 WORKDIR ${WDIR}
 
+# pass env variable to the build
+ARG CMSK8S
+ENV CMSK8S=$CMSK8S
+
 # install
 ADD install.sh $WDIR/install.sh
 RUN $WDIR/install.sh

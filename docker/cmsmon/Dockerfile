@@ -25,6 +25,10 @@ ENV GOPATH=$WDIR/gopath
 RUN mkdir $WDIR/gopath
 ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
 
+# pass env variable to the build
+ARG CMSK8S
+ENV CMSK8S=$CMSK8S
+
 # install Go dependencies
 RUN go get github.com/sirupsen/logrus
 RUN go get github.com/shirou/gopsutil

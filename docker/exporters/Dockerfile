@@ -19,6 +19,10 @@ USER ${USER}
 RUN mkdir -p $WDIR/bin
 WORKDIR ${WDIR}
 
+# pass env variable to the build
+ARG CMSK8S
+ENV CMSK8S=$CMSK8S
+
 # install cmsweb backend which brings extra libraries, such as curl
 # we need to set them up to have proper environment
 ADD install.sh $WDIR/install.sh
