@@ -31,11 +31,12 @@ if [ $# -eq 1 ]; then
     cmssw_pkgs="$1"
 fi
 echo "Build: $cmssw_pkgs"
+echo "CMSK8S=$CMSK8S"
 
 repo=cmssw
 for pkg in $cmssw_pkgs; do
     echo "### build $repo/$pkg"
-    docker build CMSK8S=$CMSK8S -t $repo/$pkg $pkg
+    docker build --build-arg CMSK8S=$CMSK8S -t $repo/$pkg $pkg
     echo "### existing images"
     docker images
     docker push $repo/$pkg
