@@ -1,3 +1,31 @@
+### Steps to prepare k8s cluster
+- decide on hostname to be used for k8s cluster, e.g.
+  https://cmsweb-test.web.cern.ch
+- obtain hostkey/hostcert.pem files for this hostname, the DN of certificate
+  file should match DN of the host, e.g.
+  Subject: DC=ch, DC=cern, OU=computers, CN=cmsweb-test.web.cern.ch
+  See [ca.cern.ch](https://ca.cern.ch/ca/host/Request.aspx?template=CERNHostCertificate2YearsCustomSubject)
+- obtain robot certificates from [ca.cern.ch](https://ca.cern.ch)
+  to be used by services to obtain grid proxy
+- login to lxplus-cloud and create a new cluster via cmsweb template, e.g.
+```
+openstack --os-project-name "CMS Webtools Mig" coe cluster template list
+openstack --os-project-name "CMS Webtools Mig" coe cluster create --keypair cloud --cluster-template cmsweb-template-2xlarge cmsweb
+```
+- get latest [CMSKubernetes](https://github.com/dmwm/CMSKubernetes) codebase
+```
+git clone git@github.com:dmwm/CMSKubernetes.git
+```
+- prepare certificates and configuration area. The former should contain
+  host and robot certificates for the cluster, and later auth files for every
+  cmsweb service
+- deploy new k8s cluster
+```
+cd CMSKubernetes/kubernetes
+./deploy.sh create /path/cmsweb/config /path/certificates
+```
+
+
 ### List of specific actions we need to do on k8s
 - hostkey/hostcert.pem files with hostname matching k8s host should reside in
   frontend configureation area
