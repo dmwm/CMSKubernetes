@@ -25,7 +25,7 @@ CMSK8S=${CMSK8S:-https://cmsweb-test.web.cern.ch}
 echo "to prune all images"
 echo "docker system prune -f -a"
 
-cmssw_pkgs="cmsweb proxy frontend exporters das dbs2go dbs couchdb reqmgr reqmgr2ms reqmon workqueue acdcserver alertscollector confdb crabserver crabcache cmsmon dmwmmon dqmgui t0_reqmon t0wmadatasvc dbsmigration phedex sitedb httpgo httpsgo tfaas"
+cmssw_pkgs="cmsweb proxy frontend exporters das dbs2go dbs couchdb reqmgr2 reqmgr2ms reqmon workqueue acdcserver alertscollector confdb crabserver crabcache cmsmon dmwmmon dqmgui t0_reqmon t0wmadatasvc dbsmigration phedex sitedb httpgo httpsgo tfaas"
 
 if [ $# -eq 1 ]; then
     cmssw_pkgs="$1"
