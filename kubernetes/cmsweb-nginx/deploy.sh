@@ -110,10 +110,10 @@ secrets()
     cmsweb_crt=$certificates/cmsweb-hostcert.pem
 
     # check (and copy if necessary) hostkey/hostcert.pem files in configuration area of frontend
-    if [ ! -f $conf/frontend/hostkey.pem ];
+    if [ ! -f $conf/frontend/hostkey.pem ]; then
         cp $cmsweb_key $conf/frontend/hostkey.pem
     fi
-    if [ ! -f $conf/frontend/hostcert.pem ];
+    if [ ! -f $conf/frontend/hostcert.pem ]; then
         cp $cmsweb_crt $conf/frontend/hostcert.pem
     fi
 
