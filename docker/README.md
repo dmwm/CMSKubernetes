@@ -39,7 +39,14 @@ The first step is to create a Docker file. Here is an example for
 
 With this file we can build our docker image as following:
 ```
-docker build -t USERNAME/das2go .
+# here we need to pass hostname of k8s host we're going to use
+# e.g. https://cmsweb-test.web.cern.ch
+docker build --build-arg CMSK8S=<hostname> -t USERNAME/das2go .
+
+# or users may use build.sh script to do this job, we should pass to build
+# script list of packages to build. By default build.sh will build docker
+# images to all cmsweb services and upload them to cmssw repository
+build.sh "pkg1 pkg2"
 ```
 Here, `USERNAME` should point to your docker username account. This command will build a docker image
 in `USERNAME` namespace. Once build we should see it with output from this command:
