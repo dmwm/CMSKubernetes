@@ -109,6 +109,14 @@ secrets()
     cmsweb_key=$certificates/cmsweb-hostkey.pem
     cmsweb_crt=$certificates/cmsweb-hostcert.pem
 
+    # check (and copy if necessary) hostkey/hostcert.pem files in configuration area of frontend
+    if [ ! -f $conf/frontend/hostkey.pem ];
+        cp $cmsweb_key $conf/frontend/hostkey.pem
+    fi
+    if [ ! -f $conf/frontend/hostcert.pem ];
+        cp $cmsweb_crt $conf/frontend/hostcert.pem
+    fi
+
     tls_key=/tmp/$USER/tls.key
     tls_crt=/tmp/$USER/tls.crt
     proxy=/tmp/$USER/proxy
