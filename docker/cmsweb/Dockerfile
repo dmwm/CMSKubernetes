@@ -9,7 +9,12 @@ ADD http://linuxsoft.cern.ch/wlcg/wlcg-centos7.repo /etc/yum.repos.d/wlcg-centos
 ADD epel.repo /etc/yum.repos.d/epel.repo
 ADD slc7-cernonly.repo /etc/yum.repos.d/slc7-cernonly.repo
 ADD RPM-GPG-KEY-wlcg /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg
+ADD logstash.repo /etc/yum.repos.d/logstash.repo
 
+# add logstash
+RUN rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+
+# add necessary RPMs
 RUN yum update -y && yum clean all
 RUN yum install -y cern-get-certificate fetch-crl \
     git-core zip unzip which file bzip2 e2fsprogs e2fsprogs-libs compat-libstdc++-33 \
@@ -30,6 +35,7 @@ RUN yum install -y cern-get-certificate fetch-crl \
     voms-devel globus-gsi-credential-devel globus-gsi-cert-utils-devel \
     globus-common-devel globus-gsi-sysconfig-devel globus-gsi-callback-devel \
     oracle-instantclient-tnsnames.ora
+RUN yum install -y logstash
 RUN yum clean all
 
 # create bashs link to bash
@@ -87,6 +93,8 @@ RUN cp process_exporter $WDIR/bin
 RUN cp process_monitor.sh $WDIR/bin
 RUN go build wmcore_exporter.go
 RUN cp wmcore_exporter $WDIR/bin
+RUN go build cpy_exporter.go
+RUN cp cpy_exporter $WDIR/bin
 ENV PATH="${GOPATH}/src/github.com/vkuznet/cmsweb-exporters:${GOPATH}/src/github.com/vkuznet/cmsweb-exporters/bin:${PATH}"
 
 # setup final environment
