@@ -22,6 +22,7 @@ The k8s cluster can be either created viw
 login to lxplus-cloud and using an appropriate cmsweb template, e.g.
 ```
 # ssh lxplus-cloud
+# and use appropriate project name, here we use "CMS Webtools Mig"
 openstack --os-project-name "CMS Webtools Mig" coe cluster template list
 openstack --os-project-name "CMS Webtools Mig" coe cluster create --keypair cloud --cluster-template cmsweb-template-2xlarge cmsweb
 ```
