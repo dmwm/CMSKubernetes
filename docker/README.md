@@ -1,4 +1,38 @@
-This file describes procedure how to create, deploy and use docker images.
+This file describes procedure how to create, deploy and use docker images
+for cmsweb services.
+
+### Common structure
+Each cmsweb data-service area contains a common structure such as
+```
+Dockerfile # file with recipe how to build docker image
+install.sh # install script to deploy cmswen RPMs
+monitor.sh # monitor script to run monitoring processes
+run.sh     # run script to run your service
+```
+Each cmsweb services, e.g. das, dbs, etc., is based on cmsweb image.
+The later is defined in `cmsweb` directory and its `Dockerfile`
+contains list of RPMs we deploy. The `install.sh` immitate `deploy`
+script of VM based cmsweb procedure, i.e. it defines tag to use,
+bootstrap the install area, and perform pre/sw/post install
+procedures based on `cfg/Deploy` script. All scripts for specific
+cmsweb services are alike and only differ in some concrete details
+required for cmsweb services. Therefore if you need to deploy a new
+service we suggest that you create your service area based on existing
+ones and adjust it if necessary.
+
+Most likely, in order to get new image you'll only required to change
+the following lines in your service `install.sh` file:
+```
+# example is taken from dbs/install.sh script
+ARCH=slc7_amd64_gcc630
+VER=HG1907f
+REPO="comp"
+AREA=/data/cfg/admin
+PKGS="admin backend dbs"
+SERVER=cmsrep.cern.ch
+```
+Here you can change your architecture, tag version, repository and list of
+packages you service depend on.
 
 ### How to use personal VM for docker builds
 You can use OpenStack personal VM to setup docker and make your custom builds.
@@ -35,13 +69,13 @@ navigate to your favorite directory. The docker commands immitate unix ones
 and easy to follow.
 
 The first step is to create a Docker file. Here is an example for
-[das2go](https://github.com/vkuznet/CMSKubernetes/blob/master/docker/das2go/Dockerfile) package.
+[das](https://github.com/vkuznet/CMSKubernetes/blob/master/docker/das/Dockerfile) package.
 
 With this file we can build our docker image as following:
 ```
 # here we need to pass hostname of k8s host we're going to use
 # e.g. https://cmsweb-test.web.cern.ch
-docker build --build-arg CMSK8S=<hostname> -t USERNAME/das2go .
+docker build --build-arg CMSK8S=<hostname> -t USERNAME/das .
 
 # or users may use build.sh script to do this job, we should pass to build
 # script list of packages to build. By default build.sh will build docker
@@ -58,7 +92,7 @@ docker rmi $(docker images -qf "dangling=true")
 Once you have an image app, you can remove it from the docker using the
 following command:
 ```
-docker rmi das2go
+docker rmi das
 ```
 You can inspect the docker container as following:
 ```
@@ -67,11 +101,11 @@ docker inspect <docker_id> | grep IPAddress
 ```
 To access/run the image we can run the following command:
 ```
-docker run --rm -h `hostname -f` -v /tmp:/tmp -i -t USERNAME/das2go /bin/bash
+docker run --rm -h `hostname -f` -v /tmp:/tmp -i -t USERNAME/das /bin/bash
 ```
 Then you can upload your image to the docker hub:
 ```
-docker push USERNAME/das2go:tagname
+docker push USERNAME/das:tagname
 ```
 Here `:tagname` is optional originally, but you may substitute it with any given tag, e.g.
 `:v1`. Then login to docker.com and verify that you can see your image.
