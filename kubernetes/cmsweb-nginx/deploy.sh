@@ -8,6 +8,9 @@
 ##H   secrets    create secrets files
 ##H
 
+# adjust as necessary
+cmsweb_srvs="ing-nginx proxy-account proxy-cron frontend acdcserver alertscollector cmsmon confdb couchdb crabcache crabserver das dbs dbsmigration dqmgui phedex reqmgr2 reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue"
+
 # define help
 usage="Usage: deploy.sh ACTION <CONFIGURATION_AREA> <CERTIFICATES_AREA>"
 if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ]; then
@@ -160,12 +163,12 @@ secrets()
     # - cmsweb hostcert (pem file)
     # - hmac secret file
     # - configuration files from service configuration area
-    for sdir in $conf/*; do
-        srv=$(basename "$sdir")
-        # the underscrore is not allowed in secert names
+    for srv in $cmsweb_srvs; do
+        sdir=$conf/$srv
+        # the underscrore is not allowed in secret names
         srv=`echo $srv | sed -e "s,_,,g"`
         local files=""
-        if [ -n "`ls $sdir`" ]; then
+        if [ -d $sdir ] && [ -n "`ls $sdir`" ]; then
             for fname in $sdir/*; do
                 files="$files --from-file=$fname"
             done
@@ -211,12 +214,8 @@ secrets()
 
 create()
 {
-    # adjust as necessary
-    pkgs="ing-nginx proxy-account proxy-cron frontend acdcserver alertscollector cmsmon confdb couchdb crabcache crabserver das dbs dbsmigration dmwmmon dqmgui httpgo httpsgo phedex reqmgr2 reqmgr2ms reqmon sitedb t0_reqmon t0wmadatasvc workqueue"
-#    pkgs="ing-nginx proxy-account proxy-cron frontend dbs das couchdb reqmgr2 reqmon workqueue crabcache crabserver dqmgui dmwmmon"
-
     echo "### CREATE ACTION ###"
-    echo "+++ install services: $pkgs"
+    echo "+++ install services: $cmsweb_srvs"
 
     echo "### DEPLOY SECRETS ###"
     # call secrets function
@@ -235,7 +234,7 @@ create()
 
     echo
     echo "+++ deploy services"
-    for p in $pkgs; do
+    for p in $cmsweb_srvs; do
         if [ -f ${p}.yaml ]; then
             kubectl apply -f ${p}.yaml --validate=false
         fi
