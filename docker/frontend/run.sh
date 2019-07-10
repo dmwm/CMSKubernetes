@@ -51,5 +51,10 @@ fi
 /data/cfg/admin/InstallDev -s start
 ps auxw | grep httpd
 
+# run monitoring script
+if [ -f /data/monitor.sh ]; then
+    /data/monitor.sh
+fi
+
 # start cron daemon
 sudo /usr/sbin/crond -n

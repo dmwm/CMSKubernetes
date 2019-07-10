@@ -11,8 +11,10 @@ mongod --config $WDIR/mongodb.conf
 # upload DASMaps into MongoDB
 das_js_import /data/DASMaps/js
 
-# start das2go exporter
-nohup das2go_exporter -address ":18217" 2>&1 1>& das2go_exporter.log < /dev/null &
+# start monitoring
+if [ -f /data/monitor.sh ]; then
+    /data/monitor.sh
+fi
 
 # start das2go server
 if [ -f /etc/secrets/dasconfig.json ]; then

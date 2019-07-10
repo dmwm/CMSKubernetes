@@ -71,5 +71,6 @@ ENV X509_USER_PROXY=/data/srv/current/auth/proxy/proxy
 
 # run the service
 ADD run.sh $WDIR/run.sh
+ADD monitor.sh $WDIR/monitor.sh
 WORKDIR ${WDIR}
 CMD ["run.sh"]

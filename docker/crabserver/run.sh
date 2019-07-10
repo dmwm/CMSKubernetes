@@ -23,5 +23,10 @@ fi
 # start the service
 /data/srv/current/config/crabserver/manage start 'I did read documentation'
 
+# run monitoring script
+if [ -f /data/monitor.sh ]; then
+    /data/monitor.sh
+fi
+
 # start cron daemon
 sudo /usr/sbin/crond -n

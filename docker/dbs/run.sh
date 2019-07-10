@@ -50,5 +50,10 @@ fi
 echo "We can test DBS from local host as following:"
 echo "curl -v -H "cms-auth-status":"NONE" http://localhost:$port/dbs/$inst/global/DBSReader/datatiers?data_tier_name=RAW"
 
+# run monitoring script
+if [ -f /data/monitor.sh ]; then
+    /data/monitor.sh
+fi
+
 # start cron daemon
 sudo /usr/sbin/crond -n
