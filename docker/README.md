@@ -75,7 +75,11 @@ With this file we can build our docker image as following:
 ```
 # here we need to pass hostname of k8s host we're going to use
 # e.g. https://cmsweb-test.web.cern.ch
-docker build --build-arg CMSK8S=<hostname> -t USERNAME/das .
+# here USERNAME/das represents docker repository and das is local directory
+docker build --build-arg CMSK8S=<hostname> -t USERNAME/das das
+
+# to build tagged version of the image use this command
+docker build --build-arg CMSK8S=<hostname> -t USERNAME/das -t USERNAME/das:TAG das
 
 # or users may use build.sh script to do this job, we should pass to build
 # script list of packages to build. By default build.sh will build docker
