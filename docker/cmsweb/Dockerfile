@@ -100,6 +100,18 @@ ENV PATH="${GOPATH}/src/github.com/vkuznet/cmsweb-exporters:${GOPATH}/src/github
 # setup final environment
 ENV PATH="${WDIR}/bin:${GOPATH}/bin:${PATH}"
 
+# build mongo exporter
+WORKDIR ${WDIR}
+RUN curl -k -L -O "https://github.com/dcu/mongodb_exporter/archive/v1.0.0.tar.gz"
+RUN tar xfz v1.0.0.tar.gz
+RUN mkdir -p $GOPATH/src/github.com/dcu/
+RUN cp -r mongodb_exporter-1.0.0 $GOPATH/src/github.com/dcu/mongodb_exporter
+WORKDIR $GOPATH/src/github.com/dcu/mongodb_exporter
+RUN go get github.com/Masterminds/glide
+RUN make build
+RUN cp mongodb_exporter $WDIR/bin
+
+WORKDIR ${WDIR}
 ADD print_hmac $WDIR/bin/print_hmac
 ADD proxy.sh $WDIR/bin/proxy.sh
 
