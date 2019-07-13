@@ -12,6 +12,9 @@ spec:
     - port: 18217
       targetPort: 18217
       name: das-mon
+    - port: 18230
+      targetPort: 18230
+      name: das-mongo-mon
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
@@ -29,8 +32,8 @@ spec:
       labels:
         app: das
     spec:
-      hostNetwork: true
-      dnsPolicy: ClusterFirstWithHostNet
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - image: cmssw/das
         name: das
@@ -46,6 +49,13 @@ spec:
         ports:
         - containerPort: 8217
           protocol: TCP
+          name: das
+        - containerPort: 18217
+          protocol: TCP
+          name: das-mon
+        - containerPort: 18230
+          protocol: TCP
+          name: das-mongo-mon
         volumeMounts:
         - name: proxy-secrets
           mountPath: /etc/proxy
