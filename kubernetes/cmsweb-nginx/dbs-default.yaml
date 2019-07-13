@@ -12,6 +12,9 @@ spec:
     - port: 18250
       targetPort: 18250
       name: dbs-default-mon
+    - port: 19250
+      targetPort: 19250
+      name: dbs-d-cpy-mon
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
@@ -47,6 +50,9 @@ spec:
         - containerPort: 18250
           protocol: TCP
           name: dbs-default-mon
+        - containerPort: 19250
+          protocol: TCP
+          name: dbs-d-cpy-mon
         volumeMounts:
 #         - name: logs-pvc
 #           mountPath: /logs/dbs

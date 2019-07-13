@@ -11,7 +11,10 @@ spec:
       name: dbs-phys03-w
     - port: 18255
       targetPort: 18255
-      name: dbs-phys03-w-mon
+      name: dbs-pw-mon
+    - port: 19255
+      targetPort: 19255
+      name: dbs-pw-cpy-mon
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
@@ -47,6 +50,9 @@ spec:
         - containerPort: 18255
           protocol: TCP
           name: dbs-pw-mon
+        - containerPort: 19255
+          protocol: TCP
+          name: dbs-pw-cpy-mon
         volumeMounts:
 #         - name: logs-pvc
 #           mountPath: /logs/dbs

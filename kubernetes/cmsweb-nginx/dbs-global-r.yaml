@@ -11,7 +11,10 @@ spec:
       name: dbs-global-r
     - port: 18252
       targetPort: 18252
-      name: dbs-global-r-mon
+      name: dbs-gr-mon
+    - port: 19252
+      targetPort: 19252
+      name: dbs-gr-cpy-mon
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
@@ -47,6 +50,9 @@ spec:
         - containerPort: 18252
           protocol: TCP
           name: dbs-gr-mon
+        - containerPort: 19252
+          protocol: TCP
+          name: dbs-gr-cpy-mon
         volumeMounts:
 #         - name: logs-pvc
 #           mountPath: /logs/dbs

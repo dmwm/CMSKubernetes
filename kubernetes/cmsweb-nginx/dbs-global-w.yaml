@@ -11,7 +11,10 @@ spec:
       name: dbs-global-w
     - port: 18253
       targetPort: 18253
-      name: dbs-global-w-mon
+      name: dbs-gw-mon
+    - port: 19253
+      targetPort: 19253
+      name: dbs-gw-cpy-mon
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
@@ -47,6 +50,9 @@ spec:
         - containerPort: 18253
           protocol: TCP
           name: dbs-gw-mon
+        - containerPort: 19253
+          protocol: TCP
+          name: dbs-gw-cpy-mon
         volumeMounts:
 #         - name: logs-pvc
 #           mountPath: /logs/dbs
