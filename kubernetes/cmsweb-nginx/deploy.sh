@@ -10,6 +10,7 @@
 
 # adjust as necessary
 cmsweb_srvs="ing-nginx proxy-account proxy-cron frontend acdcserver alertscollector cmsmon confdb couchdb crabcache crabserver das dbs dbsmigration dqmgui phedex reqmgr2 reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue"
+dbs_instances="default migrate global-r global-w phys03-r phys03-w"
 
 # define help
 usage="Usage: deploy.sh ACTION <CONFIGURATION_AREA> <CERTIFICATES_AREA>"
@@ -59,7 +60,7 @@ cleanup()
 
     echo
     echo "--- delete services"
-    services=`kubectl get svc | grep -v NAME | grep -v default | awk '{print $1}'`
+    services=`kubectl get svc | grep -v NAME | awk '{print $1}'`
     for s in $services; do
         if [ -f ${s}.yaml ]; then
             kubectl delete -f ${s}.yaml
@@ -173,11 +174,28 @@ secrets()
                 files="$files --from-file=$fname"
             done
         fi
-        kubectl create secret generic ${srv}-secrets \
-            --from-file=$robot_key --from-file=$robot_crt \
-            --from-file=$hmac \
-            $files --dry-run -o yaml | \
-            kubectl apply --validate=false -f -
+        # special case for DBS instances
+        if [ "$srv" == "dbs" ]; then
+            for inst in $dbs_instances; do
+                local dbsfiles=""
+                if [ -d "$sdir-$inst" ] && [ -n "`ls $sdir-$inst`" ]; then
+                    for fconf in $sdir-$inst/*; do
+                        dbsfiles="$dbsfiles --from-file=$fconf"
+                    done
+                fi
+                kubectl create secret generic ${srv}-${inst}-secrets \
+                    --from-file=$robot_key --from-file=$robot_crt \
+                    --from-file=$hmac \
+                    $files $dbsfiles --dry-run -o yaml | \
+                    kubectl apply --validate=false -f -
+            done
+        else
+            kubectl create secret generic ${srv}-secrets \
+                --from-file=$robot_key --from-file=$robot_crt \
+                --from-file=$hmac \
+                $files --dry-run -o yaml | \
+                kubectl apply --validate=false -f -
+        fi
     done
 
     # create ingress secrets file, it requires tls.key/tls.crt files
@@ -235,8 +253,16 @@ create()
     echo
     echo "+++ deploy services"
     for p in $cmsweb_srvs; do
-        if [ -f ${p}.yaml ]; then
-            kubectl apply -f ${p}.yaml --validate=false
+        if [ "$p" == "dbs" ]; then
+            for inst in $dbs_instances; do
+                if [ -f "${p}-${inst}.yaml" ]; then
+                    kubectl apply -f "${p}-${inst}.yaml" --validate=false
+                fi
+            done
+        else
+            if [ -f ${p}.yaml ]; then
+                kubectl apply -f ${p}.yaml --validate=false
+            fi
         fi
     done
 
