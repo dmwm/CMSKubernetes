@@ -63,7 +63,11 @@ done
 #cd $WDIR/srv/$VER/sw/$ARCH/cms/dbs3/*/lib/python2.7/site-packages
 #curl -ksLO https://github.com/dmwm/WMCore/pull/9112.patch
 #patch -p3 < 9112.patch
-# end of TMP block, will be removed once we get it in WMCore condebase
+# patch DBS deployment area to separate DBS instance start-up
+cd $WDIR/srv/current/config/dbs
+curl -ksLO https://github.com/dmwm/deployment/pull/794.patch
+patch -p2 < 794.patch
+# end of TMP block, will be removed once we get all payches in place
 
 # replace usage of hostkey/hostcert in crontab to frontend proxy
 crontab -l | \

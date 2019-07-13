@@ -50,6 +50,18 @@ fi
 echo "We can test DBS from local host as following:"
 echo "curl -v -H "cms-auth-status":"NONE" http://localhost:$port/dbs/$inst/global/DBSReader/datatiers?data_tier_name=RAW"
 
+# clean-up dbs config area and use dbs instance configuration file from secrets
+cdir=/data/srv/current/config/dbs
+files="DBSDef.py DBSMigrate.py DBSGlobalReader.py DBSGlobalWriter.py DBSPhys03Reader.py DBSPhys03Writer.py"
+for dbsconf in $files; do
+    if [ -f /etc/secrets/$dbsconf ]; then
+        cd $cdir
+        rm $files *.pyc
+        ln -s /etc/secrets/$dbsconf $dbsconf
+        cd -
+    fi
+done
+
 # run monitoring script
 if [ -f /data/monitor.sh ]; then
     /data/monitor.sh
