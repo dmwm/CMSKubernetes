@@ -32,8 +32,8 @@ spec:
       labels:
         app: dbs-phys03-w
     spec:
-      hostNetwork: true
-      dnsPolicy: ClusterFirstWithHostNet
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - image: cmssw/dbs
         name: dbs-phys03-w
