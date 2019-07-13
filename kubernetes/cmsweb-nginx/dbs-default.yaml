@@ -1,0 +1,83 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: dbs-default
+spec:
+  selector:
+    app: dbs-default
+  ports:
+    - port: 8250
+      targetPort: 8250
+      name: dbs-default
+    - port: 18250
+      targetPort: 18250
+      name: dbs-default-mon
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: dbs-default
+  name: dbs-default
+spec:
+  selector:
+    matchLabels:
+      app: dbs-default
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dbs-default
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: cmssw/dbs
+        name: dbs-default
+        tty: true
+        stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "/data/monitor.sh"]
+        ports:
+        - containerPort: 8250
+          protocol: TCP
+          name: dbs-default
+        - containerPort: 18250
+          protocol: TCP
+          name: dbs-default-mon
+        volumeMounts:
+#         - name: logs-pvc
+#           mountPath: /logs/dbs
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          defaultMode: 256
+        - name: secrets
+          mountPath: /etc/secrets
+          defaultMode: 256
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: dbs-default-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File
+#       - name: logs-pvc
+#         persistentVolumeClaim:
+#           claimName: cmsweb-pvc
+#           readOnly: false

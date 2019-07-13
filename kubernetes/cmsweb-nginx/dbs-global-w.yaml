@@ -1,0 +1,83 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: dbs-global-w
+spec:
+  selector:
+    app: dbs-global-w
+  ports:
+    - port: 8253
+      targetPort: 8253
+      name: dbs-global-w
+    - port: 18253
+      targetPort: 18253
+      name: dbs-global-w-mon
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: dbs-global-w
+  name: dbs-global-w
+spec:
+  selector:
+    matchLabels:
+      app: dbs-global-w
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dbs-global-w
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: cmssw/dbs
+        name: dbs-global-w
+        tty: true
+        stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "/data/monitor.sh"]
+        ports:
+        - containerPort: 8253
+          protocol: TCP
+          name: dbs-global-w
+        - containerPort: 18253
+          protocol: TCP
+          name: dbs-gw-mon
+        volumeMounts:
+#         - name: logs-pvc
+#           mountPath: /logs/dbs
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          defaultMode: 256
+        - name: secrets
+          mountPath: /etc/secrets
+          defaultMode: 256
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: dbs-global-w-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File
+#       - name: logs-pvc
+#         persistentVolumeClaim:
+#           claimName: cmsweb-pvc
+#           readOnly: false
