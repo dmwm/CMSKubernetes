@@ -1,5 +1,4 @@
-FROM cmssw/cmsweb
-# FROM cern/cc7-base
+FROM cmssw/cmsweb:20190710
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data

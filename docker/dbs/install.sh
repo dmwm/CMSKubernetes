@@ -59,10 +59,6 @@ for fname in $files; do
     sed -i -e "s,:8443,,g" $fname
 done
 
-# TMP: add patch to WMCore to lower case Cms headers
-#cd $WDIR/srv/$VER/sw/$ARCH/cms/dbs3/*/lib/python2.7/site-packages
-#curl -ksLO https://github.com/dmwm/WMCore/pull/9112.patch
-#patch -p3 < 9112.patch
 # patch DBS deployment area to separate DBS instance start-up
 cd $WDIR/srv/current/config/dbs
 curl -ksLO https://github.com/dmwm/deployment/pull/794.patch
