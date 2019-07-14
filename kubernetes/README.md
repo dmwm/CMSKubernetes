@@ -379,5 +379,6 @@ ssh -i ~/.ssh/cloud -o ConnectTimeout=30 -o UserKnownHostsFile=/dev/null -o Stri
 - [Prometheus setup for Kubernetes](https://devopscube.com/setup-prometheus-monitoring-on-kubernetes/)
 - [Kubernetes blogs](https://vitalflux.com/category/kubernetes/)
 - [Kubernetes networking](http://alesnosek.com/blog/2017/02/14/accessing-kubernetes-pods-from-outside-of-the-cluster/)
+- [Kubernetes networking guide](https://sookocheff.com/post/kubernetes/understanding-kubernetes-networking-model/)
 - [Kubernetes DNS](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/)
 - [Kubernetes cheatsheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
