@@ -365,6 +365,7 @@ ssh -i ~/.ssh/cloud -o ConnectTimeout=30 -o UserKnownHostsFile=/dev/null -o Stri
 - [Kubernetes concepts](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/)
 - [Kubernetes tutorials](https://kubernetes.io/docs/tutorials/kubernetes-basics/)
 - [Kubernetes references](https://kubernetes.io/docs/reference/)
+- [Kubernetest autoacaling](https://www.tutorialspoint.com/kubernetes/kubernetes_autoscaling.htm)
 - [Kubernetes Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/)
 - [Kubernetes NodePort vs LoadBalancer vs Ingress](https://medium.com/google-cloud/kubernetes-nodeport-vs-loadbalancer-vs-ingress-when-should-i-use-what-922f010849e0)
 - [Kubernetes deployment](https://pascalnaber.wordpress.com/2017/10/27/configure-ingress-on-kubernetes-using-azure-container-service/)
