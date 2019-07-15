@@ -5,17 +5,22 @@ metadata:
 spec:
   selector:
     app: dbs-global-r
+#   type: LoadBalancer
   ports:
     - port: 8252
       targetPort: 8252
+#       hostPort: 8252
       name: dbs-global-r
     - port: 18252
       targetPort: 18252
+#       hostPort: 18252
       name: dbs-gr-mon
     - port: 19252
       targetPort: 19252
+#       hostPort: 19252
       name: dbs-gr-cpy-mon
 ---
+# kind: ReplicaSet
 kind: Deployment
 apiVersion: extensions/v1beta1
 metadata:
@@ -26,14 +31,14 @@ spec:
   selector:
     matchLabels:
       app: dbs-global-r
-  replicas: 4
+  replicas: 2
   template:
     metadata:
       labels:
         app: dbs-global-r
     spec:
-#       hostNetwork: true
-#       dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
       - image: cmssw/dbs
         name: dbs-global-r
