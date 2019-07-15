@@ -47,6 +47,12 @@ if [ -f /data/srv/current/auth/proxy/proxy ] && [ -f /data/srv/current/config/fr
         -o /data/srv/state/frontend/etc/voms-gridmap.txt --vo cms
 fi
 
+# check if we're provided server.conf explicitly and use it if necessary
+if [ -f /etc/secrets/server.conf ]; then
+    sudo rm /data/srv/state/frontend/server.conf
+    ln -s /etc/secrets/server.conf /data/srv/state/frontend/server.conf
+fi
+
 # run frontend server
 /data/cfg/admin/InstallDev -s start
 ps auxw | grep httpd
