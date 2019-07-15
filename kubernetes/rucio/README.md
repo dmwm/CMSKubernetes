@@ -41,6 +41,8 @@ Begin by logging into the CERN cloud infrastructure `slogin lxplus7-cloud.cern.c
     openstack coe cluster create [CLUSTERNAME] --keypair lxplus --os-project-name CMSRucio --cluster-template kubernetes-1.13.3-1 --node-count 5 --labels cern_enabled=True,kube_tag=v1.13.3-12,kube_csi_enabled=True,kube_csi_version=v0.3.2,container_infra_prefix=gitlab-registry.cern.ch/cloud/atomic-system-containers/,cvmfs_csi_version=v0.3.0,cvmfs_tag=qa,cephfs_csi_enabled=True,cephfs_csi_version=v0.3.0,manila_enabled=True,manila_version=v0.3.0,flannel_backend=vxlan,ingress_controller=nginx,cern_tag=qa,influx_grafana_dashboard_enabled=True --master-flavor m2.small    
     openstack coe cluster list --os-project-name CMSRucio # Monitor creation status
 
+Note: Fold in http://clouddocs.web.cern.ch/clouddocs/containers/tutorials/lb.html with additional labels which probably also gets rid of the need to install helm directly as well as the nginx install.
+
 If you are creating your own project for development, please omit `--os-project-name CMSRucio`. 
 This will create a kubernetes cluster in your own openstack space rather than the central group space.
 CMSRucio is a project space CERN has setup for us to contain our production and testbed servers.
