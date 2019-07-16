@@ -12,7 +12,11 @@ if [ $# -eq 1 ]; then
 else
     url=${CMSK8S:-https://cmsweb-test.web.cern.ch}
 fi
-urls="$url/couchdb $url/reqmgr2/data/info $url/dbs/dev/global/DBSReader/datasets?dataset=/ZMM*/*/* $url/das $url/workqueue/index.html"
+
+# dbs instance
+inst=int # preproduction
+
+urls="$url/couchdb $url/reqmgr2/data/info $url/dbs/$inst/global/DBSReader/datasets?dataset=/ZMM*/*/* $url/das $url/workqueue/index.html"
 
 # DO NOT MODIFY BELOW THIS LINE
 
