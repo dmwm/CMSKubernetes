@@ -4,38 +4,59 @@
 ##H Available actions:
 ##H   help       show this help
 ##H   cleanup    cleanup services
-##H   create     create services
+##H   create     create generic cluster (both frontend and services)
+##H   services   create services cluster
+##H   frontend   create frontend cluster
 ##H   secrets    create secrets files
 ##H
 
-# adjust as necessary
-cmsweb_srvs="ing-nginx proxy-account proxy-cron frontend acdcserver alertscollector cmsmon confdb couchdb crabcache crabserver das dbs dbsmigration dqmgui phedex reqmgr2 reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue"
+# services for cmsweb cluster, adjust if necessary
+cmsweb_srvs="ing-nginx proxy-account proxy-cron httpgo httpsgo frontend acdcserver alertscollector cmsmon confdb couchdb crabcache crabserver das dbs dbsmigration dqmgui phedex reqmgr2 reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue"
+
+# list of DBS instances
 dbs_instances="default migrate global-r global-w phys03-r phys03-w"
 
 # define help
-usage="Usage: deploy.sh ACTION <CONFIGURATION_AREA> <CERTIFICATES_AREA>"
+usage="Usage: deploy.sh <ACTION> <CONFIGURATION_AREA> <CERTIFICATES_AREA> <hmac>"
 if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ]; then
     echo $usage
     exit 1
 fi
+action=$1
 
-# for create/secrets actions check if conf/cert areas are provided
-if [ "$1" == "create" ] || [ "$1" == "secrets" ]; then
-    if [ $# -ne 3 ]; then
-        echo $usage
-        exit 1
-    fi
+if [ "$action" == "cleanup" ]; then
+    echo "+++ perform cleanup"
+elif [ "$action" == "services" ]; then
+    # services for cmsweb cluster, adjust if necessary
+    cmsweb_srvs="ing-srv proxy-account proxy-cron httpgo httpsgo acdcserver alertscollector cmsmon confdb crabcache crabserver das dbs dbsmigration dqmgui phedex reqmgr2 reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue"
+    echo "+++ create services cluster"
+elif [ "$action" == "frontend" ]; then
+    # services for cmsweb-nginx cluster
+    cmsweb_srvs="ing-nginx proxy-account proxy-cron httpgo httpsgo frontend couchdb"
+    echo "+++ create frontend cluster"
+elif [ "$action" == "create" ]; then
+    echo "+++ create generic cluster"
+elif [ "$action" == "secrets" ]; then
+    echo "+++ create secrets"
+else
+    echo $usage
+    exit 1
+fi
 
-    if [ -z "$2" ]; then
-        echo "Please provide cmsweb configuration area to use"
-        exit 1
-    fi
+if [ "$action" != "cleanup" ]; then
     conf=$2
-    if [ -z "$3" ]; then
-        echo "Please provide certificates area to use"
-        exit 1
-    fi
     certificates=$3
+    if [ $# -eq 4 ]; then
+        hmac=$4
+    else
+        echo "+++ generate hmac secret"
+        hmac=/tmp/$USER/hmac
+        perl -e 'open(R, "< /dev/urandom") or die; sysread(R, $K, 20) or die; print $K' > $hmac
+    fi
+    echo "+++ perform action   : $action"
+    echo "+++ use configuration: $conf"
+    echo "+++ use certificates : $certificates"
+    echo "+++ use hmac file    : $hmac"
 fi
 
 cluster=cmsweb
@@ -102,9 +123,7 @@ check()
 secrets()
 {
     # cmsweb configuration area
-    conf=$1
     echo "+++ configuration: $conf"
-    certificates=$2
     echo "+++ certificates : $certificates"
 
     # robot keys and cmsweb host certificates
@@ -135,10 +154,6 @@ secrets()
     # for ingress controller we need tls.key/tls.crt names
     cp $cmsweb_key $tls_key
     cp $cmsweb_crt $tls_crt
-
-    echo "+++ generate hmac secret"
-    hmac=/tmp/$USER/hmac
-    perl -e 'open(R, "< /dev/urandom") or die; sysread(R, $K, 20) or die; print $K' > $hmac
 
     # create secrets with our robot certificates
     kubectl create secret generic robot-secrets \
@@ -202,7 +217,7 @@ secrets()
     kubectl create secret generic ing-secrets \
         --from-file=$tls_key --from-file=$tls_crt --dry-run -o yaml | \
         kubectl apply --validate=false -f -
-    rm $hmac $tls_key $tls_crt
+    rm $tls_key $tls_crt
 
     # use one of the option below
     # generate tls.key/tls.crt for custom CA and openssl config
@@ -237,7 +252,7 @@ create()
 
     echo "### DEPLOY SECRETS ###"
     # call secrets function
-    secrets $1 $2
+    secrets
 
     echo
     echo "+++ list configmap"
@@ -298,11 +313,11 @@ case ${1:-status} in
     ;;
 
   create )
-    create $conf $certificates
+    create
     ;;
 
   secrets )
-    secrets $conf $certificates
+    secrets
     ;;
 
   check )
