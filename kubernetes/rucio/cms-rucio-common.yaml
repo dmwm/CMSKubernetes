@@ -26,7 +26,7 @@ config:
     conveyor:
         ftshosts: "https://cmsfts3.fnal.gov:8446,https://fts3.cern.ch:8446,https://lcgfts3.gridpp.rl.ac.uk:8446"
     monitor:
-        carbon_server: graphite
+        carbon_server: statsd-exporter-svc
         user_scope: rucio
 
 # Configure database connections for Oracle Database Resident Connection Pool (DRCP)
