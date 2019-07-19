@@ -60,6 +60,21 @@ manila list
 
 ```
 
+```
+# we need to adjust nginx controller of the cluster to avoid its crashes until
+# it is fixed by CERN IT, this can be done by editing its confiugration
+# one time operation:
+# - remove xxxxxxxProbe section (healthz)
+# - increase ram allocation from 64Mi to 128Mi
+kubectl -n kube-system edit daemonset.apps/nginx-ingress-controller
+
+# then we can restart the daemon set as following, e.g.
+kubectl -n kube-system delete pod nginx-ingress-controller-gsw2b
+# or better use this independent from pod name command
+kubectl -n kube-system get pods | grep ingress-controller | awk '{print "kubectl -n kube-system delete pod "$1""}'
+
+```
+
 Once cluster is created we need to perform one-time operation to get pem files
 and config for it. Just do:
 ```
