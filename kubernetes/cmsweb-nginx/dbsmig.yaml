@@ -29,8 +29,8 @@ spec:
       labels:
         app: dbsmig
     spec:
-      hostNetwork: true
-      dnsPolicy: ClusterFirstWithHostNet
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - image: cmssw/dbsmig
         name: dbsmig

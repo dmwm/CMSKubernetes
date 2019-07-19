@@ -27,8 +27,8 @@ spec:
         app: workqueue
     spec:
       # use hostNetwork to allow communication between reqmgr/reqmon/workqueue and couch
-      hostNetwork: true
-      dnsPolicy: ClusterFirstWithHostNet
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - image: cmssw/workqueue
         name: workqueue
