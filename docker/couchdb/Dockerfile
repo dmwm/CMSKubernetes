@@ -37,7 +37,6 @@ RUN go get github.com/gesellix/couchdb-prometheus-exporter
 
 # add necessary scripts
 ADD run.sh $WDIR/run.sh
-ADD proxy.sh $WDIR/proxy.sh
 ADD monitor.sh $WDIR/monitor.sh
 
 # setup final environment
