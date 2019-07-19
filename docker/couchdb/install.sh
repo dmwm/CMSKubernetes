@@ -4,7 +4,10 @@ ARCH=slc7_amd64_gcc630
 VER=HG1907f
 REPO="comp"
 AREA=/data/cfg/admin
-PKGS="admin backend couchdb"
+# for couchdb we need to install cmsweb service packages
+# which contains couchapp data area to create appropriate
+# databases and views
+PKGS="admin backend couchdb acdcserver alertscollector reqmgr2 reqmon t0_reqmon workqueue"
 SERVER=cmsrep.cern.ch
 
 cd $WDIR
