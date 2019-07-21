@@ -17,14 +17,42 @@ spec:
         backend:
           serviceName: httpsgo
           servicePort: 443
+      - path: /crabserver
+        backend:
+          serviceName: crabserver
+          servicePort: 8270
+      - path: /crabcache
+        backend:
+          serviceName: crabcache
+          servicePort: 8271
+      - path: /phedex
+        backend:
+          serviceName: phedex
+          servicePort: 7001
+      - path: /dqm/dev
+        backend:
+          serviceName: dqmgui
+          servicePort: 8060
+      - path: /dqm/relval
+        backend:
+          serviceName: dqmgui
+          servicePort: 8081
+      - path: /dqm/relval-test
+        backend:
+          serviceName: dqmgui
+          servicePort: 8081
+      - path: /dqm/offline
+        backend:
+          serviceName: dqmgui
+          servicePort: 8080
+      - path: /dqm/offline-test
+        backend:
+          serviceName: dqmgui
+          servicePort: 8080
       - path: /reqmgr2
         backend:
           serviceName: reqmgr2
           servicePort: 8246
-      - path: /workqueue
-        backend:
-          serviceName: workqueue
-          servicePort: 8240
       - path: /das
         backend:
           serviceName: das
@@ -49,6 +77,12 @@ spec:
         backend:
           serviceName: dbs-phys03-w
           servicePort: 8255
+# VK: we do not need to add /workqueue path since workqueue is couch based app
+# such path creates mis-direction to couchdb workqueue path
+#       - path: /workqueue
+#         backend:
+#           serviceName: workqueue
+#           servicePort: 8240
       - path: /
         backend:
           serviceName: couchdb
