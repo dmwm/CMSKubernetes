@@ -1,12 +1,4 @@
 #!/bin/bash
-#cd /data/srv
-#verb=start; for f in enabled/*; do
-#  app=${f#*/}; case $app in frontend) u=root ;; * ) u=_$app ;; esac; sh -c \
-#  "$PWD/current/config/$app/manage $verb 'I did read documentation'"
-#  if [ "$app" == "dbs" ] || [ "$app" == "dbsmigration" ]; then
-#    sh -c "$PWD/current/config/$app/manage setinstances 'I did read documentation'"
-#  fi
-#done
 
 # overwrite DBSSecrerts if it is present in /etc/secrets
 if [ -f /etc/secrets/DBSSecrets.py ]; then
@@ -50,15 +42,26 @@ fi
 echo "We can test DBS from local host as following:"
 echo "curl -v -H "cms-auth-status":"NONE" http://localhost:$port/dbs/$inst/global/DBSReader/datatiers?data_tier_name=RAW"
 
-# clean-up dbs config area and use dbs instance configuration file from secrets
+# use service configuration files from /etc/secrets if they are present 
 cdir=/data/srv/current/config/dbs
-files="DBSDef.py DBSMigrate.py DBSGlobalReader.py DBSGlobalWriter.py DBSPhys03Reader.py DBSPhys03Writer.py"
-for dbsconf in $files; do
-    if [ -f /etc/secrets/$dbsconf ]; then
+files=`ls $cdir`
+# check if /etc/secrets area contain at least one dbs configuration files
+cfiles="DBSDef.py DBSMigrate.py DBSGlobalReader.py DBSGlobalWriter.py DBSPhys03Reader.py DBSPhys03Writer.py"
+for fname in $cfiles; do
+    if [ -f /etc/secrets/$fname ]; then
+        # we'll remove all conf files and create a link later
         cd $cdir
-        rm $files *.pyc
-        ln -s /etc/secrets/$dbsconf $dbsconf
+        rm $cfiles
         cd -
+        break
+    fi
+done
+for fname in $files; do
+    if [ -f /etc/secrets/$fname ]; then
+        if [ -f $cdir/$fname ]; then
+            rm $cdir/$fname
+        fi
+        ln -s /etc/secrets/$fname $cdir/$fname
     fi
 done
 
