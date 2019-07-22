@@ -28,11 +28,11 @@ if [ "$action" == "cleanup" ]; then
     echo "+++ perform cleanup"
 elif [ "$action" == "services" ]; then
     # services for cmsweb cluster, adjust if necessary
-    cmsweb_srvs="ing-srv proxy-account proxy-cron httpgo httpsgo acdcserver alertscollector cmsmon confdb crabcache crabserver das dbs dbsmigration dqmgui phedex reqmgr2 reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue"
+    cmsweb_srvs="ing-srv proxy-account proxy-cron httpgo httpsgo acdcserver alertscollector cmsmon confdb couchdb crabcache crabserver das dbs dbsmigration dqmgui phedex reqmgr2 reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue"
     echo "+++ create services cluster"
 elif [ "$action" == "frontend" ]; then
     # services for cmsweb-nginx cluster
-    cmsweb_srvs="ing-nginx proxy-account proxy-cron httpgo httpsgo frontend couchdb"
+    cmsweb_srvs="ing-nginx proxy-account proxy-cron httpgo httpsgo frontend"
     echo "+++ create frontend cluster"
 elif [ "$action" == "create" ]; then
     echo "+++ create generic cluster"
