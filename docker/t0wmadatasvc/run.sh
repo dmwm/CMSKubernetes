@@ -44,7 +44,7 @@ for fname in $files; do
 done
 
 # start the service
-/data/srv/current/config/reqmon/manage start 'I did read documentation'
+/data/srv/current/config/t0wmadatasvc/manage start 'I did read documentation'
 
 # start cron daemon
 sudo /usr/sbin/crond -n
