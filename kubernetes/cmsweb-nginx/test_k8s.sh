@@ -16,7 +16,7 @@ fi
 # dbs instance
 inst=int # preproduction
 
-urls="$url/couchdb $url/reqmgr2/data/info $url/dbs/$inst/global/DBSReader/datasets?dataset=/ZMM*/*/* $url/das $url/workqueue/index.html"
+urls="$url/couchdb $url/reqmgr2/data/info $url/dbs/$inst/global/DBSReader/datasets?dataset=/ZMM*/*/* $url/das $url/workqueue/index.html $url/phedex"
 
 # DO NOT MODIFY BELOW THIS LINE
 
