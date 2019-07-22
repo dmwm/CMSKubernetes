@@ -93,6 +93,10 @@ spec:
         backend:
           serviceName: t0wmadatasvc
           servicePort: 8308
+      - path: /wmstatsserver
+        backend:
+          serviceName: reqmon
+          servicePort: 8249
 # VK: we do not need to add /workqueue path since workqueue is couch based app
 # such path creates mis-direction to couchdb workqueue path
 #       - path: /workqueue
