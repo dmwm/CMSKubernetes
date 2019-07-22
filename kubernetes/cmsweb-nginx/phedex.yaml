@@ -8,6 +8,9 @@ spec:
   ports:
     - port: 7001
       targetPort: 7001
+      name: phedex-datasvc
+    - port: 7101
+      targetPort: 7101
       name: phedex
     - port: 17001
       targetPort: 17001
@@ -32,7 +35,7 @@ spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: veknet/phedex
+      - image: cmssw/phedex
         name: phedex
         tty: true
         stdin: true
@@ -42,6 +45,9 @@ spec:
               command: ["/bin/sh", "-c", "sleep 20 && /data/monitor.sh"]
         ports:
         - containerPort: 7001
+          protocol: TCP
+          name: phedex-datasvc
+        - containerPort: 7101
           protocol: TCP
           name: phedex
         - containerPort: 17001
