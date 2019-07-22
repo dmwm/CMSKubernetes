@@ -7,7 +7,8 @@ AREA=/data/cfg/admin
 # for couchdb we need to install cmsweb service packages
 # which contains couchapp data area to create appropriate
 # databases and views
-PKGS="admin backend couchdb acdcserver alertscollector reqmgr2 reqmon t0_reqmon workqueue"
+srvs="couchdb acdcserver alertscollector reqmgr2 reqmon t0_reqmon workqueue"
+PKGS="admin backend $srvs"
 SERVER=cmsrep.cern.ch
 
 cd $WDIR
@@ -22,11 +23,13 @@ cmsk8s_prod=${CMSK8S:-https://cmsweb.cern.ch}
 cmsk8s_prep=${CMSK8S:-https://cmsweb-testbed.cern.ch}
 cmsk8s_dev=${CMSK8S:-https://cmsweb-dev.cern.ch}
 cmsk8s_priv=${CMSK8S:-https://cmsweb-test.web.cern.ch}
+for srv in $srvs; do
 sed -i -e "s,https://cmsweb.cern.ch,$cmsk8s_prod,g" \
     -e "s,https://cmsweb-testbed.cern.ch,$cmsk8s_prep,g" \
     -e "s,https://cmsweb-dev.cern.ch,$cmsk8s_dev,g" \
     -e "s,https://\`hostname -f\`,$cmsk8s_priv,g" \
-    couchdb/deploy
+    $srv/deploy
+done
 
 # Deploy services
 # we do not use InstallDev script directly since we want to capture the status of
@@ -77,6 +80,5 @@ sed -i -e "s#ServerMonitor/2.0#ServerMonitor-couchdb#g" /data/srv/current/config
 
 # add proxy generation via robot certificate
 crontab -l | egrep -v "workqueue|reqmon|reqmgr2|reboot" > /tmp/mycron
-echo "3 */3 * * * sudo /data/proxy.sh $USER 2>&1 1>& /dev/null" >> /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron

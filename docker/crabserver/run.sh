@@ -20,6 +20,18 @@ if [ -f /etc/secrets/hmac ]; then
     cp /etc/secrets/hmac /data/srv/current/auth/wmcore-auth/header-auth-key
 fi
 
+# use service configuration files from /etc/secrets if they are present
+cdir=/data/srv/current/config/crabserver
+files=`ls $cdir`
+for fname in $files; do
+    if [ -f /etc/secrets/$fname ]; then
+        if [ -f $cdir/$fname ]; then
+            rm $cdir/$fname
+        fi
+        ln -s /etc/secrets/$fname $cdir/$fname
+    fi
+done
+
 # start the service
 /data/srv/current/config/crabserver/manage start 'I did read documentation'
 

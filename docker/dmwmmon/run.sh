@@ -23,6 +23,18 @@ if [ -f /etc/secrets/hmac ]; then
     perl -e 'undef $/; print "[couch_cms_auth]\n"; print "hmac_secret = ", unpack("h*", <STDIN>), "\n"' < /etc/secrets/hmac > /data/srv/current/auth/couchdb/hmackey.ini
 fi
 
+# use service configuration files from /etc/secrets if they are present
+cdir=/data/srv/current/config/dmwmmon
+files=`ls $cdir`
+for fname in $files; do
+    if [ -f /etc/secrets/$fname ]; then
+        if [ -f $cdir/$fname ]; then
+            rm $cdir/$fname
+        fi
+        ln -s /etc/secrets/$fname $cdir/$fname
+    fi
+done
+
 # start the service
 /data/srv/current/config/dmwmmon/manage start 'I did read documentation'
 

@@ -6,6 +6,19 @@ if [ -f /etc/proxy/proxy ]; then
     mkdir -p /data/srv/current/auth/proxy
     ln -s /etc/proxy/proxy /data/srv/current/auth/proxy/proxy
 fi
+
+# use service configuration files from /etc/secrets if they are present
+cdir=/data/srv/current/config/das
+files=`ls $cdir`
+for fname in $files; do
+    if [ -f /etc/secrets/$fname ]; then
+        if [ -f $cdir/$fname ]; then
+            rm $cdir/$fname
+        fi
+        ln -s /etc/secrets/$fname $cdir/$fname
+    fi
+done
+
 # start mongodb
 mongod --config $WDIR/mongodb.conf
 # upload DASMaps into MongoDB

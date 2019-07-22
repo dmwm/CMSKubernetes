@@ -17,7 +17,8 @@ fi
 # overwrite header-auth key file with one from secrets
 if [ -f /etc/secrets/hmac ]; then
     sudo rm /data/srv/current/auth/wmcore-auth/header-auth-key
-    cp /etc/secrets/hmac /data/srv/current/auth/wmcore-auth/header-auth-key
+    sudo cp /etc/secrets/hmac /data/srv/current/auth/wmcore-auth/header-auth-key
+    sudo chown _workqueue._workqueue /data/srv/current/auth/wmcore-auth/header-auth-key
     # generate new hmac key for couch
     chmod u+w /data/srv/current/auth/couchdb/hmackey.ini
     perl -e 'undef $/; print "[couch_cms_auth]\n"; print "hmac_secret = ", unpack("h*", <STDIN>), "\n"' < /etc/secrets/hmac > /data/srv/current/auth/couchdb/hmackey.ini
@@ -30,6 +31,18 @@ if [ -f /data/srv/state/couchdb/stagingarea/workqueue ]; then
     source /data/srv/current/sw/$arch/external/couchapp/$ver/etc/profile.d/init.sh
     source /data/srv/state/couchdb/stagingarea/workqueue
 fi
+
+# use service configuration files from /etc/secrets if they are present
+cdir=/data/srv/current/config/workqueue
+files=`ls $cdir`
+for fname in $files; do
+    if [ -f /etc/secrets/$fname ]; then
+        if [ -f $cdir/$fname ]; then
+            rm $cdir/$fname
+        fi
+        ln -s /etc/secrets/$fname $cdir/$fname
+    fi
+done
 
 # start the service
 /data/srv/current/config/workqueue/manage start 'I did read documentation'

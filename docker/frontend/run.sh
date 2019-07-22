@@ -47,11 +47,29 @@ if [ -f /data/srv/current/auth/proxy/proxy ] && [ -f /data/srv/current/config/fr
         -o /data/srv/state/frontend/etc/voms-gridmap.txt --vo cms
 fi
 
-# check if we're provided server.conf explicitly and use it if necessary
+# check if we provided server.conf explicitly and use it if necessary
 if [ -f /etc/secrets/server.conf ]; then
     sudo rm /data/srv/state/frontend/server.conf
     ln -s /etc/secrets/server.conf /data/srv/state/frontend/server.conf
 fi
+
+# check if we provided server.services explicitly and use it if necessary
+if [ -f /etc/secrets/cmsweb.services ]; then
+    srvs=`cat /etc/secrets/cmsweb.services | awk '{print "s,%{ENV:BACKEND}:[0-9][0-9][0-9][0-9],"$1",g"}'`
+    sed -i -e "$srvs" /data/srv/state/frontend/server.conf
+fi
+
+# use service configuration files from /etc/secrets if they are present
+cdir=/data/srv/current/config/frontend
+files=`ls $cdir`
+for fname in $files; do
+    if [ -f /etc/secrets/$fname ]; then
+        if [ -f $cdir/$fname ]; then
+            rm $cdir/$fname
+        fi
+        ln -s /etc/secrets/$fname $cdir/$fname
+    fi
+done
 
 # run frontend server
 /data/cfg/admin/InstallDev -s start

@@ -8,6 +8,18 @@ if [ -f /etc/proxy/proxy ]; then
     ln -s /etc/proxy/proxy /data/srv/current/auth/proxy/proxy
 fi
 
+# use service configuration files from /etc/secrets if they are present
+cdir=/data/srv/current/config/exporters
+files=`ls $cdir`
+for fname in $files; do
+    if [ -f /etc/secrets/$fname ]; then
+        if [ -f $cdir/$fname ]; then
+            rm $cdir/$fname
+        fi
+        ln -s /etc/secrets/$fname $cdir/$fname
+    fi
+done
+
 # start exporter servers
 nohup $WDIR/bin/das2go_exporter -address ":18217" 2>&1 1>& das2go_exporter.log < /dev/null &
 nohup $WDIR/bin/reqmgr_exporter -namespace reqmgr -uri http://localhost:8246/reqmgr2/data/proc_status 2>&1 1>& reqmgr_exporter.log < /dev/null &

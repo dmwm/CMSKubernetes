@@ -31,6 +31,18 @@ if [ -f /data/srv/state/couchdb/stagingarea/dqmgui ]; then
     source /data/srv/state/couchdb/stagingarea/dqmgui
 fi
 
+# use service configuration files from /etc/secrets if they are present
+cdir=/data/srv/current/config/dqmgui
+files=`ls $cdir`
+for fname in $files; do
+    if [ -f /etc/secrets/$fname ]; then
+        if [ -f $cdir/$fname ]; then
+            rm $cdir/$fname
+        fi
+        ln -s /etc/secrets/$fname $cdir/$fname
+    fi
+done
+
 # start the service
 /data/srv/current/config/dqmgui/manage start 'I did read documentation'
 

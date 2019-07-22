@@ -1,12 +1,4 @@
 #!/bin/bash
-#cd /data/srv
-#verb=start; for f in enabled/*; do
-#  app=${f#*/}; case $app in frontend) u=root ;; * ) u=_$app ;; esac; sh -c \
-#  "$PWD/current/config/$app/manage $verb 'I did read documentation'"
-#  if [ "$app" == "dbs" ] || [ "$app" == "dbsmigration" ]; then
-#    sh -c "$PWD/current/config/$app/manage setinstances 'I did read documentation'"
-#  fi
-#done
 
 # overwrite DBSSecrerts if it is present in /etc/secrets
 if [ -f /etc/secrets/DBSSecrets.py ]; then
@@ -37,6 +29,18 @@ if [ -f /etc/secrets/tnsnames.ora ] && [ -f $tfile ]; then
 elif [ -f /data/tnsnames.ora ] && [ -f $tfile ]; then
     /bin/cp -f /data/tnsnames.ora $tfile
 fi
+
+# use service configuration files from /etc/secrets if they are present
+cdir=/data/srv/current/config/dbsmigration
+files=`ls $cdir`
+for fname in $files; do
+    if [ -f /etc/secrets/$fname ]; then
+        if [ -f $cdir/$fname ]; then
+            rm $cdir/$fname
+        fi
+        ln -s /etc/secrets/$fname $cdir/$fname
+    fi
+done
 
 # start the service
 /data/srv/current/config/dbsmigration/manage setinstances 'I did read documentation'

@@ -31,6 +31,18 @@ if [ -f /data/srv/state/couchdb/stagingarea/t0_reqmon ]; then
     source /data/srv/state/couchdb/stagingarea/t0_reqmon
 fi
 
+# use service configuration files from /etc/secrets if they are present
+cdir=/data/srv/current/config/t0_reqmon
+files=`ls $cdir`
+for fname in $files; do
+    if [ -f /etc/secrets/$fname ]; then
+        if [ -f $cdir/$fname ]; then
+            rm $cdir/$fname
+        fi
+        ln -s /etc/secrets/$fname $cdir/$fname
+    fi
+done
+
 # start the service
 /data/srv/current/config/t0_reqmon/manage start 'I did read documentation'
 
