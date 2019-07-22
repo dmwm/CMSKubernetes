@@ -25,10 +25,14 @@ spec:
         backend:
           serviceName: crabcache
           servicePort: 8271
-      - path: /phedex
+      - path: /phedex/datasvc
         backend:
           serviceName: phedex
           servicePort: 7001
+      - path: /phedex
+        backend:
+          serviceName: phedex
+          servicePort: 7101
       - path: /dqm/dev
         backend:
           serviceName: dqmgui
@@ -77,6 +81,14 @@ spec:
         backend:
           serviceName: dbs-phys03-w
           servicePort: 8255
+      - path: /t0_reqmon
+        backend:
+          serviceName: t0reqmon
+          servicePort: 8243
+      - path: /t0wmadatasvc
+        backend:
+          serviceName: t0wmadatasvc
+          servicePort: 8308
 # VK: we do not need to add /workqueue path since workqueue is couch based app
 # such path creates mis-direction to couchdb workqueue path
 #       - path: /workqueue
