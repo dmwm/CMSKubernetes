@@ -35,6 +35,13 @@ for fname in $files; do
     fi
 done
 
+# copy ConfDBAuth file
+if [ -f /etc/secrets/ConfDBAuth.py ]; then
+    source /data/srv/current/apps/confdb/etc/profile.d/init.sh
+    export CONFDB_ROOT
+    cp /etc/secrets/ConfDBAuth.py $CONFDB_ROOT/Application
+fi
+
 # start the service
 /data/srv/current/config/confdb/manage start 'I did read documentation'
 
