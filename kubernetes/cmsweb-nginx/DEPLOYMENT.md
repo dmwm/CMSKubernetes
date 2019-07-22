@@ -55,14 +55,39 @@ and later auth/secret files for every cmsweb service.
 
 Finally, you may deploy new k8s cluster as following:
 ```
+# locate your kubernetes area
 cd CMSKubernetes/kubernetes
-# perform deployment of new cluster
-./deploy.sh create /path/cmsweb/config /path/certificates
+
+# if necessary setup KUBECONFIG environment, e.g.
+export KUBECONFIG=/k8s/path/config
+
+# obtain hmac file
+gen_hmac.sh hmac
+
+# NOTE: we can either deploy single cluster with hostNetwork: true
+# option in ALL yaml files (you may need to change that)
+# single cluster deployment:
+export KUBECONFIG=/k8s/path/config
+./deploy.sh create /path/cmsweb/config /path/certificates hmac
+
+# OR, we should deploy two clusters
+# deploy frontend cluster (assuming config.cmsweb k8s config)
+export KUBECONFIG=/k8s/path/config.cmsweb
+./deploy.sh frontend /path/cmsweb/config /path/certificates hmac
+
+# deploy services cluster (assuming config.cmsweb-services k8s config)
+export KUBECONFIG=/k8s/path/config.cmsweb-services
+./deploy.sh services /path/cmsweb/config /path/certificates hmac
 ```
 
 You may check status of your cluster with
 ```
 ./deploy.sh check
+```
+
+To re-generate all secrets use this command
+```
+./deploy.sh secrets /path/cmsweb/config /path/certificates hmac
 ```
 
 To clean-up all services/secrets you run
