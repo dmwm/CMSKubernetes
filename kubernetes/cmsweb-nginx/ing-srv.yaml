@@ -17,6 +17,10 @@ spec:
         backend:
           serviceName: httpsgo
           servicePort: 443
+      - path: /confdb
+        backend:
+          serviceName: confdb
+          servicePort: 8340
       - path: /crabserver
         backend:
           serviceName: crabserver
