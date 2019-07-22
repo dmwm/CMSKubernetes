@@ -39,7 +39,8 @@ for fname in $files; do
         if [ -f $cdir/$fname ]; then
             rm $cdir/$fname
         fi
-        ln -s /etc/secrets/$fname $cdir/$fname
+        sudo cp /etc/secrets/$fname $cdir/$fname
+        sudo chown $USER.$USER $cdir/$fname
     fi
 done
 

@@ -21,7 +21,9 @@ if [ -f /etc/secrets/hmac ]; then
     sudo chown _workqueue._workqueue /data/srv/current/auth/wmcore-auth/header-auth-key
     # generate new hmac key for couch
     chmod u+w /data/srv/current/auth/couchdb/hmackey.ini
-    perl -e 'undef $/; print "[couch_cms_auth]\n"; print "hmac_secret = ", unpack("h*", <STDIN>), "\n"' < /etc/secrets/hmac > /data/srv/current/auth/couchdb/hmackey.ini
+    sudo cp /etc/secrets/hmac /tmp
+    sudo chown _workqueue._workqueue /tmp/hmac
+    perl -e 'undef $/; print "[couch_cms_auth]\n"; print "hmac_secret = ", unpack("h*", <STDIN>), "\n"' < /tmp/hmac > /data/srv/current/auth/couchdb/hmackey.ini
 fi
 
 # we need to populate workqueue dbs into couch first
@@ -40,7 +42,8 @@ for fname in $files; do
         if [ -f $cdir/$fname ]; then
             rm $cdir/$fname
         fi
-        ln -s /etc/secrets/$fname $cdir/$fname
+        sudo cp /etc/secrets/$fname $cdir/$fname
+        sudo chown $USER.$USER $cdir/$fname
     fi
 done
 
