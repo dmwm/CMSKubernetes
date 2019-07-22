@@ -68,14 +68,6 @@ spec:
       - name: secrets
         secret:
           secretName: reqmon-secrets
-          # https://github.com/kubernetes/kubernetes/issues/34982
-          defaultMode: 256
-          items:
-            - key: "robotcert.pem"
-              path: "robotcert.pem"
-              mode: 0640
-            - key: "robotkey.pem"
-              path: "robotkey.pem"
       - name: hostkey
         hostPath:
             path: /etc/grid-security/hostkey.pem
