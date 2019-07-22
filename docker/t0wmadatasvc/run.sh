@@ -43,6 +43,12 @@ for fname in $files; do
     fi
 done
 
+# add t0auth.py
+if [ -f /etc/secrets/t0auth.py ]; then
+    sudo rm /data/srv/current/auth/t0wmadatasvc/t0auth.py
+    ln -s /etc/secrets/t0auth.py /data/srv/current/auth/t0wmadatasvc/t0auth.py
+fi
+
 # start the service
 /data/srv/current/config/t0wmadatasvc/manage start 'I did read documentation'
 
