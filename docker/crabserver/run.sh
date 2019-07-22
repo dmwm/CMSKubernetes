@@ -32,6 +32,12 @@ for fname in $files; do
     fi
 done
 
+# add t0auth.py
+if [ -f /etc/secrets/CRABServerAuth.py ]; then
+    sudo rm /data/srv/current/auth/crabserver/CRABServerAuth.py
+    ln -s /etc/secrets/CRABServerAuth.py /data/srv/current/auth/crabserver/CRABServerAuth.py
+fi
+
 # start the service
 /data/srv/current/config/crabserver/manage start 'I did read documentation'
 
