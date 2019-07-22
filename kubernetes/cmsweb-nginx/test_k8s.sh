@@ -16,12 +16,12 @@ fi
 # dbs instance
 inst=int # preproduction
 
-urls="$url/couchdb $url/reqmgr2/data/info $url/dbs/$inst/global/DBSReader/datasets?dataset=/ZMM*/*/* $url/das $url/workqueue/index.html $url/phedex $url/confdb $url/t0_reqmon/data/info"
+urls="$url/couchdb $url/acdcserver/_all_docs $url/alertscollector/_all_docs $url/reqmgr2/data/info $url/dbs/$inst/global/DBSReader/datasets?dataset=/ZMM*/*/* $url/das $url/workqueue/index.html $url/phedex $url/confdb $url/t0_reqmon/data/info $url/crabserver/preprod/info $url/crabcache/info $url/wmstatsserver/data/info $url/wmstats/index.html"
 
 # DO NOT MODIFY BELOW THIS LINE
 
 # define curl options to show only HTTP code
-opts="-s -o /dev/null -w \"%{http_code}\""
+opts="-L -s -o /dev/null -w \"%{http_code}\""
 
 # perform tests with user key/cert
 echo
