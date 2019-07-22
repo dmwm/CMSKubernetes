@@ -33,7 +33,7 @@ spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: veknet/reqmgr2ms
+      - image: cmssw/reqmgr2ms
         name: reqmgr2ms
         tty: true
         stdin: true
