@@ -8,7 +8,7 @@ helm del --purge cms-webui-${INSTANCE};
 helm del --purge logstash; 
 helm del --purge filebeat; 
 
-kubectl delete deployment statsd-exporter;
+helm del --purge statsd-exporter;
 
 n=0
 kubectl get node -l role=ingress -o name | grep -v master | while read node; do
