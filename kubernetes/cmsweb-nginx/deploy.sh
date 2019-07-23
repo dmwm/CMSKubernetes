@@ -75,14 +75,8 @@ cleanup()
     done
 
     echo
-    echo "--- delete proxy cron/account"
-    kubectl delete -f proxy-cron.yaml
-    kubectl delete -f proxy-account.yaml
-
-    echo
     echo "--- delete services"
-    services=`kubectl get svc | grep -v NAME | awk '{print $1}'`
-    for s in $services; do
+    for s in $cmsweb_srvs; do
         if [ -f ${s}.yaml ]; then
             kubectl delete -f ${s}.yaml
         fi
