@@ -76,9 +76,18 @@ cleanup()
 
     echo
     echo "--- delete services"
-    for s in $cmsweb_srvs; do
-        if [ -f ${s}.yaml ]; then
-            kubectl delete -f ${s}.yaml
+    for srv in $cmsweb_srvs; do
+        # special case for DBS instances
+        if [ "$srv" == "dbs" ]; then
+            for inst in $dbs_instances; do
+                if [ -f ${srv}-${inst}.yaml ]; then
+                    kubectl delete -f ${srv}-${inst}.yaml
+                fi
+            done
+        else
+            if [ -f ${srv}.yaml ]; then
+                kubectl delete -f ${s}.yaml
+            fi
         fi
     done
 
