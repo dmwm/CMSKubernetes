@@ -48,6 +48,12 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# switch to use pycurl in Requests.py instead of default httplib2
+fname=`find /data/srv/$VER/sw/$ARCH/cms/workqueue/ -name Requests.py`
+sed -i -e "s#self.pycurl = idict.get('pycurl', None)#self.pycurl = True#g" $fname
+cd $WDIR
+# end of TMP block, will be removed once we get it in WMCore condebase
+
 # comment out usage of port 8443 in k8s setup
 files=`find /data/srv/$VER/sw/$ARCH -type f | xargs grep ":8443" | awk '{print $1}' | sed -e "s,:,,g" | grep py$`
 for fname in $files; do
