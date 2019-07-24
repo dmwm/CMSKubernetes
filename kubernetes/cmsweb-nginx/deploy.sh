@@ -66,8 +66,8 @@ echo "Kubernetes host: $kubehost"
 
 # set auto-scaling environment
 # https://www.tutorialspoint.com/kubernetes/kubernetes_autoscaling.htm
-export NUM_NODES=2
-export KUBE_AUTOSCALER_MIN_NODES=2
+export NUM_NODES=1
+export KUBE_AUTOSCALER_MIN_NODES=1
 export KUBE_AUTOSCALER_MAX_NODES=5
 export KUBE_ENABLE_CLUSTER_AUTOSCALER=true
 
