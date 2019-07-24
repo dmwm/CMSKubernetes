@@ -72,12 +72,7 @@ Copy and paste the last line. On subsequent logins it is all that is needed. Now
     kubectl config current-context
     helm repo add rucio https://rucio.github.io/helm-charts
     helm repo add kiwigrid https://kiwigrid.github.io
-
-## Setup StorageClass (if needed)
-
-If we have CephFS storage needs, one makes a single storage class for the entire claim:
-
-    kubectl create -f cms-rucio-storage.yaml
+    helm repo add cms-kubernetes https://dmwm.github.io/CMSKubernetes/helm/
 
 ## Install helm into the kubernetes project
 
@@ -122,36 +117,22 @@ The above is what is needed to get things bootstrapped the first time. After thi
     
 # Get a client running and connect to your server
 
-There are two ways of doing this. 
-The first is best for most people and involves setting up a VM inside CERN with docker installed. 
-Instructions are at https://github.com/dmwm/CMSRucio/wiki/Setting-up-a-VM-as-a-client
+There are lots of ways of doing this, but the easiest now is to use the CMS installed Rucio from CVMFS. 
+Note that the python environment can clash with openstack, so best to use a new window.
 
-You can also install, into k8s, another pod running a client installed to connect to your new server. 
-There is a client YAML file which is used for this. 
-Find the client name below from the output of `kubectl get pods`
+     source /cvmfs/cms.cern.ch/rucio/setup.sh
 
-    kubectl create -f rucio-client.yaml 
-    kubectl get pods
-    kubectl exec -it client-6c4466d746-gwl9g /bin/bash
-    
-And then in your client container, setup a proxy or use user/password etc. and
+You will also need to setup a config file pointed to by RUCIO_HOME.
+
+You can also run the rucio client in a container or even in the k8s cluster. 
+Instructions for these methods are no longer provided.
+
+Then setup a proxy and
     
     export RUCIO_ACCOUNT=[an account your identity maps to]
     rucio whoami 
 
 From here you should be able to use any rucio command line commands you need to.
-
-# Connect to graphite from a web browser
-
-This is complicated at the moment. One needs to figure out what node the server is exposed on using kubectl tools and 
-use tunneling if connecting from outside of CERN. 
-
-Setup the tunnel with 
-
-    ssh -D 8089 -N ${USER}@lxplus.cern.ch
-
-and configure your browser appropriately (Firefox works well with SOCK5 proxies) then visit the URL for the graphite server
-which at the time of writing was http://cmsruciotest-73m6rlb5qg4p-minion-3.cern.ch:30862 
 
 # Decommission a cluster
 
