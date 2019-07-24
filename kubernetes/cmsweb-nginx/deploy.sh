@@ -86,7 +86,7 @@ cleanup()
             done
         else
             if [ -f ${srv}.yaml ]; then
-                kubectl delete -f ${s}.yaml
+                kubectl delete -f ${srv}.yaml
             fi
         fi
     done
