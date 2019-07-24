@@ -152,6 +152,21 @@ Use this name with .cern.ch suffix to create a DNS alias we need, e.g.
 
 4. check that new service is running, e.g. call `curl http://cmsweb.web.cern.ch`
 
+### Add autoscale for certain pods
+we can turn on autoscale of pods via the following command (here we use dbs as
+an example):
+```
+kubectl autoscale deployment dbs-global-r --cpu-percent=10 --min=1 --max=10
+```
+we can check the autoscale as
+```
+kubectl get hpa
+```
+and, we can delete it if necessary as following:
+```
+kubectl delete hpa dbs-global-r
+```
+
 ### Additional features
 
 - [Load balancing](https://clouddocs.web.cern.ch/clouddocs/containers/tutorials/lb.html)
