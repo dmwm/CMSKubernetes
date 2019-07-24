@@ -7,7 +7,7 @@
 # Authors:
 # - Eric Vaandering, <ewv@fnal.gov>, 2018
 
-FROM rucio/rucio-daemons:release-1.19.7.post1
+FROM rucio/rucio-daemons:release-1.20.2
 
 ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/cmstfc.py  /usr/lib/python2.7/site-packages/cmstfc.py
 

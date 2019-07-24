@@ -8,7 +8,7 @@
 # - Eric Vaandering, <ewv@fnal.gov>, 2018
 
 
-FROM rucio/rucio-server:release-1.19.7.post1
+FROM rucio/rucio-server:release-1.20.2
 
 ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/cmstfc.py  /usr/lib/python2.7/site-packages/cmstfc.py
 
@@ -23,11 +23,5 @@ RUN yum -y install ca-certificates.noarch fetch-crl cronie psmisc
 ADD cms-entrypoint.sh /
 
 RUN echo "32 */6 * * * root ! /usr/sbin/fetch-crl -q -r 360 ; killall -HUP httpd" > /etc/cron.d/fetch-crl-docker
-
-#RUN rm /etc/httpd/conf.d/ssl.conf
-
-ADD session.py /usr/lib/python2.7/site-packages/rucio/db/sqla/session.py
-#https://raw.githubusercontent.com/ericvaandering/rucio/1e7a195ad003ef50455e216795177ec93d0c1480/lib/rucio/db/sqla/session.py /usr/lib/python2.7/site-packages/rucio/db/sqla/session.py
-RUN chmod 755 /usr/lib/python2.7/site-packages/rucio/db/sqla/session.py
 
 ENTRYPOINT ["/cms-entrypoint.sh"]

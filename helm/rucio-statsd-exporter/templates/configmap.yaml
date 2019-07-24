@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: statsd-exporter-configmap
+  labels:
+    app: statsd-exporter
+data:
+  statsd_mapping.yaml: |+
+    mappings:
+      - match: stats.test.*
+        help: "Mapping-generated"
+        name: "test_$1"
