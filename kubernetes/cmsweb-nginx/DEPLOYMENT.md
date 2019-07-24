@@ -45,6 +45,18 @@ or if you already have a cluster then you may setup your environment as
 cd workdir
 export KUBECONFIG=$PWD/config
 ```
+
+Please inspect your minion node before moving forward. We found that quite
+often nodes fail to provide valid host certificate files. To do that please
+login to one of your minion nodes:
+```
+ssh -i ~/.ssh/cloud -o ConnectTimeout=30 -o UserKnownHostsFile=/dev/null -o
+StrictHostKeyChecking=no fedora@<minion-node-name>
+# and inspect /etc/grid-security area
+ls -l /etc/grid-security
+```
+It should contain proper content, i.e. hostcert.pem and hostkey.pem files.
+
 To proceed get latest [CMSKubernetes](https://github.com/dmwm/CMSKubernetes) codebase
 ```
 git clone git@github.com:dmwm/CMSKubernetes.git
