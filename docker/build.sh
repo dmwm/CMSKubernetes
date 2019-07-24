@@ -21,6 +21,7 @@ fi
 
 # adjust if necessary
 CMSK8S=${CMSK8S:-https://cmsweb-test.web.cern.ch}
+CMSK8STAG=${CMSK8STAG:-}
 
 echo "to prune all images"
 echo "docker system prune -f -a"
@@ -32,6 +33,9 @@ if [ $# -eq 1 ]; then
 fi
 echo "Build: $cmssw_pkgs"
 echo "CMSK8S=$CMSK8S"
+echo "CMSK8STAG=$CMSK8STAG"
+
+exit 1
 
 repo=cmssw
 for pkg in $cmssw_pkgs; do
@@ -40,6 +44,9 @@ for pkg in $cmssw_pkgs; do
     echo "### existing images"
     docker images
     docker push $repo/$pkg
+    if [ -n $CMSK8STAG ]; then
+        docker push $repo/$pkg:$CMSK8STAG
+    fi
     if [ "$pkg" != "cmsweb" ]; then
         docker rmi $repo/$pkg
     fi
