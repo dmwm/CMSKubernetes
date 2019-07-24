@@ -7,10 +7,8 @@
 ##H
 
 # build.sh: script to build docker images for cmsweb services
-# for each data service we can adjust which host to use via
-# CMSK8S_PROD, CMSK8S_PREP, CMSK8S_DEV, CMSK8S_PRIV environments
-# which defiles a hostname to use for cmsweb production, preproduction,
-# development and private instance on k8s cluster
+# use CMSK8S environment to controll host name of k8s cluster
+# use CMSK8STAG environment to specify common tag for build images
 
 # define help
 usage="Usage: build.sh <pkgs>"
