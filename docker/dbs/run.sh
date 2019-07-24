@@ -21,16 +21,18 @@ fi
 
 # overwrite header-auth key file with one from secrets
 if [ -f /etc/secrets/hmac ]; then
+    mkdir -p /data/srv/current/auth/wmcore-auth
     if [ -f /data/srv/current/auth/wmcore-auth/header-auth-key ]; then
         sudo rm /data/srv/current/auth/wmcore-auth/header-auth-key
-        cp /etc/secrets/hmac /data/srv/current/auth/wmcore-auth/header-auth-key
-        sudo chown $USER.$USER /data/srv/current/auth/wmcore-auth/header-auth-key
     fi
+    sudo cp /etc/secrets/hmac /data/srv/current/auth/wmcore-auth/header-auth-key
+    sudo chown $USER.$USER /data/srv/current/auth/wmcore-auth/header-auth-key
+    mkdir -p /data/srv/current/auth/$srv
     if [ -f /data/srv/current/auth/$srv/header-auth-key ]; then
         sudo rm /data/srv/current/auth/$srv/header-auth-key
-        cp /etc/secrets/hmac /data/srv/current/auth/$srv/header-auth-key
-        sudo chown $USER.$USER /data/srv/current/auth/$srv/header-auth-key
     fi
+    sudo cp /etc/secrets/hmac /data/srv/current/auth/$srv/header-auth-key
+    sudo chown $USER.$USER /data/srv/current/auth/$srv/header-auth-key
 fi
 
 # use service configuration files from /etc/secrets if they are present
