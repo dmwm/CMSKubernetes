@@ -57,6 +57,10 @@ spec:
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
           readOnly: true 
+      initContainers:
+      - name: checkcouchdb
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nslookup couchdb.default; do echo "Waiting for couchdb"; sleep 10; done;']
       volumes:
       - name: proxy-secrets
         secret:
@@ -64,8 +68,6 @@ spec:
       - name: secrets
         secret:
           secretName: workqueue-secrets
-          defaultMode: 256
-          # https://github.com/kubernetes/kubernetes/issues/34982
       - name: hostkey
         hostPath:
             path: /etc/grid-security/hostkey.pem
