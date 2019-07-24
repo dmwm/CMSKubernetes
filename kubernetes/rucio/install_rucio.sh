@@ -1,11 +1,8 @@
 #! /bin/sh
 
-
-export REPO=~/rucio-helm-charts # or rucio
-
 export SERVER_NAME=cms-rucio-${INSTANCE}
-DAEMON_NAME=cms-ruciod-${INSTANCE}
-UI_NAME=cms-webui-${INSTANCE}
+export DAEMON_NAME=cms-ruciod-${INSTANCE}
+export UI_NAME=cms-webui-${INSTANCE}
 
 # Ingress server. With correct labels we should not need this anymore.
 
@@ -18,7 +15,7 @@ helm install --name $DAEMON_NAME --values cms-rucio-common.yaml,cms-rucio-daemon
 helm install --name $UI_NAME --values cms-rucio-common.yaml,cms-rucio-webui.yaml,${INSTANCE}-rucio-webui.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $REPO/rucio-ui
 
 # statsd exporter to prometheus
-helm install --name statsd-exporter  --values ${INSTANCE}-statsd-exporter.yaml ~/CMSKubernetes/helm/rucio-statsd-exporter
+helm install --name statsd-exporter  --values ${INSTANCE}-statsd-exporter.yaml cms-kubernetes/rucio-statsd-exporter
 
 # Filebeat and logstash
 helm install --name logstash --values cms-rucio-logstash.yml,${INSTANCE}-logstash-filter.yaml stable/logstash
