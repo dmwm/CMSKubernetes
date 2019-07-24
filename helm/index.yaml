@@ -1,0 +1,22 @@
+apiVersion: v1
+entries:
+  rucio-statsd-exporter:
+  - apiVersion: v1
+    appVersion: "1.0"
+    created: 2019-07-24T20:45:39.31147819+02:00
+    description: A Helm chart to deploy statsd-exporter for CMS Rucio
+    digest: 43e6d60f6c15ed4530c8a0ddf430a765807bee94f0ee899ef662b5a4836cc6a7
+    home: https://github.com/dmwm/CMSKubernetes
+    keywords:
+    - data-management
+    - science
+    maintainers:
+    - email: ewv@fnal.gov
+      name: Eric Vaandering
+    name: rucio-statsd-exporter
+    sources:
+    - https://github.com/dmwm/CMSKubernetes
+    urls:
+    - rucio-statsd-exporter-0.1.0.tgz
+    version: 0.1.0
+generated: 2019-07-24T20:45:39.310848869+02:00
