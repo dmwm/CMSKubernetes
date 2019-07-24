@@ -33,8 +33,6 @@ echo "Build: $cmssw_pkgs"
 echo "CMSK8S=$CMSK8S"
 echo "CMSK8STAG=$CMSK8STAG"
 
-exit 1
-
 repo=cmssw
 for pkg in $cmssw_pkgs; do
     echo "### build $repo/$pkg"
