@@ -31,7 +31,7 @@ spec:
   selector:
     matchLabels:
       app: dbs-global-r
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
@@ -40,14 +40,8 @@ spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/dbs
+      - image: cmssw/dbs:1.0.0
         name: dbs-global-r
-        tty: true
-        stdin: true
-        lifecycle:
-          postStart:
-            exec:
-              command: ["/bin/sh", "-c", "/data/monitor.sh"]
         ports:
         - containerPort: 8252
           protocol: TCP

@@ -30,14 +30,8 @@ spec:
         app: crabserver
     spec:
       containers:
-      - image: cmssw/crabserver
+      - image: cmssw/crabserver:1.0.0
         name: crabserver
-        tty: true
-        stdin: true
-        lifecycle:
-          postStart:
-            exec:
-              command: ["/bin/sh", "-c", "sleep 20 && /data/monitor.sh"]
         ports:
         - containerPort: 8270
           protocol: TCP

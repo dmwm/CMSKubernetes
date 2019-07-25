@@ -34,12 +34,6 @@ spec:
       containers:
       - image: cmssw/dmwmmon
         name: dmwmmon
-        tty: true
-        stdin: true
-        lifecycle:
-          postStart:
-            exec:
-              command: ["/bin/sh", "-c", "sleep 20 && /data/monitor.sh"]
         ports:
         - containerPort: 8280
           protocol: TCP

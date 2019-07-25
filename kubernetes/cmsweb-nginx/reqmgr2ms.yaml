@@ -33,14 +33,8 @@ spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/reqmgr2ms
+      - image: cmssw/reqmgr2ms:1.0.0
         name: reqmgr2ms
-        tty: true
-        stdin: true
-        lifecycle:
-          postStart:
-            exec:
-              command: ["/bin/sh", "-c", "sleep 20 && /data/monitor.sh"]
         ports:
         - containerPort: 8248
           protocol: TCP

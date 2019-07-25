@@ -33,14 +33,8 @@ spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/couchdb
+      - image: cmssw/couchdb:1.0.0
         name: couchdb
-        tty: true
-        stdin: true
-        lifecycle:
-          postStart:
-            exec:
-              command: ["/bin/sh", "-c", "sleep 20 && /data/monitor.sh"]
         ports:
         - containerPort: 5984
           protocol: TCP

@@ -30,5 +30,12 @@ spec:
       containers:
       - image: veknet/httpgo
         name: httpgo
+        # here is an example how to run post command
+        tty: true
+        stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "ls"]
         ports:
         - containerPort: 8888

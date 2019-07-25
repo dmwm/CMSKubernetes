@@ -35,17 +35,8 @@ spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/das
+      - image: cmssw/das:1.0.0
         name: das
-#         tty: true
-#         stdin: true
-#         lifecycle:
-#           postStart:
-#             exec:
-#               command:
-#               - bash
-#               - -c
-#               - sudo chmod 0400 /etc/secrets/server.key /etc/secrets/robotkey.pem
         ports:
         - containerPort: 8217
           protocol: TCP

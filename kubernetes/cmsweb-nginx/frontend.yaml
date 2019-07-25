@@ -39,14 +39,8 @@ spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/frontend
+      - image: cmssw/frontend:1.0.0
         name: frontend
-        tty: true
-        stdin: true
-        lifecycle:
-          postStart:
-            exec:
-              command: ["/bin/sh", "-c", "/data/monitor.sh"]
         ports:
         - containerPort: 80
           protocol: TCP

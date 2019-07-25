@@ -35,14 +35,8 @@ spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/dbs
+      - image: cmssw/dbs:1.0.0
         name: dbs-global-w
-        tty: true
-        stdin: true
-        lifecycle:
-          postStart:
-            exec:
-              command: ["/bin/sh", "-c", "/data/monitor.sh"]
         ports:
         - containerPort: 8253
           protocol: TCP

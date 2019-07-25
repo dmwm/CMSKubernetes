@@ -32,14 +32,8 @@ spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/dbsmig
+      - image: cmssw/dbsmigration:1.0.0
         name: dbsmig
-        tty: true
-        stdin: true
-        lifecycle:
-          postStart:
-            exec:
-              command: ["/bin/sh", "-c", "/data/monitor.sh"]
         ports:
         - containerPort: 8257
           protocol: TCP

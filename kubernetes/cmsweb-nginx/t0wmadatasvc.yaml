@@ -33,14 +33,8 @@ spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/t0wmadatasvc
+      - image: cmssw/t0wmadatasvc:1.0.0
         name: t0wmadatasvc
-        tty: true
-        stdin: true
-        lifecycle:
-          postStart:
-            exec:
-              command: ["/bin/sh", "-c", "sleep 20 && /data/monitor.sh"]
         ports:
         - containerPort: 8308
           protocol: TCP

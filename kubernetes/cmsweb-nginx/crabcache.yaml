@@ -30,14 +30,8 @@ spec:
         app: crabcache
     spec:
       containers:
-      - image: cmssw/crabcache
+      - image: cmssw/crabcache:1.0.0
         name: crabcache
-        tty: true
-        stdin: true
-        lifecycle:
-          postStart:
-            exec:
-              command: ["/bin/sh", "-c", "sleep 20 && /data/monitor.sh"]
         ports:
         - containerPort: 8271
           protocol: TCP
