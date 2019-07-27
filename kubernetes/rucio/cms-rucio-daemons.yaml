@@ -16,7 +16,7 @@ undertakerCount: 1
 reaperCount: 1
 
 conveyorTransferSubmitter:
-    activities: "'User Subscriptions'"
+    activities: "'User Subscriptions' 'Functional Test'"
 
 reaper:
   greedy: 1
