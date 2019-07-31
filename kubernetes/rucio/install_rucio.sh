@@ -4,9 +4,8 @@ export SERVER_NAME=cms-rucio-${INSTANCE}
 export DAEMON_NAME=cms-ruciod-${INSTANCE}
 export UI_NAME=cms-webui-${INSTANCE}
 
-# Ingress server. With correct labels we should not need this anymore.
-
-helm install stable/nginx-ingress --namespace kube-system --name ingress-nginx --values nginx-ingress.yaml
+# Ingress server. With correct labels in create_cluster.sh we should not need this anymore. Commenting out
+# helm install stable/nginx-ingress --namespace kube-system --name ingress-nginx --values nginx-ingress.yaml
 
 # Rucio server, daemons, and daemons for analysis
 
@@ -21,6 +20,7 @@ helm install --name statsd-exporter  --values ${INSTANCE}-statsd-exporter.yaml c
 helm install --name logstash --values cms-rucio-logstash.yml,${INSTANCE}-logstash-filter.yaml stable/logstash
 helm install --name filebeat --values cms-rucio-filebeat.yml  stable/filebeat
 
+# Create a job NOW to start setting the proxies. 
 kubectl delete job --ignore-not-found=true fts
 kubectl create job --from=cronjob/${DAEMON_NAME}-renew-fts-proxy fts
 
