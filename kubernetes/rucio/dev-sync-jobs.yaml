@@ -13,12 +13,12 @@ spec:
           volumes:
           - name: usercert
             secret:
-              secretName: fts-cert
+              secretName: cms-ruciod-dev-fts-cert
           - name: userkey
             secret:
-              secretName: fts-key
+              secretName: cms-ruciod-dev-fts-key
           containers:
-            - name: renew-fts-cron
+            - name: sync-rses
               image: "cmssw/rucio_client:latest"
               imagePullPolicy: Always
               volumeMounts:
@@ -48,15 +48,15 @@ spec:
           volumes:
           - name: usercert
             secret:
-              secretName: fts-cert
+              secretName: cms-ruciod-dev-fts-cert
           - name: userkey
             secret:
-              secretName: fts-key
+              secretName: cms-ruciod-dev-fts-key
           - name: config
             configMap:
               name: dataset-config
           containers:
-            - name: renew-fts-cron
+            - name: sync-datasets
               image: "cmssw/rucio_client:latest"
               imagePullPolicy: Always
               volumeMounts:
