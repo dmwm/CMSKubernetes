@@ -1,8 +1,8 @@
-### cmsweb k8s app
+### cmsweb k8s notes
 To create cmsweb app on kubernetes cluster please follow these steps:
 
-1. create new cluster by login to `lxplus-cloud.cern.ch` and execute the
-   following command (use one of them, they are listed as an example)
+Create new cluster by login to `lxplus-cloud.cern.ch` and execute the
+following command (use one of them, they are listed as an example)
 
 ```
 # create new cluster
@@ -37,6 +37,108 @@ openstack --os-project-name "CMS Webtools Mig" coe cluster list
 # it should have CREATE_COMPLETE status
 ```
 
+Once cluster is created we need to perform one-time operation to get pem files
+and config for it. Just do:
+```
+# remove previous pem files and configuration
+rm *.pem config
+# create new pem files and configuration
+$(openstack --os-project-name "CMS Webtools Mig" coe cluster config cmsweb)
+```
+
+Create new DNS alias at `https://webservices.web.cern.ch/webservices/`
+using our k8s node name which we can obtain via `kubectl get node` command.
+Use this name with .cern.ch suffix to create a DNS alias we need, e.g.
+`cmsweb`. The new DNS alias will be accessible as `<aliasName>.web.cern.ch`
+
+Now, we can deploy our k8s app using `kubectl` command (or `deploy.sh` script
+in case of cmsweb deployment).
+```
+# deploy new application with its app.yaml configuration
+kubectl apply -f app.yaml --validate=false
+
+# get list of pods (deployed apps) in default namespace
+# here we should get cmsweb app deployed
+kubectl get pods
+...
+# we should see cluster name and Running status
+cmsweb-5556f46d6c-phkmq   1/1       Running   0          15h
+
+# get list of pods in kube-system namespace, here we should see traefik/nginx controllers
+kubectl get pods -n kube-system
+...
+# we should see cluster name and traefik/nginx Running status
+# example of traefik ingress
+ingress-traefik-lk85w                   1/1       Running            0  15h
+# example of nginx ingress
+ingress-nginx-nginx-ingress-controller-qv8vj                   1/1 Running   0          18d
+ingress-nginx-nginx-ingress-default-backend-85474bb488-5s8mb   1/1 Running   0          18d
+
+# get list of deployed services, here we should see our cmsweb with port 80
+kubectl get svc
+...
+# we should see hostname and port mapping
+cmsweb       NodePort    10.254.136.150   <none>        8181:30181/TCP   15h
+
+# you may wish to delete your app/pod
+kubectl delete app.yaml
+```
+
+### Add autoscale for certain pods
+In order to turn on pods' autoscaling you need to implement proper
+`resources` specs in your application yaml file. Please refer to
+[Resources](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
+documentation how to do it. Once your pod is deployed 
+we can turn on autoscale of pods via the following command (here we use dbs as
+an example):
+```
+# example how to scale dbs app to 3 pods if its CPU usage will exceed 50%
+kubectl autoscale deployment dbs --cpu-percent=50 --min=1 --max=3
+```
+To check the autoscale we use the following command
+```
+kubectl get hpa
+```
+and it should yield the following information
+```
+NAME  REFERENCE        TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+dbs   Deployment/dbs   5%/50%    1         3         1          3h38m
+```
+which shows current load (5%) and CPU threshold (50%) along
+with number of current pods/replicas. We can delete autoscaling
+(if necessary) as following
+```
+kubectl delete hpa dbs
+```
+
+### Cluster access rules
+We can create specific cluster rules following this
+[procedure](http://clouddocs.web.cern.ch/clouddocs/containers/tutorials/kubernetes-keystone-authentication.html)
+For example, we'll create `edit` roles for user `user` to access our default
+cluster namespace:
+
+```
+# create new rolebinding with edit role for given user
+kubectl create rolebinding user-edit --clusterrole=edit --user user --namespace=default
+# delete rolebinding
+kubectl delete rolebinding user-edit
+# list existing rolebindings
+kubectl get rolebinding
+```
+
+### Additional documentation
+
+- [Load balancing](https://clouddocs.web.cern.ch/clouddocs/containers/tutorials/lb.html)
+- [Autoscale](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale)
+- [Resources](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
+- [Using configmap](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap)
+- [Using secrets](https://kubernetes.io/docs/concepts/configuration/secret)
+- [Accessing pods](http://alesnosek.com/blog/2017/02/14/accessing-kubernetes-pods-from-outside-of-the-cluster)
+- [DNS for pods](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service)
+- [Logging](https://kubernetes.io/docs/concepts/cluster-administration/logging/)
+
+### Special operations
+##### Additional volumes
 We can also create an additional volume, e.g. to store our cmsweb logs, via the
 following command:
 ```
@@ -60,12 +162,16 @@ manila list
 
 ```
 
+##### Special node about nginx ingress controller.
+we may need to adjust nginx controller of the cluster to avoid its crashes until
+it is fixed by CERN IT, this can be done by editing its confiugration
+one time operation:
+- remove xxxxxxxProbe section (healthz)
+- increase ram allocation from 64Mi to 128Mi (or more, e.g. 256Mi)
+It is one time operation once you have working cluster and should be
+done as following
 ```
-# we need to adjust nginx controller of the cluster to avoid its crashes until
-# it is fixed by CERN IT, this can be done by editing its confiugration
-# one time operation:
-# - remove xxxxxxxProbe section (healthz)
-# - increase ram allocation from 64Mi to 128Mi
+# edit nginx ingress controller spec
 kubectl -n kube-system edit daemonset.apps/nginx-ingress-controller
 
 # then we can restart the daemon set as following, e.g.
@@ -75,22 +181,7 @@ kubectl -n kube-system get pods | grep ingress-controller | awk '{print "kubectl
 
 ```
 
-Once cluster is created we need to perform one-time operation to get pem files
-and config for it. Just do:
-```
-# remove previous pem files and configuration
-rm *.pem config
-# create new pem files and configuration
-$(openstack --os-project-name "CMS Webtools Mig" coe cluster config cmsweb)
-```
-
-Then go to `https://webservices.web.cern.ch/webservices/` and register new
-domain name, e.g. cmsweb, for cluster node we got. We can get cluster node via
-the following command:
-`
-kubectl get node
-`
-
+##### Deployment of nginx ingress controller
 The next series of steps is required until CERN IT will deploy new flag for
 ingress nginx controller
 ```
@@ -118,82 +209,7 @@ helm install stable/nginx-ingress --namespace kube-system --name ingress-nginx -
 ```
 
 
-2. Now, we can deploy our k8s app using `deploy.sh` script. You may verify apps
-   creation by using these commands:
-```
-# get list of pods (deployed apps) in default namespace
-# here we should get cmsweb app deployed
-kubectl get pods
-...
-# we should see cluster name and Running status
-cmsweb-5556f46d6c-phkmq   1/1       Running   0          15h
-
-# get list of pods in kube-system namespace, here we should see traefik/nginx controllers
-kubectl get pods -n kube-system
-...
-# we should see cluster name and traefik/nginx Running status
-# example of traefik ingress
-ingress-traefik-lk85w                   1/1       Running            0  15h
-# example of nginx ingress
-ingress-nginx-nginx-ingress-controller-qv8vj                   1/1 Running   0          18d
-ingress-nginx-nginx-ingress-default-backend-85474bb488-5s8mb   1/1 Running   0          18d
-
-# get list of deployed services, here we should see our cmsweb with port 80
-kubectl get svc
-...
-# we should see hostname and port mapping
-cmsweb       NodePort    10.254.136.150   <none>        8181:30181/TCP   15h
-```
-
-3. create new DNS alias at `https://webservices.web.cern.ch/webservices/`
-using our k8s node name which we can obtain via `kubectl get node` command.
-Use this name with .cern.ch suffix to create a DNS alias we need, e.g.
-`cmsweb`. The new DNS alias will be accessible as `<aliasName>.web.cern.ch`
-
-4. check that new service is running, e.g. call `curl http://cmsweb.web.cern.ch`
-
-### Add autoscale for certain pods
-we can turn on autoscale of pods via the following command (here we use dbs as
-an example):
-```
-kubectl autoscale deployment dbs-global-r --cpu-percent=10 --min=1 --max=10
-```
-we can check the autoscale as
-```
-kubectl get hpa
-```
-and, we can delete it if necessary as following:
-```
-kubectl delete hpa dbs-global-r
-```
-
-### Cluster access rules
-We can create specific cluster rules following this
-[procedure](http://clouddocs.web.cern.ch/clouddocs/containers/tutorials/kubernetes-keystone-authentication.html)
-For example, we'll create view roles for user `user` to access our default
-clsuter namespace:
-
-```
-# create new rolebinding, we can replace view with edit role
-kubectl create rolebinding user-view --clusterrole=view --user user --namespace=default
-# delete rolebinding
-kubectl delete rolebinding user-view
-# list existing rolebindings
-kubectl get rolebinding
-```
-
-### Additional features
-
-- [Load balancing](https://clouddocs.web.cern.ch/clouddocs/containers/tutorials/lb.html)
-- [Autoscale](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale)
-- [Resources](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
-- [Using configmap](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap)
-- [Using secrets](https://kubernetes.io/docs/concepts/configuration/secret)
-- [Accessing pods](http://alesnosek.com/blog/2017/02/14/accessing-kubernetes-pods-from-outside-of-the-cluster)
-- [DNS for pods](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service)
-- [Logging](https://kubernetes.io/docs/concepts/cluster-administration/logging/)
-
-### Troubleshooting
+##### Troubleshooting
 If you find that some of the pods didn't start you may use the following
 commands to trace down the problem:
 ```
