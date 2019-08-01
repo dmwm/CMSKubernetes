@@ -25,10 +25,10 @@ kubectl apply -f dataset-configmap.yaml
 kubectl apply -f ${PREFIX}-sync-jobs.yaml -l syncs=rses
 
 n=0
-for node in kubectl get node -l role=ingress -o name | grep -v master; do
+kubectl get node -l role=ingress -o name | grep -v master | while read node; do
   # Remove any existing aliases
   openstack server unset --os-project-name CMSRucio --property landb-alias ${node##node/}
-  $(($n++))
+  echo $((n++)) > /dev/null  # must be a better way to increment...
   cnames="cms-rucio-stats-dev--load-${n}-,cms-rucio-dev--load-${n}-,cms-rucio-auth-dev--load-${n}-,cms-rucio-webui-dev--load-${n}-"
   openstack server set --os-project-name CMSRucio --property landb-alias=$cnames ${node##node/}
 done
