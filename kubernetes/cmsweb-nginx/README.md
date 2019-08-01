@@ -167,10 +167,26 @@ and, we can delete it if necessary as following:
 kubectl delete hpa dbs-global-r
 ```
 
+### Cluster access rules
+We can create specific cluster rules following this
+[procedure](http://clouddocs.web.cern.ch/clouddocs/containers/tutorials/kubernetes-keystone-authentication.html)
+For example, we'll create view roles for user `user` to access our default
+clsuter namespace:
+
+```
+# create new rolebinding, we can replace view with edit role
+kubectl create rolebinding user-view --clusterrole=view --user user --namespace=default
+# delete rolebinding
+kubectl delete rolebinding user-view
+# list existing rolebindings
+kubectl get rolebinding
+```
+
 ### Additional features
 
 - [Load balancing](https://clouddocs.web.cern.ch/clouddocs/containers/tutorials/lb.html)
 - [Autoscale](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale)
+- [Resources](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
 - [Using configmap](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap)
 - [Using secrets](https://kubernetes.io/docs/concepts/configuration/secret)
 - [Accessing pods](http://alesnosek.com/blog/2017/02/14/accessing-kubernetes-pods-from-outside-of-the-cluster)
