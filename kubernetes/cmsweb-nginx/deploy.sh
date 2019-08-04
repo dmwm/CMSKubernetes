@@ -8,6 +8,7 @@
 ##H   services   create services cluster
 ##H   frontend   create frontend cluster
 ##H   secrets    create secrets files
+##H   scale      scale services
 ##H
 
 # services for cmsweb cluster, adjust if necessary
@@ -64,19 +65,30 @@ host=`openstack --os-project-name "CMS Webtools Mig" coe cluster show $cluster |
 kubehost=`host $host | awk '{print $5}' | sed -e "s,ch.,ch,g"`
 echo "Kubernetes host: $kubehost"
 
-# set auto-scaling environment
-# https://www.tutorialspoint.com/kubernetes/kubernetes_autoscaling.htm
-export NUM_NODES=1
-export KUBE_AUTOSCALER_MIN_NODES=1
-export KUBE_AUTOSCALER_MAX_NODES=5
-export KUBE_ENABLE_CLUSTER_AUTOSCALER=true
-
-scaling()
+scale()
 {
     # dbs
-    kubectl autoscale deployment dbs-global-r --cpu-percent=50 --min=1 --max=10
+    kubectl autoscale deployment dbs-migrate --cpu-percent=80 --min=2 --max=10
+    kubectl autoscale deployment dbs-global-r --cpu-percent=80 --min=3 --max=10
+    kubectl autoscale deployment dbs-global-w --cpu-percent=80 --min=2 --max=5
+    kubectl autoscale deployment dbs-phys03-r --cpu-percent=80 --min=2 --max=4
+    kubectl autoscale deployment dbs-phys03-w --cpu-percent=80 --min=2 --max=4
+
     # frontend
-    kubectl autoscale deployment frontend --cpu-percent=50 --min=1 --max=10
+    kubectl autoscale deployment frontend --cpu-percent=80 --min=3 --max=10
+
+    # all others
+    for srv in $cmsweb_srvs; do
+        # explicitly scaled above, we'll skip them
+        if [ "$srv" == "dbs" ] || [ "$srv" == "frontend" ]; then
+            continue
+        else
+            # default autoscale for service
+            kubectl autoscale deployment $srv --cpu-percent=80 --min=1 --max=3
+        fi
+    done
+
+    kubectl get hpa
 }
 
 cleanup()
@@ -340,6 +352,10 @@ case ${1:-status} in
 
   check )
     check
+    ;;
+
+  scale )
+    scale
     ;;
 
   help )
