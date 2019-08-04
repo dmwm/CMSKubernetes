@@ -35,6 +35,13 @@ spec:
       containers:
       - image: cmssw/reqmgr2ms:1.0.0
         name: reqmgr2ms
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "2Gi"
+            cpu: "800m"
         ports:
         - containerPort: 8248
           protocol: TCP

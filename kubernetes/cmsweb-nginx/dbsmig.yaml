@@ -34,6 +34,13 @@ spec:
       containers:
       - image: cmssw/dbsmigration:1.0.0
         name: dbsmig
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "10Gi"
+            cpu: "800m"
         ports:
         - containerPort: 8257
           protocol: TCP

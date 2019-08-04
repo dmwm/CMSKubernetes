@@ -37,6 +37,13 @@ spec:
       containers:
       - image: cmssw/phedex:1.0.0
         name: phedex
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "2Gi"
+            cpu: "800m"
         ports:
         - containerPort: 7001
           protocol: TCP

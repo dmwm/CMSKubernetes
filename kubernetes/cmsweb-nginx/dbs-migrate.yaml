@@ -35,8 +35,15 @@ spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/dbs:1.0.0
+      - image: cmssw/dbsmigration:1.0.0
         name: dbs-migrate
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "10Gi"
+            cpu: "800m"
         ports:
         - containerPort: 8251
           protocol: TCP

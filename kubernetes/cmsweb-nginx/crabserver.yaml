@@ -32,6 +32,13 @@ spec:
       containers:
       - image: cmssw/crabserver:1.0.0
         name: crabserver
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "2Gi"
+            cpu: "800m"
         ports:
         - containerPort: 8270
           protocol: TCP

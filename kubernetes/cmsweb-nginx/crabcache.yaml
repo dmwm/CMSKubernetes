@@ -32,6 +32,13 @@ spec:
       containers:
       - image: cmssw/crabcache:1.0.0
         name: crabcache
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "2Gi"
+            cpu: "800m"
         ports:
         - containerPort: 8271
           protocol: TCP

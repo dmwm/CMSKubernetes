@@ -35,6 +35,13 @@ spec:
       containers:
       - image: cmssw/reqmon:1.0.0
         name: reqmon
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "2Gi"
+            cpu: "800m"
         ports:
         - containerPort: 8249
           protocol: TCP
