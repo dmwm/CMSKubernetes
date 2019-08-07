@@ -4,8 +4,8 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 ENV WDIR=/data/cmsweb
 RUN mkdir -p $WDIR
 ADD http://repository.egi.eu/sw/production/cas/1/current/repo-files/EGI-trustanchors.repo /etc/yum.repos.d/egi.repo
-#ADD http://repository.egi.eu/sw/production/cas/1/current/repo-files/egi-trustanchors.repo /etc/yum.repos.d/egi-trustanchors.repo
 ADD http://linuxsoft.cern.ch/wlcg/wlcg-centos7.repo /etc/yum.repos.d/wlcg-centos7.repo
+ADD hadoop.repo /etc/yum.repos.d/hadoop.repo
 ADD epel.repo /etc/yum.repos.d/epel.repo
 ADD slc7-cernonly.repo /etc/yum.repos.d/slc7-cernonly.repo
 ADD RPM-GPG-KEY-wlcg /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg
@@ -36,13 +36,27 @@ RUN yum install -y cern-get-certificate fetch-crl \
     globus-common-devel globus-gsi-sysconfig-devel globus-gsi-callback-devel \
     oracle-instantclient-tnsnames.ora
 RUN yum install -y logstash
-RUN yum clean all
+
+# Install Spark with custom Hadoop
+RUN yum install -y HEP_OSlibs python-pip hadoop-bin hadoop-tools \
+    spark spark-bin cern-hadoop-client cern-hadoop-xrootd-connector
+RUN pip install --upgrade pip setuptools
+RUN cp /usr/hdp/spark/kubernetes/dockerfiles/spark/entrypoint.sh /usr/bin/entrypoint.sh
+RUN touch /etc/hadoop/conf/topology.table.file
+
+# clean-up yum
+RUN yum clean all && rm -r /var/cache/yum/*
 
 # create bashs link to bash
 RUN ln -s /bin/bash /usr/bin/bashs
 
 # cd to workdir
 WORKDIR $WDIR
+
+# Install latest kubectl
+RUN curl -k -O -L https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+RUN mv kubectl /usr/bin
+RUN chmod +x /usr/bin/kubectl
 
 # download golang and install it
 RUN curl -k -L -O https://dl.google.com/go/go1.12.1.linux-amd64.tar.gz
@@ -63,6 +77,7 @@ RUN go get github.com/prometheus/client_golang/prometheus
 RUN go get github.com/prometheus/common/log
 RUN go get -d github.com/vkuznet/cmsweb-exporters
 RUN go get github.com/shirou/gopsutil
+RUN go get github.com/ryotarai/prometheus-query
 
 # make bin area in WDIR
 RUN mkdir ${WDIR}/bin
@@ -114,6 +129,7 @@ RUN cp mongodb_exporter $WDIR/bin
 WORKDIR ${WDIR}
 ADD print_hmac $WDIR/bin/print_hmac
 ADD proxy.sh $WDIR/bin/proxy.sh
+ADD hadoop-env.sh $WDIR/bin/hadoop-env.sh
 
 # start the setup
 WORKDIR ${WDIR}
