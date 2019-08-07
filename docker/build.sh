@@ -36,7 +36,11 @@ echo "CMSK8STAG=$CMSK8STAG"
 repo=cmssw
 for pkg in $cmssw_pkgs; do
     echo "### build $repo/$pkg"
-    docker build --build-arg CMSK8S=$CMSK8S -t $repo/$pkg $pkg
+    if [ -n $CMSK8STAG ]; then
+        docker build --build-arg CMSK8S=$CMSK8S -t $repo/$pkg -t $repo/$pkg:$CMSK8STAG $pkg
+    else
+        docker build --build-arg CMSK8S=$CMSK8S -t $repo/$pkg $pkg
+    fi
     echo "### existing images"
     docker images
     docker push $repo/$pkg
