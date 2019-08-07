@@ -1,0 +1,20 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: monitor-cronjob
+spec:
+  # run crontab job every hour
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: monitor-account
+          containers:
+          - name: monitor
+            image: veknet/monitor
+            args:
+            - /bin/sh
+            - -c
+            - /data/monitor.sh dbs-global-r 18252 dbs_global_exporter_memory_percent 10 15 1 3
+          restartPolicy: Never
