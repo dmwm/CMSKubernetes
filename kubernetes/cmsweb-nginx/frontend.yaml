@@ -39,7 +39,7 @@ spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/frontend:1.0.0
+      - image: cmssw/frontend:1.0.1
         name: frontend
         resources:
           requests:

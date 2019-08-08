@@ -30,7 +30,7 @@ spec:
         app: crabserver
     spec:
       containers:
-      - image: cmssw/crabserver:1.0.0
+      - image: cmssw/crabserver:1.0.1
         name: crabserver
         resources:
           requests:

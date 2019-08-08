@@ -35,7 +35,7 @@ spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/das:1.0.0
+      - image: cmssw/das:1.0.1
         name: das
         resources:
           requests:

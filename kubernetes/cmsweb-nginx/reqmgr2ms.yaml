@@ -33,7 +33,7 @@ spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/reqmgr2ms:1.0.0
+      - image: cmssw/reqmgr2ms:1.0.1
         name: reqmgr2ms
         resources:
           requests:

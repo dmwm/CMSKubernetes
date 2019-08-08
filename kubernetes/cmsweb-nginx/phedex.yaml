@@ -35,7 +35,7 @@ spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/phedex:1.0.0
+      - image: cmssw/phedex:1.0.1
         name: phedex
         resources:
           requests:
