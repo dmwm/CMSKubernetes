@@ -12,7 +12,7 @@
 ##H
 
 # services for cmsweb cluster, adjust if necessary
-cmsweb_srvs="ing-nginx proxy-account proxy-cron httpgo httpsgo frontend acdcserver alertscollector cmsmon confdb couchdb crabcache crabserver das dbs dbsmigration dqmgui phedex reqmgr2 reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue"
+cmsweb_srvs="ing-nginx proxy-account proxy-cron monitor-account monitor-cron httpgo httpsgo frontend acdcserver alertscollector cmsmon confdb couchdb crabcache crabserver das dbs dbsmigration dqmgui phedex reqmgr2 reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue"
 
 # list of DBS instances
 dbs_instances="default migrate global-r global-w phys03-r phys03-w"
@@ -29,11 +29,11 @@ if [ "$action" == "cleanup" ]; then
     echo "+++ perform cleanup"
 elif [ "$action" == "services" ]; then
     # services for cmsweb cluster, adjust if necessary
-    cmsweb_srvs="ing-srv proxy-account proxy-cron httpgo httpsgo acdcserver alertscollector cmsmon confdb couchdb crabcache crabserver das dbs dbsmigration dqmgui phedex reqmgr2 reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue"
+    cmsweb_srvs="ing-srv proxy-account proxy-cron monitor-account mon-dbs-global-r httpgo httpsgo acdcserver alertscollector cmsmon confdb couchdb crabcache crabserver das dbs dbsmigration dqmgui phedex reqmgr2 reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue"
     echo "+++ create services cluster"
 elif [ "$action" == "frontend" ]; then
     # services for cmsweb-nginx cluster
-    cmsweb_srvs="ing-nginx proxy-account proxy-cron httpgo httpsgo frontend"
+    cmsweb_srvs="ing-nginx proxy-account proxy-cron monitor-account mon-frontend httpgo httpsgo frontend"
     echo "+++ create frontend cluster"
 elif [ "$action" == "create" ]; then
     echo "+++ create generic cluster"
