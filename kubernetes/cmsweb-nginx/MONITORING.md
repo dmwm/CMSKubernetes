@@ -14,6 +14,7 @@ At the end we setup a cronjob which calls monitor.sh script. This script
 check given metric in prometheus service and either scale up or down
 appropriate data-service.
 
+#### References
 1. https://github.com/vkuznet/kubernetes-prometheus
 2. https://github.com/vkuznet/kubernetes-prometheus/blob/master/config-map.yaml
 3. https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/cmsweb-nginx/monitor-account.yaml
