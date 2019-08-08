@@ -22,15 +22,14 @@ if [ -f $prom ]; then
     # 123,123
     # therefore we extract last column and obtain its average
     echo "$prom -server=http://$SRV:$PORT -query \"$METRIC\" -format csv | egrep \"^[[:digit:]]\" | awk 'END{print i/t} {split(\$1,a,\",\"); i+=a[2]; t+=1}'"
-    $prom -server=http://$SRV:$PORT -query "$METRIC" -format csv | \
-        egrep "^[[:digit:]]" | awk 'END{print i/t} {split($1,a,","); i+=a[2]; t+=1}'
+    val=`$prom -server=http://$SRV:$PORT -query "$METRIC" -format csv | egrep "^[[:digit:]]" | awk 'END{print i/t} {split($1,a,","); i+=a[2]; t+=1}'`
 else
     # if we didn't find prom command we use current metric value
     echo "curl -s http://$SRV:$PORT/metrics | grep ^$METRIC | awk '{print $2}'"
     val=`curl -s http://$SRV:$PORT/metrics | grep ^$METRIC | awk '{print $2}'`
-    intVal=`echo $val | awk '{split($0,a,"."); print a[1]}'`
-    AVG=$(( $intVal/$REPLICAS ))
 fi
+intVal=`echo $val | awk '{split($0,a,"."); print a[1]}'`
+AVG=$(( $intVal/$REPLICAS ))
 echo "service: $SRV port: $PORT metric: $METRIC threshold: $DOWN_THR-$UP_THR replicas: $REPLICAS val: $intVal avg: $AVG"
 
 if [ $AVG -gt $UP_THR ]
