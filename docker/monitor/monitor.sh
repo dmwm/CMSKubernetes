@@ -1,19 +1,19 @@
 #!/bin/bash
 
 if [ $# -ne 7 ]; then
-    echo "Usage: monitor.sh <service> <port> <query> <down_threshold> <up_threshold> <min_replicas> <max_replicas>"
+    echo "Usage   : monitor.sh <service> <deployment> <query> <down_threshold> <up_threshold> <min_replicas> <max_replicas>"
     exit 1
 fi
 
 SRV=$1
-PORT=$2
+DEPLOYMENT=$2
 METRIC=$3
 DOWN_THR=$4
 UP_THR=$5
 MIN_REPLICAS=$6
 MAX_REPLICAS=$7
 
-REPLICAS=`kubectl get deployment | grep $SRV | awk '{print $4}' | grep -v "CURRENT"`
+REPLICAS=`kubectl get deployment | grep $DEPLOYMENT | awk '{print $4}' | grep -v "CURRENT"`
 prom=`which prometheus-query`
 if [ -f $prom ]; then
     # prom command return time series for a given metric
@@ -21,16 +21,16 @@ if [ -f $prom ]; then
     # time,metric
     # 123,123
     # therefore we extract last column and obtain its average
-    echo "$prom -server=http://$SRV:$PORT -query \"$METRIC\" -format csv | egrep \"^[[:digit:]]\" | awk 'END{print i/t} {split(\$1,a,\",\"); i+=a[2]; t+=1}'"
-    val=`$prom -server=http://$SRV:$PORT -query "$METRIC" -format csv | egrep "^[[:digit:]]" | awk 'END{print i/t} {split($1,a,","); i+=a[2]; t+=1}'`
+    echo "$prom -server=http://$SRV -query \"$METRIC\" -format csv | egrep \"^[[:digit:]]\" | awk 'END{print i/t} {split(\$1,a,\",\"); i+=a[2]; t+=1}'"
+    val=`$prom -server=http://$SRV -query "$METRIC" -format csv | egrep "^[[:digit:]]" | awk 'END{print i/t} {split($1,a,","); i+=a[2]; t+=1}'`
 else
     # if we didn't find prom command we use current metric value
-    echo "curl -s http://$SRV:$PORT/metrics | grep ^$METRIC | awk '{print $2}'"
-    val=`curl -s http://$SRV:$PORT/metrics | grep ^$METRIC | awk '{print $2}'`
+    echo "curl -s http://$SRV/metrics | grep ^$METRIC | awk '{print $2}'"
+    val=`curl -s http://$SRV/metrics | grep ^$METRIC | awk '{print $2}'`
 fi
 intVal=`echo $val | awk '{split($0,a,"."); print a[1]}'`
 AVG=$(( $intVal/$REPLICAS ))
-echo "service: $SRV port: $PORT metric: $METRIC threshold: $DOWN_THR-$UP_THR replicas: $REPLICAS val: $intVal avg: $AVG"
+echo "service: $SRV deployment: $DEPLOYMENT metric: $METRIC threshold: $DOWN_THR-$UP_THR replicas: $REPLICAS val: $intVal avg: $AVG"
 
 if [ $AVG -gt $UP_THR ]
 then
@@ -40,7 +40,7 @@ then
     else
         count=$((REPLICAS+1))
         echo "Updated number of replicas will be: "$count
-        scale=`kubectl scale --replicas=$count deployment/$SRV`
+        scale=`kubectl scale --replicas=$count deployment/$DEPLOYMENT`
         echo "Deployment scaled up"
     fi
 
@@ -54,7 +54,7 @@ then
     else
         count=$((REPLICAS-1))
         echo "Updated number of replicas will be: "$count
-        scale=`kubectl scale --replicas=$count deployment/$SRV`
+        scale=`kubectl scale --replicas=$count deployment/$DEPLOYMENT`
         echo "Deployment scaled down"
     fi
 else
