@@ -45,6 +45,7 @@ An example of such exporter for WMArchive data-service can be found here [3].
 Further improvements can be done by extending prometheus to
 kibana/grafana dashboard. Full solution is shown here [4].
 
+#### References
 1. https://devopscube.com/setup-prometheus-monitoring-on-kubernetes/
 2. https://github.com/vkuznet/kubernetes-prometheus
 3. https://gist.github.com/vkuznet/e401f35ec3d6416de75b8ba08834843b
