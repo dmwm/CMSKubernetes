@@ -45,6 +45,9 @@ check()
     echo "*** check cronjobs"
     kubectl get cronjobs --all-namespaces
     echo
+    echo "*** check horizontal scalers"
+    kubectl get hpa --all-namespaces
+    echo
     echo "*** node status"
     kubectl top node
     echo
