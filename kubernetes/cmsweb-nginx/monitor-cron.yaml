@@ -12,9 +12,9 @@ spec:
           serviceAccountName: monitor-account
           containers:
           - name: monitor
-            image: veknet/monitor
+            image: cmssw/monitor
             args:
             - /bin/sh
             - -c
-            - /data/monitor.sh dbs-global-r 18252 dbs_global_exporter_memory_percent 10 15 1 3
+            - /data/monitor.sh prometheus-service.monitoring:8080 dbs-global-r dbs_global_exporter_memory_percent 10 15 1 3
           restartPolicy: Never
