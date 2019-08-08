@@ -9,6 +9,7 @@
 ##H   frontend   create frontend cluster
 ##H   secrets    create secrets files
 ##H   scale      scale services
+##H   status     check status of the services
 ##H
 
 # services for cmsweb cluster, adjust if necessary
@@ -25,6 +26,33 @@ if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == 
 fi
 action=$1
 
+# check status of the services
+check()
+{
+    echo
+    echo "*** check secrets"
+    kubectl get secrets --all-namespaces
+    echo
+    echo "*** check ingress"
+    kubectl get ing
+    echo
+    echo "*** check pods"
+    kubectl get pods --all-namespaces
+    echo
+    echo "*** check services"
+    kubectl get svc --all-namespaces
+    echo
+    echo "*** check cronjobs"
+    kubectl get cronjobs --all-namespaces
+    echo
+    echo "*** node status"
+    kubectl top node
+    echo
+    echo "*** pods status"
+    kubectl top pods
+}
+
+# verify what we should do with given action
 if [ "$action" == "cleanup" ]; then
     echo "+++ perform cleanup"
 elif [ "$action" == "services" ]; then
@@ -39,6 +67,9 @@ elif [ "$action" == "create" ]; then
     echo "+++ create generic cluster"
 elif [ "$action" == "secrets" ]; then
     echo "+++ create secrets"
+elif [ "$action" == "status" ]; then
+    check
+    exit 0
 else
     echo $usage
     exit 1
@@ -130,23 +161,6 @@ cleanup()
     if [ -n "`kubectl -n monitoring get configmap | grep config`" ]; then
         kubectl -n monitoring delete -f kubernetes-prometheus/config-map.yaml
     fi
-
-}
-
-check()
-{
-    echo
-    echo "*** check pods"
-    kubectl get pods --all-namespaces
-    echo
-    echo "*** check services"
-    kubectl get svc --all-namespaces
-    echo
-    echo "*** check secrets"
-    kubectl get secrets --all-namespaces
-    echo
-    echo "*** check ingress"
-    kubectl get ing
 
 }
 
@@ -350,7 +364,7 @@ case ${1:-status} in
     secrets
     ;;
 
-  check )
+  status )
     check
     ;;
 
