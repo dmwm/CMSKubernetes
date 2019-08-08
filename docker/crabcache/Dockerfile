@@ -1,4 +1,4 @@
-FROM cmssw/cmsweb:20190710
+FROM cmssw/cmsweb:20190807
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
@@ -27,7 +27,6 @@ RUN $WDIR/install.sh
 
 # run the service
 ADD run.sh $WDIR/run.sh
-ADD proxy.sh $WDIR/proxy.sh
 ADD monitor.sh $WDIR/monitor.sh
 USER $USER
 WORKDIR $WDIR

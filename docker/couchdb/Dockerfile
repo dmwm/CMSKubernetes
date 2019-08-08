@@ -1,4 +1,4 @@
-FROM cmssw/cmsweb:20190710
+FROM cmssw/cmsweb:20190807
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
@@ -31,7 +31,7 @@ RUN mkdir -p $GOPATH
 ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
 RUN go get github.com/golang/glog
 RUN go get github.com/namsral/flag
-RUN go get github.com/gesellix/couchdb-prometheus-exporter/glogadapt
+#RUN go get github.com/gesellix/couchdb-prometheus-exporter/glogadapt
 RUN go get github.com/gesellix/couchdb-prometheus-exporter/lib
 RUN go get github.com/gesellix/couchdb-prometheus-exporter
 
