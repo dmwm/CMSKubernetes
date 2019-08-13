@@ -35,7 +35,7 @@ RUN yum install -y cern-get-certificate fetch-crl \
     voms-devel globus-gsi-credential-devel globus-gsi-cert-utils-devel \
     globus-common-devel globus-gsi-sysconfig-devel globus-gsi-callback-devel \
     oracle-instantclient-tnsnames.ora
-RUN yum install -y logstash
+RUN yum install -y logstash filebeat
 
 # Install Spark with custom Hadoop
 RUN yum install -y HEP_OSlibs python-pip hadoop-bin hadoop-tools \
