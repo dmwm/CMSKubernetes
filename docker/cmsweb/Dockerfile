@@ -11,11 +11,12 @@ ADD slc7-cernonly.repo /etc/yum.repos.d/slc7-cernonly.repo
 ADD RPM-GPG-KEY-wlcg /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg
 ADD logstash.repo /etc/yum.repos.d/logstash.repo
 
-# add logstash
+# add logstash GPG key
 RUN rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
 
-# add necessary RPMs
 RUN yum update -y && yum clean all
+
+# add necessary RPMs for cmsweb deployment
 RUN yum install -y cern-get-certificate fetch-crl \
     git-core zip unzip which file bzip2 e2fsprogs e2fsprogs-libs compat-libstdc++-33 \
     CERN-CA-certs ca-certificates dummy-ca-certs ca-policy-lcg ca-policy-egi-core \
@@ -35,7 +36,9 @@ RUN yum install -y cern-get-certificate fetch-crl \
     voms-devel globus-gsi-credential-devel globus-gsi-cert-utils-devel \
     globus-common-devel globus-gsi-sysconfig-devel globus-gsi-callback-devel \
     oracle-instantclient-tnsnames.ora
-RUN yum install -y logstash filebeat
+
+# add filebeat for monitoring
+RUN yum install -y filebeat
 
 # Install Spark with custom Hadoop
 RUN yum install -y HEP_OSlibs python-pip hadoop-bin hadoop-tools \
@@ -81,13 +84,6 @@ RUN go get github.com/ryotarai/prometheus-query
 
 # make bin area in WDIR
 RUN mkdir ${WDIR}/bin
-
-# download and install grafana for prometheus
-WORKDIR ${WDIR}
-RUN curl -L -O https://grafanarel.s3.amazonaws.com/builds/grafana-2.5.0.linux-x64.tar.gz
-RUN tar zxf grafana-2.5.0.linux-x64.tar.gz
-RUN mv grafana-2.5.0 ${WDIR}/grafana
-RUN rm grafana-2.5.0.linux-x64.tar.gz
 
 # download node exporter
 WORKDIR ${WDIR}
