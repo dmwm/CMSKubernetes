@@ -1,0 +1,47 @@
+# apiVersion: monitoring.coreos.com/v1
+# kind: ServiceMonitor
+# metadata:
+#   name: dbs-gr-srv-mon
+#   labels:
+#     service-monitor: function
+# spec:
+#   selector:
+#     matchLabels:
+#       app: dbs-global-r
+#   endpoints:
+#   - port: dbs-gr-mon
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+    name: prom-dbs-gr
+spec:
+  selector:
+    matchLabels:
+      app: prometheus-server
+  endpoints:
+  - port: prom-web
+---
+kind: HorizontalPodAutoscaler
+apiVersion: autoscaling/v2beta2
+metadata:
+  name: dbs-global-r-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    name: dbs-global-r
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+  - type: Object
+    object:
+      target:
+        kind: Service
+        name: prom-dbs-gr
+        type: AverageValue
+        value: 80
+      metric:
+        name: dbs_global_exporter_memory_percent
+      describedObject:
+        kind: Service
+        name: prom-dbs-gr
