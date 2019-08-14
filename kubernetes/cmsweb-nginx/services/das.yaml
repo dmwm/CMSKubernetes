@@ -1,0 +1,90 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: das
+spec:
+  selector:
+    app: das
+  ports:
+    - port: 8217
+      targetPort: 8217
+      name: das
+    - port: 18217
+      targetPort: 18217
+      name: das-mon
+    - port: 18230
+      targetPort: 18230
+      name: das-mongo-mon
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: das
+  name: das
+spec:
+  selector:
+    matchLabels:
+      app: das
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: das
+    spec:
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: cmssw/das:1.0.3
+        name: das
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "2Gi"
+            cpu: "800m"
+        ports:
+        - containerPort: 8217
+          protocol: TCP
+          name: das
+        - containerPort: 18217
+          protocol: TCP
+          name: das-mon
+        - containerPort: 18230
+          protocol: TCP
+          name: das-mongo-mon
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          defaultMode: 256
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+#       livenessProbe:
+#         httpGet:
+#           path: /das/status
+#           port: 8217
+#         initialDelaySeconds: 3
+#         periodSeconds: 3
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: das-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File

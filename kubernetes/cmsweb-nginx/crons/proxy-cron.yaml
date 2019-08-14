@@ -1,0 +1,31 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: proxy-cronjob
+spec:
+  # run crontab job every hour
+  schedule: "0 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: proxy-account
+          containers:
+          - name: proxy
+            image: cmssw/proxy
+            args:
+            - /bin/sh
+            - -c
+            - echo "run proxy.sh"; ls -al ; echo "### /etc/secrets"; ls -la /etc/secrets; echo "### /tmp"; ls -al /tmp; cat /data/proxy.sh; /data/proxy.sh; echo "### /tmp"; ls -al /tmp;
+            volumeMounts:
+            - name: robot-secrets
+              mountPath: /etc/secrets
+              defaultMode: 256
+          restartPolicy: Never
+          volumes:
+          - name: proxy-secrets
+            secret:
+              secretName: proxy-secrets
+          - name: robot-secrets
+            secret:
+              secretName: robot-secrets

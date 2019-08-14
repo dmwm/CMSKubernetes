@@ -1,0 +1,84 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: phedex
+spec:
+  selector:
+    app: phedex
+  ports:
+    - port: 7001
+      targetPort: 7001
+      name: phedex-datasvc
+    - port: 7101
+      targetPort: 7101
+      name: phedex
+    - port: 17001
+      targetPort: 17001
+      name: phedex-mon
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: phedex
+  name: phedex
+spec:
+  selector:
+    matchLabels:
+      app: phedex
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: phedex
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: cmssw/phedex:1.0.3
+        name: phedex
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "2Gi"
+            cpu: "800m"
+        ports:
+        - containerPort: 7001
+          protocol: TCP
+          name: phedex-datasvc
+        - containerPort: 7101
+          protocol: TCP
+          name: phedex
+        - containerPort: 17001
+          protocol: TCP
+          name: phedex-mon
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          defaultMode: 256
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: phedex-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File

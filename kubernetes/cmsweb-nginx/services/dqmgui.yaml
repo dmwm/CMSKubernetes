@@ -1,0 +1,83 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: dqmgui
+spec:
+  selector:
+    app: dqmgui
+  ports:
+    - port: 8060
+      targetPort: 8060
+      name: dqmgui-dev
+    - port: 8081
+      targetPort: 8081
+      name: dqmgui-relval
+    - port: 8080
+      targetPort: 8080
+      name: dqmgui-offline
+    - port: 18060
+      targetPort: 18060
+      name: dqmgui-mon
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: dqmgui
+  name: dqmgui
+spec:
+  selector:
+    matchLabels:
+      app: dqmgui
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dqmgui
+    spec:
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: cmssw/dqmgui:1.0.3
+        name: dqmgui
+        ports:
+        - containerPort: 8060
+          protocol: TCP
+          name: dqmgui-dev
+        - containerPort: 8081
+          protocol: TCP
+          name: dqmgui-relval
+        - containerPort: 8080
+          protocol: TCP
+          name: dqmgui-offline
+        - containerPort: 18060
+          protocol: TCP
+          name: dqmgui-mon
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          defaultMode: 256
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: dqmgui-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File
