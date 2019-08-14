@@ -21,3 +21,12 @@ if [ -f /etc/secrets/DBSPhys03Writer.py ]; then
     process_monitor.sh ".*DBSPhys03Writer" dbs_phys03W_exporter ":18255" 15 2>&1 1>& dbs_phys03W_exporter.log &
     cpy_exporter -uri http://localhost:8255/dbs/stats -address ":19255" 2>&1 1>& cpy_exporter.log &
 fi
+
+# run filebeat
+if [ -f /etc/secrets/filebeat.yaml ] && [ -f /usr/bin/filebeat ]; then
+    ldir=/tmp/filebeat
+    mkdir -p $ldir/data
+    nohup /usr/bin/filebeat \
+        -c /etc/secrets/filebeat.yaml \
+        --path.data $ldir/data --path.logs $ldir -e 2>&1 1>& $ldir/log < /dev/null &
+fi
