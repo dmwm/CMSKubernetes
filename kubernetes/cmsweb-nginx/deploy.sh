@@ -60,11 +60,11 @@ if [ "$action" == "cleanup" ]; then
     echo "+++ perform cleanup"
 elif [ "$action" == "services" ]; then
     # services for cmsweb cluster, adjust if necessary
-    cmsweb_srvs="ing-srv proxy-account proxy-cron monitor-account mon-dbs-global-r httpgo httpsgo acdcserver alertscollector cmsmon confdb couchdb crabcache crabserver das dbs dbsmigration dqmgui phedex reqmgr2 reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue"
+    cmsweb_srvs="ing-srv proxy-account proxy-cron monitor-account httpgo httpsgo acdcserver alertscollector cmsmon confdb couchdb crabcache crabserver das dbs dbsmigration dqmgui phedex reqmgr2 reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue"
     echo "+++ create services cluster"
 elif [ "$action" == "frontend" ]; then
     # services for cmsweb-nginx cluster
-    cmsweb_srvs="ing-nginx proxy-account proxy-cron monitor-account mon-frontend httpgo httpsgo frontend"
+    cmsweb_srvs="ing-nginx proxy-account proxy-cron monitor-account httpgo httpsgo frontend"
     echo "+++ create frontend cluster"
 elif [ "$action" == "create" ]; then
     echo "+++ create generic cluster"
@@ -108,8 +108,11 @@ scale()
     kubectl autoscale deployment dbs-phys03-r --cpu-percent=80 --min=2 --max=4
     kubectl autoscale deployment dbs-phys03-w --cpu-percent=80 --min=2 --max=4
 
+    kubectl apply -f mon-dbs-global-r.yaml --validate=false
+
     # frontend
     kubectl autoscale deployment frontend --cpu-percent=80 --min=3 --max=10
+    kubectl apply -f mon-frontend.yaml --validate=false
 
     # all others
     for srv in $cmsweb_srvs; do
