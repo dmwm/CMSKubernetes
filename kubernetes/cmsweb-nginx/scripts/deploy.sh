@@ -182,7 +182,7 @@ cleanup()
     done
 }
 
-secrets()
+deploy_secrets()
 {
     # cmsweb configuration area
     echo "+++ configuration: $conf"
@@ -242,7 +242,7 @@ secrets()
     # - hmac secret file
     # - configuration files from service configuration area
     for srv in $cmsweb_srvs; do
-        sdir=$conf/$srv
+        local sdir=$conf/$srv
         # the underscrore is not allowed in secret names
         srv=`echo $srv | sed -e "s,_,,g"`
         local files=""
@@ -307,7 +307,7 @@ secrets()
 
 }
 
-monitoring()
+deploy_monitoring()
 {
     echo
     echo "+++ create monitoring namespace"
@@ -328,7 +328,7 @@ monitoring()
 }
 
 # deploy appripriate ingress controller for our cluster
-ingress()
+deploy_ingress()
 {
     echo
     echo "+++ list configmap"
@@ -346,33 +346,27 @@ ingress()
     kubectl apply -f ingress/${cmsweb_ing}.yaml
 }
 
-crons()
+deploy_crons()
 {
     echo
     echo "+++ deploy crons"
     kubectl apply -f crons/
 }
 
-services()
+deploy_services()
 {
-    echo "+++ deploy services: $cmsweb_srvs"
-
-    echo "### DEPLOY SECRETS ###"
-    # call secrets function
-    secrets
-
     echo
-    echo "+++ deploy services"
-    for p in $cmsweb_srvs; do
-        if [ "$p" == "dbs" ]; then
+    echo "+++ deploy services: $cmsweb_srvs"
+    for srv in $cmsweb_srvs; do
+        if [ "$srv" == "dbs" ]; then
             for inst in $dbs_instances; do
-                if [ -f "${p}-${inst}.yaml" ]; then
-                    kubectl apply -f "${p}-${inst}.yaml" --validate=false
+                if [ -f "$sdir/${srv}-${inst}.yaml" ]; then
+                    kubectl apply -f "$sdir/${srv}-${inst}.yaml" --validate=false
                 fi
             done
         else
-            if [ -f ${p}.yaml ]; then
-                kubectl apply -f ${p}.yaml --validate=false
+            if [ -f $sdir/${srv}.yaml ]; then
+                kubectl apply -f $sdir/${srv}.yaml --validate=false
             fi
         fi
     done
@@ -386,15 +380,15 @@ case ${1:-status} in
     ;;
 
   create | services | frontend )
-    secrets
-    services
-    ingress
-    crons
-    monitoring
+    deploy_secrets
+    deploy_services
+    deploy_ingress
+    deploy_crons
+    deploy_monitoring
     ;;
 
   secrets )
-    secrets
+    deploy_secrets
     ;;
 
   status )
