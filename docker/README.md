@@ -73,6 +73,21 @@ The first step is to create a Docker file. Here is an example for
 
 With this file we can build our docker image as following:
 ```
+# By default build.sh will build docker images to all cmsweb services
+# and upload them to cmssw repository. But you can specify your set of packages
+build.sh "pkg1 pkg2"
+
+# once your build is complete please make sure that you tag it appropriately
+# you can do it as following
+CMSK8STAG=1.1.1 build.sh "pkg1 pkg2"
+
+# finally, by default build.sh script builds packages using
+# http://cmsweb-test.web.cern.ch host name for all internal settings (e.g. in
+# frontend deploy scripts). You may change it via
+CMSK8S=http://your.host.com build.sh "pkg1 pkg2"
+```
+
+```
 # here we need to pass hostname of k8s host we're going to use
 # e.g. https://cmsweb-test.web.cern.ch
 # here USERNAME/das represents docker repository and das is local directory
@@ -80,11 +95,6 @@ docker build --build-arg CMSK8S=<hostname> -t USERNAME/das das
 
 # to build tagged version of the image use this command
 docker build --build-arg CMSK8S=<hostname> -t USERNAME/das -t USERNAME/das:TAG das
-
-# or users may use build.sh script to do this job, we should pass to build
-# script list of packages to build. By default build.sh will build docker
-# images to all cmsweb services and upload them to cmssw repository
-build.sh "pkg1 pkg2"
 ```
 Here, `USERNAME` should point to your docker username account. This command will build a docker image
 in `USERNAME` namespace. Once build we should see it with output from this command:
