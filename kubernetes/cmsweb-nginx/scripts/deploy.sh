@@ -1,5 +1,5 @@
 #!/bin/bash
-##H Usage: deploy.sh ACTION CONFIGURATION_AREA CERTIFICATES_AREA
+##H Usage: deploy.sh ACTION CONFIGURATION_AREA CERTIFICATES_AREA HMAC
 ##H
 ##H Available actions:
 ##H   help       show this help
@@ -31,9 +31,8 @@ cmsweb_srvs="httpgo httpsgo frontend acdcserver alertscollector cmsmon confdb co
 dbs_instances="default migrate global-r global-w phys03-r phys03-w"
 
 # define help
-usage="Usage: deploy.sh <ACTION> <CONFIGURATION_AREA> <CERTIFICATES_AREA> <hmac>"
 if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ]; then
-    echo $usage
+    perl -ne '/^##H/ && do { s/^##H ?//; print }' < $0
     exit 1
 fi
 action=$1
@@ -94,7 +93,7 @@ elif [ "$action" == "status" ]; then
     check
     exit 0
 else
-    echo $usage
+    perl -ne '/^##H/ && do { s/^##H ?//; print }' < $0
     exit 1
 fi
 
@@ -114,8 +113,8 @@ if [ "$action" != "cleanup" ]; then
     echo "+++ use hmac file    : $hmac"
 fi
 
-host=`openstack --os-project-name $cluster_ns coe cluster show $cluster | grep node_addresses | awk '{print $4}' | sed -e "s,\[u',,g" -e "s,'\],,g"`
-kubehost=`host $host | awk '{print $5}' | sed -e "s,ch.,ch,g"`
+hname=`openstack --os-project-name "$cluster_ns" coe cluster show $cluster | grep node_addresses | awk '{print $4}' | sed -e "s,\[u',,g" -e "s,'\],,g"`
+kubehost=`host $hname | awk '{print $5}' | sed -e "s,ch.,ch,g"`
 echo "Kubernetes host: $kubehost"
 
 scale()
@@ -151,46 +150,35 @@ cleanup()
 {
     # delete crons
     echo "--- delete crons"
-    crons=`kubectl get cronjob | grep -v NAME | grep -v default | awk '{print $1}'`
-    for s in $crons; do
-        kubectl delete cronjob/$s
-    done
+    kubectl delete -f crons
 
     # delete monitoring
     echo "--- delete monitoring"
-    kubectl -n monitoring delete -f monitoring
-    pods=`kubectl -n monitoring get pod | grep -v NAME | grep -v default | awk '{print $1}'`
-    for s in $pods; do
-        kubectl -n monitoring delete pod/$s
-    done
+    kubectl delete -f monitoring
 
     # delete ingress
     echo "--- delete ingress"
-    kubectl -n monitoring delete -f ingress
-    ingrs=`kubectl get ing | grep -v NAME | grep -v default | awk '{print $1}'`
-    for s in $ingrs; do
-        kubectl delete ing/$s
-    done
+    kubectl delete -f ingress/${cmsweb_ing}.yaml
 
     # delete secrets
     echo "--- delete secrets"
-    secrets=`kubectl get secrets | grep -v NAME | grep -v default | awk '{print $1}'`
-    for s in $secrets; do
-        kubectl delete secret/$s
-    done
+    kubectl delete secrets --all
 
     # delete pods
     echo "--- delete pods"
-    pods=`kubectl get pod | grep -v NAME | grep -v default | awk '{print $1}'`
-    for s in $pods; do
-        kubectl delete pod/$s
-    done
-
-    # delete services
-    echo "--- delete services"
-    svcs=`kubectl get svc | grep -v NAME | grep -v default | awk '{print $1}'`
-    for s in $svcs; do
-        kubectl delete svc/$s
+    for srv in $cmsweb_srvs; do
+        # special case for DBS instances
+        if [ "$srv" == "dbs" ]; then
+            for inst in $dbs_instances; do
+                if [ -f $sdir/${srv}-${inst}.yaml ]; then
+                    kubectl delete -f $sdir/${srv}-${inst}.yaml
+                fi
+            done
+        else
+            if [ -f $sdir/${srv}.yaml ]; then
+                kubectl delete -f $sdir/${srv}.yaml
+            fi
+        fi
     done
 }
 
@@ -355,7 +343,7 @@ ingress()
 
     echo
     echo "+++ deploy $cmsweb_ing"
-    kubectl apply -f ingress/$cmsweb_ing
+    kubectl apply -f ingress/${cmsweb_ing}.yaml
 }
 
 crons()
@@ -397,7 +385,7 @@ case ${1:-status} in
     check
     ;;
 
-  create )
+  create | services | frontend )
     secrets
     services
     ingress
