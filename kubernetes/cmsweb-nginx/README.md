@@ -12,6 +12,9 @@ to kubernetes. The structure is the following
 - [scripts](scripts) area contains all scripts
 - [services](services) area contains configuration files for cmsweb services
 
+To learn about cmsweb k8s architecture please read
+[architecture](docs/architecture.md) document.
+
 To deploy cmsweb on kubernetes please follow these steps:
 - [cluster creation](docs/cluster.md)
 - [general deployment](docs/deployment.md)
