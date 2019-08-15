@@ -1,7 +1,7 @@
 ### cmsweb k8s notes
 To create cmsweb app on kubernetes cluster please follow these steps:
-- [cluster](cluster.md)
-- [general deployment](deployment.md)
+- [cluster](docs/cluster.md)
+- [general deployment](docs/deployment.md)
 - [cmsweb deployment](docs/cmsweb-deployment.md)
 - [autoscaling](docs/autoscaling.md)
 - [references](docs/references.md)
