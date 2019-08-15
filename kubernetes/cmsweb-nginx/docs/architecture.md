@@ -2,7 +2,7 @@
 The cmsweb k8s architecture has the two components, see diagram below:
 - frontend cluster
 - backend cluster
-![cluster architecture](docs/images/cmsweb-k8s.png)
+![cluster architecture](images/cmsweb-k8s.png)
 
 The frontend cluster contains cmsweb apache frontend behind nginx k8s ingress
 controller (server), see Cluster A in a diagram. The backend cluster
@@ -16,7 +16,7 @@ requests from frontend cluster.
 
 ### cmsweb k8s monitoring architecture
 The cmsweb k8s monitoring architecture can be illustrated as following:
-![cluster monitoring architecture](docs/images/cmsweb-k8s-monitoring.png)
+![cluster monitoring architecture](images/cmsweb-k8s-monitoring.png)
 It has the following components:
 - each individual services (running in its pod) may have a
   [filebeat](https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-overview.html)
