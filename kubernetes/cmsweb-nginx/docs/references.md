@@ -11,3 +11,4 @@
 - [kubeless](https://github.com/kubeless/kubeless)
 - [DNS for pods](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service)
 - [Logging](https://kubernetes.io/docs/concepts/cluster-administration/logging/)
+- [Kubernetes failures](https://github.com/hjacobs/kubernetes-failure-stories)
