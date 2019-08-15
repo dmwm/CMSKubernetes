@@ -21,6 +21,7 @@ To deploy cmsweb on kubernetes please follow these steps:
 - [cmsweb deployment](docs/cmsweb-deployment.md)
 - [nginx](docs/nginx.md)
 - [autoscaling](docs/autoscaling.md)
-- [storage](docs/storage.md)
+- [storage](docs/storage.md) (this step is optional)
+- [hadoop](docs/hadoop.md) (this step is optional)
 - [troubleshooting](docs/troubleshooting.md)
 - [references](docs/references.md)
