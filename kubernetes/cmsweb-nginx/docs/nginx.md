@@ -1,4 +1,4 @@
-##### Special node about nginx ingress controller.
+### Special notes about nginx ingress controller.
 we may need to adjust nginx controller of the cluster to avoid its crashes until
 it is fixed by CERN IT, this can be done by editing its confiugration
 one time operation:
@@ -17,7 +17,7 @@ kubectl -n kube-system get pods | grep ingress-controller | awk '{print "kubectl
 
 ```
 
-##### Deployment of nginx ingress controller
+### Deployment of nginx ingress controller
 The next series of steps is required until CERN IT will deploy new flag for
 ingress nginx controller
 ```

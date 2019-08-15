@@ -1,4 +1,4 @@
-##### Troubleshooting
+### Troubleshooting
 If you find that some of the pods didn't start you may use the following
 commands to trace down the problem:
 ```
