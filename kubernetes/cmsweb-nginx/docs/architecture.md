@@ -1,19 +1,18 @@
 ### cmsweb k8s architecture
 The cmsweb k8s architecture has the two components, see diagram below:
-- frontend cluster
-- backend cluster
+- frontend cluster (cluster A on a diagram)
+- backend cluster (cluster B on a diagram)
 
 ![cluster architecture](images/cmsweb-k8s.png)
 
 The frontend cluster contains cmsweb apache frontend behind nginx k8s ingress
-controller (server), see Cluster A in a diagram. The backend cluster
-contains all cmsweb back-end services behind its ingress controller.
-The frontend cluster ingress controller provides TLS passthrough capabilities
-to pass client's requests (with certificates) to apache frontend.
-The apache frontend performs cmsweb authentication and redirects
-request to backend cluster. On the backend cluster the ingress controller
-has basic redirect rules to appropriate services and only allow
-requests from frontend cluster.
+controller (server). The backend cluster contains all cmsweb back-end services
+behind its ingress controller.  The frontend cluster ingress controller
+provides TLS passthrough capabilities to pass client's requests (with
+certificates) to apache frontend.  The apache frontend performs cmsweb
+authentication and redirects request to backend cluster. On the backend cluster
+the ingress controller has basic redirect rules to appropriate services and
+only allow requests from frontend cluster.
 
 ### cmsweb k8s monitoring architecture
 The cmsweb k8s monitoring architecture can be illustrated as following:
