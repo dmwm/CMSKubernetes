@@ -16,16 +16,52 @@ following items:
 - obtain robot certificates from [ca.cern.ch](https://ca.cern.ch)
   to be used by services to obtain grid proxy
 
+##### cmsweb k8s deploy script
+We provide special deploy script to perform most of the deployment tasks.
+Here its structure
+```
+./scripts/deploy.sh
+Usage: deploy.sh ACTION DEPLOYMENT CONFIGURATION_AREA CERTIFICATES_AREA HMAC
+
+Script actions:
+  help       show this help
+  cleanup    cleanup services
+  create     create cluster with provided deployment
+  scale      scale given deployment services
+  status     check status of the services
+
+Deployments:
+  cluster    create openstack clsuter
+  services   deploy services cluster
+  frontend   deploy frontend cluster
+  ingress    deploy ingress controller
+  monitoring deploy monitoring components
+  crons      deploy crons components
+  secrets    create secrets files
+```
+
 ### Cluster creation
 The k8s cluster can be either created via
 [web UI](https://openstack.cern.ch/project/clusters) or manually by
-login to lxplus-cloud cluster and using an appropriate cmsweb template, e.g.
+login to lxplus-cloud cluster and using an appropriate cmsweb template.
+You may use the following command for cluster creation
+```
+# you may setup the following environment variables:
+# CMSK8S_PROJECT controls project name (namespace of the cluster)
+# CMSK8S_CLUSTER cluster name
+# CMSK8S_TMPL cluster template
+# CMSK8S_KEY your key pair name
+
+./scripts/deploy.sh create cluster
+```
+or follow these manual steps
 ```
 # ssh lxplus-cloud
 # and use appropriate project name, here we use "CMS Webtools Mig"
 openstack --os-project-name "CMS Webtools Mig" coe cluster template list
 openstack --os-project-name "CMS Webtools Mig" coe cluster create --keypair cloud --cluster-template cmsweb-template-2xlarge cmsweb
 ```
+
 Once cluster is created, you may check its status this with the following
 command:
 ```
@@ -79,31 +115,31 @@ gen_hmac.sh hmac
 # option in ALL yaml files (you may need to change that)
 # single cluster deployment:
 export KUBECONFIG=/k8s/path/config
-./deploy.sh create /path/cmsweb/config /path/certificates hmac
+./scripts/deploy.sh create frontend /path/cmsweb/config /path/certificates hmac
 
 # OR, we should deploy two clusters
 # deploy frontend cluster (assuming config.cmsweb k8s config)
 export KUBECONFIG=/k8s/path/config.cmsweb
-./deploy.sh frontend /path/cmsweb/config /path/certificates hmac
+./scripts/deploy.sh frontend /path/cmsweb/config /path/certificates hmac
 
 # deploy services cluster (assuming config.cmsweb-services k8s config)
 export KUBECONFIG=/k8s/path/config.cmsweb-services
-./deploy.sh services /path/cmsweb/config /path/certificates hmac
+./scripts/deploy.sh create services /path/cmsweb/config /path/certificates hmac
 ```
 
 You may check the status of your cluster with the following command:
 ```
-./deploy.sh check
+./scripts/deploy.sh status
 ```
 
 To re-generate all secrets use this command
 ```
-./deploy.sh secrets /path/cmsweb/config /path/certificates hmac
+./scripts/deploy.sh create secrets /path/cmsweb/config /path/certificates hmac
 ```
 
 To clean-up all services/secrets you can run this command:
 ```
-./deploy.sh cleanup
+./scripts/deploy.sh cleanup
 ```
 
 The individual services can be redeployed within existing cluster at any time
