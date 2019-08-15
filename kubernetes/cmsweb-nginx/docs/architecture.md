@@ -2,6 +2,7 @@
 The cmsweb k8s architecture has the two components, see diagram below:
 - frontend cluster
 - backend cluster
+
 ![cluster architecture](images/cmsweb-k8s.png)
 
 The frontend cluster contains cmsweb apache frontend behind nginx k8s ingress
