@@ -39,7 +39,7 @@ if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == 
 fi
 action=$1
 deployment=$2
-if [ "$action" != "cleanup" ]; then
+if [ "$action" == "create" ]; then
     conf=$3
     certificates=$4
     if [ $# -eq 5 ]; then
@@ -74,21 +74,31 @@ elif [ "$deployment" == "frontend" ]; then
     cmsweb_srvs="httpgo httpsgo frontend"
     echo "+++ deploy services: $cmsweb_srvs"
     echo "+++ deploy ingress : $cmsweb_ing"
-elif [ "$deployment" == "secrets" ]; then
-    echo "+++ deploy secrets"
-elif [ "$deployment" == "crons" ]; then
-    echo "+++ deploy crons"
 elif [ "$deployment" == "ingress" ]; then
     echo "+++ deploy ingress: $cmsweb_ing"
-elif [ "$deployment" == "monitoring" ]; then
-    echo "+++ deploy monitoring"
 else
-    echo "--- no deployment action"
+    echo "+++ deployment $deployment"
 fi
 
 # check status of the services
 check()
 {
+    if [ "$deployment" != "" ]; then
+        echo
+        echo "*** check pods"
+        kubectl get pods -n $deployment
+        echo
+        echo "*** check services"
+        kubectl get svc -n $deployment
+        echo
+        echo "*** check cronjobs"
+        kubectl get cronjobs -n $deployment
+        echo
+        echo "*** pods status"
+        kubectl top pods -n $deployment
+        return
+    fi
+
     echo
     echo "*** check secrets"
     kubectl get secrets --all-namespaces
@@ -117,29 +127,33 @@ check()
 
 scale()
 {
-    # dbs, generic scalers
-    kubectl autoscale deployment dbs-migrate --cpu-percent=80 --min=2 --max=10
-    kubectl autoscale deployment dbs-global-r --cpu-percent=80 --min=3 --max=10
-    kubectl autoscale deployment dbs-global-w --cpu-percent=80 --min=2 --max=5
-    kubectl autoscale deployment dbs-phys03-r --cpu-percent=80 --min=2 --max=4
-    kubectl autoscale deployment dbs-phys03-w --cpu-percent=80 --min=2 --max=4
+    if [ "$deployment" == "services" ]; then
+        # dbs, generic scalers
+        kubectl autoscale deployment dbs-migrate --cpu-percent=80 --min=2 --max=10
+        kubectl autoscale deployment dbs-global-r --cpu-percent=80 --min=3 --max=10
+        kubectl autoscale deployment dbs-global-w --cpu-percent=80 --min=2 --max=5
+        kubectl autoscale deployment dbs-phys03-r --cpu-percent=80 --min=2 --max=4
+        kubectl autoscale deployment dbs-phys03-w --cpu-percent=80 --min=2 --max=4
 
-    kubectl apply -f crons/dbs-global-r-scaler.yaml --validate=false
+        kubectl apply -f crons/dbs-global-r-scaler.yaml --validate=false
 
-    # frontend scalers
-    kubectl autoscale deployment frontend --cpu-percent=80 --min=3 --max=10
-    kubectl apply -f crons/frontend-scaler.yaml --validate=false
+        # scalers for other cmsweb services
+        for srv in $cmsweb_srvs; do
+            # explicitly scaled above, we'll skip them here
+            if [ "$srv" == "dbs" ] || [ "$srv" == "frontend" ]; then
+                continue
+            else
+                # default autoscale for service
+                kubectl autoscale deployment $srv --cpu-percent=80 --min=1 --max=3
+            fi
+        done
+    fi
 
-    # scalers for other cmsweb services
-    for srv in $cmsweb_srvs; do
-        # explicitly scaled above, we'll skip them here
-        if [ "$srv" == "dbs" ] || [ "$srv" == "frontend" ]; then
-            continue
-        else
-            # default autoscale for service
-            kubectl autoscale deployment $srv --cpu-percent=80 --min=1 --max=3
-        fi
-    done
+    if [ "$deployment" == "frontend" ]; then
+        # frontend scalers
+        kubectl autoscale deployment frontend --cpu-percent=80 --min=3 --max=10
+        kubectl apply -f crons/frontend-scaler.yaml --validate=false
+    fi
 
     kubectl get hpa
 }
@@ -377,7 +391,7 @@ case ${1:-status} in
     check
     ;;
 
-  create | services | frontend )
+  create )
     deploy_secrets
     deploy_services
     deploy_ingress
