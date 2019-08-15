@@ -1,18 +1,20 @@
 #!/bin/bash
-##H Usage: deploy.sh ACTION CONFIGURATION_AREA CERTIFICATES_AREA HMAC
+##H Usage: deploy.sh ACTION DEPLOYMENT CONFIGURATION_AREA CERTIFICATES_AREA HMAC
 ##H
-##H Available actions:
+##H Script actions:
 ##H   help       show this help
 ##H   cleanup    cleanup services
-##H   create     create generic cluster with all services
+##H   create     create cluster with provided deployment
+##H   scale      scale given deployment services
+##H   status     check status of the services
+##H
+##H Deployments:
 ##H   services   create services cluster
 ##H   frontend   create frontend cluster
 ##H   ingress    create ingress controller
 ##H   monitoring create monitoring components
 ##H   crons      create crons components
 ##H   secrets    create secrets files
-##H   scale      scale services
-##H   status     check status of the services
 ##H
 
 # common defititions (adjust if necessary)
@@ -31,11 +33,58 @@ cmsweb_srvs="httpgo httpsgo frontend acdcserver alertscollector cmsmon confdb co
 dbs_instances="default migrate global-r global-w phys03-r phys03-w"
 
 # define help
-if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ]; then
+if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ] || [ "$1" == "" ]; then
     perl -ne '/^##H/ && do { s/^##H ?//; print }' < $0
     exit 1
 fi
 action=$1
+deployment=$2
+if [ "$action" != "cleanup" ]; then
+    conf=$3
+    certificates=$4
+    if [ $# -eq 5 ]; then
+        hmac=$5
+    else
+        echo "+++ generate hmac secret"
+        hmac=/tmp/$USER/hmac
+        perl -e 'open(R, "< /dev/urandom") or die; sysread(R, $K, 20) or die; print $K' > $hmac
+    fi
+    echo "+++ perform action   : $action"
+    echo "+++ use configuration: $conf"
+    echo "+++ use certificates : $certificates"
+    echo "+++ use hmac file    : $hmac"
+else
+    echo "+++ perform action   : $action"
+fi
+
+# dump info about our cluster
+hname=`openstack --os-project-name "$cluster_ns" coe cluster show $cluster | grep node_addresses | awk '{print $4}' | sed -e "s,\[u',,g" -e "s,'\],,g"`
+kubehost=`host $hname | awk '{print $5}' | sed -e "s,ch.,ch,g"`
+echo "Kubernetes host: $kubehost"
+
+if [ "$deployment" == "services" ]; then
+    # services for cmsweb cluster, adjust if necessary
+    cmsweb_ing="ing-srv"
+    cmsweb_srvs="httpgo httpsgo acdcserver alertscollector cmsmon confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue"
+    echo "+++ deploy services: $cmsweb_srvs"
+    echo "+++ deploy ingress : $cmsweb_ing"
+elif [ "$deployment" == "frontend" ]; then
+    # services for cmsweb-nginx cluster
+    cmsweb_ing="ing-nginx"
+    cmsweb_srvs="httpgo httpsgo frontend"
+    echo "+++ deploy services: $cmsweb_srvs"
+    echo "+++ deploy ingress : $cmsweb_ing"
+elif [ "$deployment" == "secrets" ]; then
+    echo "+++ deploy secrets"
+elif [ "$deployment" == "crons" ]; then
+    echo "+++ deploy crons"
+elif [ "$deployment" == "ingress" ]; then
+    echo "+++ deploy ingress: $cmsweb_ing"
+elif [ "$deployment" == "monitoring" ]; then
+    echo "+++ deploy monitoring"
+else
+    echo "--- no deployment action"
+fi
 
 # check status of the services
 check()
@@ -65,57 +114,6 @@ check()
     echo "*** pods status"
     kubectl top pods
 }
-
-# verify what we should do with given action
-if [ "$action" == "cleanup" ]; then
-    echo "+++ perform cleanup"
-elif [ "$action" == "services" ]; then
-    # services for cmsweb cluster, adjust if necessary
-    cmsweb_ing="ing-srv"
-    cmsweb_srvs="httpgo httpsgo acdcserver alertscollector cmsmon confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue"
-    echo "+++ create services cluster"
-elif [ "$action" == "frontend" ]; then
-    # services for cmsweb-nginx cluster
-    cmsweb_ing="ing-nginx"
-    cmsweb_srvs="httpgo httpsgo frontend"
-    echo "+++ create frontend cluster"
-elif [ "$action" == "create" ]; then
-    echo "+++ create generic cluster"
-elif [ "$action" == "secrets" ]; then
-    echo "+++ create secrets"
-elif [ "$action" == "crons" ]; then
-    echo "+++ create crons"
-elif [ "$action" == "ingress" ]; then
-    echo "+++ create ingress"
-elif [ "$action" == "monitoring" ]; then
-    echo "+++ create monitoring"
-elif [ "$action" == "status" ]; then
-    check
-    exit 0
-else
-    perl -ne '/^##H/ && do { s/^##H ?//; print }' < $0
-    exit 1
-fi
-
-if [ "$action" != "cleanup" ]; then
-    conf=$2
-    certificates=$3
-    if [ $# -eq 4 ]; then
-        hmac=$4
-    else
-        echo "+++ generate hmac secret"
-        hmac=/tmp/$USER/hmac
-        perl -e 'open(R, "< /dev/urandom") or die; sysread(R, $K, 20) or die; print $K' > $hmac
-    fi
-    echo "+++ perform action   : $action"
-    echo "+++ use configuration: $conf"
-    echo "+++ use certificates : $certificates"
-    echo "+++ use hmac file    : $hmac"
-fi
-
-hname=`openstack --os-project-name "$cluster_ns" coe cluster show $cluster | grep node_addresses | awk '{print $4}' | sed -e "s,\[u',,g" -e "s,'\],,g"`
-kubehost=`host $hname | awk '{print $5}' | sed -e "s,ch.,ch,g"`
-echo "Kubernetes host: $kubehost"
 
 scale()
 {
