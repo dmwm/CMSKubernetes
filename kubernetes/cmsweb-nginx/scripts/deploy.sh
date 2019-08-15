@@ -9,11 +9,12 @@
 ##H   status     check status of the services
 ##H
 ##H Deployments:
-##H   services   create services cluster
-##H   frontend   create frontend cluster
-##H   ingress    create ingress controller
-##H   monitoring create monitoring components
-##H   crons      create crons components
+##H   cluster    create openstack clsuter
+##H   services   deploy services cluster
+##H   frontend   deploy frontend cluster
+##H   ingress    deploy ingress controller
+##H   monitoring deploy monitoring components
+##H   crons      deploy crons components
 ##H   secrets    create secrets files
 ##H
 
@@ -384,6 +385,26 @@ deploy_services()
     done
 }
 
+create()
+{
+    local project=${CMSK8S_PROJECT:-"CMS Web"}
+    local cluster=${CMSK8S_CLUSTER:-cmsweb}
+    local template=${CMSK8S_TMPL:-"cmsweb-template-2xlarge"}
+    local keypair=${CMSK8S_KEY:-"cloud"}
+    if [ "$deployment" == "cluster" ]; then
+        echo
+        openstack --os-project-name "$project" coe cluster template list
+        openstack --os-project-name "$project" coe cluster create --keypair $keypair --cluster-template $template $cluster
+        openstack --os-project-name "$project" coe cluster list
+    else
+        deploy_secrets
+        deploy_services
+        deploy_ingress
+        deploy_crons
+        deploy_monitoring
+    fi
+}
+
 # Main routine, perform action requested on command line.
 case ${1:-status} in
   cleanup )
@@ -392,11 +413,7 @@ case ${1:-status} in
     ;;
 
   create )
-    deploy_secrets
-    deploy_services
-    deploy_ingress
-    deploy_crons
-    deploy_monitoring
+    create
     ;;
 
   secrets )
