@@ -60,6 +60,9 @@ or follow these manual steps
 # and use appropriate project name, here we use "CMS Webtools Mig"
 openstack --os-project-name "CMS Webtools Mig" coe cluster template list
 openstack --os-project-name "CMS Webtools Mig" coe cluster create --keypair cloud --cluster-template cmsweb-template-2xlarge cmsweb
+# or using one template but specify different parameters
+openstack --os-project-name "CMS Web" coe cluster create --keypair cloud --cluster-template cmsweb-template-large --flavor m2.xlarge --node-count 2 cmsweb-frontend
+openstack --os-project-name "CMS Web" coe cluster create --keypair cloud --cluster-template cmsweb-template-large --flavor m2.2xlarge --node-count 2 cmsweb-services
 ```
 
 Once cluster is created, you may check its status this with the following
