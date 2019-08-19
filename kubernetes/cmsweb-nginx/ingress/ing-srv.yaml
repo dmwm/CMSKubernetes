@@ -6,7 +6,7 @@ metadata:
     kubernetes.io/ingress.class: nginx
     # restrict access to this ingress controller from specific IPs
     # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#whitelist-source-range
-    nginx.ingress.kubernetes.io/whitelist-source-range: 137.138.156.4
+    nginx.ingress.kubernetes.io/whitelist-source-range: 137.138.53.75,137.138.157.93
 spec:
   rules:
   - host: cmsweb-srv.web.cern.ch
