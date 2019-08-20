@@ -10,7 +10,7 @@ fi
 if [ $# -eq 1 ]; then
     url=$1
 else
-    url=${CMSK8S:-https://cmsweb-test.web.cern.ch}
+    url=${CMSK8S:-https://cmsweb-test.cern.ch}
 fi
 
 # dbs instance
