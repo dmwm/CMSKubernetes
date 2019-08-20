@@ -171,7 +171,7 @@ export KUBECONFIG=/k8s/path/config
 ```
 
 For cmsweb deployment we'll use two clusters, see cmsweb
-k8s cluster [architecture](docs/architecture.md)
+k8s cluster [architecture](architecture.md)
 ```
 # deploy frontend cluster
 export KUBECONFIG=/k8s/path/config.cmsweb-frontend
@@ -229,8 +229,10 @@ add, to add similar aliases for cmsweb-srv minions we'll do:
 openstack server set --property landb-alias=<cmsweb-srv--load-0- <cmsweb-services-minion-0>
 openstack server set --property landb-alias=<cmsweb-srv--load-1- <cmsweb-services-minion-1>
 ```
-Finally, when we ready, we can make `cmsweb-test` visible from outside of CERN network
+Finally, when we ready, we can make `cmsweb-test` domain visible from outside of CERN network
 by placing [request a firewall exception](https://cern.service-now.com/service-portal/service-element.do?name=Firewall-Service).
+**Please note:** DO NOT expose `cmsweb-srv` domain to outside world. We only
+open `cmsweb-test` domain since it performs full authentication.
 
 ### Cluster maintenance
 When cluster is deployed we may perform various actions. For example,
