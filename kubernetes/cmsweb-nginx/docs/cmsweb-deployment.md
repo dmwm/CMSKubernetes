@@ -48,12 +48,15 @@ You may use the following command for cluster creation
 ```
 # you may setup the following environment variables:
 
-# OS_PROJECT_NAME controls project name (namespace of the cluster)
-# CMSWEB_CLUSTER cluster name
-# CMSWEB_TMPL cluster template
-# CMSWEB_KEY your key pair name
+# OS_PROJECT_NAME controls project name/namespace, default: "CMS Web"
+# CMSWEB_CLUSTER cluster name, default: cmsweb
+# CMSWEB_TMPL cluster template, default: cmsweb-template-2xlarge
+# CMSWEB_KEY your key pair name, default: cloud
 
-./scripts/deploy.sh create cluster
+# for example, create cmsweb-frontend cluster
+CMSWEB_CLUSTER=cmsweb-frontend ./scripts/deploy.sh create cluster
+# and create cmsweb-services cluster
+CMSWEB_CLUSTER=cmsweb-services ./scripts/deploy.sh create cluster
 ```
 or follow these manual steps
 ```
