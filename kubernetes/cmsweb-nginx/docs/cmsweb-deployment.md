@@ -47,10 +47,10 @@ login to lxplus-cloud cluster and using an appropriate cmsweb template.
 You may use the following command for cluster creation
 ```
 # you may setup the following environment variables:
-# CMSK8S_PROJECT controls project name (namespace of the cluster)
-# CMSK8S_CLUSTER cluster name
-# CMSK8S_TMPL cluster template
-# CMSK8S_KEY your key pair name
+# OS_PROJECT_NAME controls project name (namespace of the cluster)
+# CMSWEB_CLUSTER cluster name
+# CMSWEB_TMPL cluster template
+# CMSWEB_KEY your key pair name
 
 ./scripts/deploy.sh create cluster
 ```
@@ -125,7 +125,7 @@ export KUBECONFIG=/k8s/path/config
 # OR, we should deploy two clusters
 # deploy frontend cluster (assuming config.cmsweb k8s config)
 export KUBECONFIG=/k8s/path/config.cmsweb
-./scripts/deploy.sh frontend /path/cmsweb/config /path/certificates hmac
+./scripts/deploy.sh create frontend /path/cmsweb/config /path/certificates hmac
 
 # deploy services cluster (assuming config.cmsweb-services k8s config)
 export KUBECONFIG=/k8s/path/config.cmsweb-services
@@ -136,6 +136,25 @@ You may check the status of your cluster with the following command:
 ```
 ./scripts/deploy.sh status
 ```
+
+At this point, if cluster is working, we may need to adjust landb
+settings to have load balancer for out frontend minions. This can be done as
+following:
+```
+export OS_PROJECT_NAME="CMS Web"
+# add new aliases, please replace minion names here
+openstack server set --property landb-alias=[YOUR_DOMAIN]--load-1- [YOUR_MINION-0]
+openstack server set --property landb-alias=[YOUR_DOMAIN]--load-2- [YOUR_MINION-1]
+# for example, to make cmsweb-test.cern.ch point to our frontend
+# minions we'll perform this actions. Please note that --load-1- and --load-2-
+# parameters are counters which can start with any number and incremented
+# along with minions
+openstack server set --property landb-alias=cmsweb-test--load-1- cmsweb-frontend-minion-0
+openstack server set --property landb-alias=cmsweb-test--load-2- cmsweb-frontend-minion-1
+```
+
+And, to make `cmsweb-test` visible from outside of CERN network we'll need to
+[request a firewall exception](https://cern.service-now.com/service-portal/service-element.do?name=Firewall-Service)
 
 To re-generate all secrets use this command
 ```
