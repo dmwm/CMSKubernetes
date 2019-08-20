@@ -11,20 +11,26 @@
 # use CMSK8STAG environment to specify common tag for build images
 
 # define help
-usage="Usage: build.sh <pkgs>"
 if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ]; then
-    echo $usage
+    echo "Usage: build.sh <pkgs>"
+    echo "  use CMSK8S environment to controll host name of k8s cluster"
+    echo "  use CMSK8STAG environment to specify common tag for build images"
+    echo "Examples:"
+    echo "  # build images for all cmsweb services"
+    echo "  CMSK8STAG=1.0.4 CMSK8S=https://cmsweb-test.cern.ch ./build.sh"
+    echo "  # build images for given set of services"
+    echo "  CMSK8STAG=1.0.4 CMSK8S=https://cmsweb-test.cern.ch ./build.sh \"dbs reqmgr2\""
     exit 1
 fi
 
 # adjust if necessary
-CMSK8S=${CMSK8S:-https://cmsweb-test.web.cern.ch}
+CMSK8S=${CMSK8S:-https://cmsweb-test.cern.ch}
 CMSK8STAG=${CMSK8STAG:-}
 
 echo "to prune all images"
 echo "docker system prune -f -a"
 
-cmssw_pkgs="cmsweb proxy frontend exporters das dbs2go dbs couchdb reqmgr2 reqmgr2ms reqmon workqueue acdcserver alertscollector confdb crabserver crabcache cmsmon dmwmmon dqmgui t0_reqmon t0wmadatasvc dbsmigration phedex sitedb httpgo httpsgo tfaas"
+cmssw_pkgs="proxy frontend exporters das dbs2go dbs couchdb reqmgr2 reqmgr2ms reqmon workqueue acdcserver alertscollector confdb crabserver crabcache cmsmon dmwmmon dqmgui t0_reqmon t0wmadatasvc dbsmigration phedex sitedb httpgo httpsgo tfaas"
 
 if [ $# -eq 1 ]; then
     cmssw_pkgs="$1"
