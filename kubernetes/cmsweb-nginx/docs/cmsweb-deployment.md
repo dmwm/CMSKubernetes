@@ -146,11 +146,11 @@ export OS_PROJECT_NAME="CMS Web"
 openstack server set --property landb-alias=[YOUR_DOMAIN]--load-1- [YOUR_MINION-0]
 openstack server set --property landb-alias=[YOUR_DOMAIN]--load-2- [YOUR_MINION-1]
 # for example, to make cmsweb-test.cern.ch point to our frontend
-# minions we'll perform this actions. Please note that --load-1- and --load-2-
+# minions we'll perform this actions. Please note that --load-0- and --load-1-
 # parameters are counters which can start with any number and incremented
 # along with minions
-openstack server set --property landb-alias=cmsweb-test--load-1- cmsweb-frontend-minion-0
-openstack server set --property landb-alias=cmsweb-test--load-2- cmsweb-frontend-minion-1
+openstack server set --property landb-alias=cmsweb-test--load-0- cmsweb-frontend-minion-0
+openstack server set --property landb-alias=cmsweb-test--load-1- cmsweb-frontend-minion-1
 ```
 
 And, to make `cmsweb-test` visible from outside of CERN network we'll need to
