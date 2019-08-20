@@ -262,6 +262,9 @@ data-service if you want to change the release, and/or add some functionality.
 The docker image is listed in service yaml file and you may apply
 particular tag to choose appropriate image.
 
+The `scripts/deploy.sh` script provides additional actions, such as `scale`,
+`status monitoring`, etc. But so far they are considered experimental.
+
 ### Additional notes
 - hostkey/hostcert.pem files with hostname matching k8s host should reside in
   frontend configureation area
