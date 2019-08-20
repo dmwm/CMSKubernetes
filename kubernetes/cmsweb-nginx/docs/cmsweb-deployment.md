@@ -8,10 +8,10 @@ In order to proceed with cluster creation you need to decide and obtain the
 following items:
 
 - decide on hostname to be used for k8s cluster, e.g.
-  https://cmsweb-test.web.cern.ch
+  https://cmsweb-test.cern.ch
 - obtain hostkey/hostcert.pem files for this hostname, the DN of certificate
   file should match DN of the host, e.g.
-  Subject: DC=ch, DC=cern, OU=computers, CN=cmsweb-test.web.cern.ch
+  Subject: DC=ch, DC=cern, OU=computers, CN=cmsweb-test.cern.ch
   See [ca.cern.ch](https://ca.cern.ch/ca/host/Request.aspx?template=CERNHostCertificate2YearsCustomSubject)
 - obtain robot certificates from [ca.cern.ch](https://ca.cern.ch)
   to be used by services to obtain grid proxy
@@ -143,14 +143,17 @@ following:
 ```
 export OS_PROJECT_NAME="CMS Web"
 # add new aliases, please replace minion names here
-openstack server set --property landb-alias=[YOUR_DOMAIN]--load-1- [YOUR_MINION-0]
-openstack server set --property landb-alias=[YOUR_DOMAIN]--load-2- [YOUR_MINION-1]
+openstack server set --property landb-alias=[YOUR_DOMAIN]--load-0- [YOUR_MINION-0]
+openstack server set --property landb-alias=[YOUR_DOMAIN]--load-1- [YOUR_MINION-1]
 # for example, to make cmsweb-test.cern.ch point to our frontend
 # minions we'll perform this actions. Please note that --load-0- and --load-1-
 # parameters are counters which can start with any number and incremented
 # along with minions
 openstack server set --property landb-alias=cmsweb-test--load-0- cmsweb-frontend-minion-0
 openstack server set --property landb-alias=cmsweb-test--load-1- cmsweb-frontend-minion-1
+# add similar aliases for cmsweb-srv minions
+openstack server set --property landb-alias=cmsweb-srv--load-0- cmsweb-services-minion-0
+openstack server set --property landb-alias=cmsweb-srv--load-1- cmsweb-services-minion-1
 ```
 
 And, to make `cmsweb-test` visible from outside of CERN network we'll need to
