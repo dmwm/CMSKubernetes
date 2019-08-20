@@ -266,6 +266,10 @@ The `scripts/deploy.sh` script provides additional actions, such as `scale`,
 `status monitoring`, etc. But so far they are considered experimental.
 
 ### Additional notes
+- once you created an entire cluster you may remove `hmac` file, but if you
+  plan to upgrade your cluster you may wish to keep it around
+  - you can always re-generate `hmac` file, but then you need to re-deploy
+  all services with it in `cmsweb-frontend` and `cmsweb-services` clusters
 - hostkey/hostcert.pem files with hostname matching k8s host should reside in
   frontend configureation area
 - for reqmgr2 we need to use pycurl that's why its install script perform the
