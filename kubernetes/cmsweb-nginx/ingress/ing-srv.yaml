@@ -9,7 +9,7 @@ metadata:
     nginx.ingress.kubernetes.io/whitelist-source-range: 137.138.53.75,137.138.157.93
 spec:
   rules:
-  - host: cmsweb-srv.web.cern.ch
+  - host: cmsweb-srv.cern.ch
     http:
       paths:
       - path: /httpgo
