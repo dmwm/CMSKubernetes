@@ -87,6 +87,8 @@ you just created a cluster you can setup your environment as following:
 # this step will create config file in your current directory
 cd workdir
 $(openstack coe cluster config cmsweb)
+# the command above will create config file in your local directory
+# and setup KUBECONFIG pointing to it
 ```
 or, if you already have a cluster, you may setup your environment as
 ```
@@ -94,10 +96,35 @@ cd workdir
 export KUBECONFIG=$PWD/config
 ```
 
-Please inspect your minion node before moving forward. We found that quite
+Please note, for cmsweb we'll create two clusters, cmsweb-frontend and
+cmsweb-services. Therefore when we'll create configuration files we'll
+make a copy of config file:
+```
+# create cmsweb-frontend cluster
+openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-large --flavor m2.xlarge --node-count 2 cmsweb-frontend
+# create its configuration
+$(openstack coe cluster config cmsweb-frontend)
+cp config config.cmsweb-frontend
+# when operating with cmsweb-frontend cluster please set
+export KUBECONFIG=/path/config.cmsweb-frontend
+
+# create cmsweb-services cluster
+openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-large --flavor m2.2xlarge --node-count 2 cmsweb-services
+# create its configuration
+$(openstack coe cluster config cmsweb-services)
+cp config config.cmsweb-services
+# when operating with cmsweb-services cluster please set
+export KUBECONFIG=/path/config.cmsweb-services
+```
+
+Please inspect your minion nodes before moving forward. We found that quite
 often nodes fail to provide valid host certificate files. To do that please
 login to one of your minion nodes:
 ```
+# obtain minion nodes
+kubectl get node
+
+# login to your minion node
 ssh -i ~/.ssh/cloud -o ConnectTimeout=30 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no fedora@<minion-node-name>
 # and inspect /etc/grid-security area
 ls -l /etc/grid-security
@@ -137,12 +164,12 @@ export KUBECONFIG=/k8s/path/config
 # NOTE: we can either deploy single cluster with hostNetwork: true
 # option in ALL yaml files (you may need to change that)
 # single cluster deployment:
-export KUBECONFIG=/k8s/path/config
+export KUBECONFIG=/k8s/path/config.cmsweb-frontend
 ./scripts/deploy.sh create frontend /path/cmsweb/config /path/certificates hmac
 
 # OR, we should deploy two clusters
 # deploy frontend cluster (assuming config.cmsweb k8s config)
-export KUBECONFIG=/k8s/path/config.cmsweb
+export KUBECONFIG=/k8s/path/config.cmsweb-frontend
 ./scripts/deploy.sh create frontend /path/cmsweb/config /path/certificates hmac
 
 # deploy services cluster (assuming config.cmsweb-services k8s config)
