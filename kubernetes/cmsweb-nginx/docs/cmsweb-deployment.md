@@ -142,7 +142,7 @@ openstack coe cluster update cmsweb-services replace node_count=3
 Please see [cluster maintenance](http://clouddocs.web.cern.ch/clouddocs/containers/maintenance.html)
 documention for more options.
 
-#### Cluster deployment
+### Cluster deployment
 
 To proceed, get latest [CMSKubernetes](https://github.com/dmwm/CMSKubernetes) codebase
 ```
@@ -214,7 +214,7 @@ openstack server set --property landb-alias=cmsweb-srv--load-1- cmsweb-services-
 Finally, when we ready, we can make `cmsweb-test` visible from outside of CERN network
 by placing [request a firewall exception](https://cern.service-now.com/service-portal/service-element.do?name=Firewall-Service).
 
-#### cluster maintenance
+### Cluster maintenance
 When cluster is deployed we may perform various actions. For example,
 to re-generate all secrets we'll use this command
 ```
