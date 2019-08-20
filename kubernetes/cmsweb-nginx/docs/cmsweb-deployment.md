@@ -166,15 +166,33 @@ export KUBECONFIG=/k8s/path/config
 # NOTE: we can either deploy single cluster with hostNetwork: true
 # option in ALL yaml files (you may need to change that)
 # single cluster deployment:
+export KUBECONFIG=/k8s/path/config
+./scripts/deploy.sh create frontend /path/cmsweb/config /path/certificates hmac
+```
+
+For cmsweb deployment we'll use two clusters, see cmsweb
+k8s cluster [architecture](docs/architecture.md)
+```
+# deploy frontend cluster
 export KUBECONFIG=/k8s/path/config.cmsweb-frontend
 ./scripts/deploy.sh create frontend /path/cmsweb/config /path/certificates hmac
+```
+At this point we need to obtain `cmsweb-frontend` cluster IPs and
+update `ingress/ing-srv.yaml` file accordingly to white-list them.
+For that we may use
+[CIDR](https://www.wikiwand.com/en/Classless_Inter-Domain_Routing)
+notations, e.g.
 
-# OR, we should deploy two clusters
-# deploy frontend cluster (assuming config.cmsweb k8s config)
+```
+# obtain cmsweb-frontend cluster IPs
 export KUBECONFIG=/k8s/path/config.cmsweb-frontend
-./scripts/deploy.sh create frontend /path/cmsweb/config /path/certificates hmac
+kubectl get node
+# then resolve minion node names into IPs
 
-# deploy services cluster (assuming config.cmsweb-services k8s config)
+# adjust ingress/ing-srv.yaml accordingly to setup the following option:
+#    nginx.ingress.kubernetes.io/whitelist-source-range: IP1, IP2, IP3, ...
+
+# deploy services cluster
 export KUBECONFIG=/k8s/path/config.cmsweb-services
 ./scripts/deploy.sh create services /path/cmsweb/config /path/certificates hmac
 ```
@@ -230,6 +248,7 @@ by using the following command:
 ```
 # delete existing service (optional)
 kubectl delete -f <srv>.yaml
+
 # apply/deploy new service
 kubectl apply -f <srv>.yaml
 ```
