@@ -79,11 +79,11 @@ openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-
 openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-large --flavor m2.2xlarge --node-count 2 cmsweb-services
 ```
 
-Once cluster is created, you may check its status this with the following command:
+Once cluster is created, you may check its status with the following command:
 ```
 openstack coe cluster list
 ```
-Please verify that your cluster is in `CREATE_COMPLETE` state, if so then you
+Please verify that your cluster is in `CREATE_COMPLETE` state, if so, then you
 need to setup an appropriate k8s environment to operate with your cluster.  If
 you just created a cluster you can setup your environment as following:
 ```
@@ -95,11 +95,10 @@ $(openstack coe cluster config cmsweb)
 ```
 or, if you already have a cluster, you may setup your environment as
 ```
-cd workdir
 export KUBECONFIG=$PWD/config
 ```
 
-Please note, for cmsweb we'll create two clusters, cmsweb-frontend and
+**Please note:** for cmsweb we'll create two clusters, cmsweb-frontend and
 cmsweb-services. Therefore when we'll create configuration files we'll
 make a copy of config file:
 ```
