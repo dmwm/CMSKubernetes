@@ -61,3 +61,23 @@ Create new DNS alias at `https://webservices.web.cern.ch/webservices/`
 using our k8s node name which we can obtain via `kubectl get node` command.
 Use this name with .cern.ch suffix to create a DNS alias we need, e.g.
 `cmsweb`. The new DNS alias will be accessible as `<aliasName>.web.cern.ch`
+
+Alternatively we may request proper alias to our host in LanDB.
+```
+# if required set proper OS_PROJECT_NAME environment
+export OS_PROJECT_NAME="CMS Web"
+
+# command syntax how to add new aliases to LanDB
+openstack server set --property landb-alias=[YOUR_DOMAIN]--load-0- [YOUR_MINION-0]
+openstack server set --property landb-alias=[YOUR_DOMAIN]--load-1- [YOUR_MINION-1]
+```
+Please note that `--load-0-` and `--load-1-` (and so on) parameters are
+counters which can start with any number and incremented along with minions
+IDs.
+
+For example, to make cmsweb-test.cern.ch point to our cluster
+minions we'll perform these actions:
+```
+openstack server set --property landb-alias=<cmsweb-test--load-0- <minion-0>
+openstack server set --property landb-alias=<cmsweb-test--load-1- <minion-1>
+```
