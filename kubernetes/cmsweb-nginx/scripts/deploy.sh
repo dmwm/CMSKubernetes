@@ -19,8 +19,8 @@
 ##H
 
 # common defititions (adjust if necessary)
-cluster=cmsweb
-cluster_ns="CMS Webtools Mig"
+cluster=${CMSWEB_CLUSTER:-cmsweb}
+cluster_ns=${OS_PROJECT_NAME:-"CMS Web"}
 sdir=services
 mdir=monitoring
 idir=ingress
@@ -59,9 +59,12 @@ else
 fi
 
 # dump info about our cluster
-hname=`openstack --os-project-name "$cluster_ns" coe cluster show $cluster | grep node_addresses | awk '{print $4}' | sed -e "s,\[u',,g" -e "s,'\],,g"`
-kubehost=`host $hname | awk '{print $5}' | sed -e "s,ch.,ch,g"`
-echo "Kubernetes host: $kubehost"
+echo "openstack --os-project-name \"$cluster_ns\" coe cluster show $cluster"
+hname=`openstack --os-project-name "$cluster_ns" coe cluster show $cluster | grep node_addresses | sed -e "s,|,,g" -e "s,node_addresses,,g" -e "s, ,,g" -e "s,u,,g" -e "s,',,g" -e "s,\[,,g" -e "s,\],,g"`
+echo "cmsweb clsuter    : $cluster"
+echo "project namespace : $cluster_ns"
+echo "Kubernetes host(s): $hname"
+kubectl get node
 
 if [ "$deployment" == "services" ]; then
     # services for cmsweb cluster, adjust if necessary
@@ -337,7 +340,7 @@ deploy_monitoring()
     echo "### we may access prometheus locally as following"
     echo "kubectl -n monitoring port-forward $prom 8080:9090"
     echo "### to access prometheus externally we should do the following:"
-    echo "ssh -S none -L 30000:$kubehost:30000 $USER@lxplus.cern.ch"
+    echo "ssh -S none -L 30000:kubehost:30000 $USER@lxplus.cern.ch"
 }
 
 # deploy appripriate ingress controller for our cluster
@@ -387,10 +390,10 @@ deploy_services()
 
 create()
 {
-    local project=${CMSK8S_PROJECT:-"CMS Web"}
-    local cluster=${CMSK8S_CLUSTER:-cmsweb}
-    local template=${CMSK8S_TMPL:-"cmsweb-template-2xlarge"}
-    local keypair=${CMSK8S_KEY:-"cloud"}
+    local project=${OS_PROJECT_NAME:-"CMS Web"}
+    local cluster=${CMSWEB_CLUSTER:-cmsweb}
+    local template=${CMSWEB_TMPL:-"cmsweb-template-2xlarge"}
+    local keypair=${CMSWEB_KEY:-"cloud"}
     if [ "$deployment" == "cluster" ]; then
         echo
         openstack --os-project-name "$project" coe cluster template list
