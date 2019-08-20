@@ -57,18 +57,20 @@ You may use the following command for cluster creation
 or follow these manual steps
 ```
 # ssh lxplus-cloud
+# set appropriate projet name
+export OS_PROJECT_NAME="CMS Web"
 # and use appropriate project name, here we use "CMS Webtools Mig"
-openstack --os-project-name "CMS Webtools Mig" coe cluster template list
-openstack --os-project-name "CMS Webtools Mig" coe cluster create --keypair cloud --cluster-template cmsweb-template-2xlarge cmsweb
+openstack coe cluster template list
+openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-2xlarge cmsweb
 # or using one template but specify different parameters
-openstack --os-project-name "CMS Web" coe cluster create --keypair cloud --cluster-template cmsweb-template-large --flavor m2.xlarge --node-count 2 cmsweb-frontend
-openstack --os-project-name "CMS Web" coe cluster create --keypair cloud --cluster-template cmsweb-template-large --flavor m2.2xlarge --node-count 2 cmsweb-services
+openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-large --flavor m2.xlarge --node-count 2 cmsweb-frontend
+openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-large --flavor m2.2xlarge --node-count 2 cmsweb-services
 ```
 
 Once cluster is created, you may check its status this with the following
 command:
 ```
-openstack --os-project-name "CMS Webtools Mig" coe cluster list
+openstack coe cluster list
 ```
 Please verify that your cluster is in `CREATE_COMPLETE` state, if so then you
 need to setup an appropriate k8s environment to operate with your cluster.  If
@@ -76,7 +78,7 @@ you just created a cluster you can setup your environment as following:
 ```
 # this step will create config file in your current directory
 cd workdir
-$(openstack --os-project-name "CMS Webtools Mig" coe cluster config cmsweb)
+$(openstack coe cluster config cmsweb)
 ```
 or, if you already have a cluster, you may setup your environment as
 ```
