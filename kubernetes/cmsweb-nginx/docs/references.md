@@ -1,6 +1,7 @@
 ### References
 
 - [Load balancing](https://clouddocs.web.cern.ch/clouddocs/containers/tutorials/lb.html)
+- [cluster maintenance](http://clouddocs.web.cern.ch/clouddocs/containers/maintenance.html)
 - [Autoscale](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale)
 - [Resources](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
 - [Using configmap](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap)
