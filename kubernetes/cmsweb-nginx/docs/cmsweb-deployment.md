@@ -47,6 +47,7 @@ login to lxplus-cloud cluster and using an appropriate cmsweb template.
 You may use the following command for cluster creation
 ```
 # you may setup the following environment variables:
+
 # OS_PROJECT_NAME controls project name (namespace of the cluster)
 # CMSWEB_CLUSTER cluster name
 # CMSWEB_TMPL cluster template
@@ -57,18 +58,25 @@ You may use the following command for cluster creation
 or follow these manual steps
 ```
 # ssh lxplus-cloud
+
 # set appropriate projet name
 export OS_PROJECT_NAME="CMS Web"
-# and use appropriate project name, here we use "CMS Webtools Mig"
+
+# list existsing templates
 openstack coe cluster template list
+
+# create a cmsweb cluster from specific template (cmsweb-template-2xlarge)
 openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-2xlarge cmsweb
+
 # or using one template but specify different parameters
+openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-2xlarge --node-count 2 cmsweb
+
+# for cmsweb we'll create two clusters: cmsweb-frontend and cmsweb-services
 openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-large --flavor m2.xlarge --node-count 2 cmsweb-frontend
 openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-large --flavor m2.2xlarge --node-count 2 cmsweb-services
 ```
 
-Once cluster is created, you may check its status this with the following
-command:
+Once cluster is created, you may check its status this with the following command:
 ```
 openstack coe cluster list
 ```
@@ -90,12 +98,22 @@ Please inspect your minion node before moving forward. We found that quite
 often nodes fail to provide valid host certificate files. To do that please
 login to one of your minion nodes:
 ```
-ssh -i ~/.ssh/cloud -o ConnectTimeout=30 -o UserKnownHostsFile=/dev/null -o
-StrictHostKeyChecking=no fedora@<minion-node-name>
+ssh -i ~/.ssh/cloud -o ConnectTimeout=30 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no fedora@<minion-node-name>
 # and inspect /etc/grid-security area
 ls -l /etc/grid-security
 ```
 It should contain proper content, i.e. hostcert.pem and hostkey.pem files.
+
+Later, if you need to increase number of minions for your cluster and/or
+remove some this can be done using the following command:
+```
+# replace node count to 3
+openstack coe cluster update cmsweb-services replace node_count=3
+```
+Please see [cluster maintenance](http://clouddocs.web.cern.ch/clouddocs/containers/maintenance.html)
+documention for more options.
+
+##### Cluster deployment
 
 To proceed, get latest [CMSKubernetes](https://github.com/dmwm/CMSKubernetes) codebase
 ```
@@ -108,13 +126,13 @@ and the later should contain auth/secret/configuration files for every cmsweb se
 Finally, you may deploy new k8s cluster as following:
 ```
 # locate your kubernetes area
-cd CMSKubernetes/kubernetes
+cd CMSKubernetes/kubernetes/cmsweb-nginx
 
 # if necessary setup KUBECONFIG environment, e.g.
 export KUBECONFIG=/k8s/path/config
 
 # obtain hmac file
-gen_hmac.sh hmac
+./scripts/gen_hmac.sh hmac
 
 # NOTE: we can either deploy single cluster with hostNetwork: true
 # option in ALL yaml files (you may need to change that)
@@ -137,33 +155,42 @@ You may check the status of your cluster with the following command:
 ./scripts/deploy.sh status
 ```
 
-At this point, if cluster is working, we may need to adjust landb
-settings to have load balancer for out frontend minions. This can be done as
-following:
+##### Registration of k8s nodes on LanDB
+At this point, if cluster is working, we may need to add frontend and services
+minions to landb. This is required to have proper load balancers to both
+clusters.  It can be done as following:
 ```
+# if required set proper OS_PROJECT_NAME environment
 export OS_PROJECT_NAME="CMS Web"
-# add new aliases, please replace minion names here
+
+# command syntax how to add new aliases to LanDB
 openstack server set --property landb-alias=[YOUR_DOMAIN]--load-0- [YOUR_MINION-0]
 openstack server set --property landb-alias=[YOUR_DOMAIN]--load-1- [YOUR_MINION-1]
-# for example, to make cmsweb-test.cern.ch point to our frontend
-# minions we'll perform this actions. Please note that --load-0- and --load-1-
-# parameters are counters which can start with any number and incremented
-# along with minions
+```
+Please note that `--load-0-` and `--load-1-` (and so on) parameters are
+counters which can start with any number and incremented along with minions
+IDs.
+
+For example, to make cmsweb-test.cern.ch point to our frontend
+minions we'll perform these actions:
+```
 openstack server set --property landb-alias=cmsweb-test--load-0- cmsweb-frontend-minion-0
 openstack server set --property landb-alias=cmsweb-test--load-1- cmsweb-frontend-minion-1
-# add similar aliases for cmsweb-srv minions
+```
+add, to add similar aliases for cmsweb-srv minions we'll do:
+```
 openstack server set --property landb-alias=cmsweb-srv--load-0- cmsweb-services-minion-0
 openstack server set --property landb-alias=cmsweb-srv--load-1- cmsweb-services-minion-1
 ```
+Finally, when we ready, we can make `cmsweb-test` visible from outside of CERN network
+by placing [request a firewall exception](https://cern.service-now.com/service-portal/service-element.do?name=Firewall-Service).
 
-And, to make `cmsweb-test` visible from outside of CERN network we'll need to
-[request a firewall exception](https://cern.service-now.com/service-portal/service-element.do?name=Firewall-Service)
-
-To re-generate all secrets use this command
+##### cluster maintenance
+When cluster is deployed we may perform various actions. For example,
+to re-generate all secrets we'll use this command
 ```
 ./scripts/deploy.sh create secrets /path/cmsweb/config /path/certificates hmac
 ```
-
 To clean-up all services/secrets you can run this command:
 ```
 ./scripts/deploy.sh cleanup
@@ -185,15 +212,15 @@ data-service if you want to change the release, and/or add some functionality.
 The docker image is listed in service yaml file and you may apply
 particular tag to choose appropriate image.
 
-##### List of specific actions we need to do on k8s
+##### Additional notes
 - hostkey/hostcert.pem files with hostname matching k8s host should reside in
   frontend configureation area
 - for reqmgr2 we need to use pycurl that's why its install script perform the
   patch of the code to use it, otherwise default httplib2 library fails to
   pass requests from reqmgr2 to couchdb
-- we need to use hostNetwork to allow communication between
-  reqmgr2/reqmon/workqueue and couch if we will operate with a single
-  cluster, otherwise it is irrelevant
+- for single clsuter (when frontend and cmsweb services resides all together
+  within a single clsuter) we need to use hostNetwork to allow communication between
+  reqmgr2/reqmon/workqueue and couch, otherwise it is irrelevant
 - nginx ingress controller must access tls.key and tls.crt files while it is
   deployed, these files reside in ingress secrets file. These files should have
   certificate matching k8s hostname
