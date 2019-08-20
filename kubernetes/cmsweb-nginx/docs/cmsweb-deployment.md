@@ -16,7 +16,7 @@ following items:
 - obtain robot certificates from [ca.cern.ch](https://ca.cern.ch)
   to be used by services to obtain grid proxy
 
-##### cmsweb k8s deploy script
+#### cmsweb k8s deploy script
 We provide special deploy script to perform most of the deployment tasks.
 Here its structure
 ```
@@ -142,7 +142,7 @@ openstack coe cluster update cmsweb-services replace node_count=3
 Please see [cluster maintenance](http://clouddocs.web.cern.ch/clouddocs/containers/maintenance.html)
 documention for more options.
 
-##### Cluster deployment
+#### Cluster deployment
 
 To proceed, get latest [CMSKubernetes](https://github.com/dmwm/CMSKubernetes) codebase
 ```
@@ -184,7 +184,7 @@ You may check the status of your cluster with the following command:
 ./scripts/deploy.sh status
 ```
 
-##### Registration of k8s nodes on LanDB
+#### Registration of k8s nodes on LanDB
 At this point, if cluster is working, we may need to add frontend and services
 minions to landb. This is required to have proper load balancers to both
 clusters.  It can be done as following:
@@ -214,7 +214,7 @@ openstack server set --property landb-alias=cmsweb-srv--load-1- cmsweb-services-
 Finally, when we ready, we can make `cmsweb-test` visible from outside of CERN network
 by placing [request a firewall exception](https://cern.service-now.com/service-portal/service-element.do?name=Firewall-Service).
 
-##### cluster maintenance
+#### cluster maintenance
 When cluster is deployed we may perform various actions. For example,
 to re-generate all secrets we'll use this command
 ```
@@ -241,7 +241,7 @@ data-service if you want to change the release, and/or add some functionality.
 The docker image is listed in service yaml file and you may apply
 particular tag to choose appropriate image.
 
-##### Additional notes
+### Additional notes
 - hostkey/hostcert.pem files with hostname matching k8s host should reside in
   frontend configureation area
 - for reqmgr2 we need to use pycurl that's why its install script perform the
