@@ -35,3 +35,16 @@ kubectl get node | grep minion
 # create k8s and substitute the minion_name
 ssh -i ~/.ssh/cloud -o ConnectTimeout=30 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no fedora@<minion_name>
 ```
+
+If there is nginx controller in `kube-system` namespace try to check its
+creation
+```
+# check job creation
+kubectl -n magnum-tiller get job
+
+# check nginx ingress job
+kubectl -n magnum-tiller describe po install-nginx-ingress-job-xxxxx
+
+# delete existing pod
+kubectl -n magnum-tiller delete po install-nginx-ingress-job-xxxxx
+```
