@@ -4,7 +4,10 @@
 *.key
 *.orig
 config
+config.cmsweb*
 tmp
+log
+hmac
 
 # 3rd party packages
 kubernetes-prometheus
