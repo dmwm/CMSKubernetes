@@ -392,7 +392,7 @@ create()
 {
     local project=${OS_PROJECT_NAME:-"CMS Web"}
     local cluster=${CMSWEB_CLUSTER:-cmsweb}
-    local template=${CMSWEB_TMPL:-"cmsweb-template-2xlarge"}
+    local template=${CMSWEB_TMPL:-"cmsweb-template-stable"}
     local keypair=${CMSWEB_KEY:-"cloud"}
     if [ "$deployment" == "cluster" ]; then
         echo
