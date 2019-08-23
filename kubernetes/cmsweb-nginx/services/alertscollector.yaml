@@ -32,7 +32,7 @@ spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/alertscollector:1.0.3
+      - image: cmssw/alertscollector:1.0.4
         name: alertscollector
         resources:
           requests:

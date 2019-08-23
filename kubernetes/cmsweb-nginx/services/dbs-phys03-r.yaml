@@ -35,7 +35,7 @@ spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/dbs:1.0.3
+      - image: cmssw/dbs:1.0.4
         name: dbs-phys03-r
         resources:
           requests:

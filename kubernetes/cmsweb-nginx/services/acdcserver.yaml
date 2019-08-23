@@ -32,7 +32,7 @@ spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/acdcserver:1.0.3
+      - image: cmssw/acdcserver:1.0.4
         name: acdcserver
         resources:
           requests:
