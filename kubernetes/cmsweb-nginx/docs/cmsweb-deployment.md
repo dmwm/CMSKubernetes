@@ -50,7 +50,7 @@ You may use the following command for cluster creation
 
 # OS_PROJECT_NAME controls project name/namespace, default: "CMS Web"
 # CMSWEB_CLUSTER cluster name, default: cmsweb
-# CMSWEB_TMPL cluster template, default: cmsweb-template
+# CMSWEB_TMPL cluster template, default: cmsweb-template-stable
 # CMSWEB_KEY your key pair name, default: cloud
 
 # for example, create cmsweb-frontend cluster
@@ -68,15 +68,15 @@ export OS_PROJECT_NAME="CMS Web"
 # list existsing templates
 openstack coe cluster template list
 
-# create a cmsweb cluster from specific template (cmsweb-template)
-openstack coe cluster create --keypair cloud --cluster-template cmsweb-template cmsweb
+# create a cmsweb cluster from specific template (cmsweb-template-stable)
+openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-stable cmsweb
 
 # or using one template but specify different parameters
-openstack coe cluster create --keypair cloud --cluster-template cmsweb-template --node-count 2 cmsweb
+openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-stable --node-count 2 cmsweb
 
 # for cmsweb we'll create two clusters: cmsweb-frontend and cmsweb-services
-openstack coe cluster create --keypair cloud --cluster-template cmsweb-template --flavor m2.large --node-count 4 cmsweb-frontend
-openstack coe cluster create --keypair cloud --cluster-template cmsweb-template --flavor m2.2xlarge --node-count 4 cmsweb-services
+openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-stable --flavor m2.large --node-count 4 cmsweb-frontend
+openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-stable --flavor m2.2xlarge --node-count 4 cmsweb-services
 ```
 
 Once cluster is created, you may check its status with the following command:
@@ -103,7 +103,7 @@ cmsweb-services. Therefore when we'll create configuration files we'll
 make a copy of config file:
 ```
 # create cmsweb-frontend cluster
-openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-large --flavor m2.xlarge --node-count 2 cmsweb-frontend
+openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-stable --flavor m2.xlarge --node-count 2 cmsweb-frontend
 # create its configuration
 $(openstack coe cluster config cmsweb-frontend)
 cp config config.cmsweb-frontend
@@ -111,7 +111,7 @@ cp config config.cmsweb-frontend
 export KUBECONFIG=/path/config.cmsweb-frontend
 
 # create cmsweb-services cluster
-openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-large --flavor m2.2xlarge --node-count 2 cmsweb-services
+openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-stable --flavor m2.2xlarge --node-count 2 cmsweb-services
 # create its configuration
 $(openstack coe cluster config cmsweb-services)
 cp config config.cmsweb-services
