@@ -50,7 +50,7 @@ You may use the following command for cluster creation
 
 # OS_PROJECT_NAME controls project name/namespace, default: "CMS Web"
 # CMSWEB_CLUSTER cluster name, default: cmsweb
-# CMSWEB_TMPL cluster template, default: cmsweb-template-2xlarge
+# CMSWEB_TMPL cluster template, default: cmsweb-template
 # CMSWEB_KEY your key pair name, default: cloud
 
 # for example, create cmsweb-frontend cluster
@@ -68,15 +68,15 @@ export OS_PROJECT_NAME="CMS Web"
 # list existsing templates
 openstack coe cluster template list
 
-# create a cmsweb cluster from specific template (cmsweb-template-2xlarge)
-openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-2xlarge cmsweb
+# create a cmsweb cluster from specific template (cmsweb-template)
+openstack coe cluster create --keypair cloud --cluster-template cmsweb-template cmsweb
 
 # or using one template but specify different parameters
-openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-2xlarge --node-count 2 cmsweb
+openstack coe cluster create --keypair cloud --cluster-template cmsweb-template --node-count 2 cmsweb
 
 # for cmsweb we'll create two clusters: cmsweb-frontend and cmsweb-services
-openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-large --flavor m2.xlarge --node-count 2 cmsweb-frontend
-openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-large --flavor m2.2xlarge --node-count 2 cmsweb-services
+openstack coe cluster create --keypair cloud --cluster-template cmsweb-template --flavor m2.large --node-count 4 cmsweb-frontend
+openstack coe cluster create --keypair cloud --cluster-template cmsweb-template --flavor m2.2xlarge --node-count 4 cmsweb-services
 ```
 
 Once cluster is created, you may check its status with the following command:
@@ -213,6 +213,9 @@ export OS_PROJECT_NAME="CMS Web"
 # command syntax how to add new aliases to LanDB
 openstack server set --property landb-alias=[YOUR_DOMAIN]--load-0- [YOUR_MINION-0]
 openstack server set --property landb-alias=[YOUR_DOMAIN]--load-1- [YOUR_MINION-1]
+
+# command syntax how to delete alias from LanDB
+openstack server unset --property landb-alias <minion-name>
 ```
 Please note that `--load-0-` and `--load-1-` (and so on) parameters are
 counters which can start with any number and incremented along with minions
