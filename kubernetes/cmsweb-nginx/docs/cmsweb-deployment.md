@@ -224,13 +224,13 @@ IDs.
 For example, to make cmsweb-test.cern.ch point to our frontend
 minions we'll perform these actions:
 ```
-openstack server set --property landb-alias=<cmsweb-test--load-0- <cmsweb-frontend-minion-0>
-openstack server set --property landb-alias=<cmsweb-test--load-1- <cmsweb-frontend-minion-1>
+openstack server set --property landb-alias=cmsweb-test--load-0- <cmsweb-frontend-minion-0>
+openstack server set --property landb-alias=cmsweb-test--load-1- <cmsweb-frontend-minion-1>
 ```
 add, to add similar aliases for cmsweb-srv minions we'll do:
 ```
-openstack server set --property landb-alias=<cmsweb-srv--load-0- <cmsweb-services-minion-0>
-openstack server set --property landb-alias=<cmsweb-srv--load-1- <cmsweb-services-minion-1>
+openstack server set --property landb-alias=cmsweb-srv--load-0- <cmsweb-services-minion-0>
+openstack server set --property landb-alias=cmsweb-srv--load-1- <cmsweb-services-minion-1>
 ```
 Finally, when we ready, we can make `cmsweb-test` domain visible from outside of CERN network
 by placing [request a firewall exception](https://cern.service-now.com/service-portal/service-element.do?name=Firewall-Service).
