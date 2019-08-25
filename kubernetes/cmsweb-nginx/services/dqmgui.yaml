@@ -40,6 +40,13 @@ spec:
       containers:
       - image: cmssw/dqmgui:1.0.4
         name: dqmgui
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "2Gi"
+            cpu: "800m"
         ports:
         - containerPort: 8060
           protocol: TCP
