@@ -139,7 +139,7 @@ scale()
         kubectl autoscale deployment dbs-phys03-r --cpu-percent=80 --min=2 --max=4
         kubectl autoscale deployment dbs-phys03-w --cpu-percent=80 --min=2 --max=4
 
-        kubectl apply -f crons/dbs-global-r-scaler.yaml --validate=false
+        kubectl apply -f crons/cron-dbs-global-r-scaler.yaml --validate=false
 
         # scalers for other cmsweb services
         for srv in $cmsweb_srvs; do
@@ -156,7 +156,7 @@ scale()
     if [ "$deployment" == "frontend" ]; then
         # frontend scalers
         kubectl autoscale deployment frontend --cpu-percent=80 --min=3 --max=10
-        kubectl apply -f crons/frontend-scaler.yaml --validate=false
+        kubectl apply -f crons/cron-frontend-scaler.yaml --validate=false
     fi
 
     kubectl get hpa
