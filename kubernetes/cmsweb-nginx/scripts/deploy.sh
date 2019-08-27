@@ -399,6 +399,8 @@ create()
         openstack --os-project-name "$project" coe cluster template list
         openstack --os-project-name "$project" coe cluster create --keypair $keypair --cluster-template $template $cluster
         openstack --os-project-name "$project" coe cluster list
+    elif [ "$deployment" == "secrets" ]; then
+        deploy_secrets
     else
         deploy_secrets
         deploy_services
