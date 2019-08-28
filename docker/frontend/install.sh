@@ -31,8 +31,9 @@ sed -i -e "s,https://cmsweb.cern.ch,$cmsk8s_prod,g" \
 #    sed -i -e "s,vocms[0-9]*,cmsweb-test.web,g" $f
 #    sed -i -e "s,|cmsweb-test.web.cern.ch,,g" $f
 #done
-sed -i -e "s,vocms[0-9]*,$cmsk8s_prod,g" $WDIR/cfg/frontend/backend-prod.txt
-sed -i -e "s,|$cmsk8s_prod,,g" $WDIR/cfg/frontend/backend-prod.txt
+k8host=`echo $cmsk8s_prod | sed -e "s,\.cern\.ch,,g" -e "s,http://,,g" -e "s,https://,,g"`
+sed -i -e "s,vocms[0-9]*,$k8host,g" $WDIR/cfg/frontend/backends-prod.txt
+sed -i -e "s,|$k8host,,g" $WDIR/cfg/frontend/backends-prod.txt
 
 # overwrite dev/preprod backends with production one for k8s
 /bin/cp -r $WDIR/cfg/frontend/backends-prod.txt $WDIR/cfg/frontend/backends-dev.txt

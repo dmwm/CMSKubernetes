@@ -59,6 +59,9 @@ if [ -f /etc/secrets/cmsweb.services ]; then
     sed -i -e "$srvs" /data/srv/state/frontend/server.conf
 fi
 
+# adjust wmstats link
+sed -i -e "s,\"/wmstats/\",\"/wmstats/index.html\",g" /data/srv/state/frontend/htdocs/index.html
+
 # use service configuration files from /etc/secrets if they are present
 cdir=/data/srv/current/config/frontend
 files=`ls $cdir`
