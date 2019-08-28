@@ -20,10 +20,7 @@ data:
         code => "event.set('timestamp',(event.get('@timestamp').to_f * 1000).to_i)"
       }
       mutate { replace => { "producer" => "cmsweb" } }
-      grok {
-          match => { "fields" => '{"service":%{DATA:cmsweb_srv}}' }
-      }
-      if [cmsweb_srv] == "frontend" {
+      if "frontend" in [tags] {
 
           # https://github.com/elastic/logstash/blob/v1.4.2/patterns/grok-patterns
 
@@ -84,7 +81,10 @@ data:
                 "dn","/CN=\d+",""
             ]
           }
-        }
+      } # end of if statement checking tags
+      # here we can check any other service by using this statement
+      # if "service-name" in [tag] {
+      # }
     }
 
     # send results (JSON records) to local file
