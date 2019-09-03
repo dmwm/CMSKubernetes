@@ -269,6 +269,7 @@ deploy_secrets()
         fi
         # special case for DBS instances
         if [ "$srv" == "dbs" ]; then
+            files=""
             for inst in $dbs_instances; do
                 local dbsfiles=""
                 if [ -d "$sdir-$inst" ] && [ -n "`ls $sdir-$inst`" ]; then
