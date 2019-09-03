@@ -2,7 +2,7 @@ FROM cmssw/cmsweb:20190814
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
-ENV USER=_dbs
+ENV USER=_dbsmigration
 
 ADD install.sh $WDIR/install.sh
 
