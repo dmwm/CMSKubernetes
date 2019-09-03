@@ -17,4 +17,5 @@ spec:
           servicePort: 443
   tls:
   - hosts:
-    - cmsweb-test.web.cern.ch
+    - cmsweb-test.cern.ch
+  secretName: ing-secrets
