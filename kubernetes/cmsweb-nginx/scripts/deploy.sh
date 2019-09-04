@@ -28,10 +28,10 @@ cdir=crons
 
 # services for cmsweb cluster, adjust if necessary
 cmsweb_ing="ing-srv"
-cmsweb_srvs="httpgo httpsgo frontend acdcserver alertscollector cmsmon confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue"
+cmsweb_srvs="httpgo httpsgo frontend acdcserver alertscollector cmsmon confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks"
 
 # list of DBS instances
-dbs_instances="default migrate global-r global-w phys03-r phys03-w"
+dbs_instances="default migrate global-m global-r global-w phys03-r phys03-w"
 
 # define help
 if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ] || [ "$1" == "" ]; then
@@ -69,7 +69,7 @@ kubectl get node
 if [ "$deployment" == "services" ]; then
     # services for cmsweb cluster, adjust if necessary
     cmsweb_ing="ing-srv"
-    cmsweb_srvs="httpgo httpsgo acdcserver alertscollector cmsmon confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue"
+    cmsweb_srvs="httpgo httpsgo acdcserver alertscollector cmsmon confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks"
     echo "+++ deploy services: $cmsweb_srvs"
     echo "+++ deploy ingress : $cmsweb_ing"
 elif [ "$deployment" == "frontend" ]; then
@@ -134,8 +134,9 @@ scale()
     if [ "$deployment" == "services" ]; then
         # dbs, generic scalers
         kubectl autoscale deployment dbs-migrate --cpu-percent=80 --min=2 --max=10
-        kubectl autoscale deployment dbs-global-r --cpu-percent=80 --min=3 --max=10
-        kubectl autoscale deployment dbs-global-w --cpu-percent=80 --min=2 --max=5
+        kubectl autoscale deployment dbs-global-m --cpu-percent=80 --min=2 --max=4
+        kubectl autoscale deployment dbs-global-r --cpu-percent=80 --min=6 --max=12
+        kubectl autoscale deployment dbs-global-w --cpu-percent=80 --min=5 --max=10
         kubectl autoscale deployment dbs-phys03-r --cpu-percent=80 --min=2 --max=4
         kubectl autoscale deployment dbs-phys03-w --cpu-percent=80 --min=2 --max=4
 
@@ -269,7 +270,7 @@ deploy_secrets()
         fi
         # special case for DBS instances
         if [ "$srv" == "dbs" ]; then
-            files=""
+            files="--from-file=$conf/dbs/DBSSecrets.py"
             for inst in $dbs_instances; do
                 local dbsfiles=""
                 if [ -d "$sdir-$inst" ] && [ -n "`ls $sdir-$inst`" ]; then
