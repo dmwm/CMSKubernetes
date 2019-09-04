@@ -81,7 +81,11 @@ The two helm instances are in separate k8s namespaces, so they do not collide.
 ## Get a host certificate for the server
 
 Go to ca.cern.ch and get the host certificate for one of the load balanced names above. 
-Add Service alternate names for the load balanced hostname, e.g. cms-rucio-auth-dev.cern.ch and cms-rucio-auth-dev
+Add Service alternate names for the load balanced hostname, e.g. 
+ * cms-rucio-testbed
+ * cms-rucio-auth-testbed
+ * cms-rucio-webui-testbed
+ * cms-rucio-stats-testbed
 
 ## Create relevant secrets 
 
