@@ -345,6 +345,16 @@ deploy_monitoring()
     echo "ssh -S none -L 30000:kubehost:30000 $USER@lxplus.cern.ch"
 }
 
+deploy_storages()
+{
+    echo "+++ label node for PVC storage access"
+    for n in `kubectl get nodes | grep -v master | grep -v NAME | awk '{print $1}'`; do
+        kubectl label node $n failure-domain.beta.kubernetes.io/zone=nova --overwrite
+        kubectl label node $n failure-domain.beta.kubernetes.io/region=cern --overwrite
+    done
+    kubectl apply -f storages/cinder-storage.yaml
+}
+
 # deploy appripriate ingress controller for our cluster
 deploy_ingress()
 {
@@ -405,6 +415,7 @@ create()
         deploy_secrets
     else
         deploy_secrets
+        deploy_storages
         deploy_services
         deploy_ingress
         deploy_crons
