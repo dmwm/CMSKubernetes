@@ -21,8 +21,14 @@ helm upgrade --values cms-rucio-logstash.yml,${PREFIX}-logstash-filter.yaml logs
 helm upgrade --values cms-rucio-filebeat.yml filebeat stable/filebeat
 
 # Label is key to prevent it from also syncing datasets
-kubectl apply -f dataset-configmap.yaml
+# kubectl apply -f dataset-configmap.yaml
 kubectl apply -f ${PREFIX}-sync-jobs.yaml -l syncs=rses
+
+kubectl get pods
+
+exit;
+
+# I think this junk is just leftovers
 
 n=0
 kubectl get node -l role=ingress -o name | grep -v master | while read node; do
