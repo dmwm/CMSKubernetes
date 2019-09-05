@@ -59,9 +59,13 @@ if [ -f /etc/secrets/cmsweb.services ]; then
     sed -i -e "$srvs" /data/srv/state/frontend/server.conf
 fi
 
-# adjust wmstats link
+# adjust htdocs links to ensure proper redirect between k8s clusters
 sed -i -e "s,\"/wmstats/\",\"/wmstats/index.html\",g" /data/srv/state/frontend/htdocs/index.html
 sed -i -e "s,\"/workqueue/\",\"/workqueue/index.html\",g" /data/srv/state/frontend/htdocs/index.html
+sed -i -e "s,\"/dqm/online\",\"/dqm/online/\",g" /data/srv/state/frontend/htdocs/index.html
+sed -i -e "s,\"/dqm/offline\",\"/dqm/offline/\",g" /data/srv/state/frontend/htdocs/index.html
+sed -i -e "s,\"/dqm/relval\",\"/dqm/relval/\",g" /data/srv/state/frontend/htdocs/index.html
+sed -i -e "s,\"/dqm/dev\",\"/dqm/dev/\",g" /data/srv/state/frontend/htdocs/index.html
 
 # use service configuration files from /etc/secrets if they are present
 cdir=/data/srv/current/config/frontend
