@@ -38,7 +38,8 @@ spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/dqmgui:1.0.4
+#       - image: cmssw/dqmgui:1.0.4
+      - image: cmssw/dqmgui
         name: dqmgui
         resources:
           requests:
@@ -73,6 +74,8 @@ spec:
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
           readOnly: true 
+        - name: dqmgui-storage
+          mountPath: /data/srv/state/dqmgui/data
       volumes:
       - name: proxy-secrets
         secret:
@@ -88,3 +91,6 @@ spec:
         hostPath:
             path: /etc/grid-security/hostcert.pem
             type: File
+      - name: dqmgui-storage
+        persistentVolumeClaim:
+            claimName: dqmgui-claim
