@@ -34,6 +34,7 @@ ftsRenewal:
 
 hermes:
     useSSL: 1
+    delay: 30 
 
 config:
     messaging_hermes:
