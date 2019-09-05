@@ -6,14 +6,14 @@ spec:
   selector:
     app: dbs-migrate
   ports:
-    - port: 8257
-      targetPort: 8257
+    - port: 8251
+      targetPort: 8251
       name: dbs-migrate
-    - port: 18257
-      targetPort: 18257
+    - port: 18251
+      targetPort: 18251
       name: dbs-mig-mon
-    - port: 19257
-      targetPort: 19257
+    - port: 19251
+      targetPort: 19251
       name: dbs-mig-cpy-mon
 ---
 kind: Deployment
@@ -35,7 +35,8 @@ spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/dbsmigration:1.0.4
+      #- image: cmssw/dbsmigration:1.0.4
+      - image: cmssw/dbsmigration
         name: dbs-migrate
         resources:
           requests:
@@ -45,13 +46,13 @@ spec:
             memory: "10Gi"
             cpu: "800m"
         ports:
-        - containerPort: 8257
+        - containerPort: 8251
           protocol: TCP
           name: dbs-migrate
-        - containerPort: 18257
+        - containerPort: 18251
           protocol: TCP
           name: dbs-mig-mon
-        - containerPort: 19257
+        - containerPort: 19251
           protocol: TCP
           name: dbs-mig-cpy-mon
         volumeMounts:
