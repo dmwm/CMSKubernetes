@@ -1,0 +1,8 @@
+ingress:
+  hosts: 
+    - "cms-rucio-webui-testbed.cern.ch"
+proxy:
+  rucioProxy: "cms-rucio-testbed.cern.ch"
+  rucioAuthProxy: "cms-rucio-auth-testbed.cern.ch:443"
+  
+
