@@ -80,9 +80,9 @@ spec:
         backend:
           serviceName: dbs-global-w
           servicePort: 8253
-      - path: /dbs/int/phys03/DBSWriter
+      - path: /dbs/int/phys03/DBSReader
         backend:
-          serviceName: dbs-phys03-w
+          serviceName: dbs-phys03-r
           servicePort: 8254
       - path: /dbs/int/phys03/DBSWriter
         backend:
