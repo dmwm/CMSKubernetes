@@ -35,7 +35,7 @@ spec:
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: sync-datasets
+  name: int-sync-datasets
   labels:
     syncs: datasets
 spec:
@@ -56,7 +56,7 @@ spec:
             configMap:
               name: dataset-config
           containers:
-            - name: sync-datasets
+            - name: int-sync-datasets
               image: "cmssw/rucio_client:latest"
               imagePullPolicy: Always
               volumeMounts:
@@ -72,8 +72,8 @@ spec:
               command: ['/root/CMSRucio/docker/CMSRucioClient/scripts/k8s_sync_datasets.sh']
               resources:
                 limits:
-                  memory: "2200Mi"
+                  memory: "4500Mi"
                 requests:
-                  memory: "2200Mi"
+                  memory: "4500Mi"
           restartPolicy: OnFailure
 
