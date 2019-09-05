@@ -9,6 +9,7 @@
 
 export DAEMON_NAME=cms-ruciod-${INSTANCE}
 export SERVER_NAME=cms-rucio-${INSTANCE}
+export UI_NAME=cms-webui-${INSTANCE}
 
 echo
 echo "When prompted, enter the password used to encrypt the P12 file"
@@ -30,9 +31,12 @@ chmod 600 ca.pem
 
 echo "Removing existing secrets"
 
-kubectl delete secret rucio-server.tls-secret host-cert host-key ca 
+kubectl delete secret rucio-server.tls-secret
 kubectl delete secret ${DAEMON_NAME}-fts-cert ${DAEMON_NAME}-fts-key ${DAEMON_NAME}-hermes-cert ${DAEMON_NAME}-hermes-key 
-kubectl delete secret cms-ruciod-testbed-rucio-ca-bundle webui-host-cert webui-host-key webui-cafile
+kubectl delete secret ${DAEMON_NAME}-rucio-ca-bundle ${DAEMON_NAME}-rucio-ca-bundle-reaper
+kubectl delete secret ${SERVER_NAME}-hostcert ${SERVER_NAME}-hostkey ${SERVER_NAME}-cafile  
+kubectl delete secret ${DAEMON_NAME}-host-cert ${DAEMON_NAME}-host-key ${DAEMON_NAME}-cafile  
+kubectl delete secret ${UI_NAME}-hostcert ${UI_NAME}-hostkey ${UI_NAME}-cafile  
 
 echo "Creating new secrets"
 
@@ -46,11 +50,10 @@ kubectl create secret generic ${DAEMON_NAME}-host-cert --from-file=hostcert.pem
 kubectl create secret generic ${DAEMON_NAME}-host-key --from-file=hostkey.pem
 kubectl create secret generic ${DAEMON_NAME}-cafile  --from-file=ca.pem
 
-# Can these be parameterized in helm to be the same as above?
-kubectl create secret generic webui-host-cert --from-file=hostcert.pem
-kubectl create secret generic webui-host-key --from-file=hostkey.pem
-cp /etc/pki/tls/certs/CERN-bundle.pem ca.pem
-kubectl create secret generic webui-cafile --from-file=ca.pem
+kubectl create secret generic ${UI_NAME}-hostcert --from-file=hostcert.pem
+kubectl create secret generic ${UI_NAME}-hostkey --from-file=hostkey.pem
+# cp /etc/pki/tls/certs/CERN-bundle.pem ca.pem   # Not sure which one is needed
+kubectl create secret generic ${UI_NAME}-cafile  --from-file=ca.pem
 
 # Secrets for FTS, hermes
 
@@ -58,6 +61,7 @@ kubectl create secret generic ${DAEMON_NAME}-fts-cert --from-file=$ROBOTCERT
 kubectl create secret generic ${DAEMON_NAME}-fts-key --from-file=$ROBOTKEY
 kubectl create secret generic ${DAEMON_NAME}-hermes-cert --from-file=$ROBOTCERT
 kubectl create secret generic ${DAEMON_NAME}-hermes-key --from-file=$ROBOTKEY
+kubectl create secret generic ${DAEMON_NAME}-rucio-ca-bundle --from-file=/etc/pki/tls/certs/CERN-bundle.pem
 kubectl create secret generic ${DAEMON_NAME}-rucio-ca-bundle-reaper --from-file=/etc/pki/tls/certs/CERN-bundle.pem
 
 # Secret for WebUI (should not be the robot cert, not needed now)
