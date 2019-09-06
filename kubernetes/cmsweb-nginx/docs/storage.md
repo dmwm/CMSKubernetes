@@ -138,3 +138,7 @@ kubectl delete pv --all
 kubectl get pvc
 manila list
 ```
+
+### References
+1. [clouddocs](http://clouddocs.web.cern.ch/clouddocs/containers/tutorials/cinder.html)
+2. [assign pods to nodes](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/)
