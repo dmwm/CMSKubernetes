@@ -41,6 +41,15 @@ spec:
 #       - image: cmssw/dqmgui:1.0.4
       - image: cmssw/dqmgui
         name: dqmgui
+        tty: true
+        stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - bash
+              - -c
+              - sudo chmod 0777 /data/srv/state/dqmgui/data; sudo chown _dqmgui:_dqmgui /data/srv/state/dqmgui/data
         resources:
           requests:
             memory: "256Mi"
