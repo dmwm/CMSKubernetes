@@ -72,8 +72,8 @@ spec:
               command: ['/root/CMSRucio/docker/CMSRucioClient/scripts/k8s_sync_datasets.sh']
               resources:
                 limits:
-                  memory: "4500Mi"
+                  memory: "6000Mi"
                 requests:
-                  memory: "4500Mi"
+                  memory: "6000Mi"
           restartPolicy: OnFailure
 
