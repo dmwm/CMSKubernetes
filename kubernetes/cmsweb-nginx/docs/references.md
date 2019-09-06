@@ -13,3 +13,5 @@
 - [DNS for pods](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service)
 - [Logging](https://kubernetes.io/docs/concepts/cluster-administration/logging/)
 - [Kubernetes failures](https://github.com/hjacobs/kubernetes-failure-stories)
+- [Kubernetes for managers](https://unixism.net/2019/08/a-managers-guide-to-kubernetes-adoption/)
+- [Debuggin docker containers](https://blog.container-solutions.com/what-you-need-to-know-about-debugging-docker-containers)
