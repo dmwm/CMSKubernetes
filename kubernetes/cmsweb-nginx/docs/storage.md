@@ -100,6 +100,22 @@ Now you can use your PVC's in your deployment, e.g. see
 [crabcache](services/crabcache.yaml) and [dqmgui](services/dqmgui.yaml)
 configuration.
 
+**NOTE**: if you want to autoscale pods which use PVC you can only have
+multiple replicas on a node where PVC will be attached. To do that, we
+should create a new label for specific minion which will have attached 
+PV storage.
+```
+# mark minion-5 with label=value appropriate for couchdb storage
+kubectl label node cmsweb-services2-km2ftghb3es5-minion-5 storage=couchdb
+# use nodeSelector in couchdb yaml file to choose this minion
+  nodeSelector:
+      storage: couchdb
+# and then we can scale couchdb like
+kubectl autoscale deployment crabcache --cpu-percent=80 --min=2 --max=3
+```
+Using this recipe will create 2 pods for couchdb on the same minion which will
+have attached PV storage.
+
 ### Creating storage areas on CEPHFS
 **NOTE**: this method was note tested in cmsweb setup and we listed
 here only for completeness.
