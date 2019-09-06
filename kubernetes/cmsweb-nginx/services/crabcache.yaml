@@ -29,6 +29,8 @@ spec:
       labels:
         app: crabcache
     spec:
+      nodeSelector:
+          storage: crabcache
       containers:
       - image: cmssw/crabcache:1.0.4
         name: crabcache
