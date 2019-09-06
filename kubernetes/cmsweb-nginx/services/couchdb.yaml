@@ -29,12 +29,24 @@ spec:
       labels:
         app: couchdb
     spec:
+      nodeSelector:
+          storage: couchdb
       # use hostNetwork to allow communication between reqmgr/reqmon/workqueue and couch
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/couchdb:1.0.4
+      #- image: cmssw/couchdb:1.0.4
+      - image: cmssw/couchdb
         name: couchdb
+        tty: true
+        stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - bash
+              - -c
+              - sudo chmod 0777 /data/srv/state/couchdb/database; sudo chown _couchdb:_couchdb /data/srv/state/couchdb/database
         resources:
           requests:
             memory: "256Mi"
@@ -63,6 +75,8 @@ spec:
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
           readOnly: true 
+        - name: couchdb-storage
+          mountPath: /data/srv/state/couchdb/database
       volumes:
       - name: proxy-secrets
         secret:
@@ -78,3 +92,6 @@ spec:
         hostPath:
             path: /etc/grid-security/hostcert.pem
             type: File
+      - name: couchdb-storage
+        persistentVolumeClaim:
+            claimName: couchdb-claim
