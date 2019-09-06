@@ -32,6 +32,15 @@ spec:
       containers:
       - image: cmssw/crabcache:1.0.4
         name: crabcache
+        tty: true
+        stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - bash
+              - -c
+              - sudo chmod 0777 /data/srv/state/crabcache/files; sudo chown _crabcache:_crabcache /data/srv/state/crabcache/files
         resources:
           requests:
             memory: "256Mi"
@@ -59,6 +68,8 @@ spec:
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
           readOnly: true 
+        - name: crabcache-storage
+          mountPath: /data/srv/state/crabcache/files
       volumes:
       - name: proxy-secrets
         secret:
@@ -74,3 +85,13 @@ spec:
         hostPath:
             path: /etc/grid-security/hostcert.pem
             type: File
+      - name: crabcache-storage
+        persistentVolumeClaim:
+            claimName: crabcache-claim
+# example how to use persistent storage volume created with
+# openstack volume create crabcache --size 2000
+# openstack volume list # this will provide volumeID
+#       - name: crabcache-storage
+#         cinder:
+#             volumeID: 2e91281d-749d-43f2-8222-989e1c7d37a2
+#             fsType: ext4
