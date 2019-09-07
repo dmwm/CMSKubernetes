@@ -32,9 +32,16 @@ fi
 
 # overwrite proxy if it is present in /etc/proxy
 if [ -f /etc/proxy/proxy ]; then
+    export X509_USER_PROXY=/etc/proxy/proxy
     mkdir -p /data/srv/state/frontend/proxy
+    if [ -f /data/srv/state/frontend/proxy/proxy.cert ]; then
+        rm /data/srv/state/frontend/proxy/proxy.cert
+    fi
     ln -s /etc/proxy/proxy /data/srv/state/frontend/proxy/proxy.cert
     mkdir -p /data/srv/current/auth/proxy
+    if [ -f /data/srv/current/auth/proxy/proxy ]; then
+        rm /data/srv/current/auth/proxy/proxy
+    fi
     ln -s /etc/proxy/proxy /data/srv/current/auth/proxy/proxy
 fi
 
