@@ -31,7 +31,7 @@ cmsweb_ing="ing-srv"
 cmsweb_srvs="httpgo httpsgo frontend acdcserver alertscollector cmsmon confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks"
 
 # list of DBS instances
-dbs_instances="default migrate global-m global-r global-w phys03-r phys03-w"
+dbs_instances="migrate global-m global-r global-w phys03-r phys03-w"
 
 # define help
 if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ] || [ "$1" == "" ]; then
