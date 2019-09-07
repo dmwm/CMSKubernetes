@@ -35,7 +35,7 @@ spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/dbs:1.0.4
+      - image: cmssw/dbs
         name: dbs-default
         ports:
         - containerPort: 8250

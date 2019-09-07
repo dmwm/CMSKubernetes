@@ -32,7 +32,7 @@ spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/confdb:1.0.4
+      - image: cmssw/confdb
         name: confdb
         resources:
           requests:

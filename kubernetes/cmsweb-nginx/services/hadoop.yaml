@@ -16,7 +16,7 @@ spec:
         app: hadoop
     spec:
       containers:
-      - image: cmssw/crabcache:1.0.4
+      - image: cmssw/crabcache
         name: hadoop
         resources:
           requests:

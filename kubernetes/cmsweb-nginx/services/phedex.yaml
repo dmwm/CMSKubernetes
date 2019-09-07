@@ -12,6 +12,9 @@ spec:
     - port: 7101
       targetPort: 7101
       name: phedex
+    - port: 7102
+      targetPort: 7102
+      name: phedex-graphs
     - port: 17001
       targetPort: 17001
       name: phedex-mon
@@ -32,10 +35,8 @@ spec:
       labels:
         app: phedex
     spec:
-      hostNetwork: true
-      dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/phedex:1.0.4
+      - image: cmssw/phedex
         name: phedex
         resources:
           requests:
@@ -51,6 +52,9 @@ spec:
         - containerPort: 7101
           protocol: TCP
           name: phedex
+        - containerPort: 7102
+          protocol: TCP
+          name: phedex-graphs
         - containerPort: 17001
           protocol: TCP
           name: phedex-mon

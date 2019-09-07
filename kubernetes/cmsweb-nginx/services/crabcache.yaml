@@ -32,7 +32,7 @@ spec:
       nodeSelector:
           storage: crabcache
       containers:
-      - image: cmssw/crabcache:1.0.4
+      - image: cmssw/crabcache
         name: crabcache
         tty: true
         stdin: true

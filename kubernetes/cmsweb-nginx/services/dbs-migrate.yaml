@@ -35,7 +35,6 @@ spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      #- image: cmssw/dbsmigration:1.0.4
       - image: cmssw/dbsmigration
         name: dbs-migrate
         resources:

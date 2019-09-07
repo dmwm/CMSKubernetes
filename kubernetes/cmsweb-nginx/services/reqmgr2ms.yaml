@@ -30,10 +30,10 @@ spec:
         app: reqmgr2ms
     spec:
       # use hostNetwork to allow communication between reqmgr2ms/reqmon/workqueue and couch
-      hostNetwork: true
-      dnsPolicy: ClusterFirstWithHostNet
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/reqmgr2ms:1.0.4
+      - image: cmssw/reqmgr2ms
         name: reqmgr2ms
         resources:
           requests:
