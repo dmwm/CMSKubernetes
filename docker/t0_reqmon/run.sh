@@ -11,12 +11,17 @@ fi
 
 # overwrite proxy if it is present in /etc/proxy
 if [ -f /etc/proxy/proxy ]; then
+    export X509_USER_PROXY=/etc/proxy/proxy
     mkdir -p /data/srv/state/$srv/proxy
-    cp /etc/proxy/proxy /data/srv/state/$srv/proxy/proxy.cert
-    sudo chown $USER.$USER /data/srv/state/$srv/proxy/proxy.cert
+    if [ -f /data/srv/state/$srv/proxy/proxy.cert ]; then
+        rm /data/srv/state/$srv/proxy/proxy.cert
+    fi
+    ln -s /etc/proxy/proxy /data/srv/state/$srv/proxy/proxy.cert
     mkdir -p /data/srv/current/auth/proxy
-    cp /etc/proxy/proxy /data/srv/current/auth/proxy/proxy
-    sudo chown $USER.$USER /data/srv/current/auth/proxy/proxy
+    if [ -f /data/srv/current/auth/proxy/proxy ]; then
+        rm /data/srv/current/auth/proxy/proxy
+    fi
+    ln -s /etc/proxy/proxy /data/srv/current/auth/proxy/proxy
 fi
 
 # overwrite header-auth key file with one from secrets
