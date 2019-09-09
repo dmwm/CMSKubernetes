@@ -54,6 +54,9 @@ for fname in $files; do
     sed -i -e "s,:8443,,g" $fname
 done
 
+# adjust phedex apache to deal with cross k8s clusters
+sed -i -e "s,\$config->{SSL_SERVER_ROOT} \.,,g" /data/srv/state/phedex/htdocs/WebSite/access25
+
 # Adjust ServerMonitor to be specific
 sed -i -e "s#ServerMonitor/2.0#ServerMonitor-phedex#g" /data/srv/current/config/admin/ServerMonitor
 
