@@ -124,6 +124,12 @@ docker push USERNAME/das:tagname
 Here `:tagname` is optional originally, but you may substitute it with any given tag, e.g.
 `:v1`. Then login to docker.com and verify that you can see your image.
 
+If you have running docker containers on your node you may stop them as following:
+```
+docker stop $(docker ps -a -q)
+docker rm $(docker ps -a -q)
+```
+
 Finally, if we need to clean-up and/or remove old images we can perform the
 following command:
 ```
