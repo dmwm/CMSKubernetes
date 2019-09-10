@@ -15,6 +15,10 @@ to kubernetes. The structure is the following
 To learn about cmsweb k8s architecture please read
 [architecture](docs/architecture.md) document.
 
+If you want to understand basic concepts and see end-to-end deployment
+of basic application to k8s cluster please follow this
+[tutorial](docs/end-to-end.md)
+
 To deploy cmsweb on kubernetes please follow these steps:
 - [cluster creation](docs/cluster.md)
 - [general deployment](docs/deployment.md)
