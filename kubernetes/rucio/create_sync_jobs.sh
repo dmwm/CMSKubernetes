@@ -21,12 +21,12 @@ done
 
 kubectl apply -f int-dataset-configmap.yaml 
 
-kubectl apply -f dev-sync-jobs.yaml -l syncs=datasets
+#kubectl apply -f dev-sync-jobs.yaml -l syncs=datasets
 kubectl apply -f int-sync-jobs.yaml -l syncs=datasets
 
 helm install --name statsd-exporter  --values sync-statsd-exporter.yaml cms-kubernetes/rucio-statsd-exporter
 
-kubectl create job --from=cronjob/dev-sync-datasets dev-sync-`date +%s`
+#kubectl create job --from=cronjob/dev-sync-datasets dev-sync-`date +%s`
 kubectl create job --from=cronjob/int-sync-datasets int-sync-`date +%s`
 
 echo "Don't forget to create secrets for int and dev. Should have a dedicated one later since only fts-cert is needed"
