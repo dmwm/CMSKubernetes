@@ -74,8 +74,8 @@ spec:
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
           readOnly: true 
-        - name: couchdb-storage
-          mountPath: /data/srv/state/couchdb/database
+#         - name: couchdb-storage
+#           mountPath: /data/srv/state/couchdb/database
       volumes:
       - name: proxy-secrets
         secret:
@@ -91,6 +91,6 @@ spec:
         hostPath:
             path: /etc/grid-security/hostcert.pem
             type: File
-      - name: couchdb-storage
-        persistentVolumeClaim:
-            claimName: couchdb-claim
+#       - name: couchdb-storage
+#         persistentVolumeClaim:
+#             claimName: couchdb-claim
