@@ -140,12 +140,13 @@ scale()
         kubectl autoscale deployment dbs-phys03-r --cpu-percent=80 --min=2 --max=4
         kubectl autoscale deployment dbs-phys03-w --cpu-percent=80 --min=2 --max=4
 
-        kubectl apply -f crons/cron-dbs-global-r-scaler.yaml --validate=false
+        #kubectl apply -f crons/cron-dbs-global-r-scaler.yaml --validate=false
 
         # scalers for other cmsweb services
         for srv in $cmsweb_srvs; do
             # explicitly scaled above, we'll skip them here
-            if [ "$srv" == "dbs" ] || [ "$srv" == "frontend" ]; then
+            # we should NOT scale couchdb service since it is not transactional
+            if [ "$srv" == "dbs" ] || [ "$srv" == "frontend" ] || [ "$srv" == "couchdb" ]; then
                 continue
             else
                 # default autoscale for service
@@ -157,7 +158,7 @@ scale()
     if [ "$deployment" == "frontend" ]; then
         # frontend scalers
         kubectl autoscale deployment frontend --cpu-percent=80 --min=3 --max=10
-        kubectl apply -f crons/cron-frontend-scaler.yaml --validate=false
+        #kubectl apply -f crons/cron-frontend-scaler.yaml --validate=false
     fi
 
     kubectl get hpa
@@ -378,7 +379,11 @@ deploy_crons()
 {
     echo
     echo "+++ deploy crons"
-    kubectl apply -f crons/
+    # we'll use explicit name of crons, here a common list
+    # for both clusters
+    kubectl apply -f crons/proxy-account.yaml
+    kubectl apply -f crons/scaler-account.yaml
+    kubectl apply -f crons/cron-proxy.yaml
 }
 
 deploy_services()
