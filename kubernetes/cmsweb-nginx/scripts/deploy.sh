@@ -26,9 +26,13 @@ mdir=monitoring
 idir=ingress
 cdir=crons
 
+# cmsweb service namespaces
+cmsweb_ns=`grep namespace $sdir/* | awk '{print $3}' | sort | uniq`
+
 # services for cmsweb cluster, adjust if necessary
-cmsweb_ing="ing-srv"
-cmsweb_srvs="httpgo httpsgo frontend acdcserver alertscollector cmsmon confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks"
+#cmsweb_ing="ing-srv"
+cmsweb_ing="ing-confdb ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tfaas ing-tzero"
+cmsweb_srvs="httpgo httpsgo frontend acdcserver alertscollector confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks"
 
 # list of DBS instances
 dbs_instances="migrate global-m global-r global-w phys03-r phys03-w"
@@ -68,8 +72,9 @@ kubectl get node
 
 if [ "$deployment" == "services" ]; then
     # services for cmsweb cluster, adjust if necessary
-    cmsweb_ing="ing-srv"
-    cmsweb_srvs="httpgo httpsgo acdcserver alertscollector cmsmon confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks"
+    #cmsweb_ing="ing-srv"
+    cmsweb_ing="ing-confdb ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tfaas ing-tzero"
+    cmsweb_srvs="httpgo httpsgo acdcserver alertscollector confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks"
     echo "+++ deploy services: $cmsweb_srvs"
     echo "+++ deploy ingress : $cmsweb_ing"
 elif [ "$deployment" == "frontend" ]; then
@@ -168,7 +173,12 @@ cleanup()
 {
     # delete crons
     echo "--- delete crons"
-    kubectl delete -f crons
+    #kubectl delete -f crons
+    for ns in $cmsweb_ns; do
+        kubectl apply -f crons/proxy-account.yaml --namespace=$ns
+        kubectl apply -f crons/scaler-account.yaml --namespace=$ns
+        kubectl apply -f crons/cron-proxy.yaml --namespace=$ns
+    done
 
     # delete monitoring
     echo "--- delete monitoring"
@@ -176,7 +186,9 @@ cleanup()
 
     # delete ingress
     echo "--- delete ingress"
-    kubectl delete -f ingress/${cmsweb_ing}.yaml
+    for ing in $cmsweb_ing; do
+        kubectl delete -f ingress/${ing}.yaml
+    done
 
     # delete secrets
     echo "--- delete secrets"
@@ -198,6 +210,26 @@ cleanup()
             fi
         fi
     done
+
+    # delete cmsweb namespaces
+#    for ns in $cmsweb_ns; do
+#        kubectl delete ns/$ns
+#    done
+    kubectl delete ns $cmsweb_ns
+    kubectl delete ns/monitoring
+}
+
+deploy_ns()
+{
+    # deploy all appropriate namespaces
+    for ns in $cmsweb_ns; do
+#        if [ -z "`kubectl get namespaces | grep $ns`" ]; then
+            kubectl create namespace $ns
+#        fi
+    done
+#    if [ -z "`kubectl get namespaces | grep monitoring`" ]; then
+        kubectl create namespace monitoring
+#    fi
 }
 
 deploy_secrets()
@@ -235,70 +267,100 @@ deploy_secrets()
     cp $cmsweb_key $tls_key
     cp $cmsweb_crt $tls_crt
 
-    # create secrets with our robot certificates
-    kubectl create secret generic robot-secrets \
-        --from-file=$robot_key --from-file=$robot_crt \
-        $files --dry-run -o yaml | \
-        kubectl apply --validate=false -f -
-
-    # create proxy secrets
+    # create proxy file
     voms-proxy-init -voms cms -rfc \
         --key $robot_key --cert $robot_crt --out $proxy
-    if [ -f $proxy ]; then
-        kubectl create secret generic proxy-secrets \
-            --from-file=$proxy --dry-run -o yaml | \
-            kubectl apply --validate=false -f -
-        rm $proxy
-    fi
 
-    echo "+++ generate cmsweb service secrets"
-    # create secret files for deployment, they are based on
-    # - robot key (pem file)
-    # - robot certificate (pem file)
-    # - cmsweb hostkey (pem file)
-    # - cmsweb hostcert (pem file)
-    # - hmac secret file
-    # - configuration files from service configuration area
-    for srv in $cmsweb_srvs; do
-        local sdir=$conf/$srv
-        # the underscrore is not allowed in secret names
-        srv=`echo $srv | sed -e "s,_,,g"`
-        local files=""
-        if [ -d $sdir ] && [ -n "`ls $sdir`" ]; then
-            for fname in $sdir/*; do
-                files="$files --from-file=$fname"
-            done
+    # create secrets in all available namespaces
+    local namespaces="default $cmsweb_ns"
+    for ns in $namespaces; do
+        echo "---"
+        echo "Create secrets in namespace: $ns"
+
+        # create secrets with our robot certificates
+        kubectl create secret generic robot-secrets \
+            --from-file=$robot_key --from-file=$robot_crt \
+            $files --dry-run -o yaml | \
+            kubectl apply --namespace=$ns --validate=false -f -
+
+        # create proxy secret
+        if [ -f $proxy ]; then
+            kubectl create secret generic proxy-secrets \
+                --from-file=$proxy --dry-run -o yaml | \
+                kubectl apply --namespace=$ns --validate=false -f -
         fi
-        # special case for DBS instances
-        if [ "$srv" == "dbs" ]; then
-            files="--from-file=$conf/dbs/DBSSecrets.py"
-            for inst in $dbs_instances; do
-                local dbsfiles=""
-                if [ -d "$sdir-$inst" ] && [ -n "`ls $sdir-$inst`" ]; then
-                    for fconf in $sdir-$inst/*; do
-                        dbsfiles="$dbsfiles --from-file=$fconf"
-                    done
+
+        echo "+++ generate cmsweb service secrets"
+        # create secret files for deployment, they are based on
+        # - robot key (pem file)
+        # - robot certificate (pem file)
+        # - cmsweb hostkey (pem file)
+        # - cmsweb hostcert (pem file)
+        # - hmac secret file
+        # - configuration files from service configuration area
+        for srv in $cmsweb_srvs; do
+            local secretdir=$conf/$srv
+            # the underscrore is not allowed in secret names
+            local osrv=$srv
+            srv=`echo $srv | sed -e "s,_,,g"`
+            local files=""
+            if [ -d $secretdir ] && [ -n "`ls $secretdir`" ]; then
+                for fname in $secretdir/*; do
+                    files="$files --from-file=$fname"
+                done
+            fi
+            # special case for DBS instances
+            if [ "$srv" == "dbs" ]; then
+                files="--from-file=$conf/dbs/DBSSecrets.py"
+                for inst in $dbs_instances; do
+                    local dbsfiles=""
+                    if [ -d "$secretdir-$inst" ] && [ -n "`ls $secretdir-$inst`" ]; then
+                        for fconf in $secretdir-$inst/*; do
+                            dbsfiles="$dbsfiles --from-file=$fconf"
+                        done
+                    fi
+                    # proceed only if service namespace matches the loop one
+                    local srv_ns=`grep namespace $sdir/${osrv}-${inst}.yaml | grep $ns`
+                    if [ -z "$srv_ns" ] ; then
+                        continue
+                    fi
+                    kubectl create secret generic ${srv}-${inst}-secrets \
+                        --from-file=$robot_key --from-file=$robot_crt \
+                        --from-file=$hmac \
+                        $files $dbsfiles --dry-run -o yaml | \
+                        kubectl apply --namespace=$ns --validate=false -f -
+                done
+            else
+                # proceed only if service namespace matches the loop one
+                local srv_ns=`grep namespace $sdir/${osrv}.yaml | grep $ns`
+                if [ -z "$srv_ns" ] ; then
+                    continue
                 fi
-                kubectl create secret generic ${srv}-${inst}-secrets \
+                kubectl create secret generic ${srv}-secrets \
                     --from-file=$robot_key --from-file=$robot_crt \
                     --from-file=$hmac \
-                    $files $dbsfiles --dry-run -o yaml | \
-                    kubectl apply --validate=false -f -
-            done
-        else
-            kubectl create secret generic ${srv}-secrets \
-                --from-file=$robot_key --from-file=$robot_crt \
-                --from-file=$hmac \
-                $files --dry-run -o yaml | \
-                kubectl apply --validate=false -f -
-        fi
+                    $files --dry-run -o yaml | \
+                    kubectl apply --namespace=$ns --validate=false -f -
+            fi
+        done
+
     done
 
     # create ingress secrets file, it requires tls.key/tls.crt files
     kubectl create secret generic ing-secrets \
         --from-file=$tls_key --from-file=$tls_crt --dry-run -o yaml | \
         kubectl apply --validate=false -f -
-    rm $tls_key $tls_crt
+
+    # perform clean-up
+    if [ -f $tls_key ]; then
+        rm $tls_key
+    fi
+    if [ -f $tls_crt ]; then
+        rm $tls_crt
+    fi
+    if [ -f $proxy ]; then
+        rm $proxy
+    fi
 
     # use one of the option below
     # generate tls.key/tls.crt for custom CA and openssl config
@@ -321,8 +383,8 @@ deploy_secrets()
 
     echo
     echo "+++ list sercres and configmap"
-    kubectl get secrets
-    kubectl -n kube-system get secrets
+    kubectl get secrets --all-namespaces
+    #kubectl -n kube-system get secrets
 
 }
 
@@ -372,7 +434,9 @@ deploy_ingress()
 
     echo
     echo "+++ deploy $cmsweb_ing"
-    kubectl apply -f ingress/${cmsweb_ing}.yaml
+    for ing in $cmsweb_ing; do
+        kubectl apply -f ingress/${ing}.yaml
+    done
 }
 
 deploy_crons()
@@ -381,9 +445,11 @@ deploy_crons()
     echo "+++ deploy crons"
     # we'll use explicit name of crons, here a common list
     # for both clusters
-    kubectl apply -f crons/proxy-account.yaml
-    kubectl apply -f crons/scaler-account.yaml
-    kubectl apply -f crons/cron-proxy.yaml
+    for ns in $cmsweb_ns; do
+        kubectl apply -f crons/proxy-account.yaml --namespace=$ns
+        kubectl apply -f crons/scaler-account.yaml --namespace=$ns
+        kubectl apply -f crons/cron-proxy.yaml --namespace=$ns
+    done
 }
 
 deploy_services()
@@ -417,8 +483,10 @@ create()
         openstack --os-project-name "$project" coe cluster create --keypair $keypair --cluster-template $template $cluster
         openstack --os-project-name "$project" coe cluster list
     elif [ "$deployment" == "secrets" ]; then
+        deploy_ns
         deploy_secrets
     else
+        deploy_ns
         deploy_secrets
         deploy_storages
         deploy_services
