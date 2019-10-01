@@ -7,11 +7,9 @@ kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: proxy-account
-  namespace: default
 subjects:
 - kind: ServiceAccount
   name: proxy-account
-  namespace: default
 roleRef:
   kind: ClusterRole
   name: edit
