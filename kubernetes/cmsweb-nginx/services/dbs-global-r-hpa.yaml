@@ -4,7 +4,7 @@ apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
   name: dbs-global-r-hpa
-  namespace: default
+  namespace: dbs
 spec:
   minReplicas: 1
   maxReplicas: 3

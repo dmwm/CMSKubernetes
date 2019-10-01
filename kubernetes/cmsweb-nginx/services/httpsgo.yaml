@@ -2,6 +2,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: httpsgo
+  namespace: http
 spec:
   type: ClusterIP
   ports:
@@ -17,6 +18,7 @@ metadata:
   labels:
     app: httpsgo
   name: httpsgo
+  namespace: http
 spec:
   selector:
     matchLabels:

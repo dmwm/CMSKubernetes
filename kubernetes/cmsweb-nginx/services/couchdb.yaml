@@ -2,6 +2,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: couchdb
+  namespace: couchdb
 spec:
   selector:
     app: couchdb
@@ -19,6 +20,7 @@ metadata:
   labels:
     app: couchdb
   name: couchdb
+  namespace: couchdb
 spec:
   selector:
     matchLabels:
@@ -29,11 +31,8 @@ spec:
       labels:
         app: couchdb
     spec:
-      nodeSelector:
-          storage: couchdb
-      # use hostNetwork to allow communication between reqmgr/reqmon/workqueue and couch
-#       hostNetwork: true
-#       dnsPolicy: ClusterFirstWithHostNet
+#       nodeSelector:
+#           storage: couchdb
       containers:
       - image: cmssw/couchdb
         name: couchdb

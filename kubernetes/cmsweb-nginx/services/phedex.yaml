@@ -2,6 +2,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: phedex
+  namespace: phedex
 spec:
   selector:
     app: phedex
@@ -25,6 +26,7 @@ metadata:
   labels:
     app: phedex
   name: phedex
+  namespace: phedex
 spec:
   selector:
     matchLabels:

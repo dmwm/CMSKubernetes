@@ -2,6 +2,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: dmwmmon
+  namespace: dmwm
 spec:
   selector:
     app: dmwmmon
@@ -19,6 +20,7 @@ metadata:
   labels:
     app: dmwmmon
   name: dmwmmon
+  namespace: dmwm
 spec:
   selector:
     matchLabels:

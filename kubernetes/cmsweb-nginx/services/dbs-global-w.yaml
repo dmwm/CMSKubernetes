@@ -2,6 +2,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: dbs-global-w
+  namespace: dbs
 spec:
   selector:
     app: dbs-global-w
@@ -22,6 +23,7 @@ metadata:
   labels:
     app: dbs-global-w
   name: dbs-global-w
+  namespace: dbs
 spec:
   selector:
     matchLabels:

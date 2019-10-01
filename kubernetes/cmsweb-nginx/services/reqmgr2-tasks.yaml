@@ -4,6 +4,7 @@ metadata:
   labels:
     app: reqmgr2-tasks
   name: reqmgr2-tasks
+  namespace: dmwm
 spec:
   selector:
     matchLabels:
@@ -40,7 +41,7 @@ spec:
       initContainers:
       - name: checkcouchdb
         image: busybox:1.28
-        command: ['sh', '-c', 'until nslookup couchdb.default; do echo "Waiting for couchdb"; sleep 10; done;']
+        command: ['sh', '-c', 'until nslookup couchdb.couchdb; do echo "Waiting for couchdb"; sleep 10; done;']
       volumes:
       - name: proxy-secrets
         secret:

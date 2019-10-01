@@ -2,6 +2,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: dqmgui
+  namespace: dqm
 spec:
   selector:
     app: dqmgui
@@ -25,6 +26,7 @@ metadata:
   labels:
     app: dqmgui
   name: dqmgui
+  namespace: dqm
 spec:
   selector:
     matchLabels:
@@ -35,20 +37,18 @@ spec:
       labels:
         app: dqmgui
     spec:
-#       hostNetwork: true
-#       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - image: cmssw/dqmgui
         name: dqmgui
         tty: true
         stdin: true
-        lifecycle:
-          postStart:
-            exec:
-              command:
-              - bash
-              - -c
-              - sudo chmod 0777 /data/srv/state/dqmgui/data; sudo chown _dqmgui:_dqmgui /data/srv/state/dqmgui/data
+#         lifecycle:
+#           postStart:
+#             exec:
+#               command:
+#               - bash
+#               - -c
+#               - sudo chmod 0777 /data/srv/state/dqmgui/data; sudo chown _dqmgui:_dqmgui /data/srv/state/dqmgui/data
         resources:
           requests:
             memory: "256Mi"
@@ -82,8 +82,8 @@ spec:
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
           readOnly: true 
-        - name: dqmgui-storage
-          mountPath: /data/srv/state/dqmgui/data
+#         - name: dqmgui-storage
+#           mountPath: /data/srv/state/dqmgui/data
       volumes:
       - name: proxy-secrets
         secret:
@@ -99,6 +99,6 @@ spec:
         hostPath:
             path: /etc/grid-security/hostcert.pem
             type: File
-      - name: dqmgui-storage
-        persistentVolumeClaim:
-            claimName: dqmgui-claim
+#       - name: dqmgui-storage
+#         persistentVolumeClaim:
+#             claimName: dqmgui-claim

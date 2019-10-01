@@ -2,6 +2,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: crabserver
+  namespace: crab
 spec:
   selector:
     app: crabserver
@@ -19,6 +20,7 @@ metadata:
   labels:
     app: crabserver
   name: crabserver
+  namespace: crab
 spec:
   selector:
     matchLabels:

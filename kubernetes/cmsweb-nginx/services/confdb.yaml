@@ -2,6 +2,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: confdb
+  namespace: confdb
 spec:
   selector:
     app: confdb
@@ -19,6 +20,7 @@ metadata:
   labels:
     app: confdb
   name: confdb
+  namespace: confdb
 spec:
   selector:
     matchLabels:

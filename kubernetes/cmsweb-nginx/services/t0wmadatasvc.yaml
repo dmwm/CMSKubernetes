@@ -2,6 +2,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: t0wmadatasvc
+  namespace: tzero
 spec:
   selector:
     app: t0wmadatasvc
@@ -19,6 +20,7 @@ metadata:
   labels:
     app: t0wmadatasvc
   name: t0wmadatasvc
+  namespace: tzero
 spec:
   selector:
     matchLabels:
@@ -65,7 +67,7 @@ spec:
       initContainers:
       - name: checkcouchdb
         image: busybox:1.28
-        command: ['sh', '-c', 'until nslookup couchdb.default; do echo "Waiting for couchdb"; sleep 10; done;']
+        command: ['sh', '-c', 'until nslookup couchdb.couchdb; do echo "Waiting for couchdb"; sleep 10; done;']
       volumes:
       - name: proxy-secrets
         secret:

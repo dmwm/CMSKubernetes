@@ -2,6 +2,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: tfaas
+  namespace: tfaas
 spec:
   selector:
     app: tfaas
@@ -15,6 +16,7 @@ metadata:
   labels:
     app: tfaas
   name: tfaas
+  namespace: tfaas
 spec:
   selector:
     matchLabels:

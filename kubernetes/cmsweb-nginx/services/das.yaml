@@ -2,6 +2,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: das
+  namespace: das
 spec:
   selector:
     app: das
@@ -22,6 +23,7 @@ metadata:
   labels:
     app: das
   name: das
+  namespace: das
 spec:
   selector:
     matchLabels:
@@ -32,8 +34,6 @@ spec:
       labels:
         app: das
     spec:
-#       hostNetwork: true
-#       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - image: cmssw/das
         name: das
