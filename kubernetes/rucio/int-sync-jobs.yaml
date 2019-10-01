@@ -29,6 +29,8 @@ spec:
               env:
                 - name: RUCIO_HOME
                   value: "/opt/rucio-int"
+                - name: TEST_SUFFIX
+                  value: "int"
               command: ['/root/CMSRucio/docker/CMSRucioClient/scripts/k8s_sync_sites.sh']
           restartPolicy: OnFailure
 ---

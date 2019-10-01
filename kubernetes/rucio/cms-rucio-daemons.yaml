@@ -3,7 +3,7 @@ image:
 
 abacusAccountCount: 1
 abacusRseCount: 1
-conveyorTransferSubmitterCount: 1
+conveyorTransferSubmitterCount: 2
 conveyorPollerCount: 1
 conveyorFinisherCount: 1
 hermesCount: 1
@@ -13,15 +13,15 @@ judgeInjectorCount: 1
 judgeRepairerCount: 1
 transmogrifierCount: 1
 undertakerCount: 1
-reaperCount: 1
+reaperCount: 0
+reaper2Count: 3
+
+reaper2:
+  greedy: 1
+  threads: 8
 
 conveyorTransferSubmitter:
     activities: "'User Subscriptions' 'Functional Test'"
-
-reaper:
-  greedy: 1
-  # Must be kept larger than the number of RSEs for now
-  workers: 14
 
 # Settings to renew FTS	proxy
 ftsRenewal:
@@ -44,4 +44,9 @@ config:
         ssl_cert_file: "/opt/rucio/certs/usercert.pem"
         destination: "/topic/cms.rucio.events"
         voname: "cms"
+
+
+transmogrifierResources:
+   limits:
+      memory: 1450Mi
 
