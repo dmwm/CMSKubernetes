@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-dqm
+  namespace: dqm
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    # restrict access to this ingress controller from specific IPs
+    # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#whitelist-source-range
+    nginx.ingress.kubernetes.io/whitelist-source-range: 137.138.31.19,137.138.158.91,137.138.33.200,137.138.54.48
+spec:
+  rules:
+  - host: cmsweb-srv.cern.ch
+    http:
+      paths:
+      - path: /dqm/dev
+        backend:
+          serviceName: dqmgui
+          servicePort: 8060
+      - path: /dqm/relval
+        backend:
+          serviceName: dqmgui
+          servicePort: 8081
+      - path: /dqm/relval-test
+        backend:
+          serviceName: dqmgui
+          servicePort: 8081
+      - path: /dqm/offline
+        backend:
+          serviceName: dqmgui
+          servicePort: 8080
+      - path: /dqm/offline-test
+        backend:
+          serviceName: dqmgui
+          servicePort: 8080
