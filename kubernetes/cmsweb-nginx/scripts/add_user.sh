@@ -1,8 +1,9 @@
 #!/bin/bash
-if [ $# -eq 1 ]; then
+if [ $# -eq 2 ]; then
     user=$1
-    kubectl create rolebinding ${user}-edit --clusterrole=edit --user $user --namespace=default
-    kubectl get rolebinding
+    ns=$2
+    kubectl create rolebinding ${user}-manage-$ns --clusterrole=edit --user $user --namespace=$ns
+    kubectl get rolebinding --all-namespaces
 else
-    echo "Usage: add_user.sh <user_name>"
+    echo "Usage: add_user.sh <user_name> <namespace>"
 fi
