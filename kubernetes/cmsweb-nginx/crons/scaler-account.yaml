@@ -7,11 +7,9 @@ kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: monitor-account
-  namespace: default
 subjects:
 - kind: ServiceAccount
   name: monitor-account
-  namespace: default
 roleRef:
   kind: ClusterRole
   name: edit
