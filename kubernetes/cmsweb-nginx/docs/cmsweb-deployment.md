@@ -237,6 +237,54 @@ by placing [request a firewall exception](https://cern.service-now.com/service-p
 **Please note:** DO NOT expose `cmsweb-srv` domain to outside world. We only
 open `cmsweb-test` domain since it performs full authentication.
 
+### Additional tune-ups
+After our cluster is created we may need to perform additional tune-ups
+such as nginx controller adjustements, granding user access rights
+or adding additional (persistent) storage to our services. This section
+describes all of these steps.
+
+#### Adjusting ngix controller settings
+The default nginx controller has limited resources and needs an adjustement.
+The procedure can be done using the following script:
+```
+./scripts/adjust_ing.sh
+# it will run series of commands and create ing-values.yaml file
+# you may need to edit this file and change two parts:
+# - adjust controller resources to
+   resources:
+     limits:
+       cpu: 1000m
+       memory: 256Mi
+     requests:
+       cpu: 1000m
+       memory: 256Mi
+# but do not adjust defaultBackend resources
+
+# and change tcp port to add this part (only necessary for frontend cluster)
+tcp:
+  "8443": default/frontend:8443
+
+# once changes are applied you need to upload this file back to k8s
+# this can be done as following
+helm upgrade nginx-ingress stable/nginx-ingress  --namespace=kube-system -f ing-values.yaml --recreate-pods
+```
+This step is required until CERN IT k8s team will fix the nginx controller,
+see this [ticket](https://its.cern.ch/jira/browse/OS-9959) for resources
+and this [ticket](https://its.cern.ch/jira/browse/OS-9960) for port settings.
+
+#### Granting user access rights to namespaces
+Once cluster is created we may need to grant certain users an access edit
+rights to their service namespace, e.g. DBS developer should be able to
+edit DBS namespace/services/pods. This can be done as following
+```
+./scripts/add_user.sh <user> <namespace>
+```
+
+#### Adding additional (persistent) storage for data-service needs
+To perform this action you need to modify data-service
+yaml manifest file and create additional storage. Please refer
+to [storage](docs/storage.md) documentation.
+
 ### Cluster maintenance
 When cluster is deployed we may perform various actions. For example,
 to re-generate all secrets we'll use this command
