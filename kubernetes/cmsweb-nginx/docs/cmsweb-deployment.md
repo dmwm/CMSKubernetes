@@ -158,8 +158,17 @@ and the later should contain auth/secret/configuration files for every cmsweb se
 The configuration area can be downloaded from
 ```
 git clone https://gitlab.cern.ch/cmsweb-k8s/preprod.git
+mkdir /k8s/path/config
+cp -r preprod/* /k8s/path/config
+
+# the /k8s/path/config will contain a tree structure of all
+# cmsweb services where individual directories will contain
+# service configuration files. You need to update them accordingly
+# with your secret files. Every file from service config area
+# will appear in /data/srv/current/<service>/ area in your pod
 ```
 and then adjusted accordingly to your project/deployment needs.
+
 **Please note:** for frontend deployment we rely on
 `cmsweb.services` file in configuration area which will contain
 a hostname of service's cluster. For example, in `cmsweb-test.cern.ch`
@@ -168,6 +177,9 @@ setup we use two cluster, a frontend cluster with alias
 The later one is defined in `frontend/cmsweb.services` configuration file.
 You may need to change it accordingly to your cluster setup. This hostname
 will be used by frontend configuration files in all redirect rules.
+
+You should also obtain your service certificates and put them
+into your `/path/certificates` path to be used by `deploy.sh` script.
 
 Finally, you may deploy new k8s cluster as following:
 ```
