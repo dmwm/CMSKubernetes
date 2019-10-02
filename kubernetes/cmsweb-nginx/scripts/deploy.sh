@@ -9,7 +9,7 @@
 ##H   status     check status of the services
 ##H
 ##H Deployments:
-##H   cluster    create openstack clsuter
+##H   cluster    create openstack cluster
 ##H   services   deploy services cluster
 ##H   frontend   deploy frontend cluster
 ##H   ingress    deploy ingress controller
@@ -17,10 +17,15 @@
 ##H   crons      deploy crons components
 ##H   secrets    create secrets files
 ##H
+##H Envrionments:
+##H   CMSWEB_CLUSTER   defines name of the cluster to be created (default cmsweb)
+##H   OS_PROJECT_NAME  defines name of the OpenStack project (default "CMS Web")
+##H   CMSWEB_HOSTNAME  defines cmsweb hostname (default cmsweb-test.cern.ch)
 
-# common defititions (adjust if necessary)
+# common definitions (adjust if necessary)
 cluster=${CMSWEB_CLUSTER:-cmsweb}
 cluster_ns=${OS_PROJECT_NAME:-"CMS Web"}
+cmsweb_hostname=${CMSWEB_HOSTNAME:-cmsweb-test.cern.ch}
 sdir=services
 mdir=monitoring
 idir=ingress
@@ -65,7 +70,7 @@ fi
 # dump info about our cluster
 echo "openstack --os-project-name \"$cluster_ns\" coe cluster show $cluster"
 hname=`openstack --os-project-name "$cluster_ns" coe cluster show $cluster | grep node_addresses | sed -e "s,|,,g" -e "s,node_addresses,,g" -e "s, ,,g" -e "s,u,,g" -e "s,',,g" -e "s,\[,,g" -e "s,\],,g"`
-echo "cmsweb clsuter    : $cluster"
+echo "cmsweb cluster    : $cluster"
 echo "project namespace : $cluster_ns"
 echo "Kubernetes host(s): $hname"
 kubectl get node
@@ -421,9 +426,9 @@ deploy_storages()
 # deploy appripriate ingress controller for our cluster
 deploy_ingress()
 {
-    echo
-    echo "+++ list configmap"
-    kubectl -n kube-system get configmap
+#    echo
+#    echo "+++ list configmap"
+#    kubectl -n kube-system get configmap
 
     echo
     echo "+++ label node"
@@ -434,9 +439,22 @@ deploy_ingress()
 
     echo
     echo "+++ deploy $cmsweb_ing"
+    echo "+++ use CMSWEB_HOSTNAME=$cmsweb_hostname"
+    ips=`host $cmsweb_hostname | awk '{ORS=","; print $4}' | rev | cut -c2- | rev`
+    echo "+++ use CMSWEB IPs: $ips"
+    tmpDir=/tmp/$USER/ingress
+    mkdir -p $tmpDir
     for ing in $cmsweb_ing; do
-        kubectl apply -f ingress/${ing}.yaml
+        cp ingress/${ing}.yaml $tmpDir
+        cat ingress/${ing}.yaml | \
+            awk '{if($1=="nginx.ingress.kubernetes.io/whitelist-source-range:") {print "    nginx.ingress.kubernetes.io/whitelist-source-range: "ips""} else print $0}' ips=$ips > \
+            $tmpDir/${ing}.yaml
+        echo "deploy ingress: $tmpDir/${ing}.yaml"
+        cat $tmpDir/${ing}.yaml
+        kubectl apply -f $tmpDir/${ing}.yaml
+        #kubectl apply -f ingress/${ing}.yaml
     done
+    rm -rf $tmpDir
 }
 
 deploy_crons()
@@ -485,6 +503,8 @@ create()
     elif [ "$deployment" == "secrets" ]; then
         deploy_ns
         deploy_secrets
+    elif [ "$deployment" == "ingress" ]; then
+        deploy_ingress
     else
         deploy_ns
         deploy_secrets
