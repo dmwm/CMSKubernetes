@@ -206,21 +206,27 @@ export KUBECONFIG=/k8s/path/config
 ```
 
 For cmsweb deployment we'll use two clusters, see cmsweb
-k8s cluster [architecture](architecture.md)
+k8s cluster [architecture](architecture.md). One is called **frontend cluster**
+which will host our cmsweb frontends and another is called **service cluster**
+which will hold our cmsweb backend services.
+
+#### frontend cluster deployment
 ```
 # deploy frontend cluster
 export KUBECONFIG=/k8s/path/config.cmsweb-frontend
 ./scripts/deploy.sh create frontend /path/cmsweb/config /path/certificates hmac
 ```
+
+#### service cluster deployment
 To proceed with creation of service cluster we need to pass
 `CMSWEB_HOSTNAME` variable to `deploy.sh` script which will
-be used to obtain frontend cluster IPs and use them for ingress'es.
+be used to obtain frontend cluster IPs and use them for ingress'es
+(load balancing k8s middleware to route client's requests):
 ```
 # deploy services cluster
 export KUBECONFIG=/k8s/path/config.cmsweb-services
 # replace your_hostname with k8s hostname, e.g. cmsweb-test.cern.ch
-# you should pass CMSWEB_HOSTNAME to perform whitelist of IPs in service
-cluster
+# you should pass CMSWEB_HOSTNAME to perform whitelist of IPs in service cluster
 CMSWEB_HOSTNAME=<your_hostname> ./scripts/deploy.sh create services /path/cmsweb/config /path/certificates hmac
 ```
 
