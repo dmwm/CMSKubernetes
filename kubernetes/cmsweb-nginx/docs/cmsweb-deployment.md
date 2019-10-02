@@ -314,6 +314,21 @@ To perform this action you need to modify data-service
 yaml manifest file and create additional storage. Please refer
 to [storage](storage.md) documentation.
 
+### Post install procedure
+Even though you installed a cluster a few post-install steps are required
+to perform. For instance, you should adjust ingress files and replace
+whitelist IP list to the one used by your FE cluster. Just look-up
+this line in all ingress files
+```
+nginx.ingress.kubernetes.io/whitelist-source-range: <IPs>
+```
+and replace IP list with list of IPs of your FE cluster.
+Then redeploy every ingress file as following:
+
+```
+kubectl -n <your_name_space> apply -f ingress/<ingress>.yaml --validate=false
+```
+
 ### Cluster maintenance
 When cluster is deployed we may perform various actions. For example,
 to re-generate all secrets we'll use this command
