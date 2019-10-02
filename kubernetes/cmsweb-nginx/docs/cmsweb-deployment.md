@@ -34,13 +34,19 @@ Script actions:
   status     check status of the services
 
 Deployments:
-  cluster    create openstack clsuter
+  cluster    create openstack cluster
   services   deploy services cluster
   frontend   deploy frontend cluster
   ingress    deploy ingress controller
   monitoring deploy monitoring components
   crons      deploy crons components
   secrets    create secrets files
+
+
+Envrionments:
+  CMSWEB_CLUSTER   defines name of the cluster to be created (default cmsweb)
+  OS_PROJECT_NAME  defines name of the OpenStack project (default "CMS Web")
+  CMSWEB_HOSTNAME  defines cmsweb hostname (default cmsweb-test.cern.ch)
 ```
 
 ### Cluster creation
@@ -206,24 +212,16 @@ k8s cluster [architecture](architecture.md)
 export KUBECONFIG=/k8s/path/config.cmsweb-frontend
 ./scripts/deploy.sh create frontend /path/cmsweb/config /path/certificates hmac
 ```
-At this point we need to obtain `cmsweb-frontend` cluster IPs and
-update `ingress/ing-srv.yaml` file accordingly to white-list them.
-For that we may use
-[CIDR](https://www.wikiwand.com/en/Classless_Inter-Domain_Routing)
-notations, e.g.
-
+To proceed with creation of service cluster we need to pass
+`CMSWEB_HOSTNAME` variable to `deploy.sh` script which will
+be used to obtain frontend cluster IPs and use them for ingress'es.
 ```
-# obtain cmsweb-frontend cluster IPs
-export KUBECONFIG=/k8s/path/config.cmsweb-frontend
-kubectl get node
-# then resolve minion node names into IPs
-
-# adjust ingress/ing-srv.yaml accordingly to setup the following option:
-#    nginx.ingress.kubernetes.io/whitelist-source-range: IP1, IP2, IP3, ...
-
 # deploy services cluster
 export KUBECONFIG=/k8s/path/config.cmsweb-services
-./scripts/deploy.sh create services /path/cmsweb/config /path/certificates hmac
+# replace your_hostname with k8s hostname, e.g. cmsweb-test.cern.ch
+# you should pass CMSWEB_HOSTNAME to perform whitelist of IPs in service
+cluster
+CMSWEB_HOSTNAME=<your_hostname> ./scripts/deploy.sh create services /path/cmsweb/config /path/certificates hmac
 ```
 
 You may check the status of your cluster with the following command:
@@ -313,21 +311,6 @@ edit DBS namespace/services/pods. This can be done as following
 To perform this action you need to modify data-service
 yaml manifest file and create additional storage. Please refer
 to [storage](storage.md) documentation.
-
-### Post install procedure
-Even though you installed a cluster a few post-install steps are required
-to perform. For instance, you should adjust ingress files and replace
-whitelist IP list to the one used by your FE cluster. Just look-up
-this line in all ingress files
-```
-nginx.ingress.kubernetes.io/whitelist-source-range: <IPs>
-```
-and replace IP list with list of IPs of your FE cluster.
-Then redeploy every ingress file as following:
-
-```
-kubectl apply -f ingress/<ingress>.yaml --validate=false
-```
 
 ### Cluster maintenance
 When cluster is deployed we may perform various actions. For example,
