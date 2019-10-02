@@ -283,7 +283,7 @@ edit DBS namespace/services/pods. This can be done as following
 #### Adding additional (persistent) storage for data-service needs
 To perform this action you need to modify data-service
 yaml manifest file and create additional storage. Please refer
-to [storage](docs/storage.md) documentation.
+to [storage](storage.md) documentation.
 
 ### Cluster maintenance
 When cluster is deployed we may perform various actions. For example,
