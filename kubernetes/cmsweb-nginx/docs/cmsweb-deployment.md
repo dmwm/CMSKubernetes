@@ -15,6 +15,9 @@ following items:
   See [ca.cern.ch](https://ca.cern.ch/ca/host/Request.aspx?template=CERNHostCertificate2YearsCustomSubject)
 - obtain robot certificates from [ca.cern.ch](https://ca.cern.ch)
   to be used by services to obtain grid proxy
+- you must have your own configuration area with service configs. So far we
+provide a common config area in this
+[repository](https://gitlab.cern.ch/cmsweb-k8s/preprod)
 
 #### cmsweb k8s deploy script
 We provide special deploy script to perform most of the deployment tasks.
@@ -151,6 +154,20 @@ git clone git@github.com:dmwm/CMSKubernetes.git
 and, prepare your cmsweb certificates and configuration areas.
 The former should contain host and robot certificates for the cluster,
 and the later should contain auth/secret/configuration files for every cmsweb service.
+
+The configuration area can be downloaded from
+```
+git clone https://gitlab.cern.ch/cmsweb-k8s/preprod.git
+```
+and then adjusted accordingly to your project/deployment needs.
+**Please note:** for frontend deployment we rely on
+`cmsweb.services` file in configuration area which will contain
+a hostname of service's cluster. For example, in `cmsweb-test.cern.ch`
+setup we use two cluster, a frontend cluster with alias
+`cmsweb-test.cern.ch` and backend cluster with alias `cmsweb-srv.cern.ch`.
+The later one is defined in `frontend/cmsweb.services` configuration file.
+You may need to change it accordingly to your cluster setup. This hostname
+will be used by frontend configuration files in all redirect rules.
 
 Finally, you may deploy new k8s cluster as following:
 ```
