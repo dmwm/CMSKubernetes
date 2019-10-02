@@ -326,7 +326,7 @@ and replace IP list with list of IPs of your FE cluster.
 Then redeploy every ingress file as following:
 
 ```
-kubectl -n <your_name_space> apply -f ingress/<ingress>.yaml --validate=false
+kubectl apply -f ingress/<ingress>.yaml --validate=false
 ```
 
 ### Cluster maintenance
