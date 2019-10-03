@@ -13,6 +13,9 @@ following items:
   file should match DN of the host, e.g.
   Subject: DC=ch, DC=cern, OU=computers, CN=cmsweb-test.cern.ch
   See [ca.cern.ch](https://ca.cern.ch/ca/host/Request.aspx?template=CERNHostCertificate2YearsCustomSubject)
+  **Please note** this can only be done once you create a cluster
+  and register your minions in LanDB, but you need it before deploying
+  cmsweb services and frontends on k8s cluster
 - obtain robot certificates from [ca.cern.ch](https://ca.cern.ch)
   to be used by services to obtain grid proxy
 - you must have your own configuration area with service configs. So far we
@@ -76,6 +79,11 @@ export OS_PROJECT_NAME="CMS Web"
 
 # list existsing templates
 openstack coe cluster template list
+
+# PLEASE NOTE: if in your project space there is no cmsweb templates
+# you may create them as following (the script will create
+# cmsweb-template-stable which we will use below):
+./scripts/create_templates.sh
 
 # create a cmsweb cluster from specific template (cmsweb-template-stable)
 openstack coe cluster create --keypair cloud --cluster-template cmsweb-template-stable cmsweb
