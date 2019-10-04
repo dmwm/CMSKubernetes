@@ -21,11 +21,16 @@
 ##H   CMSWEB_CLUSTER   defines name of the cluster to be created (default cmsweb)
 ##H   OS_PROJECT_NAME  defines name of the OpenStack project (default "CMS Web")
 ##H   CMSWEB_HOSTNAME  defines cmsweb hostname (default cmsweb-test.cern.ch)
+##H   CMSWEB_ENV       defines cmsweb environemnt, e.g. production
 
 # common definitions (adjust if necessary)
 cluster=${CMSWEB_CLUSTER:-cmsweb}
 cluster_ns=${OS_PROJECT_NAME:-"CMS Web"}
 cmsweb_hostname=${CMSWEB_HOSTNAME:-cmsweb-test.cern.ch}
+cmsweb_prefix="#PROD#"
+if [ "$CMSWEB_ENV" == "production" ] || [ "$CMSWEB_ENV" == "prod" ]; then
+    cmsweb_prefix="      " # we will replace '#PROD#' with empty spaces
+fi
 sdir=services
 mdir=monitoring
 idir=ingress
@@ -47,6 +52,8 @@ if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == 
     perl -ne '/^##H/ && do { s/^##H ?//; print }' < $0
     exit 1
 fi
+echo "+++ cmsweb environment: $CMSWEB_ENV"
+echo "+++ cmsweb yaml prefix: '$cmsweb_prefix'"
 action=$1
 deployment=$2
 if [ "$action" == "create" ]; then
@@ -478,12 +485,16 @@ deploy_services()
         if [ "$srv" == "dbs" ]; then
             for inst in $dbs_instances; do
                 if [ -f "$sdir/${srv}-${inst}.yaml" ]; then
-                    kubectl apply -f "$sdir/${srv}-${inst}.yaml" --validate=false
+                    #kubectl apply -f "$sdir/${srv}-${inst}.yaml" --validate=false
+                    cat $sdir/${srv}-${inst}.yaml | \
+                        sed -e "s,#PROD#,$cmsweb_prefix,g" | \
+                        kubectl apply --validate=false -f -
                 fi
             done
         else
             if [ -f $sdir/${srv}.yaml ]; then
-                kubectl apply -f $sdir/${srv}.yaml --validate=false
+                #kubectl apply -f $sdir/${srv}.yaml --validate=false
+                cat $sdir/${srv}.yaml | sed -e "s,#PROD#,$cmsweb_prefix,g" | kubectl apply --validate=false -f -
             fi
         fi
     done
