@@ -15,3 +15,10 @@
 - [Kubernetes failures](https://github.com/hjacobs/kubernetes-failure-stories)
 - [Kubernetes for managers](https://unixism.net/2019/08/a-managers-guide-to-kubernetes-adoption/)
 - [Debuggin docker containers](https://blog.container-solutions.com/what-you-need-to-know-about-debugging-docker-containers)
+
+#### CERN clouddocs references
+
+- [File shares and CephFS](http://clouddocs.web.cern.ch/clouddocs/file_shares/quickstart.html)
+- [CephFS](http://clouddocs.web.cern.ch/clouddocs/containers/tutorials/cephfs.html)
+- [Troubleshooting CephFS](http://clouddocs.web.cern.ch/clouddocs/containers/troubleshooting.html#cephfs--manila-share-stuck-in-pending)
+- [k8s Authentication](http://clouddocs.web.cern.ch/clouddocs/containers/tutorials/kubernetes-keystone-authentication.html)
