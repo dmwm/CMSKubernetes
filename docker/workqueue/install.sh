@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG1907f
+VER=HG1911a
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend workqueue"
@@ -49,16 +49,16 @@ if [ $? -ne 0 ]; then
 fi
 
 # switch to use pycurl in Requests.py instead of default httplib2
-fname=`find /data/srv/$VER/sw/$ARCH/cms/workqueue/ -name Requests.py`
-sed -i -e "s#self.pycurl = idict.get('pycurl', None)#self.pycurl = True#g" $fname
-cd $WDIR
+#fname=`find /data/srv/$VER/sw/$ARCH/cms/workqueue/ -name Requests.py`
+#sed -i -e "s#self.pycurl = idict.get('pycurl', None)#self.pycurl = True#g" $fname
+#cd $WDIR
 # end of TMP block, will be removed once we get it in WMCore condebase
 
 # comment out usage of port 8443 in k8s setup
-files=`find /data/srv/$VER/sw/$ARCH -type f | xargs grep ":8443" | awk '{print $1}' | sed -e "s,:,,g" | grep py$`
-for fname in $files; do
-    sed -i -e "s,:8443,,g" $fname
-done
+#files=`find /data/srv/$VER/sw/$ARCH -type f | xargs grep ":8443" | awk '{print $1}' | sed -e "s,:,,g" | grep py$`
+#for fname in $files; do
+#    sed -i -e "s,:8443,,g" $fname
+#done
 
 # NOTE: we separated workqueue, reqmon, reqmgr2 and couchdb into individual
 # containers. In k8s cluster we need to remove monitoring of services which are

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG1909c
+VER=HG1911a
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend reqmgr2ms"
@@ -49,10 +49,10 @@ if [ $? -ne 0 ]; then
 fi
 
 # comment out usage of port 8443 in k8s setup
-files=`find /data/srv/$VER/sw/$ARCH -type f | xargs grep ":8443" | awk '{print $1}' | sed -e "s,:,,g" | grep py$`
-for fname in $files; do
-    sed -i -e "s,:8443,,g" $fname
-done
+#files=`find /data/srv/$VER/sw/$ARCH -type f | xargs grep ":8443" | awk '{print $1}' | sed -e "s,:,,g" | grep py$`
+#for fname in $files; do
+#    sed -i -e "s,:8443,,g" $fname
+#done
 
 # TMP: add patch to WMCore to lower case Cms headers
 # I still need to enable pycurl in
@@ -64,9 +64,9 @@ done
 #patch -p3 < 9101.patch
 #
 # switch to use pycurl in Requests.py instead of default httplib2
-fname=`find /data/srv/$VER/sw/$ARCH/cms/reqmgr2ms/ -name Requests.py`
-sed -i -e "s#self.pycurl = idict.get('pycurl', None)#self.pycurl = True#g" $fname
-cd $WDIR
+#fname=`find /data/srv/$VER/sw/$ARCH/cms/reqmgr2ms/ -name Requests.py`
+#sed -i -e "s#self.pycurl = idict.get('pycurl', None)#self.pycurl = True#g" $fname
+#cd $WDIR
 # end of TMP block, will be removed once we get it in WMCore condebase
 
 # NOTE: we separated workqueue, reqmon, reqmgr2ms and couchdb into individual
