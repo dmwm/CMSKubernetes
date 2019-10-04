@@ -67,6 +67,8 @@ spec:
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
           readOnly: true 
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/srv/logs
 #       livenessProbe:
 #         httpGet:
 #           path: /das/status
@@ -88,3 +90,6 @@ spec:
         hostPath:
             path: /etc/grid-security/hostcert.pem
             type: File
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim

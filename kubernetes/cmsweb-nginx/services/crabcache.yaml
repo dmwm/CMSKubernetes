@@ -72,8 +72,13 @@ spec:
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
           readOnly: true 
-#         - name: crabcache-storage
-#           mountPath: /data/srv/state/crabcache/files
+        # TMP: use cinder storage for time being
+        - name: crabcache-storage
+          mountPath: /data/srv/state/crabcache/files
+#PROD#  - name: crabcache-storage
+#PROD#    mountPath: /data/srv/state/crabcache/files
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/srv/logs
       volumes:
       - name: proxy-secrets
         secret:
@@ -89,13 +94,13 @@ spec:
         hostPath:
             path: /etc/grid-security/hostcert.pem
             type: File
-#       - name: crabcache-storage
-#         persistentVolumeClaim:
-#             claimName: crabcache-claim
-# example how to use persistent storage volume created with
-# openstack volume create crabcache --size 2000
-# openstack volume list # this will provide volumeID
-#       - name: crabcache-storage
-#         cinder:
-#             volumeID: 2e91281d-749d-43f2-8222-989e1c7d37a2
-#             fsType: ext4
+      # TMP: use ciner storage for time being
+      - name: crabcache-storage
+        persistentVolumeClaim:
+            claimName: crabcache-claim
+#PROD#- name: crabcache-storage-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: crabcache-cephfs-claim
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim

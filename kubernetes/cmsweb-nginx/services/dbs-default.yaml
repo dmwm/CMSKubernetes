@@ -34,8 +34,6 @@ spec:
       labels:
         app: dbs-default
     spec:
-#       hostNetwork: true
-#       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - image: cmssw/dbs
         name: dbs-default
@@ -50,8 +48,6 @@ spec:
           protocol: TCP
           name: dbs-d-cpy-mon
         volumeMounts:
-#         - name: logs-pvc
-#           mountPath: /logs/dbs
         - name: proxy-secrets
           mountPath: /etc/proxy
           defaultMode: 256
@@ -64,6 +60,8 @@ spec:
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
           readOnly: true 
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/srv/logs
       volumes:
       - name: proxy-secrets
         secret:
@@ -79,7 +77,6 @@ spec:
         hostPath:
             path: /etc/grid-security/hostcert.pem
             type: File
-#       - name: logs-pvc
-#         persistentVolumeClaim:
-#           claimName: cmsweb-pvc
-#           readOnly: false
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim

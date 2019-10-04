@@ -82,8 +82,10 @@ spec:
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
           readOnly: true 
-#         - name: dqmgui-storage
-#           mountPath: /data/srv/state/dqmgui/data
+#PROD#  - name: dqmgui-storage
+#PROD#    mountPath: /data/srv/state/dqmgui/data
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/srv/logs
       volumes:
       - name: proxy-secrets
         secret:
@@ -99,6 +101,9 @@ spec:
         hostPath:
             path: /etc/grid-security/hostcert.pem
             type: File
-#       - name: dqmgui-storage
-#         persistentVolumeClaim:
-#             claimName: dqmgui-claim
+#PROD#- name: dqmgui-storage
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: dqmgui-cephfs-claim
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim

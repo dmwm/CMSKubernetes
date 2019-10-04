@@ -31,8 +31,6 @@ spec:
       labels:
         app: dmwmmon
     spec:
-#       hostNetwork: true
-#       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - image: cmssw/dmwmmon
         name: dmwmmon
@@ -56,6 +54,8 @@ spec:
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
           readOnly: true 
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/srv/logs
       volumes:
       - name: proxy-secrets
         secret:
@@ -79,3 +79,6 @@ spec:
         hostPath:
             path: /etc/grid-security/hostcert.pem
             type: File
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim

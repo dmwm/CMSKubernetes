@@ -31,7 +31,6 @@ spec:
         - name: proxy-secrets
           mountPath: /etc/proxy
           readOnly: true
-        # mount hostcert/hostkey.pem files from the minion node
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
         - name: hostkey

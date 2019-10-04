@@ -31,8 +31,6 @@ spec:
       labels:
         app: couchdb
     spec:
-#       nodeSelector:
-#           storage: couchdb
       containers:
       - image: cmssw/couchdb
         name: couchdb
@@ -66,15 +64,16 @@ spec:
         - name: secrets
           mountPath: /etc/secrets
           defaultMode: 256
-#           readOnly: true
         - name: hostkey
           mountPath: /etc/grid-security/hostkey.pem
           readOnly: true 
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
           readOnly: true 
-#         - name: couchdb-storage
-#           mountPath: /data/srv/state/couchdb/database
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/srv/logs
+#PROD#  - name: couchdb-storage
+#PROD#    mountPath: /data/srv/state/couchdb/database
       volumes:
       - name: proxy-secrets
         secret:
@@ -90,6 +89,9 @@ spec:
         hostPath:
             path: /etc/grid-security/hostcert.pem
             type: File
-#       - name: couchdb-storage
-#         persistentVolumeClaim:
-#             claimName: couchdb-claim
+#PROD#- name: couchdb-storage
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: couchdb-cephfs-claim
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim
