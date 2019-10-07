@@ -91,7 +91,7 @@ if [ "$deployment" == "services" ]; then
     echo "+++ deploy ingress : $cmsweb_ing"
 elif [ "$deployment" == "frontend" ]; then
     # services for cmsweb-nginx cluster
-    cmsweb_ing="ing-nginx"
+    cmsweb_ing="ing-frontend"
     cmsweb_srvs="httpgo httpsgo frontend"
     echo "+++ deploy services: $cmsweb_srvs"
     echo "+++ deploy ingress : $cmsweb_ing"
@@ -386,7 +386,7 @@ deploy_secrets()
 #    kubectl create secret tls cluster-tls-cert --key=tls.key --cert=tls.crt
 
     # create secret with our key/crt (they can be generated at ca.cern.ch/ca, see Host certificates)
-    # we need to use this option if ing-nginx.yaml will contain the following configuration
+    # we need to use this option if ing-frontend.yaml will contain the following configuration
     # tls:
     #    - secretName: cluster-tls-cert
     echo
