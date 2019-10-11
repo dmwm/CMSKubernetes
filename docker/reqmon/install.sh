@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG1907f
+VER=HG1911a
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend reqmon"
@@ -49,10 +49,10 @@ if [ $? -ne 0 ]; then
 fi
 
 # comment out usage of port 8443 in k8s setup
-files=`find /data/srv/$VER/sw/$ARCH -type f | xargs grep ":8443" | awk '{print $1}' | sed -e "s,:,,g" | grep py$`
-for fname in $files; do
-    sed -i -e "s,:8443,,g" $fname
-done
+#files=`find /data/srv/$VER/sw/$ARCH -type f | xargs grep ":8443" | awk '{print $1}' | sed -e "s,:,,g" | grep py$`
+#for fname in $files; do
+#    sed -i -e "s,:8443,,g" $fname
+#done
 
 # NOTE: we separated workqueue, reqmon, reqmgr2 and couchdb into individual
 # containers. In k8s cluster we need to remove monitoring of services which are
