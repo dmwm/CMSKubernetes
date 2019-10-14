@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: ingress-das
+  name: ing-das
   namespace: das
   annotations:
     kubernetes.io/ingress.class: nginx

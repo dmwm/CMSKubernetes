@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: ingress-dqm
+  name: ing-dqm
   namespace: dqm
   annotations:
     kubernetes.io/ingress.class: nginx

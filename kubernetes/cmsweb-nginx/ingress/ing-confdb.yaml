@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: ingress-counfdb
+  name: ing-confdb
   namespace: confdb
   annotations:
     kubernetes.io/ingress.class: nginx
