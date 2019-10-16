@@ -2,6 +2,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: frontend
+  namespace: default
 spec:
   selector:
     app: frontend
@@ -26,6 +27,7 @@ metadata:
   labels:
     app: frontend
   name: frontend
+  namespace: default
 spec:
   selector:
     matchLabels:
