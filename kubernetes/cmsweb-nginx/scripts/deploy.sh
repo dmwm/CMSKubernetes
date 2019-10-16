@@ -235,13 +235,13 @@ deploy_ns()
 {
     # deploy all appropriate namespaces
     for ns in $cmsweb_ns; do
-#        if [ -z "`kubectl get namespaces | grep $ns`" ]; then
+        if [ -z "`kubectl get namespaces | grep $ns`" ]; then
             kubectl create namespace $ns
-#        fi
+        fi
     done
-#    if [ -z "`kubectl get namespaces | grep monitoring`" ]; then
+    if [ -z "`kubectl get namespaces | grep monitoring`" ]; then
         kubectl create namespace monitoring
-#    fi
+    fi
 }
 
 deploy_secrets()
@@ -249,6 +249,8 @@ deploy_secrets()
     # cmsweb configuration area
     echo "+++ configuration: $conf"
     echo "+++ certificates : $certificates"
+    echo "+++ cms services : $cmsweb_srvs"
+    echo "+++ namespaces   : $cmsweb_ns"
 
     # robot keys and cmsweb host certificates
     robot_key=$certificates/robotkey.pem
