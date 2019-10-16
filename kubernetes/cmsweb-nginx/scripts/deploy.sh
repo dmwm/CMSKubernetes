@@ -460,7 +460,7 @@ deploy_ingress()
             $tmpDir/${ing}.yaml
         echo "deploy ingress: $tmpDir/${ing}.yaml"
         cat $tmpDir/${ing}.yaml
-        kubectl apply -f $tmpDir/${ing}.yaml
+        kubectl apply -f $tmpDir/${ing}.yaml --validate=false
         #kubectl apply -f ingress/${ing}.yaml
     done
     rm -rf $tmpDir
