@@ -1,5 +1,5 @@
-replicaCount: 5
-authReplicaCount: 1
+replicaCount: 3
+authReplicaCount: 2
 ingress:
   hosts: 
     - cms-rucio-int.cern.ch
