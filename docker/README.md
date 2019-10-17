@@ -73,6 +73,10 @@ The first step is to create a Docker file. Here is an example for
 
 With this file we can build our docker image as following:
 ```
+# the build.sh script is a wrapper around docker commands, so it is your
+# choice either to use build.sh script or use docker commands directly,
+# see examples below
+
 # By default build.sh will build docker images to all cmsweb services
 # and upload them to cmssw repository. But you can specify your set of packages
 build.sh "pkg1 pkg2"
@@ -86,6 +90,8 @@ CMSK8STAG=1.1.1 build.sh "pkg1 pkg2"
 # frontend deploy scripts). You may change it via
 CMSK8S=http://your.host.com build.sh "pkg1 pkg2"
 ```
+
+Or, you can use direct docker command to make all step manually, e.g.
 
 ```
 # here we need to pass hostname of k8s host we're going to use
