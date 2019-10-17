@@ -1,11 +1,11 @@
 #! /bin/bash
 
-REPO=~/rucio-helm-charts # or rucio
+export REPO=~/rucio-helm-charts # or rucio
 
-PREFIX=dev
-SERVER_NAME=cms-rucio-$PREFIX
-DAEMON_NAME=cms-ruciod-$PREFIX
-UI_NAME=cms-webui-$PREFIX
+export PREFIX=dev
+export SERVER_NAME=cms-rucio-$PREFIX
+export DAEMON_NAME=cms-ruciod-$PREFIX
+export UI_NAME=cms-webui-$PREFIX
 
 #helm upgrade --values rucio-graphite.yaml  graphite kiwigrid/graphite # Don't do PVC again
 helm upgrade --recreate-pods --values cms-rucio-common.yaml,cms-rucio-server.yaml,${PREFIX}-rucio-server.yaml,${PREFIX}-db.yaml,${PREFIX}-release.yaml  $SERVER_NAME $REPO/rucio-server

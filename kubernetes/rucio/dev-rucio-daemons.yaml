@@ -1,2 +1,7 @@
 reaper2:
   includeRses: "cms_type=test"
+
+# Requires 1.20.8 
+hermes:
+  brokerTimeout: 0
+
