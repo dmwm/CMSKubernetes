@@ -5,7 +5,7 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 ENV WDIR=/data
 ENV USER=_tfaas
 
-RUN yum update -y && yum clean all
+#RUN yum update -y && yum clean all
 RUN yum install -y git-core krb5-devel readline-devel openssl autoconf automake libtool make gcc gcc-c++ unzip
 RUN yum clean all
 

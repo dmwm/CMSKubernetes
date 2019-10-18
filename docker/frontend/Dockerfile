@@ -5,8 +5,6 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 ENV WDIR=/data
 ENV USER=_frontend
 
-RUN yum update -y && yum clean all
-
 # create bashs link to bash
 # RUN ln -s /bin/bash /usr/bin/bashs
 # add new user

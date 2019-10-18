@@ -5,8 +5,6 @@ ENV WDIR=/data
 ENV USER=_sitedb
 ADD install.sh $WDIR/install.sh
 
-RUN yum update -y && yum clean all
-
 # add new user
 RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
 # add user to sudoers file
