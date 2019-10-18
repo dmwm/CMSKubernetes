@@ -1,0 +1,20 @@
+# This is a test container for probes which lives forever. Can remove when we really have probes working
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: probe-test
+  labels:
+    app: client
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: client
+    spec:
+      containers:
+        - name: client
+          image: ericvaandering/rucio-probes:release-1.20.7
+          imagePullPolicy: Always
+
