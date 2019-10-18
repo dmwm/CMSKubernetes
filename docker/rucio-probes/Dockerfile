@@ -17,7 +17,7 @@ RUN yum install -y nano git && \
 
 WORKDIR /root
 
-COPY scripts /scripts
+COPY scripts /root/scripts
 
 # Pull some useful stuff out of git
 
