@@ -10,15 +10,19 @@ cluster creation and service deployment.
 # tiller_enabled defines tiller service to allow to deploy k8s Helmpackages
 #
 # here is an example how to create a cluster
+# openstack coe cluster create test-cluster --keypair <name> --cluster-template <tmpl_name> <labels>
+# for example
 # openstack coe cluster create test-cluster --keypair cloud --cluster-template kubernetes-1.13.10-1 --labels cern_tag=qa --labels ingress_controller="nginx" --labels tiller_enabled=true --labels cern_enabled="true"
 
-# but we'll create a cluster with standard templates
+# But the above template may not contain ALL labels we may want
+# to use at the end, to solve this problem we'll create a cluster
+# with standard template
 
-# create your working area
+# To start, let's create your working area
 mkdir wdir
 cd wdir
 
-# first you should probably clone CMSKubernetes repository
+# you should probably clone CMSKubernetes repository
 git clone git@github.com:dmwm/CMSKubernetes.git
 
 # for this excercise we'll use httpgo application/service
@@ -27,6 +31,10 @@ cp CMSKubernetes/kubernetes/k8s-whoami/httpgo.yaml .
 cp CMSKubernetes/kubernetes/cmsweb-nginx/scripts/create_templates.sh .
 
 # first we'll create a new template with all labels suitable for cms
+# by default create_template use "CMS Web" project, therefore
+# we'll use "default" project by resetting OS_PROJECT_NAME
+# the create_template.sh script will create cmsweb-temaplate-medium
+
 OS_PROJECT_NAME="" ./create_templates.sh
 openstack coe cluster template list
 +--------------------------------------+------------------------+
@@ -42,7 +50,7 @@ openstack coe cluster template list
 | 30c8db8a-49d0-470d-b9c6-dd684d4d0079 | kubernetes-1.15.3-2    |
 +--------------------------------------+------------------------+
 
-# let's create a cluster
+# now, let's create a cluster with cmsweb-template
 openstack coe cluster create test-cluster --keypair cloud --cluster-template cmsweb-template-medium
 ```
 
