@@ -8,8 +8,44 @@ cluster creation and service deployment.
 # cern_tag and cern_enabled forces creation of host certificates
 # ingress_controller defines which ingress controller we'll use
 # tiller_enabled defines tiller service to allow to deploy k8s Helmpackages
-openstack coe cluster create test-cluster --keypair cloud --cluster-template kubernetes-1.13.10-1 --labels cern_tag=qa --labels ingress_controller="nginx" --labels tiller_enabled=true --labels cern_enabled="true"
+#
+# here is an example how to create a cluster
+# openstack coe cluster create test-cluster --keypair cloud --cluster-template kubernetes-1.13.10-1 --labels cern_tag=qa --labels ingress_controller="nginx" --labels tiller_enabled=true --labels cern_enabled="true"
+
+# but we'll create a cluster with standard templates
+
+# create your working area
+mkdir wdir
+cd wdir
+
+# first you should probably clone CMSKubernetes repository
+git clone git@github.com:dmwm/CMSKubernetes.git
+
+# for this excercise we'll use httpgo application/service
+# therefore we'll copy httpgo.yaml file in our working area
+cp CMSKubernetes/kubernetes/k8s-whoami/httpgo.yaml .
+cp CMSKubernetes/kubernetes/cmsweb-nginx/scripts/create_templates.sh .
+
+# first we'll create a new template with all labels suitable for cms
+OS_PROJECT_NAME="" ./create_templates.sh
+openstack coe cluster template list
++--------------------------------------+------------------------+
+| uuid                                 | name                   |
++--------------------------------------+------------------------+
+| 5b2ee3b5-2f85-4917-be7c-11a2c82031ad | kubernetes-preview     |
+| 49187d11-6442-43da-bedc-695ae522e8c5 | swarm-preview          |
+| 17760a5f-8957-4794-ab96-0d6bd8627282 | swarm-18.06-1          |
+| ab08b219-3246-4995-bf76-a3123f69cb4f | swarm-1.13.1-2         |
+| a6d5b08d-f90a-46b4-900c-a5bd170664a5 | cmsweb-template-medium |
+| 0b6d5c5f-976a-4f05-9edb-06489bc6538b | kubernetes-1.14.6-1    |
+| 6b4fc2c2-00b0-410d-a784-82b6ebdd85bc | kubernetes-1.13.10-1   |
+| 30c8db8a-49d0-470d-b9c6-dd684d4d0079 | kubernetes-1.15.3-2    |
++--------------------------------------+------------------------+
+
+# let's create a cluster
+openstack coe cluster create test-cluster --keypair cloud --cluster-template cmsweb-template-medium
 ```
+
 You may check its status like this (please note that IDs or names will be assigned dynamically
 and you output will have different ones):
 ```
@@ -37,7 +73,7 @@ Now it is time to deploy our first service. For that we'll use
 It represents basic HTTP server written in Go language. Its docker image
 is available at [cmssw/httpgo](https://cloud.docker.com/u/cmssw/repository/docker/cmssw/httpgo)
 repository. The associated k8s deployment file can be found
-[here](https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/cmsweb-nginx/services/httpgo.yaml).
+[here](https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/k8s-whoami/httpgo.yaml).
 ```
 # inspect available nodes on a cluster
 kubectl get nodes
@@ -61,6 +97,13 @@ kubectl apply -f httpgo.yaml --validate=false
 
 # in a few minutes you'll be able to see your pods
 kubectl get pods
+
+# if your pod is still in creation mode, e.g.
+kubectl get pods
+NAME                                 READY   STATUS              RESTARTS   AGE
+httpgo-deployment-6f9978c7f5-tw2lp   0/1     ContainerCreating   0          4m
+# you may check what it is doing using this command:
+kubectl describe pods/httpgo-deployment-6f9978c7f5-tw2lp
 
 # we can check which services do we have
 kubectl get svc
