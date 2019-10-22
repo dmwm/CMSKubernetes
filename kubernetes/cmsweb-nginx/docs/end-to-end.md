@@ -210,6 +210,9 @@ our deployment file and add resources clause. Add the following to httpgo.yaml
 and then re-deploy the application using `kubectl apply -f httpgo.yaml --validate=false`
 command.
 
+Please note, you can read about metrics limits
+[here](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
+
 Next, we can add a horizontal scaler via
 ```
 # add new autoscaler
@@ -220,7 +223,7 @@ kubectl get hpa
 ```
 
 And, we are ready to see how the scaler works. Let's stress our system
-using hey tool
+using [hey](https://github.com/vkuznet/hey) tool
 ```
 # add load on a server
 hey http://test-cluster-omucujixjear-minion-0.cern.ch/http
