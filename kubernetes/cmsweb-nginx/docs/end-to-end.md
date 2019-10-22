@@ -197,3 +197,54 @@ RemoteAddr= "10.100.1.1:32938"
 Finding value of "Accept" ["*/*"]
 Hello Go world!!!
 ```
+
+### Advanced topic
+Let's try to scale our k8s app based on CPU metric. For that we need to adjust
+our deployment file and add resources clause. Add the following to httpgo.yaml
+```
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "100m"
+```
+and then re-deploy the application using `kubectl apply -f httpgo.yaml --validate=false`
+command.
+
+Next, we can add a horizontal scaler via
+```
+# add new autoscaler
+kubectl autoscale deployment httpgo-deployment --cpu-percent=50 --min=1 --max=3
+
+# check list of existing autoscalers
+kubectl get hpa
+```
+
+And, we are ready to see how the scaler works. Let's stress our system
+using hey tool
+```
+# add load on a server
+hey http://test-cluster-omucujixjear-minion-0.cern.ch/http
+# check our scaler
+kubectl get hpa
+```
+
+Then, login to your pod and create heavy CPU process, e.g.
+```
+kubectl exec -ti httpgo-deployment-57b87765d6-brgq7 bash
+
+# create new python CPU hog process
+cat > cpu.py << EOF
+#!/usr/bin/env python
+while True:
+   pass
+EOF
+
+# and run it
+chmod +x cpu.py
+nohup ./cpu.py 2>&1 1>& /dev/null < /dev/null &
+
+# open up top and verify CPU usage
+top
+```
+
+And, finally we can check from another terminal how many pods we have!
