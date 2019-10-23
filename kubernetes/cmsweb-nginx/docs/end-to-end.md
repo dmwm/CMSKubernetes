@@ -1,7 +1,39 @@
 ### End-to-end setup for k8s
 This document provides basic setup of k8s and demonstrate whole process of
 cluster creation and service deployment.
+
+First, we need to create a new ssh keypair which we'll use for cluster access
 ```
+# create new key, here we give a key name as: cloud
+ssh-keygen -t rsa -f cloud
+
+# upload you key to openstack with name cloud
+openstack keypair create --public-key ~/.ssh/cloud.pub cloud
+```
+
+Then, we should create a cluster on CERN openstack platform. For that
+users can either use [web UI interface](https://openstack.cern.ch/project/)
+or command line interface available on `lxplus-cloud` nodes. This tutorial
+will follow all steps via CLI interface.
+
+```
+# first we login to lxplus-cloud
+ssh lxplus-cloud
+
+# the openstack command provides plenty of options, feel free to explore them, e.g.
+# openstack help
+# openstack coe cluster help
+
+# To start, let's create your working area and clone CMSKubernetes repository
+mkdir wdir
+cd wdir
+git clone git@github.com:dmwm/CMSKubernetes.git
+
+# for this excercise we'll use httpgo application/service
+# therefore we'll copy httpgo.yaml file in our working area
+cp CMSKubernetes/kubernetes/k8s-whoami/httpgo.yaml .
+cp CMSKubernetes/kubernetes/cmsweb-nginx/scripts/create_templates.sh .
+
 # let's create a new cluster, the command to create a cluster is the following
 # openstack coe cluster create test-cluster --keypair cloud --cluster-template kubernetes-1.13.10-1
 # but we'll use it with specific flags:
@@ -17,18 +49,6 @@ cluster creation and service deployment.
 # But the above template may not contain ALL labels we may want
 # to use at the end, to solve this problem we'll create a cluster
 # with standard template
-
-# To start, let's create your working area
-mkdir wdir
-cd wdir
-
-# you should probably clone CMSKubernetes repository
-git clone git@github.com:dmwm/CMSKubernetes.git
-
-# for this excercise we'll use httpgo application/service
-# therefore we'll copy httpgo.yaml file in our working area
-cp CMSKubernetes/kubernetes/k8s-whoami/httpgo.yaml .
-cp CMSKubernetes/kubernetes/cmsweb-nginx/scripts/create_templates.sh .
 
 # first we'll create a new template with all labels suitable for cms
 # by default create_template use "CMS Web" project, therefore
