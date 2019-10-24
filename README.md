@@ -11,7 +11,7 @@ area contains several projects for deploying cmsweb service to k8s.
 Even though some of them are obsolete now we still keep them around for
 the reference.
   - [kubernetes/cmsweb-nginx](https://github.com/dmwm/CMSKubernetes/tree/master/kubernetes/cmsweb-nginx)
-  area contains all documentation about current cmsweb k8s deployment. It is
+  area contains all documentation about **current cmsweb k8s deployment**. It is
   based on usage of nginx middleware.
   - [kubernetes/traefik](https://github.com/dmwm/CMSKubernetes/tree/master/kubernetes/cmsweb-nginx)
   area contains previous cmsweb deployment using traefik middleware
