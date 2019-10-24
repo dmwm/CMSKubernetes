@@ -344,7 +344,7 @@ by using the following command:
 kubectl delete -f <srv>.yaml
 
 # apply/deploy new service
-kubectl apply -f <srv>.yaml
+kubectl apply -f <srv>.yaml --validate=false
 ```
 The delete step is optional since it will be done automatically for you if
 your service configuration (yaml file) is differ from existing (deployed) one.
