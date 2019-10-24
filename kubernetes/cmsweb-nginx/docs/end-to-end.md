@@ -4,6 +4,9 @@ cluster creation and service deployment.
 
 First, we need to create a new ssh keypair which we'll use for cluster access
 ```
+# first we login to lxplus-cloud
+ssh lxplus-cloud
+
 # create new key, here we give a key name as: cloud
 ssh-keygen -t rsa -f cloud
 
@@ -17,9 +20,6 @@ or command line interface available on `lxplus-cloud` nodes. This tutorial
 will follow all steps via CLI interface.
 
 ```
-# first we login to lxplus-cloud
-ssh lxplus-cloud
-
 # the openstack command provides plenty of options, feel free to explore them, e.g.
 # openstack help
 # openstack coe cluster help
@@ -55,7 +55,13 @@ cp CMSKubernetes/kubernetes/cmsweb-nginx/scripts/create_templates.sh .
 # we'll use "default" project by resetting OS_PROJECT_NAME
 # the create_template.sh script will create cmsweb-temaplate-medium
 
-OS_PROJECT_NAME="" ./create_templates.sh
+# you can find list of projects you're in using
+openstack project list
+
+# NOTE: replace xxxxx with your CERN login name
+export OS_PROJECT_NAME="Personal xxxxx" 
+
+./create_templates.sh
 openstack coe cluster template list
 +--------------------------------------+------------------------+
 | uuid                                 | name                   |
