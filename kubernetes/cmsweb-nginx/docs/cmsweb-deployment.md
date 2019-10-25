@@ -16,6 +16,11 @@ following items:
   **Please note** this can only be done once you create a cluster
   and register your minions in LanDB, but you need it before deploying
   cmsweb services and frontends on k8s cluster
+```
+# when you obtain p12 certificate you need to convert it to pem files
+openssl pkcs12 -in Certificates.p12 -clcerts -nokeys -out cmsweb-hostcert.pem
+openssl pkcs12 -in Certificates.p12 -nocerts -out cmsweb-hostkey.pem
+```
 - obtain robot certificates from [ca.cern.ch](https://ca.cern.ch)
   to be used by services to obtain grid proxy
 - you must have your own configuration area with service configs. So far we
