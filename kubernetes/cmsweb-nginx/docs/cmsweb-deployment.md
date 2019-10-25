@@ -169,6 +169,7 @@ and, prepare your cmsweb certificates and configuration areas.
 The former should contain host and robot certificates for the cluster,
 and the later should contain auth/secret/configuration files for every cmsweb service.
 
+#### Configuration area
 The configuration area can be downloaded from
 ```
 git clone https://gitlab.cern.ch/cmsweb-k8s/preprod.git
@@ -193,6 +194,7 @@ The later one is defined in `frontend/cmsweb.services` configuration file.
 You may need to change it accordingly to your cluster setup. This hostname
 will be used by frontend configuration files in all redirect rules.
 
+#### Certificates area
 You should also obtain your service certificates and put them
 into your `/path/certificates` path to be used by `deploy.sh` script.
 The deployment script expects to read the following files (here
@@ -211,6 +213,7 @@ while host certificates can be obtained by anyone. You may replace
 robot certificate with your personal grid certificate while doing
 a testing.
 
+#### cmsweb deployment procedure
 Finally, you may deploy new k8s cluster as following:
 ```
 # locate your kubernetes area
