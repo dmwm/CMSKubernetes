@@ -13,8 +13,12 @@ following items:
   file should match DN of the host, e.g.
   Subject: DC=ch, DC=cern, OU=computers, CN=cmsweb-test.cern.ch
   See [ca.cern.ch](https://ca.cern.ch/ca/host/Request.aspx?template=CERNHostCertificate2YearsCustomSubject)
+
   **Please note** this can only be done once you create a cluster
-  and register your minions in LanDB, but you need it before deploying
+  and register your minions in LanDB
+  (see this
+  [section](https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/cmsweb-nginx/docs/cmsweb-deployment.md#registration-of-k8s-nodes-on-landb)),
+  but you need it before deploying
   cmsweb services and frontends on k8s cluster
 ```
 # when you obtain p12 certificate you need to convert it to pem files
