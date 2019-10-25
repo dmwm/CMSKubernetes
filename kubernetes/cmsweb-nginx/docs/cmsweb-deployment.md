@@ -19,7 +19,7 @@ following items:
 ```
 # when you obtain p12 certificate you need to convert it to pem files
 openssl pkcs12 -in Certificates.p12 -clcerts -nokeys -out cmsweb-hostcert.pem
-openssl pkcs12 -in Certificates.p12 -nocerts -out cmsweb-hostkey.pem
+openssl pkcs12 -in Certificates.p12 -nocerts -nodes -out cmsweb-hostkey.pem
 ```
 - obtain robot certificates from [ca.cern.ch](https://ca.cern.ch)
   to be used by services to obtain grid proxy
