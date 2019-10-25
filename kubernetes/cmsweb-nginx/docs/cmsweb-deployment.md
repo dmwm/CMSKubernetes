@@ -183,8 +183,20 @@ cp -r preprod/* /path/config
 ```
 and then adjusted accordingly to your project/deployment needs.
 
-The certificate area should contain certificates for your cluster.
-The deployment script expects to read the following files:
+
+**Please note:** for frontend deployment we rely on
+`cmsweb.services` file in configuration area which will contain
+a hostname of service's cluster. For example, in `cmsweb-test.cern.ch`
+setup we use two cluster, a frontend cluster with alias
+`cmsweb-test.cern.ch` and backend cluster with alias `cmsweb-srv.cern.ch`.
+The later one is defined in `frontend/cmsweb.services` configuration file.
+You may need to change it accordingly to your cluster setup. This hostname
+will be used by frontend configuration files in all redirect rules.
+
+You should also obtain your service certificates and put them
+into your `/path/certificates` path to be used by `deploy.sh` script.
+The deployment script expects to read the following files (here
+names should be as listed below):
 ```
 # robot certificates will be used to obtain proxy file
 robotkey.pem
@@ -198,18 +210,6 @@ The robot certificates can be issued only to person affiliated to CERN,
 while host certificates can be obtained by anyone. You may replace
 robot certificate with your personal grid certificate while doing
 a testing.
-
-**Please note:** for frontend deployment we rely on
-`cmsweb.services` file in configuration area which will contain
-a hostname of service's cluster. For example, in `cmsweb-test.cern.ch`
-setup we use two cluster, a frontend cluster with alias
-`cmsweb-test.cern.ch` and backend cluster with alias `cmsweb-srv.cern.ch`.
-The later one is defined in `frontend/cmsweb.services` configuration file.
-You may need to change it accordingly to your cluster setup. This hostname
-will be used by frontend configuration files in all redirect rules.
-
-You should also obtain your service certificates and put them
-into your `/path/certificates` path to be used by `deploy.sh` script.
 
 Finally, you may deploy new k8s cluster as following:
 ```
