@@ -1,6 +1,17 @@
 This file describes procedure how to create, deploy and use docker images
 for cmsweb services.
 
+### Prerequisites
+To build docker images you need a node with runnign docker. To upload docker
+images you should create account on `hub.docker.com`. Once you created an
+account you need to login once to it from a build node.
+This can be done by using the following command:
+```
+docker login --username=<your_docker_account> --email=<your_email>
+```
+This command will create a `~/.docker/config.json` file which will contains
+your credentials.
+
 ### Common structure
 Each cmsweb data-service area contains a common structure such as
 ```
