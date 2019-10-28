@@ -144,6 +144,19 @@ manila list
 grep namespace storages/cephfs-storage-logs.yaml  | \
 awk '{print "manila create --share-type \"Meyrin CephFS\" --name "$2"-share cephfs 100"}' | /bin/sh
 
+# if necessary we may need to obtain a token and then use it with all manila commands
+MANILA_URL=`openstack catalog show manilav2 | grep public | awk '{print $4}'`
+USER_TOKEN=`openstack token issue | grep "| id" | awk '{print $4}'`
+# use token and manila url with manila command
+manila --os-token=$USER_TOKEN --bypass-url=$MANILA_URL list
+
+# OR, we better to cofigure our shell to use openstack, see
+# https://clouddocs.web.cern.ch/tutorial/create_your_openstack_profile.html
+# by downloading and sourcing this configuration
+# https://openstack.cern.ch/project/api_access/openrc/
+# source CMSWeb-openrc.sh
+# then we can proceed with manila commands
+
 manila list
 +--------------------------------------+------------------------------------------+------+-------------+-----------+-----------+-----------------------+------+-------------------+
 | ID                                   | Name                                     | Size | Share Proto | Status    | Is Public | Share Type Name       | Host | Availability Zone |
@@ -201,4 +214,8 @@ manila share-export-location-list das-share
 
 ### References
 1. [clouddocs](http://clouddocs.web.cern.ch/clouddocs/containers/tutorials/cinder.html)
-2. [assign pods to nodes](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/)
+2. [CephFS shares](https://clouddocs.web.cern.ch/containers/tutorials/cephfs.html#existing-cephfs-share)
+3. [access CephFS shares](https://clouddocs.web.cern.ch/file_shares/quickstart.html)
+4. [manila access](https://clouddocs.web.cern.ch/file_shares/programmatic_access.html)
+5. [assign pods to nodes](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/)
+6. [manila references](https://docs.openstack.org/manila/pike/cli/manila.html)
