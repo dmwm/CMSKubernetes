@@ -412,7 +412,20 @@ deploy_monitoring()
 
     echo
     echo "+++ deploy monitoring services"
-    kubectl -n monitoring apply -f monitoring/
+    # use common logstash yaml for ALL services
+    kubectl -n monitoring apply -f monitoring/logstash.yaml
+    # if we need to split monitoring by services
+    #if [ "$deployment" == "frontend" ]; then
+    #    kubectl -n monitoring apply -f monitoring/logstash-frontend.yaml
+    #fi
+    #if [ "$deployment" == "services" ]; then
+    #    for ns in $cmsweb_ns; do
+    #        if [ -f monitoring/logstash-${ns}.yaml ]; then
+    #            kubectl -n $ns apply -f monitoring/logstash-${ns}.yaml
+    #        fi
+    #    done
+    #fi
+    kubectl -n monitoring apply -f monitoring/prometheus.yaml
     kubectl -n monitoring get deployments
     kubectl -n monitoring get pods
     prom=`kubectl -n monitoring get pods | grep prom | awk '{print $1}'`
