@@ -102,6 +102,12 @@ kubelct apply -f httpsgo.yaml --validate=false
 # will be enabled (here replace your minion name)
 kubectl label node test-cluster-5tgnixyeazor-minion-0 role=ingress --overwrite
 
+# PLEASE NOTE: you may need to change ing-nginx.yaml file to use
+# your host domain name, so far I used vk-k8s-test.web.cern.ch which you
+# must replace with yours before applying yaml
+
+# vim ing-nginx.yaml # change vk-k8s-test.web.cern.ch
+
 # deploy ingress controller
 kubectl apply -f ing-nginx.yaml --validate=false
 ```
