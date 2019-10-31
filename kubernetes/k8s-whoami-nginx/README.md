@@ -1,12 +1,20 @@
-### cluster deployment
-The vk-k8s-test service will be deployed on k8s cluster using `veknet/httpgo`
-container. This container is build using the
+This repository contains all details for end-to-end deployment
+of cluster running two services 
 [httpgo](https://github.com/dmwm/CMSKubernetes/tree/master/docker/httpgo)
-Go code. The later is a simple HTTP web-service which responses to
-incoming request with Hello world message and prints out all requests
-headers.
+and its httpsgo counterpart.
 
-To create vk-k8s-test app on kubernetes cluster please follow these steps:
+### Prerequisites
+To process you should have
+- valid lxplus account
+- access to CERN openstack
+- upload your ssh keypair to openstack
+
+### cluster deployment
+For this excersize we'll create a `test-cluster` on openstack.
+The name of the cluster is pure arbitrary. Then we'll create
+a domain alias name `vk-k8s-test.web.cern.ch` pointing to
+our cluser minion. Again this is arbitrary choice. Therefore
+feel free to adjust them accordingly to your needs.
 
 1. create new cluster by login to `lxplus-cloud.cern.ch` and execute the
    following command
@@ -45,9 +53,16 @@ ingress nginx controller
 ```
 # create a new domain alias for your cluster on
 # https://webservices.web.cern.ch/webservices/Services/RegisterExternalSite/Default.aspx
-# or use this command (replace landb-alias and minion names)
-# this command didn't work for me but was listed in CERN IT instructions
+# all names using web interface above are for personal use and will name
+# the following structure: NAME.web.cern.ch
+# Therefore for our purposes we created vk-k8s-test.web.cern.ch
+# pointed to our minion
+
+# but you can also use an openstack landb-alias with your name
+# in this case it would be vk-k8s-test.cern.ch
 openstack server set --property landb-alias=vk-k8s-test test-cluster-sds42p2lfiup-minion-0
+
+# NOTE: please only one of those methods
 ```
 
 Once you register your domain name, you may obtain host certificates
@@ -71,7 +86,6 @@ ln -s vk-k8s-test-hostcert.pem tls.crt
 ln -s vk-k8s-test-hostkey.pem tls.key
 kubectl create secret generic ing-secrets --from-file=tls.key --from-file=tls.crt --dry-run -o yaml | kubectl apply --validate=false -f -
 ```
-
 
 2. Now, we can deploy our k8s using the following commands:
 ```
