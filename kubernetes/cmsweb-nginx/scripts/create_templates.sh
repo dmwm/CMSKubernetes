@@ -29,6 +29,7 @@ openstack \
     --label logging_type=http \
     --label logging_http_destination="http://monit-logs.cern.ch:10012/" \
     --label logging_producer=cmswebk8s \
+    --label logging_include_internal="true" \
     --coe kubernetes \
     --image 26666ca8-bda9-4356-982f-4a92845ec361 \
     --external-network CERN_NETWORK \
