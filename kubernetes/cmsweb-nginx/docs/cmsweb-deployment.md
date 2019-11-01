@@ -335,6 +335,9 @@ tcp:
 
 # once changes are applied you need to upload this file back to k8s
 # this can be done as following
+export HELM_HOME="$HOME/ws/helm_home"
+export HELM_TLS_ENABLE="true"
+export TILLER_NAMESPACE="magnum-tiller"
 helm upgrade nginx-ingress stable/nginx-ingress  --namespace=kube-system -f ing-values.yaml --recreate-pods
 ```
 This step is required until CERN IT k8s team will fix the nginx controller,
