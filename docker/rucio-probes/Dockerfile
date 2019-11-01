@@ -11,9 +11,10 @@ ARG RUCIO_VERSION
 
 FROM rucio/rucio-daemons:release-$RUCIO_VERSION
 
-RUN yum install -y nano git && \
-    yum clean all && \
-    rm -rf /var/cache/yum
+RUN yum install -y git \
+    nano \
+    && yum clean all \
+    && rm -rf /var/cache/yum
 
 WORKDIR /root
 
@@ -23,8 +24,6 @@ COPY scripts /root/scripts
 
 RUN git clone https://github.com/rucio/probes.git
 
-# Until ATLAS removes their DB name from probes....
 WORKDIR /root/probes/common
-RUN sed -E "s/atlas_rucio.//g"  check_transfer_queues_status > check_transfer_queues_status
 
 ENTRYPOINT ["/bin/bash", "-c", "sleep infinity"]
