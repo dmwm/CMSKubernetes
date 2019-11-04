@@ -14,7 +14,8 @@ if [ ! -f /tmp/robotcert.pem ] && [ -f /etc/secrets/robotcert.pem ]; then
     sudo chgrp $USER /tmp/robotcert.pem
 fi
 if [ -f /tmp/robotkey.pem ] && [ -f /tmp/robotcert.pem ]; then
-    voms-proxy-init -voms cms -rfc -valid 35:50 \
+    # keep proxy validity for 4 days (roll over long weekend)
+    voms-proxy-init -voms cms -rfc -valid 95:50 \
         -key /tmp/robotkey.pem \
         -cert /tmp/robotcert.pem \
         -out /tmp/proxy
