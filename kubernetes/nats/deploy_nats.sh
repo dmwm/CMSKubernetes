@@ -34,18 +34,13 @@ kubectl get crd
 echo "Let's watch when nats crd's are created, invoke CTRL+C when you see them"
 watch -d kubectl get crd | grep nats
 
-cat <<EOF | kubectl create -f -
-apiVersion: nats.io/v1alpha2
-kind: NatsCluster
-metadata:
-  name: nats-cluster
-spec:
-  size: 2
-  version: "1.3.0"
-EOF
+kubectl apply -f nats-cluster.yaml --validate=false
 
 echo "Now let's see if nats-cluster are Running..., press CTRL+C when you see them"
 watch -d kubectl get nats --all-namespaces
 
-echo "Let's test NATS server"
+echo "Let's test NATS server, press CTRL+C"
 kubectl get ing | grep ing-nats | awk '{print "curl http://"$2"/nats"}' | /bin/sh
+
+echo "We can adjust further our setup"
+kubectl get nodes | grep minion | awk 'BEGIN{i=0}{print "openstack server set --property landb-alias=cms-nats--load-"i"- "$1""; i++}'

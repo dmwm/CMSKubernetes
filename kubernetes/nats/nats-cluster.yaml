@@ -4,4 +4,26 @@ metadata:
   name: nats-cluster
 spec:
   size: 2
-  version: "1.3.0"
+  version: "2.1.0"
+  pod:
+    enableClientsHostPort: true
+  #  advertiseExternalIP: true
+  template:
+    spec:
+      serviceAccountName: "nats-server"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nats-server
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: nats-server
+rules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  verbs: ["get"]
