@@ -145,13 +145,16 @@ From here you should be able to use any rucio command line commands you need to.
 
 # Decommission a cluster
 
-It's probably best to do this in a controlled fashion. First remove any DNS aliases from the cluster:
+It's probably best to do this in a controlled fashion. 
+You can run the teardown_dns.sh script or remove any DNS aliases manually from the cluster:
 
     openstack server unset  --property landb-alias --os-project-name CMSRucio cmsruciotestbed-ga3x5mujvho7-minion-0 
     openstack server unset  --property landb-alias --os-project-name CMSRucio cmsruciotestbed-ga3x5mujvho7-minion-1 
     ...
     
-Then wait 30-60 minutes for DNS to reflect this removal. Then you can delete the cluster with 
+Then wait 30-60 minutes for DNS to reflect this removal. 
+Make sure you can access the new cluster with the Rucio client.
+Then you can delete the cluster with 
 
     openstack coe cluster delete --os-project-name CMSRucio  MYOLDCLUSTER
     
