@@ -5,3 +5,6 @@ reaper2:
 hermes:
   brokerTimeout: 0
 
+conveyorTransferSubmitter:
+  threads: 7
+

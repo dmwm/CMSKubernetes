@@ -5,8 +5,8 @@
 replicaCount: 1
 
 image:
-  repository: cmssw/rucio-probes
-  tag: release-1.20.7
+  repository: ericvaandering/rucio-probes
+  tag: latest
   pullPolicy: Always
 
 resources: {}
