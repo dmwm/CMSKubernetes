@@ -118,6 +118,12 @@ The above is what is needed to get things bootstrapped the first time. After thi
     cd CMSKubernetes/kubernetes/rucio
     ./upgrade_rucio_[production, testbed, etc].sh
     
+# Resizing a cluster
+
+You can add or subtract nodes with the following command
+    
+    openstack coe cluster update [cluster_name] --os-project-name CMSRucio replace node_count=[new_count]
+    
 # Get a client running and connect to your server
 
 There are lots of ways of doing this, but the easiest now is to use the CMS installed Rucio from CVMFS. 
