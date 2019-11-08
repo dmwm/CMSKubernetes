@@ -9,10 +9,12 @@ spec:
       template:
         spec:
           containers:
-            - name: renew-fts-cron
+            - name: rucio-probes
               image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
               imagePullPolicy: {{ .Values.image.pullPolicy }}
               env:
+                - name: PROBES
+                  value: 'check_transfer_queues_status'
                 {{- range $key1, $val1 := .Values.config }}
                 {{- range $key2, $val2 := $val1}}
                 - name: RUCIO_CFG_{{ $key1 | upper }}_{{ $key2 | upper }}
@@ -22,7 +24,6 @@ spec:
                       key: {{ $key1 }}_{{ $key2 }}
                 {{- end}}
                 {{- end}}
-              command: ['/root/scripts/15-minutes.sh']
           restartPolicy: OnFailure
 
 
