@@ -22,3 +22,4 @@
 - [CephFS](http://clouddocs.web.cern.ch/clouddocs/containers/tutorials/cephfs.html)
 - [Troubleshooting CephFS](http://clouddocs.web.cern.ch/clouddocs/containers/troubleshooting.html#cephfs--manila-share-stuck-in-pending)
 - [k8s Authentication](http://clouddocs.web.cern.ch/clouddocs/containers/tutorials/kubernetes-keystone-authentication.html)
+- [logging](https://clouddocs.web.cern.ch/containers/tutorials/logging.html#kubernetes)

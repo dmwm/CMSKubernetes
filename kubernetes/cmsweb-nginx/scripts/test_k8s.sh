@@ -1,20 +1,25 @@
 #!/bin/bash
 # define help
-usage="Usage: tests.sh <url>"
+usage="Usage: tests.sh <url> <dbs_instance=int>"
 if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ]; then
     echo $usage
     exit 1
 fi
 
 # define list of urls to test
-if [ $# -eq 1 ]; then
+url=${CMSK8S:-https://cmsweb-test.cern.ch}
+if [ -n "$1" ]; then
     url=$1
-else
-    url=${CMSK8S:-https://cmsweb-test.cern.ch}
 fi
 
-# dbs instance
-inst=int # preproduction
+# dbs instance, default is preproduction dbs instance
+inst=int
+if [ $# -eq 2 ]; then
+    inst=$2
+fi
+
+# scram architecture
+arch=${SCRAM_ARCH:-slc7_amd64_gcc700}
 
 urls="$url/couchdb $url/acdcserver/_all_docs $url/alertscollector/_all_docs $url/reqmgr2/data/info $url/dbs/$inst/global/DBSReader/datasets?dataset=/ZMM*/*/* $url/das $url/workqueue/index.html $url/phedex $url/phedex/datasvc/doc $url/confdb/ $url/t0_reqmon/data/info $url/crabserver/preprod/info $url/crabcache/info $url/wmstatsserver/data/info $url/wmstats/index.html $url/t0wmadatasvc/replayone/hello"
 
@@ -34,7 +39,7 @@ done
 # setup CMSSW version of curl
 echo
 echo "### setup CMSSW environment since we need special curl build"
-cdir=/cvmfs/cms.cern.ch/$SCRAM_ARCH/external/curl
+cdir=/cvmfs/cms.cern.ch/$arch/external/curl
 cver=`ls $cdir | sort -n | tail -1`
 echo "### use $cdir/$cver"
 source $cdir/$cver/etc/profile.d/init.sh

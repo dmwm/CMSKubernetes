@@ -1,15 +1,85 @@
 ### End-to-end setup for k8s
 This document provides basic setup of k8s and demonstrate whole process of
 cluster creation and service deployment.
+
+First, we need to create a new ssh keypair which we'll use for cluster access
 ```
+# first we login to lxplus-cloud
+ssh lxplus-cloud
+
+# create new key, here we give a key name as: cloud
+ssh-keygen -t rsa -f cloud
+
+# upload you key to openstack with name cloud
+openstack keypair create --public-key ~/.ssh/cloud.pub cloud
+```
+
+Then, we should create a cluster on CERN openstack platform. For that
+users can either use [web UI interface](https://openstack.cern.ch/project/)
+or command line interface available on `lxplus-cloud` nodes. This tutorial
+will follow all steps via CLI interface.
+
+```
+# the openstack command provides plenty of options, feel free to explore them, e.g.
+# openstack help
+# openstack coe cluster help
+
+# To start, let's create your working area and clone CMSKubernetes repository
+mkdir wdir
+cd wdir
+git clone git@github.com:dmwm/CMSKubernetes.git
+
+# for this excercise we'll use httpgo application/service
+# therefore we'll copy httpgo.yaml file in our working area
+cp CMSKubernetes/kubernetes/k8s-whoami/httpgo.yaml .
+cp CMSKubernetes/kubernetes/cmsweb-nginx/scripts/create_templates.sh .
+
 # let's create a new cluster, the command to create a cluster is the following
 # openstack coe cluster create test-cluster --keypair cloud --cluster-template kubernetes-1.13.10-1
 # but we'll use it with specific flags:
 # cern_tag and cern_enabled forces creation of host certificates
 # ingress_controller defines which ingress controller we'll use
 # tiller_enabled defines tiller service to allow to deploy k8s Helmpackages
-openstack coe cluster create test-cluster --keypair cloud --cluster-template kubernetes-1.13.10-1 --labels cern_tag=qa --labels ingress_controller="nginx" --labels tiller_enabled=true --labels cern_enabled="true"
+#
+# here is an example how to create a cluster
+# openstack coe cluster create test-cluster --keypair <name> --cluster-template <tmpl_name> <labels>
+# for example
+# openstack coe cluster create test-cluster --keypair cloud --cluster-template kubernetes-1.13.10-1 --labels cern_tag=qa --labels ingress_controller="nginx" --labels tiller_enabled=true --labels cern_enabled="true"
+
+# But the above template may not contain ALL labels we may want
+# to use at the end, to solve this problem we'll create a cluster
+# with standard template
+
+# first we'll create a new template with all labels suitable for cms
+# by default create_template use "CMS Web" project, therefore
+# we'll use "default" project by resetting OS_PROJECT_NAME
+# the create_template.sh script will create cmsweb-temaplate-medium
+
+# you can find list of projects you're in using
+openstack project list
+
+# NOTE: replace xxxxx with your CERN login name
+export OS_PROJECT_NAME="Personal xxxxx" 
+
+./create_templates.sh
+openstack coe cluster template list
++--------------------------------------+------------------------+
+| uuid                                 | name                   |
++--------------------------------------+------------------------+
+| 5b2ee3b5-2f85-4917-be7c-11a2c82031ad | kubernetes-preview     |
+| 49187d11-6442-43da-bedc-695ae522e8c5 | swarm-preview          |
+| 17760a5f-8957-4794-ab96-0d6bd8627282 | swarm-18.06-1          |
+| ab08b219-3246-4995-bf76-a3123f69cb4f | swarm-1.13.1-2         |
+| a6d5b08d-f90a-46b4-900c-a5bd170664a5 | cmsweb-template-medium |
+| 0b6d5c5f-976a-4f05-9edb-06489bc6538b | kubernetes-1.14.6-1    |
+| 6b4fc2c2-00b0-410d-a784-82b6ebdd85bc | kubernetes-1.13.10-1   |
+| 30c8db8a-49d0-470d-b9c6-dd684d4d0079 | kubernetes-1.15.3-2    |
++--------------------------------------+------------------------+
+
+# now, let's create a cluster with cmsweb-template
+openstack coe cluster create test-cluster --keypair cloud --cluster-template cmsweb-template-medium
 ```
+
 You may check its status like this (please note that IDs or names will be assigned dynamically
 and you output will have different ones):
 ```
@@ -37,7 +107,7 @@ Now it is time to deploy our first service. For that we'll use
 It represents basic HTTP server written in Go language. Its docker image
 is available at [cmssw/httpgo](https://cloud.docker.com/u/cmssw/repository/docker/cmssw/httpgo)
 repository. The associated k8s deployment file can be found
-[here](https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/cmsweb-nginx/services/httpgo.yaml).
+[here](https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/k8s-whoami/httpgo.yaml).
 ```
 # inspect available nodes on a cluster
 kubectl get nodes
@@ -61,6 +131,13 @@ kubectl apply -f httpgo.yaml --validate=false
 
 # in a few minutes you'll be able to see your pods
 kubectl get pods
+
+# if your pod is still in creation mode, e.g.
+kubectl get pods
+NAME                                 READY   STATUS              RESTARTS   AGE
+httpgo-deployment-6f9978c7f5-tw2lp   0/1     ContainerCreating   0          4m
+# you may check what it is doing using this command:
+kubectl describe pods/httpgo-deployment-6f9978c7f5-tw2lp
 
 # we can check which services do we have
 kubectl get svc
@@ -146,3 +223,57 @@ RemoteAddr= "10.100.1.1:32938"
 Finding value of "Accept" ["*/*"]
 Hello Go world!!!
 ```
+
+### Advanced topic
+Let's try to scale our k8s app based on CPU metric. For that we need to adjust
+our deployment file and add resources clause. Add the following to httpgo.yaml
+```
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "100m"
+```
+and then re-deploy the application using `kubectl apply -f httpgo.yaml --validate=false`
+command.
+
+Please note, you can read about metrics limits
+[here](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
+
+Next, we can add a horizontal scaler via
+```
+# add new autoscaler
+kubectl autoscale deployment httpgo-deployment --cpu-percent=50 --min=1 --max=3
+
+# check list of existing autoscalers
+kubectl get hpa
+```
+
+And, we are ready to see how the scaler works. Let's stress our system
+using [hey](https://github.com/vkuznet/hey) tool
+```
+# add load on a server
+hey http://test-cluster-omucujixjear-minion-0.cern.ch/http
+# check our scaler
+kubectl get hpa
+```
+
+Then, login to your pod and create heavy CPU process, e.g.
+```
+kubectl exec -ti httpgo-deployment-57b87765d6-brgq7 bash
+
+# create new python CPU hog process
+cat > cpu.py << EOF
+#!/usr/bin/env python
+while True:
+   pass
+EOF
+
+# and run it
+chmod +x cpu.py
+nohup ./cpu.py 2>&1 1>& /dev/null < /dev/null &
+
+# open up top and verify CPU usage
+top
+```
+
+And, finally we can check from another terminal how many pods we have!

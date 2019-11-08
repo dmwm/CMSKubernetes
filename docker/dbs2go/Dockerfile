@@ -7,7 +7,6 @@ ADD oci8.pc $WDIR/oci8.pc
 ENV PKG_CONFIG_PATH=$WDIR
 ADD cernonly2.repo /etc/yum.repos.d/cernonlyw.repo
 
-RUN yum update -y && yum clean all
 RUN yum install -y git-core make gcc \
             oracle-instantclient-devel oracle-instantclient-basic
 RUN yum clean all

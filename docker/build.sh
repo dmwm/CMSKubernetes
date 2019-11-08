@@ -9,17 +9,22 @@
 # build.sh: script to build docker images for cmsweb services
 # use CMSK8S environment to controll host name of k8s cluster
 # use CMSK8STAG environment to specify common tag for build images
+# use CMSK8SREPO environemtn to specify docker hub repo, default is cmssw
 
 # define help
 if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ]; then
     echo "Usage: build.sh <pkgs>"
     echo "  use CMSK8S environment to controll host name of k8s cluster"
     echo "  use CMSK8STAG environment to specify common tag for build images"
+    echo "  use CMSK8SREPO environemtn to specify docker hub repo, default is cmssw"
     echo "Examples:"
     echo "  # build images for all cmsweb services"
     echo "  CMSK8STAG=1.0.4 CMSK8S=https://cmsweb-test.cern.ch ./build.sh"
     echo "  # build images for given set of services"
     echo "  CMSK8STAG=1.0.4 CMSK8S=https://cmsweb-test.cern.ch ./build.sh \"dbs reqmgr2\""
+    echo "  # build images for given set of services and deploy them into your personal docker repository"
+    echo "  # here vvv is a name of docker repository (default is cmssw)"
+    echo "  CMSK8SREPO=vvv CMSK8STAG=1.0.4 CMSK8S=https://cmsweb-test.cern.ch ./build.sh \"dbs reqmgr2\""
     exit 1
 fi
 
@@ -38,8 +43,8 @@ fi
 echo "Build: $cmssw_pkgs"
 echo "CMSK8S=$CMSK8S"
 echo "CMSK8STAG=$CMSK8STAG"
-
-repo=cmssw
+repo=${CMSK8SREPO:-cmssw}
+echo "repo=$repo"
 for pkg in $cmssw_pkgs; do
     echo "### build $repo/$pkg"
     if [ -n "$CMSK8STAG" ]; then

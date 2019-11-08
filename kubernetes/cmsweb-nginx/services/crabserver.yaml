@@ -32,7 +32,7 @@ spec:
         app: crabserver
     spec:
       containers:
-      - image: cmssw/crabserver
+      - image: sbelforte/crabserver:3.3.1911.rc3
         name: crabserver
         resources:
           requests:

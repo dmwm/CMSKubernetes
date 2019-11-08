@@ -37,6 +37,15 @@ spec:
       containers:
       - image: cmssw/das
         name: das
+        tty: true
+        stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - bash
+              - -c
+              - sudo chmod 0777 /data/srv/logs/das; sudo chown _das:_das /data/srv/logs/das
         resources:
           requests:
             memory: "256Mi"
@@ -68,7 +77,7 @@ spec:
           mountPath: /etc/grid-security/hostcert.pem
           readOnly: true 
 #PROD#  - name: logs-cephfs
-#PROD#    mountPath: /data/srv/logs
+#PROD#    mountPath: /data/srv/logs/das
 #       livenessProbe:
 #         httpGet:
 #           path: /das/status

@@ -4,8 +4,6 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 ENV WDIR=/data
 ENV USER=_monitor
 
-RUN yum update -y && yum clean all
-
 # add new user
 RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
 # add user to sudoers file

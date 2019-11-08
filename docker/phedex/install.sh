@@ -49,10 +49,15 @@ if [ $? -ne 0 ]; then
 fi
 
 # comment out usage of port 8443 in k8s setup
-files=`find /data/srv/$VER/sw/$ARCH -type f | xargs grep ":8443" | awk '{print $1}' | sed -e "s,:,,g" | grep py$`
-for fname in $files; do
-    sed -i -e "s,:8443,,g" $fname
-done
+#files=`find /data/srv/$VER/sw/$ARCH -type f | xargs grep ":8443" | awk '{print $1}' | sed -e "s,:,,g" | grep py$`
+#for fname in $files; do
+#    sed -i -e "s,:8443,,g" $fname
+#done
+#files=`find /data/srv -type f | xargs grep "@WEB_BASEURL@" | awk '{print $1}' | sed -e "s,:,,g" | grep js$`
+#for fname in $files; do
+#    sed -i -e "s,@WEB_BASEURL@,$cmsk8s_prod,g" $fname
+#    sed -i -e "s,@WEBAPP_DATASERVICE_BASEURL@,$cmsk8s_prod,g" $fname
+#done
 
 # adjust phedex apache to deal with cross k8s clusters
 sed -i -e "s,\$config->{SSL_SERVER_ROOT} \.,,g" /data/srv/state/phedex/htdocs/WebSite/access25

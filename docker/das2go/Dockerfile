@@ -5,7 +5,6 @@ ENV WDIR=/data
 ENV USER=_das
 ADD mongodb.conf $WDIR/mongodb.conf
 
-RUN yum update -y && yum clean all
 RUN yum install -y git-core krb5-devel readline-devel openssl
 RUN yum clean all
 

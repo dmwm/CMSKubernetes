@@ -9,7 +9,9 @@
 
 export DAEMON_NAME=cms-ruciod-${INSTANCE}
 export SERVER_NAME=cms-rucio-${INSTANCE}
-export UI_NAME=cms-webui-${INSTANCE}
+export UI_NAME=webui-${INSTANCE}
+export UI_NAME=webui
+
 
 echo
 echo "When prompted, enter the password used to encrypt the P12 file"
@@ -32,11 +34,12 @@ chmod 600 ca.pem
 echo "Removing existing secrets"
 
 kubectl delete secret rucio-server.tls-secret
+kubectl delete secret ca host-key host-cert
 kubectl delete secret ${DAEMON_NAME}-fts-cert ${DAEMON_NAME}-fts-key ${DAEMON_NAME}-hermes-cert ${DAEMON_NAME}-hermes-key 
 kubectl delete secret ${DAEMON_NAME}-rucio-ca-bundle ${DAEMON_NAME}-rucio-ca-bundle-reaper
 kubectl delete secret ${SERVER_NAME}-hostcert ${SERVER_NAME}-hostkey ${SERVER_NAME}-cafile  
 kubectl delete secret ${DAEMON_NAME}-host-cert ${DAEMON_NAME}-host-key ${DAEMON_NAME}-cafile  
-kubectl delete secret ${UI_NAME}-hostcert ${UI_NAME}-hostkey ${UI_NAME}-cafile  
+kubectl delete secret ${UI_NAME}-host-cert ${UI_NAME}-host-key ${UI_NAME}-cafile  
 
 echo "Creating new secrets"
 
@@ -50,10 +53,15 @@ kubectl create secret generic ${DAEMON_NAME}-host-cert --from-file=hostcert.pem
 kubectl create secret generic ${DAEMON_NAME}-host-key --from-file=hostkey.pem
 kubectl create secret generic ${DAEMON_NAME}-cafile  --from-file=ca.pem
 
-kubectl create secret generic ${UI_NAME}-hostcert --from-file=hostcert.pem
-kubectl create secret generic ${UI_NAME}-hostkey --from-file=hostkey.pem
+kubectl create secret generic ${UI_NAME}-host-cert --from-file=hostcert.pem
+kubectl create secret generic ${UI_NAME}-host-key --from-file=hostkey.pem
 # cp /etc/pki/tls/certs/CERN-bundle.pem ca.pem   # Not sure which one is needed
 kubectl create secret generic ${UI_NAME}-cafile  --from-file=ca.pem
+
+# Old ones
+kubectl create secret generic host-key --from-file=hostkey.pem
+kubectl create secret generic host-cert --from-file=hostcert.pem
+kubectl create secret generic ca  --from-file=ca.pem
 
 # Secrets for FTS, hermes
 

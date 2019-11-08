@@ -13,9 +13,18 @@ following items:
   file should match DN of the host, e.g.
   Subject: DC=ch, DC=cern, OU=computers, CN=cmsweb-test.cern.ch
   See [ca.cern.ch](https://ca.cern.ch/ca/host/Request.aspx?template=CERNHostCertificate2YearsCustomSubject)
+
   **Please note** this can only be done once you create a cluster
-  and register your minions in LanDB, but you need it before deploying
+  and register your minions in LanDB
+  (see this
+  [section](https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/cmsweb-nginx/docs/cmsweb-deployment.md#registration-of-k8s-nodes-on-landb)),
+  but you need it before deploying
   cmsweb services and frontends on k8s cluster
+```
+# when you obtain p12 certificate you need to convert it to pem files
+openssl pkcs12 -in Certificates.p12 -clcerts -nokeys -out cmsweb-hostcert.pem
+openssl pkcs12 -in Certificates.p12 -nocerts -nodes -out cmsweb-hostkey.pem
+```
 - obtain robot certificates from [ca.cern.ch](https://ca.cern.ch)
   to be used by services to obtain grid proxy
 - you must have your own configuration area with service configs. So far we
@@ -169,19 +178,21 @@ and, prepare your cmsweb certificates and configuration areas.
 The former should contain host and robot certificates for the cluster,
 and the later should contain auth/secret/configuration files for every cmsweb service.
 
+#### Configuration area
 The configuration area can be downloaded from
 ```
 git clone https://gitlab.cern.ch/cmsweb-k8s/preprod.git
-mkdir /k8s/path/config
-cp -r preprod/* /k8s/path/config
+mkdir /path/config
+cp -r preprod/* /path/config
 
-# the /k8s/path/config will contain a tree structure of all
+# the /path/config will contain a tree structure of all
 # cmsweb services where individual directories will contain
 # service configuration files. You need to update them accordingly
 # with your secret files. Every file from service config area
 # will appear in /data/srv/current/<service>/ area in your pod
 ```
 and then adjusted accordingly to your project/deployment needs.
+
 
 **Please note:** for frontend deployment we rely on
 `cmsweb.services` file in configuration area which will contain
@@ -192,16 +203,33 @@ The later one is defined in `frontend/cmsweb.services` configuration file.
 You may need to change it accordingly to your cluster setup. This hostname
 will be used by frontend configuration files in all redirect rules.
 
+#### Certificates area
 You should also obtain your service certificates and put them
 into your `/path/certificates` path to be used by `deploy.sh` script.
+The deployment script expects to read the following files (here
+names should be as listed below):
+```
+# robot certificates will be used to obtain proxy file
+robotkey.pem
+robotcert.pem
+# host certificate for your cluster should match URL of your cluster
+cmsweb-hostkey.pem
+cmsweb-hostcert.pem
+```
+These files can be obtained from [ca.cern.ch](https://ca.cern.ch/ca/).
+The robot certificates can be issued only to person affiliated to CERN,
+while host certificates can be obtained by anyone. You may replace
+robot certificate with your personal grid certificate while doing
+a testing.
 
+#### cmsweb deployment procedure
 Finally, you may deploy new k8s cluster as following:
 ```
 # locate your kubernetes area
 cd CMSKubernetes/kubernetes/cmsweb-nginx
 
 # if necessary setup KUBECONFIG environment, e.g.
-export KUBECONFIG=/k8s/path/config
+export KUBECONFIG=/path/config
 
 # obtain hmac file
 ./scripts/gen_hmac.sh hmac
@@ -209,8 +237,8 @@ export KUBECONFIG=/k8s/path/config
 # NOTE: we can either deploy single cluster with hostNetwork: true
 # option in ALL yaml files (you may need to change that)
 # single cluster deployment:
-export KUBECONFIG=/k8s/path/config
-./scripts/deploy.sh create frontend /path/cmsweb/config /path/certificates hmac
+export KUBECONFIG=/path/config
+./scripts/deploy.sh create frontend /path/config /path/certificates hmac
 ```
 
 For cmsweb deployment we'll use two clusters, see cmsweb
@@ -221,8 +249,8 @@ which will hold our cmsweb backend services.
 #### frontend cluster deployment
 ```
 # deploy frontend cluster
-export KUBECONFIG=/k8s/path/config.cmsweb-frontend
-./scripts/deploy.sh create frontend /path/cmsweb/config /path/certificates hmac
+export KUBECONFIG=/path/config.cmsweb-frontend
+./scripts/deploy.sh create frontend /path/config /path/certificates hmac
 ```
 
 #### service cluster deployment
@@ -232,10 +260,10 @@ be used to obtain frontend cluster IPs and use them for ingress'es
 (load balancing k8s middleware to route client's requests):
 ```
 # deploy services cluster
-export KUBECONFIG=/k8s/path/config.cmsweb-services
+export KUBECONFIG=/path/config.cmsweb-services
 # replace your_hostname with k8s hostname, e.g. cmsweb-test.cern.ch
 # you should pass CMSWEB_HOSTNAME to perform whitelist of IPs in service cluster
-CMSWEB_HOSTNAME=<your_hostname> ./scripts/deploy.sh create services /path/cmsweb/config /path/certificates hmac
+CMSWEB_HOSTNAME=<your_hostname> ./scripts/deploy.sh create services /path/config /path/certificates hmac
 ```
 
 You may check the status of your cluster with the following command:
@@ -307,6 +335,9 @@ tcp:
 
 # once changes are applied you need to upload this file back to k8s
 # this can be done as following
+export HELM_HOME="$HOME/ws/helm_home"
+export HELM_TLS_ENABLE="true"
+export TILLER_NAMESPACE="magnum-tiller"
 helm upgrade nginx-ingress stable/nginx-ingress  --namespace=kube-system -f ing-values.yaml --recreate-pods
 ```
 This step is required until CERN IT k8s team will fix the nginx controller,
@@ -330,7 +361,7 @@ to [storage](storage.md) documentation.
 When cluster is deployed we may perform various actions. For example,
 to re-generate all secrets we'll use this command
 ```
-./scripts/deploy.sh create secrets /path/cmsweb/config /path/certificates hmac
+./scripts/deploy.sh create secrets /path/config /path/certificates hmac
 ```
 To clean-up all services/secrets you can run this command:
 ```
@@ -344,7 +375,7 @@ by using the following command:
 kubectl delete -f <srv>.yaml
 
 # apply/deploy new service
-kubectl apply -f <srv>.yaml
+kubectl apply -f <srv>.yaml --validate=false
 ```
 The delete step is optional since it will be done automatically for you if
 your service configuration (yaml file) is differ from existing (deployed) one.
