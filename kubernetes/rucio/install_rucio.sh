@@ -17,8 +17,8 @@ helm install --name $UI_NAME --values cms-rucio-common.yaml,cms-rucio-webui.yaml
 helm install --name statsd-exporter  --values ${INSTANCE}-statsd-exporter.yaml cms-kubernetes/rucio-statsd-exporter
 
 # Filebeat and logstash
-helm install --name logstash --values cms-rucio-logstash.yml,${INSTANCE}-logstash-filter.yaml stable/logstash
-helm install --name filebeat --values cms-rucio-filebeat.yml  stable/filebeat
+#helm install --name logstash --values cms-rucio-logstash.yml,${INSTANCE}-logstash-filter.yaml stable/logstash
+#helm install --name filebeat --values cms-rucio-filebeat.yml  stable/filebeat
 
 # Create a job NOW to start setting the proxies. 
 kubectl delete job --ignore-not-found=true fts
@@ -48,3 +48,7 @@ kubectl get node -l role=ingress -o name | grep -v master | while read node; do
   cnames="cms-rucio-stats-${INSTANCE}--load-${n}-,cms-rucio-${INSTANCE}--load-${n}-,cms-rucio-auth-${INSTANCE}--load-${n}-,cms-rucio-webui-${INSTANCE}--load-${n}-"
   openstack server set --os-project-name CMSRucio --property landb-alias=$cnames ${node##node/}
 done
+
+./update_ingress.sh
+
+
