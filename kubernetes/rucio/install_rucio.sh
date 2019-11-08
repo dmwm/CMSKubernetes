@@ -3,6 +3,7 @@
 export SERVER_NAME=cms-rucio-${INSTANCE}
 export DAEMON_NAME=cms-ruciod-${INSTANCE}
 export UI_NAME=cms-webui-${INSTANCE}
+export PROBE_NAME=cms-probe-${INSTANCE}
 
 # Ingress server. With correct labels in create_cluster.sh we should not need this anymore. Commenting out
 # helm install stable/nginx-ingress --namespace kube-system --name ingress-nginx --values nginx-ingress.yaml
@@ -12,6 +13,7 @@ export UI_NAME=cms-webui-${INSTANCE}
 helm install --name $SERVER_NAME --values cms-rucio-common.yaml,cms-rucio-server.yaml,${INSTANCE}-rucio-server.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $REPO/rucio-server
 helm install --name $DAEMON_NAME --values cms-rucio-common.yaml,cms-rucio-daemons.yaml,${INSTANCE}-rucio-daemons.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $REPO/rucio-daemons
 helm install --name $UI_NAME --values cms-rucio-common.yaml,cms-rucio-webui.yaml,${INSTANCE}-rucio-webui.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $REPO/rucio-ui
+helm install --name $PROBE_NAME --values cms-rucio-common.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $CMS_REPO/rucio-cron-jobs
 
 # statsd exporter to prometheus
 helm install --name statsd-exporter  --values ${INSTANCE}-statsd-exporter.yaml cms-kubernetes/rucio-statsd-exporter
