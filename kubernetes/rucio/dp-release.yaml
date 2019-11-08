@@ -1,0 +1,5 @@
+# Temporary only until we have a unified release and can use dev-release
+
+image:
+  tag: release-1.20.7
+

@@ -1,0 +1,29 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}-cron-15-minute
+spec:
+  schedule: "*/15 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: renew-fts-cron
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              env:
+                {{- range $key1, $val1 := .Values.config }}
+                {{- range $key2, $val2 := $val1}}
+                - name: RUCIO_CFG_{{ $key1 | upper }}_{{ $key2 | upper }}
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ template "rucio-cron-jobs.fullname" $ }}.cfg
+                      key: {{ $key1 }}_{{ $key2 }}
+                {{- end}}
+                {{- end}}
+              command: ['/root/scripts/15-minutes.sh']
+          restartPolicy: OnFailure
+
+
+

@@ -1,0 +1,22 @@
+# A minimal cluster -- used for reducing one and bringing up another
+
+
+abacusAccountCount: 1
+abacusRseCount: 1
+conveyorTransferSubmitterCount: 1
+conveyorPollerCount: 1
+conveyorFinisherCount: 1
+hermesCount: 1
+judgeCleanerCount: 1
+judgeEvaluatorCount: 1
+judgeInjectorCount: 1
+judgeRepairerCount: 1
+transmogrifierCount: 1
+undertakerCount: 1
+reaperCount: 0
+reaper2Count: 1
+
+
+replicaCount: 1
+authReplicaCount: 1
+
