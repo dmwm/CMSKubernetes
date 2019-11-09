@@ -32,7 +32,7 @@ git clone git@github.com:dmwm/CMSKubernetes.git
 # for this excercise we'll use httpgo application/service
 # therefore we'll copy httpgo.yaml file in our working area
 cp CMSKubernetes/kubernetes/k8s-whoami/httpgo.yaml .
-cp CMSKubernetes/kubernetes/cmsweb-nginx/scripts/create_templates.sh .
+cp CMSKubernetes/kubernetes/cmsweb/scripts/create_templates.sh .
 
 # let's create a new cluster, the command to create a cluster is the following
 # openstack coe cluster create test-cluster --keypair cloud --cluster-template kubernetes-1.13.10-1

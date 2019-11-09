@@ -17,7 +17,7 @@ following items:
   **Please note** this can only be done once you create a cluster
   and register your minions in LanDB
   (see this
-  [section](https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/cmsweb-nginx/docs/cmsweb-deployment.md#registration-of-k8s-nodes-on-landb)),
+  [section](https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/cmsweb/docs/cmsweb-deployment.md#registration-of-k8s-nodes-on-landb)),
   but you need it before deploying
   cmsweb services and frontends on k8s cluster
 ```
@@ -226,7 +226,7 @@ a testing.
 Finally, you may deploy new k8s cluster as following:
 ```
 # locate your kubernetes area
-cd CMSKubernetes/kubernetes/cmsweb-nginx
+cd CMSKubernetes/kubernetes/cmsweb
 
 # if necessary setup KUBECONFIG environment, e.g.
 export KUBECONFIG=/path/config

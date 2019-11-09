@@ -30,7 +30,7 @@ appropriate data-service.
 #### References
 1. https://github.com/vkuznet/kubernetes-prometheus
 2. https://github.com/vkuznet/kubernetes-prometheus/blob/master/config-map.yaml
-3. https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/cmsweb-nginx/monitor-account.yaml
-4. https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/cmsweb-nginx/monitor-cron.yaml
+3. https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/cmsweb/monitor-account.yaml
+4. https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/cmsweb/monitor-cron.yaml
 5. https://github.com/ryotarai/prometheus-query
 6. https://github.com/dmwm/CMSKubernetes/blob/master/docker/monitor/monitor.s
