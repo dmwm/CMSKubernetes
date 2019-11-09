@@ -90,7 +90,7 @@ if [ "$deployment" == "services" ]; then
     echo "+++ deploy services: $cmsweb_srvs"
     echo "+++ deploy ingress : $cmsweb_ing"
 elif [ "$deployment" == "frontend" ]; then
-    # services for cmsweb-nginx cluster
+    # services for cmsweb cluster
     cmsweb_ing="ing-frontend"
     cmsweb_srvs="httpgo httpsgo frontend"
     echo "+++ deploy services: $cmsweb_srvs"
