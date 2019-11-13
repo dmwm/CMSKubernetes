@@ -73,8 +73,8 @@ spec:
           mountPath: /etc/grid-security/hostcert.pem
           readOnly: true 
         # TMP: use cinder storage for time being
-#        - name: crabcache-storage
-#          mountPath: /data/srv/state/crabcache/files
+#PROD#        - name: crabcache-storage
+#PROD#          mountPath: /data/srv/state/crabcache/files
 #PROD#  - name: crabcache-storage
 #PROD#    mountPath: /data/srv/state/crabcache/files
 #PROD#  - name: logs-cephfs
@@ -95,9 +95,9 @@ spec:
             path: /etc/grid-security/hostcert.pem
             type: File
       # TMP: use ciner storage for time being
-#      - name: crabcache-storage
-#        persistentVolumeClaim:
-#            claimName: crabcache-claim
+#PROD#      - name: crabcache-storage
+#PROD#        persistentVolumeClaim:
+#PROD#            claimName: crabcache-claim
 #PROD#- name: crabcache-storage-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: crabcache-cephfs-claim
