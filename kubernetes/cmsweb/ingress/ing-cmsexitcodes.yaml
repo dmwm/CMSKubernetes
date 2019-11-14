@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ing-cmsexitcodes
+  namespace: http
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: cmsweb-srv.cern.ch
+    http:
+      paths:
+      - path: /exitcodes
+        backend:
+          serviceName: cmsexitcodes
+          servicePort: 8212
