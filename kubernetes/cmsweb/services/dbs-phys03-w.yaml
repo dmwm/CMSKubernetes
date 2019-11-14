@@ -28,7 +28,7 @@ spec:
   selector:
     matchLabels:
       app: dbs-phys03-w
-  replicas: 1
+  replicas: 1 #PROD# 2
   template:
     metadata:
       labels:

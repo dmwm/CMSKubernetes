@@ -29,7 +29,7 @@ spec:
   selector:
     matchLabels:
       app: dbs-global-r
-  replicas: 1
+  replicas: 1 #PROD# 5
   template:
     metadata:
       labels:
