@@ -1,0 +1,44 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: cmsexitcodes
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8212
+    protocol: TCP
+    name: http
+  selector:
+    app: cmsexitcodes
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: cmsexitcodes
+  name: cmsexitcodes
+  namespace: http
+spec:
+  selector:
+    matchLabels:
+      app: cmsexitcodes
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cmsexitcodes
+    spec:
+      containers:
+      - image: veknet/cmsexitcodes
+        name: cmsexitcodes
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "300m"
+        ports:
+        - containerPort: 8212
+

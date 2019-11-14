@@ -1,0 +1,33 @@
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: das-share
+  namespace: das
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  # find osShareID from manila list for your share, e.g. das-share
+  #osShareID: 0610d8d7-b86e-46f4-a8ce-6aa373e24e0c
+  osShareID: fe1171d5-0961-4464-8a3f-60ceb2d67ce0
+  # find osShareAccessID from manila access-list das-share
+  #osShareAccessID: 5d64969b-8adf-42ae-b0dd-19b77e96f02d
+  osShareAccessID: f44359da-5276-4e0b-9c52-242a9b821d28
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cephfs-claim-das
+  namespace: das
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 100G
+  storageClassName: das-share
