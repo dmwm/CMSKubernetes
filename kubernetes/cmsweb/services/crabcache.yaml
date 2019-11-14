@@ -75,8 +75,6 @@ spec:
         # TMP: use cinder storage for time being
 #PROD#  - name: crabcache-storage
 #PROD#    mountPath: /data/srv/state/crabcache/files
-#PROD#  - name: crabcache-storage
-#PROD#    mountPath: /data/srv/state/crabcache/files
 #PROD#  - name: logs-cephfs
 #PROD#    mountPath: /data/srv/logs
       volumes:
@@ -98,9 +96,6 @@ spec:
 #PROD#- name: crabcache-storage
 #PROD#      persistentVolumeClaim:
 #PROD#      claimName: crabcache-claim
-#PROD#- name: crabcache-storage-cephfs
-#PROD#  persistentVolumeClaim:
-#PROD#      claimName: crabcache-cephfs-claim
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim
