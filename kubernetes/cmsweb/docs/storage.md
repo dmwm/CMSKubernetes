@@ -181,35 +181,119 @@ cat services/das.yaml | sed -e "s,#PROD#,      ,g" | \
    kubectl apply --validate=false -f -
 
 # grant access to our share
-manila access-allow confdb-share cephx cmsweb-auth
-manila access-allow couchdb-share cephx cmsweb-auth
-manila access-allow crab-share cephx cmsweb-auth
-manila access-allow das-share cephx cmsweb-auth
-manila access-allow dbs-share cephx cmsweb-auth
-manila access-allow dqm-share cephx cmsweb-auth
-manila access-allow dmwm-share cephx cmsweb-auth
-manila access-allow phedex-share cephx cmsweb-auth
-manila access-allow tzero-share cephx cmsweb-auth
+manila access-allow confdb-share cephx my-auth
+manila access-allow couchdb-share cephx my-auth
+manila access-allow crab-share cephx my-auth
+manila access-allow das-share cephx my-auth
+manila access-allow dbs-share cephx my-auth
+manila access-allow dqm-share cephx my-auth
+manila access-allow dmwm-share cephx my-auth
+manila access-allow phedex-share cephx my-auth
+manila access-allow tzero-share cephx my-auth
 
 manila access-list das-share
 +--------------------------------------+-------------+-------------+--------------+--------+------------------------------------------+----------------------------+----------------------------+
 | id                                   | access_type | access_to   | access_level | state  | access_key                               | created_at                 | updated_at                 |
 +--------------------------------------+-------------+-------------+--------------+--------+------------------------------------------+----------------------------+----------------------------+
-| 5d64969b-8adf-42ae-b0dd-19b77e96f02d | cephx       | cmsweb-auth | rw           | active | AQCsy6VdPyOYKhAAf8vVPWbTxr/irNllIpdr4w== | 2019-10-15T13:37:48.000000 | 2019-10-15T13:37:49.000000 |
+| 5d64969b-8adf-42ae-b0dd-19b77e96f02d | cephx       | my-auth | rw           | active | xxx-yyy-zzz | 2019-10-15T13:37:48.000000 | 2019-10-15T13:37:49.000000 |
 +--------------------------------------+-------------+-------------+--------------+--------+------------------------------------------+----------------------------+----------------------------+
 manila access-list confdb-share
 +--------------------------------------+-------------+-------------+--------------+--------+------------------------------------------+----------------------------+----------------------------+
 | id                                   | access_type | access_to   | access_level | state  | access_key                               | created_at                 | updated_at                 |
 +--------------------------------------+-------------+-------------+--------------+--------+------------------------------------------+----------------------------+----------------------------+
-| b52c24ed-a645-48c0-8025-a549f8ef9cbb | cephx       | cmsweb-auth | rw           | active | AQCsy6VdPyOYKhAAf8vVPWbTxr/irNllIpdr4w== | 2019-10-15T13:44:12.000000 | 2019-10-15T13:44:13.000000 |
+| b52c24ed-a645-48c0-8025-a549f8ef9cbb | cephx       | my-auth | rw           | active | xxx-yyy-zzz | 2019-10-15T13:44:12.000000 | 2019-10-15T13:44:13.000000 |
 +--------------------------------------+-------------+-------------+--------------+--------+------------------------------------------+----------------------------+----------------------------+
 
 manila share-export-location-list das-share
 +--------------------------------------+---------------------------------------------------------------------------------------------------------------------+-----------+
 | ID                                   | Path                                                                                                                | Preferred |
 +--------------------------------------+---------------------------------------------------------------------------------------------------------------------+-----------+
-| 2da1f748-8d80-4bdc-ad33-9fd0f620c6d0 | 137.138.121.135:6789,188.184.85.133:6789,188.184.91.157:6789:/volumes/_nogroup/748b1f6c-7617-4b97-a49a-e9c3fae787b9 | False     |
+| 2da1f748-8d80-4bdc-ad33-9fd0f620c6d0 | IPs:6789:/volumes/_nogroup/748b1f6c-7617-4b97-a49a-e9c3fae787b9 | False     |
 +--------------------------------------+---------------------------------------------------------------------------------------------------------------------+-----------+
+```
+
+p### How to find PVC information
+
+```
+# obtain list of running pods in specific namespace
+kubectl -n das get pods
+# find details of concrete pod
+kubectl -n das describe pod/das-566cf69b99-zj6kz
+#  it repoted among other things
+  ...
+  Normal  SuccessfulAttachVolume  22m   attachdetach-controller                          AttachVolume.Attach succeeded for volume "pvc-b3fbeb27-ef4b-11e9-901a-fa163ea275e0"
+```
+
+So the name of volume is `"pvc-b3fbeb27-ef4b-11e9-901a-fa163ea275e0"`. Then we
+should provide proper authentication to this volume
+```
+manila access-allow pvc-b3fbeb27-ef4b-11e9-901a-fa163ea275e0 cephx my-auth
+```
+Then we can look-up access list for this volume
+```
+manila access-list pvc-b3fbeb27-ef4b-11e9-901a-fa163ea275e0
+```
+and it printed
+```
++--------------------------------------+-------------+------------------------------------------+--------------+--------+------------------------------------------+----------------------------+----------------------------+
+| id                                   | access_type | access_to                                | access_level | state  | access_key                               | created_at                 | updated_at                 |
++--------------------------------------+-------------+------------------------------------------+--------------+--------+------------------------------------------+----------------------------+----------------------------+
+| 971fd1d5-d38c-4c85-9269-2b773b166d4d | cephx       | pvc-b3fbeb27-ef4b-11e9-901a-fa163ea275e0 | rw           | active | xxx-yyy-zzz | 2019-10-15T13:01:22.000000 | 2019-10-15T13:01:23.000000 |
+| f68731e8-7e35-48ee-9371-05b220818f6c | cephx       | my-auth                              | rw           | active | xxx-yyy-zzz | 2019-11-07T20:36:42.000000 | 2019-11-07T20:36:43.000000 |
++--------------------------------------+-------------+------------------------------------------+--------------+--------+------------------------------------------+----------------------------+----------------------------+
+```
+
+The first row correspond to default identified, but we actually want a permanent
+identified we created (my-auth). So it is second row.
+This row tells us access_key `xxx-yyy-zzz`
+This access key we can use later on another node to mount this share.
+To perform this we need to look-up proper volume path
+```
+manila share-export-location-list pvc-b3fbeb27-ef4b-11e9-901a-fa163ea275e0
+| 26dfda78-dc63-4621-badb-c7576626e2db | IPs:6789:/volumes/_nogroup/3c0654f7-51fb-4bf6-8db0-1433fba16f93 | False     |
+```
+which gives us a final volume we need for mount command, in this case
+it is
+```
+/volumes/nogroup/3c0654f7-51fb-4bf6-8db0-1433fba16f93
+```
+We would like to summarize all steps:
+- create storage volumes
+- use this storage volume in manifest files
+- find which volume was used for our pods
+- grant access rights to this volume to our permanent auth identifier
+- look-up volume access list and obtain access_key
+- look-up share export list and obtain volume path
+
+### How to mount CephFS share on external to k8s node
+To mount volumes on external node we need to follow this recipe:
+- first we need to create a ceph config with our auth identifier (my-auth)
+  and we put into this file access_key we obtained from k8s cluster
+- create `/etc/ceph/ceph.client.my-auth.keyring`
+```
+cat  /etc/ceph/ceph.client.my-auth.keyring
+[client.my-auth]
+   key = xxx-yyy-zzz
+```
+The key point here is **my-auth** should be present in filename and in
+client section
+
+Now we're ready to mount our ceph volume using volume path we obtained
+in k8s cluster.
+
+```
+# to mount
+mkdir /cephfs/das-logs
+ceph-fuse /cephfs/das-logs --id=my-auth --client-mountpoint=/volumes/_nogroup/3c0654f7-51fb-4bf6-8db0-1433fba16f93
+ceph-fuse[26944]: starting ceph client2019-11-07 22:00:41.030917 7fe8e0cf20c0 -1 init, newargv = 0x5557969b69c0 newargc=9
+ceph-fuse[26944]: starting fuse
+
+# now we can look at our logs
+ls /cephfs/das-logs
+....
+
+# to unmount
+fusermount -u /cephfs/das-logs
 ```
 
 ### References
