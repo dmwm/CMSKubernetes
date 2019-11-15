@@ -1,6 +1,15 @@
 #!/bin/bash
 namespace=${OS_PROJECT_NAME:-"CMS Web"}
 tmpl=cmsweb-template-`date +%Y%m%d`
+usage="create_templates.sh <tmpl_name, if not provided will use $tmpl>"
+if [ "$1" != "" ]; then
+    if [ "$1" == "-help" ] || [ "$1" == "-h" ]; then
+        echo $usage
+        exit 0
+    fi
+    tmpl=$1
+fi
+echo "Creating: $tmpl"
 
 # large template
 openstack \
