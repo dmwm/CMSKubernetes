@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e  # exit script if error occurs
 
 echo "Add ingress controller"
 kubectl get nodes
@@ -17,6 +18,13 @@ kubectl get crd
 echo "Let's watch when nats crd's are created, invoke CTRL+C when you see them"
 watch -d kubectl get crd | grep nats
 
+echo "create nats-clients-auth secret"
+if [ -n "`kubectl get secrets | grep nats-clients-auth`" ]; then
+    kubectl delete secret nats-clients-auth
+fi
+kubectl create secret generic nats-clients-auth --from-file=clients-auth.json
+
+echo "deploy nats-cluster"
 kubectl apply -f nats-cluster.yaml --validate=false
 
 echo "Now let's see if nats-cluster are Running..., press CTRL+C when you see them"
