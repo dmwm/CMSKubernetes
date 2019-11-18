@@ -504,6 +504,7 @@ deploy_services()
                 if [ -f "$sdir/${srv}-${inst}.yaml" ]; then
                     #kubectl apply -f "$sdir/${srv}-${inst}.yaml" --validate=false
                     cat $sdir/${srv}-${inst}.yaml | \
+                        sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
                         sed -e "s,#PROD#,$cmsweb_prefix,g" | \
                         kubectl apply --validate=false -f -
                 fi
@@ -511,7 +512,10 @@ deploy_services()
         else
             if [ -f $sdir/${srv}.yaml ]; then
                 #kubectl apply -f $sdir/${srv}.yaml --validate=false
-                cat $sdir/${srv}.yaml | sed -e "s,#PROD#,$cmsweb_prefix,g" | kubectl apply --validate=false -f -
+                cat $sdir/${srv}.yaml | \
+                    sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
+                    sed -e "s,#PROD#,$cmsweb_prefix,g" | \
+                    kubectl apply --validate=false -f -
             fi
         fi
     done
