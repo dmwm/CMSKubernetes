@@ -27,6 +27,7 @@
 cluster=${CMSWEB_CLUSTER:-cmsweb}
 cluster_ns=${OS_PROJECT_NAME:-"CMS Web"}
 cmsweb_hostname=${CMSWEB_HOSTNAME:-cmsweb-test.cern.ch}
+cmsweb_hostname_frontend=${CMSWEB_HOSTNAME_FRONTEND:-cmsweb-test.cern.ch}
 cmsweb_prefix="#PROD#"
 if [ "$CMSWEB_ENV" == "production" ] || [ "$CMSWEB_ENV" == "prod" ]; then
     cmsweb_prefix="      " # we will replace '#PROD#' with empty spaces
@@ -462,7 +463,7 @@ deploy_ingress()
     echo
     echo "+++ deploy $cmsweb_ing"
     echo "+++ use CMSWEB_HOSTNAME=$cmsweb_hostname"
-    ips=`host $cmsweb_hostname | awk '{ORS=","; print $4}' | rev | cut -c2- | rev`
+    ips=`host $cmsweb_hostname_frontend | awk '{ORS=","; print $4}' | rev | cut -c2- | rev`
     echo "+++ use CMSWEB IPs: $ips"
     tmpDir=/tmp/$USER/ingress
     mkdir -p $tmpDir
@@ -470,8 +471,9 @@ deploy_ingress()
         cp ingress/${ing}.yaml $tmpDir
         cat ingress/${ing}.yaml | \
             awk '{if($1=="nginx.ingress.kubernetes.io/whitelist-source-range:") {print "    nginx.ingress.kubernetes.io/whitelist-source-range: "ips""} else print $0}' ips=$ips > \
-            $tmpDir/${ing}.yaml
-        echo "deploy ingress: $tmpDir/${ing}.yaml"
+            $tmpDir/${ing}.tmp.yaml
+	cat $tmpDir/${ing}.tmp.yaml | awk '{if($2=="host:") {print "  - host : "hostname""} else print $0}' hostname=$cmsweb_hostname >  $tmpDir/${ing}.yaml
+	echo "deploy ingress: $tmpDir/${ing}.yaml"
         cat $tmpDir/${ing}.yaml
         kubectl apply -f $tmpDir/${ing}.yaml --validate=false
         #kubectl apply -f ingress/${ing}.yaml
