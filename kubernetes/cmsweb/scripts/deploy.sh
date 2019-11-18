@@ -469,10 +469,10 @@ deploy_ingress()
     mkdir -p $tmpDir
     for ing in $cmsweb_ing; do
         cp ingress/${ing}.yaml $tmpDir
-        cat ingress/${ing}.yaml | \
-            awk '{if($1=="nginx.ingress.kubernetes.io/whitelist-source-range:") {print "    nginx.ingress.kubernetes.io/whitelist-source-range: "ips""} else print $0}' ips=$ips > \
-            $tmpDir/${ing}.tmp.yaml
-	cat $tmpDir/${ing}.tmp.yaml | awk '{if($2=="host:") {print "  - host : "hostname""} else print $0}' hostname=$cmsweb_hostname >  $tmpDir/${ing}.yaml
+	cat ingress/${ing}.yaml | \
+    	awk '{if($1=="nginx.ingress.kubernetes.io/whitelist-source-range:") {print "    nginx.ingress.kubernetes.io/whitelist-source-range: "ips""} else print $0}' ips=$ips | \
+    	awk '{if($2=="host:") {print "  - host : "hostname""} else print $0}' hostname=$cmsweb_hostname \
+    	> $tmpDir/${ing}.yaml
 	echo "deploy ingress: $tmpDir/${ing}.yaml"
         cat $tmpDir/${ing}.yaml
         kubectl apply -f $tmpDir/${ing}.yaml --validate=false
@@ -504,7 +504,6 @@ deploy_services()
                 if [ -f "$sdir/${srv}-${inst}.yaml" ]; then
                     #kubectl apply -f "$sdir/${srv}-${inst}.yaml" --validate=false
                     cat $sdir/${srv}-${inst}.yaml | \
-                        sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
                         sed -e "s,#PROD#,$cmsweb_prefix,g" | \
                         kubectl apply --validate=false -f -
                 fi
@@ -512,10 +511,7 @@ deploy_services()
         else
             if [ -f $sdir/${srv}.yaml ]; then
                 #kubectl apply -f $sdir/${srv}.yaml --validate=false
-                cat $sdir/${srv}.yaml | \
-                    sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
-                    sed -e "s,#PROD#,$cmsweb_prefix,g" | \
-                    kubectl apply --validate=false -f -
+                cat $sdir/${srv}.yaml | sed -e "s,#PROD#,$cmsweb_prefix,g" | kubectl apply --validate=false -f -
             fi
         fi
     done
