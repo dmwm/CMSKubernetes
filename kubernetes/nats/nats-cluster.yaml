@@ -5,9 +5,12 @@ metadata:
 spec:
   size: 2
   version: "2.1.0"
+  auth:
+    clientsAuthSecret: "nats-clients-auth"
+    clientsAuthTimeout: 2
   pod:
     enableClientsHostPort: true
-  #  advertiseExternalIP: true
+    enableConfigReload: true
   template:
     spec:
       serviceAccountName: "nats-server"
