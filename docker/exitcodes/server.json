@@ -1,0 +1,9 @@
+{
+    "exitCodes": "codes",
+    "port": 8212,
+    "templates": "templates",
+    "jscripts": "js",
+    "styles": "css",
+    "images": "images",
+    "verbose": 0
+}
