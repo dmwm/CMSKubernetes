@@ -13,6 +13,10 @@ spec:
   - host: cmsweb-srv.cern.ch
     http:
       paths:
+      - path: /exitcodes
+        backend:
+          serviceName: exitcodes
+          servicePort: 9201
       - path: /httpgo
         backend:
           serviceName: httpgo
