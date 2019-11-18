@@ -10,6 +10,15 @@ these steps:
 ```
 # create a cluster
 create_nats.sh <ssh key-pair> <cluster name>
+
+# create clients-auth.json before deployment, e.g.
+{
+  "users": [
+    {"username": "user1", "password": "password1", "permissions":{"publish":[">"]}},
+    {"username": "user2", "password": "password2", "permissions":{"subscribe":[">"]}},
+  ]
+}
+
 # deploy NATS server
 deploy_nats.sh
 ```
