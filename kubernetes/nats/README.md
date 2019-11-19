@@ -5,6 +5,19 @@ It is similar to [Kafka](https://kafka.apache.org/), a
 distributed streaming platform, written in Scala, Java.
 
 ### CMS NATS deployment to k8s
+First we need to create a cluster where we'll deploy NATS servers.
+This can be done using the following steps:
+```
+# login to lxplus-cloud
+ssh lxplus-cloud
+
+# create new cluster, you'll need to replace actual values, e.g.
+# cloud, kubernetes-1.15.3-3 with appropriate ones suitable for your deployment
+openstack coe cluster create --keypair cloud \
+    --cluster-template kubernetes-1.15.3-3 \
+    --flavor m2.medium --master-flavor m2.medium --node-count 2 nats-cluster
+```
+
 The deployment of CMS NATS to k8s cluster is trivial. Please follow
 these steps:
 ```
