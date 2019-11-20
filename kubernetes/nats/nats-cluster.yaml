@@ -11,6 +11,9 @@ spec:
   pod:
     enableClientsHostPort: true
     enableConfigReload: true
+  tls:
+    serverSecret: "nats-clients-tls"
+    #routesSecret: "nats-routes-tls"
   template:
     spec:
       serviceAccountName: "nats-server"
