@@ -22,7 +22,16 @@ echo "create nats-clients-auth secret"
 if [ -n "`kubectl get secrets | grep nats-clients-auth`" ]; then
     kubectl delete secret nats-clients-auth
 fi
-kubectl create secret generic nats-clients-auth --from-file=clients-auth.json
+if [ -f clients-auth.json ]; then
+    kubectl create secret generic nats-clients-auth --from-file=clients-auth.json
+else
+    echo "Unable to local clients-auth.json file"
+    exit 1
+fi
+if [ -f ca.pem ] && [ -f server-key.pem ] && [ -f server.pem ]; then
+    kubectl create secret generic nats-clients-tls \
+        --from-file=ca.pem --from-file=server-key.pem --from-file=server.pem
+fi
 
 echo "deploy nats-cluster"
 kubectl apply -f nats-cluster.yaml --validate=false
