@@ -28,9 +28,13 @@ cluster=${CMSWEB_CLUSTER:-cmsweb}
 cluster_ns=${OS_PROJECT_NAME:-"CMS Web"}
 cmsweb_hostname=${CMSWEB_HOSTNAME:-cmsweb-test.cern.ch}
 cmsweb_hostname_frontend=${CMSWEB_HOSTNAME_FRONTEND:-cmsweb-test.cern.ch}
-cmsweb_prefix="#PROD#"
+prod_prefix="#PROD#"
 if [ "$CMSWEB_ENV" == "production" ] || [ "$CMSWEB_ENV" == "prod" ]; then
-    cmsweb_prefix="      " # we will replace '#PROD#' with empty spaces
+    prod_prefix="      " # will replace '#PROD#' prefix
+fi
+if [ "$CMSWEB_ENV" == "preproduction" ] || [ "$CMSWEB_ENV" == "preprod" ]; then
+    prod_prefix="      " # will replace '#PROD#' prefix
+    preprod_prefix="-preprod" # will replace '#PREPROD#' prefix
 fi
 sdir=services
 mdir=monitoring
@@ -54,7 +58,7 @@ if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == 
     exit 1
 fi
 echo "+++ cmsweb environment: $CMSWEB_ENV"
-echo "+++ cmsweb yaml prefix: '$cmsweb_prefix'"
+echo "+++ cmsweb yaml prefix: '$prod_prefix'"
 action=$1
 deployment=$2
 if [ "$action" == "create" ]; then
@@ -505,7 +509,8 @@ deploy_services()
                     #kubectl apply -f "$sdir/${srv}-${inst}.yaml" --validate=false
                     cat $sdir/${srv}-${inst}.yaml | \
                         sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
-                        sed -e "s,#PROD#,$cmsweb_prefix,g" | \
+                        sed -e "s,#PROD#,$prod_prefix,g" | \
+                        sed -e "s,#PREPROD#,$preprod_prefix,g" | \
                         kubectl apply --validate=false -f -
                 fi
             done
@@ -514,7 +519,8 @@ deploy_services()
                 #kubectl apply -f $sdir/${srv}.yaml --validate=false
                 cat $sdir/${srv}.yaml | \
                     sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
-                    sed -e "s,#PROD#,$cmsweb_prefix,g" | \
+                    sed -e "s,#PROD#,$prod_prefix,g" | \
+                    sed -e "s,#PREPROD#,$preprod_prefix,g" | \
                     kubectl apply --validate=false -f -
             fi
         fi
