@@ -139,7 +139,8 @@ kubectl get pvc
 manila list
 ```
 
-### steps to create production shares for log partitions
+### steps to create declarative shares for log partitions
+You may skip this if we decide to use dynamic shares
 ```
 grep namespace storages/cephfs-storage-logs.yaml  | \
 awk '{print "manila create --share-type \"Meyrin CephFS\" --name "$2"-share cephfs 100"}' | /bin/sh
@@ -212,7 +213,17 @@ manila share-export-location-list das-share
 +--------------------------------------+---------------------------------------------------------------------------------------------------------------------+-----------+
 ```
 
-### How to find PVC information
+### Use dynamic shares
+We can use dynamic shares by only deploying
+```
+kubectl apply -f storages/cephfs-storage-logs.yaml --validate=false
+```
+This will create shares in manila, then load and bound them for k8s usage.
+The problem with this approach that in order to mount these shares
+we need to find proper PVC information
+
+#### How to find PVC information
+These steps required when we use dynamic shares.
 
 ```
 # obtain list of running pods in specific namespace
