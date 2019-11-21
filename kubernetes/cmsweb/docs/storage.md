@@ -174,7 +174,7 @@ manila list
 +--------------------------------------+------------------------------------------+------+-------------+-----------+-----------+-----------------------+------+-------------------+
 
 # then we can load our shares to k8s
-kubectl apply -f storages/cephfs-storages-logs.yaml --validate=false
+kubectl apply -f storages/cephfs-storage-logs.yaml --validate=false
 ...
 # next you can change your service file to use this shares, e.g.
 cat services/das.yaml | sed -e "s,#PROD#,      ,g" | \
@@ -212,7 +212,7 @@ manila share-export-location-list das-share
 +--------------------------------------+---------------------------------------------------------------------------------------------------------------------+-----------+
 ```
 
-p### How to find PVC information
+### How to find PVC information
 
 ```
 # obtain list of running pods in specific namespace
