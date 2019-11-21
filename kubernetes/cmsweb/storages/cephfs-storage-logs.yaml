@@ -17,7 +17,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 100Gi
+      storage: 20Gi
   storageClassName: meyrin-cephfs
 # ---
 #
@@ -33,7 +33,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 100Gi
+      storage: 20Gi
   storageClassName: meyrin-cephfs
 ---
 #
@@ -49,7 +49,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 100Gi
+      storage: 20Gi
   storageClassName: meyrin-cephfs
 ---
 #
@@ -65,7 +65,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 100Gi
+      storage: 20Gi
   storageClassName: meyrin-cephfs
 ---
 #
@@ -81,7 +81,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 100Gi
+      storage: 20Gi
   storageClassName: meyrin-cephfs
 ---
 #
@@ -97,7 +97,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 100Gi
+      storage: 20Gi
   storageClassName: meyrin-cephfs
 ---
 #
@@ -113,7 +113,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 100Gi
+      storage: 20Gi
   storageClassName: meyrin-cephfs
 ---
 #
@@ -129,7 +129,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 100Gi
+      storage: 20Gi
   storageClassName: meyrin-cephfs
 ---
 #
@@ -145,7 +145,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 100Gi
+      storage: 20Gi
   storageClassName: meyrin-cephfs
 ---
 #
@@ -161,5 +161,5 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 100Gi
+      storage: 20Gi
   storageClassName: meyrin-cephfs
