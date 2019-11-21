@@ -1,14 +1,15 @@
 #!/bin/bash
-# obtain CERN CAs if they're not present
-#n=`ls /etc/pki/tls/private/*.key 2> /dev/null | wc -c`
-#if [ "$n" -eq "0" ]; then
-#    sudo /usr/sbin/cern-get-certificate --autoenroll
-#    ckey=`ls /etc/pki/tls/private/*.key | tail -1`
-#    host=`basename $ckey | sed -e "s,.key,,g"`
-#    cert=`ls /etc/pki/tls/certs/$host.pem`
-#    sudo cp $ckey /data/certs/hostkey.pem
-#    sudo cp $cert /data/certs/hostcert.pem
-#fi
+### This script relies on provided configuration files which will be
+### be mounted to /etc/secrets area
+### This area may contains the following files
+### - hostkey.pem, hostcert.pem
+### - hmac file used in deployment
+### - proxy
+### - cmsweb.services, a file contains hostname of backend k8s cluster
+### - phedex.vms, couchdb.vms, empty files which will indicate that we'll use VMs
+### - server.conf, frontend server configuration file
+### - backends.txt, frontend redirect rules for backends
+
 if [ -f /etc/secrets/hostkey.pem ]; then
     # overwrite host PEM files in /data/certs since we used them during installation time
     echo "Use /etc/secrets/host{key,cert}.pem for /data/certs"
@@ -54,16 +55,28 @@ if [ -f /data/srv/current/auth/proxy/proxy ] && [ -f /data/srv/current/config/fr
         -o /data/srv/state/frontend/etc/voms-gridmap.txt --vo cms
 fi
 
-# check if we provided server.conf explicitly and use it if necessary
-if [ -f /etc/secrets/server.conf ]; then
-    sudo rm /data/srv/state/frontend/server.conf
-    ln -s /etc/secrets/server.conf /data/srv/state/frontend/server.conf
-fi
-
 # check if we provided server.services explicitly and use it if necessary
 if [ -f /etc/secrets/cmsweb.services ]; then
+    cp /data/srv/state/frontend/server.conf /data/srv/state/frontend/server.conf.orig
     srvs=`cat /etc/secrets/cmsweb.services | awk '{print "s,%{ENV:BACKEND}:[0-9][0-9][0-9][0-9],"$1",g"}'`
     sed -i -e "$srvs" /data/srv/state/frontend/server.conf
+fi
+# put back phedex backends since we'll not use it on k8s
+if [ -f /etc/secrets/phedex.vms ]; then
+    sed -i -e "/phedex(/{s,http://cmsweb-srv.cern.ch,http://%{ENV:BACKEND}:7101,g}" \
+        -e "/phedex\/datasvc/{s,http://cmsweb-srv.cern.ch,http://%{ENV:BACKEND}:7001,g}" \
+        /data/srv/state/frontend/server.conf
+fi
+# put back couchdb backends since we'll not use it on k8s
+if [ -f /etc/secrets/couchdb.vms ]; then
+    sed -i -e "/couch/{s,http://cmsweb-srv.cern.ch,http://%{ENV:BACKEND}:5984,g}" \
+        /data/srv/state/frontend/server.conf
+fi
+# allow to overwrite server.conf with one supplied by configuration
+if [ -f /etc/secrets/server.conf ]; then
+    echo "Using /etc/secrets/server.conf"
+    mv /data/srv/state/frontend/server.conf /data/srv/state/frontend/server.conf.k8s
+    ln -s /etc/secrets/server.conf /data/srv/state/frontend/server.conf
 fi
 
 # adjust htdocs links to ensure proper redirect between k8s clusters
@@ -82,10 +95,21 @@ for fname in $files; do
         if [ -f $cdir/$fname ]; then
             rm $cdir/$fname
         fi
-        sudo cp /etc/secrets/$fname $cdir/$fname
-        sudo chown $USER.$USER $cdir/$fname
+        ln -s /etc/secrets/$fname $cdir/$fname
     fi
 done
+# link backends files
+if [ -f $cdir/backends.txt ]; then
+    echo "link $cdir/backends.txt"
+    bfiles="backends-prod.txt backends-preprod.txt backends-dev.txt"
+    for f in $bfiles; do
+        if [ -f $cdir/$f ]; then
+            rm $cdir/$f
+        fi
+        echo "ln -s $cdir/backends.txt $cdir/$f"
+        ln -s $cdir/backends.txt $cdir/$f
+    done
+fi
 
 # run frontend server
 /data/cfg/admin/InstallDev -s start

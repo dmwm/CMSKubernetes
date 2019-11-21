@@ -15,10 +15,11 @@ cd $WDIR/cfg
 git reset --hard $VER
 
 # adjust deploy script to use k8s host name
+cmsk8s_srv=${CMSK8S_SRV:-https://cmsweb-srv.cern.ch}
 cmsk8s_prod=${CMSK8S:-https://cmsweb.cern.ch}
 cmsk8s_prep=${CMSK8S:-https://cmsweb-testbed.cern.ch}
 cmsk8s_dev=${CMSK8S:-https://cmsweb-dev.cern.ch}
-cmsk8s_priv=${CMSK8S:-https://cmsweb-test.web.cern.ch}
+cmsk8s_priv=${CMSK8S:-https://cmsweb-test.cern.ch}
 sed -i -e "s,https://cmsweb.cern.ch,$cmsk8s_prod,g" \
     -e "s,https://cmsweb-testbed.cern.ch,$cmsk8s_prep,g" \
     -e "s,https://cmsweb-dev.cern.ch,$cmsk8s_dev,g" \
@@ -26,18 +27,25 @@ sed -i -e "s,https://cmsweb.cern.ch,$cmsk8s_prod,g" \
     frontend/deploy
 
 # replace backend nodes
-#files=`ls $WDIR/cfg/frontend/backend*.txt`
-#for f in $files; do
-#    sed -i -e "s,vocms[0-9]*,cmsweb-test.web,g" $f
-#    sed -i -e "s,|cmsweb-test.web.cern.ch,,g" $f
-#done
-k8host=`echo $cmsk8s_prod | sed -e "s,\.cern\.ch,,g" -e "s,http://,,g" -e "s,https://,,g"`
+#k8host=`echo $cmsk8s_prod | sed -e "s,\.cern\.ch,,g" -e "s,http://,,g" -e "s,https://,,g"`
+k8host=`echo $cmsk8s_srv | sed -e "s,\.cern\.ch,,g" -e "s,http://,,g" -e "s,https://,,g"`
 sed -i -e "s,vocms[0-9]*,$k8host,g" $WDIR/cfg/frontend/backends-prod.txt
 sed -i -e "s,|$k8host,,g" $WDIR/cfg/frontend/backends-prod.txt
+# let's correct substitutions
+sed -i -e "s,cern.ch.cern.ch,cern.ch,g" $WDIR/cfg/frontend/backends-prod.txt
+# cat whole file except last line
+cat $WDIR/cfg/frontend/backends-prod.txt | sed \$d > b.txt
+# all other will go to our k8host
+echo "^ ${k8host}.cern.ch" >> b.txt
+rm $WDIR/cfg/frontend/backends-prod.txt
+mv b.txt $WDIR/cfg/frontend/backends.txt
 
 # overwrite dev/preprod backends with production one for k8s
-/bin/cp -r $WDIR/cfg/frontend/backends-prod.txt $WDIR/cfg/frontend/backends-dev.txt
-/bin/cp -r $WDIR/cfg/frontend/backends-prod.txt $WDIR/cfg/frontend/backends-preprod.txt
+files="backends-prod.txt backends-preprod.txt backends-dev.txt"
+for fname in $files; do
+    rm $WDIR/cfg/frontend/$fname
+    ln -s $WDIR/cfg/frontend/backends.txt $WDIR/cfg/frontend/$fname
+done
 
 # we do not use InstallDev script directly since we want to capture the status of
 # install step script. Therefore we call Deploy script and capture its status every step
