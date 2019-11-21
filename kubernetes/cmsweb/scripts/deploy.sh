@@ -18,10 +18,11 @@
 ##H   secrets    create secrets files
 ##H
 ##H Envrionments:
-##H   CMSWEB_CLUSTER   defines name of the cluster to be created (default cmsweb)
-##H   OS_PROJECT_NAME  defines name of the OpenStack project (default "CMS Web")
-##H   CMSWEB_HOSTNAME  defines cmsweb hostname (default cmsweb-test.cern.ch)
-##H   CMSWEB_ENV       defines cmsweb environemnt, e.g. production
+##H   CMSWEB_CLUSTER            defines name of the cluster to be created (default cmsweb)
+##H   OS_PROJECT_NAME           defines name of the OpenStack project (default "CMS Web")
+##H   CMSWEB_HOSTNAME           defines cmsweb hostname (default cmsweb-test.cern.ch)
+##H   CMSWEB_HOSTNAME_FRONTEND  defines cmsweb FE hostname (default cmsweb-test.cern.ch)
+##H   CMSWEB_ENV                defines cmsweb environemnt, e.g. production, preproduction (default "")
 
 # common definitions (adjust if necessary)
 cluster=${CMSWEB_CLUSTER:-cmsweb}
