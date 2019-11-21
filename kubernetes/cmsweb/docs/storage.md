@@ -142,7 +142,9 @@ manila list
 ### steps to create declarative shares for log partitions
 You may skip this if we decide to use dynamic shares
 ```
-grep namespace storages/cephfs-storage-logs.yaml  | \
+# use storages/cephfs-storage-logs-preprod.yaml on preproduction cluster
+# use storages/cephfs-storage-logs-prod.yaml on production cluster
+grep namespace storages/cephfs-storage-logs-prod.yaml  | \
 awk '{print "manila create --share-type \"Meyrin CephFS\" --name "$2"-share cephfs 100"}' | /bin/sh
 
 # if necessary we may need to obtain a token and then use it with all manila commands
@@ -175,7 +177,9 @@ manila list
 +--------------------------------------+------------------------------------------+------+-------------+-----------+-----------+-----------------------+------+-------------------+
 
 # then we can load our shares to k8s
-kubectl apply -f storages/cephfs-storage-logs.yaml --validate=false
+# use storages/cephfs-storage-logs-preprod.yaml on preproduction cluster
+# use storages/cephfs-storage-logs-prod.yaml on production cluster
+kubectl apply -f storages/cephfs-storage-logs-prod.yaml --validate=false
 ...
 # next you can change your service file to use this shares, e.g.
 cat services/das.yaml | sed -e "s,#PROD#,      ,g" | \
@@ -216,7 +220,9 @@ manila share-export-location-list das-share
 ### Use dynamic shares
 We can use dynamic shares by only deploying
 ```
-kubectl apply -f storages/cephfs-storage-logs.yaml --validate=false
+# use storages/cephfs-storage-logs-preprod.yaml on preproduction cluster
+# use storages/cephfs-storage-logs-prod.yaml on production cluster
+kubectl apply -f storages/cephfs-storage-logs-prod.yaml --validate=false
 ```
 This will create shares in manila, then load and bound them for k8s usage.
 The problem with this approach that in order to mount these shares
