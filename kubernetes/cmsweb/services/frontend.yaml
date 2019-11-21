@@ -32,7 +32,7 @@ spec:
   selector:
     matchLabels:
       app: frontend
-  replicas: 1
+  replicas: 2 #PROD# 4
   template:
     metadata:
       labels:
