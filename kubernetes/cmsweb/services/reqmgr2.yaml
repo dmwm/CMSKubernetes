@@ -25,7 +25,7 @@ spec:
   selector:
     matchLabels:
       app: reqmgr2
-  replicas: 1
+  replicas: 1 #PROD# 2
   template:
     metadata:
       labels:
@@ -37,6 +37,13 @@ spec:
       containers:
       - image: cmssw/reqmgr2
         name: reqmgr2
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - bash
+              - -c
+              - sudo chmod 0777 /data/srv/logs/reqmgr2; sudo chown _reqmgr2:_reqmgr2 /data/srv/logs/reqmgr2
         resources:
           requests:
             memory: "256Mi"
@@ -65,7 +72,7 @@ spec:
           mountPath: /etc/grid-security/hostcert.pem
           readOnly: true 
 #PROD#  - name: logs-cephfs
-#PROD#    mountPath: /data/srv/logs
+#PROD#    mountPath: /data/srv/logs/reqmgr2
       initContainers:
       - name: checkcouchdb
         image: busybox:1.28
