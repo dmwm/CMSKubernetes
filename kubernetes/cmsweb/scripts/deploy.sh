@@ -32,9 +32,13 @@ prod_prefix="#PROD#"
 if [ "$CMSWEB_ENV" == "production" ] || [ "$CMSWEB_ENV" == "prod" ]; then
     prod_prefix="      " # will replace '#PROD#' prefix
 fi
+# we define preprod_prefix as empty for all use-cases
+preprod_prefix=""
+# we'll use specific preprod_prefix on preproduction deployment
+# this will be used for cephfs shares
 if [ "$CMSWEB_ENV" == "preproduction" ] || [ "$CMSWEB_ENV" == "preprod" ]; then
     prod_prefix="      " # will replace '#PROD#' prefix
-    preprod_prefix="-preprod" # will replace '#PREPROD#' prefix
+    preprod_prefix="-preprod" # will replace logs-cephfs-claim with this prefix
 fi
 sdir=services
 mdir=monitoring
@@ -510,7 +514,7 @@ deploy_services()
                     cat $sdir/${srv}-${inst}.yaml | \
                         sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
                         sed -e "s,#PROD#,$prod_prefix,g" | \
-                        sed -e "s,#PREPROD#,$preprod_prefix,g" | \
+                        sed -e "s,logs-cephfs-claim,logs-cephfs-claim$preprod_prefix,g" | \
                         kubectl apply --validate=false -f -
                 fi
             done
@@ -520,7 +524,7 @@ deploy_services()
                 cat $sdir/${srv}.yaml | \
                     sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
                     sed -e "s,#PROD#,$prod_prefix,g" | \
-                    sed -e "s,#PREPROD#,$preprod_prefix,g" | \
+                    sed -e "s,logs-cephfs-claim,logs-cephfs-claim$preprod_prefix,g" | \
                     kubectl apply --validate=false -f -
             fi
         fi
