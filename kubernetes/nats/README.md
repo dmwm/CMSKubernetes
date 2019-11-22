@@ -44,6 +44,23 @@ kubectl run -i --rm --tty nats-box --image=synadia/nats-box:latest --restart=Nev
 nats-top -s nats-cluster-mgmt
 ```
 
+### Adding NSC
+NATS supports user authentication via
+[NSC](https://docs.nats.io/nats-tools/nsc/nsc). For that we need to run
+a separate nats-accounts-server with proper configuration. Since
+configuration contains sensitive information here we only outline steps
+how to deploy it to ks8.
+```
+# create a nats-nsc.tar.gz file which should contain your nats configuration area
+tar cfz nats-nsc.tar.gz nats
+
+# deploy this tar ball as a secret
+kubectl create secret generic nats-nsc-secrets --from-file=nats-nsc.tar.gz
+
+# deploy nats-nsc service which relies on nats-nsc-secrets tar ball file
+kubeclt apply -f nats-nsc.yaml
+```
+
 ### NATS clients
 To use NATS system we need two types of clients. One is a publisher
 and another is subscriber. For an example of Go based
