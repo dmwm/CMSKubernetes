@@ -60,18 +60,25 @@ if [ -f /etc/secrets/cmsweb.services ]; then
     cp /data/srv/state/frontend/server.conf /data/srv/state/frontend/server.conf.orig
     srvs=`cat /etc/secrets/cmsweb.services | awk '{print "s,%{ENV:BACKEND}:[0-9][0-9][0-9][0-9],"$1",g"}'`
     sed -i -e "$srvs" /data/srv/state/frontend/server.conf
+    # put back vms if necessary
+    if [ -f /etc/secrets/vms ]; then
+        backend=`cat /etc/secrets/cmsweb.services`
+        replacements=`cat vms | awk 'BEGIN{ORS=" "}{print "-e \""$1"{s,"backend","$2",g}\""}' backend=$backend`
+        echo "sed -i $replacements /data/srv/state/frontend/server.conf"
+        sed -i $replacements /data/srv/state/frontend/server.conf
+    fi
 fi
 # put back phedex backends since we'll not use it on k8s
-if [ -f /etc/secrets/phedex.vms ]; then
-    sed -i -e "/phedex(/{s,http://cmsweb-srv.cern.ch,http://%{ENV:BACKEND}:7101,g}" \
-        -e "/phedex\/datasvc/{s,http://cmsweb-srv.cern.ch,http://%{ENV:BACKEND}:7001,g}" \
-        /data/srv/state/frontend/server.conf
-fi
+#if [ -f /etc/secrets/phedex.vms ]; then
+#    sed -i -e "/phedex(/{s,http://cmsweb-srv.cern.ch,http://%{ENV:BACKEND}:7101,g}" \
+#        -e "/phedex\/datasvc/{s,http://cmsweb-srv.cern.ch,http://%{ENV:BACKEND}:7001,g}" \
+#        /data/srv/state/frontend/server.conf
+#fi
 # put back couchdb backends since we'll not use it on k8s
-if [ -f /etc/secrets/couchdb.vms ]; then
-    sed -i -e "/couch/{s,http://cmsweb-srv.cern.ch,http://%{ENV:BACKEND}:5984,g}" \
-        /data/srv/state/frontend/server.conf
-fi
+#if [ -f /etc/secrets/couchdb.vms ]; then
+#    sed -i -e "/couch/{s,http://cmsweb-srv.cern.ch,http://%{ENV:BACKEND}:5984,g}" \
+#        /data/srv/state/frontend/server.conf
+#fi
 # allow to overwrite server.conf with one supplied by configuration
 if [ -f /etc/secrets/server.conf ]; then
     echo "Using /etc/secrets/server.conf"
