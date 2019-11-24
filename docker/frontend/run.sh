@@ -68,17 +68,6 @@ if [ -f /etc/secrets/cmsweb.services ]; then
         sed -i $replacements /data/srv/state/frontend/server.conf
     fi
 fi
-# put back phedex backends since we'll not use it on k8s
-#if [ -f /etc/secrets/phedex.vms ]; then
-#    sed -i -e "/phedex(/{s,http://cmsweb-srv.cern.ch,http://%{ENV:BACKEND}:7101,g}" \
-#        -e "/phedex\/datasvc/{s,http://cmsweb-srv.cern.ch,http://%{ENV:BACKEND}:7001,g}" \
-#        /data/srv/state/frontend/server.conf
-#fi
-# put back couchdb backends since we'll not use it on k8s
-#if [ -f /etc/secrets/couchdb.vms ]; then
-#    sed -i -e "/couch/{s,http://cmsweb-srv.cern.ch,http://%{ENV:BACKEND}:5984,g}" \
-#        /data/srv/state/frontend/server.conf
-#fi
 # allow to overwrite server.conf with one supplied by configuration
 if [ -f /etc/secrets/server.conf ]; then
     echo "Using /etc/secrets/server.conf"
