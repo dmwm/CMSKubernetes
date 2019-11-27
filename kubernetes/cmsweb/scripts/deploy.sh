@@ -480,7 +480,8 @@ deploy_ingress()
         cp ingress/${ing}.yaml $tmpDir
 	cat ingress/${ing}.yaml | \
     	awk '{if($1=="nginx.ingress.kubernetes.io/whitelist-source-range:") {print "    nginx.ingress.kubernetes.io/whitelist-source-range: "ips""} else print $0}' ips=$ips | \
-    	awk '{if($2=="host:") {print "  - host : "hostname""} else print $0}' hostname=$cmsweb_hostname \
+    	awk '{if($2=="host:") {print "  - host : "hostname""} else print $0}' hostname=$cmsweb_hostname | \
+        awk '{if($2=="cmsweb-test.cern.ch") {print "    - "hostname""} else print $0}' hostname=$cmsweb_hostname \
     	> $tmpDir/${ing}.yaml
 	echo "deploy ingress: $tmpDir/${ing}.yaml"
         cat $tmpDir/${ing}.yaml
@@ -489,7 +490,6 @@ deploy_ingress()
     done
     rm -rf $tmpDir
 }
-
 deploy_crons()
 {
     echo
@@ -524,6 +524,7 @@ deploy_services()
                 #kubectl apply -f $sdir/${srv}.yaml --validate=false
                 cat $sdir/${srv}.yaml | \
                     sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
+                    sed -e "s,replicas: 2 #PROD#,replicas: ,g" | \
                     sed -e "s,#PROD#,$prod_prefix,g" | \
                     sed -e "s,logs-cephfs-claim,logs-cephfs-claim$preprod_prefix,g" | \
                     kubectl apply --validate=false -f -
