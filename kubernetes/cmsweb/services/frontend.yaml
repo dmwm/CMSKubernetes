@@ -74,7 +74,7 @@ spec:
         - name: hostkey
           mountPath: /etc/grid-security/hostkey.pem
 #PROD#  - name: logs-cephfs
-#PROD#    mountPath: /data/srv/logs
+#PROD#    mountPath: /data/srv/logs/frontend
       volumes:
       - name: proxy-secrets
         secret:
