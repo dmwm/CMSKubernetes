@@ -72,7 +72,7 @@ spec:
           mountPath: /etc/grid-security/hostcert.pem
           readOnly: true 
 #PROD#  - name: logs-cephfs
-#PROD#    mountPath: /data/srv/logs
+#PROD#    mountPath: /data/srv/logs/reqmgr2ms
       initContainers:
       - name: checkcouchdb
         image: busybox:1.28
