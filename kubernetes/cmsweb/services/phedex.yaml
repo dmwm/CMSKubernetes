@@ -74,7 +74,7 @@ spec:
           mountPath: /etc/grid-security/hostcert.pem
           readOnly: true 
 #PROD#  - name: logs-cephfs
-#PROD#    mountPath: /data/srv/logs
+#PROD#    mountPath: /data/srv/logs/phedex
       volumes:
       - name: proxy-secrets
         secret:
