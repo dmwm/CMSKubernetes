@@ -12,6 +12,20 @@ hmac
 # 3rd party packages
 kubernetes-prometheus
 
+# skip configs/secrets
+kubernetes/cmsweb/configs
+kubernetes/cmsweb/new
+kubernetes/cmsweb/CMSWeb-openrc.sh
+kubernetes/nats/secrets
+kubernetes/nats/logs
+kubernetes/nats/clients-auth.json
+kubernetes/nats/config.*
+kubernetes/nats/nats*.conf
+kubernetes/nats/nats*.conf.nsc
+kubernetes/nats/nats*.py
+kubernetes/nats/nats*.tar.gz
+
+
 # Files containing DB passwords
 
 kubernetes/rucio/DBURL.txt
