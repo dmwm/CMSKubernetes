@@ -76,7 +76,7 @@ spec:
 #PROD#  - name: crabcache-storage
 #PROD#    mountPath: /data/srv/state/crabcache/files
 #PROD#  - name: logs-cephfs
-#PROD#    mountPath: /data/srv/logs
+#PROD#    mountPath: /data/srv/logs/crabcache
       volumes:
       - name: proxy-secrets
         secret:
