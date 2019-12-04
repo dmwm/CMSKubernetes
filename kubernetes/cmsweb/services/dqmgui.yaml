@@ -85,7 +85,7 @@ spec:
 #PROD#  - name: dqmgui-storage
 #PROD#    mountPath: /data/srv/state/dqmgui/data
 #PROD#  - name: logs-cephfs
-#PROD#    mountPath: /data/srv/logs
+#PROD#    mountPath: /data/srv/logs/dqmgui
       volumes:
       - name: proxy-secrets
         secret:
