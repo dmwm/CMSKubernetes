@@ -91,7 +91,7 @@ spec:
             type: File
 #PROD#- name: couchdb-storage
 #PROD#  persistentVolumeClaim:
-#PROD#      claimName: couchdb-cephfs-claim
+#PROD#      claimName: couchdb-claim
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim
