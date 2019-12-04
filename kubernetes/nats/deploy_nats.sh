@@ -30,11 +30,20 @@ else
 fi
 if [ -f ca.pem ] && [ -f server-key.pem ] && [ -f server.pem ]; then
     kubectl create secret generic nats-clients-tls \
-        --from-file=ca.pem --from-file=server-key.pem --from-file=server.pem
+        --from-file=secrets/nats-cluster/ca.pem \
+        --from-file=secrets/nats-cluster/server-key.pem \
+        --from-file=secrets/nats-cluster/server.pem \
+        --from-file=secrets/nats/CMS/CMS.jwt
 fi
 
 echo "deploy nats-cluster"
 kubectl apply -f nats-cluster.yaml --validate=false
+
+# redeploy the configuration with NSC operator and resolver
+#kubectl create secret generic nats-nsc-secrets --from-file=nats-nsc.tar.gz
+#kubectl delete secret nats-cluster
+#kubectl create secret generic nats-cluster --from-file=nats.conf
+# this will force nats cluster to be reloaded with new configuration file
 
 echo "Now let's see if nats-cluster are Running..., press CTRL+C when you see them"
 watch -d kubectl get nats --all-namespaces
