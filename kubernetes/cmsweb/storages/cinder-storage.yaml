@@ -10,6 +10,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: crabcache-claim
+  namespace: crab
   annotations:
     volume.beta.kubernetes.io/storage-class: cpio1
 spec:
@@ -23,6 +24,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: dqmgui-claim
+  namespace: dqm
   annotations:
     volume.beta.kubernetes.io/storage-class: cpio1
 spec:
@@ -36,6 +38,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: couchdb-claim
+  namespace: couchdb
   annotations:
     volume.beta.kubernetes.io/storage-class: cpio1
 spec:

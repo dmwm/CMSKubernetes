@@ -103,7 +103,7 @@ spec:
             type: File
 #PROD#- name: dqmgui-storage
 #PROD#  persistentVolumeClaim:
-#PROD#      claimName: dqmgui-cephfs-claim
+#PROD#      claimName: dqmgui-claim
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim
