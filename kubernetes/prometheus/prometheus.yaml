@@ -23,3 +23,7 @@ spec:
   resources:
     requests:
       memory: 400Mi
+  additionalScrapeConfigs:
+    name: prometheus-config
+    key: prometheus-config.yaml
+  serviceMonitorSelector: {}
