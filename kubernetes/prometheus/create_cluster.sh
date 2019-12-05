@@ -30,3 +30,7 @@ printf "* Finished creating cluster.\n"
 printf "Setting up cluster config and context..."
 openstack coe cluster config $clustername --dir ~/.kube --force
 printf "* Finished configuring your local kubectl with your new cluster '$clustername'."
+
+printf "Once you created a cluster please do..."
+kubectl get node | grep minion | \
+    awk '{split($1,a,"minion-"); print "openstack server set --property landb-alias=cms-prometheus--load-"a[2]"- "$1""}'
