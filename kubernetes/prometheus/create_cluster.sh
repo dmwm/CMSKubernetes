@@ -23,7 +23,7 @@ fi
 printf "Hi!\nUse CTRL+C to exit the 'watch' screen when all nodes reach 'RUNNING' state."
 
 printf "\nCreating cluster..."
-openstack coe cluster create $clustername --keypair $keyname --cluster-template $tmpl --node-count 2
+openstack coe cluster create $clustername --keypair $keyname --cluster-template $tmpl --node-count 2 --node-flavor=m2.2xlarge
 watch -d openstack coe cluster list
 printf "* Finished creating cluster.\n"
 
