@@ -38,6 +38,21 @@ pushgateway-deployment-5496f6b68d-4ph4q   1/1     Running   0          5h28m
 kubectl exec -ti prometheus-prometheus-0 -c prometheus sh
 ```
 
+### Pushgateway service
+The [Prometheus-pushgateway](https://github.com/prometheus/pushgateway)
+service exists to allow ephemeral and batch jobs to expose their metrics to
+Prometheus. Its deployment is done via `deploy.sh` script or can be
+done manually as following
+```
+kubectl apply -f pushgateway.yaml
+```
+The service is open on port 30091 and
+NATS subscriber can send any metrics to this service via simple
+HTTP call, e.g.
+```
+echo "some_metric 3.14" | curl --data-binary @- http://cms-prometheus.cern.ch:30091/metrics/job/some_job
+```
+
 ### VictoriaManifest backend
 We also deploy [VictoriaMetrics](https://victoriametrics.com/) service
 which can be used as Prometheus backend and long-term storage, as well
@@ -56,7 +71,10 @@ as simple as following:
 ```
 kubectl apply -f victoria-metrics.yaml
 ```
-and we can insert and query data as following:
+The service operates on two ports, 30422 to insert data and
+30428 to retrieve the data. The injected data should follow
+[OpenTSDB](http://opentsdb.net/docs/build/html/user_guide/writing/index.html)
+format, and we can insert and query data as following:
 ```
 url="http://cms-prometheus.cern.ch"
 purl=${url}:30422/api/put
@@ -75,6 +93,3 @@ put data into http://cms-prometheus.cern.ch:30422/api/put
 get data from http://cms-prometheus.cern.ch:30428/api/v1/export
 {"metric":{"__name__":"cms.dbs.exitCode","log":"/path/file.log","site":"T2_US","task":"test"},"values":[8021,8021],"timestamps":[1575635036000,1575635041000]}
 ```
-Please note that injected data should follow
-[OpenTSDB](http://opentsdb.net/docs/build/html/user_guide/writing/index.html)
-format.
