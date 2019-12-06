@@ -64,7 +64,10 @@ and additional
 which we can use for monitoring purposes. The VictoriaMetrics
 provides high-performance, scalability, queyring, high data-compression,
 and efficient storage, for all details please refer
-to [VictoriMetrics documentation](https://victoriametrics.github.io/#pure-go-build-cgo_enabled0).
+to VictoriaMetrics [documentation](https://victoriametrics.github.io/#pure-go-build-cgo_enabled0)
+and VictoriaMetrics
+[benchmark](https://medium.com/@valyala/high-cardinality-tsdb-benchmarks-victoriametrics-vs-timescaledb-vs-influxdb-13e6ee64dd6b)
+pages.
 
 The deployment is done internally by `deploy.sh` or can be done
 as simple as following:
@@ -93,3 +96,8 @@ put data into http://cms-prometheus.cern.ch:30422/api/put
 get data from http://cms-prometheus.cern.ch:30428/api/v1/export
 {"metric":{"__name__":"cms.dbs.exitCode","log":"/path/file.log","site":"T2_US","task":"test"},"values":[8021,8021],"timestamps":[1575635036000,1575635041000]}
 ```
+For more information about VictoriaMetrics please see
+its [FAQ](https://github.com/VictoriaMetrics/VictoriaMetrics/blob/master/docs/FAQ.md)
+and its
+[Single-node](https://github.com/VictoriaMetrics/VictoriaMetrics/blob/master/docs/Single-server-VictoriaMetrics.md#how-to-export-time-series)
+tutorial.
