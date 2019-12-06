@@ -19,3 +19,8 @@ if [ -z `kubectl get pod | grep pushgateway` ]; then
     kubectl delete -f pushgateway.yaml
 fi
 kubectl apply -f pushgateway.yaml
+# deploy VictoriaMetrics
+if [ -z `kubectl get pod | grep victoria-metrics` ]; then
+    kubectl delete -f victoria-metrics.yaml
+fi
+kubectl apply -f victoria-metrics.yaml
