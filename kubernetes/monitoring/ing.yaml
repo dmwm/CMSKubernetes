@@ -1,0 +1,24 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+  - host: cms-prometheus.cern.ch
+    http:
+      paths:
+      - path: /victoria-metrics-read
+        backend:
+          serviceName: victoria-metrics
+          servicePort: 8428
+      - path: /victoria-metrics-write
+        backend:
+          serviceName: victoria-metrics
+          servicePort: 4242
+      - path: /prometheus
+        backend:
+          serviceName: prometheus
+          servicePort: 9090
