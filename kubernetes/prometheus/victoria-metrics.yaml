@@ -2,7 +2,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: victoria-metrics-service
+  name: victoria-metrics
 spec:
   selector:
     app: victoria-metrics

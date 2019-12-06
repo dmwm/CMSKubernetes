@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pushgateway-deployment
+  name: pushgateway
   labels:
      app: pushgateway
 spec:
@@ -23,7 +23,7 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: pushgateway-service
+  name: pushgateway
 spec:
   selector:
     app: pushgateway
