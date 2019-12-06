@@ -1,0 +1,52 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: victoria-metrics-service
+spec:
+  selector:
+    app: victoria-metrics
+  type: NodePort
+  ports:
+#   - name: victoria-metrics
+#     protocol: TCP
+#     nodePort: 30422
+#     port: 4242
+#     targetPort: 4242
+  - port: 8428
+    nodePort: 30428
+    targetPort: 8428
+    name: http
+  - port: 4242
+    nodePort: 30422
+    targetPort: 4242
+    name: opentsdb
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: victoria-metrics
+  labels:
+     app: victoria-metrics
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: victoria-metrics
+   template:
+      metadata:
+         labels:
+           app: victoria-metrics
+      spec:
+        containers:
+        - args:
+          - -opentsdbHTTPListenAddr=:4242 
+          name: victoria-metrics
+          image: victoriametrics/victoria-metrics
+          ports:
+          - containerPort: 4242
+            protocol: TCP
+            name: opentsdb
+          - containerPort: 8428
+            protocol: TCP
+            name: http
