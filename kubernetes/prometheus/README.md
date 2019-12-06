@@ -57,7 +57,7 @@ The service is open on port 30091 and
 NATS subscriber can send any metrics to this service via simple
 HTTP call, e.g.
 ```
-echo "some_metric 3.14" | curl --data-binary @- http://cms-prometheus.cern.ch:30091/metrics/job/some_job
+echo "some_metric 3.14" | curl --data-binary @- http://cms-monitoring.cern.ch:30091/metrics/job/some_job
 ```
 
 ### VictoriaManifest backend
@@ -86,7 +86,7 @@ The service operates on two ports, 30422 to insert data and
 [OpenTSDB](http://opentsdb.net/docs/build/html/user_guide/writing/index.html)
 format, and we can insert and query data as following:
 ```
-url="http://cms-prometheus.cern.ch"
+url="http://cms-monitoring.cern.ch"
 purl=${url}:30422/api/put
 rurl=${url}:30428/api/v1/export
 
@@ -99,8 +99,8 @@ echo "get data from $rurl"
 curl -G "$rurl" -d 'match[]=cms.dbs.exitCode'
 
 # the output of query
-put data into http://cms-prometheus.cern.ch:30422/api/put
-get data from http://cms-prometheus.cern.ch:30428/api/v1/export
+put data into http://cms-monitoring.cern.ch:30422/api/put
+get data from http://cms-monitoring.cern.ch:30428/api/v1/export
 {"metric":{"__name__":"cms.dbs.exitCode","log":"/path/file.log","site":"T2_US","task":"test"},"values":[8021,8021],"timestamps":[1575635036000,1575635041000]}
 ```
 For more information about VictoriaMetrics please see

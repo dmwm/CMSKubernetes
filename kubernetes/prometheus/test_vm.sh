@@ -1,5 +1,6 @@
 #!/bin/bash
 url="http://cms-prometheus.cern.ch"
+url="http://cms-monitoring.cern.ch"
 purl=${url}:30422/api/put
 rurl=${url}:30428/api/v1/export
 echo "put data into $purl"
