@@ -7,7 +7,7 @@ spec:
   type: NodePort
   ports:
   - name: web
-    nodePort: 30900
+    nodePort: 31900
     port: 9090
     protocol: TCP
     targetPort: web
@@ -27,3 +27,10 @@ spec:
     name: prometheus-config
     key: prometheus-config.yaml
   serviceMonitorSelector: {}
+  # additional configuration can be found in
+  # https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#prometheusspec
+  remoteWrite:
+    - url: http://cms-prometheus.cern.ch:30428/api/v1/write
+      queue_config:
+        max_samples_per_send: 10000
+        max_shards: 30
