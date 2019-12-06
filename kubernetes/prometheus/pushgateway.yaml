@@ -1,3 +1,19 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: pushgateway
+spec:
+  selector:
+    app: pushgateway
+  type: NodePort
+  ports:
+  - name: pushgateway
+    protocol: TCP
+    port: 9091
+    nodePort: 30091
+    targetPort: 9091
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -19,16 +35,3 @@ spec:
            image: prom/pushgateway
            ports:
            - containerPort: 9091
----
-kind: Service
-apiVersion: v1
-metadata:
-  name: pushgateway
-spec:
-  selector:
-    app: pushgateway
-  ports:
-  - name: pushgateway
-    protocol: TCP
-    port: 9091
-    targetPort: 9091
