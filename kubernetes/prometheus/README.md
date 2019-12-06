@@ -1,3 +1,7 @@
+### CMS Monitoring cluster architecture
+Here we present CMS Monitoring cluster architecture
+![cluster architecture](images/CMSMonitoringArchitecture.png.png)
+
 ### CMS Promeetheus service
 The [Prometheus](https://prometheus.io/) is  an open-source systems monitoring.
 
