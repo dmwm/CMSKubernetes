@@ -24,7 +24,9 @@ kubernetes/nats/nats*.conf
 kubernetes/nats/nats*.conf.nsc
 kubernetes/nats/nats*.py
 kubernetes/nats/nats*.tar.gz
-kubernetes/prometheus/config.prometheus-cluster
+kubernetes/monitoring/config.*
+kubernetes/monitoring/secrets
+kubernetes/monitoring/prometheus-config.yaml
 
 
 # Files containing DB passwords
