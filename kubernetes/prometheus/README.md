@@ -75,4 +75,6 @@ put data into http://cms-prometheus.cern.ch:30422/api/put
 get data from http://cms-prometheus.cern.ch:30428/api/v1/export
 {"metric":{"__name__":"cms.dbs.exitCode","log":"/path/file.log","site":"T2_US","task":"test"},"values":[8021,8021],"timestamps":[1575635036000,1575635041000]}
 ```
-
+Please note that injected data should follow
+[OpenTSDB](http://opentsdb.net/docs/build/html/user_guide/writing/index.html)
+format.
