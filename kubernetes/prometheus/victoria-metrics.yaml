@@ -8,11 +8,6 @@ spec:
     app: victoria-metrics
   type: NodePort
   ports:
-#   - name: victoria-metrics
-#     protocol: TCP
-#     nodePort: 30422
-#     port: 4242
-#     targetPort: 4242
   - port: 8428
     nodePort: 30428
     targetPort: 8428
