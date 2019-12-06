@@ -25,18 +25,21 @@ openstack coe cluster create --keypair cloud \
 deploy.sh
 ```
 
-That's it! You can see the status of your deployment as following:
-```
-kubectl get pods
-NAME                                      READY   STATUS    RESTARTS   AGE
-prometheus-operator-6685db5c6-2rz54       1/1     Running   0          30h
-prometheus-prometheus-0                   3/3     Running   1          4h31m
-prometheus-prometheus-1                   3/3     Running   1          4h31m
-pushgateway-deployment-5496f6b68d-4ph4q   1/1     Running   0          5h28m
+That's it!
 
-# and you can login to your prometheus pod as following
-kubectl exec -ti prometheus-prometheus-0 -c prometheus sh
-```
+#### Prometheus-operator deployment
+We provide files `bundle.yaml` and `prom-oper.yaml` to deploy
+prometheus cluster via
+[Prometheus-operator](https://github.com/coreos/prometheus-operator)
+deployment procedure. But we found certain limitation, in prometheus
+configuration, which does not allow to integrate this
+deployment with VictoriaMetrics service.
+
+#### Prometheus custom deployment
+The custom Prometheus deployment is based on `prometheus.yaml` manifest
+file. It uses promtheus image and allows to provide custom configuration
+of the service, e.g. add VictoriaMetrics service, use `file_sd_configs`
+configuration, etc.
 
 ### Pushgateway service
 The [Prometheus-pushgateway](https://github.com/prometheus/pushgateway)
@@ -101,3 +104,22 @@ its [FAQ](https://github.com/VictoriaMetrics/VictoriaMetrics/blob/master/docs/FA
 and its
 [Single-node](https://github.com/VictoriaMetrics/VictoriaMetrics/blob/master/docs/Single-server-VictoriaMetrics.md#how-to-export-time-series)
 tutorial.
+
+### Content
+Here we provide content of repository
+```
+# prometheus operator files
+bundle.yaml           # create CRD bundle
+prom-oper.yaml        # deployment manifest file
+
+# aux files
+create_cluster.sh     # script to create a cluster
+create_secrets.sh     # script to create prometheus secrets
+deploy.sh             # script to deploy all services
+test_vm.sh            # script to test VictoriSecrets service
+
+# service files
+prometheus.yaml       # prometheus deployment manifest
+pushgateway.yaml      # pushgateway deployment manifest
+victoria-metrics.yaml # VictoriaMetrics manifest
+```
