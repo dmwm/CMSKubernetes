@@ -16,8 +16,15 @@ spec:
            app: nats-sub
       spec:
         containers:
-        - image: veknet/nats-sub
+        - args:
+          - /data/nats-sub
+          - -rootCAs=/etc/nats/CERN_CA.crt,/etc/nats/CERN_CA1.crt
+          - -t
+          - -cmsAuth=/etc/nats/cms-auth
+          - -vmUri=http://cms-monitoring.cern.ch:30422"
+          - "cms.wmarchive.exitCode.>"
           name: nats-sub
+          image: veknet/nats-sub
           volumeMounts:
           - name: nats-secrets
             mountPath: /etc/nats
