@@ -37,8 +37,17 @@ kubectl get node | grep minion | \
 kubectl apply -f cinder-storage.yaml
 kubectl apply -f victoria-metrics.yaml
 # add nats-sub daemon
-kubectl create secret generic nats-secrets --from-file=nats-secrets/cms-auth
-kubectl apply -f nats-sub.yaml
+if [ -n "`kubectl get secrets | grep nats-secrets`" ]; then
+    kubectl delete secret nats-secrets
+fi
+kubectl create secret generic nats-secrets \
+    --from-file=nats-secrets/cms-auth \
+    --from-file=nats-secrets/CERN_CA.crt \
+    --from-file=nats-secrets/CERN_CA1.crt
+kubectl apply -f nats-sub-exitcode.yaml
+kubectl apply -f nats-sub-stats.yaml
+kubectl apply -f nats-sub-t1.yaml
+kubectl apply -f nats-sub-t2.yaml
 # add labels for ingress
 kubectl get node | grep minion | \
     awk '{print "kubectl label node "$1" role=ingress --overwrite"}' | /bin/sh
