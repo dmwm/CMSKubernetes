@@ -36,6 +36,8 @@ spec:
         containers:
         - args:
           - -opentsdbHTTPListenAddr=:4242 
+          - -retentionPeriod=1
+          - -storageDataPath=/tsdb
           name: victoria-metrics
           image: victoriametrics/victoria-metrics
           ports:
@@ -45,3 +47,10 @@ spec:
           - containerPort: 8428
             protocol: TCP
             name: http
+          volumeMounts:
+          - name: cinder-volume
+            mountPath: /tsdb
+        volumes:
+        - name: cinder-volume
+          persistentVolumeClaim:
+            claimName: cinder-volume-claim

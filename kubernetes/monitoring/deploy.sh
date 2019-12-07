@@ -30,4 +30,9 @@ kubectl apply -f pushgateway.yaml
 if [ -n "`kubectl get pod | grep victoria-metrics`" ]; then
     kubectl delete -f victoria-metrics.yaml
 fi
+# label our minions in order to use PVC
+kubectl get node | grep minion | \
+    awk '{print "kubectl label node "$1" failure-domain.beta.kubernetes.io/zone=nova --overwrite"}'
+# add PVC storage
+kubectl apply -f cinder-storage.yaml
 kubectl apply -f victoria-metrics.yaml
