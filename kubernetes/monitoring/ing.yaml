@@ -7,18 +7,14 @@ metadata:
     kubernetes.io/ingress.class: traefik
 spec:
   rules:
-  - host: cms-prometheus.cern.ch
+  - host: cms-monitoring.cern.ch
     http:
       paths:
-      - path: /victoria-metrics-read
-        backend:
-          serviceName: victoria-metrics
-          servicePort: 8428
-      - path: /victoria-metrics-write
-        backend:
-          serviceName: victoria-metrics
-          servicePort: 4242
       - path: /prometheus
         backend:
           serviceName: prometheus
           servicePort: 9090
+      - path: /pushgateway
+        backend:
+          serviceName: pushgateway
+          servicePort: 9091
