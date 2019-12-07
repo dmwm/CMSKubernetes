@@ -36,3 +36,11 @@ kubectl get node | grep minion | \
 # add PVC storage
 kubectl apply -f cinder-storage.yaml
 kubectl apply -f victoria-metrics.yaml
+# add nats-sub daemon
+kubectl create secret generic nats-secrets --from-file=nats-secrets/cms-auth
+kubectl apply -f nats-sub.yaml
+# add labels for ingress
+kubectl get node | grep minion | \
+    awk '{print "kubectl label node "$1" role=ingress --overwrite"}' | /bin/sh
+# deploy ing controller
+kubectl apply -f ing.yaml
