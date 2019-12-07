@@ -1,0 +1,28 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nats-sub
+  labels:
+     app: nats-sub
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: nats-sub
+   template:
+      metadata:
+         labels:
+           app: nats-sub
+      spec:
+        containers:
+        - image: veknet/nats-sub
+          name: nats-sub
+          volumeMounts:
+          - name: nats-secrets
+            mountPath: /etc/nats
+            readOnly: true
+        volumes:
+        - name: nats-secrets
+          secret:
+            secretName: nats-secrets
