@@ -179,3 +179,4 @@ ssh -i ~/.ssh/cloud -o ConnectTimeout=30 -o UserKnownHostsFile=/dev/null -o Stri
 - [Kubernetes networking guide](https://sookocheff.com/post/kubernetes/understanding-kubernetes-networking-model/)
 - [Kubernetes DNS](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/)
 - [Kubernetes cheatsheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
+- [Kubernetes troubleshouting](https://learnk8s.io/troubleshooting-deployments)
