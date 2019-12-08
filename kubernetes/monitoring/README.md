@@ -10,23 +10,23 @@ We rely on [Prometheus-Opeartor](https://github.com/coreos/prometheus-operator)
 CRD which can be used to easily deploy prometheus service on k8s
 infrastructure.
 
-The deployment of CMS Prometheus to k8s cluster is trivial. Please follow
+The deployment of CMS Monitoring k8s cluster is trivial. Please follow
 these steps:
 ```
 # login to lxplus-cloud
 ssh lxplus-cloud
 
-# create a cluster
-create_cluster.sh <ssh key-pair> <cluster name>
-# or you can use manual procedure, e.g.
-openstack coe cluster create --keypair cloud \
-    --cluster-template kubernetes-1.15.3-3 \
-    --flavor m2.medium --master-flavor m2.medium --node-count 2 prometheus-cluster
+# create a new cluster
+./deploy.sh create cluster
 
+# deploy cluster services
+deploy.sh create services
 
-# deploy Prometheus server, the deployment scripts expects
-# that your area contains prometheus-config.yaml configuration file
-deploy.sh
+# check cluster services
+./deploy.sh status
+
+# clean-up (destroy) services
+./deploy.sh cleanup
 ```
 
 That's it!
@@ -89,14 +89,19 @@ format, and we can insert and query data as following:
 url="http://cms-monitoring.cern.ch"
 purl=${url}:30422/api/put
 rurl=${url}:30428/api/v1/export
+qurl=${url}:30428/api/v1/query
 
 # insert data into VictoriaMetrics
 echo "put data into $purl"
 curl -H 'Content-Type: application/json' -d '{"metric":"cms.dbs.exitCode", "value":8021, "tags":{"site":"T2_US", "task":"test", "log":"/path/file.log"}}' "$purl"
 
-# query data from VictoriaMetrics
+# fetch timeseries data from VictoriaMetrics
 echo "get data from $rurl"
 curl -G "$rurl" -d 'match[]=cms.dbs.exitCode'
+
+# query data from VictoriaMetrics using PromQL, e.g. find rate of exitCode=8021 in last 5min
+echo "get data from $rurl"
+curl -G "$rurl" -d 'query=rate({exitCode="8021"})[5m]'
 
 # the output of query
 put data into http://cms-monitoring.cern.ch:30422/api/put
