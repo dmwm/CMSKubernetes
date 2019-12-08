@@ -114,21 +114,33 @@ and its
 [Single-node](https://github.com/VictoriaMetrics/VictoriaMetrics/blob/master/docs/Single-server-VictoriaMetrics.md#how-to-export-time-series)
 tutorial.
 
+### NATS subscribers
+We also deploy to our cluster NATS subscribers daemons.
+Their task is handle various NATS subscriptions on different topics.
+So far we monitor the following topics:
+- WMArchive exitCodes and their stats
+- WMArchive T1, T2 sites
+We plan to add:
+- DBS dataset monitoring
+- WMAgent job status monitoring
+
 ### Content
 Here we provide content of repository
 ```
-# prometheus operator files
-bundle.yaml           # create CRD bundle
-prom-oper.yaml        # deployment manifest file
-
 # aux files
-create_cluster.sh     # script to create a cluster
-create_secrets.sh     # script to create prometheus secrets
-deploy.sh             # script to deploy all services
-test_vm.sh            # script to test VictoriSecrets service
+deploy.sh              # script to deploy all services
+
+# prometheus operator files
+bundle.yaml            # create CRD bundle
+prom-oper.yaml         # deployment manifest file
 
 # service files
-prometheus.yaml       # prometheus deployment manifest
-pushgateway.yaml      # pushgateway deployment manifest
-victoria-metrics.yaml # VictoriaMetrics manifest
+prometheus.yaml        # prometheus deployment manifest
+pushgateway.yaml       # pushgateway deployment manifest
+victoria-metrics.yaml  # VictoriaMetrics manifest
+nats-sub-exitcode.yaml # NATS subscriber for cms.wmarchive.exitCode topic
+nats-sub-stats.yaml    # NATS subscriber for cms.wmarchive.exitCode stats
+nats-sub-t1.yaml       # NATS subscriber for cms.wmarchive.site.T2 topic
+nats-sub-t2.yaml       # NATS subscriber for cms.wmarchive.site.T2 topic
+nats-sub.yaml          # NATS subscriber (original manifest)
 ```
