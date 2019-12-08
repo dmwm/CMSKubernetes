@@ -6,6 +6,7 @@
 ##H   cleanup    cleanup services
 ##H   create     create action
 ##H   status     check status of the services
+##H   test       perform integration tests
 ##H
 ##H Deployments:
 ##H   cluster    create openstack cluster
@@ -195,6 +196,17 @@ check()
     kubectl top pods
 }
 
+test_vm()
+{
+    local url="http://cms-monitoring.cern.ch"
+    local purl=${url}:30422/api/put
+    local rurl=${url}:30428/api/v1/export
+    echo "put data into $purl"
+    curl -H 'Content-Type: application/json' -d '{"metric":"cms.test.exitCode", "value":1, "tags":{"exitCode": "8021", "site":"T2_US", "task":"test", "log":"/path/file.log"}}' "$purl"
+    echo "get data from $rurl"
+    curl -G "$rurl" -d 'match[]=cms.test.exitCode'
+}
+
 # Main routine, perform action requested on command line.
 case ${1:-status} in
   cleanup )
@@ -212,6 +224,10 @@ case ${1:-status} in
 
   status )
     check
+    ;;
+
+  test )
+    test_vm
     ;;
 
   help )
