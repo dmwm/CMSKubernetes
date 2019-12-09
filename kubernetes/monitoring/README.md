@@ -112,7 +112,9 @@ For more information about VictoriaMetrics please see
 its [FAQ](https://github.com/VictoriaMetrics/VictoriaMetrics/blob/master/docs/FAQ.md)
 and its
 [Single-node](https://github.com/VictoriaMetrics/VictoriaMetrics/blob/master/docs/Single-server-VictoriaMetrics.md#how-to-export-time-series)
-tutorial.
+tutorial and blog about
+[Prometheus Subqueries in
+VictoriaMetrics](https://medium.com/@valyala/prometheus-subqueries-in-victoriametrics-9b1492b720b3)
 
 ### NATS subscribers
 We also deploy to our cluster NATS subscribers daemons.
