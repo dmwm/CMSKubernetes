@@ -36,6 +36,9 @@ if [ -f ca.pem ] && [ -f server-key.pem ] && [ -f server.pem ]; then
         --from-file=secrets/nats/CMS/CMS.jwt
 fi
 
+echo "add proper roles"
+kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard
+
 echo "deploy nats-cluster"
 kubectl apply -f nats-cluster.yaml --validate=false
 
