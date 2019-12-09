@@ -121,6 +121,12 @@ deploy_ingress()
     kubectl apply -f ingress.yaml
 }
 
+# deploy roles for our cluster
+deploy_roles()
+{
+    kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard
+}
+
 # creation of the cluster
 create()
 {
@@ -146,6 +152,7 @@ create()
         deploy_secrets
         deploy_storages
         deploy_services
+        deploy_roles
         deploy_ingress
     fi
 }
