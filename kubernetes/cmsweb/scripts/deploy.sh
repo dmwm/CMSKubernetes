@@ -455,6 +455,12 @@ deploy_storages()
     kubectl apply -f storages/cinder-storage.yaml
 }
 
+# deploy cluster roles
+deploy_roles()
+{
+    kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard
+}
+
 # deploy appripriate ingress controller for our cluster
 deploy_ingress()
 {
@@ -554,6 +560,7 @@ create()
         deploy_secrets
         deploy_storages
         deploy_services
+        deploy_roles
         deploy_ingress
         deploy_crons
         deploy_monitoring
