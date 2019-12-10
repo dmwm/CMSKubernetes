@@ -95,8 +95,12 @@ deploy_storages()
         kubectl label node $n failure-domain.beta.kubernetes.io/zone=nova --overwrite
         kubectl label node $n failure-domain.beta.kubernetes.io/region=cern --overwrite
     done
-    # add PVC storage
-    kubectl apply -f cinder-storage.yaml
+    if [ -z "`kubectl get pvc | grep cinder-volume-claim`" ]; then
+        kubectl apply -f cinder-storage.yaml
+    fi
+    if [ -z "`kubectl get pvc | grep prometheus-volume-claim`" ]; then
+        kubectl apply -f prometheus-storage.yaml
+    fi
 }
 
 # cluster services deployment

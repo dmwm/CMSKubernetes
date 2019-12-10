@@ -29,11 +29,13 @@ spec:
          labels:
            app: prometheus
       spec:
+        securityContext:
+          fsGroup: 1000
         containers:
         - args:
           - --log.level=info
           - --config.file=/etc/prometheus/prometheus.yml
-          - --storage.tsdb.path=/tmp/prometheus/
+          - --storage.tsdb.path=/tmp/prometheus
           - --web.console.templates=/etc/prometheus/consoles
           - --web.console.libraries=/etc/prometheus/console_libraries
           name: prometheus
@@ -43,6 +45,9 @@ spec:
             protocol: TCP
             name: prometheus
           volumeMounts:
+          - name: cinder-volume
+            mountPath: /tmp/prometheus
+            readOnly: false
           - name: prometheus-secrets
             mountPath: /etc/prometheus
             readOnly: true
@@ -50,3 +55,6 @@ spec:
         - name: prometheus-secrets
           secret:
             secretName: prometheus-secrets
+        - name: cinder-volume
+          persistentVolumeClaim:
+            claimName: prometheus-volume-claim
