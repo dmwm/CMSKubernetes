@@ -16,7 +16,7 @@ helm install --name $UI_NAME --values cms-rucio-common.yaml,cms-rucio-webui.yaml
 helm install --name $PROBE_NAME --values cms-rucio-common.yaml,cms-rucio-probes.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $REPO/rucio-probes
 
 # statsd exporter to prometheus
-helm install --name statsd-exporter  --values ${INSTANCE}-statsd-exporter.yaml cms-kubernetes/rucio-statsd-exporter
+helm install --name statsd-exporter  --values statsd-prometheus-mapping.yaml,${INSTANCE}-statsd-exporter.yaml cms-kubernetes/rucio-statsd-exporter
 
 # Filebeat and logstash
 #helm install --name logstash --values cms-rucio-logstash.yml,${INSTANCE}-logstash-filter.yaml stable/logstash
