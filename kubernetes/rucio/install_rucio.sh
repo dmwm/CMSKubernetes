@@ -13,7 +13,7 @@ export PROBE_NAME=cms-probe-${INSTANCE}
 helm install --name $SERVER_NAME --values cms-rucio-common.yaml,cms-rucio-server.yaml,${INSTANCE}-rucio-server.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $REPO/rucio-server
 helm install --name $DAEMON_NAME --values cms-rucio-common.yaml,cms-rucio-daemons.yaml,${INSTANCE}-rucio-daemons.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $REPO/rucio-daemons
 helm install --name $UI_NAME --values cms-rucio-common.yaml,cms-rucio-webui.yaml,${INSTANCE}-rucio-webui.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $REPO/rucio-ui
-helm install --name $PROBE_NAME --values cms-rucio-common.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $CMS_REPO/rucio-cron-jobs
+helm install --name $PROBE_NAME --values cms-rucio-common.yaml,cms-rucio-probes.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $REPO/rucio-probes
 
 # statsd exporter to prometheus
 helm install --name statsd-exporter  --values ${INSTANCE}-statsd-exporter.yaml cms-kubernetes/rucio-statsd-exporter

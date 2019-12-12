@@ -1,5 +1,0 @@
-# Temporary only until we have a unified release and can use dev-release
-
-image:
-  tag: latest
-
