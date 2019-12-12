@@ -23,7 +23,7 @@ mappings:
     name: "rucio_queue_requests_stats"
     labels:
       request_state: "$1"
-      activity: "$3"
+      activity: "$2"
       fts_server: "$3"
   - match: "rucio.transfertool.fts3.*.*.*"
     help: "Rucio FTS3 interface counters"
