@@ -14,3 +14,8 @@ FROM rucio/rucio-daemons:release-$RUCIO_VERSION
 ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/cmstfc.py  /usr/lib/python2.7/site-packages/cmstfc.py
 
 RUN chmod 755 /usr/lib/python2.7/site-packages/cmstfc.py
+
+# Add another CA
+
+RUN yum-config-manager --add-repo http://linuxsoft.cern.ch/mirror/repository.egi.eu/sw/production/cas/1/current/
+RUN yum install ca_policy_igtf-classic -y
