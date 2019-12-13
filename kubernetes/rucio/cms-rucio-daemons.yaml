@@ -34,9 +34,13 @@ ftsRenewal:
 
 hermes:
     useSSL: 1
-    delay: 30 
+    threads: 5
+    bulk: 500
+    brokerTimeout: 0
 
 config:
+    common:
+        loglevel: "INFO"
     messaging_hermes:
         port: "61323"
         brokers: "cms-mb.cern.ch"

@@ -62,7 +62,7 @@ Users may request a new cluster or its redeployment in [https://gitlab.cern.ch/c
 ## Service Deployment Steps in K8S:
 
 - `ssh lxplus-cloud`
-- `export OS_PROJECT_NAME="CMS Webtools Mig`
+- `export OS_PROJECT_NAME="CMS Webtools Mig"`
 
 Use export KUBECONFIG to point to the relevant configurations for the clusters. Please note that these configurations are for the backend clusters as users will only need to work in the backend clusters to deploy/undeploy their services. However, if any user need access to the frontend configuration, we can provide this on demand. The KUBECONFIG for the backend are listed below:  
 

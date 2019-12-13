@@ -5,8 +5,6 @@ metadata:
   labels:
     app: statsd-exporter
 data:
-  statsd_mapping.yaml: |+
+  statsd_mapping.yaml: |-
     mappings:
-      - match: stats.test.*
-        help: "Mapping-generated"
-        name: "test_$1"
+{{ toYaml .Values.mappings | indent 6 }}

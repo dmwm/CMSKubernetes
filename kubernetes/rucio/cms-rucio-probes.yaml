@@ -1,0 +1,12 @@
+image:
+  repository: cmssw/rucio-probes
+
+probes:
+  every15m: "check_transfer_queues_status check_messages_to_submit check_unevaluated_dids check_unlocked_replicas check_requests_to_rses check_stuck_rules check_oracle check_fts_backlog"
+
+config:
+  nagios:
+    proxy: "/opt/proxy/x509up"
+    fts_vo: "cms"
+    update_distances: "False"
+

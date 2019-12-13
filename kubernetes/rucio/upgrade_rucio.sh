@@ -13,7 +13,7 @@ export PROBE_NAME=cms-probe-${INSTANCE}
 helm upgrade --recreate-pods --values cms-rucio-common.yaml,cms-rucio-server.yaml,${PREFIX}-rucio-server.yaml,${PREFIX}-db.yaml,${PREFIX}-release.yaml  $SERVER_NAME $REPO/rucio-server
 helm upgrade --recreate-pods --values cms-rucio-common.yaml,cms-rucio-daemons.yaml,${PREFIX}-rucio-daemons.yaml,${PREFIX}-db.yaml,${PREFIX}-release.yaml $DAEMON_NAME $REPO/rucio-daemons
 helm upgrade --recreate-pods --values cms-rucio-common.yaml,cms-rucio-webui.yaml,${PREFIX}-rucio-webui.yaml,${PREFIX}-db.yaml $UI_NAME $REPO/rucio-ui
-helm upgrade --recreate-pods --values cms-rucio-common.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $PROBE_NAME $CMS_REPO/rucio-cron-jobs
+helm upgrade --recreate-pods --values cms-rucio-common.yaml,cms-rucio-probes.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $PROBE_NAME $REPO/rucio-probes
 
 # statsd exporter to prometheus
 helm upgrade --recreate-pods --values ${INSTANCE}-statsd-exporter.yaml statsd-exporter cms-kubernetes/rucio-statsd-exporter
