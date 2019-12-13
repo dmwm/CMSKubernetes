@@ -25,7 +25,8 @@ kubernetes/nats/nats*.conf.nsc
 kubernetes/nats/nats*.py
 kubernetes/nats/nats*.tar.gz
 kubernetes/monitoring/config.*
-kubernetes/monitoring/secrets
+kubernetes/monitoring/nats_secrets
+kubernetes/monitoring/prometheus_secrets
 kubernetes/monitoring/prometheus-config.yaml
 
 

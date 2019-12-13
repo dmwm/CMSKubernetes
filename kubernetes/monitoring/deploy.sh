@@ -62,15 +62,15 @@ deploy_prometheus_operator()
 # cluster secrets deployment
 deploy_secrets()
 {
-    if [ ! -d secrets ]; then
-        echo "Please provide secrets area with prometheus files"
+    if [ ! -d prometheus_secrets ]; then
+        echo "Please provide prometheus_secrets area with prometheus files"
         exit 1
     fi
     if [ -n "`kubectl get secrets | grep prometheus-secrets`" ]; then
         echo "delete prometheus-secrets"
         kubectl delete secret prometheus-secrets
     fi
-    ls secrets/{*.yml,*.yaml,*.json,console_libraries/*} | awk '{ORS=" "; print "--from-file="$1""}' | awk '{print "kubectl create secret generic prometheus-secrets "$0""}' | /bin/sh
+    ls prometheus_secrets/{*.yml,*.yaml,*.json,console_libraries/*} | awk '{ORS=" "; print "--from-file="$1""}' | awk '{print "kubectl create secret generic prometheus-secrets "$0""}' | /bin/sh
     # add nats-secrets
     if [ -n "`kubectl get secrets | grep nats-secrets`" ]; then
         echo "delete nats-secrets"
