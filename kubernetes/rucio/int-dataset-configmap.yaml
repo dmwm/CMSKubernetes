@@ -1,0 +1,158 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dataset-config
+data:
+  site-sync.yaml: |+
+    # Main configuration
+    main:
+        pool: 6
+        sleep: 60
+        verbosity: NOTICE
+        run:
+          "for:13000"   # True YAML does not work
+    default:
+        pool: 2
+        chunck: 1000
+    T1_DE_KIT_Disk:
+        pool: 1
+        multi_das_calls: True
+    T1_ES_PIC_Disk:
+        pool: 1
+        multi_das_calls: True
+    T1_FR_CCIN2P3_Disk:
+        pool: 1
+        multi_das_calls: True
+    T1_IT_CNAF_Disk:
+        pool: 1
+        multi_das_calls: True
+    T1_RU_JINR_Disk:
+        pool: 1
+        multi_das_calls: True
+    T1_US_FNAL_Disk:
+        pool: 1
+        multi_das_calls: True
+    T1_UK_RAL_Disk:
+        pool: 1
+        multi_das_calls: True
+    #        multi_das_calls: True
+    #        select:
+    #          - '\S+NANOAOD\S+'
+    #T1_DE_KIT_Buffer
+    #T1_ES_PIC_Buffer
+    #T1_FR_CCIN2P3_Buffer
+    #T1_IT_CNAF_Buffer
+    #T1_RU_JINR_Buffer
+    #T1_UK_RAL_Buffer
+    #T1_US_FNAL_Buffer
+    T2_AT_Vienna:
+        pool: 2
+    #        select:
+    #      - '\S+NANOAOD\S+'
+    T2_BE_IIHE:
+        pool: 2
+    T2_BE_UCL:
+        pool: 2
+    T2_BR_SPRACE:
+        pool: 2
+    T2_BR_UERJ:
+        pool: 2
+    T2_CH_CERN:
+        pool: 1
+        multi_das_calls: True
+    T2_CH_CSCS:
+        pool: 2
+    T2_CN_Beijing:
+        pool: 2
+    T2_DE_DESY:
+        pool: 2
+    T2_DE_RWTH:
+        pool: 2
+    T2_EE_Estonia:
+        pool: 2
+    T2_ES_CIEMAT:
+        pool: 2
+    T2_ES_IFCA:
+        pool: 2
+    T2_FI_HIP:
+        pool: 2
+    T2_FR_CCIN2P3:
+        pool: 2
+    T2_FR_GRIF_LLR:
+        pool: 2
+    T2_FR_GRIF_IRFU:
+        pool: 2
+    T2_FR_IPHC:
+        pool: 2
+    T2_GR_Ioannina:
+        pool: 2
+    T2_HU_Budapest:
+        pool: 2
+    T2_IN_TIFR:
+        pool: 2
+    T2_IT_Bari:
+        pool: 2
+    T2_IT_Legnaro:
+        pool: 2
+    T2_IT_Pisa:
+        pool: 2
+    T2_IT_Rome:
+        pool: 2
+    T2_KR_KISTI:
+        pool: 2
+    T2_KR_KNU:
+        pool: 2
+    T2_PK_NCP:
+        pool: 2
+    T2_PL_Swierk:
+        pool: 2
+    T2_PL_Warsaw:
+        pool: 2
+    T2_PT_NCG_Lisbon:
+        pool: 2
+    T2_RU_IHEP:
+        pool: 2
+    T2_RU_INR:
+        pool: 2
+    T2_RU_ITEP:
+        pool: 2
+    T2_RU_JINR:
+        pool: 2
+    T2_RU_PNPI:
+        pool: 2
+    T2_RU_SINP:
+        pool: 2
+    T2_TH_CUNSTDA:
+        pool: 2
+    T2_TR_METU:
+        pool: 2
+    T2_TW_NCHC:
+        pool: 2
+    T2_UA_KIPT:
+        pool: 2
+    T2_UK_London_Brunel:
+        pool: 2
+    T2_UK_London_IC:
+        pool: 2
+    T2_UK_SGrid_Bristol:
+        pool: 2
+    T2_US_Nebraska:
+        pool: 2
+        multi_das_calls: True
+    T2_US_UCSD:
+        pool: 2
+    T2_US_Florida:
+        pool: 2
+        multi_das_calls: True
+    T2_US_Caltech:
+        pool: 2
+    T2_US_MIT:
+        pool: 2
+    T2_US_Purdue:
+        pool: 2
+    T2_US_Vanderbilt:
+        pool: 2
+    T2_US_Wisconsin:
+        pool: 2
+    T3_FR_IPNL:
+        pool: 2
