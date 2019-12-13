@@ -34,11 +34,11 @@ spec:
         name: httpgo
         resources:
           requests:
-            memory: "64Mi"
-            cpu: "100m"
-          limits:
             memory: "256Mi"
-            cpu: "800m"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
         # here is an example how to run post command
         tty: true
         stdin: true
