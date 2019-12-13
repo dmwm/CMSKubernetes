@@ -1,0 +1,34 @@
+mappings:
+  - match: "rucio.fts3.*.submitted"
+    help: "FTS3 stats"
+    name: "rucio_fts3_stats"
+    labels:
+      fts_server: "$1"
+  - match: "rucio.requests.*.*"
+    help: "Rucio transfer request"
+    name: "rucio_requests_stats"
+    labels:
+      request_state: "$1"
+      dst_rse: "$2"
+      request_age: "Any"
+  - match: "rucio.requests.*.*.*"
+    help: "Rucio transfer request"
+    name: "rucio_requests_stats"
+    labels:
+      request_state: "$2"
+      dst_rse: "$3"
+      request_age: "$1"
+  - match: "rucio.queues.requests.*.*.*"
+    help: "Rucio transfer request queue"
+    name: "rucio_queue_requests_stats"
+    labels:
+      request_state: "$1"
+      activity: "$2"
+      fts_server: "$3"
+  - match: "rucio.transfertool.fts3.*.*.*"
+    help: "Rucio FTS3 interface counters"
+    name: "rucio_transfertool_fts3_counters"
+    labels:
+      fts_server: "$1"
+      operation: "$2"
+      outcome: "$3"
