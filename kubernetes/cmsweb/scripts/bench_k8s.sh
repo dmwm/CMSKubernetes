@@ -1,6 +1,10 @@
 #!/bin/bash
 ##H Usage: bench_k8s.sh <url> <dbs_instance=int>
 ##H
+##H Environments:
+##H BENCHK8S     defines which tool to use, default hey_linux
+##H CMSK8S       defines default url (cmsweb-test.cern.ch)
+##H
 
 # define help
 if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ] || [ "$1" == "" ]; then

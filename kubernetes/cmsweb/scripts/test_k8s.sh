@@ -1,8 +1,13 @@
 #!/bin/bash
-# define help
-usage="Usage: tests.sh <url> <dbs_instance=int>"
-if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ]; then
-    echo $usage
+##H Usage: bench_k8s.sh <url> <dbs_instance=int>
+##H
+##H Environments:
+##H CMSK8S       defines default url (cmsweb-test.cern.ch)
+##H SCRAM_ARCH   defines default CMSSW architecture( slc7_amd64_gcc700)
+##H
+
+if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ] || [ "$1" == "" ]; then
+    perl -ne '/^##H/ && do { s/^##H ?//; print }' < $0
     exit 1
 fi
 
