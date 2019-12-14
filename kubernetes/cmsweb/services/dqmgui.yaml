@@ -31,6 +31,7 @@ spec:
   selector:
     matchLabels:
       app: dqmgui
+#testing replicas
   replicas: 1 #PROD# 1
   template:
     metadata:
