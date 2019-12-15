@@ -9,8 +9,33 @@ done as following
 ```
 # edit nginx ingress controller spec
 kubectl -n kube-system edit daemonset.apps/nginx-ingress-controller
-
-# then we can restart the daemon set as following, e.g.
+```
+and to improve throughput we need to remove the following sections:
+```
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 10254
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+...
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 10254
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+```
+then we can restart the daemon set as following, e.g.
+```
 kubectl -n kube-system delete pod nginx-ingress-controller-gsw2b
 # or better use this independent from pod name command
 kubectl -n kube-system get pods | grep ingress-controller | awk '{print "kubectl -n kube-system delete pod "$1""}'

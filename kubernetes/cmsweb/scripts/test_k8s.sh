@@ -1,9 +1,5 @@
 #!/bin/bash
-##H Usage: bench_k8s.sh <url> <dbs_instance=int>
-##H
-##H Environments:
-##H CMSK8S       defines default url (cmsweb-test.cern.ch)
-##H SCRAM_ARCH   defines default CMSSW architecture( slc7_amd64_gcc700)
+##H Usage: test_k8s.sh <url> <dbs_instance=int>
 ##H
 
 if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ] || [ "$1" == "" ]; then
@@ -11,11 +7,7 @@ if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == 
     exit 1
 fi
 
-# define list of urls to test
-url=${CMSK8S:-https://cmsweb-test.cern.ch}
-if [ -n "$1" ]; then
-    url=$1
-fi
+url=$1
 
 # dbs instance, default is preproduction dbs instance
 inst=int
