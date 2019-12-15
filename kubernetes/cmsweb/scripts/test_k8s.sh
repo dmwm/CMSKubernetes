@@ -7,6 +7,8 @@ if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == 
     exit 1
 fi
 
+url=$1
+
 # dbs instance, default is preproduction dbs instance
 inst=int
 if [ $# -eq 2 ]; then
