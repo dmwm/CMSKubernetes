@@ -28,7 +28,7 @@ spec:
   selector:
     matchLabels:
       app: das
-  replicas: 1 #PROD# 2
+  replicas: 1 #PROD# 3
   template:
     metadata:
       labels:
@@ -48,11 +48,11 @@ spec:
               - sudo chmod 0777 /data/srv/logs/das; sudo chown _das:_das /data/srv/logs/das
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "100m"
+            memory: "500Mi"
+            cpu: "2000m"
           limits:
-            memory: "2Gi"
-            cpu: "800m"
+            memory: "3Gi"
+            cpu: "4000m"
         ports:
         - containerPort: 8217
           protocol: TCP
@@ -101,4 +101,4 @@ spec:
             type: File
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
-#PROD#      claimName: logs-cephfs-claim
+#PROD#      claimName: logs-cephfs-claim-das

@@ -45,8 +45,8 @@ spec:
         - name: proxy-secrets
           mountPath: /etc/proxy
           readOnly: true
-        - name: secrets
-          mountPath: /etc/secrets
+#       - name: secrets
+#         mountPath: /etc/secrets
           defaultMode: 256
         - name: hostkey
           mountPath: /etc/grid-security/hostkey.pem
@@ -60,17 +60,17 @@ spec:
       - name: proxy-secrets
         secret:
           secretName: proxy-secrets
-      - name: secrets
-        secret:
-          secretName: dmwmmon-secrets
+#     - name: secrets
+#        secret:
+#         secretName: dmwmmon-secrets
           # https://github.com/kubernetes/kubernetes/issues/34982
-          defaultMode: 256
-          items:
-            - key: "robotcert.pem"
-              path: "robotcert.pem"
-              mode: 0640
-            - key: "robotkey.pem"
-              path: "robotkey.pem"
+#         defaultMode: 256
+#         items:
+#           - key: "robotcert.pem"
+#             path: "robotcert.pem"
+#             mode: 0640
+#           - key: "robotkey.pem"
+#             path: "robotkey.pem"
       - name: hostkey
         hostPath:
             path: /etc/grid-security/hostkey.pem
@@ -81,4 +81,4 @@ spec:
             type: File
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
-#PROD#      claimName: logs-cephfs-claim
+#PROD#      claimName: logs-cephfs-claim-dmwm

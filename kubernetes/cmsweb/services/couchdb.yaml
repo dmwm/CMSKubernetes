@@ -25,7 +25,7 @@ spec:
   selector:
     matchLabels:
       app: couchdb
-  replicas: 1
+  replicas: 1 #PROD# 2
   template:
     metadata:
       labels:
@@ -46,10 +46,10 @@ spec:
         resources:
           requests:
             memory: "256Mi"
-            cpu: "100m"
+            cpu: "500m"
           limits:
-            memory: "10Gi"
-            cpu: "800m"
+            memory: "3Gi"
+            cpu: "2000m"
         ports:
         - containerPort: 5984
           protocol: TCP
@@ -91,7 +91,7 @@ spec:
             type: File
 #PROD#- name: couchdb-storage
 #PROD#  persistentVolumeClaim:
-#PROD#      claimName: couchdb-claim
+#PROD#      claimName: cephfs-claim-couchdb
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
-#PROD#      claimName: logs-cephfs-claim
+#PROD#      claimName: logs-cephfs-claim-couchdb

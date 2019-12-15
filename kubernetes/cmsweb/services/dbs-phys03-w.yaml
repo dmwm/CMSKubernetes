@@ -28,7 +28,7 @@ spec:
   selector:
     matchLabels:
       app: dbs-phys03-w
-  replicas: 1 #PROD# 2
+  replicas: 1 #PROD# 5
   template:
     metadata:
       labels:
@@ -39,11 +39,11 @@ spec:
         name: dbs-phys03-w
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "100m"
+            memory: "1000Mi"
+            cpu: "300m"
           limits:
             memory: "10Gi"
-            cpu: "800m"
+            cpu: "1000m"
         ports:
         - containerPort: 8255
           protocol: TCP
@@ -86,4 +86,4 @@ spec:
             type: File
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
-#PROD#      claimName: logs-cephfs-claim
+#PROD#      claimName: logs-cephfs-claim-dbs

@@ -48,10 +48,10 @@ spec:
         resources:
           requests:
             memory: "256Mi"
-            cpu: "100m"
+            cpu: "300m"
           limits:
-            memory: "2Gi"
-            cpu: "800m"
+            memory: "3Gi"
+            cpu: "1000m"
         ports:
         - containerPort: 8271
           protocol: TCP
@@ -98,4 +98,4 @@ spec:
 #PROD#      claimName: crabcache-claim
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
-#PROD#      claimName: logs-cephfs-claim
+#PROD#      claimName: logs-cephfs-claim-crab
