@@ -8,6 +8,8 @@ if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == 
     exit 1
 fi
 
+url=$1
+
 # defint bench tool
 tool=${BENCH_TOOL:-/afs/cern.ch/user/v/valya/public/hey_linux}
 
