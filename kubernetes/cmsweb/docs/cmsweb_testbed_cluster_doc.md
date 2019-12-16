@@ -44,6 +44,9 @@ To deploy new service, the service first needs to be deleted and then redeployed
    - `kubectl delete -f services/xxx.yaml`
    
  - Then, following command can be used to deploy service in testbed cluster. 
-   - `cat services/xxx.yaml | sed -e "s,1 #PROD#,,g" | sed -e "s,#PROD#,      ,g" | sed -e "s,logs-cephfs-claim,logs-cephfs-claim-preprod,g" | kubectl apply --validate=false -f -`
+  - 
+   ```
+   cat services/xxx.yaml | sed -e "s,1 #PROD#,,g" | sed -e "s,#PROD#,      ,g" | sed -e "s,logs-cephfs-claim,logs-cephfs-claim-preprod,g" | kubectl apply --validate=false -f -
+   ```
 
-
+ - Please note that string #PROD# should be replaced by six spaces and logs-cephfs-claim should be replaced by logs-cephfs-claim-preprod for testbed cluster as shown above in the command. 
