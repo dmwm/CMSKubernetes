@@ -1,3 +1,5 @@
+tracerKronosCount: 0
+
 reaper2:
   includeRses: "cms_type=test"
 
