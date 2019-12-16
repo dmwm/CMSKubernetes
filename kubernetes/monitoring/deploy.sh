@@ -37,7 +37,7 @@ cluster=${CLUSTER:-"monitoring-cluster"}
 template=${TMPL:-"kubernetes-1.15.3-3"}
 keypair=${KEY:-"cloud"}
 secrets="prometheus-secrets nats-secrets"
-services="prometheus pushgateway victoria-metrics nats-sub-exitcode nats-sub-stats nats-sub-t1 nats-sub-t2"
+services="prometheus pushgateway victoria-metrics victoria-metrics-test nats-sub-exitcode nats-sub-stats nats-sub-t1 nats-sub-t2"
 
 # prometheus operator deployment (so far we don't use it)
 deploy_prometheus_operator()

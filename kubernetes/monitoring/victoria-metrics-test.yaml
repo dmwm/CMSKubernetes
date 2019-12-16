@@ -1,0 +1,49 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: vm-test
+spec:
+  selector:
+    app: vm-test
+  type: NodePort
+  ports:
+  - port: 8428
+    nodePort: 30429
+    targetPort: 8428
+    name: http
+  - port: 4242
+    nodePort: 30423
+    targetPort: 4242
+    name: opentsdb
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vm-test
+  labels:
+     app: vm-test
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: vm-test
+   template:
+      metadata:
+         labels:
+           app: vm-test
+      spec:
+        containers:
+        - args:
+          - -opentsdbHTTPListenAddr=:4242 
+          - -retentionPeriod=1
+          - -storageDataPath=/tmp/tsdb
+          name: vm-test
+          image: victoriametrics/victoria-metrics
+          ports:
+          - containerPort: 4242
+            protocol: TCP
+            name: opentsdb
+          - containerPort: 8428
+            protocol: TCP
+            name: http
