@@ -435,7 +435,11 @@ deploy_monitoring()
     #        fi
     #    done
     #fi
-    kubectl -n monitoring apply -f monitoring/prometheus.yaml
+    if [ "$deployment" == "services" ]; then
+        kubectl -n monitoring apply -f monitoring/prometheus-services.yaml
+    elif [ "$deployment" == "frontend" ]; then
+        kubectl -n monitoring apply -f monitoring/prometheus-frontend.yaml
+    fi
     kubectl -n monitoring get deployments
     kubectl -n monitoring get pods
     prom=`kubectl -n monitoring get pods | grep prom | awk '{print $1}'`
