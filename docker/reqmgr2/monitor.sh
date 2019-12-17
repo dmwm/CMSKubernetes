@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # start process exporters
-nohup process_monitor.sh /data/srv/state/reqmgr2/pid reqmgr2 ":18240" 15 2>&1 1>& reqmgr2_monitor.log < /dev/null &
+nohup process_monitor.sh /data/srv/state/reqmgr2/reqmgr2.pid reqmgr2 ":18240" 15 2>&1 1>& reqmgr2_monitor.log < /dev/null &
 
 # run filebeat
 if [ -f /etc/secrets/filebeat.yaml ] && [ -f /usr/bin/filebeat ]; then
