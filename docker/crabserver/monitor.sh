@@ -1,7 +1,11 @@
 #!/bin/bash
 
 # start process exporter
-nohup process_monitor.sh /data/srv/state/crabserver/crabserver.pid crabserver ":18270" 15 2>&1 1>& crabserver_monitor.log < /dev/null &
+if [ -f /data/srv/state/crabserver/crabserver.pid ]; then
+    nohup process_monitor.sh /data/srv/state/crabserver/crabserver.pid crabserver ":18270" 15 2>&1 1>& crabserver_monitor.log < /dev/null &
+elif [ -f /data/srv/state/crabserver/pid ]; then
+    nohup process_monitor.sh /data/srv/state/crabserver/pid crabserver ":18270" 15 2>&1 1>& crabserver_monitor.log < /dev/null &
+fi
 
 # run filebeat
 if [ -f /etc/secrets/filebeat.yaml ] && [ -f /usr/bin/filebeat ]; then
