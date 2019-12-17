@@ -20,7 +20,7 @@ data:
             - targets: ['das.das.svc.cluster.local:18230']
       - job_name: 'dbs-migrate-service'
         static_configs:
-            - targets: ['dbs-migrate.dbs.svc.cluster.local:18251', 'dbs-migrate.dbs.svc.cluster.local:19251']
+            - targets: ['dbs-migrate.dbs.svc.cluster.local:18251']
       - job_name: 'dbs-global-r-service'
         static_configs:
             - targets: ['dbs-global-r.dbs.svc.cluster.local:18252', 'dbs-global-r.dbs.svc.cluster.local:19252']
