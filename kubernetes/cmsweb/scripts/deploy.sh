@@ -55,7 +55,7 @@ cmsweb_ing="ing-confdb ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing
 cmsweb_srvs="httpgo httpsgo frontend acdcserver alertscollector confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks"
 
 # list of DBS instances
-dbs_instances="migrate global-m global-r global-w phys03-r phys03-w"
+dbs_instances="migrate  global-r global-w phys03-r phys03-w"
 
 # define help
 if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ] || [ "$1" == "" ]; then
@@ -161,7 +161,7 @@ scale()
     if [ "$deployment" == "services" ]; then
         # dbs, generic scalers
         kubectl autoscale deployment dbs-migrate --cpu-percent=80 --min=2 --max=10
-        kubectl autoscale deployment dbs-global-m --cpu-percent=80 --min=2 --max=4
+#        kubectl autoscale deployment dbs-global-m --cpu-percent=80 --min=2 --max=4
         kubectl autoscale deployment dbs-global-r --cpu-percent=80 --min=6 --max=12
         kubectl autoscale deployment dbs-global-w --cpu-percent=80 --min=5 --max=10
         kubectl autoscale deployment dbs-phys03-r --cpu-percent=80 --min=2 --max=4
@@ -237,7 +237,7 @@ cleanup()
 #    for ns in $cmsweb_ns; do
 #        kubectl delete ns/$ns
 #    done
-    kubectl delete ns $cmsweb_ns
+#    kubectl delete ns $cmsweb_ns
     kubectl delete ns/monitoring
 }
 
