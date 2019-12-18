@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG1907f
+VER=HG1912e
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend dbs"
@@ -60,9 +60,45 @@ for fname in $files; do
 done
 
 # patch DBS deployment area to separate DBS instance start-up
+#cd $WDIR/srv/current/config/dbs
+#curl -ksLO https://github.com/dmwm/deployment/pull/794.patch
+#patch -p2 < 794.patch
+### NATS patches
+# get CMSMonitoring
+cd /tmp
+git clone https://github.com/dmwm/CMSMonitoring.git
+cp -r CMSMonitoring/src/python/CMSMonitoring $WDIR/srv/current/apps/dbs/lib/python2.7/site-packages
+# get tornado
+cd /tmp
+git clone -b v5.1.1 https://github.com/tornadoweb/tornado.git
+cp -r tornado/tornado $WDIR/srv/current/apps/dbs/lib/python2.7/site-packages
+curl -ksLO https://files.pythonhosted.org/packages/d9/e9/513ad8dc17210db12cb14f2d4d190d618fb87dd38814203ea71c87ba5b68/singledispatch-3.4.0.3.tar.gz
+source $WDIR/srv/current/apps/dbs/etc/profile.d/init.sh
+tar xfz singledispatch-3.4.0.3.tar.gz
+cd singledispatch-3.4.0.3
+python setup.py install --prefix=$WDIR/srv/current/apps/dbs
+cd /tmp
+curl -ksLO https://files.pythonhosted.org/packages/68/3c/1317a9113c377d1e33711ca8de1e80afbaf4a3c950dd0edfaf61f9bfe6d8/backports_abc-0.5.tar.gz
+tar xfz backports_abc-0.5.tar.gz
+cd backports_abc-0.5
+python setup.py install --prefix=$WDIR/srv/current/apps/dbs
+cd /tmp
+curl -ksLO https://files.pythonhosted.org/packages/47/04/5fc6c74ad114032cd2c544c575bffc17582295e9cd6a851d6026ab4b2c00/futures-3.3.0.tar.gz
+tar xfz futures-3.3.0.tar.gz
+cd futures-3.3.0
+python setup.py install --prefix=$WDIR/srv/current/apps/dbs
+
+# get nats.io
+cd /tmp
+git clone https://github.com/nats-io/nats.py2.git
+cp -r nats.py2/nats $WDIR/srv/current/apps/dbs/lib/python2.7/site-packages
+# get dbs patches
+cd $WDIR/srv/current/apps/dbs/lib/python2.7/site-packages/dbs/web
+curl -ksLO https://github.com/dmwm/DBS/pull/617.patch
+patch -p6 < 617.patch
 cd $WDIR/srv/current/config/dbs
-curl -ksLO https://github.com/dmwm/deployment/pull/794.patch
-patch -p2 < 794.patch
+curl -ksLO https://github.com/dmwm/deployment/pull/821.patch
+patch -p2 < 821.patch
 # end of TMP block, will be removed once we get all payches in place
 
 # replace usage of hostkey/hostcert in crontab to frontend proxy
