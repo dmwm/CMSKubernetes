@@ -25,7 +25,7 @@ spec:
   selector:
     matchLabels:
       app: couchdb
-  replicas: 1 #PROD# 2
+  replicas: 1 #PROD# 1
   template:
     metadata:
       labels:
