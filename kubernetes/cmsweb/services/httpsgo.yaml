@@ -30,7 +30,7 @@ spec:
         app: httpsgo
     spec:
       containers:
-      - image: veknet/httpsgo
+      - image: cmssw/httpsgo
         name: httpsgo
         resources:
           requests:

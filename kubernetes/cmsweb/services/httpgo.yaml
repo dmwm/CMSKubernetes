@@ -6,7 +6,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 8888 # the port here is matching port used in veknet/httpgo cotainer
+  - port: 8888 # the port here is matching port used in cmssw/httpgo cotainer
     protocol: TCP
     name: http
   selector:
@@ -30,7 +30,7 @@ spec:
         app: httpgo
     spec:
       containers:
-      - image: veknet/httpgo
+      - image: cmssw/httpgo
         name: httpgo
         resources:
           requests:
