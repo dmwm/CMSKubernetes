@@ -82,7 +82,7 @@ deploy_secrets()
         echo "delete alertmanager-secrets"
         kubectl delete secret alertmanager-secrets
     fi
-    ls secrets/alertmanager/{*.yaml} | awk '{ORS=" "; print "--from-file="$1""}' | awk '{print "kubectl create secret generic alertmanager-secrets "$0""}' | /bin/sh
+    ls secrets/alertmanager/*.yaml | awk '{ORS=" "; print "--from-file="$1""}' | awk '{print "kubectl create secret generic alertmanager-secrets "$0""}' | /bin/sh
 
     # add nats-secrets
     if [ -n "`kubectl get secrets | grep nats-secrets`" ]; then
