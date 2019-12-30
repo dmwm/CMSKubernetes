@@ -62,28 +62,41 @@ deploy_prometheus_operator()
 # cluster secrets deployment
 deploy_secrets()
 {
-    if [ ! -d prometheus_secrets ]; then
-        echo "Please provide prometheus_secrets area with prometheus files"
+    # add prometheus secrets
+    if [ ! -d secrets/prometheus ]; then
+        echo "Please provide secrets/prometheus area with prometheus files"
         exit 1
     fi
     if [ -n "`kubectl get secrets | grep prometheus-secrets`" ]; then
         echo "delete prometheus-secrets"
         kubectl delete secret prometheus-secrets
     fi
-    ls prometheus_secrets/{*.yml,*.yaml,*.json,console_libraries/*} | awk '{ORS=" "; print "--from-file="$1""}' | awk '{print "kubectl create secret generic prometheus-secrets "$0""}' | /bin/sh
+    ls secrets/prometheus/{*.yml,*.yaml,*.json,console_libraries/*} | awk '{ORS=" "; print "--from-file="$1""}' | awk '{print "kubectl create secret generic prometheus-secrets "$0""}' | /bin/sh
+
+    # add alermanager secrets
+    if [ ! -d secrets/alertmanager ]; then
+        echo "Please provide secrets/alertmanager area with alermanager files"
+        exit 1
+    fi
+    if [ -n "`kubectl get secrets | grep alertmanager-secrets`" ]; then
+        echo "delete alertmanager-secrets"
+        kubectl delete secret alertmanager-secrets
+    fi
+    ls secrets/alertmanager/{*.yaml} | awk '{ORS=" "; print "--from-file="$1""}' | awk '{print "kubectl create secret generic alertmanager-secrets "$0""}' | /bin/sh
+
     # add nats-secrets
     if [ -n "`kubectl get secrets | grep nats-secrets`" ]; then
         echo "delete nats-secrets"
         kubectl delete secret nats-secrets
     fi
-    if [ ! -d nats_secrets ]; then
-        echo "Please provide nats_secrets area with cms-auth, CERN_CA*.crt files"
+    if [ ! -d secrets/nats ]; then
+        echo "Please provide secrets/nats area with cms-auth, CERN_CA*.crt files"
         exit 1
     fi
     kubectl create secret generic nats-secrets \
-        --from-file=nats_secrets/cms-auth \
-        --from-file=nats_secrets/CERN_CA.crt \
-        --from-file=nats_secrets/CERN_CA1.crt
+        --from-file=secrets/nats/cms-auth \
+        --from-file=secrets/nats/CERN_CA.crt \
+        --from-file=secrets/nats/CERN_CA1.crt
 }
 
 # cluster storages deployment
