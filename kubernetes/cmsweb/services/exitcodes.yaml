@@ -30,7 +30,7 @@ spec:
         app: exitcodes
     spec:
       containers:
-      - image: veknet/exitcodes
+      - image: cmssw/exitcodes
         name: exitcodes
         resources:
           requests:
