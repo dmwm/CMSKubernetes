@@ -11,6 +11,7 @@ judgeCleanerCount: 1
 judgeEvaluatorCount: 1
 judgeInjectorCount: 1
 judgeRepairerCount: 1
+tracerKronosCount: 1
 transmogrifierCount: 1
 undertakerCount: 1
 reaperCount: 0
@@ -48,7 +49,8 @@ config:
         ssl_cert_file: "/opt/rucio/certs/usercert.pem"
         destination: "/topic/cms.rucio.events"
         voname: "cms"
-
+    tracer_kronos:
+        username: "cmsrucio"
 
 transmogrifierResources:
    limits:

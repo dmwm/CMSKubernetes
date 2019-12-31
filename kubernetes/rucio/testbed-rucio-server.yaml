@@ -6,3 +6,7 @@ ingress:
 authIngress:
   hosts:
     - cms-rucio-auth-testbed.cern.ch
+traceIngress:
+  hosts: 
+    - cms-rucio-trace-testbed.cern.ch
+
