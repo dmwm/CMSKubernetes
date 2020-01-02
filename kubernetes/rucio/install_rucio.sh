@@ -30,10 +30,6 @@ kubectl create job --from=cronjob/${DAEMON_NAME}-renew-fts-proxy fts
 kubectl apply -f dataset-configmap.yaml
 kubectl apply -f ${INSTANCE}-sync-jobs.yaml -l syncs=rses
 
-# Make the DB secret for connection monitoring and the connection monitoring cronjob
-kubectl apply -f ${INSTANCE}-db-2.yaml
-kubectl apply -f ${INSTANCE}-cronjobs.yaml
-
 # Set up landb loadbalance
 numberIngressNodes=3
 n=0
