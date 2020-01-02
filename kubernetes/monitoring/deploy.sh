@@ -71,7 +71,7 @@ deploy_secrets()
         echo "delete prometheus-secrets"
         kubectl delete secret prometheus-secrets
     fi
-    ls secrets/prometheus/{*.yml,*.yaml,*.json,console_libraries/*} | awk '{ORS=" "; print "--from-file="$1""}' | awk '{print "kubectl create secret generic prometheus-secrets "$0""}' | /bin/sh
+    ls secrets/prometheus/{*.yml,*.yaml,*.json,console_libraries/*,*.rules} | awk '{ORS=" "; print "--from-file="$1""}' | awk '{print "kubectl create secret generic prometheus-secrets "$0""}' | /bin/sh
 
     # add alermanager secrets
     if [ ! -d secrets/alertmanager ]; then
