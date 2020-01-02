@@ -1,0 +1,54 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: prometheus-test
+spec:
+  selector:
+    app: prometheus-test
+  type: NodePort
+  ports:
+  - port: 9090
+    nodePort: 30901
+    targetPort: 9090
+    name: prometheus-test
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-test
+  labels:
+     app: prometheus-test
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: prometheus-test
+   template:
+      metadata:
+         labels:
+           app: prometheus-test
+      spec:
+        securityContext:
+          fsGroup: 1000
+        containers:
+        - args:
+          - --log.level=debug
+          - --config.file=/etc/prometheus/prometheus.yml
+          - --storage.tsdb.path=/tmp/prometheus
+          - --web.console.templates=/etc/prometheus/consoles
+          - --web.console.libraries=/etc/prometheus/console_libraries
+          name: prometheus-test
+          image: prom/prometheus
+          ports:
+          - containerPort: 9090
+            protocol: TCP
+            name: prometheus-test
+          volumeMounts:
+          - name: prometheus-secrets
+            mountPath: /etc/prometheus
+            readOnly: true
+        volumes:
+        - name: prometheus-secrets
+          secret:
+            secretName: prometheus-secrets
