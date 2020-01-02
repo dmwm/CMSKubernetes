@@ -147,3 +147,12 @@ nats-sub-t1.yaml       # NATS subscriber for cms.wmarchive.site.T2 topic
 nats-sub-t2.yaml       # NATS subscriber for cms.wmarchive.site.T2 topic
 nats-sub.yaml          # NATS subscriber (original manifest)
 ```
+
+### References
+1. [Prometheus Metrics and Labels](https://blog.pvincent.io/2017/12/prometheus-blog-series-part-1-metrics-and-labels/)
+2. [Prometheus Metrics Types](https://blog.pvincent.io/2017/12/prometheus-blog-series-part-2-metric-types/)
+3. [Prometheus: Exposing metrics](https://blog.pvincent.io/2017/12/prometheus-blog-series-part-3-exposing-and-collecting-metrics/)
+4. [Prometheus: instrumenting code](https://blog.pvincent.io/2017/12/prometheus-blog-series-part-4-instrumenting-code-in-go-and-java/)
+5. [Prometheus: Alerting rules](https://blog.pvincent.io/2017/12/prometheus-blog-series-part-5-alerting-rules/)
+6. [NATS](https://docs.nats.io/)
+7. [Victoria Metrics](https://victoriametrics.github.io/)
