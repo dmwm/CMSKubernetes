@@ -148,6 +148,43 @@ nats-sub-t2.yaml       # NATS subscriber for cms.wmarchive.site.T2 topic
 nats-sub.yaml          # NATS subscriber (original manifest)
 ```
 
+### AlertManager
+[AlertManager](https://prometheus.io/docs/alerting/alertmanager/) handles
+alerts which can be send by Prometheus server. Its
+[configuration](https://prometheus.io/docs/alerting/configuration/#email_config)
+is straighforward, e.g. see this
+[example](https://github.com/prometheus/alertmanager/blob/master/doc/examples/simple.yml).
+Here we only provide useful tips:
+
+##### slack support for AlertManager
+To add support for Slack notification we need
+- create new slack group
+- create new channel within your slack group
+- create an [incoming webhook](https://cmsmonitoringgroup.slack.com/apps/A0F7XDUAZ-incoming-webhooks?next_id=0)
+- configure alert manager to push messages to slack channel of your choice
+```
+...
+  # The child route trees.
+  routes:
+  - match:
+      severity: slack
+    receiver: 'slack_receivers'
+receivers:
+...
+- name: 'slack_receivers'
+  slack_configs:
+  - api_url: 'YOUR_SLACK_API_URL'
+    channel: 'YOUR_SLACK_CHANNEL'
+    send_resolved: true
+```
+
+##### AlertManager rules
+The [alerting rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/)
+can be quite complex. Here is nice
+[talk](https://www.youtube.com/watch?v=RlOA5KgBkz8) and
+[slides](https://promcon.io/2019-munich/slides/improved-alerting-with-prometheus-and-alertmanager.pdf)
+which explains in details the rules.
+
 ### References
 1. [Prometheus Metrics and Labels](https://blog.pvincent.io/2017/12/prometheus-blog-series-part-1-metrics-and-labels/)
 2. [Prometheus Metrics Types](https://blog.pvincent.io/2017/12/prometheus-blog-series-part-2-metric-types/)
