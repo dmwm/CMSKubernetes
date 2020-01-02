@@ -1,0 +1,50 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: httpgo
+spec:
+#   type: ClusterIP
+  type: NodePort
+  ports:
+  - port: 8888 # the port here is matching port used in cmssw/httpgo cotainer
+    nodePort: 30888
+    protocol: TCP
+    name: http
+  selector:
+    app: httpgo
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: httpgo
+  name: httpgo
+spec:
+  selector:
+    matchLabels:
+      app: httpgo
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: httpgo
+    spec:
+      containers:
+      - image: cmssw/httpgo
+        name: httpgo
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "300m"
+          limits:
+            memory: "256Mi"
+            cpu: "1000m"
+        # here is an example how to run post command
+        tty: true
+        stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "ls"]
+        ports:
+        - containerPort: 8888
