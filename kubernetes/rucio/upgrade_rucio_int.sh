@@ -3,8 +3,6 @@
 export REPO=~/rucio-helm-charts # or rucio
 export CMS_REPO=~/CMSKubernetes/helm
 
-export PREFIX=int
+export INSTANCE=int
 
 ./upgrade_rucio.sh
-
-
