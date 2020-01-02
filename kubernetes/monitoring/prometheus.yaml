@@ -34,7 +34,7 @@ spec:
         containers:
         - args:
           - --log.level=info
-          - --config.file=/etc/prometheus/prometheus.yml
+          - --config.file=/etc/prometheus/prometheus.yaml
           - --storage.tsdb.path=/tmp/prometheus
           - --web.console.templates=/etc/prometheus/consoles
           - --web.console.libraries=/etc/prometheus/console_libraries

@@ -34,10 +34,11 @@ spec:
         containers:
         - args:
           - --log.level=debug
-          - --config.file=/etc/prometheus/prometheus.yml
+          - --config.file=/etc/prometheus/prometheus-test.yaml
           - --storage.tsdb.path=/tmp/prometheus
           - --web.console.templates=/etc/prometheus/consoles
           - --web.console.libraries=/etc/prometheus/console_libraries
+          - --storage.tsdb.retention.time=1d
           name: prometheus-test
           image: prom/prometheus
           ports:
