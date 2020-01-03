@@ -149,6 +149,23 @@ deploy_roles()
     kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard
 }
 
+# deploy metrics server and kube-eagle to monitor the cluster
+deploy_kmon()
+{
+    if [ ! -d metrics-server ]; then
+        git clone git@github.com:kubernetes-sigs/metrics-server.git
+    fi
+    local metrics=`kubectl -n kube-system get pods | grep metrics-server`
+    if [ -z "$metrics" ] && [ -d metrics-server/deploy/1.8+/ ]; then
+        kubectl create -f metrics-server/deploy/1.8+/
+    fi
+    local keagle=`kubectl get pods | grep metrics-server`
+    if [ -z "$keagle" ]; then
+        kubectl apply -f kube-eagle.yaml
+    fi
+}
+
+
 # creation of the cluster
 create()
 {
@@ -175,6 +192,7 @@ create()
         deploy_storages
         deploy_services
         deploy_roles
+        deploy_kmon
         deploy_ingress
     fi
 }
@@ -200,6 +218,18 @@ cleanup()
     if [ -n "`kubectl get ing`" ]; then
         kubectl delete -f ingress.yaml
     fi
+
+    # delete monitoring parts
+    if [ -n "`kubectl get pod | grep kube-eagle`" ]; then
+        kubectl delete -f kube-eagle.yaml
+    fi
+
+    # delete metrics-server
+    local metrics=`kubectl -n kube-system get pods | grep metrics-server`
+    if [ -n "$metrics" ] && [ -d metrics-server/deploy/1.8+/ ]; then
+        kubectl delete -f metrics-server/deploy/1.8+/
+    fi
+
 }
 
 # check status of the services
