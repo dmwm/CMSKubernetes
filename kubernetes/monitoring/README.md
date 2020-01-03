@@ -31,6 +31,20 @@ deploy.sh create services
 
 That's it!
 
+Quite often we need to restart prometheus with new configuration. To do that
+please following these steps:
+```
+# change prometheus configuration/secrets
+vim secrets/prometheus/prometheus.yaml
+
+# create new secrets
+./deploy.sh create secrets
+
+# restart prometheus pod, replace prometheus-XXX with actual prometheus pod name
+kubectl delete pod/<prometheus-XXX>
+```
+
+
 #### Prometheus-operator deployment
 We provide files `bundle.yaml` and `prom-oper.yaml` to deploy
 prometheus cluster via
