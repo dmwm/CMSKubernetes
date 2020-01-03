@@ -69,6 +69,7 @@ Copy and paste the last line. On subsequent logins it is all that is needed. Now
     helm repo add rucio https://rucio.github.io/helm-charts
     helm repo add kiwigrid https://kiwigrid.github.io
     helm repo add cms-kubernetes https://dmwm.github.io/CMSKubernetes/helm/
+    helm repo add kube-eagle https://raw.githubusercontent.com/cloudworkz/kube-eagle-helm-chart/master
 
 ## Install helm into the kubernetes project
 
