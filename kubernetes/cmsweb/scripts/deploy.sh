@@ -422,6 +422,8 @@ deploy_monitoring()
 
     echo
     echo "+++ deploy monitoring services"
+    # add kube-eagle
+    kubectl apply -f monitoring/kube-eagle.yaml
     # use common logstash yaml for ALL services
     kubectl -n monitoring apply -f monitoring/logstash.yaml
     # if we need to split monitoring by services
