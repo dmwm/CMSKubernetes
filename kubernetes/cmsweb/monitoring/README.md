@@ -27,6 +27,12 @@ At the end we setup a cronjob which calls monitor.sh script. This script
 check given metric in prometheus service and either scale up or down
 appropriate data-service.
 
+### cmsweb k8s monitoring
+The cluster monitoring is done via kube-eagle [7]. For that we deploy
+metrics-server [8] and then kube-eagle. The later provides metrics for
+Prometheus server. Then we observe these metrics in Prometheus and
+plot them in Grafana, see kube-eagle [7] for details.
+
 #### References
 1. https://github.com/vkuznet/kubernetes-prometheus
 2. https://github.com/vkuznet/kubernetes-prometheus/blob/master/config-map.yaml
@@ -34,3 +40,5 @@ appropriate data-service.
 4. https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/cmsweb/monitor-cron.yaml
 5. https://github.com/ryotarai/prometheus-query
 6. https://github.com/dmwm/CMSKubernetes/blob/master/docker/monitor/monitor.s
+7. https://github.com/cloudworkz/kube-eagle
+8. https://github.com/kubernetes-sigs/metrics-server
