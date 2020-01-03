@@ -15,6 +15,7 @@
 - [Kubernetes failures](https://github.com/hjacobs/kubernetes-failure-stories)
 - [Kubernetes for managers](https://unixism.net/2019/08/a-managers-guide-to-kubernetes-adoption/)
 - [Debuggin docker containers](https://blog.container-solutions.com/what-you-need-to-know-about-debugging-docker-containers)
+- [HA for k8s apps](https://medium.com/cloud-engagement-hub/ha-considerations-for-apps-in-kubernetes-f47be95081d2)
 
 #### CERN clouddocs references
 
