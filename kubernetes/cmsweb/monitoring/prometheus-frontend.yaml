@@ -12,6 +12,9 @@ data:
       evaluation_interval: 10s
 
     scrape_configs:
+      - job_name: 'kube-eagle'
+        static_configs:
+            - targets: ['kube-eagle.default.svc.cluster.local:8080']
       - job_name: 'frontend-service'
         static_configs:
             - targets: ['frontend.default.svc.cluster.local:18443']
