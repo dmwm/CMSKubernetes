@@ -199,6 +199,20 @@ can be quite complex. Here is nice
 [slides](https://promcon.io/2019-munich/slides/improved-alerting-with-prometheus-and-alertmanager.pdf)
 which explains in details the rules.
 
+##### AlertManager commands
+Here we present useful commands:
+```
+# show routes
+amtool config routes --alertmanager.url=http://cms-monitoring:30093
+amtool config routes --config.file=alertmanager.yaml
+
+# test routes
+amtool config routes --config.file=alertmanager.yaml test severity=log,slack-test
+
+# check configuration
+amtool check-config alertmanager.yaml
+```
+
 ### References
 1. [Prometheus Metrics and Labels](https://blog.pvincent.io/2017/12/prometheus-blog-series-part-1-metrics-and-labels/)
 2. [Prometheus Metrics Types](https://blog.pvincent.io/2017/12/prometheus-blog-series-part-2-metric-types/)
