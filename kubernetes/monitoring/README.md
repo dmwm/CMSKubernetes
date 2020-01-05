@@ -212,6 +212,7 @@ amtool config routes --config.file=alertmanager.yaml test severity=log,slack-tes
 # check configuration
 amtool check-config alertmanager.yaml
 ```
+For testing alert rules please see [8].
 
 ### References
 1. [Prometheus Metrics and Labels](https://blog.pvincent.io/2017/12/prometheus-blog-series-part-1-metrics-and-labels/)
@@ -221,3 +222,4 @@ amtool check-config alertmanager.yaml
 5. [Prometheus: Alerting rules](https://blog.pvincent.io/2017/12/prometheus-blog-series-part-5-alerting-rules/)
 6. [NATS](https://docs.nats.io/)
 7. [Victoria Metrics](https://victoriametrics.github.io/)
+8. [Testing AlertManager rules](https://www.prometheus.io/docs/prometheus/latest/configuration/unit_testing_rules/)
