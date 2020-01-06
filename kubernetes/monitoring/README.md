@@ -16,6 +16,13 @@ these steps:
 # login to lxplus-cloud
 ssh lxplus-cloud
 
+# clone CMSKubernetes repository
+git clone git@github.com:dmwm/CMSKubernetes.git
+cd CMSKubernetes/monitoring
+
+# clone CMS Monitoring secrets repository
+git clone https://:@gitlab.cern.ch:8443/cms-monitoring/secrets.git
+
 # create a new cluster
 ./deploy.sh create cluster
 
