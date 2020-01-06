@@ -42,6 +42,19 @@ kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-adm
 echo "deploy nats-cluster"
 kubectl apply -f nats-cluster.yaml --validate=false
 
+# deploy metrics server and kube-eagle to monitor the cluster
+if [ ! -d metrics-server ]; then
+    git clone git@github.com:kubernetes-sigs/metrics-server.git
+fi
+local metrics=`kubectl -n kube-system get pods | grep metrics-server`
+if [ -z "$metrics" ] && [ -d metrics-server/deploy/1.8+/ ]; then
+    kubectl create -f metrics-server/deploy/1.8+/
+fi
+local keagle=`kubectl get pods | grep metrics-server`
+if [ -z "$keagle" ]; then
+    kubectl apply -f kube-eagle.yaml
+fi
+
 # redeploy the configuration with NSC operator and resolver
 #kubectl create secret generic nats-nsc-secrets --from-file=nats-nsc.tar.gz
 #kubectl delete secret nats-cluster
