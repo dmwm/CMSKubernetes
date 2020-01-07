@@ -27,7 +27,8 @@ kubernetes/nats/nats*.tar.gz
 kubernetes/nats/metrics-server
 kubernetes/monitoring/config.*
 kubernetes/monitoring/nats_secrets
-kubernetes/monitoring/secrets.*
+kubernetes/monitoring/secrets
+kubernetes/monitoring/secrets-afs
 kubernetes/monitoring/metrics-server
 kubernetes/monitoring/prometheus_secrets
 kubernetes/monitoring/prometheus-config.yaml
