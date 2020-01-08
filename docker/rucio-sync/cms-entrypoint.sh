@@ -8,6 +8,7 @@ else
 fi
 while true
 do
+    echo "Starting a new sync at $(date)"
     ~/scripts/new_sync.py --config /etc/sync-config/site-sync.yaml
     sleep 60
 done
