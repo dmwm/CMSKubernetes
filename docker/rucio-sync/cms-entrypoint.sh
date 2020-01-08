@@ -9,5 +9,5 @@ fi
 while true
 do
     ~/scripts/new_sync.py --config /etc/sync-config/site-sync.yaml
-	sleep 60
+    sleep 60
 done
