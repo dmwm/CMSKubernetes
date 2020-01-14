@@ -20,6 +20,11 @@ reaper2Count: 3
 reaper2:
   greedy: 1
   threads: 8
+  resources:
+    requests:
+      memory: 750Mi
+    limits:
+      memory: 1000Gi
 
 conveyorTransferSubmitter:
     activities: "'User Subscriptions' 'Functional Test'"
@@ -39,6 +44,16 @@ hermes:
     bulk: 500
     brokerTimeout: 0
 
+judgeEvaluator: 
+  resources:
+    requests:
+      cpu: 750m 
+
+judgeRepairer:
+  resources:
+    requests:
+      cpu: 750m 
+
 config:
     common:
         loglevel: "INFO"
@@ -53,6 +68,13 @@ config:
         username: "cmsrucio"
 
 transmogrifierResources:
-   limits:
+    requests:
+      memory: 200Mi
+    limits:
       memory: 1450Mi
 
+tracerKronos:
+  resources:
+    requests:
+      cpu: 1000m 
+  

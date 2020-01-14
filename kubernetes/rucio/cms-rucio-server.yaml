@@ -60,8 +60,10 @@ traceIngress:
 
 
 resources:
+  requests:
+    memory: 500Mi
   limits:
-    memory: 1450Mi
+    memory: 1500Mi
 
 config:
   trace:
