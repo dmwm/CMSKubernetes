@@ -1,0 +1,43 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cms-htcondor-es
+  labels:
+     app: cms-htcondor-es
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: cms-htcondor-es
+   template:
+      metadata:
+         labels:
+           app: cms-htcondor-es
+      spec:
+        containers:
+        - args:
+          - --feed_amq
+          - --process_queue
+          - --query_pool_size=1
+          - --upload_pool_size=1
+          - --email_alerts='cms-comp-monit-alerts@cern.ch'
+          - --collectors_file=/etc/spider/collectors.json
+          - --dry_run
+          name: cms-htcondor-es
+          image: veknet/cms-htcondor-es
+          env:
+            - name: CMS_HTCONDOR_PRODUCER
+              value: "condor-test"
+            - name: CMS_HTCONDOR_TOPIC
+              value: "/topic/cms.jobmon.condor"
+            - name: CMS_HTCONDOR_BROKER
+              value: "cms-test-mb.cern.ch"
+          volumeMounts:
+          - name: spider-secrets
+            mountPath: /etc/spider
+            readOnly: true
+        volumes:
+        - name: spider-secrets
+          secret:
+            secretName: spider-secrets
