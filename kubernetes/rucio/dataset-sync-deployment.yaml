@@ -102,13 +102,14 @@ spec:
             secretKeyRef:
               key: policy_support
               name: cms-ruciod-int-rucio-daemons.cfg
-        image: cmssw/rucio-sync:release-1.20.8
+        image: cmssw/rucio-sync:release-1.21.3
         imagePullPolicy: Always
         name: cms-rucio-sync
         resources:
           limits:
             memory: 3000Mi
           requests:
+            cpu: 1800m
             memory: 2000Mi
         readinessProbe:
           exec:

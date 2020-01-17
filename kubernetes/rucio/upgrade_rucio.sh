@@ -16,6 +16,7 @@ helm upgrade --recreate-pods --values cms-rucio-common.yaml,cms-rucio-probes.yam
 
 # statsd exporter to prometheus
 helm upgrade --recreate-pods --values ${INSTANCE}-statsd-exporter.yaml statsd-exporter cms-kubernetes/rucio-statsd-exporter
+helm upgrade --recreate-pods --values eagle.yaml,${INSTANCE}-eagle.yaml kube-eagle kube-eagle/kube-eagle
 
 # Label is key to prevent it from also syncing datasets
 kubectl apply -f ${INSTANCE}-sync-jobs.yaml -l syncs=rses

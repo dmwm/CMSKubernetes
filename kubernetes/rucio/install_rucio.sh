@@ -15,8 +15,9 @@ helm install --name $DAEMON_NAME --values cms-rucio-common.yaml,cms-rucio-daemon
 helm install --name $UI_NAME --values cms-rucio-common.yaml,cms-rucio-webui.yaml,${INSTANCE}-rucio-webui.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $REPO/rucio-ui
 helm install --name $PROBE_NAME --values cms-rucio-common.yaml,cms-rucio-probes.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $REPO/rucio-probes
 
-# statsd exporter to prometheus
-helm install --name statsd-exporter  --values statsd-prometheus-mapping.yaml,${INSTANCE}-statsd-exporter.yaml cms-kubernetes/rucio-statsd-exporter
+# statsd exporter to prometheus and kube-eagle monitoring
+helm install --name statsd-exporter --values statsd-prometheus-mapping.yaml,${INSTANCE}-statsd-exporter.yaml cms-kubernetes/rucio-statsd-exporter
+helm install --name kube-eagle --values eagle.yaml,${INSTANCE}-eagle.yaml kube-eagle/kube-eagle
 
 # Filebeat and logstash
 #helm install --name logstash --values cms-rucio-logstash.yml,${INSTANCE}-logstash-filter.yaml stable/logstash
@@ -43,7 +44,7 @@ kubectl get node -l role=ingress -o name | grep -v master | while read node; do
   # Remove any existing aliases
   openstack server unset --os-project-name CMSRucio --property landb-alias ${node##node/}
   echo $((n++))
-  cnames="cms-rucio-stats-${INSTANCE}--load-${n}-,cms-rucio-${INSTANCE}--load-${n}-,cms-rucio-auth-${INSTANCE}--load-${n}-,cms-rucio-webui-${INSTANCE}--load-${n}-"
+  cnames="cms-rucio-stats-${INSTANCE}--load-${n}-,cms-rucio-${INSTANCE}--load-${n}-,cms-rucio-auth-${INSTANCE}--load-${n}-,cms-rucio-webui-${INSTANCE}--load-${n}-,cms-rucio-eagle-${INSTANCE}--load-${n}-"
   openstack server set --os-project-name CMSRucio --property landb-alias=$cnames ${node##node/}
 done
 
