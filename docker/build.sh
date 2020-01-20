@@ -7,16 +7,16 @@
 ##H
 
 # build.sh: script to build docker images for cmsweb services
-# use CMSK8S environment to controll host name of k8s cluster
+# use CMSK8S environment to control host name of k8s cluster
 # use CMSK8STAG environment to specify common tag for build images
-# use CMSK8SREPO environemtn to specify docker hub repo, default is cmssw
+# use CMSK8SREPO environment to specify docker hub repo, default is cmssw
 
 # define help
 if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ]; then
     echo "Usage: build.sh <pkgs>"
-    echo "  use CMSK8S environment to controll host name of k8s cluster"
+    echo "  use CMSK8S environment to control host name of k8s cluster"
     echo "  use CMSK8STAG environment to specify common tag for build images"
-    echo "  use CMSK8SREPO environemtn to specify docker hub repo, default is cmssw"
+    echo "  use CMSK8SREPO environment to specify docker hub repo, default is cmssw"
     echo "Examples:"
     echo "  # build images for all cmsweb services"
     echo "  CMSK8STAG=1.0.4 CMSK8S=https://cmsweb-test.cern.ch ./build.sh"
