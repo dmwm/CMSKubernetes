@@ -14,7 +14,7 @@ Users/developers may request for access of this cluster in their namespace in [h
 
 Use export KUBECONFIG to point to the relevant configurations for the clusters. Please note that these configurations are for the backend clusters as users will only need to work in the backend clusters to deploy/undeploy their services.  
 
-- `export KUBECONFIG=/eos/cmsweb/config.cmsweb-k8s-services-testbed`
+- `export KUBECONFIG=/eos/home-m/mimran/cmsweb/config.cmsweb-k8s-services-testbed`
 
 To see all pods in a particular namespace, following command can be used:
    - `kubectl -n <namespace> get pods`
