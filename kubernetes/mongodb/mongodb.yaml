@@ -1,0 +1,27 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongodb
+  namespace: mongodb
+data:
+  projectName: mongodb
+  baseUrl: https://mongo-cluster-fhqy64qckwsh-minion-0.cern.ch
+---
+apiVersion: mongodb.com/v1
+kind: MongoDB
+metadata:
+  name: mongodb
+  namepsace: mongodb
+spec:
+  version: 4.2.1
+  type: Standalone
+  opsManager:
+    configMapRef:
+      name: mongodb
+#   credentials: mongodb-credentials
+
+  # This flag allows the creation of pods without persistent volumes. This is for
+  # testing only, and must not be used in production. 'false' will disable
+  # Persistent Volume Claims. The default is 'true'
+  persistent: false
