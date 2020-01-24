@@ -12,10 +12,10 @@ Users/developers may request for access of this cluster in their namespace in [h
 - `ssh lxplus-cloud`
 - `export OS_PROJECT_NAME="CMS Web"`
 
-Use export KUBECONFIG to point to the relevant configurations for the clusters. Please note that these configurations are for the backend clusters as users will only need to work in the backend clusters to deploy/undeploy their services.  
+Use export KUBECONFIG to point to the relevant configurations for the clusters. Please note that these configurations are for the backend clusters as users will only need to work in the backend clusters to deploy/undeploy their services. The configuration file for backend cluster can be downloaded from [here](https://cernbox.cern.ch/index.php/s/zFIjNrze8h63Fwt)
 
-- `export KUBECONFIG=/eos/home-m/mimran/cmsweb/config.cmsweb-k8s-services-testbed`
-
+- `export KUBECONFIG=/configfilepath/config.cmsweb-k8s-services-testbed`
+ 
 To see all pods in a particular namespace, following command can be used:
    - `kubectl -n <namespace> get pods`
 

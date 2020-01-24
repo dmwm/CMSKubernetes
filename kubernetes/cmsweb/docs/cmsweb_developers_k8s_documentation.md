@@ -1,17 +1,21 @@
 ## Developers Cluster
 
-There are three clusters in “CMS Webtools Mig” project which are available for developers to test their services. The URLs to access these clusters are listed below:
+There are five clusters in “CMS Webtools Mig” project which are available for developers to test their services. The URLs to access these clusters are listed below:
 
 - https://cmsweb-test1.cern.ch
 - https://cmsweb-test2.cern.ch
 - https://cmsweb-test3.cern.ch
+- https://cmsweb-test4.cern.ch
+- https://cmsweb-test5.cern.ch
+
 
 These cluster will be shared and anyone will have full access, therefore people should coordinate and/or plan accordingly. 
 For example, our suggestions are listed below:
 
-- cmsweb-test1 should be used by DMWM team
+- cmsweb-test1 and cmsweb-test5 should be used by DMWM team
 - cmsweb-test2 should be used by CRAB team
 - cmsweb-test3 should be used by DBS team
+- cmsweb-test4 should be used by DQM team
 
 Users may request a new cluster or its redeployment in [https://gitlab.cern.ch/cms-http-group/doc/issues/196](https://gitlab.cern.ch/cms-http-group/doc/issues/196) forum. 
 
@@ -72,6 +76,10 @@ Use export KUBECONFIG to point to the relevant configurations for the clusters. 
    - This configuration will be used for host cmsweb-test2.cern.ch
 - `export KUBECONFIG=/afs/cern.ch/user/m/mimran/public/cmsweb-k8s/config.cmsweb-srv3`
    - This configuration will be used for host cmsweb-test3.cern.ch
+- `export KUBECONFIG=/afs/cern.ch/user/m/mimran/public/cmsweb-k8s/config.cmsweb-srv4`
+   - This configuration will be used for host cmsweb-test4.cern.ch
+- `export KUBECONFIG=/afs/cern.ch/user/m/mimran/public/cmsweb-k8s/config.cmsweb-srv5`
+   - This configuration will be used for host cmsweb-test5.cern.ch
 
 To see all services and their status, following command can be used:
    - `kubectl get pods --all-namespaces`
