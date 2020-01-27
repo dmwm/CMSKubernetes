@@ -1,22 +1,24 @@
 ### End-to-end setup for k8s
-This document provides basic setup of k8s and demonstrate whole process of
+This document provides basic setup of k8s and demonstrate the whole process of
 cluster creation and service deployment.
 
-First, we need to create a new ssh keypair which we'll use for cluster access
+First, we need to create a new ssh key pair which we'll use for cluster access
 ```
 # first we login to lxplus-cloud
 ssh lxplus-cloud
 
-# create new key, here we give a key name as: cloud
+# create a new key, here we give the key the name cloud
+cd .ssh
 ssh-keygen -t rsa -f cloud
+cd ..
 
-# upload you key to openstack with name cloud
+# upload your key to openstack with name cloud
 openstack keypair create --public-key ~/.ssh/cloud.pub cloud
 ```
 
-Then, we should create a cluster on CERN openstack platform. For that
-users can either use [web UI interface](https://openstack.cern.ch/project/)
-or command line interface available on `lxplus-cloud` nodes. This tutorial
+Then, we should create a cluster on the CERN openstack platform. For that
+users can either use the [web UI interface](https://openstack.cern.ch/project/)
+or the command line interface available on `lxplus-cloud` nodes. This tutorial
 will follow all steps via CLI interface.
 
 ```
@@ -24,12 +26,12 @@ will follow all steps via CLI interface.
 # openstack help
 # openstack coe cluster help
 
-# To start, let's create your working area and clone CMSKubernetes repository
+# To start, let's create your working area and clone the CMSKubernetes repository
 mkdir wdir
 cd wdir
-git clone git@github.com:dmwm/CMSKubernetes.git
+git clone https://github.com/dmwm/CMSKubernetes.git
 
-# for this excercise we'll use httpgo application/service
+# for this exercise we'll use the httpgo application/service
 # therefore we'll copy httpgo.yaml file in our working area
 cp CMSKubernetes/kubernetes/k8s-whoami/httpgo.yaml .
 cp CMSKubernetes/kubernetes/cmsweb/scripts/create_templates.sh .
