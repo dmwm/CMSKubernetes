@@ -1,5 +1,5 @@
 ### End-to-end setup for k8s
-This document provides basic setup of k8s and demonstrate the whole process of
+This document provides basic setup of k8s and demonstrates the whole process of
 cluster creation and service deployment.
 
 First, we need to create a new ssh key pair which we'll use for cluster access
@@ -32,8 +32,8 @@ cd wdir
 git clone https://github.com/dmwm/CMSKubernetes.git
 
 # for this exercise we'll use the httpgo application/service
-# therefore we'll copy httpgo.yaml file in our working area
-cp CMSKubernetes/kubernetes/k8s-whoami/httpgo.yaml .
+# therefore we'll copy the httpgo.yaml file in our working area
+cp CMSKubernetes/kubernetes/whoami/httpgo.yaml .
 cp CMSKubernetes/kubernetes/cmsweb/scripts/create_templates.sh .
 
 # let's create a new cluster, the command to create a cluster is the following
@@ -55,7 +55,7 @@ cp CMSKubernetes/kubernetes/cmsweb/scripts/create_templates.sh .
 # first we'll create a new template with all labels suitable for cms
 # by default create_template use "CMS Web" project, therefore
 # we'll use "default" project by resetting OS_PROJECT_NAME
-# the create_template.sh script will create cmsweb-temaplate-medium
+# the create_template.sh script will create cmsweb-template-medium
 
 # you can find list of projects you're in using
 openstack project list
