@@ -32,7 +32,7 @@ Once received and we obtain robotcert.pem/robotkey.pem files and we need to
 register them in [LCG VOMS server](https://lcg-voms2.cern.ch:8443).  Then,
 we'll mount them in secrets volume in k8s cluster and use for acquiring proxies
 within k8s pods, see
-[proxy.sh](https://github.com/dmwm/CMSKubernetes/blob/master/docker/frontend/proxy.sh)
+[proxy.sh](https://github.com/dmwm/CMSKubernetes/blob/master/docker/proxy/proxy.sh)
 frontend file for example.
 
 ### Setup kubernetes cluster
