@@ -123,7 +123,7 @@ kubectl get pods --all-namespaces
 # label our minion node with ingress label to start nginx daemon
 kubectl label node test-cluster-l3kt5awszhwr-minion-0 role=ingress --overwrite
 
-# check that label is applied to the node
+# check that the label is applied to the node
 kubectl get node -l role=ingress
 
 # deploy k8s application/service
@@ -152,9 +152,10 @@ In order to access our service we have few options:
 - use NodePort
 - use hostNetwork and hostPort
 - use ingress controller
+
 You may read about these options [here](https://medium.com/google-cloud/kubernetes-nodeport-vs-loadbalancer-vs-ingress-when-should-i-use-what-922f010849e0) and [here](http://alesnosek.com/blog/2017/02/14/accessing-kubernetes-pods-from-outside-of-the-cluster/).
 
-**Excercise:** feel free to change httpgo.yaml and change service to
+**Exercise:** feel free to change httpgo.yaml and change service to
 ```
 kind: Service
 apiVersion: v1
