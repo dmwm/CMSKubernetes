@@ -35,29 +35,29 @@ git clone https://github.com/dmwm/CMSKubernetes.git
 # therefore we'll copy the httpgo.yaml file in our working area
 cp CMSKubernetes/kubernetes/whoami/httpgo.yaml .
 cp CMSKubernetes/kubernetes/cmsweb/scripts/create_templates.sh .
+```
 
-# let's create a new cluster, the command to create a cluster is the following
-# openstack coe cluster create test-cluster --keypair cloud --cluster-template kubernetes-1.13.10-1
-# but we'll use it with specific flags:
-# cern_tag and cern_enabled forces creation of host certificates
-# ingress_controller defines which ingress controller we'll use
-# tiller_enabled defines tiller service to allow to deploy k8s Helmpackages
-#
-# here is an example how to create a cluster
-# openstack coe cluster create test-cluster --keypair <name> --cluster-template <tmpl_name> <labels>
+Let's create a new cluster, the command to create a cluster is the following
+```
+openstack coe cluster create test-cluster --keypair cloud --cluster-template kubernetes-1.13.10-1
+```
+ but we'll use it with specific flags:
+- cern_tag and cern_enabled forces creation of host certificates
+- ingress_controller defines which ingress controller we'll use
+- tiller_enabled defines tiller service to allow to deploy k8s Helmpackages
+
+Here is an example how to create a cluster
+```
+ openstack coe cluster create test-cluster --keypair <name> --cluster-template <tmpl_name> <labels>
 # for example
 # openstack coe cluster create test-cluster --keypair cloud --cluster-template kubernetes-1.13.10-1 --labels cern_tag=qa --labels ingress_controller="nginx" --labels tiller_enabled=true --labels cern_enabled="true"
-
-# But the above template may not contain ALL labels we may want
-# to use at the end, to solve this problem we'll create a cluster
-# with standard template
-
-# first we'll create a new template with all labels suitable for cms
-# by default create_template use "CMS Web" project, therefore
-# we'll use "default" project by resetting OS_PROJECT_NAME
-# the create_template.sh script will create cmsweb-template-DATE (where DATE is the date of today)
-
-# you can find list of projects you're in using
+```
+ But the above template may not contain ALL labels we may want to use at the end, to solve this problem we'll create a cluster with standard template. First we'll create a new template with all labels suitable for cms
+ by default create_template use "CMS Web" project, therefore
+ we'll use "default" project by resetting OS_PROJECT_NAME
+ the create_template.sh script will create cmsweb-template-DATE (where DATE is the date of today)
+```
+# you can find list of projects you're using
 openstack project list
 
 # NOTE: replace xxxxx with your CERN login name
@@ -81,7 +81,6 @@ openstack coe cluster template list
 # now, let's create a cluster with cmsweb-template
 openstack coe cluster create test-cluster --keypair cloud --cluster-template cmsweb-template-DATE
 ```
-
 You may check its status like this (please note that IDs or names will be assigned dynamically
 and you output will have different ones):
 ```
