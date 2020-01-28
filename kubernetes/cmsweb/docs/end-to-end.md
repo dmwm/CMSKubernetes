@@ -1,22 +1,24 @@
 ### End-to-end setup for k8s
-This document provides basic setup of k8s and demonstrate whole process of
+This document provides basic setup of k8s and demonstrates the whole process of
 cluster creation and service deployment.
 
-First, we need to create a new ssh keypair which we'll use for cluster access
+First, we need to create a new ssh key pair which we'll use for cluster access
 ```
-# first we login to lxplus-cloud
+# let's login to lxplus-cloud
 ssh lxplus-cloud
 
-# create new key, here we give a key name as: cloud
+# create a new key, here we give the key the name cloud
+cd .ssh
 ssh-keygen -t rsa -f cloud
+cd ..
 
-# upload you key to openstack with name cloud
+# upload your key to openstack with name cloud
 openstack keypair create --public-key ~/.ssh/cloud.pub cloud
 ```
 
-Then, we should create a cluster on CERN openstack platform. For that
-users can either use [web UI interface](https://openstack.cern.ch/project/)
-or command line interface available on `lxplus-cloud` nodes. This tutorial
+Then, we should create a cluster on the CERN openstack platform. For that
+users can either use the [web UI interface](https://openstack.cern.ch/project/)
+or the command line interface available on `lxplus-cloud` nodes. This tutorial
 will follow all steps via CLI interface.
 
 ```
@@ -24,38 +26,38 @@ will follow all steps via CLI interface.
 # openstack help
 # openstack coe cluster help
 
-# To start, let's create your working area and clone CMSKubernetes repository
+# To start, let's create your working area and clone the CMSKubernetes repository
 mkdir wdir
 cd wdir
-git clone git@github.com:dmwm/CMSKubernetes.git
+git clone https://github.com/dmwm/CMSKubernetes.git
 
-# for this excercise we'll use httpgo application/service
-# therefore we'll copy httpgo.yaml file in our working area
-cp CMSKubernetes/kubernetes/k8s-whoami/httpgo.yaml .
+# for this exercise we'll use the httpgo application/service
+# therefore we'll copy the httpgo.yaml file in our working area
+cp CMSKubernetes/kubernetes/whoami/httpgo.yaml .
 cp CMSKubernetes/kubernetes/cmsweb/scripts/create_templates.sh .
+```
 
-# let's create a new cluster, the command to create a cluster is the following
-# openstack coe cluster create test-cluster --keypair cloud --cluster-template kubernetes-1.13.10-1
-# but we'll use it with specific flags:
-# cern_tag and cern_enabled forces creation of host certificates
-# ingress_controller defines which ingress controller we'll use
-# tiller_enabled defines tiller service to allow to deploy k8s Helmpackages
-#
-# here is an example how to create a cluster
-# openstack coe cluster create test-cluster --keypair <name> --cluster-template <tmpl_name> <labels>
+Let's create a new cluster, the command to create a cluster is the following
+```
+openstack coe cluster create test-cluster --keypair cloud --cluster-template kubernetes-1.13.10-1
+```
+ but we'll use it with specific flags:
+- cern_tag and cern_enabled forces creation of host certificates
+- ingress_controller defines which ingress controller we'll use
+- tiller_enabled defines tiller service to allow to deploy k8s Helmpackages
+
+Here is an example how to create a cluster
+```
+ openstack coe cluster create test-cluster --keypair <name> --cluster-template <tmpl_name> <labels>
 # for example
 # openstack coe cluster create test-cluster --keypair cloud --cluster-template kubernetes-1.13.10-1 --labels cern_tag=qa --labels ingress_controller="nginx" --labels tiller_enabled=true --labels cern_enabled="true"
-
-# But the above template may not contain ALL labels we may want
-# to use at the end, to solve this problem we'll create a cluster
-# with standard template
-
-# first we'll create a new template with all labels suitable for cms
-# by default create_template use "CMS Web" project, therefore
-# we'll use "default" project by resetting OS_PROJECT_NAME
-# the create_template.sh script will create cmsweb-temaplate-medium
-
-# you can find list of projects you're in using
+```
+ But the above template may not contain ALL labels we may want to use at the end, to solve this problem we'll create a cluster with standard template. First we'll create a new template with all labels suitable for cms
+ by default create_template use "CMS Web" project, therefore
+ we'll use the "default" project by resetting OS_PROJECT_NAME
+ the create_template.sh script will create cmsweb-template-DATE (where DATE is the date of today)
+```
+# you can find list of projects you're using
 openstack project list
 
 # NOTE: replace xxxxx with your CERN login name
@@ -70,18 +72,17 @@ openstack coe cluster template list
 | 49187d11-6442-43da-bedc-695ae522e8c5 | swarm-preview          |
 | 17760a5f-8957-4794-ab96-0d6bd8627282 | swarm-18.06-1          |
 | ab08b219-3246-4995-bf76-a3123f69cb4f | swarm-1.13.1-2         |
-| a6d5b08d-f90a-46b4-900c-a5bd170664a5 | cmsweb-template-medium |
+| a6d5b08d-f90a-46b4-900c-a5bd170664a5 | cmsweb-template-DATE |
 | 0b6d5c5f-976a-4f05-9edb-06489bc6538b | kubernetes-1.14.6-1    |
 | 6b4fc2c2-00b0-410d-a784-82b6ebdd85bc | kubernetes-1.13.10-1   |
 | 30c8db8a-49d0-470d-b9c6-dd684d4d0079 | kubernetes-1.15.3-2    |
 +--------------------------------------+------------------------+
 
 # now, let's create a cluster with cmsweb-template
-openstack coe cluster create test-cluster --keypair cloud --cluster-template cmsweb-template-medium
+openstack coe cluster create test-cluster --keypair cloud --cluster-template cmsweb-template-DATE
 ```
-
 You may check its status like this (please note that IDs or names will be assigned dynamically
-and you output will have different ones):
+and your output will have different ones):
 ```
 openstack coe cluster list
 +--------------------------------------+--------------+---------+------------+--------------+--------------------+---------------+
@@ -90,7 +91,7 @@ openstack coe cluster list
 | 62ca8a05-c209-4f2e-b684-f6cf90d90b06 | test-cluster | cloud   |          1 |            1 | CREATE_IN_PROGRESS | None          |
 +--------------------------------------+--------------+---------+------------+--------------+--------------------+---------------+
 ```
-Once cluster is created you'll have the following status
+Once the cluster is created you'll have the following status
 ```
 openstack coe cluster list
 +--------------------------------------+--------------+---------+------------+--------------+-----------------+---------------+
@@ -98,13 +99,14 @@ openstack coe cluster list
 +--------------------------------------+--------------+---------+------------+--------------+-----------------+---------------+
 | 62ca8a05-c209-4f2e-b684-f6cf90d90b06 | test-cluster | cloud   |          1 |            1 | CREATE_COMPLETE | None          |
 +--------------------------------------+--------------+---------+------------+--------------+-----------------+---------------+
-
-# at this step we just need to create our configuration, it can be done as following
-$(openstack coe cluster config test-cluster)
 ```
-Now it is time to deploy our first service. For that we'll use
+At this step we just need to create our configuration, it can be done as following
+```
+openstack coe cluster config test-cluster
+```
+Now it is time to deploy our first service. For that we'll use the
 [httpgo](https://github.com/dmwm/CMSKubernetes/tree/master/docker/httpgo) application/service.
-It represents basic HTTP server written in Go language. Its docker image
+It represents a basic HTTP server written in Go language. Its docker image
 is available at [cmssw/httpgo](https://cloud.docker.com/u/cmssw/repository/docker/cmssw/httpgo)
 repository. The associated k8s deployment file can be found
 [here](https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/k8s-whoami/httpgo.yaml).
@@ -121,7 +123,7 @@ kubectl get pods --all-namespaces
 # label our minion node with ingress label to start nginx daemon
 kubectl label node test-cluster-l3kt5awszhwr-minion-0 role=ingress --overwrite
 
-# check that label is applied to the node
+# check that the label is applied to the node
 kubectl get node -l role=ingress
 
 # deploy k8s application/service
@@ -150,9 +152,10 @@ In order to access our service we have few options:
 - use NodePort
 - use hostNetwork and hostPort
 - use ingress controller
+
 You may read about these options [here](https://medium.com/google-cloud/kubernetes-nodeport-vs-loadbalancer-vs-ingress-when-should-i-use-what-922f010849e0) and [here](http://alesnosek.com/blog/2017/02/14/accessing-kubernetes-pods-from-outside-of-the-cluster/).
 
-**Excercise:** feel free to change httpgo.yaml and change service to
+**Exercise:** feel free to change httpgo.yaml and change service to
 ```
 kind: Service
 apiVersion: v1
