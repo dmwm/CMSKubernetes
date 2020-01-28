@@ -4,7 +4,7 @@ cluster creation and service deployment.
 
 First, we need to create a new ssh key pair which we'll use for cluster access
 ```
-# first we login to lxplus-cloud
+# let's login to lxplus-cloud
 ssh lxplus-cloud
 
 # create a new key, here we give the key the name cloud
@@ -54,7 +54,7 @@ Here is an example how to create a cluster
 ```
  But the above template may not contain ALL labels we may want to use at the end, to solve this problem we'll create a cluster with standard template. First we'll create a new template with all labels suitable for cms
  by default create_template use "CMS Web" project, therefore
- we'll use "default" project by resetting OS_PROJECT_NAME
+ we'll use the "default" project by resetting OS_PROJECT_NAME
  the create_template.sh script will create cmsweb-template-DATE (where DATE is the date of today)
 ```
 # you can find list of projects you're using
@@ -82,7 +82,7 @@ openstack coe cluster template list
 openstack coe cluster create test-cluster --keypair cloud --cluster-template cmsweb-template-DATE
 ```
 You may check its status like this (please note that IDs or names will be assigned dynamically
-and you output will have different ones):
+and your output will have different ones):
 ```
 openstack coe cluster list
 +--------------------------------------+--------------+---------+------------+--------------+--------------------+---------------+
@@ -91,7 +91,7 @@ openstack coe cluster list
 | 62ca8a05-c209-4f2e-b684-f6cf90d90b06 | test-cluster | cloud   |          1 |            1 | CREATE_IN_PROGRESS | None          |
 +--------------------------------------+--------------+---------+------------+--------------+--------------------+---------------+
 ```
-Once cluster is created you'll have the following status
+Once the cluster is created you'll have the following status
 ```
 openstack coe cluster list
 +--------------------------------------+--------------+---------+------------+--------------+-----------------+---------------+
@@ -99,13 +99,14 @@ openstack coe cluster list
 +--------------------------------------+--------------+---------+------------+--------------+-----------------+---------------+
 | 62ca8a05-c209-4f2e-b684-f6cf90d90b06 | test-cluster | cloud   |          1 |            1 | CREATE_COMPLETE | None          |
 +--------------------------------------+--------------+---------+------------+--------------+-----------------+---------------+
-
-# at this step we just need to create our configuration, it can be done as following
-$(openstack coe cluster config test-cluster)
 ```
-Now it is time to deploy our first service. For that we'll use
+At this step we just need to create our configuration, it can be done as following
+```
+openstack coe cluster config test-cluster
+```
+Now it is time to deploy our first service. For that we'll use the
 [httpgo](https://github.com/dmwm/CMSKubernetes/tree/master/docker/httpgo) application/service.
-It represents basic HTTP server written in Go language. Its docker image
+It represents a basic HTTP server written in Go language. Its docker image
 is available at [cmssw/httpgo](https://cloud.docker.com/u/cmssw/repository/docker/cmssw/httpgo)
 repository. The associated k8s deployment file can be found
 [here](https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/k8s-whoami/httpgo.yaml).
