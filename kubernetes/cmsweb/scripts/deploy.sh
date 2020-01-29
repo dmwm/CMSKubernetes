@@ -524,22 +524,31 @@ deploy_services()
             for inst in $dbs_instances; do
                 if [ -f "$sdir/${srv}-${inst}.yaml" ]; then
                     #kubectl apply -f "$sdir/${srv}-${inst}.yaml" --validate=false
-                    cat $sdir/${srv}-${inst}.yaml | \
-                        sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
-                        sed -e "s,#PROD#,$prod_prefix,g" | \
-                        sed -e "s,logs-cephfs-claim,logs-cephfs-claim$preprod_prefix,g" | \
-                        kubectl apply --validate=false -f -
+	                if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]] ; then
+                	    cat $sdir/${srv}-${inst}.yaml | \
+                        	sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
+                        	sed -e "s,#PROD#,$prod_prefix,g" | \
+                        	sed -e "s,logs-cephfs-claim,logs-cephfs-claim$preprod_prefix,g" | \
+                        	kubectl apply --validate=false -f -
+			else
+	                        kubectl apply -f $sdir/${srv}-${inst}.yaml --validate=false
+			fi
                 fi
             done
         else
             if [ -f $sdir/${srv}.yaml ]; then
                 #kubectl apply -f $sdir/${srv}.yaml --validate=false
-                cat $sdir/${srv}.yaml | \
-                    sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
-                    sed -e "s,replicas: 2 #PROD#,replicas: ,g" | \
-                    sed -e "s,#PROD#,$prod_prefix,g" | \
-                    sed -e "s,logs-cephfs-claim,logs-cephfs-claim$preprod_prefix,g" | \
-                    kubectl apply --validate=false -f -
+                if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]] ; then
+			cat $sdir/${srv}.yaml | \
+        	            sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
+                	    sed -e "s,replicas: 2 #PROD#,replicas: ,g" | \
+	                    sed -e "s,#PROD#,$prod_prefix,g" | \
+	                    sed -e "s,logs-cephfs-claim,logs-cephfs-claim$preprod_prefix,g" | \
+        	            kubectl apply --validate=false -f -
+		else
+			kubectl apply -f $sdir/${srv}.yaml --validate=false
+		fi
+
             fi
         fi
     done
@@ -564,7 +573,9 @@ create()
     else
         deploy_ns
         deploy_secrets
-        deploy_storages
+	if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]] && ["$deployment" == "services" ]; then
+     		deploy_storages
+	fi
         deploy_services
         deploy_roles
         deploy_ingress
