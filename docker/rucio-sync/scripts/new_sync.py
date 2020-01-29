@@ -8,7 +8,7 @@ import string
 from multiprocessing import Pool
 
 import yaml
-from rucio.api.replica import list_datasets_per_rse
+from rucio.api.replica import list_datasets_per_rse, list_dataset_replicas
 from rucio.core import monitor
 from rucio.db.sqla.constants import DIDType
 
@@ -65,7 +65,7 @@ def save_last_synced(last_synced):
     return
 
 
-def compare_site_blocks(phedex=None, rucio=None):
+def compare_site_blocks(phedex=None, rucio=None, rse=''):
     """
 
     :param phedex: Dictionary with file counts for PhEDEx
@@ -78,12 +78,15 @@ def compare_site_blocks(phedex=None, rucio=None):
         missing_phedex = rucio_blocks - phedex_blocks
         missing_rucio = phedex_blocks - rucio_blocks
         both = phedex_blocks & rucio_blocks
+        incomplete = set()
 
         for block in both:
             if phedex[block] != rucio[block]:
-                print("For %s the files differ: %s vs %s" % (block, phedex[block], rucio[block]))
+                print("For %s at %s the files differ: %s vs %s." % (block, rse, phedex[block], rucio[block]))
+                incomplete.add(block)
+        both = both - incomplete
 
-        return {'not_rucio': missing_rucio, 'not_phedex': missing_phedex, 'complete': both}
+        return {'not_rucio': missing_rucio, 'not_phedex': missing_phedex, 'complete': both, 'incomplete': incomplete}
 
 
 class SiteSyncer(object):
@@ -137,10 +140,12 @@ class SiteSyncer(object):
                 logging.info("At %s:%s, nothing in PhEDEx or Rucio. Quitting." % (site, prefix))
                 return
 
-            block_report = compare_site_blocks(phedex=phedex_blocks, rucio=rucio_blocks)
+            block_report = compare_site_blocks(phedex=phedex_blocks, rucio=rucio_blocks, rse=site)
 
             n_blocks_not_in_rucio = len(block_report['not_rucio'])
             n_blocks_not_in_phedex = len(block_report['not_phedex'])
+            n_incomplete_blocks = len(block_report['incomplete'])
+
             logging.info("At %s: In both/PhEDEx only/Rucio only: %s/%s/%s" %
                          (site, len(block_report['complete']),
                           n_blocks_not_in_rucio, n_blocks_not_in_phedex))
@@ -162,7 +167,14 @@ class SiteSyncer(object):
             for block in block_report['not_phedex']:
                 bs = BlockSyncer(block_name=block, pnn=site, rse=site)
                 bs.remove_from_rucio()
+
+            for block in block_report['incomplete']:
+                logging.warn('Redoing sync for %s at %s', block, site)
+                bs = BlockSyncer(block_name=block, pnn=site, rse=site)
+                bs.add_to_rucio(recover=True)
+
             logging.info('Finished syncing                      %s:%s' % (site, prefix))
+
         # FIXME: Resurrect code to check for size differences
 
         # self.last_synced[site_pair] = now
@@ -200,8 +212,16 @@ class SiteSyncer(object):
             filters['name'] = '/' + prefix + '*'
 
         with monitor.record_timer_block('cms_sync.time_rse_datasets'):
-            datasets = {dataset['name']: dataset['available_length']
-                        for dataset in list_datasets_per_rse(rse=rse, filters=filters)}
+            all_datasets = [dataset['name'] for dataset in list_datasets_per_rse(rse=rse, filters=filters)]
+
+            for dataset in all_datasets:
+                datasets = {dataset: ds['available_length']
+                            for ds in list_dataset_replicas(scope='cms', name=dataset, deep=True)
+                            if ds['rse'] == rse
+                            }
+
+            # datasets = {dataset['name']: dataset['available_length']
+            #             for dataset in list_datasets_per_rse(rse=rse, filters=filters, deep=True)}
 
         return datasets
 
@@ -228,10 +248,6 @@ if __name__ == '__main__':
     )
     parser.add_argument('--config', dest='config', default=DEFAULT_CONFFILE,
                         help='Configuration file. Default %s.' % DEFAULT_CONFFILE)
-    # parser.add_argument('--logs', dest='logs', default=DEFAULT_LOGFILE,
-    #                     help='Logs file. Default %s.' % DEFAULT_LOGFILE)
-    # parser.add_argument('--nodaemon', dest='daemon', action='store_false',
-    #                     help='Runs in foreground.')
 
     options = parser.parse_args()
     syncer = SiteSyncer(options)
@@ -239,7 +255,7 @@ if __name__ == '__main__':
     site_pairs = syncer.chunks_to_sync()
 
     # Multi-process version of the syncer
-    pool = Pool(processes=6)  # start N worker processes
+    pool = Pool(processes=8)  # start N worker processes
     sites_and_options = [(site_pair, options) for site_pair in site_pairs]
     pool.map(sync_a_site, sites_and_options, chunksize=1)
 

@@ -21,7 +21,6 @@ WORKDIR /root
 RUN pip install pyyaml
 
 COPY scripts /root/scripts
-#COPY sync.yaml /etc/synccmssites.yaml
 
 ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/phedex.py  /root/scripts
 ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/CMSRucio.py  /root/scripts

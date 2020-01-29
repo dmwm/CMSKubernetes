@@ -5,25 +5,11 @@
 # You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
 #
 # Authors:
-# - Eric Vaandering, <ewv@fnal.gov>, 2018
+# - Eric Vaandering, <ewv@fnal.gov>, 2019-2020
 
 ARG RUCIO_VERSION
 
-FROM rucio/rucio-daemons:release-$RUCIO_VERSION
+FROM rucio/probes:latest 
 
-RUN yum install -y git \
-    nano \
-    && yum clean all \
-    && rm -rf /var/cache/yum
-
-WORKDIR /root
-
-COPY scripts /root/scripts
-
-# Pull some useful stuff out of git
-
-RUN git clone https://github.com/rucio/probes.git
-
-WORKDIR /root/probes/common
-
-ENTRYPOINT ["/bin/bash", "-c", "sleep infinity"]
+ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/cmstfc.py  /usr/lib/python2.7/site-packages/cmstfc.py
+RUN chmod 755 /usr/lib/python2.7/site-packages/cmstfc.py

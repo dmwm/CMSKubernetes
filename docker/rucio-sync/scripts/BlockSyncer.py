@@ -1,39 +1,20 @@
 from __future__ import absolute_import, division, print_function
 
-"""
-import re
-import time
-from random import randint
-import argparse
-import traceback
-import multiprocessing
-import argparse
-import copy
-import functools
-import random
-import re
-import string
-import sys
-import time
-import traceback
-from datetime import datetime, timedelta
-"""
-
 import logging
 import os
 
 from CMSRucio import replica_file_list
-
 from phedex import PhEDEx
 from rucio.api.did import add_did, attach_dids, get_did, list_files
 from rucio.api.replica import list_replicas, add_replicas, delete_replicas
-from rucio.api.rse import list_rses
+from rucio.api.rse import get_rse, list_rses
 from rucio.api.rule import add_replication_rule, list_replication_rules, delete_replication_rule
 from rucio.common.exception import (DataIdentifierNotFound, DataIdentifierAlreadyExists, DuplicateContent,
                                     FileAlreadyExists)
+from rucio.common.types import InternalScope
 from rucio.common.utils import chunks
 from rucio.core import monitor
-
+from rucio.core.replica import update_replica_state as core_update_state
 from syncaccounts import SYNC_ACCOUNT_FMT
 
 REMOVE_CHUNK_SIZE = 20
@@ -93,15 +74,16 @@ class BlockSyncer(object):
         self.rule_exists = None
 
         touch(text=self.rse)
-        # pdb.set_trace()
 
-    def add_to_rucio(self):
+    def add_to_rucio(self, recover=False):
         """"""
         with monitor.record_timer_block('cms_sync.time_add_block'):
             self.register_container()
             block_exists = self.register_block()
             if block_exists:
                 self.update_replicas()
+                if recover:
+                    self.make_replicas_available()
                 self.update_rule()
 
     def remove_from_rucio(self):
@@ -214,11 +196,11 @@ class BlockSyncer(object):
         """
         Add or removes replicas for the dataset at rse.
         """
+
         with monitor.record_timer_block('cms_sync.time_update_replica'):
-            logging.debug('Updating replicas for %s:%s at %s' % (self.scope, self.block_name, self.rse))
+            logging.debug('Updating replicas for %s:%s at %s', self.scope, self.block_name, self.rse)
             replicas = list_replicas(dids=[{'scope': self.scope, 'name': self.block_name}],
                                      rse_expression='rse=%s' % self.rse)
-
             try:
                 rucio_replicas = {repl['name'] for repl in replicas}
             except TypeError:
@@ -228,12 +210,55 @@ class BlockSyncer(object):
             missing = list(phedex_replicas - rucio_replicas)
             to_remove = list(rucio_replicas - phedex_replicas)
 
+            if missing and (len(phedex_replicas) != len(missing)):
+                logging.warn('Recovery: Inconsistency found for %s at %s: %s in PhEDEx and %s missing',
+                             self.rse, self.block_name, len(phedex_replicas), len(missing))
+
             if missing:
                 lfns_added = self.add_missing_replicas(missing)
                 monitor.record_counter('cms_sync.files_added', delta=lfns_added)
             if to_remove:
                 lfns_removed = self.remove_extra_replicas(to_remove)
                 monitor.record_counter('cms_sync.files_removed', delta=lfns_removed)
+
+        return
+
+    def make_replicas_available(self):
+        """
+        Marks available replicas for the dataset at rse if they are in PhEDEx
+        """
+
+        with monitor.record_timer_block('cms_sync.time_recover_replica'):
+            logging.info('Recovering unavailable replicas for %s:%s at %s', self.scope, self.block_name, self.rse)
+
+            replicas = list_replicas(dids=[{'scope': self.scope, 'name': self.block_name}],
+                                     rse_expression='rse=%s' % self.rse, all_states=True)
+
+            try:
+                unavailable_replicas = {repl['name']
+                                        for repl in replicas
+                                        if repl['states'][self.rse] != 'AVAILABLE'}
+            except TypeError:
+                unavailable_replicas = set()
+
+            phedex_replicas = set(self.replicas.keys())
+            missing = list(phedex_replicas & unavailable_replicas)
+
+            logging.info('Recovery for %s:%s at %s: PhEDEx has %s, Rucio unavailable %s. Missing: %s ',
+                         self.scope, self.block_name, self.rse,
+                         len(phedex_replicas), len(unavailable_replicas), len(missing))
+
+            # Fix up things which are unavailable
+            rse_details = get_rse(self.rse)
+            rse_id = rse_details['id']
+            scope = InternalScope(self.scope)
+            state = 'A'
+
+            for name in missing:
+                logging.info('Setting available %s:%s at %s', self.scope, name, self.rse)
+                core_update_state(rse_id=rse_id, scope=scope, name=name, state=state)
+
+            monitor.record_counter('cms_sync.files_made_available', delta=len(missing))
 
         return
 
@@ -259,18 +284,19 @@ class BlockSyncer(object):
         :param missing: possible missing lfns
         :return:
         """
+
         with monitor.record_timer_block('cms_sync.time_add_replica'):
             if missing and self.dry_run:
                 logging.info('Dry run: Adding replicas %s to rse %s.', str(missing), self.rse)
             elif missing:
                 logging.debug('Adding %s replicas to rse %s.', len(missing), self.rse)
-
                 replicas_to_add = [self.replicas[lfn] for lfn in missing]
                 files = replica_file_list(replicas=replicas_to_add, scope=self.scope)
                 add_replicas(rse=self.rse, files=files, issuer=self.account)
                 lfns = [item['name'] for item in list_files(scope=self.scope, name=self.block_name, long=False)]
 
                 missing_lfns = list(set(missing) - set(lfns))
+
                 if missing_lfns:
                     logging.debug('Attaching %s lfns to %s at %s', len(missing_lfns), self.block_name, self.rse)
                     dids = [{'scope': self.scope, 'name': lfn} for lfn in missing_lfns]
