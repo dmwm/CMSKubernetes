@@ -32,6 +32,9 @@ spec:
       containers:
       - image: veknet/auth-proxy-server
         name: auth-proxy-server
+        args:
+          - /data/proxy_auth_server
+          - -config=/etc/secrets/config.json
         resources:
           requests:
             memory: "256Mi"
@@ -41,3 +44,11 @@ spec:
             cpu: "1000m"
         ports:
         - containerPort: 8181
+        volumeMounts:
+        - name: auth-secrets
+          mountPath: /etc/secrets
+          defaultMode: 256
+      volumes:
+      - name: auth-secrets
+        secret:
+          secretName: auth-secrets
