@@ -1,5 +1,10 @@
 package main
 
+// proxy_auth_server - Go implementation of reverse proxy server with CERN SSO OAuth2 OICD
+//
+// Copyright (c) 2020 - Valentin Kuznetsov <vkuznet@gmail.com>
+//
+
 /*
 CERN SSO OAuth2 OICD
    https://gitlab.cern.ch/authzsvc/docs/keycloak-sso-examples
