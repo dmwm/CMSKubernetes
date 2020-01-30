@@ -25,6 +25,10 @@ and install it as production environment, see custom
 installation [guide](https://istio.io/docs/setup/install/istioctl/).
 Here we briefly summarize all steps in one section:
 ```
+# alias kubectl to k
+alias k=kubectl
+
+# create working area
 mkdir tmp
 cd tmp
 curl -L https://istio.io/downloadIstio | sh -
@@ -33,8 +37,8 @@ export PATH=$PWD/bin:$PATH
 istioctl manifest apply
 istioctl manifest generate > profile.yaml
 istioctl verify-install -f profile.yaml
-kubectl get svc -n istio-system
-kubectl get pods -n istio-system
+k get svc -n istio-system
+k get pods -n istio-system
 ```
 
 ##### Installation of (micro-)services
@@ -44,6 +48,7 @@ and `httpgo` application. Please follow these steps:
 ```
 # create new namespace for deployment
 k create namespace dev
+
 # enable istio injection in dev namespace
 k label namespace dev istio-injection=enabled
 
