@@ -12,6 +12,12 @@ cluster ingress and egress
 - secure service-to-service communication in a cluster with strong identity-based
 authentication and authorization
 
+For more information please see this
+introductionary
+[video](https://www.youtube.com/watch?v=6zDrLvpfCK4&app=desktop)
+which explains Service Mesh in 5 minutes or consult their
+[documentation](http://istio.io/docs).
+
 ##### Installation instructions
 In order to setup and use Service mesh please follow up
 [istio installation guide](https://istio.io/docs/setup/getting-started/)
@@ -82,3 +88,7 @@ To test access to your service you may use simple curl command, e.g.
 ```
 curl http://${GATEWAY_URL}/httpgo
 ```
+
+### Resources
+1. [Istio Service Mesh video](https://www.youtube.com/watch?v=6zDrLvpfCK4&app=desktop)
+2. [Istio](http://istio.io)
