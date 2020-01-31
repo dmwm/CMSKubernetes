@@ -1,7 +1,6 @@
 ---
 cmssw:
     - acdcserver
-    - alertscollector
     - cmsmon
     - cmsweb
     - confdb

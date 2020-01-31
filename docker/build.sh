@@ -35,7 +35,7 @@ CMSK8STAG=${CMSK8STAG:-}
 echo "to prune all images"
 echo "docker system prune -f -a"
 
-cmssw_pkgs="proxy frontend exporters exitcodes nats-sub das dbs2go dbs couchdb reqmgr2 reqmgr2ms reqmon workqueue acdcserver alertscollector confdb crabserver crabcache cmsmon dmwmmon dqmgui t0_reqmon t0wmadatasvc dbsmigration phedex sitedb httpgo httpsgo tfaas"
+cmssw_pkgs="proxy frontend exporters exitcodes nats-sub das dbs2go dbs couchdb reqmgr2 reqmgr2ms reqmon workqueue acdcserver confdb crabserver crabcache cmsmon dmwmmon dqmgui t0_reqmon t0wmadatasvc dbsmigration phedex sitedb httpgo httpsgo tfaas"
 
 if [ $# -eq 1 ]; then
     cmssw_pkgs="$1"
@@ -62,6 +62,9 @@ for pkg in $cmssw_pkgs; do
         echo "Images was uploaded to docker hub, time to clean-up, press CTRL+C to interrupt..."
         sleep 5
         docker rmi $repo/$pkg
+    	if [ -n "$CMSK8STAG" ]; then
+        	docker rmi $repo/$pkg:$CMSK8STAG
+    	fi
     fi
 done
 
