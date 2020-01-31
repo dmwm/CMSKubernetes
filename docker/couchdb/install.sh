@@ -7,7 +7,7 @@ AREA=/data/cfg/admin
 # for couchdb we need to install cmsweb service packages
 # which contains couchapp data area to create appropriate
 # databases and views
-srvs="couchdb acdcserver alertscollector reqmgr2 reqmon t0_reqmon workqueue"
+srvs="couchdb acdcserver reqmgr2 reqmon t0_reqmon workqueue"
 PKGS="admin backend $srvs"
 SERVER=cmsrep.cern.ch
 
