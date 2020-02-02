@@ -35,10 +35,23 @@ sed -i -e "s,|$k8host,,g" $WDIR/cfg/frontend/backends-prod.txt
 sed -i -e "s,cern.ch.cern.ch,cern.ch,g" $WDIR/cfg/frontend/backends-prod.txt
 # cat whole file except last line
 cat $WDIR/cfg/frontend/backends-prod.txt | sed \$d > b.txt
+# add httpgo redirect rule to k8s backend cluster
+echo "^/auth/complete/httpgo(?:/|$)" $cmsk8s_prod >> b.txt
 # all other will go to our k8host
 echo "^ ${k8host}.cern.ch" >> b.txt
 rm $WDIR/cfg/frontend/backends-prod.txt
 mv b.txt $WDIR/cfg/frontend/backends.txt
+
+# add rules for httpgo
+# add nossl rule for httpgo
+cat > $WDIR/cfg/frontend/app_exitcodes_nossl.conf << EOF_nossl
+RewriteRule ^(/httpgo(/.*)?)$ https://%{SERVER_NAME}${escape:$1}%{env:CMS_QUERY} [R=301,NE,L]
+EOF_nossl
+# add ssl rule for httpgo
+cat > $WDIR/cfg/frontend/app_httpgo_ssl.conf << EOF_ssl
+RewriteRule ^(/httpgo(/.*)?)$ /auth/verify${escape:$1} [QSA,PT,E=AUTH_SPEC:cert]
+RewriteRule ^/auth/complete(/httpgo(/.*)?)$ http://%{ENV:BACKEND}:8888${escape:$1} [QSA,P,L,NE]
+EOF_ssl
 
 # overwrite dev/preprod backends with production one for k8s
 files="backends-prod.txt backends-preprod.txt backends-dev.txt"
