@@ -38,16 +38,24 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// Ingress configuration
+type Ingress struct {
+	Path       string `json:"path"`        // url path to the service
+	ServiceUrl string `json:"service_url"` // service url
+}
+
 // Configuration stores server configuration parameters
 type Configuration struct {
-	Port         int    `json:"port"`           // server port number
-	ClientID     string `json:"client_id"`      // OICD client id
-	ClientSecret string `json:"client_secret"`  // OICD client secret
-	TargetUrl    string `json:"target_url"`     // proxy target url (where requests will go)
-	OAuthUrl     string `json:"oauth_url"`      // CERN SSO OAuth2 realm url
-	AuthTokenUrl string `json:"auth_token_url"` // CERN SSO OAuth2 OICD Token url
-	RedirectUrl  string `json:"redirect_url"`   // redirect auth url for proxy server
-	Verbose      bool   `json:"verbose"`        // verbose output
+	Port         int       `json:"port"`           // server port number
+	Base         string    `json:"base"`           // base URL
+	ClientID     string    `json:"client_id"`      // OICD client id
+	ClientSecret string    `json:"client_secret"`  // OICD client secret
+	TargetUrl    string    `json:"target_url"`     // proxy target url (where requests will go)
+	OAuthUrl     string    `json:"oauth_url"`      // CERN SSO OAuth2 realm url
+	AuthTokenUrl string    `json:"auth_token_url"` // CERN SSO OAuth2 OICD Token url
+	RedirectUrl  string    `json:"redirect_url"`   // redirect auth url for proxy server
+	Verbose      bool      `json:"verbose"`        // verbose output
+	Ingress      []Ingress `json:"ingress"`        // incress section
 }
 
 // TokenAttributes contains structure of valid token attributes
@@ -99,6 +107,9 @@ func parseConfig(configFile string) error {
 	if Config.OAuthUrl == "" {
 		Config.OAuthUrl = "https://auth.cern.ch/auth/realms/cern"
 	}
+	if Config.Verbose {
+		log.Println("config", Config)
+	}
 	return nil
 }
 
@@ -115,8 +126,8 @@ func printJSON(j interface{}) error {
 }
 
 // helper function to print HTTP requests
-func printHTTPRequest(w http.ResponseWriter, r *http.Request) {
-	log.Printf("user request info:\n")
+func printHTTPRequest(w http.ResponseWriter, r *http.Request, msg string) {
+	log.Printf("user request info: %s\n", msg)
 	fmt.Println("TLS:", r.TLS)
 	fmt.Println("Header:", r.Header)
 
@@ -222,6 +233,18 @@ func checkAccessToken(authTokenUrl string, r *http.Request) bool {
 			log.Println(msg)
 		}
 	}
+	// set cms auth headers
+	r.Header.Set("cms-auth-status", "ok")
+	r.Header.Set("cms-authn", "cms-authn")
+	r.Header.Set("cms-authz", "group:name")
+	r.Header.Set("cms-authn-name", attrs.UserName)
+	r.Header.Set("cms-authn-dn", "cms-auth-dn")
+	r.Header.Set("cms-authn-hmac", "test-hmac")
+	r.Header.Set("cms-client-id", attrs.ClientID)
+	r.Header.Set("cms-scope", attrs.Scope)
+	r.Header.Set("cms-email", attrs.Email)
+	r.Header.Set("cms-session-state", attrs.SessionState)
+	r.Header.Set("cms-host", attrs.ClientHost)
 	return true
 }
 
@@ -270,11 +293,13 @@ func auth_proxy_server() {
 	verifier := provider.Verifier(oidcConfig)
 
 	// handling the callback authentication requests
-	http.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
-		if Config.Verbose {
-			printHTTPRequest(w, r)
-		}
+	u := fmt.Sprintf("%s/callback", Config.Base)
+	http.HandleFunc(u, func(w http.ResponseWriter, r *http.Request) {
 		sess := globalSessions.SessionStart(w, r)
+		if Config.Verbose {
+			msg := fmt.Sprintf("call from '/callback', r.URL %s, sess.path %s", r.URL, sess.Get("path"))
+			printHTTPRequest(w, r, msg)
+		}
 		state := sess.Get(state)
 		if state == nil {
 			http.Error(w, fmt.Sprintf("state did not match, %v", state), http.StatusBadRequest)
@@ -291,15 +316,24 @@ func auth_proxy_server() {
 			http.Error(w, "Failed to exchange token: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
+		if Config.Verbose {
+			fmt.Println("### oauth2Token", oauth2Token)
+		}
 		rawIDToken, ok := oauth2Token.Extra("id_token").(string)
 		if !ok {
 			http.Error(w, "No id_token field in oauth2 token.", http.StatusInternalServerError)
 			return
 		}
+		if Config.Verbose {
+			fmt.Println("### rawIDToken", rawIDToken)
+		}
 		idToken, err := verifier.Verify(ctx, rawIDToken)
 		if err != nil {
 			http.Error(w, "Failed to verify ID Token: "+err.Error(), http.StatusInternalServerError)
 			return
+		}
+		if Config.Verbose {
+			fmt.Println("### idToken", idToken)
 		}
 
 		//preparing the data to be presented on the page
@@ -334,18 +368,40 @@ func auth_proxy_server() {
 
 	// handling the user request
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if Config.Verbose {
-			printHTTPRequest(w, r)
-		}
 		sess := globalSessions.SessionStart(w, r)
+		if Config.Verbose {
+			msg := fmt.Sprintf("call from '/', r.URL %s, sess.Path %s", r.URL, sess.Get("path"))
+			printHTTPRequest(w, r, msg)
+		}
 		oauthState := uuid.New().String()
 		sess.Set(state, oauthState)
-		sess.Set("path", r.URL.Path)
+		if sess.Get("path") == nil || sess.Get("path") == "" {
+			sess.Set("path", r.URL.Path)
+		}
 		// checking the userinfo in the session or if client provides valid access token.
 		// if either is present we'll allow user request
 		userInfo := sess.Get("userinfo")
 		hasToken := checkAccessToken(authTokenUrl, r)
 		if userInfo != nil || hasToken {
+			if Config.Verbose {
+				fmt.Println("### userInfo", userInfo)
+				fmt.Println("### r.URL", r.URL)
+			}
+			if r.URL.Path == fmt.Sprintf("%s/token", Config.Base) {
+				msg := fmt.Sprintf("%s", sess.Get("rawIDToken"))
+				data := []byte(msg)
+				w.Write(data)
+				return
+			}
+			for _, rec := range Config.Ingress {
+				if strings.Contains(r.URL.Path, rec.Path) {
+					if Config.Verbose {
+						fmt.Println("ingress match", r.URL.Path, rec.Path, rec.ServiceUrl)
+					}
+					serveReverseProxy(rec.ServiceUrl, w, r)
+					return
+				}
+			}
 			if Config.TargetUrl == "" {
 				msg := fmt.Sprintf("Hello %s", r.URL.Path)
 				data := []byte(msg)
@@ -356,7 +412,11 @@ func auth_proxy_server() {
 			return
 		}
 		// there is no proper authentication, redirect users to auth callback
-		http.Redirect(w, r, oauth2Config.AuthCodeURL(oauthState), http.StatusFound)
+		aurl := oauth2Config.AuthCodeURL(oauthState)
+		if Config.Verbose {
+			fmt.Println("### redirect", aurl)
+		}
+		http.Redirect(w, r, aurl, http.StatusFound)
 		return
 	})
 
