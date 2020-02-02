@@ -2,7 +2,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: auth-proxy-server
-  namespace: http
+  namespace: auth
 spec:
   type: ClusterIP
   ports:
@@ -18,7 +18,7 @@ metadata:
   labels:
     app: auth-proxy-server
   name: auth-proxy-server
-  namespace: http
+  namespace: auth
 spec:
   selector:
     matchLabels:
