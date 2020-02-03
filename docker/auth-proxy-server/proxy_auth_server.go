@@ -56,6 +56,8 @@ type Configuration struct {
 	RedirectUrl  string    `json:"redirect_url"`   // redirect auth url for proxy server
 	Verbose      bool      `json:"verbose"`        // verbose output
 	Ingress      []Ingress `json:"ingress"`        // incress section
+	ServerCrt    string    `json:"server_cert"`    // server certificate
+	ServerKey    string    `json:"server_key"`     // server certificate
 }
 
 // TokenAttributes contains structure of valid token attributes
@@ -114,7 +116,10 @@ func parseConfig(configFile string) error {
 }
 
 // helper function to print JSON data
-func printJSON(j interface{}) error {
+func printJSON(j interface{}, msg string) error {
+	if msg != "" {
+		fmt.Println(msg)
+	}
 	var out []byte
 	var err error
 	out, err = json.MarshalIndent(j, "", "    ")
@@ -228,24 +233,52 @@ func checkAccessToken(authTokenUrl string, r *http.Request) bool {
 		return false
 	}
 	if Config.Verbose {
-		if err := printJSON(attrs); err != nil {
+		if err := printJSON(attrs, "### token attributes"); err != nil {
 			msg := fmt.Sprintf("Failed to output token attributes: %v", err)
 			log.Println(msg)
 		}
+	}
+	r.Header.Set("cms-scope", attrs.Scope)
+	r.Header.Set("cms-host", attrs.ClientHost)
+	r.Header.Set("cms-client-id", attrs.ClientID)
+	return true
+}
+
+// helper function to set headers based on provider user data
+func setHeaders(userData map[string]interface{}, r *http.Request) {
+	if Config.Verbose {
+		if err := printJSON(userData, "### user data"); err != nil {
+			log.Println("unable to print user data")
+		}
+		fmt.Println("### r.URL", r.URL)
 	}
 	// set cms auth headers
 	r.Header.Set("cms-auth-status", "ok")
 	r.Header.Set("cms-authn", "cms-authn")
 	r.Header.Set("cms-authz", "group:name")
-	r.Header.Set("cms-authn-name", attrs.UserName)
+	r.Header.Set("cms-authn-name", iString(userData["name"]))
+	r.Header.Set("cms-authn-login", iString(userData["cern_upn"]))
 	r.Header.Set("cms-authn-dn", "cms-auth-dn")
 	r.Header.Set("cms-authn-hmac", "test-hmac")
-	r.Header.Set("cms-client-id", attrs.ClientID)
-	r.Header.Set("cms-scope", attrs.Scope)
-	r.Header.Set("cms-email", attrs.Email)
-	r.Header.Set("cms-session-state", attrs.SessionState)
-	r.Header.Set("cms-host", attrs.ClientHost)
-	return true
+	r.Header.Set("cms-cern-id", iString(userData["cern_person_id"]))
+	r.Header.Set("cms-email", iString(userData["email"]))
+	r.Header.Set("cms-auth-time", iString(userData["auth_time"]))
+	r.Header.Set("cms-auth-expire", iString(userData["exp"]))
+	r.Header.Set("cms-session", iString(userData["session_state"]))
+}
+
+// helper function to return string representation of interface value
+func iString(v interface{}) string {
+	switch t := v.(type) {
+	case []byte:
+		return string(t)
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		return fmt.Sprintf("%d", t)
+	case float32, float64:
+		return fmt.Sprintf("%d", t)
+	default:
+		return fmt.Sprintf("%v", t)
+	}
 }
 
 // auth server provides reverse proxy functionality with
@@ -254,10 +287,13 @@ func checkAccessToken(authTokenUrl string, r *http.Request) bool {
 // and redirects their requests to targetUrl of reverse proxy.
 // If targetUrl is empty string it will redirect all request to
 // simple hello page.
-func auth_proxy_server() {
+func auth_proxy_server(serverCrt, serverKey string) {
 
 	// redirectUrl defines where incoming requests will be redirected for authentication
 	redirectUrl := fmt.Sprintf("http://localhost:%d/callback", Config.Port)
+	if serverCrt != "" {
+		redirectUrl = fmt.Sprintf("https://localhost:%d/callback", Config.Port)
+	}
 	if Config.RedirectUrl != "" {
 		redirectUrl = Config.RedirectUrl
 	}
@@ -297,7 +333,7 @@ func auth_proxy_server() {
 	http.HandleFunc(u, func(w http.ResponseWriter, r *http.Request) {
 		sess := globalSessions.SessionStart(w, r)
 		if Config.Verbose {
-			msg := fmt.Sprintf("call from '/callback', r.URL %s, sess.path %s", r.URL, sess.Get("path"))
+			msg := fmt.Sprintf("call from '/callback', r.URL %s, sess.path %v", r.URL, sess.Get("path"))
 			printHTTPRequest(w, r, msg)
 		}
 		state := sess.Get(state)
@@ -332,9 +368,6 @@ func auth_proxy_server() {
 			http.Error(w, "Failed to verify ID Token: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
-		if Config.Verbose {
-			fmt.Println("### idToken", idToken)
-		}
 
 		//preparing the data to be presented on the page
 		//it includes the tokens and the user info
@@ -359,8 +392,8 @@ func auth_proxy_server() {
 		sess.Set("userinfo", resp.IDTokenClaims)
 		urlPath := sess.Get("path").(string)
 		if Config.Verbose {
-			fmt.Println("session data", string(data))
-			fmt.Println("redirect to", urlPath)
+			fmt.Println("### session data", string(data))
+			fmt.Println("### redirect to", urlPath)
 		}
 		http.Redirect(w, r, urlPath, http.StatusFound)
 		return
@@ -370,7 +403,7 @@ func auth_proxy_server() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		sess := globalSessions.SessionStart(w, r)
 		if Config.Verbose {
-			msg := fmt.Sprintf("call from '/', r.URL %s, sess.Path %s", r.URL, sess.Get("path"))
+			msg := fmt.Sprintf("call from '/', r.URL %s, sess.Path %v", r.URL, sess.Get("path"))
 			printHTTPRequest(w, r, msg)
 		}
 		oauthState := uuid.New().String()
@@ -383,12 +416,23 @@ func auth_proxy_server() {
 		userInfo := sess.Get("userinfo")
 		hasToken := checkAccessToken(authTokenUrl, r)
 		if userInfo != nil || hasToken {
-			if Config.Verbose {
-				fmt.Println("### userInfo", userInfo)
-				fmt.Println("### r.URL", r.URL)
+			// decode userInfo
+			var userData map[string]interface{}
+			switch t := userInfo.(type) {
+			case *json.RawMessage:
+				err := json.Unmarshal(*t, &userData)
+				if err != nil {
+					msg := fmt.Sprintf("unable to decode user data, %v", err)
+					http.Error(w, msg, http.StatusInternalServerError)
+					return
+				}
 			}
+			setHeaders(userData, r)
 			if r.URL.Path == fmt.Sprintf("%s/token", Config.Base) {
 				msg := fmt.Sprintf("%s", sess.Get("rawIDToken"))
+				if Config.Verbose {
+					printJSON(r.Header, "### request headers")
+				}
 				data := []byte(msg)
 				w.Write(data)
 				return
@@ -420,9 +464,17 @@ func auth_proxy_server() {
 		return
 	})
 
-	log.Printf("listening on port %d", Config.Port)
-	uri := fmt.Sprintf(":%d", Config.Port)
-	log.Fatal(http.ListenAndServe(uri, nil))
+	addr := fmt.Sprintf(":%d", Config.Port)
+	if serverCrt != "" && serverKey != "" {
+		//start HTTPS server which require user certificates
+		server := &http.Server{Addr: addr}
+		log.Printf("Startgin HTTPs server on %s", addr)
+		log.Fatal(server.ListenAndServeTLS(serverCrt, serverKey))
+	} else {
+		// Start server without user certificates
+		log.Printf("Startgin HTTP server on %s", addr)
+		log.Fatal(http.ListenAndServe(addr, nil))
+	}
 }
 
 func main() {
@@ -431,6 +483,12 @@ func main() {
 	flag.Parse()
 	err := parseConfig(config)
 	if err == nil {
-		auth_proxy_server()
+		_, e1 := os.Stat(Config.ServerCrt)
+		_, e2 := os.Stat(Config.ServerKey)
+		if e1 == nil && e2 == nil {
+			auth_proxy_server(Config.ServerCrt, Config.ServerKey)
+		} else {
+			auth_proxy_server("", "")
+		}
 	}
 }
