@@ -183,7 +183,7 @@ create()
     if [ "$deployment" == "cluster" ]; then
         echo
         openstack --os-project-name "$project" coe cluster template list
-        openstack --os-project-name "$project" coe cluster create --keypair $keypair --cluster-template $template $cluster --node-count 2 --node-flavor=m2.2xlarge
+        openstack --os-project-name "$project" coe cluster create --keypair $keypair --cluster-template $template $cluster --node-count 2 --flavor=m2.2xlarge
         watch -d openstack coe cluster list
         printf "* Finished creating cluster.\n"
 
