@@ -15,7 +15,6 @@ echo "Creating: $tmpl"
 openstack \
     --os-project-name "$namespace" coe cluster template create $tmpl \
     --labels admission_control_list="NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,DefaultTolerationSeconds,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority" \
-    #--labels autoscaler_tag="v1.17.2" \
     --labels cern_tag="qa" \
     --labels cephfs_csi_enabled="true" \
     --labels cephfs_csi_version="cern-csi-1.0-2" \
