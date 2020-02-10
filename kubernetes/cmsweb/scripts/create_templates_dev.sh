@@ -15,7 +15,7 @@ echo "Creating: $tmpl"
 openstack \
     --os-project-name "$namespace" coe cluster template create $tmpl \
     --labels admission_control_list="NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,DefaultTolerationSeconds,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority" \
-    --labels autoscaler_tag="v1.17.2" \
+    #--labels autoscaler_tag="v1.17.2" \
     --labels cern_tag="qa" \
     --labels cephfs_csi_enabled="true" \
     --labels cephfs_csi_version="cern-csi-1.0-2" \
@@ -42,11 +42,13 @@ openstack \
     --labels manila_version="v0.3.0" \
     --labels master_lb_enabled="true" \
     --labels tiller_enabled="true" \
+    --labels calico_ipv4pool="10.100.0.0/16" \
+    --labels calico_ipv4pool_ipip="CrossSubnet" \
     --coe kubernetes \
     --image 5b338766-0fbf-47fa-9d9a-8f9543be9729 \
     --external-network CERN_NETWORK \
     --fixed-network CERN_NETWORK \
-    --network-driver flannel \
+    --network-driver calico \
     --dns-nameserver 137.138.17.5 \
     --flavor m2.large \
     --master-flavor m2.medium \
