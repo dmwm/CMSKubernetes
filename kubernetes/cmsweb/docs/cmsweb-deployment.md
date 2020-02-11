@@ -378,7 +378,13 @@ kubectl delete -f <srv>.yaml
 kubectl apply -f <srv>.yaml --validate=false
 ```
 The delete step is optional since it will be done automatically for you if
-your service configuration (yaml file) is differ from existing (deployed) one.
+your service configuration (yaml file) is different from existing (deployed) one.
+
+If you simply want to restart the pods for your service, a quick way is:
+```
+kubectl -n <yournamespace> scale deployment <<name>> --replicas=0
+kubectl -n <yournamespace> scale deployment <<name>> --replicas=1 (or whatever many replicas you want) 
+```
 
 Please note, you may need to create a new docker image for your service
 data-service if you want to change the release, and/or add some functionality.
