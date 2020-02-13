@@ -18,6 +18,7 @@ Reverse proxy examples:
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -58,6 +59,7 @@ type Configuration struct {
 	Ingress      []Ingress `json:"ingress"`        // incress section
 	ServerCrt    string    `json:"server_cert"`    // server certificate
 	ServerKey    string    `json:"server_key"`     // server certificate
+	Hmac         string    `json:"hmac"`           // cmsweb hmac file
 }
 
 // TokenAttributes contains structure of valid token attributes
@@ -110,7 +112,7 @@ func parseConfig(configFile string) error {
 		Config.OAuthUrl = "https://auth.cern.ch/auth/realms/cern"
 	}
 	if Config.Verbose {
-		log.Println("config", Config)
+		log.Printf("%+v\n", Config)
 	}
 	return nil
 }
@@ -265,6 +267,13 @@ func setHeaders(userData map[string]interface{}, r *http.Request) {
 	r.Header.Set("cms-auth-time", iString(userData["auth_time"]))
 	r.Header.Set("cms-auth-expire", iString(userData["exp"]))
 	r.Header.Set("cms-session", iString(userData["session_state"]))
+	// check if k8s provides hmac file
+	if _, err := os.Stat(Config.Hmac); err == nil {
+		data, err := ioutil.ReadFile(Config.Hmac)
+		if err == nil {
+			r.Header.Set("cms-authn-hmac", hex.EncodeToString(data))
+		}
+	}
 }
 
 // helper function to return string representation of interface value
@@ -399,6 +408,15 @@ func auth_proxy_server(serverCrt, serverKey string) {
 		return
 	})
 
+	//     u = fmt.Sprintf("%s/clear", Config.Base)
+	//     http.HandleFunc(u, func(w http.ResponseWriter, r *http.Request) {
+	//         sess := globalSessions.SessionStart(w, r)
+	//         msg := "Clear the global session"
+	//         data := []byte(msg)
+	//         w.Write(data)
+	//         return
+	//     })
+
 	// handling the user request
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		sess := globalSessions.SessionStart(w, r)
@@ -427,6 +445,7 @@ func auth_proxy_server(serverCrt, serverKey string) {
 					return
 				}
 			}
+
 			setHeaders(userData, r)
 			if r.URL.Path == fmt.Sprintf("%s/token", Config.Base) {
 				msg := fmt.Sprintf("%s", sess.Get("rawIDToken"))
@@ -442,7 +461,10 @@ func auth_proxy_server(serverCrt, serverKey string) {
 					if Config.Verbose {
 						fmt.Println("ingress match", r.URL.Path, rec.Path, rec.ServiceUrl)
 					}
-					serveReverseProxy(rec.ServiceUrl, w, r)
+					//                     url := fmt.Sprintf("%s/%s", rec.ServiceUrl, r.URL.Path)
+					url := rec.ServiceUrl
+					fmt.Println("### serveReverseProxy", url)
+					serveReverseProxy(url, w, r)
 					return
 				}
 			}
