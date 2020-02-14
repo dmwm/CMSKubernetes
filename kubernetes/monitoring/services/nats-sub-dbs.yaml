@@ -1,0 +1,35 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nats-sub-dbs
+  labels:
+     app: nats-sub-dbs
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: nats-sub-dbs
+   template:
+      metadata:
+         labels:
+           app: nats-sub-dbs
+      spec:
+        containers:
+        - args:
+          - /data/nats-sub
+          - -rootCAs=/etc/nats/CERN_CA.crt,/etc/nats/CERN_CA1.crt
+          - -t
+          - -cmsAuth=/etc/nats/cms-auth
+          - -vmUri=http://cms-monitoring.cern.ch:30422
+          - "cms.dbs.>"
+          name: nats-sub
+          image: veknet/nats-sub
+          volumeMounts:
+          - name: nats-secrets
+            mountPath: /etc/nats
+            readOnly: true
+        volumes:
+        - name: nats-secrets
+          secret:
+            secretName: nats-secrets

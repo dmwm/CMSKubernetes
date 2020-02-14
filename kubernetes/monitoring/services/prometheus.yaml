@@ -1,0 +1,60 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: prometheus
+spec:
+  selector:
+    app: prometheus
+  type: NodePort
+  ports:
+  - port: 9090
+    nodePort: 30900
+    targetPort: 9090
+    name: prometheus
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  labels:
+     app: prometheus
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: prometheus
+   template:
+      metadata:
+         labels:
+           app: prometheus
+      spec:
+        securityContext:
+          fsGroup: 1000
+        containers:
+        - args:
+          - --log.level=info
+          - --config.file=/etc/prometheus/prometheus.yaml
+          - --storage.tsdb.path=/tmp/prometheus
+          - --web.console.templates=/etc/prometheus/consoles
+          - --web.console.libraries=/etc/prometheus/console_libraries
+          name: prometheus
+          image: prom/prometheus
+          ports:
+          - containerPort: 9090
+            protocol: TCP
+            name: prometheus
+          volumeMounts:
+          - name: cinder-volume
+            mountPath: /tmp/prometheus
+            readOnly: false
+          - name: prometheus-secrets
+            mountPath: /etc/prometheus
+            readOnly: true
+        volumes:
+        - name: prometheus-secrets
+          secret:
+            secretName: prometheus-secrets
+        - name: cinder-volume
+          persistentVolumeClaim:
+            claimName: prometheus-volume-claim
