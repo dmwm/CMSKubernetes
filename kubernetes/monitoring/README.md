@@ -59,6 +59,7 @@ This area contains several sub-directories. Here we describe overall structure:
 - **ingress** contains ingress controllers definitions
 - **kmon** provides files for k8s monitoring tools like kube-eagle
 - **storages** contains files for persistent storages, like cinder, CephFS
+- **crons** area contains all cron specific manifest files
 
 #### Prometheus-operator deployment
 We provide files `bundle.yaml` and `prom-oper.yaml` in `crd/prometheus` area to deploy
