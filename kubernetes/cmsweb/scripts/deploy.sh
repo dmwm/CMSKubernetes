@@ -27,7 +27,7 @@
 # common definitions (adjust if necessary)
 cluster=${CMSWEB_CLUSTER:-cmsweb}
 cluster_ns=${OS_PROJECT_NAME:-"CMS Web"}
-cmsweb_hostname=${CMSWEB_HOSTNAME:-cmsweb-test.cern.ch}
+cmsweb_hostname=${CMSWEB_HOSTNAME:-cmsweb-srv.cern.ch}
 cmsweb_hostname_frontend=${CMSWEB_HOSTNAME_FRONTEND:-cmsweb-test.cern.ch}
 prod_prefix="#PROD#"
 if [ "$CMSWEB_ENV" == "production" ] || [ "$CMSWEB_ENV" == "prod" ]; then
