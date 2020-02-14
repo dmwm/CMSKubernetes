@@ -19,7 +19,7 @@ spec:
       name: dbs-gr-cpy-mon
 ---
 kind: Deployment
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 metadata:
   labels:
     app: dbs-global-r
