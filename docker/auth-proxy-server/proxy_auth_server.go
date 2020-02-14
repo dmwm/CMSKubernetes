@@ -47,31 +47,42 @@ type Ingress struct {
 
 // Configuration stores server configuration parameters
 type Configuration struct {
-	Port         int       `json:"port"`           // server port number
-	Base         string    `json:"base"`           // base URL
-	ClientID     string    `json:"client_id"`      // OICD client id
-	ClientSecret string    `json:"client_secret"`  // OICD client secret
-	TargetUrl    string    `json:"target_url"`     // proxy target url (where requests will go)
-	OAuthUrl     string    `json:"oauth_url"`      // CERN SSO OAuth2 realm url
-	AuthTokenUrl string    `json:"auth_token_url"` // CERN SSO OAuth2 OICD Token url
-	RedirectUrl  string    `json:"redirect_url"`   // redirect auth url for proxy server
-	Verbose      bool      `json:"verbose"`        // verbose output
-	Ingress      []Ingress `json:"ingress"`        // incress section
-	ServerCrt    string    `json:"server_cert"`    // server certificate
-	ServerKey    string    `json:"server_key"`     // server certificate
-	Hmac         string    `json:"hmac"`           // cmsweb hmac file
+	Port               int       `json:"port"`           // server port number
+	Base               string    `json:"base"`           // base URL
+	ClientID           string    `json:"client_id"`      // OICD client id
+	ClientSecret       string    `json:"client_secret"`  // OICD client secret
+	TargetUrl          string    `json:"target_url"`     // proxy target url (where requests will go)
+	OAuthUrl           string    `json:"oauth_url"`      // CERN SSO OAuth2 realm url
+	AuthTokenUrl       string    `json:"auth_token_url"` // CERN SSO OAuth2 OICD Token url
+	RedirectUrl        string    `json:"redirect_url"`   // redirect auth url for proxy server
+	Verbose            bool      `json:"verbose"`        // verbose output
+	Ingress            []Ingress `json:"ingress"`        // incress section
+	ServerCrt          string    `json:"server_cert"`    // server certificate
+	ServerKey          string    `json:"server_key"`     // server certificate
+	Hmac               string    `json:"hmac"`           // cmsweb hmac file
+	CricFile           string    `json:"cric_file"`      // name of the CRIC file
+	UpdateCricInterval int64     `json:"update_cric"`    // interval (in sec) to update cric records
 }
 
 // TokenAttributes contains structure of valid token attributes
 type TokenAttributes struct {
-	UserName     string `json:"username"`
-	Active       bool   `json:"active"`
-	SessionState string `json:"session_state"`
-	ClientID     string `json:"clientId"`
-	Email        string `json:"email"`
-	Scope        string `json:"scope"`
-	Expiration   int64  `json:"exp"`
-	ClientHost   string `json:"clientHost"`
+	UserName     string `json:"username"`      // user name
+	Active       bool   `json:"active"`        // is token active or not
+	SessionState string `json:"session_state"` // session state fields
+	ClientID     string `json:"clientId"`      // client id
+	Email        string `json:"email"`         // client email address
+	Scope        string `json:"scope"`         // scope of the token
+	Expiration   int64  `json:"exp"`           // token expiration
+	ClientHost   string `json:"clientHost"`    // client host
+}
+
+// CricEntry represents structure in CRIC
+type CricEntry struct {
+	DN    string              `json:"DN"`    // CRIC DN
+	ID    int64               `json:"ID"`    // CRIC ID
+	Login string              `json:"LOGIN"` // CRIC Login name
+	Name  string              `json:"NAME"`  // CRIC user name
+	Roles map[string][]string `json:"ROLES"` // CRIC user roles
 }
 
 // globalSession manager for our HTTP requests
@@ -79,6 +90,9 @@ var globalSessions *session.Manager
 
 // Config variable represents configuration object
 var Config Configuration
+
+// CricRecords
+var CricRecords []CricEntry
 
 // initialize global session manager
 func init() {
@@ -146,6 +160,27 @@ func printHTTPRequest(w http.ResponseWriter, r *http.Request, msg string) {
 	fmt.Printf("Host = %q\n", r.Host)
 	fmt.Printf("RemoteAddr= %q\n", r.RemoteAddr)
 	fmt.Printf("\n\nFinding value of \"Accept\" %q\n", r.Header["Accept"])
+}
+
+// parseCric helper function to parse cric file
+func parseCric(fname string) ([]CricEntry, error) {
+	var entries []CricEntry
+	if _, err := os.Stat(fname); err == nil {
+		jsonFile, err := os.Open(fname)
+		if err != nil {
+			fmt.Println(err)
+			return entries, err
+		}
+		defer jsonFile.Close()
+		byteValue, err := ioutil.ReadAll(jsonFile)
+		if err != nil {
+			fmt.Println(err)
+			return entries, err
+		}
+		json.Unmarshal(byteValue, &entries)
+		return entries, nil
+	}
+	return entries, nil
 }
 
 // Serve a reverse proxy for a given url
@@ -257,10 +292,23 @@ func setHeaders(userData map[string]interface{}, r *http.Request) {
 	// set cms auth headers
 	r.Header.Set("cms-auth-status", "ok")
 	r.Header.Set("cms-authn", "cms-authn")
-	r.Header.Set("cms-authz", "group:name")
 	r.Header.Set("cms-authn-name", iString(userData["name"]))
-	r.Header.Set("cms-authn-login", iString(userData["cern_upn"]))
-	r.Header.Set("cms-authn-dn", "cms-auth-dn")
+	login := iString(userData["cern_upn"])
+	for _, rec := range CricRecords {
+		if rec.Login == login {
+			// set DN
+			r.Header.Set("cms-authn-dn", rec.DN)
+			r.Header.Set("cms-auth-cert", rec.DN)
+			// set group roles
+			for k, v := range rec.Roles {
+				key := fmt.Sprintf("cms-authz-%s", k)
+				val := strings.Join(v, " ")
+				r.Header.Set(key, val)
+			}
+			break
+		}
+	}
+	r.Header.Set("cms-authn-login", login)
 	r.Header.Set("cms-authn-hmac", "test-hmac")
 	r.Header.Set("cms-cern-id", iString(userData["cern_person_id"]))
 	r.Header.Set("cms-email", iString(userData["email"]))
@@ -284,7 +332,7 @@ func iString(v interface{}) string {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		return fmt.Sprintf("%d", t)
 	case float32, float64:
-		return fmt.Sprintf("%d", t)
+		return fmt.Sprintf("%d", int64(t.(float64)))
 	default:
 		return fmt.Sprintf("%v", t)
 	}
@@ -445,7 +493,6 @@ func auth_proxy_server(serverCrt, serverKey string) {
 					return
 				}
 			}
-
 			setHeaders(userData, r)
 			if r.URL.Path == fmt.Sprintf("%s/token", Config.Base) {
 				msg := fmt.Sprintf("%s", sess.Get("rawIDToken"))
@@ -490,11 +537,11 @@ func auth_proxy_server(serverCrt, serverKey string) {
 	if serverCrt != "" && serverKey != "" {
 		//start HTTPS server which require user certificates
 		server := &http.Server{Addr: addr}
-		log.Printf("Startgin HTTPs server on %s", addr)
+		log.Printf("Starting HTTPs server on %s", addr)
 		log.Fatal(server.ListenAndServeTLS(serverCrt, serverKey))
 	} else {
 		// Start server without user certificates
-		log.Printf("Startgin HTTP server on %s", addr)
+		log.Printf("Starting HTTP server on %s", addr)
 		log.Fatal(http.ListenAndServe(addr, nil))
 	}
 }
@@ -505,6 +552,27 @@ func main() {
 	flag.Parse()
 	err := parseConfig(config)
 	if err == nil {
+		// update periodically cric records
+		go func() {
+			for {
+				interval := Config.UpdateCricInterval
+				if interval == 0 {
+					interval = 3600
+				}
+				// parse cric records
+				entries, err := parseCric(Config.CricFile)
+				if err != nil {
+					log.Printf("Unable to update CRIC records: %v", err)
+				} else {
+					CricRecords = entries
+					if Config.Verbose {
+						log.Println("Updated CRIC records", len(CricRecords))
+					}
+				}
+				d := time.Duration(interval) * time.Second
+				time.Sleep(d) // sleep for next iteration
+			}
+		}()
 		_, e1 := os.Stat(Config.ServerCrt)
 		_, e2 := os.Stat(Config.ServerKey)
 		if e1 == nil && e2 == nil {
