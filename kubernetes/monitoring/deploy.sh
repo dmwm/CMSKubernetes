@@ -44,19 +44,19 @@ deploy_prometheus_operator()
 {
     # deploy prometheus CRD
     if [ -n "`kubectl get crd | grep prometheus`" ]; then
-        kubectl delete -f bundle.yaml
+        kubectl delete -f crd/prometheus/bundle.yaml
     fi
-    kubectl apply -f bundle.yaml
+    kubectl apply -f crd/prometheus/bundle.yaml
     # deploy prometheus configuration
     if [ -n "`kubectl get secrets | grep prometheus-config`" ]; then
         kubectl delete secret prometheus-config
     fi
-    kubectl create secret generic prometheus-config --from-file=prometheus-config.yaml
+    kubectl create secret generic prometheus-config --from-file=crd/prometheus/prometheus-config.yaml
     # deploy prometheus
     if [ -n "`kubectl get pod | grep prometheus-prometheus`" ]; then
-        kubectl delete -f prometheus.yaml
+        kubectl delete -f crd/prometheus/prom-oper.yaml
     fi
-    kubectl apply -f prometheus.yaml
+    kubectl apply -f crd/prometheus/prom-oper.yaml
 }
 
 # cluster secrets deployment
@@ -125,10 +125,10 @@ deploy_storages()
         kubectl label node $n failure-domain.beta.kubernetes.io/region=cern --overwrite
     done
     if [ -z "`kubectl get pvc | grep cinder-volume-claim`" ]; then
-        kubectl apply -f cinder-storage.yaml
+        kubectl apply -f storages/cinder-storage.yaml
     fi
     if [ -z "`kubectl get pvc | grep prometheus-volume-claim`" ]; then
-        kubectl apply -f prometheus-storage.yaml
+        kubectl apply -f storages/prometheus-storage.yaml
     fi
 }
 
@@ -137,9 +137,9 @@ deploy_services()
 {
     for svc in $services; do
         if [ -n "`kubectl get pod | grep $svc`" ]; then
-            kubectl delete -f ${svc}.yaml
+            kubectl delete -f services/${svc}.yaml
         fi
-        kubectl apply -f ${svc}.yaml
+        kubectl apply -f services/${svc}.yaml
     done
 
 }
@@ -151,7 +151,7 @@ deploy_ingress()
     kubectl get node | grep minion | \
         awk '{print "kubectl label node "$1" role=ingress --overwrite"}' | /bin/sh
     # deploy ingress controller
-    kubectl apply -f ingress.yaml
+    kubectl apply -f ingress/ingress.yaml
 }
 
 # deploy roles for our cluster
@@ -172,7 +172,7 @@ deploy_kmon()
     fi
     local keagle=`kubectl get pods | grep metrics-server`
     if [ -z "$keagle" ]; then
-        kubectl apply -f kube-eagle.yaml
+        kubectl apply -f kmon/kube-eagle.yaml
     fi
 }
 
@@ -214,7 +214,7 @@ cleanup()
     # delete all services
     for svc in $services; do
         if [ -n "`kubectl get pod | grep $svc`" ]; then
-            kubectl delete -f ${svc}.yaml
+            kubectl delete -f services/${svc}.yaml
         fi
     done
 
@@ -227,12 +227,12 @@ cleanup()
 
     # delete ingress
     if [ -n "`kubectl get ing`" ]; then
-        kubectl delete -f ingress.yaml
+        kubectl delete -f ingress/ingress.yaml
     fi
 
     # delete monitoring parts
     if [ -n "`kubectl get pod | grep kube-eagle`" ]; then
-        kubectl delete -f kube-eagle.yaml
+        kubectl delete -f kmon/kube-eagle.yaml
     fi
 
     # delete metrics-server
