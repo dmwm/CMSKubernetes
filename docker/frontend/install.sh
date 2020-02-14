@@ -44,13 +44,13 @@ mv b.txt $WDIR/cfg/frontend/backends.txt
 
 # add rules for httpgo
 # add nossl rule for httpgo
-cat > $WDIR/cfg/frontend/app_exitcodes_nossl.conf << EOF_nossl
-RewriteRule ^(/httpgo(/.*)?)$ https://%{SERVER_NAME}${escape:$1}%{env:CMS_QUERY} [R=301,NE,L]
+cat > $WDIR/cfg/frontend/app_httpgo_nossl.conf << EOF_nossl
+RewriteRule ^(/httpgo(/.*)?)$ https://%{SERVER_NAME}\${escape:\$1}%{env:CMS_QUERY} [R=301,NE,L]
 EOF_nossl
 # add ssl rule for httpgo
 cat > $WDIR/cfg/frontend/app_httpgo_ssl.conf << EOF_ssl
-RewriteRule ^(/httpgo(/.*)?)$ /auth/verify${escape:$1} [QSA,PT,E=AUTH_SPEC:cert]
-RewriteRule ^/auth/complete(/httpgo(/.*)?)$ http://%{ENV:BACKEND}:8888${escape:$1} [QSA,P,L,NE]
+RewriteRule ^(/httpgo(/.*)?)$ /auth/verify\${escape:\$1} [QSA,PT,E=AUTH_SPEC:cert]
+RewriteRule ^/auth/complete(/httpgo(/.*)?)$ http://%{ENV:BACKEND}:8888\${escape:\$1} [QSA,P,L,NE]
 EOF_ssl
 
 # overwrite dev/preprod backends with production one for k8s
