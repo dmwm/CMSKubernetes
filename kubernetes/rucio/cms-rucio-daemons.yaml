@@ -46,11 +46,15 @@ hermes:
 
 judgeEvaluator: 
   resources:
+    limits:
+      cpu: 3750m 
     requests:
       cpu: 750m 
 
 judgeRepairer:
   resources:
+    limits:
+      cpu: 3750m 
     requests:
       cpu: 750m 
 
@@ -66,6 +70,10 @@ config:
         voname: "cms"
     tracer_kronos:
         username: "cmsrucio"
+        port: "61313"
+        brokers: "cms-mb.cern.ch"
+    tracer:
+        queue: "/queue/Consumer.kronos.cms.rucio.tracer"
 
 transmogrifierResources:
     requests:
@@ -75,6 +83,8 @@ transmogrifierResources:
 
 tracerKronos:
   resources:
+    limits:
+      cpu: 3000m 
     requests:
       cpu: 1000m 
   
