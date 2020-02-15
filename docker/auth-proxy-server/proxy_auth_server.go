@@ -18,6 +18,10 @@ following end-points
 - /clear, clears global session
 - /, performs reverse proxy redirects to user based path
 
+Clients may obtain a token, see /token path, and use it in CLI access to the
+service, e.g.
+curl -v -H "Authorization: Bearer $token" https://xxx.cern.ch/<path>
+
 CERN SSO OAuth2 OICD
    https://gitlab.cern.ch/authzsvc/docs/keycloak-sso-examples
 
@@ -471,6 +475,10 @@ func auth_proxy_server(serverCrt, serverKey string) {
 	// handling the clearance of user session
 	u = fmt.Sprintf("%s/clear", Config.Base)
 	http.HandleFunc(u, func(w http.ResponseWriter, r *http.Request) {
+		sess := globalSessions.SessionStart(w, r)
+		sess.Delete("userinfo")
+		sess.Delete("rawIDToken")
+		sess.Delete(state)
 		globalSessions.SessionDestroy(w, r)
 		msg := "User session is cleared"
 		data := []byte(msg)
