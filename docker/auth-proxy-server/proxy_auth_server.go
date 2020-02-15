@@ -18,7 +18,6 @@ Reverse proxy examples:
 
 import (
 	"context"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -33,6 +32,7 @@ import (
 	"time"
 
 	oidc "github.com/coreos/go-oidc"
+	"github.com/dmwm/cmsauth"
 	"github.com/google/uuid"
 	"github.com/thomasdarimont/go-kc-example/session"
 	_ "github.com/thomasdarimont/go-kc-example/session_memory"
@@ -84,6 +84,9 @@ type CricEntry struct {
 	Name  string              `json:"NAME"`  // CRIC user name
 	Roles map[string][]string `json:"ROLES"` // CRIC user roles
 }
+
+// CMSAuth
+var CMSAuth cmsauth.CMSAuth
 
 // globalSession manager for our HTTP requests
 var globalSessions *session.Manager
@@ -291,7 +294,6 @@ func setHeaders(userData map[string]interface{}, r *http.Request) {
 	}
 	// set cms auth headers
 	r.Header.Set("cms-auth-status", "ok")
-	r.Header.Set("cms-authn", "cms-authn")
 	r.Header.Set("cms-authn-name", iString(userData["name"]))
 	login := iString(userData["cern_upn"])
 	for _, rec := range CricRecords {
@@ -309,18 +311,16 @@ func setHeaders(userData map[string]interface{}, r *http.Request) {
 		}
 	}
 	r.Header.Set("cms-authn-login", login)
-	r.Header.Set("cms-authn-hmac", "test-hmac")
+	r.Header.Set("cms-authn-method", "X509Cert")
 	r.Header.Set("cms-cern-id", iString(userData["cern_person_id"]))
 	r.Header.Set("cms-email", iString(userData["email"]))
 	r.Header.Set("cms-auth-time", iString(userData["auth_time"]))
 	r.Header.Set("cms-auth-expire", iString(userData["exp"]))
 	r.Header.Set("cms-session", iString(userData["session_state"]))
-	// check if k8s provides hmac file
-	if _, err := os.Stat(Config.Hmac); err == nil {
-		data, err := ioutil.ReadFile(Config.Hmac)
-		if err == nil {
-			r.Header.Set("cms-authn-hmac", hex.EncodeToString(data))
-		}
+	r.Header.Set("cms-request-uri", r.URL.Path)
+	hmac, err := CMSAuth.GetHmac(r, Config.Verbose)
+	if err == nil {
+		r.Header.Set("cms-authn-hmac", hmac)
 	}
 }
 
@@ -552,6 +552,7 @@ func main() {
 	flag.Parse()
 	err := parseConfig(config)
 	if err == nil {
+		CMSAuth.Init(Config.Hmac)
 		// update periodically cric records
 		go func() {
 			for {
