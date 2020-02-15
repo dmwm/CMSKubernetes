@@ -6,6 +6,18 @@ package main
 //
 
 /*
+This is a Go-based implementation of CMS reverse proxy server
+with CERN SSO OAuth2 OICD authentication schema. An initial user
+request is redirected oauth_url defined in configuration. Then it is
+authenticated and this codebase provides CMS X509 headers based on
+CMS CRIC meta-data. An additional hmac is set via cmsauth package.
+The server can be initialize either as HTTP or HTTPs and provides the
+following end-points
+- /token, returns user based token
+- /callback, handles the callback authentication requests
+- /clear, clears global session
+- /, performs reverse proxy redirects to user based path
+
 CERN SSO OAuth2 OICD
    https://gitlab.cern.ch/authzsvc/docs/keycloak-sso-examples
 
@@ -85,7 +97,7 @@ type CricEntry struct {
 	Roles map[string][]string `json:"ROLES"` // CRIC user roles
 }
 
-// CMSAuth
+// CMSAuth structure to create CMS Auth headers
 var CMSAuth cmsauth.CMSAuth
 
 // globalSession manager for our HTTP requests
@@ -94,7 +106,7 @@ var globalSessions *session.Manager
 // Config variable represents configuration object
 var Config Configuration
 
-// CricRecords
+// CricRecords list to hold CMS CRIC entries
 var CricRecords []CricEntry
 
 // initialize global session manager
@@ -456,14 +468,15 @@ func auth_proxy_server(serverCrt, serverKey string) {
 		return
 	})
 
-	//     u = fmt.Sprintf("%s/clear", Config.Base)
-	//     http.HandleFunc(u, func(w http.ResponseWriter, r *http.Request) {
-	//         sess := globalSessions.SessionStart(w, r)
-	//         msg := "Clear the global session"
-	//         data := []byte(msg)
-	//         w.Write(data)
-	//         return
-	//     })
+	// handling the clearance of user session
+	u = fmt.Sprintf("%s/clear", Config.Base)
+	http.HandleFunc(u, func(w http.ResponseWriter, r *http.Request) {
+		globalSessions.SessionDestroy(w, r)
+		msg := "User session is cleared"
+		data := []byte(msg)
+		w.Write(data)
+		return
+	})
 
 	// handling the user request
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
