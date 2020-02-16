@@ -44,6 +44,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"reflect"
 	"strings"
 	"time"
 
@@ -111,7 +112,8 @@ var globalSessions *session.Manager
 var Config Configuration
 
 // CricRecords list to hold CMS CRIC entries
-var CricRecords []CricEntry
+var CricRecords map[string]CricEntry
+var CricFileInfo os.FileInfo
 
 // initialize global session manager
 func init() {
@@ -182,24 +184,37 @@ func printHTTPRequest(w http.ResponseWriter, r *http.Request, msg string) {
 }
 
 // parseCric helper function to parse cric file
-func parseCric(fname string) ([]CricEntry, error) {
+func parseCric(fname string) (map[string]CricEntry, error) {
+	cricRecords := make(map[string]CricEntry)
 	var entries []CricEntry
-	if _, err := os.Stat(fname); err == nil {
+	if fileInfo, err := os.Stat(fname); err == nil {
+		if CricFileInfo == nil || CricRecords == nil {
+			CricFileInfo = fileInfo
+		} else {
+			// check if file has changed, if not return existing cric records
+			if fileInfo.Size() == CricFileInfo.Size() && fileInfo.ModTime() == CricFileInfo.ModTime() {
+				return CricRecords, nil
+			}
+		}
+		CricFileInfo = fileInfo
 		jsonFile, err := os.Open(fname)
 		if err != nil {
 			fmt.Println(err)
-			return entries, err
+			return cricRecords, err
 		}
 		defer jsonFile.Close()
 		byteValue, err := ioutil.ReadAll(jsonFile)
 		if err != nil {
 			fmt.Println(err)
-			return entries, err
+			return cricRecords, err
 		}
 		json.Unmarshal(byteValue, &entries)
-		return entries, nil
+		// convert list of entries into a map
+		for _, rec := range entries {
+			cricRecords[rec.Login] = rec
+		}
 	}
-	return entries, nil
+	return cricRecords, nil
 }
 
 // Serve a reverse proxy for a given url
@@ -312,18 +327,15 @@ func setHeaders(userData map[string]interface{}, r *http.Request) {
 	r.Header.Set("cms-auth-status", "ok")
 	r.Header.Set("cms-authn-name", iString(userData["name"]))
 	login := iString(userData["cern_upn"])
-	for _, rec := range CricRecords {
-		if rec.Login == login {
-			// set DN
-			r.Header.Set("cms-authn-dn", rec.DN)
-			r.Header.Set("cms-auth-cert", rec.DN)
-			// set group roles
-			for k, v := range rec.Roles {
-				key := fmt.Sprintf("cms-authz-%s", k)
-				val := strings.Join(v, " ")
-				r.Header.Set(key, val)
-			}
-			break
+	if rec, ok := CricRecords[login]; ok {
+		// set DN
+		r.Header.Set("cms-authn-dn", rec.DN)
+		r.Header.Set("cms-auth-cert", rec.DN)
+		// set group roles
+		for k, v := range rec.Roles {
+			key := fmt.Sprintf("cms-authz-%s", k)
+			val := strings.Join(v, " ")
+			r.Header.Set(key, val)
 		}
 	}
 	r.Header.Set("cms-authn-login", login)
@@ -582,13 +594,14 @@ func main() {
 					interval = 3600
 				}
 				// parse cric records
-				entries, err := parseCric(Config.CricFile)
+				cricRecords, err := parseCric(Config.CricFile)
 				if err != nil {
 					log.Printf("Unable to update CRIC records: %v", err)
 				} else {
-					CricRecords = entries
+					CricRecords = cricRecords
 					if Config.Verbose {
-						log.Println("Updated CRIC records", len(CricRecords))
+						keys := reflect.ValueOf(CricRecords).MapKeys()
+						log.Println("Updated CRIC records", len(keys))
 					}
 				}
 				d := time.Duration(interval) * time.Second
