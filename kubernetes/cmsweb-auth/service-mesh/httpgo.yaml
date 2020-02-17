@@ -1,0 +1,81 @@
+apiVersion: v1 # istio version
+kind: Service
+metadata:
+  name: httpgo
+  namespace: dev
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8888
+    protocol: TCP
+    name: http
+  selector:
+    app: httpgo
+---
+apiVersion: v1 # istio version
+kind: ServiceAccount
+metadata:
+  name: httpgo-account
+  namespace: dev
+  labels:
+    account: httpgo
+---
+###
+### Deployment using 1.0.1 version
+###
+apiVersion: apps/v1 # istio version
+kind: Deployment
+metadata:
+  name: httpgo-1.0.1
+  namespace: dev
+  labels:
+    app: httpgo
+    version: v1 # istio version
+spec:
+  selector:
+    matchLabels:
+      app: httpgo
+      version: v1 # istio version
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: httpgo
+        version: v1 # istio version
+    spec:
+      serviceAccountName: httpgo-account
+      containers:
+      - image: cmssw/httpgo:1.0.1
+        name: httpgo
+        ports:
+        - containerPort: 8888
+---
+###
+### Deployment using HG2002e version
+###
+apiVersion: apps/v1 # istio version
+kind: Deployment
+metadata:
+  name: httpgo-hg2002e
+  namespace: dev
+  labels:
+    app: httpgo
+    version: v2 # istio version
+spec:
+  selector:
+    matchLabels:
+      app: httpgo
+      version: v2 # istio version
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: httpgo
+        version: v2 # istio version
+    spec:
+      serviceAccountName: httpgo-account
+      containers:
+      - image: cmssw/httpgo:HG2002e
+        name: httpgo
+        ports:
+        - containerPort: 8888

@@ -1,0 +1,21 @@
+# CephFS volume claims:
+# for production storage use
+#   storageClassName: meyrin-cephfs
+# for test storage use
+#   storageClassName: geneva-cephfs-testing
+# ---
+#
+# CouchDB storage claim
+#
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cephfs-claim-couchdb
+  namespace: couchdb
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 700Gi
+  storageClassName: meyrin-cephfs

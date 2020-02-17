@@ -1,0 +1,97 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: reqmgr2ms
+  namespace: dmwm
+spec:
+  selector:
+    app: reqmgr2ms
+  ports:
+    - port: 8248
+      targetPort: 8248
+      name: reqmgr2ms
+    - port: 18248
+      targetPort: 18248
+      name: reqmgr2ms-mon
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: reqmgr2ms
+  name: reqmgr2ms
+  namespace: dmwm
+spec:
+  selector:
+    matchLabels:
+      app: reqmgr2ms
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: reqmgr2ms
+    spec:
+      # use hostNetwork to allow communication between reqmgr2ms/reqmon/workqueue and couch
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: cmssw/reqmgr2ms
+        name: reqmgr2ms
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - bash
+              - -c
+              - sudo chmod 0777 /data/srv/logs/reqmgr2ms; sudo chown _reqmgr2ms:_reqmgr2ms /data/srv/logs/reqmgr2ms
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 8248
+          protocol: TCP
+          name: reqmgr2ms
+        - containerPort: 18248
+          protocol: TCP
+          name: reqmgr2ms-mon
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          defaultMode: 256
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/srv/logs/reqmgr2ms
+      initContainers:
+      - name: checkcouchdb
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nslookup couchdb.couchdb; do echo "Waiting for couchdb"; sleep 10; done;']
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: reqmgr2ms-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim-dmwm

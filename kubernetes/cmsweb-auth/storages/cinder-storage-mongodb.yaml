@@ -1,0 +1,22 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1beta1
+metadata:
+  name: cpio1
+  namespace: mongodb
+provisioner: kubernetes.io/cinder
+parameters:
+  type: cpio1
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: mongodb-volume-claim
+  namespace: mongodb
+  annotations:
+    volume.beta.kubernetes.io/storage-class: cpio1
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi # pass here the size of the volume

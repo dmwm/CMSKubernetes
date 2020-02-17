@@ -1,0 +1,101 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: crabcache
+  namespace: crab
+spec:
+  selector:
+    app: crabcache
+  ports:
+    - port: 8271
+      targetPort: 8271
+      name: crabcache
+    - port: 18271
+      targetPort: 18271
+      name: crabcache-mon
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: crabcache
+  name: crabcache
+  namespace: crab
+spec:
+  selector:
+    matchLabels:
+      app: crabcache
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: crabcache
+    spec:
+#       nodeSelector:
+#           storage: crabcache
+      containers:
+      - image: cmssw/crabcache
+        name: crabcache
+        tty: true
+        stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - bash
+              - -c
+              - sudo chmod 0777 /data/srv/state/crabcache/files; sudo chown _crabcache:_crabcache /data/srv/state/crabcache/files
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 8271
+          protocol: TCP
+          name: crabcache
+        - containerPort: 18271
+          protocol: TCP
+          name: crabcache-mon
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          defaultMode: 256
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+        # TMP: use cinder storage for time being
+#PROD#  - name: crabcache-storage
+#PROD#    mountPath: /data/srv/state/crabcache/files
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/srv/logs/crabcache
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: crabcache-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File
+      # TMP: use ciner storage for time being
+#PROD#- name: crabcache-storage
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: crabcache-claim
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim-crab
