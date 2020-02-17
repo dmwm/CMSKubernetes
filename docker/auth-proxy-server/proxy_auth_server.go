@@ -96,10 +96,23 @@ type TokenAttributes struct {
 // CricEntry represents structure in CRIC
 type CricEntry struct {
 	DN    string              `json:"DN"`    // CRIC DN
+	DNs   []string            `json:"DNs"`   // List of all DNs assigned to user
 	ID    int64               `json:"ID"`    // CRIC ID
 	Login string              `json:"LOGIN"` // CRIC Login name
 	Name  string              `json:"NAME"`  // CRIC user name
 	Roles map[string][]string `json:"ROLES"` // CRIC user roles
+}
+
+// String returns string representation of CricEntry
+func (c *CricEntry) String() string {
+	var roles string
+	for _, r := range c.Roles {
+		for _, v := range r {
+			roles = fmt.Sprintf("%s\n%v", roles, v)
+		}
+	}
+	r := fmt.Sprintf("ID: %d\nLogin: %s\nName: %s\nDN: %s\nDNs: %v\nRoles: %s", c.ID, c.Login, c.Name, c.DN, c.DNs, roles)
+	return r
 }
 
 // CMSAuth structure to create CMS Auth headers
@@ -191,7 +204,7 @@ func parseCric(fname string) (map[string]CricEntry, error) {
 		if CricFileInfo == nil || CricRecords == nil {
 			CricFileInfo = fileInfo
 		} else {
-			// check if file has changed, if not return existing cric records
+			// check if file has changed, if not return all cric records
 			if fileInfo.Size() == CricFileInfo.Size() && fileInfo.ModTime() == CricFileInfo.ModTime() {
 				return CricRecords, nil
 			}
@@ -211,6 +224,18 @@ func parseCric(fname string) (map[string]CricEntry, error) {
 		json.Unmarshal(byteValue, &entries)
 		// convert list of entries into a map
 		for _, rec := range entries {
+			recDNs := rec.DNs
+			if r, ok := cricRecords[rec.Login]; ok {
+				recDNs = r.DNs
+				recDNs = append(recDNs, rec.DN)
+				rec.DNs = recDNs
+				if Config.Verbose {
+					fmt.Printf("\nFound duplicate CRIC record\n%s\n%s\n", rec.String(), r.String())
+				}
+			} else {
+				recDNs = append(recDNs, rec.DN)
+				rec.DNs = recDNs
+			}
 			cricRecords[rec.Login] = rec
 		}
 	}
