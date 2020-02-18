@@ -93,13 +93,13 @@ deploy_secrets()
     # add nats-secrets
     if [ -n "`kubectl get secrets | grep nats-secrets`" ]; then
         echo "delete nats-secrets"
-        kubectl delete secret nats-secrets
+        kubectl -n nats delete secret nats-secrets
     fi
     if [ ! -d secrets/nats ]; then
         echo "Please provide secrets/nats area with cms-auth, CERN_CA*.crt files"
         exit 1
     fi
-    kubectl create secret generic nats-secrets \
+    kubectl -n nats create secret generic nats-secrets \
         --from-file=secrets/nats/cms-auth \
         --from-file=secrets/nats/CERN_CA.crt \
         --from-file=secrets/nats/CERN_CA1.crt
