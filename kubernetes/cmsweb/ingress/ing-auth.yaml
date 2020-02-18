@@ -5,18 +5,24 @@ metadata:
   namespace: auth
   annotations:
     kubernetes.io/ingress.class: nginx
-#     nginx.ingress.kubernetes.io/ssl-passthrough: "true"
-#     nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    kubernetes.io/ingress.allow-http: "false"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "route"
+    nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
 spec:
   rules:
-  - host: cmsweb-srv.cern.ch
+  - host: cmsweb-auth.cern.ch
     http:
       paths:
-      - path: /auth
+      - path: /
         backend:
           serviceName: auth-proxy-server
-          servicePort: 8181
-#   tls:
-#   - hosts:
-#     - cmsweb-srv.cern.ch
-#   secretName: ing-secrets
+          servicePort: 443
+  tls:
+  - hosts:
+    - cmsweb-auth.cern.ch
+  secretName: auth-secrets
+
