@@ -13,19 +13,20 @@ import (
 	"log"
 	"net"
 	"strings"
-	"time"
 
 	"github.com/go-stomp/stomp"
 )
 
 // Configuration stores server configuration parameters
 type Configuration struct {
-	Port        int    `json:"port"`        // server port number
-	BufSize     int    `json:"bufSize"`     // buffer size
-	StompURI    string `json:"stompURI"`    // Stomp AMQ URI
-	Endpoint    string `json:"endpoint"`    // Stomp AMQ endpoint
-	ContentType string `json:"contentType"` // ContentType of UDP packet
-	Verbose     bool   `json:"verbose"`     // verbose output
+	Port          int    `json:"port"`          // server port number
+	BufSize       int    `json:"bufSize"`       // buffer size
+	StompURI      string `json:"stompURI"`      // StompAMQ URI
+	StompLogin    string `json:"stompLogin"`    // StompAQM login name
+	StompPassword string `json:"stompPassword"` // StompAQM password
+	Endpoint      string `json:"endpoint"`      // StompAMQ endpoint
+	ContentType   string `json:"contentType"`   // ContentType of UDP packet
+	Verbose       bool   `json:"verbose"`       // verbose output
 }
 
 var Config Configuration
@@ -66,17 +67,13 @@ func udpServer() {
 	log.Printf("UDP server %s\n", conn.LocalAddr().String())
 
 	var stompConn *stomp.Conn
-	if Config.StompURI != "" {
-		netConn, err := net.DialTimeout("tcp", Config.StompURI, 10*time.Second)
-		if err != nil {
-			log.Printf("Unable to dial to %s, error %v", Config.StompURI, err)
-		}
-
-		stompConn, err = stomp.Connect(netConn)
+	if Config.StompURI != "" && Config.StompLogin != "" && Config.StompPassword != "" {
+		stompConn, err = stomp.Dial("tcp",
+			Config.StompURI,
+			stomp.ConnOpt.Login(Config.StompLogin, Config.StompPassword))
 		if err != nil {
 			log.Printf("Unable to connect to %s, error %v", Config.StompURI, err)
 		}
-
 		defer stompConn.Disconnect()
 	}
 
