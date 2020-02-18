@@ -91,7 +91,7 @@ deploy_secrets()
     ls secrets/alertmanager/*.yaml | awk '{ORS=" "; print "--from-file="$1""}' | awk '{print "kubectl create secret generic alertmanager-secrets "$0""}' | /bin/sh
 
     # add nats-secrets
-    if [ -n "`kubectl get secrets | grep nats-secrets`" ]; then
+    if [ -n "`kubectl -n nats get secrets | grep nats-secrets`" ]; then
         echo "delete nats-secrets"
         kubectl -n nats delete secret nats-secrets
     fi
@@ -105,15 +105,15 @@ deploy_secrets()
         --from-file=secrets/nats/CERN_CA1.crt
 
     # add spider secrets
-    if [ -n "`kubectl get secrets | grep spider-secrets`" ]; then
+    if [ -n "`kubectl -n spider get secrets | grep spider-secrets`" ]; then
         echo "delete spider-secrets"
-        kubectl delete secret spider-secrets
+        kubectl -n spider delete secret spider-secrets
     fi
     if [ ! -d secrets/cms-htcondor-es ]; then
         echo "Please provide secrets/cms-htcondor-es area with collectors.json file"
         exit 1
     fi
-    kubectl create secret generic spider-secrets --from-file=secrets/cms-htcondor-es/collectors.json
+    kubectl -n spider create secret generic spider-secrets --from-file=secrets/cms-htcondor-es/collectors.json
 
     # add udp secrets
     if [ -n "`kubectl -n udp get secrets | grep udp-secrets`" ]; then
