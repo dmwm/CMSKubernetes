@@ -47,6 +47,9 @@ func parseConfig(configFile string) error {
 	if Config.Port == 0 {
 		Config.Port = 9331
 	}
+	if Config.BufSize == 0 {
+		Config.BufSize = 1024 // 1 KByte
+	}
 	if Config.ContentType == "" {
 		Config.ContentType = "application/json"
 	}
@@ -77,25 +80,44 @@ func udpServer() {
 		defer stompConn.Disconnect()
 	}
 
+	bufSize := Config.BufSize
 	for {
-		message := make([]byte, Config.BufSize)
-		rlen, remote, err := conn.ReadFromUDP(message[:])
+		// create a buffer we'll use to read the UDP packets
+		buffer := make([]byte, bufSize)
+
+		// read UDP packets
+		rlen, remote, err := conn.ReadFromUDP(buffer[:])
 		if err != nil {
 			log.Printf("Unable to read UDP packet, error %v", err)
 			continue
 		}
+		data := buffer[:rlen]
 
-		data := message[:rlen]
+		// try to parse the data, we are expecting JSON
+		var packet map[string]interface{}
+		err = json.Unmarshal(data, &packet)
+		if err != nil {
+			log.Printf("unable to unmarshal UDP packet into JSON, error %v\n", err)
+			// let's increse buf size to adjust to the packet
+			bufSize = bufSize * 2
+		}
+
+		// dump message to our log
 		if Config.Verbose {
 			sdata := strings.TrimSpace(string(data))
 			log.Printf("received: %s from %s\n", sdata, remote)
 		}
+
+		// send data to Stomp endpoint
 		if Config.Endpoint != "" && stompConn != nil {
 			err = stompConn.Send(Config.Endpoint, Config.ContentType, data)
 			if err != nil {
 				log.Printf("Unable to send to %s, error %v", Config.Endpoint, data, err)
 			}
 		}
+
+		// clear-up our buffer
+		buffer = nil
 	}
 }
 
