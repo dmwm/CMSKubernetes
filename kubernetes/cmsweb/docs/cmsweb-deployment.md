@@ -415,5 +415,5 @@ The `scripts/deploy.sh` script provides additional actions, such as `scale`,
   pass requests to the cluster
 - the robot certificates are used to authenicate DAS with Rucio. 
   If this is a new robot certificate, find the subject with voms-proxy-info
-  and issue the following command for Rucio: `rucio-admin identity add --account das --type X509 --id '/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=...' --email '[responsible e-mail address'`
+  and issue the following command for Rucio: `rucio-admin identity add --account das --type X509 --id '/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=...' --email '[responsible e-mail address]'`
   
