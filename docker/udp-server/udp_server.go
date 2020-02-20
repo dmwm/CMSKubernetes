@@ -56,6 +56,10 @@ func parseConfig(configFile string) error {
 	return nil
 }
 
+// send data to StompAMQ endpoint
+func sendStomp() {
+}
+
 // udp server implementation
 func udpServer() {
 	conn, err := net.ListenUDP("udp", &net.UDPAddr{
@@ -77,7 +81,10 @@ func udpServer() {
 		if err != nil {
 			log.Printf("Unable to connect to %s, error %v", Config.StompURI, err)
 		}
-		defer stompConn.Disconnect()
+		if Config.Verbose {
+			log.Printf("connected to StompAMQ server %s %v", Config.StompURI, stompConn)
+		}
+		//         defer stompConn.Disconnect()
 	}
 
 	bufSize := Config.BufSize
@@ -115,12 +122,19 @@ func udpServer() {
 		if Config.Endpoint != "" && stompConn != nil {
 			err = stompConn.Send(Config.Endpoint, Config.ContentType, data)
 			if err != nil {
-				log.Printf("Unable to send to %s, error %v", Config.Endpoint, data, err)
+				log.Printf("Unable to send to %s, data %s, error %v", Config.Endpoint, string(data), err)
+			} else {
+				if Config.Verbose {
+					log.Printf("send data to StompAMQ endpoint %s", Config.Endpoint)
+				}
 			}
 		}
 
 		// clear-up our buffer
 		buffer = nil
+	}
+	if stompConn != nil {
+		defer stompConn.Disconnect()
 	}
 }
 
