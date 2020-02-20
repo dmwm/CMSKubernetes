@@ -1,0 +1,35 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cron-cric
+spec:
+  # run crontab job every hour
+  schedule: "0 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: cric-account
+          containers:
+          - name: cric
+            image: cmssw/cric-client
+            args:
+            - /bin/sh
+            - -c
+            - echo "run cric.sh"; ls -al ; echo "### /tmp"; ls -al /tmp; cat /data/cric.sh; /data/cric.sh; echo "### /tmp"; ls -al /tmp;
+            volumeMounts:
+            - name: robot-secrets
+              mountPath: /etc/secrets
+            - name: cric-cephfs
+              mountPath: /cric
+          restartPolicy: Never
+          volumes:
+          - name: cric-secrets
+            secret:
+              secretName: cric-secrets
+          - name: robot-secrets
+            secret:
+              secretName: robot-secrets
+          - name: cric-cephfs
+            persistentVolumeClaim:
+              claimName: cephfs-claim-cric
