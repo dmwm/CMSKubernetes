@@ -84,9 +84,13 @@ func udpServer() {
 		if Config.Verbose {
 			log.Printf("connected to StompAMQ server %s %v", Config.StompURI, stompConn)
 		}
-		//         defer stompConn.Disconnect()
+	}
+	// defer stomp connection if it exists
+	if stompConn != nil {
+		defer stompConn.Disconnect()
 	}
 
+	// set initial buffer size to handle UDP packets
 	bufSize := Config.BufSize
 	for {
 		// create a buffer we'll use to read the UDP packets
@@ -132,9 +136,6 @@ func udpServer() {
 
 		// clear-up our buffer
 		buffer = nil
-	}
-	if stompConn != nil {
-		defer stompConn.Disconnect()
 	}
 }
 
