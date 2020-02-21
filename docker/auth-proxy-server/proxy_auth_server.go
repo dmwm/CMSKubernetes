@@ -13,10 +13,13 @@ authenticated and this codebase provides CMS X509 headers based on
 CMS CRIC meta-data. An additional hmac is set via cmsauth package.
 The server can be initialize either as HTTP or HTTPs and provides the
 following end-points
-- /token, returns user based token
-- /callback, handles the callback authentication requests
-- /clear, clears global session
-- /, performs reverse proxy redirects to user based path
+- /token returns user based token
+- /callback handles the callback authentication requests
+- /clear clears global session
+- /server can be used to update server settings, e.g.
+  curl -X POST -H"Content-type: application/json" -d '{"verbose":true}' https://a.b.com/server
+  will update verbose level of the server
+- / performs reverse proxy redirects to user based path
 
 Clients may obtain a token, see /token path, and use it in CLI access to the
 service, e.g.
@@ -34,6 +37,7 @@ Reverse proxy examples:
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -80,6 +84,11 @@ type Configuration struct {
 	CricUrl            string    `json:"cric_url"`       // CRIC URL
 	CricFile           string    `json:"cric_file"`      // name of the CRIC file
 	UpdateCricInterval int64     `json:"update_cric"`    // interval (in sec) to update cric records
+}
+
+// ServerSettings controls server parameters
+type ServerSettings struct {
+	Verbose bool `json:"verbose"` // verbosity output
 }
 
 // TokenAttributes contains structure of valid token attributes
@@ -201,7 +210,10 @@ func printHTTPRequest(w http.ResponseWriter, r *http.Request, msg string) {
 func getCricData(rurl string) (map[string]CricEntry, error) {
 	cricRecords := make(map[string]CricEntry)
 	var entries []CricEntry
-	client := http.Client{}
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := http.Client{Transport: tr}
 	req, err := http.NewRequest("GET", rurl, nil)
 	if err != nil {
 		return cricRecords, err
@@ -209,6 +221,7 @@ func getCricData(rurl string) (map[string]CricEntry, error) {
 	req.Header.Set("Accept", "application/json")
 	resp, err := client.Do(req)
 	if err != nil {
+		log.Printf("Unable to place client request, %v", req)
 		return cricRecords, err
 	}
 	defer resp.Body.Close()
@@ -218,6 +231,7 @@ func getCricData(rurl string) (map[string]CricEntry, error) {
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		log.Printf("Unable to read response, %v", resp)
 		return cricRecords, err
 	}
 	err = json.Unmarshal(body, &entries)
@@ -489,7 +503,28 @@ func auth_proxy_server(serverCrt, serverKey string) {
 	verifier := provider.Verifier(oidcConfig)
 
 	// handling the callback authentication requests
-	u := fmt.Sprintf("%s/callback", Config.Base)
+	u := fmt.Sprintf("%s/server", Config.Base)
+	http.HandleFunc(u, func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+		defer r.Body.Close()
+		var s = ServerSettings{}
+		err := json.NewDecoder(r.Body).Decode(&s)
+		if err != nil {
+			log.Printf("unable to unmarshal incoming request, error %v", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		Config.Verbose = s.Verbose
+		log.Println("Update verbose level of config", Config)
+		w.WriteHeader(http.StatusOK)
+		return
+	})
+
+	// handling the callback authentication requests
+	u = fmt.Sprintf("%s/callback", Config.Base)
 	http.HandleFunc(u, func(w http.ResponseWriter, r *http.Request) {
 		sess := globalSessions.SessionStart(w, r)
 		if Config.Verbose {
@@ -684,10 +719,8 @@ func main() {
 					log.Printf("Unable to update CRIC records: %v", err)
 				} else {
 					CricRecords = cricRecords
-					if Config.Verbose {
-						keys := reflect.ValueOf(CricRecords).MapKeys()
-						log.Println("Updated CRIC records", len(keys))
-					}
+					keys := reflect.ValueOf(CricRecords).MapKeys()
+					log.Println("Updated CRIC records", len(keys))
 				}
 				d := time.Duration(interval) * time.Second
 				time.Sleep(d) // sleep for next iteration
