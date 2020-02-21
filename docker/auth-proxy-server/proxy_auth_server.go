@@ -77,6 +77,7 @@ type Configuration struct {
 	ServerCrt          string    `json:"server_cert"`    // server certificate
 	ServerKey          string    `json:"server_key"`     // server certificate
 	Hmac               string    `json:"hmac"`           // cmsweb hmac file
+	CricUrl            string    `json:"cric_url"`       // CRIC URL
 	CricFile           string    `json:"cric_file"`      // name of the CRIC file
 	UpdateCricInterval int64     `json:"update_cric"`    // interval (in sec) to update cric records
 }
@@ -194,6 +195,55 @@ func printHTTPRequest(w http.ResponseWriter, r *http.Request, msg string) {
 	fmt.Printf("Host = %q\n", r.Host)
 	fmt.Printf("RemoteAddr= %q\n", r.RemoteAddr)
 	fmt.Printf("\n\nFinding value of \"Accept\" %q\n", r.Header["Accept"])
+}
+
+// getCricData helper function to download CRIC data
+func getCricData(rurl string) (map[string]CricEntry, error) {
+	cricRecords := make(map[string]CricEntry)
+	var entries []CricEntry
+	client := http.Client{}
+	req, err := http.NewRequest("GET", rurl, nil)
+	if err != nil {
+		return cricRecords, err
+	}
+	req.Header.Set("Accept", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		return cricRecords, err
+	}
+	defer resp.Body.Close()
+	if Config.Verbose {
+		dump, err := httputil.DumpRequestOut(req, true)
+		log.Printf("http request: headers %v, request %v, response %s, error %v", req.Header, req, string(dump), err)
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return cricRecords, err
+	}
+	err = json.Unmarshal(body, &entries)
+	if err != nil {
+		return cricRecords, err
+	}
+	if Config.Verbose {
+		log.Printf("obtained %d records", len(entries))
+	}
+	// convert list of entries into a map
+	for _, rec := range entries {
+		recDNs := rec.DNs
+		if r, ok := cricRecords[rec.Login]; ok {
+			recDNs = r.DNs
+			recDNs = append(recDNs, rec.DN)
+			rec.DNs = recDNs
+			if Config.Verbose {
+				fmt.Printf("\nFound duplicate CRIC record\n%s\n%s\n", rec.String(), r.String())
+			}
+		} else {
+			recDNs = append(recDNs, rec.DN)
+			rec.DNs = recDNs
+		}
+		cricRecords[rec.Login] = rec
+	}
+	return cricRecords, nil
 }
 
 // parseCric helper function to parse cric file
@@ -613,13 +663,23 @@ func main() {
 		CMSAuth.Init(Config.Hmac)
 		// update periodically cric records
 		go func() {
+			cricRecords := make(map[string]CricEntry)
+			var err error
 			for {
 				interval := Config.UpdateCricInterval
 				if interval == 0 {
 					interval = 3600
 				}
 				// parse cric records
-				cricRecords, err := parseCric(Config.CricFile)
+				if Config.CricUrl != "" {
+					cricRecords, err = getCricData(Config.CricUrl)
+					log.Printf("obtain CRIC records from %s, %v", Config.CricUrl, err)
+				} else if Config.CricFile != "" {
+					cricRecords, err = parseCric(Config.CricFile)
+					log.Printf("obtain CRIC records from %s, %v", Config.CricFile, err)
+				} else {
+					log.Println("Untable to get CRIC records no file or no url was provided")
+				}
 				if err != nil {
 					log.Printf("Unable to update CRIC records: %v", err)
 				} else {
