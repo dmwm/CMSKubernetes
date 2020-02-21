@@ -1,7 +1,7 @@
 #!/bin/bash
 url="https://cms-cric.cern.ch/api/accounts/user/query/?json&preset=roles"
-curl -L -k \
-    --key /etc/secrets/proxy --cert /etc/secrets/proxy \
+curl -V
+curl -v -L -k \
     -q -o /tmp/cric.json \
     -H "Accept: application/json" \
     "$url"
