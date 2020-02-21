@@ -49,7 +49,13 @@ spec:
         - name: auth-secrets
           mountPath: /etc/secrets
           defaultMode: 256
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          defaultMode: 256
       volumes:
       - name: auth-secrets
         secret:
           secretName: auth-secrets
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
