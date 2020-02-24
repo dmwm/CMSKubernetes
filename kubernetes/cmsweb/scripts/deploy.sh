@@ -335,8 +335,13 @@ deploy_secrets()
             fi
             # special case for DBS instances
             if [ "$srv" == "dbs" ]; then
-                files="--from-file=$conf/dbs/DBSSecrets.py"
-                for inst in $dbs_instances; do
+         	if [ -f $conf/dbs/DBSSecrets.py ]; then
+			files="--from-file=$conf/dbs/DBSSecrets.py"
+                fi
+		if [ -f $conf/dbs/NATSSecrets.py ]; then
+			files="$files --from-file=$conf/dbs/NATSSecrets.py"
+		fi
+		 for inst in $dbs_instances; do
                     local dbsfiles=""
                     if [ -d "$secretdir-$inst" ] && [ -n "`ls $secretdir-$inst`" ]; then
                         for fconf in $secretdir-$inst/*; do
