@@ -64,7 +64,8 @@ import (
 type Ingress struct {
 	Path       string `json:"path"`        // url path to the service
 	ServiceUrl string `json:"service_url"` // service url
-	RemovePath string `json:"remove_path"` // remove path from url
+	OldPath    string `json:"old_path"`    // path from url to be replaced with new_path
+	NewPath    string `json:"new_path"`    // path from url to replace old_path
 }
 
 // Configuration stores server configuration parameters
@@ -74,6 +75,7 @@ type Configuration struct {
 	ClientID           string    `json:"client_id"`      // OICD client id
 	ClientSecret       string    `json:"client_secret"`  // OICD client secret
 	TargetUrl          string    `json:"target_url"`     // proxy target url (where requests will go)
+	DocumentRoot       string    `json:"document_root"`  // root directory for the server
 	OAuthUrl           string    `json:"oauth_url"`      // CERN SSO OAuth2 realm url
 	AuthTokenUrl       string    `json:"auth_token_url"` // CERN SSO OAuth2 OICD Token url
 	RedirectUrl        string    `json:"redirect_url"`   // redirect auth url for proxy server
@@ -650,11 +652,16 @@ func auth_proxy_server(serverCrt, serverKey string) {
 			for _, rec := range Config.Ingress {
 				if strings.Contains(r.URL.Path, rec.Path) {
 					if Config.Verbose {
-						fmt.Printf("ingress request path %s, record path %s, service url %s, remove path %s\n", r.URL.Path, rec.Path, rec.ServiceUrl, rec.RemovePath)
+						fmt.Printf("ingress request path %s, record path %s, service url %s, old path %s, new path %s\n", r.URL.Path, rec.Path, rec.ServiceUrl, rec.OldPath, rec.NewPath)
 					}
 					url := rec.ServiceUrl
-					if rec.RemovePath != "" {
-						r.URL.Path = strings.Replace(r.URL.Path, rec.RemovePath, "", 1)
+					if rec.OldPath != "" {
+						// replace old path to new one, e.g. /couchdb/_all_dbs => /_all_dbs
+						r.URL.Path = strings.Replace(r.URL.Path, rec.OldPath, rec.NewPath, 1)
+						// if r.URL.Path ended with "/", remove it to avoid
+						// cases /path/index.html/ after old->new path substitution
+						r.URL.Path = strings.TrimSuffix(r.URL.Path, "/")
+						// replace empty path with root path
 						if r.URL.Path == "" {
 							r.URL.Path = "/"
 						}
@@ -668,9 +675,29 @@ func auth_proxy_server(serverCrt, serverKey string) {
 				}
 			}
 			if Config.TargetUrl == "" {
+				if Config.DocumentRoot != "" {
+					fname := fmt.Sprintf("%s%s", Config.DocumentRoot, r.URL.Path)
+					if strings.HasSuffix(fname, "css") {
+						w.Header().Set("Content-Type", "text/css")
+					} else if strings.HasSuffix(fname, "js") {
+						w.Header().Set("Content-Type", "application/javascript")
+					}
+					if r.URL.Path == "/" {
+						fname = fmt.Sprintf("%s/index.html", Config.DocumentRoot)
+					}
+					if _, err := os.Stat(fname); err == nil {
+						body, err := ioutil.ReadFile(fname)
+						if err == nil {
+							data := []byte(body)
+							w.Write(data)
+							return
+						}
+					}
+				}
 				msg := fmt.Sprintf("Hello %s", r.URL.Path)
 				data := []byte(msg)
 				w.Write(data)
+				return
 			} else {
 				serveReverseProxy(Config.TargetUrl, w, r)
 			}
