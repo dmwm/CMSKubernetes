@@ -1,0 +1,172 @@
+# CephFS volume claims:
+# for production storage use
+#   storageClassName: meyrin-cephfs
+# for test storage use
+#   storageClassName: geneva-cephfs-testing
+# ---
+#
+# CouchDB storage claim
+#
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: logs-cephfs-claim
+  namespace: couchdb
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: geneva-cephfs-testing
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: couchdb-cephfs-claim
+  namespace: couchdb
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 30000Gi
+  storageClassName: geneva-cephfs-testing
+---
+#
+# CRAB space storage claim
+#
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: logs-cephfs-claim
+  namespace: crab
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: geneva-cephfs-testing
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: crabcache-cephfs-claim
+  namespace: crab
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 2000Gi
+  storageClassName: geneva-cephfs-testing
+---
+#
+# DAS storage claim
+#
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim
+  namespace: das
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: geneva-cephfs-testing
+---
+#
+# DBS storage claim
+#
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim
+  namespace: dbs
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: geneva-cephfs-testing
+---
+#
+# DQM storage claim
+#
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim
+  namespace: dqm
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: geneva-cephfs-testing
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dqmgui-cephfs-claim
+  namespace: dqm
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 10000Gi
+  storageClassName: geneva-cephfs-testing
+---
+#
+# DMWM storage claim
+#
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim
+  namespace: dmwm
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: geneva-cephfs-testing
+---
+#
+# Phedex storage claim
+#
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim
+  namespace: phedex
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: geneva-cephfs-testing
+---
+#
+# T0 storage claim
+#
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim
+  namespace: tzero
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: geneva-cephfs-testing

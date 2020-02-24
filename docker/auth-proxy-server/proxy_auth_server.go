@@ -6,6 +6,25 @@ package main
 //
 
 /*
+This is a Go-based implementation of CMS reverse proxy server
+with CERN SSO OAuth2 OICD authentication schema. An initial user
+request is redirected oauth_url defined in configuration. Then it is
+authenticated and this codebase provides CMS X509 headers based on
+CMS CRIC meta-data. An additional hmac is set via cmsauth package.
+The server can be initialize either as HTTP or HTTPs and provides the
+following end-points
+- /token returns user based token
+- /callback handles the callback authentication requests
+- /clear clears global session
+- /server can be used to update server settings, e.g.
+  curl -X POST -H"Content-type: application/json" -d '{"verbose":true}' https://a.b.com/server
+  will update verbose level of the server
+- / performs reverse proxy redirects to user based path
+
+Clients may obtain a token, see /token path, and use it in CLI access to the
+service, e.g.
+curl -v -H "Authorization: Bearer $token" https://xxx.cern.ch/<path>
+
 CERN SSO OAuth2 OICD
    https://gitlab.cern.ch/authzsvc/docs/keycloak-sso-examples
 
@@ -18,6 +37,7 @@ Reverse proxy examples:
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -28,10 +48,12 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"reflect"
 	"strings"
 	"time"
 
 	oidc "github.com/coreos/go-oidc"
+	"github.com/dmwm/cmsauth"
 	"github.com/google/uuid"
 	"github.com/thomasdarimont/go-kc-example/session"
 	_ "github.com/thomasdarimont/go-kc-example/session_memory"
@@ -46,37 +68,75 @@ type Ingress struct {
 
 // Configuration stores server configuration parameters
 type Configuration struct {
-	Port         int       `json:"port"`           // server port number
-	Base         string    `json:"base"`           // base URL
-	ClientID     string    `json:"client_id"`      // OICD client id
-	ClientSecret string    `json:"client_secret"`  // OICD client secret
-	TargetUrl    string    `json:"target_url"`     // proxy target url (where requests will go)
-	OAuthUrl     string    `json:"oauth_url"`      // CERN SSO OAuth2 realm url
-	AuthTokenUrl string    `json:"auth_token_url"` // CERN SSO OAuth2 OICD Token url
-	RedirectUrl  string    `json:"redirect_url"`   // redirect auth url for proxy server
-	Verbose      bool      `json:"verbose"`        // verbose output
-	Ingress      []Ingress `json:"ingress"`        // incress section
-	ServerCrt    string    `json:"server_cert"`    // server certificate
-	ServerKey    string    `json:"server_key"`     // server certificate
+	Port               int       `json:"port"`           // server port number
+	Base               string    `json:"base"`           // base URL
+	ClientID           string    `json:"client_id"`      // OICD client id
+	ClientSecret       string    `json:"client_secret"`  // OICD client secret
+	TargetUrl          string    `json:"target_url"`     // proxy target url (where requests will go)
+	OAuthUrl           string    `json:"oauth_url"`      // CERN SSO OAuth2 realm url
+	AuthTokenUrl       string    `json:"auth_token_url"` // CERN SSO OAuth2 OICD Token url
+	RedirectUrl        string    `json:"redirect_url"`   // redirect auth url for proxy server
+	Verbose            bool      `json:"verbose"`        // verbose output
+	Ingress            []Ingress `json:"ingress"`        // incress section
+	ServerCrt          string    `json:"server_cert"`    // server certificate
+	ServerKey          string    `json:"server_key"`     // server certificate
+	Hmac               string    `json:"hmac"`           // cmsweb hmac file
+	CricUrl            string    `json:"cric_url"`       // CRIC URL
+	CricFile           string    `json:"cric_file"`      // name of the CRIC file
+	UpdateCricInterval int64     `json:"update_cric"`    // interval (in sec) to update cric records
+}
+
+// ServerSettings controls server parameters
+type ServerSettings struct {
+	Verbose bool `json:"verbose"` // verbosity output
 }
 
 // TokenAttributes contains structure of valid token attributes
 type TokenAttributes struct {
-	UserName     string `json:"username"`
-	Active       bool   `json:"active"`
-	SessionState string `json:"session_state"`
-	ClientID     string `json:"clientId"`
-	Email        string `json:"email"`
-	Scope        string `json:"scope"`
-	Expiration   int64  `json:"exp"`
-	ClientHost   string `json:"clientHost"`
+	UserName     string `json:"username"`      // user name
+	Active       bool   `json:"active"`        // is token active or not
+	SessionState string `json:"session_state"` // session state fields
+	ClientID     string `json:"clientId"`      // client id
+	Email        string `json:"email"`         // client email address
+	Scope        string `json:"scope"`         // scope of the token
+	Expiration   int64  `json:"exp"`           // token expiration
+	ClientHost   string `json:"clientHost"`    // client host
 }
+
+// CricEntry represents structure in CRIC
+type CricEntry struct {
+	DN    string              `json:"DN"`    // CRIC DN
+	DNs   []string            `json:"DNs"`   // List of all DNs assigned to user
+	ID    int64               `json:"ID"`    // CRIC ID
+	Login string              `json:"LOGIN"` // CRIC Login name
+	Name  string              `json:"NAME"`  // CRIC user name
+	Roles map[string][]string `json:"ROLES"` // CRIC user roles
+}
+
+// String returns string representation of CricEntry
+func (c *CricEntry) String() string {
+	var roles string
+	for _, r := range c.Roles {
+		for _, v := range r {
+			roles = fmt.Sprintf("%s\n%v", roles, v)
+		}
+	}
+	r := fmt.Sprintf("ID: %d\nLogin: %s\nName: %s\nDN: %s\nDNs: %v\nRoles: %s", c.ID, c.Login, c.Name, c.DN, c.DNs, roles)
+	return r
+}
+
+// CMSAuth structure to create CMS Auth headers
+var CMSAuth cmsauth.CMSAuth
 
 // globalSession manager for our HTTP requests
 var globalSessions *session.Manager
 
 // Config variable represents configuration object
 var Config Configuration
+
+// CricRecords list to hold CMS CRIC entries
+var CricRecords map[string]CricEntry
+var CricFileInfo os.FileInfo
 
 // initialize global session manager
 func init() {
@@ -110,7 +170,7 @@ func parseConfig(configFile string) error {
 		Config.OAuthUrl = "https://auth.cern.ch/auth/realms/cern"
 	}
 	if Config.Verbose {
-		log.Println("config", Config)
+		log.Printf("%+v\n", Config)
 	}
 	return nil
 }
@@ -144,6 +204,106 @@ func printHTTPRequest(w http.ResponseWriter, r *http.Request, msg string) {
 	fmt.Printf("Host = %q\n", r.Host)
 	fmt.Printf("RemoteAddr= %q\n", r.RemoteAddr)
 	fmt.Printf("\n\nFinding value of \"Accept\" %q\n", r.Header["Accept"])
+}
+
+// getCricData helper function to download CRIC data
+func getCricData(rurl string) (map[string]CricEntry, error) {
+	cricRecords := make(map[string]CricEntry)
+	var entries []CricEntry
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := http.Client{Transport: tr}
+	req, err := http.NewRequest("GET", rurl, nil)
+	if err != nil {
+		return cricRecords, err
+	}
+	req.Header.Set("Accept", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Printf("Unable to place client request, %v", req)
+		return cricRecords, err
+	}
+	defer resp.Body.Close()
+	if Config.Verbose {
+		dump, err := httputil.DumpRequestOut(req, true)
+		log.Printf("http request: headers %v, request %v, response %s, error %v", req.Header, req, string(dump), err)
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("Unable to read response, %v", resp)
+		return cricRecords, err
+	}
+	err = json.Unmarshal(body, &entries)
+	if err != nil {
+		return cricRecords, err
+	}
+	if Config.Verbose {
+		log.Printf("obtained %d records", len(entries))
+	}
+	// convert list of entries into a map
+	for _, rec := range entries {
+		recDNs := rec.DNs
+		if r, ok := cricRecords[rec.Login]; ok {
+			recDNs = r.DNs
+			recDNs = append(recDNs, rec.DN)
+			rec.DNs = recDNs
+			if Config.Verbose {
+				fmt.Printf("\nFound duplicate CRIC record\n%s\n%s\n", rec.String(), r.String())
+			}
+		} else {
+			recDNs = append(recDNs, rec.DN)
+			rec.DNs = recDNs
+		}
+		cricRecords[rec.Login] = rec
+	}
+	return cricRecords, nil
+}
+
+// parseCric helper function to parse cric file
+func parseCric(fname string) (map[string]CricEntry, error) {
+	cricRecords := make(map[string]CricEntry)
+	var entries []CricEntry
+	if fileInfo, err := os.Stat(fname); err == nil {
+		if CricFileInfo == nil || CricRecords == nil {
+			CricFileInfo = fileInfo
+		} else {
+			// check if file has changed, if not return all cric records
+			if fileInfo.Size() == CricFileInfo.Size() && fileInfo.ModTime() == CricFileInfo.ModTime() {
+				return CricRecords, nil
+			}
+		}
+		CricFileInfo = fileInfo
+		jsonFile, err := os.Open(fname)
+		if err != nil {
+			fmt.Println(err)
+			return cricRecords, err
+		}
+		defer jsonFile.Close()
+		byteValue, err := ioutil.ReadAll(jsonFile)
+		if err != nil {
+			fmt.Println(err)
+			return cricRecords, err
+		}
+		json.Unmarshal(byteValue, &entries)
+		// convert list of entries into a map
+		for _, rec := range entries {
+			recDNs := rec.DNs
+			if r, ok := cricRecords[rec.Login]; ok {
+				recDNs = r.DNs
+				recDNs = append(recDNs, rec.DN)
+				rec.DNs = recDNs
+				if Config.Verbose {
+					fmt.Printf("\nFound duplicate CRIC record\n%s\n%s\n", rec.String(), r.String())
+				}
+			} else {
+				recDNs = append(recDNs, rec.DN)
+				rec.DNs = recDNs
+			}
+			cricRecords[rec.Login] = rec
+		}
+	}
+	return cricRecords, nil
 }
 
 // Serve a reverse proxy for a given url
@@ -254,17 +414,31 @@ func setHeaders(userData map[string]interface{}, r *http.Request) {
 	}
 	// set cms auth headers
 	r.Header.Set("cms-auth-status", "ok")
-	r.Header.Set("cms-authn", "cms-authn")
-	r.Header.Set("cms-authz", "group:name")
 	r.Header.Set("cms-authn-name", iString(userData["name"]))
-	r.Header.Set("cms-authn-login", iString(userData["cern_upn"]))
-	r.Header.Set("cms-authn-dn", "cms-auth-dn")
-	r.Header.Set("cms-authn-hmac", "test-hmac")
+	login := iString(userData["cern_upn"])
+	if rec, ok := CricRecords[login]; ok {
+		// set DN
+		r.Header.Set("cms-authn-dn", rec.DN)
+		r.Header.Set("cms-auth-cert", rec.DN)
+		// set group roles
+		for k, v := range rec.Roles {
+			key := fmt.Sprintf("cms-authz-%s", k)
+			val := strings.Join(v, " ")
+			r.Header.Set(key, val)
+		}
+	}
+	r.Header.Set("cms-authn-login", login)
+	r.Header.Set("cms-authn-method", "X509Cert")
 	r.Header.Set("cms-cern-id", iString(userData["cern_person_id"]))
 	r.Header.Set("cms-email", iString(userData["email"]))
 	r.Header.Set("cms-auth-time", iString(userData["auth_time"]))
 	r.Header.Set("cms-auth-expire", iString(userData["exp"]))
 	r.Header.Set("cms-session", iString(userData["session_state"]))
+	r.Header.Set("cms-request-uri", r.URL.Path)
+	hmac, err := CMSAuth.GetHmac(r, Config.Verbose)
+	if err == nil {
+		r.Header.Set("cms-authn-hmac", hmac)
+	}
 }
 
 // helper function to return string representation of interface value
@@ -275,7 +449,7 @@ func iString(v interface{}) string {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		return fmt.Sprintf("%d", t)
 	case float32, float64:
-		return fmt.Sprintf("%d", t)
+		return fmt.Sprintf("%d", int64(t.(float64)))
 	default:
 		return fmt.Sprintf("%v", t)
 	}
@@ -329,7 +503,28 @@ func auth_proxy_server(serverCrt, serverKey string) {
 	verifier := provider.Verifier(oidcConfig)
 
 	// handling the callback authentication requests
-	u := fmt.Sprintf("%s/callback", Config.Base)
+	u := fmt.Sprintf("%s/server", Config.Base)
+	http.HandleFunc(u, func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+		defer r.Body.Close()
+		var s = ServerSettings{}
+		err := json.NewDecoder(r.Body).Decode(&s)
+		if err != nil {
+			log.Printf("unable to unmarshal incoming request, error %v", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		Config.Verbose = s.Verbose
+		log.Println("Update verbose level of config", Config)
+		w.WriteHeader(http.StatusOK)
+		return
+	})
+
+	// handling the callback authentication requests
+	u = fmt.Sprintf("%s/callback", Config.Base)
 	http.HandleFunc(u, func(w http.ResponseWriter, r *http.Request) {
 		sess := globalSessions.SessionStart(w, r)
 		if Config.Verbose {
@@ -399,6 +594,20 @@ func auth_proxy_server(serverCrt, serverKey string) {
 		return
 	})
 
+	// handling the clearance of user session
+	u = fmt.Sprintf("%s/clear", Config.Base)
+	http.HandleFunc(u, func(w http.ResponseWriter, r *http.Request) {
+		sess := globalSessions.SessionStart(w, r)
+		sess.Delete("userinfo")
+		sess.Delete("rawIDToken")
+		sess.Delete(state)
+		globalSessions.SessionDestroy(w, r)
+		msg := "User session is cleared"
+		data := []byte(msg)
+		w.Write(data)
+		return
+	})
+
 	// handling the user request
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		sess := globalSessions.SessionStart(w, r)
@@ -442,7 +651,10 @@ func auth_proxy_server(serverCrt, serverKey string) {
 					if Config.Verbose {
 						fmt.Println("ingress match", r.URL.Path, rec.Path, rec.ServiceUrl)
 					}
-					serveReverseProxy(rec.ServiceUrl, w, r)
+					//                     url := fmt.Sprintf("%s/%s", rec.ServiceUrl, r.URL.Path)
+					url := rec.ServiceUrl
+					fmt.Println("### serveReverseProxy", url)
+					serveReverseProxy(url, w, r)
 					return
 				}
 			}
@@ -468,11 +680,11 @@ func auth_proxy_server(serverCrt, serverKey string) {
 	if serverCrt != "" && serverKey != "" {
 		//start HTTPS server which require user certificates
 		server := &http.Server{Addr: addr}
-		log.Printf("Startgin HTTPs server on %s", addr)
+		log.Printf("Starting HTTPs server on %s", addr)
 		log.Fatal(server.ListenAndServeTLS(serverCrt, serverKey))
 	} else {
 		// Start server without user certificates
-		log.Printf("Startgin HTTP server on %s", addr)
+		log.Printf("Starting HTTP server on %s", addr)
 		log.Fatal(http.ListenAndServe(addr, nil))
 	}
 }
@@ -483,6 +695,37 @@ func main() {
 	flag.Parse()
 	err := parseConfig(config)
 	if err == nil {
+		CMSAuth.Init(Config.Hmac)
+		// update periodically cric records
+		go func() {
+			cricRecords := make(map[string]CricEntry)
+			var err error
+			for {
+				interval := Config.UpdateCricInterval
+				if interval == 0 {
+					interval = 3600
+				}
+				// parse cric records
+				if Config.CricUrl != "" {
+					cricRecords, err = getCricData(Config.CricUrl)
+					log.Printf("obtain CRIC records from %s, %v", Config.CricUrl, err)
+				} else if Config.CricFile != "" {
+					cricRecords, err = parseCric(Config.CricFile)
+					log.Printf("obtain CRIC records from %s, %v", Config.CricFile, err)
+				} else {
+					log.Println("Untable to get CRIC records no file or no url was provided")
+				}
+				if err != nil {
+					log.Printf("Unable to update CRIC records: %v", err)
+				} else {
+					CricRecords = cricRecords
+					keys := reflect.ValueOf(CricRecords).MapKeys()
+					log.Println("Updated CRIC records", len(keys))
+				}
+				d := time.Duration(interval) * time.Second
+				time.Sleep(d) // sleep for next iteration
+			}
+		}()
 		_, e1 := os.Stat(Config.ServerCrt)
 		_, e2 := os.Stat(Config.ServerKey)
 		if e1 == nil && e2 == nil {

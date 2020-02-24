@@ -5,17 +5,17 @@
 #   storageClassName: geneva-cephfs-testing
 # ---
 #
-# frontend storage claim
+# CouchDB storage claim
 #
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: affilations-cephfs-claim
-  namespace: default
+  name: cephfs-claim-couchdb
+  namespace: couchdb
 spec:
   accessModes:
   - ReadWriteMany
   resources:
     requests:
-      storage: 1Gi
+      storage: 700Gi
   storageClassName: meyrin-cephfs

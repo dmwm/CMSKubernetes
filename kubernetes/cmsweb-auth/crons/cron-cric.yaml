@@ -1,0 +1,33 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cron-cric
+  namespace: auth
+spec:
+  # run crontab job every hour
+  schedule: "36 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: cric-account
+          containers:
+          - name: cric
+            image: veknet/cric-client
+            args:
+            - /bin/sh
+            - -c
+            - echo "run cric.sh"; ls -al ; echo "### /etc/proxy"; ls -al /etc/proxy; cat /data/cric.sh; /data/cric.sh; echo "### /tmp"; ls -al /tmp; ls -al /cric;
+            volumeMounts:
+            - name: proxy-secrets
+              mountPath: /etc/proxy
+            - name: cric-cephfs
+              mountPath: /cric
+          restartPolicy: Never
+          volumes:
+          - name: proxy-secrets
+            secret:
+              secretName: proxy-secrets
+          - name: cric-cephfs
+            persistentVolumeClaim:
+              claimName: cephfs-claim-cric

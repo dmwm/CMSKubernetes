@@ -16,6 +16,8 @@ kubernetes-prometheus
 kubernetes/cmsweb/configs
 kubernetes/cmsweb/new
 kubernetes/cmsweb/CMSWeb-openrc.sh
+kubernetes/cmsweb-auth/configs/
+kubernetes/udp-collector/secrets
 kubernetes/nats/secrets
 kubernetes/nats/logs
 kubernetes/nats/clients-auth.json

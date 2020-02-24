@@ -2,6 +2,7 @@ apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
   name: cron-spider-queues
+  namespace: spider
 spec:
   schedule: "30 * * * *"
   jobTemplate:

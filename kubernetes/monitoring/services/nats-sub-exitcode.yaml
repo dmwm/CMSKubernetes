@@ -3,6 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nats-sub-exitcode
+  namespace: nats
   labels:
      app: nats-sub-exitcode
 spec:

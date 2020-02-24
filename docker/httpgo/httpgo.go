@@ -22,7 +22,6 @@ func RequestHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "RemoteAddr= %q\n", r.RemoteAddr)
 		fmt.Fprintf(w, "\n\nFinding value of \"Accept\" %q\n", r.Header["Accept"])
 
-		w.WriteHeader(http.StatusOK)
 		page := "Hello from Go"
 		w.Write([]byte(page))
 	} else {

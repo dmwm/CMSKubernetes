@@ -2,18 +2,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nats-sub
+  name: nats-sub-dbs
+  namespace: nats
   labels:
-     app: nats-sub
+     app: nats-sub-dbs
 spec:
    replicas: 1
    selector:
      matchLabels:
-       app: nats-sub
+       app: nats-sub-dbs
    template:
       metadata:
          labels:
-           app: nats-sub
+           app: nats-sub-dbs
       spec:
         containers:
         - args:
@@ -21,8 +22,8 @@ spec:
           - -rootCAs=/etc/nats/CERN_CA.crt,/etc/nats/CERN_CA1.crt
           - -t
           - -cmsAuth=/etc/nats/cms-auth
-          - -vmUri=http://cms-monitoring.cern.ch:30422"
-          - "cms.wmarchive.exitCode.>"
+          - -vmUri=http://cms-monitoring.cern.ch:30422
+          - "cms.dbs.>"
           name: nats-sub
           image: veknet/nats-sub
           volumeMounts:

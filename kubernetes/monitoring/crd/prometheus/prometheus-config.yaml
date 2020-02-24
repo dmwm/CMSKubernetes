@@ -1,0 +1,170 @@
+# pushgateway
+- job_name: "pushgateway"
+  scrape_interval: 5s
+  static_configs:
+  - targets: ["pushgateway-service.default.svc.cluster.local:9091"]
+# reqmgr2
+- job_name: "reqmgr2-prod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0136:18240", "vocms0161:18240", "vocms0163:18240", "vocms0165:18240", "vocms0766:18240" ]
+  - labels: {"env": "prod", "job": "reqmgr2-prod"}
+- job_name: "reqmgr2-preprod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0132:18240", "vocms0731:18240" ]
+  - labels: {"env": "preprod", "job": "reqmgr2-preprod"}
+# das
+- job_name: "das-prod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0741:18217", "vocms0742:18217" ]
+  - labels: {"env": "prod", "job": "das-prod"}
+- job_name: "das-preprod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0132:18217", "vocms0731:18217" ]
+  - labels: {"env": "prod", "job": "das-preprod"}
+# mongodb
+- job_name: "mongodb-prod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0741:18230", "vocms0742:18230" ]
+  - labels: {"env": "prod", "job": "mongodb-prod"}
+- job_name: "mongodb-preprod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0132:18230", "vocms0731:18230" ]
+  - labels: {"env": "preprod", "job": "mongodb-preprod"}
+# frontend
+- job_name: "frontend"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0158:18443", "vocms0760:18443", "vocms0162:18443", "vocms0164:18443" ]
+  - labels: {"env": "prod", "job": "frontend-prod"}
+- job_name: "frontend-preprod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: 
+  - labels: {"env": "preprod", "job": "frontend-preprod"}
+# frontend nodes
+- job_name: "node-fe-prod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0158:19000", "vocms0760:19000", "vocms0162:19000", "vocms0164:19000" ]
+  - labels: {"env": "prod", "job": "node-fe-prod"}
+- job_name: "node-fe-preprod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0135:19000", "vocms0734:19000" ]
+  - labels: {"env": "preprod", "job": "node-fe-preprod"}
+# crabserver
+- job_name: "crabserver-prod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0136:18270", "vocms0161:18270", "vocms0163:18270", "vocms0165:18270", "vocms0766:18270" ]
+  - labels: {"env": "prod", "job": "crabserver-prod"}
+- job_name: "crabserver-preprod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0132:18270", "vocms0731:18270" ]
+  - labels: {"env": "preprod", "job": "crabserver-preprod"}
+# rucio
+- job_name: "rucio-dev"
+  scrape_interval: 60s
+  static_configs:
+  - targets: [ "cms-rucio-stats-dev.cern.ch" ]
+  - labels: {"env": "dev", "job": "reqmgr2-dev"}
+- job_name: "rucio-testbed"
+  scrape_interval: 60s
+  static_configs:
+  - targets: [ "cms-rucio-stats-testbed.cern.ch" ]
+  - labels: {"env": "testbed", "job": "reqmgr2-testbed"}
+- job_name: "rucio-sync"
+  scrape_interval: 60s
+  static_configs:
+  - targets: [ "cms-rucio-stats-sync.cern.ch" ]
+  - labels: {"env": "sync", "job": "reqmgr2-sync"}
+- job_name: "rucio-int"
+  scrape_interval: 60s
+  static_configs:
+  - targets: [ "cms-rucio-stats-int.cern.ch" ]
+  - labels: {"env": "int", "job": "reqmgr2-int"}
+# dbs
+- job_name: "dbs-globalR-prod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0136:18252", "vocms0161:18252", "vocms0163:18252", "vocms0165:18252", "vocms0766:18252" ]
+  - labels: {"env": "prod", "job": "dbs-globalR-prod"}
+- job_name: "dbs-globalR-preprod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0132:18252", "vocms0731:18252" ]
+  - labels: {"env": "preprod", "job": "dbs-globalR-preprod"}
+- job_name: "dbs-globalW-prod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0136:18253", "vocms0161:18253", "vocms0163:18253", "vocms0165:18253", "vocms0766:18253" ]
+  - labels: {"env": "prod", "job": "dbs-globalW-prod"}
+- job_name: "dbs-globalW-preprod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0132:18253", "vocms0731:18253" ]
+  - labels: {"env": "preprod", "job": "dbs-globalW-preprod"}
+- job_name: "dbs-phys03R-prod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0136:18254", "vocms0161:18254", "vocms0163:18254", "vocms0165:18254", "vocms0766:18254" ]
+  - labels: {"env": "prod", "job": "dbs-phys03R-prod"}
+- job_name: "dbs-phys03R-preprod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0132:18254", "vocms0731:18254" ]
+  - labels: {"env": "preprod", "job": "dbs-phys03R-preprod"}
+- job_name: "dbs-phys03W-prod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0136:18255", "vocms0161:18255", "vocms0163:18255", "vocms0165:18255", "vocms0766:18255" ]
+  - labels: {"env": "prod", "job": "dbs-phys03W-prod"}
+- job_name: "dbs-phys03W-preprod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0132:18255", "vocms0731:18255" ]
+  - labels: {"env": "preprod", "job": "dbs-phys03W-preprod"}
+- job_name: "dbs-migration-prod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0136:18251", "vocms0161:18251", "vocms0163:18251", "vocms0165:18251", "vocms0766:18251" ]
+  - labels: {"env": "prod", "job": "dbs-migration-prod"}
+- job_name: "dbs-migration-preprod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0132:18251", "vocms0731:18251" ]
+  - labels: {"env": "preprod", "job": "dbs-migration-preprod"}
+# dbs cpy
+- job_name: "dbs-phys03R-cpy-prod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0136:19254", "vocms0161:19254", "vocms0163:19254", "vocms0165:19254", "vocms0766:19254" ]
+  - labels: {"env": "prod", "job": "dbs-phys03R-cpy-prod"}
+- job_name: "dbs-phys03R-cpy-preprod"
+  scrape_interval: 5s
+  static_configs:
+  - targets: [ "vocms0132:19254", "vocms0731:19254" ]
+  - labels: {"env": "preprod", "job": "dbs-phys03R-cpy-preprod"}
+# couchdb
+- job_name: "couchdb-prod"
+  scrape_interval: 60s
+  static_configs:
+  - targets: [ "vocms0740:15984", "vocms0741:15984", "vocms0742:15984" ]
+  - labels: {"env": "prod", "job": "couchdb-prod"}
+- job_name: "couchdb-preprod"
+  scrape_interval: 60s
+  static_configs:
+  - targets: [ "vocms0132:15984", "vocms0731:15984" ]
+  - labels: {"env": "preprod", "job": "couchdb-preprod"}
+- job_name: "couchdb-dev"
+  scrape_interval: 60s
+  static_configs:
+  - targets: [ "vocms0117:15984" ]
+  - labels: {"env": "dev", "job": "couchdb-dev"}

@@ -159,3 +159,22 @@ if __name__ == '__main__':
     test()
 
 ```
+
+### End-to-end testing
+To perform nats tests we can use 
+[nats-pub](https://github.com/dmwm/CMSMonitoring/blob/master/src/go/NATS/nats-pub.go)
+and
+[nats-sub](https://github.com/dmwm/CMSMonitoring/blob/master/src/go/NATS/nats-sub.go)
+tools. You may need to compile them using Go compiler and run the following
+workflow:
+```
+# start nats subscriber with cms-auth file which contains client's credentials
+# the subscriber is started to show raw messages (-raw) and display timestamp (-t) options
+# we listen our messages on test channel
+nats-sub -cmsAuth /path/.nats/cms-auth -rootCAs /path/CERN_CA.crt,/path/CERN_CA1.crt -raw -t test
+
+# in another terminal publish some message, in this case we use different
+# cmsauth file (pub) which contains publisher's credentials and
+# we publish our message on test channel
+nats-pub -cmsAuth /path/valya/.nats/dbs-pub -rootCAs /path/CERN_CA.crt,/path/CERN_CA1.crt test test-message
+```

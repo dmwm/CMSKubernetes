@@ -5,5 +5,5 @@ ENV USER=http
 EXPOSE 8181
 ADD proxy_auth_server.go $WDIR/proxy_auth_server.go
 WORKDIR $WDIR
-RUN go mod init github.com/vkuznet/auth-proxy
+RUN go mod init github.com/vkuznet/auth-proxy-server
 RUN go build proxy_auth_server.go

@@ -51,14 +51,24 @@ vim secrets/prometheus/prometheus.yaml
 kubectl delete pod/<prometheus-XXX>
 ```
 
+### Structure
+This area contains several sub-directories. Here we describe overall structure:
+- **services** area contains CMS specific services, like nats subscribers,
+  prometheus, VM services
+- **crd** represents CRD areas of specific deployments, e.g. Prometheus server
+- **ingress** contains ingress controllers definitions
+- **kmon** provides files for k8s monitoring tools like kube-eagle
+- **storages** contains files for persistent storages, like cinder, CephFS
+- **crons** area contains all cron specific manifest files
 
 #### Prometheus-operator deployment
-We provide files `bundle.yaml` and `prom-oper.yaml` to deploy
+We provide files `bundle.yaml` and `prom-oper.yaml` in `crd/prometheus` area to deploy
 prometheus cluster via
 [Prometheus-operator](https://github.com/coreos/prometheus-operator)
 deployment procedure. But we found certain limitation, in prometheus
 configuration, which does not allow to integrate this
-deployment with VictoriaMetrics service.
+deployment with VictoriaMetrics service. Therefore, so far we do not
+use CRD deployment.
 
 #### Prometheus custom deployment
 The custom Prometheus deployment is based on `prometheus.yaml` manifest

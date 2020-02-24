@@ -36,27 +36,28 @@ project=${OS_PROJECT_NAME:-"CMS Web"}
 cluster=${CLUSTER:-"monitoring-cluster"}
 template=${TMPL:-"kubernetes-1.15.3-3"}
 keypair=${KEY:-"cloud"}
-secrets="prometheus-secrets nats-secrets spider-specrets"
-services="prometheus pushgateway victoria-metrics victoria-metrics-test nats-sub-exitcode nats-sub-stats nats-sub-t1 nats-sub-t2"
+secrets="prometheus-secrets nats-secrets spider-specrets udp-secrets"
+services="prometheus pushgateway victoria-metrics victoria-metrics-test nats-sub-exitcode nats-sub-stats nats-sub-t1 nats-sub-t2 udp-server"
+namespaces="udp nats spider"
 
 # prometheus operator deployment (so far we don't use it)
 deploy_prometheus_operator()
 {
     # deploy prometheus CRD
     if [ -n "`kubectl get crd | grep prometheus`" ]; then
-        kubectl delete -f bundle.yaml
+        kubectl delete -f crd/prometheus/bundle.yaml
     fi
-    kubectl apply -f bundle.yaml
+    kubectl apply -f crd/prometheus/bundle.yaml
     # deploy prometheus configuration
     if [ -n "`kubectl get secrets | grep prometheus-config`" ]; then
         kubectl delete secret prometheus-config
     fi
-    kubectl create secret generic prometheus-config --from-file=prometheus-config.yaml
+    kubectl create secret generic prometheus-config --from-file=crd/prometheus/prometheus-config.yaml
     # deploy prometheus
     if [ -n "`kubectl get pod | grep prometheus-prometheus`" ]; then
-        kubectl delete -f prometheus.yaml
+        kubectl delete -f crd/prometheus/prom-oper.yaml
     fi
-    kubectl apply -f prometheus.yaml
+    kubectl apply -f crd/prometheus/prom-oper.yaml
 }
 
 # cluster secrets deployment
@@ -90,29 +91,36 @@ deploy_secrets()
     ls secrets/alertmanager/*.yaml | awk '{ORS=" "; print "--from-file="$1""}' | awk '{print "kubectl create secret generic alertmanager-secrets "$0""}' | /bin/sh
 
     # add nats-secrets
-    if [ -n "`kubectl get secrets | grep nats-secrets`" ]; then
+    if [ -n "`kubectl -n nats get secrets | grep nats-secrets`" ]; then
         echo "delete nats-secrets"
-        kubectl delete secret nats-secrets
+        kubectl -n nats delete secret nats-secrets
     fi
     if [ ! -d secrets/nats ]; then
         echo "Please provide secrets/nats area with cms-auth, CERN_CA*.crt files"
         exit 1
     fi
-    kubectl create secret generic nats-secrets \
+    kubectl -n nats create secret generic nats-secrets \
         --from-file=secrets/nats/cms-auth \
         --from-file=secrets/nats/CERN_CA.crt \
         --from-file=secrets/nats/CERN_CA1.crt
 
     # add spider secrets
-    if [ -n "`kubectl get secrets | grep spider-secrets`" ]; then
+    if [ -n "`kubectl -n spider get secrets | grep spider-secrets`" ]; then
         echo "delete spider-secrets"
-        kubectl delete secret spider-secrets
+        kubectl -n spider delete secret spider-secrets
     fi
     if [ ! -d secrets/cms-htcondor-es ]; then
         echo "Please provide secrets/cms-htcondor-es area with collectors.json file"
         exit 1
     fi
-    kubectl create secret generic spider-secrets --from-file=secrets/cms-htcondor-es/collectors.json
+    kubectl -n spider create secret generic spider-secrets --from-file=secrets/cms-htcondor-es/collectors.json
+
+    # add udp secrets
+    if [ -n "`kubectl -n udp get secrets | grep udp-secrets`" ]; then
+        echo "delete udp-secrets"
+        kubectl -n udp delete secret udp-secrets
+    fi
+    kubectl -n udp create secret generic udp-secrets --from-file=secrets/udp/udp_server.json
 }
 
 # cluster storages deployment
@@ -125,10 +133,10 @@ deploy_storages()
         kubectl label node $n failure-domain.beta.kubernetes.io/region=cern --overwrite
     done
     if [ -z "`kubectl get pvc | grep cinder-volume-claim`" ]; then
-        kubectl apply -f cinder-storage.yaml
+        kubectl apply -f storages/cinder-storage.yaml
     fi
     if [ -z "`kubectl get pvc | grep prometheus-volume-claim`" ]; then
-        kubectl apply -f prometheus-storage.yaml
+        kubectl apply -f storages/prometheus-storage.yaml
     fi
 }
 
@@ -137,9 +145,9 @@ deploy_services()
 {
     for svc in $services; do
         if [ -n "`kubectl get pod | grep $svc`" ]; then
-            kubectl delete -f ${svc}.yaml
+            kubectl delete -f services/${svc}.yaml
         fi
-        kubectl apply -f ${svc}.yaml
+        kubectl apply -f services/${svc}.yaml
     done
 
 }
@@ -151,7 +159,7 @@ deploy_ingress()
     kubectl get node | grep minion | \
         awk '{print "kubectl label node "$1" role=ingress --overwrite"}' | /bin/sh
     # deploy ingress controller
-    kubectl apply -f ingress.yaml
+    kubectl apply -f ingress/ingress.yaml
 }
 
 # deploy roles for our cluster
@@ -172,10 +180,17 @@ deploy_kmon()
     fi
     local keagle=`kubectl get pods | grep metrics-server`
     if [ -z "$keagle" ]; then
-        kubectl apply -f kube-eagle.yaml
+        kubectl apply -f kmon/kube-eagle.yaml
     fi
 }
 
+# create namespaces
+deploy_namespaces()
+{
+    for ns in $namespaces; do
+        kubectl create namespace $ns
+    done
+}
 
 # creation of the cluster
 create()
@@ -199,6 +214,7 @@ create()
     elif [ "$deployment" == "ingress" ]; then
         deploy_ingress
     else
+        deploy_namespaces
         deploy_secrets
         deploy_storages
         deploy_services
@@ -214,7 +230,7 @@ cleanup()
     # delete all services
     for svc in $services; do
         if [ -n "`kubectl get pod | grep $svc`" ]; then
-            kubectl delete -f ${svc}.yaml
+            kubectl delete -f services/${svc}.yaml
         fi
     done
 
@@ -227,12 +243,12 @@ cleanup()
 
     # delete ingress
     if [ -n "`kubectl get ing`" ]; then
-        kubectl delete -f ingress.yaml
+        kubectl delete -f ingress/ingress.yaml
     fi
 
     # delete monitoring parts
     if [ -n "`kubectl get pod | grep kube-eagle`" ]; then
-        kubectl delete -f kube-eagle.yaml
+        kubectl delete -f kmon/kube-eagle.yaml
     fi
 
     # delete metrics-server
