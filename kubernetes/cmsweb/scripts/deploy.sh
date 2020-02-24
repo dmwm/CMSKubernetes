@@ -573,7 +573,7 @@ create()
     else
         deploy_ns
         deploy_secrets
-	if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]] && ["$deployment" == "services" ]; then
+	if [[ ("$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod")  && ("$deployment" == "services") ]]; then
      		deploy_storages
 	fi
         deploy_services
