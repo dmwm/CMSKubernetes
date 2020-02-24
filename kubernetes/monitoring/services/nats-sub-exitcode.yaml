@@ -25,7 +25,7 @@ spec:
           - -vmUri=http://cms-monitoring.cern.ch:30422
           - "cms.wmarchive.exitCode.>"
           name: nats-sub
-          image: veknet/nats-sub
+          image: cmssw/nats-sub
           volumeMounts:
           - name: nats-secrets
             mountPath: /etc/nats
