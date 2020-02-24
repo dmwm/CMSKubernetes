@@ -64,6 +64,7 @@ import (
 type Ingress struct {
 	Path       string `json:"path"`        // url path to the service
 	ServiceUrl string `json:"service_url"` // service url
+	RemovePath string `json:"remove_path"` // remove path from url
 }
 
 // Configuration stores server configuration parameters
@@ -649,11 +650,19 @@ func auth_proxy_server(serverCrt, serverKey string) {
 			for _, rec := range Config.Ingress {
 				if strings.Contains(r.URL.Path, rec.Path) {
 					if Config.Verbose {
-						fmt.Println("ingress match", r.URL.Path, rec.Path, rec.ServiceUrl)
+						fmt.Printf("ingress request path %s, record path %s, service url %s, remove path %s\n", r.URL.Path, rec.Path, rec.ServiceUrl, rec.RemovePath)
 					}
-					//                     url := fmt.Sprintf("%s/%s", rec.ServiceUrl, r.URL.Path)
 					url := rec.ServiceUrl
-					fmt.Println("### serveReverseProxy", url)
+					if rec.RemovePath != "" {
+						r.URL.Path = strings.Replace(r.URL.Path, rec.RemovePath, "", 1)
+						if r.URL.Path == "" {
+							r.URL.Path = "/"
+						}
+						if Config.Verbose {
+							fmt.Printf("service url %s, new request path %s\n", url, r.URL.Path)
+						}
+					}
+					log.Println("serveReverseProxy", url, r.URL.Path)
 					serveReverseProxy(url, w, r)
 					return
 				}
