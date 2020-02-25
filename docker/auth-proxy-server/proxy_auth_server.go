@@ -641,7 +641,15 @@ func auth_proxy_server(serverCrt, serverKey string) {
 			}
 			setHeaders(userData, r)
 			if r.URL.Path == fmt.Sprintf("%s/token", Config.Base) {
-				msg := fmt.Sprintf("%s", sess.Get("rawIDToken"))
+				token := sess.Get("rawIDToken")
+				if token == nil { // cli request
+					if v, ok := r.Header["Authorization"]; ok {
+						if len(v) == 1 {
+							token = strings.Replace(v[0], "Bearer ", "", 1)
+						}
+					}
+				}
+				msg := fmt.Sprintf("%s", token)
 				if Config.Verbose {
 					printJSON(r.Header, "### request headers")
 				}
