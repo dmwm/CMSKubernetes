@@ -3,10 +3,12 @@ apiVersion: v1
 metadata:
   name: udp-server
 spec:
-  type: ClusterIP
+#   type: ClusterIP
+  type: NodePort
   ports:
   - port: 9331 # the port here is matching port used in cmssw/udp-server container
     targetPort: 9331
+    nodePort: 30331
     protocol: UDP
     name: http
   selector:
