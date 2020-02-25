@@ -51,12 +51,9 @@ spec:
           defaultMode: 256
         - name: www-htdocs
           mountPath: /www
-#         - name: proxy-secrets
-#           mountPath: /etc/proxy
-#           defaultMode: 256
       initContainers:
       - name: htdocs
-        image: veknet/htdocs
+        image: cmssw/htdocs
         command: ['sh', '-c', 'cp -r /www/* /tmp/htdocs']
         volumeMounts:
         - name: www-htdocs
@@ -67,6 +64,3 @@ spec:
           secretName: auth-secrets
       - name: www-htdocs
         emptyDir: {}
-#       - name: proxy-secrets
-#         secret:
-#           secretName: proxy-secrets
