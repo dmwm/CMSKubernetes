@@ -31,7 +31,7 @@ spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/workqueue:1.0.4
+      - image: cmssw/workqueue
         name: workqueue
         resources:
           requests:
