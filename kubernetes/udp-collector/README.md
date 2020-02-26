@@ -17,6 +17,13 @@ kubectl create secret generic udp-secrets \
 
 # deploy the service
 kubectl apply -f udp-server.yaml
+
+# add ingress controller
+kubectl apply -f ingress.yaml
+
+# label our nodes
+kubectl label node <minion-node> role=ingress --overwrite
+
 ```
 
 ### Adjusting NGINX ingress controller
@@ -39,6 +46,23 @@ udp:
 
 $ helm upgrade nginx-ingress stable/nginx-ingress --namespace=kube-system -f values.yaml --recreate-pods
 ```
+
+We also would like to disable standard ports 80 and 443 in our cluster to
+better comply with CERN security scan. To do that we need to add the following
+changes to values.yaml
+```
+controller:
+  containerPort: null
+...
+#   hostNetwork: true
+  hostNetwork: false
+...
+defaultBackend:
+  affinity: {}
+#   enabled: true
+  enabled: false
+```
+
 
 There is another way to do this via nginx configuration,
 please refer to this
