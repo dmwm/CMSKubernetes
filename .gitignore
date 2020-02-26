@@ -18,6 +18,8 @@ kubernetes/cmsweb/new
 kubernetes/cmsweb/CMSWeb-openrc.sh
 kubernetes/cmsweb-auth/configs/
 kubernetes/udp-collector/secrets
+kubernetes/udp-collector/config.*
+kubernetes/udp-collector/helm_home
 kubernetes/nats/secrets
 kubernetes/nats/logs
 kubernetes/nats/clients-auth.json
