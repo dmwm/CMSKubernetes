@@ -126,7 +126,7 @@ func udpServer() {
 		if Config.Endpoint != "" && stompConn != nil {
 			err = stompConn.Send(Config.Endpoint, Config.ContentType, data)
 			if err != nil {
-				log.Printf("Unable to send to %s, data %s, error %v", Config.Endpoint, string(data), err)
+				log.Printf("Stomp, unable to send to %s, data %s, error %v", Config.Endpoint, string(data), err)
 			} else {
 				if Config.Verbose {
 					log.Printf("send data to StompAMQ endpoint %s", Config.Endpoint)
