@@ -116,6 +116,16 @@ type TokenInfo struct {
 	IdToken       string `json:"id_token"`           // id token
 }
 
+// String convert TokenInfo into html snippet
+func (t *TokenInfo) String() string {
+	var s string
+	s = fmt.Sprintf("%s\nAccessToken:\n%s", s, t.AccessToken)
+	s = fmt.Sprintf("%s\nAccessExpire: %d", s, t.AccessExpire)
+	s = fmt.Sprintf("%s\nRefreshToken:\n%s", s, t.RefreshToken)
+	s = fmt.Sprintf("%s\nRefreshExpire: %d", s, t.RefreshExpire)
+	return s
+}
+
 // CMSAuth structure to create CMS Auth headers
 var CMSAuth cmsauth.CMSAuth
 
@@ -464,6 +474,7 @@ func serverRequestHandler(w http.ResponseWriter, r *http.Request) {
 	// if either is present we'll allow user request
 	userInfo := sess.Get("userinfo")
 	hasToken := checkAccessToken(r)
+	accept := r.Header["Accept"][0]
 	if userInfo != nil || hasToken {
 		// decode userInfo
 		var userData map[string]interface{}
@@ -511,9 +522,18 @@ func serverRequestHandler(w http.ResponseWriter, r *http.Request) {
 			} else {
 				rtoken = rt.(string)
 			}
-			texp := sess.Get("accessExpire").(int64)
-			rtexp := sess.Get("refreshExpire").(int64)
+			var texp, rtexp int64
+			if sess.Get("accessExpire") != nil {
+				texp = sess.Get("accessExpire").(int64)
+			}
+			if sess.Get("refreshExpire") != nil {
+				rtexp = sess.Get("refreshExpire").(int64)
+			}
 			tokenInfo := TokenInfo{AccessToken: token, RefreshToken: rtoken, AccessExpire: texp, RefreshExpire: rtexp, IdToken: token}
+			if !strings.Contains(strings.ToLower(accept), "json") {
+				w.Write([]byte(tokenInfo.String()))
+				return
+			}
 			data, err := json.Marshal(tokenInfo)
 			if err != nil {
 				msg := fmt.Sprintf("unable to marshal token info, %v", err)
@@ -544,6 +564,10 @@ func serverRequestHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			if Config.Verbose {
 				printJSON(tokenInfo, "new token info")
+			}
+			if !strings.Contains(strings.ToLower(accept), "json") {
+				w.Write([]byte(tokenInfo.String()))
+				return
 			}
 			data, err := json.Marshal(tokenInfo)
 			if err != nil {
