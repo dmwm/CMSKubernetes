@@ -13,17 +13,18 @@ authenticated and this codebase provides CMS X509 headers based on
 CMS CRIC meta-data. An additional hmac is set via cmsauth package.
 The server can be initialize either as HTTP or HTTPs and provides the
 following end-points
-- /token returns user based token
+- /token returns information about tokens
+- /renew renew user tokens
 - /callback handles the callback authentication requests
-- /clear clears global session
 - /server can be used to update server settings, e.g.
   curl -X POST -H"Content-type: application/json" -d '{"verbose":true}' https://a.b.com/server
   will update verbose level of the server
-- / performs reverse proxy redirects to user based path
+- / performs reverse proxy redirects to backends defined in ingress part of configuration
 
-Clients may obtain a token, see /token path, and use it in CLI access to the
-service, e.g.
+To access the server clients need to obtain an original token from web interface,
+and then they may use it for CLI access, e.g.
 curl -v -H "Authorization: Bearer $token" https://xxx.cern.ch/<path>
+If token needs to be renewed, clients should use /renew end-point
 
 CERN SSO OAuth2 OICD
    https://gitlab.cern.ch/authzsvc/docs/keycloak-sso-examples
@@ -37,7 +38,6 @@ Reverse proxy examples:
 
 import (
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -60,7 +60,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// Ingress configuration
+// Ingress part of server configuration
 type Ingress struct {
 	Path       string `json:"path"`        // url path to the service
 	ServiceUrl string `json:"service_url"` // service url
@@ -78,6 +78,7 @@ type Configuration struct {
 	DocumentRoot       string    `json:"document_root"`  // root directory for the server
 	OAuthUrl           string    `json:"oauth_url"`      // CERN SSO OAuth2 realm url
 	AuthTokenUrl       string    `json:"auth_token_url"` // CERN SSO OAuth2 OICD Token url
+	CMSHeaders         bool      `json:"cms_headers"`    // set CMS headers
 	RedirectUrl        string    `json:"redirect_url"`   // redirect auth url for proxy server
 	Verbose            bool      `json:"verbose"`        // verbose output
 	Ingress            []Ingress `json:"ingress"`        // incress section
@@ -94,7 +95,7 @@ type ServerSettings struct {
 	Verbose bool `json:"verbose"` // verbosity output
 }
 
-// TokenAttributes contains structure of valid token attributes
+// TokenAttributes contains structure of access token attributes
 type TokenAttributes struct {
 	UserName     string `json:"username"`      // user name
 	Active       bool   `json:"active"`        // is token active or not
@@ -106,26 +107,13 @@ type TokenAttributes struct {
 	ClientHost   string `json:"clientHost"`    // client host
 }
 
-// CricEntry represents structure in CRIC
-type CricEntry struct {
-	DN    string              `json:"DN"`    // CRIC DN
-	DNs   []string            `json:"DNs"`   // List of all DNs assigned to user
-	ID    int64               `json:"ID"`    // CRIC ID
-	Login string              `json:"LOGIN"` // CRIC Login name
-	Name  string              `json:"NAME"`  // CRIC user name
-	Roles map[string][]string `json:"ROLES"` // CRIC user roles
-}
-
-// String returns string representation of CricEntry
-func (c *CricEntry) String() string {
-	var roles string
-	for _, r := range c.Roles {
-		for _, v := range r {
-			roles = fmt.Sprintf("%s\n%v", roles, v)
-		}
-	}
-	r := fmt.Sprintf("ID: %d\nLogin: %s\nName: %s\nDN: %s\nDNs: %v\nRoles: %s", c.ID, c.Login, c.Name, c.DN, c.DNs, roles)
-	return r
+// TokenInfo contains information about all tokens
+type TokenInfo struct {
+	AccessToken   string `json:"access_token"`       // access token
+	AccessExpire  int64  `json:"expires_in"`         // access token expiration
+	RefreshToken  string `json:"refresh_token"`      // refresh token
+	RefreshExpire int64  `json:"refresh_expires_in"` // refresh token expireation
+	IdToken       string `json:"id_token"`           // id token
 }
 
 // CMSAuth structure to create CMS Auth headers
@@ -138,8 +126,19 @@ var globalSessions *session.Manager
 var Config Configuration
 
 // CricRecords list to hold CMS CRIC entries
-var CricRecords map[string]CricEntry
-var CricFileInfo os.FileInfo
+var CricRecords cmsauth.CricRecords
+
+// AuthTokenUrl holds url for token authentication
+var AuthTokenUrl string
+
+// OAuth2Config holds OAuth2 configuration
+var OAuth2Config oauth2.Config
+
+// Verifier is ID token verifier
+var Verifier *oidc.IDTokenVerifier
+
+// Context for our requests
+var Context context.Context
 
 // initialize global session manager
 func init() {
@@ -147,7 +146,7 @@ func init() {
 	go globalSessions.GC()
 }
 
-// ParseConfig parse given config file
+// helper function to parse server configuration file
 func parseConfig(configFile string) error {
 	data, err := ioutil.ReadFile(configFile)
 	if err != nil {
@@ -181,7 +180,7 @@ func parseConfig(configFile string) error {
 // helper function to print JSON data
 func printJSON(j interface{}, msg string) error {
 	if msg != "" {
-		fmt.Println(msg)
+		log.Println(msg)
 	}
 	var out []byte
 	var err error
@@ -189,13 +188,12 @@ func printJSON(j interface{}, msg string) error {
 	if err == nil {
 		fmt.Println(string(out))
 	}
-
 	return err
 }
 
-// helper function to print HTTP requests
-func printHTTPRequest(w http.ResponseWriter, r *http.Request, msg string) {
-	log.Printf("user request info: %s\n", msg)
+// helper function to print HTTP request information
+func printHTTPRequest(r *http.Request, msg string) {
+	log.Printf("HTTP request: %s\n", msg)
 	fmt.Println("TLS:", r.TLS)
 	fmt.Println("Header:", r.Header)
 
@@ -207,106 +205,6 @@ func printHTTPRequest(w http.ResponseWriter, r *http.Request, msg string) {
 	fmt.Printf("Host = %q\n", r.Host)
 	fmt.Printf("RemoteAddr= %q\n", r.RemoteAddr)
 	fmt.Printf("\n\nFinding value of \"Accept\" %q\n", r.Header["Accept"])
-}
-
-// getCricData helper function to download CRIC data
-func getCricData(rurl string) (map[string]CricEntry, error) {
-	cricRecords := make(map[string]CricEntry)
-	var entries []CricEntry
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	client := http.Client{Transport: tr}
-	req, err := http.NewRequest("GET", rurl, nil)
-	if err != nil {
-		return cricRecords, err
-	}
-	req.Header.Set("Accept", "application/json")
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Printf("Unable to place client request, %v", req)
-		return cricRecords, err
-	}
-	defer resp.Body.Close()
-	if Config.Verbose {
-		dump, err := httputil.DumpRequestOut(req, true)
-		log.Printf("http request: headers %v, request %v, response %s, error %v", req.Header, req, string(dump), err)
-	}
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Printf("Unable to read response, %v", resp)
-		return cricRecords, err
-	}
-	err = json.Unmarshal(body, &entries)
-	if err != nil {
-		return cricRecords, err
-	}
-	if Config.Verbose {
-		log.Printf("obtained %d records", len(entries))
-	}
-	// convert list of entries into a map
-	for _, rec := range entries {
-		recDNs := rec.DNs
-		if r, ok := cricRecords[rec.Login]; ok {
-			recDNs = r.DNs
-			recDNs = append(recDNs, rec.DN)
-			rec.DNs = recDNs
-			if Config.Verbose {
-				fmt.Printf("\nFound duplicate CRIC record\n%s\n%s\n", rec.String(), r.String())
-			}
-		} else {
-			recDNs = append(recDNs, rec.DN)
-			rec.DNs = recDNs
-		}
-		cricRecords[rec.Login] = rec
-	}
-	return cricRecords, nil
-}
-
-// parseCric helper function to parse cric file
-func parseCric(fname string) (map[string]CricEntry, error) {
-	cricRecords := make(map[string]CricEntry)
-	var entries []CricEntry
-	if fileInfo, err := os.Stat(fname); err == nil {
-		if CricFileInfo == nil || CricRecords == nil {
-			CricFileInfo = fileInfo
-		} else {
-			// check if file has changed, if not return all cric records
-			if fileInfo.Size() == CricFileInfo.Size() && fileInfo.ModTime() == CricFileInfo.ModTime() {
-				return CricRecords, nil
-			}
-		}
-		CricFileInfo = fileInfo
-		jsonFile, err := os.Open(fname)
-		if err != nil {
-			fmt.Println(err)
-			return cricRecords, err
-		}
-		defer jsonFile.Close()
-		byteValue, err := ioutil.ReadAll(jsonFile)
-		if err != nil {
-			fmt.Println(err)
-			return cricRecords, err
-		}
-		json.Unmarshal(byteValue, &entries)
-		// convert list of entries into a map
-		for _, rec := range entries {
-			recDNs := rec.DNs
-			if r, ok := cricRecords[rec.Login]; ok {
-				recDNs = r.DNs
-				recDNs = append(recDNs, rec.DN)
-				rec.DNs = recDNs
-				if Config.Verbose {
-					fmt.Printf("\nFound duplicate CRIC record\n%s\n%s\n", rec.String(), r.String())
-				}
-			} else {
-				recDNs = append(recDNs, rec.DN)
-				rec.DNs = recDNs
-			}
-			cricRecords[rec.Login] = rec
-		}
-	}
-	return cricRecords, nil
 }
 
 // Serve a reverse proxy for a given url
@@ -335,8 +233,8 @@ func serveReverseProxy(targetUrl string, res http.ResponseWriter, req *http.Requ
 }
 
 // helper function to verify/validate given token
-func introspectToken(authTokenUrl, token string) (TokenAttributes, error) {
-	verifyUrl := fmt.Sprintf("%s/introspect", authTokenUrl)
+func introspectToken(token string) (TokenAttributes, error) {
+	verifyUrl := fmt.Sprintf("%s/introspect", AuthTokenUrl)
 	form := url.Values{}
 	form.Add("token", token)
 	form.Add("client_id", Config.ClientID)
@@ -373,8 +271,51 @@ func introspectToken(authTokenUrl, token string) (TokenAttributes, error) {
 
 }
 
+// helper function to renew access token of the client
+func renewToken(token string, r *http.Request) (TokenInfo, error) {
+	if token == "" {
+		msg := fmt.Sprintf("empty authorization token")
+		return TokenInfo{}, errors.New(msg)
+	}
+	form := url.Values{}
+	form.Add("refresh_token", token)
+	form.Add("grant_type", "refresh_token")
+	form.Add("client_id", Config.ClientID)
+	form.Add("client_secret", Config.ClientSecret)
+	r, err := http.NewRequest("POST", AuthTokenUrl, strings.NewReader(form.Encode()))
+	if err != nil {
+		msg := fmt.Sprintf("unable to POST request to %s, %v", AuthTokenUrl, err)
+		return TokenInfo{}, errors.New(msg)
+	}
+	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	r.Header.Add("User-Agent", "go-client")
+	client := http.Client{}
+	if Config.Verbose {
+		dump, err := httputil.DumpRequestOut(r, true)
+		log.Println("request", string(dump), err)
+	}
+	resp, err := client.Do(r)
+	if Config.Verbose {
+		dump, err := httputil.DumpResponse(resp, true)
+		log.Println("response", string(dump), err)
+	}
+	if err != nil {
+		msg := fmt.Sprintf("validate error: %+v", err)
+		return TokenInfo{}, errors.New(msg)
+	}
+	defer resp.Body.Close()
+	var tokenInfo TokenInfo
+	err = json.NewDecoder(resp.Body).Decode(&tokenInfo)
+	if err != nil {
+		msg := fmt.Sprintf("unable to decode response body: %+v", err)
+		return TokenInfo{}, errors.New(msg)
+	}
+	return tokenInfo, nil
+}
+
 // helper function to check access token of the client
-func checkAccessToken(authTokenUrl string, r *http.Request) bool {
+// it is done via introspect auth end-point
+func checkAccessToken(r *http.Request) bool {
 	// extract token from a request
 	tokenStr := r.Header.Get("Authorization")
 	if tokenStr == "" {
@@ -384,7 +325,7 @@ func checkAccessToken(authTokenUrl string, r *http.Request) bool {
 	arr := strings.Split(tokenStr, " ")
 	token := arr[len(arr)-1]
 	// verify token
-	attrs, err := introspectToken(authTokenUrl, token)
+	attrs, err := introspectToken(token)
 	if err != nil {
 		msg := fmt.Sprintf("unable to verify token: %+v", err)
 		log.Println(msg)
@@ -396,66 +337,288 @@ func checkAccessToken(authTokenUrl string, r *http.Request) bool {
 		return false
 	}
 	if Config.Verbose {
-		if err := printJSON(attrs, "### token attributes"); err != nil {
+		if err := printJSON(attrs, "token attributes"); err != nil {
 			msg := fmt.Sprintf("Failed to output token attributes: %v", err)
 			log.Println(msg)
 		}
 	}
-	r.Header.Set("cms-scope", attrs.Scope)
-	r.Header.Set("cms-host", attrs.ClientHost)
-	r.Header.Set("cms-client-id", attrs.ClientID)
+	r.Header.Set("scope", attrs.Scope)
+	r.Header.Set("client-host", attrs.ClientHost)
+	r.Header.Set("client-id", attrs.ClientID)
 	return true
 }
 
-// helper function to set headers based on provider user data
-func setHeaders(userData map[string]interface{}, r *http.Request) {
-	if Config.Verbose {
-		if err := printJSON(userData, "### user data"); err != nil {
-			log.Println("unable to print user data")
-		}
-		fmt.Println("### r.URL", r.URL)
+// setting handler function, i.e. it can be used to change server settings
+func serverSettingsHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
 	}
-	// set cms auth headers
-	r.Header.Set("cms-auth-status", "ok")
-	r.Header.Set("cms-authn-name", iString(userData["name"]))
-	login := iString(userData["cern_upn"])
-	if rec, ok := CricRecords[login]; ok {
-		// set DN
-		r.Header.Set("cms-authn-dn", rec.DN)
-		r.Header.Set("cms-auth-cert", rec.DN)
-		// set group roles
-		for k, v := range rec.Roles {
-			key := fmt.Sprintf("cms-authz-%s", k)
-			val := strings.Join(v, " ")
-			r.Header.Set(key, val)
-		}
+	defer r.Body.Close()
+	var s = ServerSettings{}
+	err := json.NewDecoder(r.Body).Decode(&s)
+	if err != nil {
+		log.Printf("unable to unmarshal incoming request, error %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
-	r.Header.Set("cms-authn-login", login)
-	r.Header.Set("cms-authn-method", "X509Cert")
-	r.Header.Set("cms-cern-id", iString(userData["cern_person_id"]))
-	r.Header.Set("cms-email", iString(userData["email"]))
-	r.Header.Set("cms-auth-time", iString(userData["auth_time"]))
-	r.Header.Set("cms-auth-expire", iString(userData["exp"]))
-	r.Header.Set("cms-session", iString(userData["session_state"]))
-	r.Header.Set("cms-request-uri", r.URL.Path)
-	hmac, err := CMSAuth.GetHmac(r, Config.Verbose)
-	if err == nil {
-		r.Header.Set("cms-authn-hmac", hmac)
-	}
+	Config.Verbose = s.Verbose
+	log.Println("Update verbose level of config", Config)
+	w.WriteHeader(http.StatusOK)
+	return
 }
 
-// helper function to return string representation of interface value
-func iString(v interface{}) string {
-	switch t := v.(type) {
-	case []byte:
-		return string(t)
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-		return fmt.Sprintf("%d", t)
-	case float32, float64:
-		return fmt.Sprintf("%d", int64(t.(float64)))
-	default:
-		return fmt.Sprintf("%v", t)
+// callback handler function performs authentication callback and obtain
+// user tokens
+func serverCallbackHandler(w http.ResponseWriter, r *http.Request) {
+	sess := globalSessions.SessionStart(w, r)
+	if Config.Verbose {
+		msg := fmt.Sprintf("call from '/callback', r.URL %s, sess.path %v", r.URL, sess.Get("path"))
+		printHTTPRequest(r, msg)
 	}
+	state := sess.Get("somestate")
+	if state == nil {
+		http.Error(w, fmt.Sprintf("state did not match, %v", state), http.StatusBadRequest)
+		return
+	}
+	if r.URL.Query().Get("state") != state.(string) {
+		http.Error(w, fmt.Sprintf("r.URL state did not match, %v", state), http.StatusBadRequest)
+		return
+	}
+
+	//exchanging the code for a token
+	oauth2Token, err := OAuth2Config.Exchange(Context, r.URL.Query().Get("code"))
+	if err != nil {
+		http.Error(w, "Failed to exchange token: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if Config.Verbose {
+		log.Println("oauth2Token", oauth2Token)
+	}
+	rawIDToken, ok := oauth2Token.Extra("id_token").(string)
+	if !ok {
+		http.Error(w, "No id_token field in oauth2 token.", http.StatusInternalServerError)
+		return
+	}
+	refreshToken, ok := oauth2Token.Extra("refresh_token").(string)
+	refreshExpire, ok := oauth2Token.Extra("refresh_expires_in").(float64)
+	accessExpire, ok := oauth2Token.Extra("expires_in").(float64)
+	if Config.Verbose {
+		log.Println("rawIDToken", rawIDToken)
+	}
+	idToken, err := Verifier.Verify(Context, rawIDToken)
+	if err != nil {
+		http.Error(w, "Failed to verify ID Token: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	//preparing the data to be presented on the page
+	//it includes the tokens and the user info
+	resp := struct {
+		OAuth2Token   *oauth2.Token
+		IDTokenClaims *json.RawMessage // ID Token payload is just JSON.
+	}{oauth2Token, new(json.RawMessage)}
+
+	err = idToken.Claims(&resp.IDTokenClaims)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.MarshalIndent(resp, "", "    ")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	//storing the token and the info of the user in session memory
+	sess.Set("rawIDToken", rawIDToken)
+	sess.Set("refreshToken", refreshToken)
+	sess.Set("refreshExpire", int64(refreshExpire))
+	sess.Set("accessExpire", int64(accessExpire))
+	sess.Set("userinfo", resp.IDTokenClaims)
+	urlPath := sess.Get("path").(string)
+	if Config.Verbose {
+		log.Println("session data", string(data))
+		log.Println("redirect to", urlPath)
+	}
+	http.Redirect(w, r, urlPath, http.StatusFound)
+	return
+}
+
+// server request handler performs reverse proxy action on incoming user request
+// the proxy redirection is based on Config.Ingress dictionary, see Configuration
+// struct. The only exceptions are /token and /renew end-points which used internally
+// to display or renew user tokens, respectively
+func serverRequestHandler(w http.ResponseWriter, r *http.Request) {
+	sess := globalSessions.SessionStart(w, r)
+	if Config.Verbose {
+		msg := fmt.Sprintf("call from '/', r.URL %s, sess.Path %v", r.URL, sess.Get("path"))
+		printHTTPRequest(r, msg)
+	}
+	oauthState := uuid.New().String()
+	sess.Set("somestate", oauthState)
+	if sess.Get("path") == nil || sess.Get("path") == "" {
+		sess.Set("path", r.URL.Path)
+	}
+	// checking the userinfo in the session or if client provides valid access token.
+	// if either is present we'll allow user request
+	userInfo := sess.Get("userinfo")
+	hasToken := checkAccessToken(r)
+	if userInfo != nil || hasToken {
+		// decode userInfo
+		var userData map[string]interface{}
+		switch t := userInfo.(type) {
+		case *json.RawMessage:
+			err := json.Unmarshal(*t, &userData)
+			if err != nil {
+				msg := fmt.Sprintf("unable to decode user data, %v", err)
+				http.Error(w, msg, http.StatusInternalServerError)
+				return
+			}
+		}
+		// set CMS headers
+		if Config.CMSHeaders {
+			if Config.Verbose {
+				if err := printJSON(userData, "user data"); err != nil {
+					log.Println("unable to print user data")
+				}
+			}
+			CMSAuth.SetCMSHeaders(r, userData, CricRecords, Config.Verbose)
+			if Config.Verbose {
+				printHTTPRequest(r, "cms headers")
+			}
+		}
+		// return token back to the user
+		if r.URL.Path == fmt.Sprintf("%s/token", Config.Base) {
+			var token, rtoken string
+			t := sess.Get("rawIDToken")
+			rt := sess.Get("refreshToken")
+			if t == nil { // cli request
+				if v, ok := r.Header["Authorization"]; ok {
+					if len(v) == 1 {
+						token = strings.Replace(v[0], "Bearer ", "", 1)
+					}
+				}
+			} else {
+				token = t.(string)
+			}
+			if rt == nil { // cli request
+				if v, ok := r.Header["Refresh-Token"]; ok {
+					if len(v) == 1 {
+						rtoken = v[0]
+					}
+				}
+			} else {
+				rtoken = rt.(string)
+			}
+			texp := sess.Get("accessExpire").(int64)
+			rtexp := sess.Get("refreshExpire").(int64)
+			tokenInfo := TokenInfo{AccessToken: token, RefreshToken: rtoken, AccessExpire: texp, RefreshExpire: rtexp, IdToken: token}
+			data, err := json.Marshal(tokenInfo)
+			if err != nil {
+				msg := fmt.Sprintf("unable to marshal token info, %v", err)
+				http.Error(w, msg, http.StatusInternalServerError)
+				return
+			}
+			w.Write(data)
+			return
+		}
+		// renew existing token
+		if r.URL.Path == fmt.Sprintf("%s/renew", Config.Base) {
+			var token string
+			t := sess.Get("refreshToken")
+			if t == nil { // cli request
+				if v, ok := r.Header["Authorization"]; ok {
+					if len(v) == 1 {
+						token = strings.Replace(v[0], "Bearer ", "", 1)
+					}
+				}
+			} else {
+				token = t.(string)
+			}
+			tokenInfo, err := renewToken(token, r)
+			if err != nil {
+				msg := fmt.Sprintf("unable to refresh access token, %v", err)
+				http.Error(w, msg, http.StatusInternalServerError)
+				return
+			}
+			if Config.Verbose {
+				printJSON(tokenInfo, "new token info")
+			}
+			data, err := json.Marshal(tokenInfo)
+			if err != nil {
+				msg := fmt.Sprintf("unable to marshal token info, %v", err)
+				http.Error(w, msg, http.StatusInternalServerError)
+				return
+			}
+			w.Write(data)
+			return
+		}
+		// if Configuration provides Ingress rules we'll use them
+		// to redirect user request
+		for _, rec := range Config.Ingress {
+			if strings.Contains(r.URL.Path, rec.Path) {
+				if Config.Verbose {
+					log.Printf("ingress request path %s, record path %s, service url %s, old path %s, new path %s\n", r.URL.Path, rec.Path, rec.ServiceUrl, rec.OldPath, rec.NewPath)
+				}
+				url := rec.ServiceUrl
+				if rec.OldPath != "" {
+					// replace old path to new one, e.g. /couchdb/_all_dbs => /_all_dbs
+					r.URL.Path = strings.Replace(r.URL.Path, rec.OldPath, rec.NewPath, 1)
+					// if r.URL.Path ended with "/", remove it to avoid
+					// cases /path/index.html/ after old->new path substitution
+					r.URL.Path = strings.TrimSuffix(r.URL.Path, "/")
+					// replace empty path with root path
+					if r.URL.Path == "" {
+						r.URL.Path = "/"
+					}
+					if Config.Verbose {
+						log.Printf("service url %s, new request path %s\n", url, r.URL.Path)
+					}
+				}
+				log.Println("serveReverseProxy", url, r.URL.Path)
+				serveReverseProxy(url, w, r)
+				return
+			}
+		}
+		// if no redirection was done, then we'll use either TargetURL
+		// or return Hello reply
+		if Config.TargetUrl != "" {
+			serveReverseProxy(Config.TargetUrl, w, r)
+		} else {
+			if Config.DocumentRoot != "" {
+				fname := fmt.Sprintf("%s%s", Config.DocumentRoot, r.URL.Path)
+				if strings.HasSuffix(fname, "css") {
+					w.Header().Set("Content-Type", "text/css")
+				} else if strings.HasSuffix(fname, "js") {
+					w.Header().Set("Content-Type", "application/javascript")
+				}
+				if r.URL.Path == "/" {
+					fname = fmt.Sprintf("%s/index.html", Config.DocumentRoot)
+				}
+				if _, err := os.Stat(fname); err == nil {
+					body, err := ioutil.ReadFile(fname)
+					if err == nil {
+						data := []byte(body)
+						w.Write(data)
+						return
+					}
+				}
+			}
+			msg := fmt.Sprintf("Hello %s", r.URL.Path)
+			data := []byte(msg)
+			w.Write(data)
+			return
+		}
+		return
+	}
+	// there is no proper authentication yet, redirect users to auth callback
+	aurl := OAuth2Config.AuthCodeURL(oauthState)
+	if Config.Verbose {
+		log.Println("auth redirect to", aurl)
+	}
+	http.Redirect(w, r, aurl, http.StatusFound)
+	return
 }
 
 // auth server provides reverse proxy functionality with
@@ -476,250 +639,44 @@ func auth_proxy_server(serverCrt, serverKey string) {
 	}
 
 	// authTokenUrl defines where token can be obtained
-	authTokenUrl := fmt.Sprintf("%s/protocol/openid-connect/token", Config.OAuthUrl)
+	AuthTokenUrl = fmt.Sprintf("%s/protocol/openid-connect/token", Config.OAuthUrl)
 	if Config.AuthTokenUrl != "" {
-		authTokenUrl = Config.AuthTokenUrl
+		AuthTokenUrl = Config.AuthTokenUrl
 	}
 
 	// Provider is a struct in oidc package that represents
 	// an OpenID Connect server's configuration.
-	ctx := context.Background()
-	provider, err := oidc.NewProvider(ctx, Config.OAuthUrl)
+	Context = context.Background()
+	provider, err := oidc.NewProvider(Context, Config.OAuthUrl)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
-	// Configure an OpenID Connect aware OAuth2 client.
-	oauth2Config := oauth2.Config{
+	// configure an OpenID Connect aware OAuth2 client
+	OAuth2Config = oauth2.Config{
 		ClientID:     Config.ClientID,
 		ClientSecret: Config.ClientSecret,
 		RedirectURL:  redirectUrl,
-		// Discovery returns the OAuth2 endpoints.
-		Endpoint: provider.Endpoint(),
-		// "openid" is a required scope for OpenID Connect flows.
-		Scopes: []string{oidc.ScopeOpenID, "profile", "email"},
+		Endpoint:     provider.Endpoint(),
+		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
 	}
-	state := "somestate"
-	oidcConfig := &oidc.Config{
-		ClientID: Config.ClientID,
-	}
-	verifier := provider.Verifier(oidcConfig)
 
-	// handling the callback authentication requests
-	u := fmt.Sprintf("%s/server", Config.Base)
-	http.HandleFunc(u, func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != "POST" {
-			w.WriteHeader(http.StatusMethodNotAllowed)
-			return
-		}
-		defer r.Body.Close()
-		var s = ServerSettings{}
-		err := json.NewDecoder(r.Body).Decode(&s)
-		if err != nil {
-			log.Printf("unable to unmarshal incoming request, error %v", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		Config.Verbose = s.Verbose
-		log.Println("Update verbose level of config", Config)
-		w.WriteHeader(http.StatusOK)
-		return
-	})
+	// define token ID verifier
+	oidcConfig := &oidc.Config{ClientID: Config.ClientID}
+	Verifier = provider.Verifier(oidcConfig)
 
-	// handling the callback authentication requests
-	u = fmt.Sprintf("%s/callback", Config.Base)
-	http.HandleFunc(u, func(w http.ResponseWriter, r *http.Request) {
-		sess := globalSessions.SessionStart(w, r)
-		if Config.Verbose {
-			msg := fmt.Sprintf("call from '/callback', r.URL %s, sess.path %v", r.URL, sess.Get("path"))
-			printHTTPRequest(w, r, msg)
-		}
-		state := sess.Get(state)
-		if state == nil {
-			http.Error(w, fmt.Sprintf("state did not match, %v", state), http.StatusBadRequest)
-			return
-		}
-		if r.URL.Query().Get("state") != state.(string) {
-			http.Error(w, fmt.Sprintf("r.URL state did not match, %v", state), http.StatusBadRequest)
-			return
-		}
+	// define server handlers
 
-		//exchanging the code for a token
-		oauth2Token, err := oauth2Config.Exchange(ctx, r.URL.Query().Get("code"))
-		if err != nil {
-			http.Error(w, "Failed to exchange token: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if Config.Verbose {
-			fmt.Println("### oauth2Token", oauth2Token)
-		}
-		rawIDToken, ok := oauth2Token.Extra("id_token").(string)
-		if !ok {
-			http.Error(w, "No id_token field in oauth2 token.", http.StatusInternalServerError)
-			return
-		}
-		if Config.Verbose {
-			fmt.Println("### rawIDToken", rawIDToken)
-		}
-		idToken, err := verifier.Verify(ctx, rawIDToken)
-		if err != nil {
-			http.Error(w, "Failed to verify ID Token: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
+	// the server settings handler
+	http.HandleFunc(fmt.Sprintf("%s/server", Config.Base), serverSettingsHandler)
 
-		//preparing the data to be presented on the page
-		//it includes the tokens and the user info
-		resp := struct {
-			OAuth2Token   *oauth2.Token
-			IDTokenClaims *json.RawMessage // ID Token payload is just JSON.
-		}{oauth2Token, new(json.RawMessage)}
+	// the callback authentication handler
+	http.HandleFunc(fmt.Sprintf("%s/callback", Config.Base), serverCallbackHandler)
 
-		err = idToken.Claims(&resp.IDTokenClaims)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		data, err := json.MarshalIndent(resp, "", "    ")
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+	// the request handler
+	http.HandleFunc("/", serverRequestHandler)
 
-		//storing the token and the info of the user in session memory
-		sess.Set("rawIDToken", rawIDToken)
-		sess.Set("userinfo", resp.IDTokenClaims)
-		urlPath := sess.Get("path").(string)
-		if Config.Verbose {
-			fmt.Println("### session data", string(data))
-			fmt.Println("### redirect to", urlPath)
-		}
-		http.Redirect(w, r, urlPath, http.StatusFound)
-		return
-	})
-
-	// handling the clearance of user session
-	u = fmt.Sprintf("%s/clear", Config.Base)
-	http.HandleFunc(u, func(w http.ResponseWriter, r *http.Request) {
-		sess := globalSessions.SessionStart(w, r)
-		sess.Delete("userinfo")
-		sess.Delete("rawIDToken")
-		sess.Delete(state)
-		globalSessions.SessionDestroy(w, r)
-		msg := "User session is cleared"
-		data := []byte(msg)
-		w.Write(data)
-		return
-	})
-
-	// handling the user request
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		sess := globalSessions.SessionStart(w, r)
-		if Config.Verbose {
-			msg := fmt.Sprintf("call from '/', r.URL %s, sess.Path %v", r.URL, sess.Get("path"))
-			printHTTPRequest(w, r, msg)
-		}
-		oauthState := uuid.New().String()
-		sess.Set(state, oauthState)
-		if sess.Get("path") == nil || sess.Get("path") == "" {
-			sess.Set("path", r.URL.Path)
-		}
-		// checking the userinfo in the session or if client provides valid access token.
-		// if either is present we'll allow user request
-		userInfo := sess.Get("userinfo")
-		hasToken := checkAccessToken(authTokenUrl, r)
-		if userInfo != nil || hasToken {
-			// decode userInfo
-			var userData map[string]interface{}
-			switch t := userInfo.(type) {
-			case *json.RawMessage:
-				err := json.Unmarshal(*t, &userData)
-				if err != nil {
-					msg := fmt.Sprintf("unable to decode user data, %v", err)
-					http.Error(w, msg, http.StatusInternalServerError)
-					return
-				}
-			}
-			setHeaders(userData, r)
-			if r.URL.Path == fmt.Sprintf("%s/token", Config.Base) {
-				token := sess.Get("rawIDToken")
-				if token == nil { // cli request
-					if v, ok := r.Header["Authorization"]; ok {
-						if len(v) == 1 {
-							token = strings.Replace(v[0], "Bearer ", "", 1)
-						}
-					}
-				}
-				msg := fmt.Sprintf("%s", token)
-				if Config.Verbose {
-					printJSON(r.Header, "### request headers")
-				}
-				data := []byte(msg)
-				w.Write(data)
-				return
-			}
-			for _, rec := range Config.Ingress {
-				if strings.Contains(r.URL.Path, rec.Path) {
-					if Config.Verbose {
-						fmt.Printf("ingress request path %s, record path %s, service url %s, old path %s, new path %s\n", r.URL.Path, rec.Path, rec.ServiceUrl, rec.OldPath, rec.NewPath)
-					}
-					url := rec.ServiceUrl
-					if rec.OldPath != "" {
-						// replace old path to new one, e.g. /couchdb/_all_dbs => /_all_dbs
-						r.URL.Path = strings.Replace(r.URL.Path, rec.OldPath, rec.NewPath, 1)
-						// if r.URL.Path ended with "/", remove it to avoid
-						// cases /path/index.html/ after old->new path substitution
-						r.URL.Path = strings.TrimSuffix(r.URL.Path, "/")
-						// replace empty path with root path
-						if r.URL.Path == "" {
-							r.URL.Path = "/"
-						}
-						if Config.Verbose {
-							fmt.Printf("service url %s, new request path %s\n", url, r.URL.Path)
-						}
-					}
-					log.Println("serveReverseProxy", url, r.URL.Path)
-					serveReverseProxy(url, w, r)
-					return
-				}
-			}
-			if Config.TargetUrl == "" {
-				if Config.DocumentRoot != "" {
-					fname := fmt.Sprintf("%s%s", Config.DocumentRoot, r.URL.Path)
-					if strings.HasSuffix(fname, "css") {
-						w.Header().Set("Content-Type", "text/css")
-					} else if strings.HasSuffix(fname, "js") {
-						w.Header().Set("Content-Type", "application/javascript")
-					}
-					if r.URL.Path == "/" {
-						fname = fmt.Sprintf("%s/index.html", Config.DocumentRoot)
-					}
-					if _, err := os.Stat(fname); err == nil {
-						body, err := ioutil.ReadFile(fname)
-						if err == nil {
-							data := []byte(body)
-							w.Write(data)
-							return
-						}
-					}
-				}
-				msg := fmt.Sprintf("Hello %s", r.URL.Path)
-				data := []byte(msg)
-				w.Write(data)
-				return
-			} else {
-				serveReverseProxy(Config.TargetUrl, w, r)
-			}
-			return
-		}
-		// there is no proper authentication, redirect users to auth callback
-		aurl := oauth2Config.AuthCodeURL(oauthState)
-		if Config.Verbose {
-			fmt.Println("### redirect", aurl)
-		}
-		http.Redirect(w, r, aurl, http.StatusFound)
-		return
-	})
-
+	// start HTTP or HTTPs server based on provided configuration
 	addr := fmt.Sprintf(":%d", Config.Port)
 	if serverCrt != "" && serverKey != "" {
 		//start HTTPS server which require user certificates
@@ -742,7 +699,7 @@ func main() {
 		CMSAuth.Init(Config.Hmac)
 		// update periodically cric records
 		go func() {
-			cricRecords := make(map[string]CricEntry)
+			cricRecords := make(cmsauth.CricRecords)
 			var err error
 			for {
 				interval := Config.UpdateCricInterval
@@ -751,10 +708,10 @@ func main() {
 				}
 				// parse cric records
 				if Config.CricUrl != "" {
-					cricRecords, err = getCricData(Config.CricUrl)
+					cricRecords, err = cmsauth.GetCricData(Config.CricUrl, Config.Verbose)
 					log.Printf("obtain CRIC records from %s, %v", Config.CricUrl, err)
 				} else if Config.CricFile != "" {
-					cricRecords, err = parseCric(Config.CricFile)
+					cricRecords, err = cmsauth.ParseCric(Config.CricFile, Config.Verbose)
 					log.Printf("obtain CRIC records from %s, %v", Config.CricFile, err)
 				} else {
 					log.Println("Untable to get CRIC records no file or no url was provided")
