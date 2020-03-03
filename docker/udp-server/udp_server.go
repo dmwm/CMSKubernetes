@@ -8,6 +8,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"io/ioutil"
 	"log"
@@ -17,16 +18,20 @@ import (
 	"github.com/go-stomp/stomp"
 )
 
+// global pointer to Stomp connection
+var stompConn *stomp.Conn
+
 // Configuration stores server configuration parameters
 type Configuration struct {
-	Port          int    `json:"port"`          // server port number
-	BufSize       int    `json:"bufSize"`       // buffer size
-	StompURI      string `json:"stompURI"`      // StompAMQ URI
-	StompLogin    string `json:"stompLogin"`    // StompAQM login name
-	StompPassword string `json:"stompPassword"` // StompAQM password
-	Endpoint      string `json:"endpoint"`      // StompAMQ endpoint
-	ContentType   string `json:"contentType"`   // ContentType of UDP packet
-	Verbose       bool   `json:"verbose"`       // verbose output
+	Port            int    `json:"port"`            // server port number
+	BufSize         int    `json:"bufSize"`         // buffer size
+	StompURI        string `json:"stompURI"`        // StompAMQ URI
+	StompLogin      string `json:"stompLogin"`      // StompAQM login name
+	StompPassword   string `json:"stompPassword"`   // StompAQM password
+	StompIterations int    `json:"stompIterations"` // Stomp iterations
+	Endpoint        string `json:"endpoint"`        // StompAMQ endpoint
+	ContentType     string `json:"contentType"`     // ContentType of UDP packet
+	Verbose         bool   `json:"verbose"`         // verbose output
 }
 
 var Config Configuration
@@ -50,14 +55,57 @@ func parseConfig(configFile string) error {
 	if Config.BufSize == 0 {
 		Config.BufSize = 1024 // 1 KByte
 	}
+	if Config.StompIterations == 0 {
+		Config.StompIterations = 3
+	}
 	if Config.ContentType == "" {
 		Config.ContentType = "application/json"
 	}
 	return nil
 }
 
-// send data to StompAMQ endpoint
-func sendStomp() {
+// StompConnection returns Stomp connection
+func StompConnection() (*stomp.Conn, error) {
+	if Config.StompURI == "" {
+		err := errors.New("Unable to connect to Stomp, not URI")
+		return nil, err
+	}
+	if Config.StompLogin == "" {
+		err := errors.New("Unable to connect to Stomp, not login")
+		return nil, err
+	}
+	if Config.StompPassword == "" {
+		err := errors.New("Unable to connect to Stomp, not password")
+		return nil, err
+	}
+	conn, err := stomp.Dial("tcp",
+		Config.StompURI,
+		stomp.ConnOpt.Login(Config.StompLogin, Config.StompPassword))
+	if err != nil {
+		log.Printf("Unable to connect to %s, error %v", Config.StompURI, err)
+	}
+	if Config.Verbose {
+		log.Printf("connected to StompAMQ server %s %v", Config.StompURI, conn)
+	}
+	return conn, err
+}
+
+func sendDataToStomp(data []byte) {
+	for i := 0; i < Config.StompIterations; i++ {
+		err := stompConn.Send(Config.Endpoint, Config.ContentType, data)
+		if err != nil {
+			log.Printf("Stomp, unable to send data to %s, data %s, error %v, iteration %d", Config.Endpoint, string(data), err, i)
+			if stompConn != nil {
+				stompConn.Disconnect()
+			}
+			stompConn, err = StompConnection()
+		} else {
+			if Config.Verbose {
+				log.Printf("send data to StompAMQ endpoint %s", Config.Endpoint)
+			}
+			return
+		}
+	}
 }
 
 // udp server implementation
@@ -73,18 +121,7 @@ func udpServer() {
 	defer conn.Close()
 	log.Printf("UDP server %s\n", conn.LocalAddr().String())
 
-	var stompConn *stomp.Conn
-	if Config.StompURI != "" && Config.StompLogin != "" && Config.StompPassword != "" {
-		stompConn, err = stomp.Dial("tcp",
-			Config.StompURI,
-			stomp.ConnOpt.Login(Config.StompLogin, Config.StompPassword))
-		if err != nil {
-			log.Printf("Unable to connect to %s, error %v", Config.StompURI, err)
-		}
-		if Config.Verbose {
-			log.Printf("connected to StompAMQ server %s %v", Config.StompURI, stompConn)
-		}
-	}
+	stompConn, err = StompConnection()
 	// defer stomp connection if it exists
 	if stompConn != nil {
 		defer stompConn.Disconnect()
@@ -114,6 +151,9 @@ func udpServer() {
 			if bufSize > 100*Config.BufSize {
 				log.Fatal("unable to unmarshal UDP packet into JSON with buffer size %d", bufSize)
 			}
+			// at this point we already read from UDP connection and our
+			// message didn't fit into buffer therefore we may skip the rest
+			continue
 		}
 
 		// dump message to our log
@@ -124,14 +164,7 @@ func udpServer() {
 
 		// send data to Stomp endpoint
 		if Config.Endpoint != "" && stompConn != nil {
-			err = stompConn.Send(Config.Endpoint, Config.ContentType, data)
-			if err != nil {
-				log.Printf("Stomp, unable to send to %s, data %s, error %v", Config.Endpoint, string(data), err)
-			} else {
-				if Config.Verbose {
-					log.Printf("send data to StompAMQ endpoint %s", Config.Endpoint)
-				}
-			}
+			sendDataToStomp(data)
 		}
 
 		// clear-up our buffer
