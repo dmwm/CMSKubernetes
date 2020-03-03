@@ -34,7 +34,7 @@ deployment=$2
 # global definitions
 project=${OS_PROJECT_NAME:-"CMS Web"}
 cluster=${CLUSTER:-"monitoring-cluster"}
-template=${TMPL:-"kubernetes-1.15.3-3"}
+template=${TEMPLATE:-"kubernetes-1.15.3-3"}
 keypair=${KEY:-"cloud"}
 secrets="prometheus-secrets nats-secrets spider-specrets udp-secrets"
 services="prometheus pushgateway victoria-metrics victoria-metrics-test nats-sub-exitcode nats-sub-stats nats-sub-t1 nats-sub-t2 udp-server"
@@ -198,7 +198,7 @@ create()
     if [ "$deployment" == "cluster" ]; then
         echo
         openstack --os-project-name "$project" coe cluster template list
-        openstack --os-project-name "$project" coe cluster create --keypair $keypair --cluster-template $template $cluster --node-count 2 --flavor=m2.2xlarge
+        openstack --os-project-name "$project" coe cluster create --keypair $keypair --cluster-template $template $cluster --node-count 3 --flavor=m2.xlarge --master-count 2
         watch -d openstack coe cluster list
         printf "* Finished creating cluster.\n"
 

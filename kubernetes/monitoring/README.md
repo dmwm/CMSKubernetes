@@ -23,8 +23,12 @@ cd CMSKubernetes/monitoring
 # clone CMS Monitoring secrets repository
 git clone https://:@gitlab.cern.ch:8443/cms-monitoring/secrets.git
 
+# create new template for a cluster creation
+tmpl=cmsmonit-`date +%Y%m%d`
+./create_template.sh $tmpl
+
 # create a new cluster
-./deploy.sh create cluster
+CLUSTER=<NAME_OF_YOUR_CLUSTER> TEMPALTE=$tmpl ./deploy.sh create cluster
 
 # deploy cluster services
 deploy.sh create services
