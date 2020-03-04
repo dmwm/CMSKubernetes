@@ -4,4 +4,7 @@
 
 /usr/sbin/crond 
 
+mkdir -p /var/log/rucio/
+chown -R apache /var/log/rucio/
+
 /docker-entrypoint.sh

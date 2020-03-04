@@ -51,8 +51,9 @@ kubectl create secret generic ${DAEMON_NAME}-host-cert --from-file=hostcert.pem
 kubectl create secret generic ${DAEMON_NAME}-host-key --from-file=hostkey.pem
 kubectl create secret generic ${DAEMON_NAME}-cafile  --from-file=ca.pem
 
-kubectl create secret generic ${UI_NAME}-hostcert --from-file=hostcert.pem
-kubectl create secret generic ${UI_NAME}-hostkey --from-file=hostkey.pem
+export UI_NAME=webui
+kubectl create secret generic ${UI_NAME}-host-cert --from-file=hostcert.pem
+kubectl create secret generic ${UI_NAME}-host-key --from-file=hostkey.pem
 # See below for CA for WebUI
 
 # Secrets for FTS, hermes
@@ -71,5 +72,13 @@ kubectl create secret generic ${UI_NAME}-cafile  --from-file=ca.pem
 
 # Clean up
 rm tls.key tls.crt hostkey.pem hostcert.pem ca.pem
+
+# Bundle may not be enough, build a whole directory of certificates
+mkdir /tmp/reaper-certs
+cp /etc/grid-security/certificates/*.0 /tmp/reaper-certs/
+cp /etc/grid-security/certificates/*.signing_policy /tmp/reaper-certs/
+kubectl delete secret ${DAEMON_NAME}-rucio-ca-bundle-reaper 
+kubectl create secret generic ${DAEMON_NAME}-rucio-ca-bundle-reaper --from-file=/tmp/reaper-certs/
+rm -rf /tmp/reaper-certs
 
 kubectl get secrets
