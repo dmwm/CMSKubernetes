@@ -2,9 +2,8 @@
 
 # This script will create the various secrets needed by our installation. Before running set the following env variables
 
-# HOSTP12 - The .p12 file from corresponding to the host certificate
-# ROBOTCERT - The robot certificate (named usercert.pem)
-# ROBOTKEY  - The robot certificate key (unencrypted, named new_userkey.pem)
+# HOSTP12   - The .p12 file corresponding to the host certificate
+# ROBOTP12  - The .p12 file corresponding to the robot certificate 
 # INSTANCE  - The instance name (dev/testbed/int/prod)
 
 export DAEMON_NAME=cms-ruciod-${INSTANCE}
@@ -13,11 +12,9 @@ export UI_NAME=cms-webui-${INSTANCE}
 
 
 echo
-echo "When prompted, enter the password used to encrypt the P12 file"
+echo "When prompted, enter the password used to encrypt the HOST P12 file"
 
-# Secret for redirecting server traffic from 443 to 80
-
-# Setup files so that secretes are unavailable the least amount of time
+# Setup files so that secrets are unavailable the least amount of time
 
 openssl pkcs12 -in $HOSTP12 -clcerts -nokeys -out ./tls.crt
 openssl pkcs12 -in $HOSTP12 -nocerts -nodes -out ./tls.key
@@ -26,6 +23,16 @@ cp tls.key hostkey.pem
 cp tls.crt hostcert.pem
 cp /etc/pki/tls/certs/CERN_Root_CA.pem ca.pem
 chmod 600 ca.pem
+
+
+echo
+echo "When prompted, enter the password used to encrypt the ROBOT P12 file"
+
+openssl pkcs12 -in $ROBOTP12 -clcerts -nokeys -out usercert.pem
+openssl pkcs12 -in $ROBOTP12 -nocerts -nodes -out new_userkey.pem
+
+export ROBOTCERT=usercert.pem
+export ROBOTKEY=new_userkey.pem
 
 # Many of these are old names. Change as we slowly adopt the new names everywhere.
 
@@ -37,7 +44,7 @@ kubectl delete secret ${DAEMON_NAME}-fts-cert ${DAEMON_NAME}-fts-key ${DAEMON_NA
 kubectl delete secret ${DAEMON_NAME}-rucio-ca-bundle ${DAEMON_NAME}-rucio-ca-bundle-reaper
 kubectl delete secret ${SERVER_NAME}-hostcert ${SERVER_NAME}-hostkey ${SERVER_NAME}-cafile  
 kubectl delete secret ${DAEMON_NAME}-host-cert ${DAEMON_NAME}-host-key ${DAEMON_NAME}-cafile  
-kubectl delete secret ${UI_NAME}-hostcert ${UI_NAME}-hostkey ${UI_NAME}-cafile  
+kubectl delete secret ${UI_NAME}-hostcert ${UI_NAME}-hostkey ${UI_NAME}-cafile webui-host-cert webui-host-key webui-cafile
 
 echo "Creating new secrets"
 
@@ -51,8 +58,9 @@ kubectl create secret generic ${DAEMON_NAME}-host-cert --from-file=hostcert.pem
 kubectl create secret generic ${DAEMON_NAME}-host-key --from-file=hostkey.pem
 kubectl create secret generic ${DAEMON_NAME}-cafile  --from-file=ca.pem
 
-kubectl create secret generic ${UI_NAME}-hostcert --from-file=hostcert.pem
-kubectl create secret generic ${UI_NAME}-hostkey --from-file=hostkey.pem
+export UI_NAME=webui
+kubectl create secret generic ${UI_NAME}-host-cert --from-file=hostcert.pem
+kubectl create secret generic ${UI_NAME}-host-key --from-file=hostkey.pem
 # See below for CA for WebUI
 
 # Secrets for FTS, hermes
@@ -71,5 +79,14 @@ kubectl create secret generic ${UI_NAME}-cafile  --from-file=ca.pem
 
 # Clean up
 rm tls.key tls.crt hostkey.pem hostcert.pem ca.pem
+rm usercert.pem new_userkey.pem
+
+# Bundle may not be enough, build a whole directory of certificates
+mkdir /tmp/reaper-certs
+cp /etc/grid-security/certificates/*.0 /tmp/reaper-certs/
+cp /etc/grid-security/certificates/*.signing_policy /tmp/reaper-certs/
+kubectl delete secret ${DAEMON_NAME}-rucio-ca-bundle-reaper 
+kubectl create secret generic ${DAEMON_NAME}-rucio-ca-bundle-reaper --from-file=/tmp/reaper-certs/
+rm -rf /tmp/reaper-certs
 
 kubectl get secrets
