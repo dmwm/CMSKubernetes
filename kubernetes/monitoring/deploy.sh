@@ -36,9 +36,9 @@ project=${OS_PROJECT_NAME:-"CMS Web"}
 cluster=${CLUSTER:-"monitoring-cluster"}
 template=${TEMPLATE:-"kubernetes-1.15.3-3"}
 keypair=${KEY:-"cloud"}
-secrets="prometheus-secrets nats-secrets spider-specrets udp-secrets"
-services="prometheus pushgateway victoria-metrics victoria-metrics-test nats-sub-exitcode nats-sub-stats nats-sub-t1 nats-sub-t2 udp-server"
-namespaces="udp nats spider"
+secrets="prometheus-secrets nats-secrets spider-specrets"
+services="prometheus pushgateway victoria-metrics victoria-metrics-test nats-sub-exitcode nats-sub-stats nats-sub-t1 nats-sub-t2"
+namespaces="nats spider"
 
 # prometheus operator deployment (so far we don't use it)
 deploy_prometheus_operator()
@@ -114,13 +114,6 @@ deploy_secrets()
         exit 1
     fi
     kubectl -n spider create secret generic spider-secrets --from-file=secrets/cms-htcondor-es/collectors.json
-
-    # add udp secrets
-    if [ -n "`kubectl -n udp get secrets | grep udp-secrets`" ]; then
-        echo "delete udp-secrets"
-        kubectl -n udp delete secret udp-secrets
-    fi
-    kubectl -n udp create secret generic udp-secrets --from-file=secrets/udp/udp_server.json
 }
 
 # cluster storages deployment
