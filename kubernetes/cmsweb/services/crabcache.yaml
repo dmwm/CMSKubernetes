@@ -65,7 +65,7 @@ spec:
           readOnly: true
         - name: secrets
           mountPath: /etc/secrets
-          defaultMode: 256
+          readOnly: true
         - name: hostkey
           mountPath: /etc/grid-security/hostkey.pem
           readOnly: true 

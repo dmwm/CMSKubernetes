@@ -39,7 +39,7 @@ spec:
         app: frontend
     spec:
       containers:
-      - image: veknet/frontend
+      - image: cmssw/frontend
         name: frontend
         resources:
           requests:

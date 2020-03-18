@@ -69,7 +69,7 @@ spec:
           readOnly: true
         - name: secrets
           mountPath: /etc/secrets
-          defaultMode: 256
+          readOnly: true
         - name: hostkey
           mountPath: /etc/grid-security/hostkey.pem
           readOnly: true 
@@ -84,6 +84,8 @@ spec:
 #           port: 8217
 #         initialDelaySeconds: 3
 #         periodSeconds: 3
+#        securityContext:
+#          privileged: true
       volumes:
       - name: proxy-secrets
         secret:

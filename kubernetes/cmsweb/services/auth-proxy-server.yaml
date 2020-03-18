@@ -47,7 +47,7 @@ spec:
         volumeMounts:
         - name: auth-secrets
           mountPath: /etc/secrets
-          defaultMode: 256
+          readOnly: true
       volumes:
       - name: auth-secrets
         secret:

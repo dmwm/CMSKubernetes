@@ -47,7 +47,7 @@ spec:
           readOnly: true
 #       - name: secrets
 #         mountPath: /etc/secrets
-          defaultMode: 256
+          readOnly: true
         - name: hostkey
           mountPath: /etc/grid-security/hostkey.pem
           readOnly: true 
@@ -64,7 +64,7 @@ spec:
 #        secret:
 #         secretName: dmwmmon-secrets
           # https://github.com/kubernetes/kubernetes/issues/34982
-#         defaultMode: 256
+#         readOnly: true
 #         items:
 #           - key: "robotcert.pem"
 #             path: "robotcert.pem"
