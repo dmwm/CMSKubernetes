@@ -23,4 +23,3 @@ spec:
   tls:
   - hosts:
     - cmsweb-test.cern.ch
-  secretName: ing-secrets
