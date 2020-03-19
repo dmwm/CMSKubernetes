@@ -57,18 +57,17 @@ spec:
         volumeMounts:
         - name: proxy-secrets
           mountPath: /etc/proxy
-          defaultMode: 256
+          readOnly: true
         - name: secrets
           mountPath: /etc/secrets
-          defaultMode: 256
-        - name: hostkey
-          mountPath: /etc/grid-security/hostkey.pem
-          readOnly: true 
-        - name: hostcert
-          mountPath: /etc/grid-security/hostcert.pem
-          readOnly: true 
+          readOnly: true
+        - mountPath: /etc/grid-security
+          name: etc-grid-security
+          readOnly: true
 #PROD#  - name: logs-cephfs
 #PROD#    mountPath: /data/srv/logs/dbs
+        securityContext:
+          privileged: true
       volumes:
       - name: proxy-secrets
         secret:
@@ -76,14 +75,9 @@ spec:
       - name: secrets
         secret:
           secretName: dbs-migrate-secrets
-      - name: hostkey
+      - name: etc-grid-security
         hostPath:
-            path: /etc/grid-security/hostkey.pem
-            type: File
-      - name: hostcert
-        hostPath:
-            path: /etc/grid-security/hostcert.pem
-            type: File
+            path: /etc/grid-security
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-dbs

@@ -226,12 +226,17 @@ data:
     # disable connection to ES
     xpack.monitoring.enabled: false
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: logstash
   namespace: monitoring
+  labels:
+    app: logstash
 spec:
+  selector:
+    matchLabels:
+      app: logstash
   template:
     metadata:
       labels:

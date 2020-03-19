@@ -167,7 +167,7 @@ scale()
         kubectl autoscale deployment dbs-phys03-r --cpu-percent=80 --min=2 --max=4
         kubectl autoscale deployment dbs-phys03-w --cpu-percent=80 --min=2 --max=4
 
-        #kubectl apply -f crons/cron-dbs-global-r-scaler.yaml
+        #kubectl apply -f crons/cron-dbs-global-r-scaler.yaml --validate=false
 
         # scalers for other cmsweb services
         for srv in $cmsweb_srvs; do
@@ -185,7 +185,7 @@ scale()
     if [ "$deployment" == "frontend" ]; then
         # frontend scalers
         kubectl autoscale deployment frontend --cpu-percent=80 --min=3 --max=10
-        #kubectl apply -f crons/cron-frontend-scaler.yaml
+        #kubectl apply -f crons/cron-frontend-scaler.yaml --validate=false
     fi
 
     kubectl get hpa
@@ -305,13 +305,13 @@ deploy_secrets()
         kubectl create secret generic robot-secrets \
             --from-file=$robot_key --from-file=$robot_crt \
             $files --dry-run -o yaml | \
-            kubectl apply --namespace=$ns -f -
+            kubectl apply --namespace=$ns --validate=false -f -
 
         # create proxy secret
         if [ -f $proxy ]; then
             kubectl create secret generic proxy-secrets \
                 --from-file=$proxy --dry-run -o yaml | \
-                kubectl apply --namespace=$ns -f -
+                kubectl apply --namespace=$ns --validate=false -f -
         fi
 
         echo "+++ generate cmsweb service secrets"
@@ -357,7 +357,7 @@ deploy_secrets()
                         --from-file=$robot_key --from-file=$robot_crt \
                         --from-file=$hmac \
                         $files $dbsfiles --dry-run -o yaml | \
-                        kubectl apply --namespace=$ns -f -
+                        kubectl apply --namespace=$ns --validate=false -f -
                 done
             else
                 # proceed only if service namespace matches the loop one
@@ -369,7 +369,7 @@ deploy_secrets()
                     --from-file=$robot_key --from-file=$robot_crt \
                     --from-file=$hmac \
                     $files --dry-run -o yaml | \
-                    kubectl apply --namespace=$ns -f -
+                    kubectl apply --namespace=$ns --validate=false -f -
             fi
         done
 
@@ -378,7 +378,7 @@ deploy_secrets()
     # create ingress secrets file, it requires tls.key/tls.crt files
     kubectl create secret generic ing-secrets \
         --from-file=$tls_key --from-file=$tls_crt --dry-run -o yaml | \
-        kubectl apply -f -
+        kubectl apply --validate=false -f -
 
     # perform clean-up
     if [ -f $tls_key ]; then
@@ -502,7 +502,7 @@ deploy_ingress()
     	> $tmpDir/${ing}.yaml
 	echo "deploy ingress: $tmpDir/${ing}.yaml"
         cat $tmpDir/${ing}.yaml
-        kubectl apply -f $tmpDir/${ing}.yaml
+        kubectl apply -f $tmpDir/${ing}.yaml --validate=false
         #kubectl apply -f ingress/${ing}.yaml
     done
     rm -rf $tmpDir
@@ -528,30 +528,30 @@ deploy_services()
         if [ "$srv" == "dbs" ]; then
             for inst in $dbs_instances; do
                 if [ -f "$sdir/${srv}-${inst}.yaml" ]; then
-                    #kubectl apply -f "$sdir/${srv}-${inst}.yaml"
+                    #kubectl apply -f "$sdir/${srv}-${inst}.yaml" --validate=false
 	                if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]] ; then
                 	    cat $sdir/${srv}-${inst}.yaml | \
                         	sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
                         	sed -e "s,#PROD#,$prod_prefix,g" | \
                         	sed -e "s,logs-cephfs-claim,logs-cephfs-claim$preprod_prefix,g" | \
-                        	kubectl apply -f -
+                        	kubectl apply --validate=false -f -
 			else
-	                        kubectl apply -f $sdir/${srv}-${inst}.yaml
+	                        kubectl apply -f $sdir/${srv}-${inst}.yaml --validate=false
 			fi
                 fi
             done
         else
             if [ -f $sdir/${srv}.yaml ]; then
-                #kubectl apply -f $sdir/${srv}.yaml 
+                #kubectl apply -f $sdir/${srv}.yaml --validate=false
                 if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]] ; then
 			cat $sdir/${srv}.yaml | \
         	            sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
                 	    sed -e "s,replicas: 2 #PROD#,replicas: ,g" | \
 	                    sed -e "s,#PROD#,$prod_prefix,g" | \
 	                    sed -e "s,logs-cephfs-claim,logs-cephfs-claim$preprod_prefix,g" | \
-        	            kubectl apply -f -
+        	            kubectl apply --validate=false -f -
 		else
-			kubectl apply -f $sdir/${srv}.yaml
+			kubectl apply -f $sdir/${srv}.yaml --validate=false
 		fi
 
             fi
@@ -581,7 +581,7 @@ create()
 	if [[ ("$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod")  && ("$deployment" == "services") ]]; then
      		deploy_storages
 	fi
-        deploy_services
+    #    deploy_services
         deploy_roles
         deploy_ingress
         deploy_crons

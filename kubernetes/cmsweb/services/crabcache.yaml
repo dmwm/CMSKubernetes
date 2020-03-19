@@ -65,18 +65,17 @@ spec:
           readOnly: true
         - name: secrets
           mountPath: /etc/secrets
-          defaultMode: 256
-        - name: hostkey
-          mountPath: /etc/grid-security/hostkey.pem
-          readOnly: true 
-        - name: hostcert
-          mountPath: /etc/grid-security/hostcert.pem
-          readOnly: true 
+          readOnly: true
+        - mountPath: /etc/grid-security
+          name: etc-grid-security
+          readOnly: true
         # TMP: use cinder storage for time being
 #PROD#  - name: crabcache-storage
 #PROD#    mountPath: /data/srv/state/crabcache/files
 #PROD#  - name: logs-cephfs
 #PROD#    mountPath: /data/srv/logs/crabcache
+        securityContext:
+          privileged: true
       volumes:
       - name: proxy-secrets
         secret:
@@ -84,14 +83,9 @@ spec:
       - name: secrets
         secret:
           secretName: crabcache-secrets
-      - name: hostkey
+      - name: etc-grid-security
         hostPath:
-            path: /etc/grid-security/hostkey.pem
-            type: File
-      - name: hostcert
-        hostPath:
-            path: /etc/grid-security/hostcert.pem
-            type: File
+            path: /etc/grid-security
       # TMP: use ciner storage for time being
 #PROD#- name: crabcache-storage
 #PROD#  persistentVolumeClaim:

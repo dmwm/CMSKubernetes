@@ -50,7 +50,7 @@ spec:
         volumeMounts:
         - name: udp-secrets
           mountPath: /etc/secrets
-          defaultMode: 256
+          readOnly: true
       volumes:
       - name: udp-secrets
         secret:

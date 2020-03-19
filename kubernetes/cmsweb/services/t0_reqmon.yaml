@@ -57,15 +57,14 @@ spec:
           readOnly: true
         - name: secrets
           mountPath: /etc/secrets
-          defaultMode: 256
-        - name: hostkey
-          mountPath: /etc/grid-security/hostkey.pem
-          readOnly: true 
-        - name: hostcert
-          mountPath: /etc/grid-security/hostcert.pem
-          readOnly: true 
+          readOnly: true
+        - mountPath: /etc/grid-security
+          name: etc-grid-security
+          readOnly: true
 #PROD#  - name: logs-cephfs
 #PROD#    mountPath: /data/srv/logs/t0_reqmon
+        securityContext:
+          privileged: true
       initContainers:
       - name: checkcouchdb
         image: busybox:1.28
@@ -77,14 +76,9 @@ spec:
       - name: secrets
         secret:
           secretName: t0reqmon-secrets
-      - name: hostkey
+      - name: etc-grid-security
         hostPath:
-            path: /etc/grid-security/hostkey.pem
-            type: File
-      - name: hostcert
-        hostPath:
-            path: /etc/grid-security/hostcert.pem
-            type: File
+            path: /etc/grid-security
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-tzero
