@@ -51,8 +51,8 @@ spec:
           readOnly: true
         - name: etc-grid-security
           mountPath: /etc/grid-security
-#        securityContext:
-#          privileged: true
+        securityContext:
+          privileged: true
       volumes:
       - name: proxy-secrets
         secret:

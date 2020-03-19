@@ -69,12 +69,13 @@ spec:
         - name: secrets
           mountPath: /etc/secrets
           readOnly: true
-        - name: hostcert
-          mountPath: /etc/grid-security/hostcert.pem
-        - name: hostkey
-          mountPath: /etc/grid-security/hostkey.pem
+        - mountPath: /etc/grid-security
+          name: etc-grid-security
+          readOnly: true
 #PROD#  - name: logs-cephfs
 #PROD#    mountPath: /data/srv/logs/frontend
+        securityContext:
+          privileged: true
       volumes:
       - name: proxy-secrets
         secret:
@@ -82,12 +83,9 @@ spec:
       - name: secrets
         secret:
           secretName: frontend-secrets
-      - name: hostcert
+      - name: etc-grid-security
         hostPath:
-            path: /etc/grid-security/hostcert.pem
-      - name: hostkey
-        hostPath:
-            path: /etc/grid-security/hostkey.pem
+            path: /etc/grid-security
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-default
