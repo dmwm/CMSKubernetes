@@ -148,8 +148,8 @@ func udpServer() {
 			log.Printf("unable to unmarshal UDP packet into JSON, error %v\n", err)
 			// let's increse buf size to adjust to the packet
 			bufSize = bufSize * 2
-			if bufSize > 100*Config.BufSize {
-				log.Fatal("unable to unmarshal UDP packet into JSON with buffer size %d", bufSize)
+			if bufSize > 1024*Config.BufSize {
+				log.Fatalf("unable to unmarshal UDP packet into JSON with buffer size %d", bufSize)
 			}
 			// at this point we already read from UDP connection and our
 			// message didn't fit into buffer therefore we may skip the rest
