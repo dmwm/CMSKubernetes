@@ -69,13 +69,13 @@ spec:
         - name: secrets
           mountPath: /etc/secrets
           readOnly: true
-        - mountPath: /etc/grid-security
-          name: etc-grid-security
-          readOnly: true
+# We use explicit path declaration for certificates in FE because we need certificates directory in /etc/grid-security/ which is not created without explicit declaration
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
 #PROD#  - name: logs-cephfs
 #PROD#    mountPath: /data/srv/logs/frontend
-        securityContext:
-          privileged: true
       volumes:
       - name: proxy-secrets
         secret:
@@ -83,9 +83,12 @@ spec:
       - name: secrets
         secret:
           secretName: frontend-secrets
-      - name: etc-grid-security
+      - name: hostcert
         hostPath:
-            path: /etc/grid-security
+            path: /etc/grid-security/hostcert.pem
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-default
