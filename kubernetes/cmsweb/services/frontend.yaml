@@ -69,6 +69,7 @@ spec:
         - name: secrets
           mountPath: /etc/secrets
           readOnly: true
+# We use explicit path declaration for certificates in FE because we need certificates directory in /etc/grid-security/ which is not created without explicit declaration
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
         - name: hostkey
