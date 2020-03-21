@@ -20,7 +20,6 @@ cmssw:
     - reqmgr
     - reqmgr2ms
     - reqmon
-    - sitedb
     - t0_reqmon
     - t0wmadatasvc
     - tfaas
