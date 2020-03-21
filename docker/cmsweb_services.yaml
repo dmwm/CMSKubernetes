@@ -22,5 +22,4 @@ cmssw:
     - reqmon
     - t0_reqmon
     - t0wmadatasvc
-    - tfaas
     - workqueue
