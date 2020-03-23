@@ -88,6 +88,7 @@ Add Service alternate names for the load balanced hostname, e.g.
  * cms-rucio-webui-testbed
  * cms-rucio-stats-testbed
  * cms-rucio-trace-testbed
+ * cms-rucio-eagle-testbed
 
 ## Create relevant secrets 
 
