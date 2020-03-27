@@ -27,8 +27,13 @@ function exit_on_failure()
 	OUTPUT_ERROR=`cat $TMP_OUT | egrep "ERROR tool.ImportTool: Error during import: Import job failed!"`
         TRANSF_INFO=`cat $TMP_ERR | egrep "mapreduce.ImportJobBase: Transferred"`
         ROWS_TRANSFERED=`grep 'Map output records=0' $TMP_ERR |wc -l `
+ 
+        if [[ $ROWS_TRANSFERED == "1" ]]
+        then
+           sendMail $LOG_FILE.stderr $SCHEMA $START_DATE
+        fi
 
-	if [[ $OUTPUT_ERROR == *"ERROR"* || ! $TRANSF_INFO == *"INFO"* || $ROWS_TRANSFERED=="1" ]]
+	if [[ $OUTPUT_ERROR == *"ERROR"* || ! $TRANSF_INFO == *"INFO"* ]]
         then
 	   echo "Error occured, check $LOG_FILE"
 	   sendMail $LOG_FILE.stdout $SCHEMA $START_DATE
@@ -39,7 +44,7 @@ function exit_on_failure()
               hdfs dfs -rm -r $BASE_PATH/new >/dev/null 2>&1
 	   fi
 	   exit 1
-    fi
+        fi
 }
 
 function clean()
@@ -99,9 +104,14 @@ function import_table()
    echo "Folder: $OUTPUT_FOLDER" >> $LOG_FILE.cron
    echo "quering...$Q" >> $LOG_FILE.cron
 
-   sqoop import --direct --connect $JDBC_URL --fetch-size 10000 --username hadoop_data_reader --password $(sed '2q;d' cmsr_cstring) --target-dir $OUTPUT_FOLDER -m 1 --query "$Q" \
+   echo "sqoop import..."
+
+   sqoop import --direct --connect $JDBC_URL --fetch-size 10000 --username $USERNAME --password $PASSWORD --target-dir $OUTPUT_FOLDER -m 1 --query "$Q" \
    --fields-terminated-by , --escaped-by \\ --optionally-enclosed-by '\"' \
    1>$TMP_OUT 2>$TMP_ERR
+
+  
+
    cat $TMP_OUT >>$LOG_FILE.stdout
    cat $TMP_ERR >>$LOG_FILE.stderr
    EXIT_STATUS=$?
@@ -149,7 +159,7 @@ function import_counts()
    echo "Folder: $OUTPUT_FOLDER" >> $LOG_FILE.cron
    echo "quering...$QUERY" >> $LOG_FILE.cron
 
-   sqoop import --direct --connect $JDBC_URL --fetch-size 10000 --username hadoop_data_reader --password $(sed '2q;d' cmsr_cstring) --target-dir $OUTPUT_FOLDER -m 1 --query "$QUERY" \
+   sqoop import --direct --connect $JDBC_URL --fetch-size 10000 --username $USERNAME --password $PASSWORD --target-dir $OUTPUT_FOLDER -m 1 --query "$QUERY" \
    --fields-terminated-by , --escaped-by \\ --optionally-enclosed-by '\"' \
    1>>$LOG_FILE.stdout 2>>$LOG_FILE.stderr
 

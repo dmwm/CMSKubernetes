@@ -6,7 +6,9 @@ setJava
 ##$CONFIG###
 
 
-JDBC_URL=$(sed '1q;d' cmsr_cstring)
+export JDBC_URL=$(sed '1q;d' cmsr_cstring)
+export USERNAME=$(sed '2q;d' cmsr_cstring)
+export PASSWORD=$(sed '3q;d' cmsr_cstring)
 BASE_PATH="/project/awg/cms/CMS_DBS3_PROD_PHYS03"
 SCHEMA="CMS_DBS3_PROD_PHYS03_OWNER"
 

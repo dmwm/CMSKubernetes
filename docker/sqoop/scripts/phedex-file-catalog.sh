@@ -3,6 +3,9 @@
 setJava
 BASE_PATH="/project/awg/cms/phedex/catalog/csv"
 #BASE_PATH="cms-catalog"
+JDBC_URL=$(sed '1q;d' cmsr_cstring)
+USERNAME=$(sed '2q;d' cmsr_cstring)
+PASSWORD=$(sed '3q;d' cmsr_cstring)
 
 me=`basename $0`_$$
 
@@ -30,7 +33,7 @@ echo "Folder: $OUTPUT_FOLDER" >> $LOG_FILE.cron
 echo "quering..." >> $LOG_FILE.cron
 #exit;
 
-sqoop import --direct --connect $(sed '1q;d' cmsr_cstring) --fetch-size 10000 --username hadoop_data_reader --password $(sed '2q;d' cmsr_cstring) --target-dir $OUTPUT_FOLDER -m 1 \
+sqoop import --direct --connect $JDBC_URL --fetch-size 10000 --username $USERNAME --password $PASSWORD --target-dir $OUTPUT_FOLDER -m 1 \
 --query "select ds.name as dataset_name, ds.id as dataset_id, ds.is_open as dataset_is_open, ds.time_create as dataset_time_create, bk.name as block_name, bk.id as block_id, bk.time_create as block_time_create, bk.is_open as block_is_open, f.logical_name as file_lfn, f.id as file_id, f.filesize, f.checksum, f.time_create as file_time_create from cms_transfermgmt.t_dps_dataset ds join cms_transfermgmt.t_dps_block bk on bk.dataset=ds.id join cms_transfermgmt.t_dps_file f on f.inblock=bk.id where f.time_create >= ${START_DATE_S} and f.time_create < ${END_DATE_S} and \$CONDITIONS" \
 --fields-terminated-by , --escaped-by \\ --optionally-enclosed-by '\"' \
 1>$LOG_FILE.stdout 2>$LOG_FILE.stderr
