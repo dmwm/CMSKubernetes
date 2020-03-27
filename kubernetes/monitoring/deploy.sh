@@ -13,6 +13,7 @@
 ##H   services   deploy services
 ##H   ingress    deploy ingress controller
 ##H   secrets    deploy secrets files
+##H   storages   deploy storages files
 ##H
 ##H Envrionments:
 ##H   KEY                defines name of the ssh key-pair to be used (default cloud)
@@ -36,9 +37,9 @@ project=${OS_PROJECT_NAME:-"CMS Web"}
 cluster=${CLUSTER:-"monitoring-cluster"}
 template=${TEMPLATE:-"kubernetes-1.15.3-3"}
 keypair=${KEY:-"cloud"}
-secrets="prometheus-secrets nats-secrets spider-specrets"
+secrets="prometheus-secrets nats-secrets spider-specrets sqoop-secrets"
 services="prometheus pushgateway victoria-metrics victoria-metrics-test nats-sub-exitcode nats-sub-stats nats-sub-t1 nats-sub-t2"
-namespaces="nats spider"
+namespaces="nats spider sqoop"
 
 # prometheus operator deployment (so far we don't use it)
 deploy_prometheus_operator()
@@ -114,6 +115,17 @@ deploy_secrets()
         exit 1
     fi
     kubectl -n spider create secret generic spider-secrets --from-file=secrets/cms-htcondor-es/collectors.json
+
+    # add sqoop secrets
+    if [ -n "`kubectl -n sqoop get secrets | grep sqoop-secrets`" ]; then
+        echo "delete sqoop-secrets"
+        kubectl -n sqoop delete secret sqoop-secrets
+    fi
+    if [ ! -d secrets/cms-htcondor-es ]; then
+        echo "Please provide secrets/cms-htcondor-es area with collectors.json file"
+        exit 1
+    fi
+    kubectl -n sqoop create secret generic sqoop-secrets --from-file=secrets/sqoop/cmsr_cstring --from-file=secrets/sqoop/lcgr_cstring
 }
 
 # cluster storages deployment
@@ -128,9 +140,9 @@ deploy_storages()
     if [ -z "`kubectl get pvc | grep cinder-volume-claim`" ]; then
         kubectl apply -f storages/cinder-storage.yaml
     fi
-    if [ -z "`kubectl get pvc | grep prometheus-volume-claim`" ]; then
-        kubectl apply -f storages/prometheus-storage.yaml
-    fi
+#    if [ -z "`kubectl get pvc | grep prometheus-volume-claim`" ]; then
+#        kubectl apply -f storages/prometheus-storage.yaml
+#    fi
 }
 
 # cluster services deployment
@@ -206,6 +218,8 @@ create()
         deploy_secrets
     elif [ "$deployment" == "ingress" ]; then
         deploy_ingress
+    elif [ "$deployment" == "storages" ]; then
+        deploy_storages
     else
         deploy_namespaces
         deploy_secrets
