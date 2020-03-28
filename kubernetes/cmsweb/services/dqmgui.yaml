@@ -20,6 +20,22 @@ spec:
       targetPort: 18060
       name: dqmgui-mon
 ---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: dqmgui
+  labels:
+    app: dqmgui
+  namespace: dqm
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+
+    cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    su -c /data/run.sh - _dqmgui
+---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -37,6 +53,9 @@ spec:
       labels:
         app: dqmgui
     spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
       containers:
       - image: cmssw/dqmgui
         name: dqmgui
@@ -69,6 +88,9 @@ spec:
         - containerPort: 18060
           protocol: TCP
           name: dqmgui-mon
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
         volumeMounts:
         - name: proxy-secrets
           mountPath: /etc/proxy
@@ -76,9 +98,11 @@ spec:
         - name: secrets
           mountPath: /etc/secrets
           readOnly: true
-        - mountPath: /etc/grid-security
+        - mountPath: /host/etc/grid-security
           name: etc-grid-security
           readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
 #PROD#  - name: dqmgui-storage
 #PROD#    mountPath: /data/srv/state/dqmgui/data
 #PROD#  - name: logs-cephfs
@@ -94,7 +118,10 @@ spec:
           secretName: dqmgui-secrets
       - name: etc-grid-security
         hostPath:
-            path: /etc/grid-security
+          path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: dqmgui
 #PROD#- name: dqmgui-storage
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: dqmgui-claim
