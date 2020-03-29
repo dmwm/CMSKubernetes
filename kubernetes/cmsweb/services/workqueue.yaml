@@ -10,6 +10,21 @@ spec:
     - port: 8240
       targetPort: 8240
 ---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: workqueue
+  labels:
+    app: workqueue
+  namespace: dmwm
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+    cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    su -c /data/run.sh - _workqueue
+---    
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -30,6 +45,9 @@ spec:
       # use hostNetwork to allow communication between reqmgr/reqmon/workqueue and couch
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
       containers:
       - image: cmssw/workqueue
         name: workqueue
@@ -43,6 +61,9 @@ spec:
         ports:
         - containerPort: 8240
           protocol: TCP
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
         volumeMounts:
         - name: proxy-secrets
           mountPath: /etc/proxy
@@ -50,9 +71,11 @@ spec:
         - name: secrets
           mountPath: /etc/secrets
           readOnly: true
-        - mountPath: /etc/grid-security
+        - mountPath: /host/etc/grid-security
           name: etc-grid-security
           readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
 #PROD#  - name: logs-cephfs
 #PROD#    mountPath: /data/srv/logs/workqueue
         securityContext:
@@ -71,6 +94,9 @@ spec:
       - name: etc-grid-security
         hostPath:
             path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: workqueue
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-dmwm

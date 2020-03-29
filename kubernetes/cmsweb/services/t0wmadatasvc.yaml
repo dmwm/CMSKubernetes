@@ -14,6 +14,22 @@ spec:
       targetPort: 18308
       name: t0wmadsvc-mon
 ---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: t0wmadatasvc
+  labels:
+    app: t0wmadatasvc
+  namespace: tzero
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+    
+    cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    su -c /data/run.sh - _t0wmadatasvc
+---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -34,6 +50,9 @@ spec:
       # use hostNetwork to allow communication between reqmgr/t0wmadatasvc/workqueue and couch
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
       containers:
       - image: cmssw/t0wmadatasvc
         name: t0wmadatasvc
@@ -51,6 +70,9 @@ spec:
         - containerPort: 18308
           protocol: TCP
           name: t0wmadsvc-mon
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
         volumeMounts:
         - name: proxy-secrets
           mountPath: /etc/proxy
@@ -58,9 +80,11 @@ spec:
         - name: secrets
           mountPath: /etc/secrets
           readOnly: true
-        - mountPath: /etc/grid-security
+        - mountPath: /host/etc/grid-security
           name: etc-grid-security
           readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
 #PROD#  - name: logs-cephfs
 #PROD#    mountPath: /data/srv/logs/t0wmadatasvc
         securityContext:
@@ -78,7 +102,10 @@ spec:
           secretName: t0wmadatasvc-secrets
       - name: etc-grid-security
         hostPath:
-            path: /etc/grid-security
+          path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: t0wmadatasvc
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-tzero

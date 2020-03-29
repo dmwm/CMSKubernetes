@@ -1,3 +1,18 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: workqueue-tasks
+  labels:
+    app: workqueue-tasks
+  namespace: dmwm
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+    cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    su -c /data/run.sh - _workqueue
+---    
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -15,6 +30,9 @@ spec:
       labels:
         app: workqueue-tasks
     spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
       containers:
       - image: cmssw/workqueue
         name: workqueue-tasks
@@ -25,6 +43,9 @@ spec:
           limits:
             memory: "3Gi"
             cpu: "1000m"
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
         volumeMounts:
         - name: proxy-secrets
           mountPath: /etc/proxy
@@ -32,9 +53,11 @@ spec:
         - name: secrets
           mountPath: /etc/secrets
           readOnly: true
-        - mountPath: /etc/grid-security
+        - mountPath: /host/etc/grid-security
           name: etc-grid-security
           readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
 #PROD#  - name: logs-cephfs
 #PROD#    mountPath: /data/srv/logs/workqueue
         securityContext:
@@ -52,7 +75,10 @@ spec:
           secretName: workqueue-tasks-secrets
       - name: etc-grid-security
         hostPath:
-            path: /etc/grid-security
+          path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: workqueue-tasks
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-dmwm
