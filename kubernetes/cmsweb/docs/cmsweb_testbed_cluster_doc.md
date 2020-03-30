@@ -11,9 +11,9 @@ Users/developers may request for access of this cluster in their namespace in [h
 
 - `ssh lxplus-cloud`
 
-Use export KUBECONFIG to point to the relevant configurations for the clusters. Please note that these configurations are for the backend clusters as users will only need to work in the backend clusters to deploy/undeploy their services. The configuration file for backend cluster can be downloaded from [here](https://cernbox.cern.ch/index.php/s/zFIjNrze8h63Fwt)
+Use export KUBECONFIG to point to the relevant configurations for the clusters. Please note that these configurations are for the backend clusters as users will only need to work in the backend clusters to deploy/undeploy their services. The configuration file for backend cluster can be downloaded from [here](https://cernbox.cern.ch/index.php/s/7COxHer1Ipv1UgB/download)
 
-- `wget https://cernbox.cern.ch/index.php/s/zFIjNrze8h63Fwt/download -O config.cmsweb-k8s-services-testbed`
+- `wget https://cernbox.cern.ch/index.php/s/7COxHer1Ipv1UgB/download -O config.cmsweb-k8s-services-testbed`
 - `export OS_TOKEN=$(openstack token issue -c id -f value)`
 - `export KUBECONFIG=$PWD/config.cmsweb-k8s-services-testbed`
  
