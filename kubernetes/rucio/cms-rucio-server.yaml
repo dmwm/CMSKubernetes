@@ -11,13 +11,13 @@ traceReplicaCount: 1
 
 httpd_config:
   encoded_slashes: "True"
-  mpm_mode: "worker"
-  start_servers: "1"
-  min_spare_threads: "1"
-  max_spare_threads: "20"
-  threads_per_child: "5"
-  max_clients: "20"
-  max_requests_per_child: "8192"
+#  mpm_mode: "worker"
+#  start_servers: "1"
+#  min_spare_threads: "1"
+#  max_spare_threads: "20"
+#  threads_per_child: "5"
+#  max_clients: "20"
+#  max_requests_per_child: "8192"
 
 # The server runs on port 80 and there is no need for SSL passthrough
 
@@ -66,22 +66,13 @@ resources:
     memory: 1500Mi
 
 config:
+  common:
+      loglevel: "INFO"
   trace:
       port: "61313"
       brokers: "cms-mb.cern.ch"
       topic: "/topic/cms.rucio.tracer"
       username: "cmsrucio"
-      #voname: "cms"
     ## config.trace.tracedir: directory where traces are written to (default "/var/log/rucio/trace")
     # tracedir: "/var/log/rucio/trace"
-    ## config.trace.brokers: address of ActiveMQ brokers (default: "localhost")
-    # brokers: "localhost"
-    ## config.trace.brokers: port of ActiveMQ brokers (default: "61013")
-    # port: "61013"
-    ## config.trace.brokers: port of ActiveMQ brokers (default: "/topic/rucio.trace")
-    # topic: "/topic/rucio.tracer"
-    ## config.trace.username: username for the topic (if necessary)
-    # username: ""
-    ## config.trace.password: password for the topic (if necessary)
-    # password: ""
 
