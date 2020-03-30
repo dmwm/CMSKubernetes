@@ -2,4 +2,4 @@ reaper2:
   includeRses: "cms_type=test"
 
 conveyorTransferSubmitter:
-  threads: 9
+  threads: 5

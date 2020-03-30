@@ -32,21 +32,21 @@ kubectl apply -f dataset-configmap.yaml
 kubectl apply -f ${INSTANCE}-sync-jobs.yaml -l syncs=rses
 
 # Set up landb loadbalance
-numberIngressNodes=3
-n=0
-kubectl get node -o name | grep minion | while read node; do
-  [[ $((n++)) == $numberIngressNodes ]] && break
-  kubectl label --overwrite node ${node##node/} role=ingress
-done
-
-n=0
-kubectl get node -l role=ingress -o name | grep -v master | while read node; do
-  # Remove any existing aliases
-  openstack server unset --os-project-name CMSRucio --property landb-alias ${node##node/}
-  echo $((n++))
-  cnames="cms-rucio-stats-${INSTANCE}--load-${n}-,cms-rucio-${INSTANCE}--load-${n}-,cms-rucio-auth-${INSTANCE}--load-${n}-,cms-rucio-webui-${INSTANCE}--load-${n}-,cms-rucio-eagle-${INSTANCE}--load-${n}-,cms-rucio-trace-${INSTANCE}--load-${n}-"
-  openstack server set --os-project-name CMSRucio --property landb-alias=$cnames ${node##node/}
-done
+#numberIngressNodes=3
+#n=0
+#kubectl get node -o name | grep minion | while read node; do
+#  [[ $((n++)) == $numberIngressNodes ]] && break
+#  kubectl label --overwrite node ${node##node/} role=ingress
+#done
+#
+#n=0
+#kubectl get node -l role=ingress -o name | grep -v master | while read node; do
+#  # Remove any existing aliases
+#  openstack server unset --os-project-name CMSRucio --property landb-alias ${node##node/}
+#  echo $((n++))
+#  cnames="cms-rucio-stats-${INSTANCE}--load-${n}-,cms-rucio-${INSTANCE}--load-${n}-,cms-rucio-auth-${INSTANCE}--load-${n}-,cms-rucio-webui-${INSTANCE}--load-${n}-,cms-rucio-eagle-${INSTANCE}--load-${n}-,cms-rucio-trace-${INSTANCE}--load-${n}-"
+#  openstack server set --os-project-name CMSRucio --property landb-alias=$cnames ${node##node/}
+#done
 
 ./update_ingress.sh
 
