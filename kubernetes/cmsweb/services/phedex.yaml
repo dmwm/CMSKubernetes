@@ -20,6 +20,22 @@ spec:
       targetPort: 17001
       name: phedex-mon
 ---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: phedex
+  labels:
+    app: phedex
+  namespace: phedex
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+   
+     cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    su -c /data/run.sh - _phedex
+---   
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -37,6 +53,9 @@ spec:
       labels:
         app: phedex
     spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
       containers:
       - image: cmssw/phedex
         name: phedex
@@ -60,6 +79,9 @@ spec:
         - containerPort: 17001
           protocol: TCP
           name: phedex-mon
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
         volumeMounts:
         - name: proxy-secrets
           mountPath: /etc/proxy
@@ -67,9 +89,11 @@ spec:
         - name: secrets
           mountPath: /etc/secrets
           readOnly: true
-        - mountPath: /etc/grid-security
+        - mountPath: /host/etc/grid-security
           name: etc-grid-security
           readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
 #PROD#  - name: logs-cephfs
 #PROD#    mountPath: /data/srv/logs/phedex
         securityContext:
@@ -83,7 +107,10 @@ spec:
           secretName: phedex-secrets
       - name: etc-grid-security
         hostPath:
-            path: /etc/grid-security
+          path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: phedex
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-phedex

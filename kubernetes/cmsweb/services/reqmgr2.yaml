@@ -14,6 +14,22 @@ spec:
       targetPort: 18240
       name: reqmgr2-mon
 ---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: reqmgr2
+  labels:
+    app: reqmgr2
+  namespace: dmwm
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+
+    cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    su -c /data/run.sh - _reqmgr2
+---    
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -34,6 +50,9 @@ spec:
       # use hostNetwork to allow communication between reqmgr2/reqmon/workqueue and couch
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
       containers:
       - image: cmssw/reqmgr2
         name: reqmgr2
@@ -58,6 +77,9 @@ spec:
         - containerPort: 18240
           protocol: TCP
           name: reqmgr2-mon
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
         volumeMounts:
         - name: proxy-secrets
           mountPath: /etc/proxy
@@ -65,9 +87,11 @@ spec:
         - name: secrets
           mountPath: /etc/secrets
           readOnly: true
-        - mountPath: /etc/grid-security
+        - mountPath: /host/etc/grid-security
           name: etc-grid-security
           readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
 #PROD#  - name: logs-cephfs
 #PROD#    mountPath: /data/srv/logs/reqmgr2
         securityContext:
@@ -86,6 +110,9 @@ spec:
       - name: etc-grid-security
         hostPath:
             path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: reqmgr2
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-dmwm

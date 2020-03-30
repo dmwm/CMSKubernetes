@@ -14,6 +14,22 @@ spec:
       targetPort: 18340
       name: confdb-mon
 ---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: confdb
+  labels:
+    app: confdb
+  namespace: confdb
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+
+    cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    su -c /data/run.sh - _confdb
+---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -33,6 +49,9 @@ spec:
     spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
       containers:
       - image: cmssw/confdb
         name: confdb
@@ -50,6 +69,9 @@ spec:
         - containerPort: 18340
           protocol: TCP
           name: confdb-mon
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
         volumeMounts:
         - name: proxy-secrets
           mountPath: /etc/proxy
@@ -57,9 +79,11 @@ spec:
         - name: secrets
           mountPath: /etc/secrets
           readOnly: true
-        - mountPath: /etc/grid-security
+        - mountPath: /host/etc/grid-security
           name: etc-grid-security
           readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
 #PROD#  - name: logs-cephfs
 #PROD#    mountPath: /data/srv/logs/confdb
         securityContext:
@@ -73,7 +97,10 @@ spec:
           secretName: confdb-secrets
       - name: etc-grid-security
         hostPath:
-            path: /etc/grid-security
+          path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: confdb
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-confdb

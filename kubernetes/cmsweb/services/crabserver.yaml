@@ -14,6 +14,22 @@ spec:
       targetPort: 18270
       name: crabserver-mon
 ---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: crabserver
+  labels:
+    app: crabserver
+  namespace: crab
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+
+    cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    su -c /data/run.sh - _crabserver
+---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -31,6 +47,9 @@ spec:
       labels:
         app: crabserver
     spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
       containers:
       #- image: sbelforte/crabserver:3.3.1911.rc3
       - image: cmssw/crabserver
@@ -49,6 +68,9 @@ spec:
         - containerPort: 18270
           protocol: TCP
           name: crabserver-mon
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
         volumeMounts:
         - name: proxy-secrets
           mountPath: /etc/proxy
@@ -56,9 +78,11 @@ spec:
         - name: secrets
           mountPath: /etc/secrets
           readOnly: true
-        - mountPath: /etc/grid-security
+        - mountPath: /host/etc/grid-security
           name: etc-grid-security
           readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
 #PROD#  - name: logs-cephfs
 #PROD#    mountPath: /data/srv/logs/crabserver
         securityContext:
@@ -73,6 +97,9 @@ spec:
       - name: etc-grid-security
         hostPath:
             path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: crabserver
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-crab
