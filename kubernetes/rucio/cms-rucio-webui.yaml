@@ -7,3 +7,10 @@ replicaCount: 1
 resources:
   limits:
     memory: 1450Mi
+
+ingress:
+  enabled: true
+
+proxy:
+  rucioProxyScheme: "http"
+
