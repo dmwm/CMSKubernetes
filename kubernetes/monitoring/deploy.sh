@@ -13,6 +13,8 @@
 ##H   services   deploy services
 ##H   ingress    deploy ingress controller
 ##H   secrets    deploy secrets files
+##H   cronjobs   deploy cronjob files
+##H   proxies    deploy proxy files
 ##H   storages   deploy storages files
 ##H
 ##H Envrionments:
@@ -39,7 +41,7 @@ template=${TEMPLATE:-"kubernetes-1.15.3-3"}
 keypair=${KEY:-"cloud"}
 secrets="prometheus-secrets nats-secrets spider-specrets sqoop-secrets"
 services="prometheus pushgateway victoria-metrics victoria-metrics-test nats-sub-exitcode nats-sub-stats nats-sub-t1 nats-sub-t2"
-namespaces="nats spider sqoop"
+namespaces="nats spider sqoop http"
 
 # prometheus operator deployment (so far we don't use it)
 deploy_prometheus_operator()
@@ -59,6 +61,52 @@ deploy_prometheus_operator()
         kubectl delete -f crd/prometheus/prom-oper.yaml
     fi
     kubectl apply -f crd/prometheus/prom-oper.yaml
+}
+
+# cluster cronjob deployment
+deploy_cronjobs()
+{
+    # create cron accounts
+    k apply -f crons/proxy-account.yaml -n http
+    k apply -f crons/sqoop-account.yaml -n sqoop
+
+    # create new cronjob
+    k apply -f crons/cron-proxy.yaml -n http
+}
+
+# cluster proxies deployment
+deploy_proxies()
+{
+    robot_key=${ROBOT_KEY:-/afs/cern.ch/user/v/valya/private/certificates/robotkey.pem}
+    if [ -f $robot_key ]; then
+        echo "Unable to locate: $robot_key"
+        echo "please setup ROBOT_KEY environment"
+        exit 1
+    fi
+    robot_crt=${ROBOT_CERT:-/afs/cern.ch/user/v/valya/private/certificates/robotcert.pem}
+    if [ -f $robot_crt ]; then
+        echo "Unable to locate: $robot_crt"
+        echo "please setup ROBOT_CERT environment"
+        exit 1
+    fi
+    proxy=/tmp/$USER/proxy
+
+    # create robot-secrets
+    if [ -n "`kubectl -n http get secrets | grep robot-secrets`" ]; then
+        echo "delete robot-secrets in http namespace"
+        kubectl -n http delete secret robot-secrets
+    fi
+    kubectl create secret generic robot-secrets --from-file=$robot_key --from-file=$robot_crt --dry-run -o yaml | kubectl apply --namespace=http -f -
+
+    # obtain proxy file
+    voms-proxy-init -voms cms -rfc --key $robot_key --cert $robot_crt --out $proxy
+
+    # create proxy-secrets
+    if [ -n "`kubectl -n http get secrets | grep proxy-secrets`" ]; then
+        echo "delete robot-secrets in http namespace"
+        kubectl -n http delete secret proxy-secrets
+    fi
+    kubectl create secret generic proxy-secrets --from-file=$proxy --dry-run -o yaml | kubectl apply --namespace=http -f -
 }
 
 # cluster secrets deployment
@@ -216,6 +264,10 @@ create()
             awk '{split($1,a,"minion-"); print "openstack server set --property landb-alias=cms-prometheus--load-"a[2]"- "$1""}'
     elif [ "$deployment" == "secrets" ]; then
         deploy_secrets
+    elif [ "$deployment" == "cronjobs" ]; then
+        deploy_cronjobs
+    elif [ "$deployment" == "proxies" ]; then
+        deploy_proxies
     elif [ "$deployment" == "ingress" ]; then
         deploy_ingress
     elif [ "$deployment" == "storages" ]; then
@@ -223,9 +275,11 @@ create()
     else
         deploy_namespaces
         deploy_secrets
+        deploy_proxies
         deploy_storages
         deploy_services
         deploy_roles
+        deploy_cronjobs
         deploy_kmon
         deploy_ingress
     fi
