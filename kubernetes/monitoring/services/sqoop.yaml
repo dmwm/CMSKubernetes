@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sqoop
+  namespace: sqoop
+  labels:
+     app: sqoop
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: sqoop
+   template:
+      metadata:
+         labels:
+           app: sqoop
+      spec:
+        containers:
+        - args:
+          - sudo
+          - /usr/sbin/crond
+          - -n
+          image: cmssw/sqoop
+          name: sqoop
+          # here is an example how to run post command
+          tty: true
+          stdin: true
+          lifecycle:
+            postStart:
+              exec:
+                command: ["echo", "vkunzet@gmail.com", ">", "~/.forward"]
+          volumeMounts:
+          - name: sqoop-secrets
+            mountPath: /etc/sqoop
+            readOnly: true
+        volumes:
+        - name: sqoop-secrets
+          secret:
+            secretName: sqoop-secrets
