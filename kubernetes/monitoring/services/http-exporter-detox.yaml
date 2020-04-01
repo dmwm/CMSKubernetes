@@ -40,6 +40,6 @@ spec:
           - ":18002"
           - -verbose
           name: http-exporter-detox
-          image: veknet/http-exporter
+          image: cmssw/http-exporter
           ports:
           - containerPort: 18002

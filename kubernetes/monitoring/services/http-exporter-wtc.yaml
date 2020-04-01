@@ -42,7 +42,7 @@ spec:
           - ":18001"
           - -verbose
           name: http-exporter-wtc
-          image: veknet/http-exporter
+          image: cmssw/http-exporter
           ports:
           - containerPort: 18001
           volumeMounts:

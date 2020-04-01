@@ -40,6 +40,6 @@ spec:
           - ":18003"
           - -verbose
           name: http-exporter-mss
-          image: veknet/http-exporter
+          image: cmssw/http-exporter
           ports:
           - containerPort: 18003

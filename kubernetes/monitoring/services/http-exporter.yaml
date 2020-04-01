@@ -40,6 +40,6 @@ spec:
           - ":18000"
           - -verbose
           name: http-sub
-          image: veknet/http-exporter
+          image: cmssw/http-exporter
           ports:
           - containerPort: 18000

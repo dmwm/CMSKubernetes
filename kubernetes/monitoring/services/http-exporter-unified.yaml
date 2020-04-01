@@ -40,6 +40,6 @@ spec:
           - ":18005"
           - -verbose
           name: http-exporter-unified
-          image: veknet/http-exporter
+          image: cmssw/http-exporter
           ports:
           - containerPort: 18005

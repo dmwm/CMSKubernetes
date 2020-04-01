@@ -40,6 +40,6 @@ spec:
           - ":18004"
           - -verbose
           name: http-exporter-cric
-          image: veknet/http-exporter
+          image: cmssw/http-exporter
           ports:
           - containerPort: 18004
