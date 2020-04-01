@@ -1,0 +1,45 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: http-exporter
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 18000
+    protocol: TCP
+    name: http
+  selector:
+    app: http-exporter
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-exporter
+  namespace: http
+  labels:
+     app: http-exporter
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: http-exporter
+   template:
+      metadata:
+         labels:
+           app: http-exporter
+      spec:
+        containers:
+        - args:
+          - /data/http_exporter
+          - -uri
+          - "http://cms-monitoring.cern.ch:30900"
+          - -namespace
+          - "cms_monitoring"
+          - -port
+          - ":18000"
+          - -verbose
+          name: http-sub
+          image: veknet/http-exporter
+          ports:
+          - containerPort: 18000

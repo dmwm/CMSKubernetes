@@ -1,0 +1,45 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: http-exporter-mss
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 18003
+    protocol: TCP
+    name: http
+  selector:
+    app: http-exporter-mss
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-exporter-mss
+  namespace: http
+  labels:
+     app: http-exporter-mss
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: http-exporter-mss
+   template:
+      metadata:
+         labels:
+           app: http-exporter-mss
+      spec:
+        containers:
+        - args:
+          - /data/http_exporter
+          - -uri
+          - "http://cmsmonitoring.web.cern.ch/cmsmonitoring/storageoverview/latest/StorageOverview.json"
+          - -namespace
+          - "mss"
+          - -port
+          - ":18003"
+          - -verbose
+          name: http-exporter-mss
+          image: veknet/http-exporter
+          ports:
+          - containerPort: 18003

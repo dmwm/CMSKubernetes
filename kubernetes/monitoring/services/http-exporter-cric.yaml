@@ -1,0 +1,45 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: http-exporter-cric
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 18004
+    protocol: TCP
+    name: http
+  selector:
+    app: http-exporter-cric
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-exporter-cric
+  namespace: http
+  labels:
+     app: http-exporter-cric
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: http-exporter-cric
+   template:
+      metadata:
+         labels:
+           app: http-exporter-cric
+      spec:
+        containers:
+        - args:
+          - /data/http_exporter
+          - -uri
+          - "http://cms-cric.cern.ch/api/cms/site/query/?json&preset=data-processing"
+          - -namespace
+          - "cric"
+          - -port
+          - ":18004"
+          - -verbose
+          name: http-exporter-cric
+          image: veknet/http-exporter
+          ports:
+          - containerPort: 18004

@@ -1,0 +1,45 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: http-exporter-unified
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 18005
+    protocol: TCP
+    name: http
+  selector:
+    app: http-exporter-unified
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-exporter-unified
+  namespace: http
+  labels:
+     app: http-exporter-unified
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: http-exporter-unified
+   template:
+      metadata:
+         labels:
+           app: http-exporter-unified
+      spec:
+        containers:
+        - args:
+          - /data/http_exporter
+          - -uri
+          - "https://cms-unified.web.cern.ch/cms-unified/info.txt"
+          - -namespace
+          - "unified"
+          - -port
+          - ":18005"
+          - -verbose
+          name: http-exporter-unified
+          image: veknet/http-exporter
+          ports:
+          - containerPort: 18005

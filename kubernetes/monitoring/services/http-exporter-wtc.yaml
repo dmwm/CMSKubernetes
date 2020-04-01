@@ -1,0 +1,55 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: http-exporter-wtc
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 18001
+    protocol: TCP
+    name: http
+  selector:
+    app: http-exporter-wtc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-exporter-wtc
+  namespace: http
+  labels:
+     app: http-exporter-wtc
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: http-exporter-wtc
+   template:
+      metadata:
+         labels:
+           app: http-exporter-wtc
+      spec:
+        containers:
+        - args:
+          - /data/http_exporter
+          - -uri
+          - "https://vocms0113.cern.ch/globalerror2"
+          - -namespace
+          - "wtc"
+          - -proxyfile
+          - /etc/proxy/proxy
+          - -port
+          - ":18001"
+          - -verbose
+          name: http-exporter-wtc
+          image: veknet/http-exporter
+          ports:
+          - containerPort: 18001
+          volumeMounts:
+          - name: proxy-secrets
+            mountPath: /etc/proxy
+            readOnly: true
+        volumes:
+        - name: proxy-secrets
+          secret:
+            secretName: proxy-secrets
