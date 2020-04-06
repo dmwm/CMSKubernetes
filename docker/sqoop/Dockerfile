@@ -2,7 +2,7 @@ FROM cmssw/cmsweb
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 RUN yum install -y cern-hadoop-config spark-bin-2.3.0 hadoop-bin-2.7.5 hbase-bin-1.2.6 sqoop-bin-1.4
-RUN yum install -y java-1.8.0-openjdk-devel
+RUN yum install -y java-1.8.0-openjdk-devel sqoop-bin-1.4-7-0.5
 
 ENV WDIR=/data
 ADD scripts $WDIR/sqoop
