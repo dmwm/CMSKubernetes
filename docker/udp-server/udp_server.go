@@ -7,12 +7,15 @@ package main
 //
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
+	"net/http"
 	"strings"
 
 	"github.com/go-stomp/stomp"
@@ -24,6 +27,8 @@ var stompConn *stomp.Conn
 // Configuration stores server configuration parameters
 type Configuration struct {
 	Port            int    `json:"port"`            // server port number
+	MonitorPort     int    `json:"monitorPort"`     // server monitor port number
+	MonitorInterval int    `json:"monitorInterval"` // server monitor interval
 	BufSize         int    `json:"bufSize"`         // buffer size
 	StompURI        string `json:"stompURI"`        // StompAMQ URI
 	StompLogin      string `json:"stompLogin"`      // StompAQM login name
@@ -50,13 +55,19 @@ func parseConfig(configFile string) error {
 	}
 	// default values
 	if Config.Port == 0 {
-		Config.Port = 9331
+		Config.Port = 9331 // default port
+	}
+	if Config.MonitorPort == 0 {
+		Config.MonitorPort = 9330 // default port
+	}
+	if Config.MonitorInterval == 0 {
+		Config.MonitorInterval = 10 // default 10 seconds
 	}
 	if Config.BufSize == 0 {
 		Config.BufSize = 1024 // 1 KByte
 	}
 	if Config.StompIterations == 0 {
-		Config.StompIterations = 3
+		Config.StompIterations = 3 // number of Stomp attempts
 	}
 	if Config.ContentType == "" {
 		Config.ContentType = "application/json"
@@ -94,7 +105,11 @@ func sendDataToStomp(data []byte) {
 	for i := 0; i < Config.StompIterations; i++ {
 		err := stompConn.Send(Config.Endpoint, Config.ContentType, data)
 		if err != nil {
-			log.Printf("Stomp, unable to send data to %s, data %s, error %v, iteration %d", Config.Endpoint, string(data), err, i)
+			if i == Config.StompIterations-1 {
+				log.Printf("unable to send data to %s, data %s, error %v, iteration %d", Config.Endpoint, string(data), err, i)
+			} else {
+				log.Printf("unable to send data to %s, error %v, iteration %d", Config.Endpoint, err, i)
+			}
 			if stompConn != nil {
 				stompConn.Disconnect()
 			}
@@ -137,22 +152,48 @@ func udpServer() {
 		rlen, remote, err := conn.ReadFromUDP(buffer[:])
 		if err != nil {
 			log.Printf("Unable to read UDP packet, error %v", err)
+			// clear-up our buffer
+			buffer = buffer[:0]
 			continue
 		}
 		data := buffer[:rlen]
+
+		// if we receive ping message from monitoring server
+		// we will send POST HTTP request to it with our pong reply
+		if string(data) == "ping" {
+			if Config.Verbose {
+				log.Println("received monitor", string(data))
+			}
+			// send POST request to monitoring server, but don't care about response
+			s := []byte("pong")
+			rurl := fmt.Sprintf("http://localhost:%d", Config.MonitorPort)
+			http.Post(rurl, "text/plain", bytes.NewBuffer(s))
+
+			// clean-up our buffer
+			buffer = buffer[:0]
+			continue
+		}
 
 		// try to parse the data, we are expecting JSON
 		var packet map[string]interface{}
 		err = json.Unmarshal(data, &packet)
 		if err != nil {
 			log.Printf("unable to unmarshal UDP packet into JSON, error %v\n", err)
-			// let's increse buf size to adjust to the packet
-			bufSize = bufSize * 2
-			if bufSize > 1024*Config.BufSize {
-				log.Fatalf("unable to unmarshal UDP packet into JSON with buffer size %d", bufSize)
+			e := string(err.Error())
+			if strings.Contains(e, "invalid character") {
+				// nothing we can do about mailformed JSON, let's dump it
+				fmt.Println(string(data))
+			} else if strings.Contains(e, "unexpected end of JSON input") {
+				// let's increse buf size to adjust to the packet size
+				bufSize = bufSize * 2
+				if bufSize > 1024*Config.BufSize {
+					log.Fatalf("unable to unmarshal UDP packet into JSON with buffer size %d", bufSize)
+				}
 			}
 			// at this point we already read from UDP connection and our
 			// message didn't fit into buffer therefore we may skip the rest
+			// clear-up our buffer and continue
+			buffer = buffer[:0]
 			continue
 		}
 
@@ -168,7 +209,7 @@ func udpServer() {
 		}
 
 		// clear-up our buffer
-		buffer = nil
+		buffer = buffer[:0]
 	}
 }
 
@@ -177,6 +218,11 @@ func main() {
 	flag.StringVar(&config, "config", "", "configuration file")
 	flag.Parse()
 	err := parseConfig(config)
+	if Config.Verbose {
+		log.SetFlags(log.LstdFlags | log.Lshortfile)
+	} else {
+		log.SetFlags(log.LstdFlags)
+	}
 	if err == nil {
 		udpServer()
 	}
