@@ -2,46 +2,52 @@ Adapted from rucio instructions here: https://github.com/rucio/helm-charts/tree/
 
 # Accessing the existing kubernetes clusters
 
-The instructions below are for a fresh setup of a new kubernetes cluster. 
 Most people will only need to access an existing cluster to view logs, change configs, etc. 
-This is much simpler:
+For development clusters, these are in the CMSRucio Openstack project space, 
+so one can generate a copy if one does not have it.
 
     ssh lxplus-cloud.cern.ch
 
-    mkdir [directory to hold cluster files]
-    cd [directory to hold cluster files]
+    mkdir [directory to hold cluster config file]
+    cd [directory to hold cluster config file]
     `openstack coe cluster config  --os-project-name CMSRucio [cluster name, eg. cmsruciodev1]`
     
 even that is only needed the first time one accesses a particular cluster. On subsequent logins, just     
 
     ssh lxplus-cloud.cern.ch
 
-    export KUBECONFIG=[directory to hold cluster files]/config
+    export KUBECONFIG=[directory made above]/config
+
+For integration and production clusters, these are made by the CMSWeb Cat-A. 
+You need to be given the correct config file and it must be kept safe (not readable by anyone other than you.)
+
+    export KUBECONFIG=/path/to/cluster/config
 
 You can now issue all kubectl commands mentioned below as well as run the upgrade scripts.
 
-# First time setup
+# Creating your own cluster (most should skip this section)
 
 ## OpenStack project
 
-You need to request a personal OpenStack project in which to install your kubernetes cluster. 
+You need to request a personal OpenStack project in which to install your kubernetes cluster or get access to the CMSRucio 
+project space. 
 You might also want to request a quota for "Shares" in the "Geneva CephFS Testing" type for persistent data storage. 
 This is used right now by Graphite.
 
 ## Setup a new cluster in the CMSRucio project:
 
 Begin by logging into the CERN cloud infrastructure `slogin lxplus7-cloud.cern.ch`. 
-Edit `CMSKubernetes/kubernetes/rucio/create_cluster.sh` for the correct name and size. 
-This script has the current recommened openstack parameters for the cluster.
-You can determine all current labels with `openstack --os-project-name CMSRucio coe cluster template show [template]`
 
-    cd CMSKubernetes/kubernetes/rucio/
-    openstack coe cluster delete --os-project-name CMSRucio  cmsruciotest
-    ./create_cluster.sh
+    export OS_PROJECT_NAME=CMSRucio
+
+Get the latest copy of `https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/cmsweb/scripts/create_templates_dev.sh` 
+edit and run as needed to create a template used for your cluster. Then create a cluster with a command like:
+    
+    openstack coe cluster create  --os-project-name CMSRucio --keypair lxplus --cluster-template TEMPLATE --master-count 1 --node-count NUMBER CLUSTER_NAME 
 
 If you are creating your own project for development, please omit `--os-project-name CMSRucio`. 
 This will create a kubernetes cluster in your own openstack space rather than the central group space.
-CMSRucio is a project space CERN has set up for us to contain our production and testbed servers.
+CMSRucio is a project space CERN has set up for us to contain our testbed servers.
 
 ### If setting up a new/changed cluster:
 
