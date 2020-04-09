@@ -101,7 +101,14 @@ Set the following environment variables. The filenames must match these exactly.
 
 # To upgrade the servers
 
-The above is what is needed to get things bootstrapped the first time. After this, you can modify the various yaml files and
+The above is what is needed to get things bootstrapped the first time. 
+
+You can fetch new helm charts with the command
+    
+    helm3 repo update
+
+So that you are running the most recent versions of configurations of all the software. 
+To make your own changes to the Rucio setup, modify the various yaml files and
 
     export KUBECONFIG=[as above]
     cd CMSKubernetes/kubernetes/rucio
