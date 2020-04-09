@@ -1,5 +1,3 @@
-Adapted from rucio instructions here: https://github.com/rucio/helm-charts/tree/master/rucio-server
-
 # Accessing the existing kubernetes clusters
 
 Most people will only need to access an existing cluster to view logs, change configs, etc. 
