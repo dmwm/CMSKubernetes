@@ -3,7 +3,8 @@ image:
 
 abacusAccountCount: 1
 abacusRseCount: 1
-conveyorTransferSubmitterCount: 2
+#conveyorTransferSubmitterCount: 2
+conveyorTransferSubmitterCount: 1
 conveyorPollerCount: 1
 conveyorFinisherCount: 1
 hermesCount: 1
@@ -42,7 +43,7 @@ hermes:
     useSSL: 1
     threads: 5
     bulk: 500
-    brokerTimeout: 0
+    brokerTimeout: 120
 
 judgeEvaluator: 
   resources:
@@ -72,8 +73,10 @@ config:
         username: "cmsrucio"
         port: "61313"
         brokers: "cms-mb.cern.ch"
-    tracer:
         queue: "/queue/Consumer.kronos.cms.rucio.tracer"
+#    # Until 1.21.9
+#    tracer:
+#        queue: "/queue/Consumer.kronos.cms.rucio.tracer"
 
 transmogrifierResources:
     requests:
