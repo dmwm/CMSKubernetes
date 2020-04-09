@@ -35,17 +35,19 @@ This is used right now by Graphite.
 ## Setup a new cluster in the CMSRucio project:
 
 Begin by logging into the CERN cloud infrastructure `slogin lxplus7-cloud.cern.ch`. 
+To use CMSWeb project space, issue this command; skip it to use your own.
+CMSRucio is a project space CERN has set up for us to contain our testbed servers.
 
     export OS_PROJECT_NAME=CMSRucio
 
 Get the latest copy of `https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/cmsweb/scripts/create_templates_dev.sh` 
 edit and run as needed to create a template used for your cluster. Then create a cluster with a command like:
     
-    openstack coe cluster create  --os-project-name CMSRucio --keypair lxplus --cluster-template TEMPLATE --master-count 1 --node-count NUMBER CLUSTER_NAME 
+    openstack coe cluster create --keypair lxplus --cluster-template TEMPLATE --master-count 1 --node-count NUMBER CLUSTER_NAME 
 
-If you are creating your own project for development, please omit `--os-project-name CMSRucio`. 
-This will create a kubernetes cluster in your own openstack space rather than the central group space.
-CMSRucio is a project space CERN has set up for us to contain our testbed servers.
+You can monitor the status of the cluster creation with
+    
+    openstack coe cluster list
 
 ### Get a host certificate for the server
 
