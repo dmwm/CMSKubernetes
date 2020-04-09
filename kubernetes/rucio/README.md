@@ -49,8 +49,12 @@ You can monitor the status of the cluster creation with
     
     openstack coe cluster list
 
+Once it is finished, generate the KUBECONFIG file as explained above 
+and run the script `create_network.sh` to set the LANDB aliases.
+
 ### Get a host certificate for the server
 
+You may need to wait a few minutes for this to be possible as things percolate through DNS and LANDB.
 Go to ca.cern.ch and get the host certificate for one of the load balanced names above. 
 Add Service alternate names for the load balanced hostname, e.g. 
  * cms-rucio-testbed
