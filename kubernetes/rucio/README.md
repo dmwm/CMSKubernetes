@@ -105,6 +105,9 @@ Set the following environment variables. The filenames must match these exactly.
     cd CMSKubernetes/kubernetes/rucio
     ./install_rucio_[production, testbed, etc].sh
 
+On a completely fresh cluster, everything should come up with except the reaper, 
+which will fail because it has no RSEs to find.
+
 # To upgrade the servers
 
 The above is what is needed to get things bootstrapped the first time. 
