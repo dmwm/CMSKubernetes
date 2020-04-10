@@ -99,7 +99,7 @@ Set the following environment variables. The filenames must match these exactly.
     export ROBOTP12=[path to robot cert].p12
     ./create_secrets.sh
 
-## Install CMS server into the kubernetes project. Later we can add another set of values files for testbed, integration, production
+## Install CMS server into the kubernetes project. 
 
     export KUBECONFIG=[as above]
     cd CMSKubernetes/kubernetes/rucio
