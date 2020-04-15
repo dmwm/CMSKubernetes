@@ -1,62 +1,74 @@
-Adapted from rucio instructions here: https://github.com/rucio/helm-charts/tree/master/rucio-server
-
 # Accessing the existing kubernetes clusters
 
-The instructions below are for a fresh setup of a new kubernetes cluster. 
 Most people will only need to access an existing cluster to view logs, change configs, etc. 
-This is much simpler:
+For development clusters, these are in the CMSRucio Openstack project space, 
+so one can generate a copy if one does not have it.
 
     ssh lxplus-cloud.cern.ch
 
-    mkdir [directory to hold cluster files]
-    cd [directory to hold cluster files]
+    mkdir [directory to hold cluster config file]
+    cd [directory to hold cluster config file]
     `openstack coe cluster config  --os-project-name CMSRucio [cluster name, eg. cmsruciodev1]`
     
 even that is only needed the first time one accesses a particular cluster. On subsequent logins, just     
 
     ssh lxplus-cloud.cern.ch
 
-    export KUBECONFIG=[directory to hold cluster files]/config
+    export KUBECONFIG=[directory made above]/config
+
+For integration and production clusters, these are made by the CMSWeb Cat-A. 
+You need to be given the correct config file and it must be kept safe (not readable by anyone other than you.)
+
+    export KUBECONFIG=/path/to/cluster/config
 
 You can now issue all kubectl commands mentioned below as well as run the upgrade scripts.
 
-# First time setup
+# Creating your own cluster (most should skip this section)
 
 ## OpenStack project
 
-You need to request a personal OpenStack project in which to install your kubernetes cluster. 
+You need to request a personal OpenStack project in which to install your kubernetes cluster or get access to the CMSRucio 
+project space. 
 You might also want to request a quota for "Shares" in the "Geneva CephFS Testing" type for persistent data storage. 
 This is used right now by Graphite.
 
 ## Setup a new cluster in the CMSRucio project:
 
 Begin by logging into the CERN cloud infrastructure `slogin lxplus7-cloud.cern.ch`. 
-Edit `CMSKubernetes/kubernetes/rucio/create_cluster.sh` for the correct name and size. 
-This script has the current recommened openstack parameters for the cluster.
-You can determine all current labels with `openstack --os-project-name CMSRucio coe cluster template show [template]`
+To use CMSWeb project space, issue this command; skip it to use your own.
+CMSRucio is a project space CERN has set up for us to contain our testbed servers.
 
-    cd CMSKubernetes/kubernetes/rucio/
-    openstack coe cluster delete --os-project-name CMSRucio  cmsruciotest
-    ./create_cluster.sh
+    export OS_PROJECT_NAME=CMSRucio
 
-If you are creating your own project for development, please omit `--os-project-name CMSRucio`. 
-This will create a kubernetes cluster in your own openstack space rather than the central group space.
-CMSRucio is a project space CERN has set up for us to contain our production and testbed servers.
-
-### If setting up a new/changed cluster:
-
-For centrally managed cluster, get config file from Cat-A or ...
-
-    cd [some directory] # or use $HOME
-    export BASEDIR=`pwd`
-    rm key.pem cert.pem ca.pem config
-    openstack coe cluster config  --os-project-name CMSRucio  cmsruciotest
+Get the latest copy of `https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/cmsweb/scripts/create_templates_dev.sh` 
+edit and run as needed to create a template used for your cluster. Then create a cluster with a command like:
     
-This command will show you the proper value of your `KUBECONFIG` variable which should be this:   
-    
-    export KUBECONFIG=$BASEDIR/config
+    openstack coe cluster create --keypair lxplus --cluster-template TEMPLATE --master-count 1 --node-count NUMBER CLUSTER_NAME 
 
-Copy and paste the last line. On subsequent logins it is all that is needed. Now make sure that your nodes exist:
+You can monitor the status of the cluster creation with
+    
+    openstack coe cluster list
+
+Once it is finished, generate the KUBECONFIG file as explained above 
+and run the script `create_network.sh` to set the LANDB aliases.
+
+### Get a host certificate for the server
+
+You may need to wait a few minutes for this to be possible as things percolate through DNS and LANDB.
+Go to ca.cern.ch and get the host certificate for one of the load balanced names above. 
+Add Service alternate names for the load balanced hostname, e.g. 
+ * cms-rucio-testbed
+ * cms-rucio-auth-testbed
+ * cms-rucio-webui-testbed
+ * cms-rucio-stats-testbed
+ * cms-rucio-trace-testbed
+ * cms-rucio-eagle-testbed
+ 
+ For clusters created by the Cat-A, this certificate will be provided as part of the process. 
+  
+# Working with the cluster
+
+Once you have the correct value of KUBECONFIG set you should check that you can view the cluster like like so:
 
     -bash-4.2$ kubectl get nodes
     NAME                                 STATUS    ROLES     AGE       VERSION
@@ -67,63 +79,51 @@ Copy and paste the last line. On subsequent logins it is all that is needed. Now
 
 ## Setup the helm repos if needed
 
+We have switched to helm3 which no longer requires a pod running in the kubernetes cluster. 
+To distinguish this, place the helm3 executable named helm3 in your path. 
+You can download a copy from https://github.com/helm/helm/releases (make sure you find the latest version 3 release). 
+
 Substitute helm3 for helm
 
-    # kubectl config current-context
-    helm repo add rucio https://rucio.github.io/helm-charts
-    # helm repo add kiwigrid https://kiwigrid.github.io
-    helm repo add cms-kubernetes https://dmwm.github.io/CMSKubernetes/helm/
-    helm repo add kube-eagle https://raw.githubusercontent.com/cloudworkz/kube-eagle-helm-chart/master
-
-## Install helm into the kubernetes project
-
-Not needed with helm3. Skip.
-
-This is needed even though CERN installs its own helm to manage ingress-nginx. 
-The two helm instances are in separate k8s namespaces, so they do not collide.
-
-    cd CMSKubernetes/kubernetes/rucio
-    ./install_helm.sh
-
-## Get a host certificate for the server
-
-Go to ca.cern.ch and get the host certificate for one of the load balanced names above. 
-Add Service alternate names for the load balanced hostname, e.g. 
- * cms-rucio-testbed
- * cms-rucio-auth-testbed
- * cms-rucio-webui-testbed
- * cms-rucio-stats-testbed
- * cms-rucio-trace-testbed
- * cms-rucio-eagle-testbed
+    helm3 repo add rucio https://rucio.github.io/helm-charts
+    helm3 repo add cms-kubernetes https://dmwm.github.io/CMSKubernetes/helm/
+    helm3 repo add kube-eagle https://raw.githubusercontent.com/cloudworkz/kube-eagle-helm-chart/master
 
 ## Create relevant secrets 
 
 Set the following environment variables. The filenames must match these exactly.
 
     cd CMSKubernetes/kubernetes/rucio
+    export INSTANCE=dev{,int,testbed,prod}
     export HOSTP12=[path to host cert for ]-minion|node-0.p12 
-    export ROBOTCERT=[path to robot cert]/usercert.pem
-    export ROBOTKEY=[path to unencrypted robot]/new_userkey.pem
+    export ROBOTP12=[path to robot cert].p12
     ./create_secrets.sh
 
-*Obsolete?
-    ./CMSKubernetes/kubernetes/rucio/rucio_reaper_secret.sh  # Currently needs to be done after helm install below 
- N.b. In the past we also used /etc/pki/tls/certs/CERN-bundle.pem as a volume mount for logstash. 
-That no longer seems to be needed.*
-
-## Install CMS server into the kubernetes project. Later we can add another set of values files for testbed, integration, production
+## Install CMS server into the kubernetes project. 
 
     export KUBECONFIG=[as above]
     cd CMSKubernetes/kubernetes/rucio
     ./install_rucio_[production, testbed, etc].sh
 
+On a completely fresh cluster, everything should come up with except the reaper, 
+which will fail because it has no RSEs to find.
+
 # To upgrade the servers
 
-The above is what is needed to get things bootstrapped the first time. After this, you can modify the various yaml files and
+The above is what is needed to get things bootstrapped the first time. 
+
+You can fetch new helm charts with the command
+    
+    helm3 repo update
+
+So that you are running the most recent versions of configurations of all the software. 
+To make your own changes to the Rucio setup, modify the various yaml files and
 
     export KUBECONFIG=[as above]
     cd CMSKubernetes/kubernetes/rucio
     ./upgrade_rucio_[production, testbed, etc].sh
+    
+Sometimes it's easiest just to set up a few environment variables and execute the relevant commands.    
     
 # Resizing a cluster
 
@@ -167,6 +167,6 @@ Then you can delete the cluster with
     
 or remove the kubernetes parts of the cluster and THEN delete the cluster
 
-    helm del --purge cms-rucio-testbed cms-ruciod-testbed filebeat logstash graphite 
+    helm3 del --purge cms-rucio-testbed cms-ruciod-testbed filebeat logstash graphite 
     openstack coe cluster delete --os-project-name CMSRucio  MYOLDCLUSTER
     
