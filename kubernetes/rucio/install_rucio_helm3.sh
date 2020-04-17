@@ -21,10 +21,6 @@ helm3 install $PROBE_NAME --values cms-rucio-common.yaml,cms-rucio-probes.yaml,$
 helm3 install statsd-exporter --values statsd-prometheus-mapping.yaml,${INSTANCE}-statsd-exporter.yaml cms-kubernetes/rucio-statsd-exporter
 helm3 install kube-eagle --values eagle.yaml,${INSTANCE}-eagle.yaml kube-eagle/kube-eagle
 
-# Filebeat and logstash
-#helm install --name logstash --values cms-rucio-logstash.yml,${INSTANCE}-logstash-filter.yaml stable/logstash
-#helm install --name filebeat --values cms-rucio-filebeat.yml  stable/filebeat
-
 # Create a job NOW to start setting the proxies. 
 kubectl delete job --ignore-not-found=true fts
 kubectl create job --from=cronjob/${DAEMON_NAME}-renew-fts-proxy fts
@@ -32,24 +28,4 @@ kubectl create job --from=cronjob/${DAEMON_NAME}-renew-fts-proxy fts
 # Label is key to prevent it from also syncing datasets
 kubectl apply -f dataset-configmap.yaml
 kubectl apply -f ${INSTANCE}-sync-jobs.yaml -l syncs=rses
-
-# Set up landb loadbalance
-#numberIngressNodes=3
-#n=0
-#kubectl get node -o name | grep minion | while read node; do
-#  [[ $((n++)) == $numberIngressNodes ]] && break
-#  kubectl label --overwrite node ${node##node/} role=ingress
-#done
-#
-#n=0
-#kubectl get node -l role=ingress -o name | grep -v master | while read node; do
-#  # Remove any existing aliases
-#  openstack server unset --os-project-name CMSRucio --property landb-alias ${node##node/}
-#  echo $((n++))
-#  cnames="cms-rucio-stats-${INSTANCE}--load-${n}-,cms-rucio-${INSTANCE}--load-${n}-,cms-rucio-auth-${INSTANCE}--load-${n}-,cms-rucio-webui-${INSTANCE}--load-${n}-,cms-rucio-eagle-${INSTANCE}--load-${n}-,cms-rucio-trace-${INSTANCE}--load-${n}-"
-#  openstack server set --os-project-name CMSRucio --property landb-alias=$cnames ${node##node/}
-#done
-
-./update_ingress.sh
-
 

@@ -29,6 +29,8 @@ reaper2:
 
 conveyorTransferSubmitter:
     activities: "'User Subscriptions' 'Functional Test'"
+    # Same size or smaller than bulk which is 100
+    groupBulk: 50
 
 # Settings to renew FTS	proxy
 ftsRenewal:
