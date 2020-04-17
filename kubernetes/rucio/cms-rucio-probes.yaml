@@ -26,4 +26,10 @@ probes:
     interval: 1
   check_unlocked_replicas:
     interval: 1
+  check_expired_dids:
+    interval: 1
+  check_new_dids:
+    interval: 1
+  check_updated_dids:
+    interval: 1
 

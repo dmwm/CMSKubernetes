@@ -31,6 +31,16 @@ spec:
                   value: "/opt/rucio-int"
                 - name: TEST_SUFFIX
                   value: "int"
+                - name: GITLAB_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: cms-ruciod-int-rucio-daemons.cfg 
+                      key: cms_gitlab
+                - name: MONIT_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: cms-ruciod-int-rucio-daemons.cfg 
+                      key: cms_monit
               command: ['/root/CMSRucio/docker/CMSRucioClient/scripts/k8s_sync_sites.sh']
           restartPolicy: OnFailure
 ---
