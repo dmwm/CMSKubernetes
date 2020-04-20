@@ -58,10 +58,19 @@ kubectl create secret generic ${DAEMON_NAME}-host-cert --from-file=hostcert.pem
 kubectl create secret generic ${DAEMON_NAME}-host-key --from-file=hostkey.pem
 kubectl create secret generic ${DAEMON_NAME}-cafile  --from-file=ca.pem
 
+# Make 1st set of stuff for WEBUI - maybe can remove later
+
 export UI_NAME=webui
 kubectl create secret generic ${UI_NAME}-host-cert --from-file=hostcert.pem
 kubectl create secret generic ${UI_NAME}-host-key --from-file=hostkey.pem
-# See below for CA for WebUI
+kubectl create secret generic ${UI_NAME}-cafile  --from-file=ca.pem
+
+# Make 2nd set of stuff for WEBUI - seems this is newer version
+# We don't make the CA file here, but lower because it is different than the regular server
+
+export UI_NAME=cms-webui-${INSTANCE}
+kubectl create secret generic ${UI_NAME}-hostcert --from-file=hostcert.pem
+kubectl create secret generic ${UI_NAME}-hostkey --from-file=hostkey.pem
 
 # Secrets for FTS, hermes
 

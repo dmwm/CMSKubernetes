@@ -2,12 +2,12 @@ replicaCount: 3
 authReplicaCount: 2
 ingress:
   hosts: 
-    - cmsrucio-int.cern.ch
+    - cms-rucio.cern.ch
 authIngress:
   hosts: 
-    - cmsrucio-auth-int.cern.ch
+    - cms-rucio-auth.cern.ch
 traceIngress:
   hosts: 
-    - cmsrucio-trace-int.cern.ch
+    - cms-rucio-trace.cern.ch
 
 

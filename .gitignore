@@ -51,8 +51,8 @@ kubernetes/rucio/testbed-db.yaml
 kubernetes/rucio/dev-db.yaml
 kubernetes/rucio/cms-rucio-prod-db.yaml
 kubernetes/rucio/int-db.yaml
+kubernetes/rucio/prod-db.yaml
+kubernetes/rucio/futureprod-db.yaml
 
-kubernetes/rucio/int-db-2.yaml
-kubernetes/rucio/dev-db-2.yaml
 
 kubernetes/rucio/dev_grafana_password.txt

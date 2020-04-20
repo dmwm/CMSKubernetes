@@ -1,4 +1,4 @@
 ingress:
   hosts:
-    - cms-rucio-stats-int.cern.ch
+    - cmsrucio-stats-int.cern.ch
 
