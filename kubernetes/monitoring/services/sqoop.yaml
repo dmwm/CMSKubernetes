@@ -22,13 +22,16 @@ spec:
           - -n
           image: cmssw/sqoop
           name: sqoop
+          env:
+          - name: HADOOP_MAPRED_HOME
+            value: /usr/hdp/hadoop
           # here is an example how to run post command
           tty: true
           stdin: true
           lifecycle:
             postStart:
               exec:
-                command: ["echo", "vkunzet@gmail.com", ">", "~/.forward"]
+                command: ["echo", "vkuznet@gmail.com", ">", "~/.forward"]
           volumeMounts:
           - name: sqoop-secrets
             mountPath: /etc/sqoop
