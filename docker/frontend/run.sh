@@ -63,9 +63,7 @@ if [ -f /etc/secrets/cmsweb.services ]; then
     # put back vms if necessary
     if [ -f /etc/secrets/vms ]; then
         backend=`cat /etc/secrets/cmsweb.services`
-        replacements=`cat vms | awk 'BEGIN{ORS=" "}{print "-e \""$1"{s,"backend","$2",g}\""}' backend=$backend`
-        echo "sed -i $replacements /data/srv/state/frontend/server.conf"
-        sed -i $replacements /data/srv/state/frontend/server.conf
+        cat /etc/secrets/vms | awk '{print ""$1"{s,"backend","$2",g}"}' backend=$backend | awk '{print "sed -i -e \""$0"\" /data/srv/state/frontend/server.conf"}' | /bin/sh
     fi
 fi
 # allow to overwrite server.conf with one supplied by configuration
