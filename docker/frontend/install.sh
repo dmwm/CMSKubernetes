@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG2004f
+VER=HG2005b
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend frontend"
@@ -28,17 +28,17 @@ sed -i -e "s,https://cmsweb.cern.ch,$cmsk8s_prod,g" \
 
 # replace backend nodes
 #k8host=`echo $cmsk8s_prod | sed -e "s,\.cern\.ch,,g" -e "s,http://,,g" -e "s,https://,,g"`
-k8host=`echo $cmsk8s_srv | sed -e "s,\.cern\.ch,,g" -e "s,http://,,g" -e "s,https://,,g"`
-sed -i -e "s,vocms[0-9]*,$k8host,g" $WDIR/cfg/frontend/backends-prod.txt
-sed -i -e "s,|$k8host,,g" $WDIR/cfg/frontend/backends-prod.txt
+#k8host=`echo $cmsk8s_srv | sed -e "s,\.cern\.ch,,g" -e "s,http://,,g" -e "s,https://,,g"`
+#sed -i -e "s,vocms[0-9]*,$k8host,g" $WDIR/cfg/frontend/backends-prod.txt
+#sed -i -e "s,|$k8host,,g" $WDIR/cfg/frontend/backends-prod.txt
 # let's correct substitutions
-sed -i -e "s,cern.ch.cern.ch,cern.ch,g" $WDIR/cfg/frontend/backends-prod.txt
+#sed -i -e "s,cern.ch.cern.ch,cern.ch,g" $WDIR/cfg/frontend/backends-prod.txt
 # cat whole file except last line
 cat $WDIR/cfg/frontend/backends-prod.txt | sed \$d > b.txt
 # add httpgo redirect rule to k8s backend cluster
 echo "^/auth/complete/httpgo(?:/|$)" $cmsk8s_prod >> b.txt
 # all other will go to our k8host
-echo "^ ${k8host}.cern.ch" >> b.txt
+#echo "^ ${k8host}.cern.ch" >> b.txt
 rm $WDIR/cfg/frontend/backends-prod.txt
 mv b.txt $WDIR/cfg/frontend/backends.txt
 

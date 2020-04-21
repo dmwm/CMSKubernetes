@@ -60,13 +60,24 @@ if [ -f /etc/secrets/cmsweb.services ]; then
     cp /data/srv/state/frontend/server.conf /data/srv/state/frontend/server.conf.orig
     srvs=`cat /etc/secrets/cmsweb.services | awk '{print "s,%{ENV:BACKEND}:[0-9][0-9][0-9][0-9],"$1",g"}'`
     sed -i -e "$srvs" /data/srv/state/frontend/server.conf
+    
+    backend=`cat /etc/secrets/cmsweb.services`
+    sed -i -e "s,vocms[0-9]*,$backend,g" /data/srv/current/config/frontend/backends-prod.txt
+    echo "^ $backend" >> /data/srv/current/config/frontend/backends-prod.txt
+    sed -i -e "s,cern.ch.cern.ch,cern.ch,g" /data/srv/current/config/frontend/backends-prod.txt
+    sed -i -e "s,|$backend,,g" /data/srv/current/config/frontend/backends-prod.txt
+    cp /data/srv/current/config/frontend/backends-prod.txt /data/srv/current/config/frontend/backends.txt
+
     # put back vms if necessary
     if [ -f /etc/secrets/vms ]; then
-        backend=`cat /etc/secrets/cmsweb.services`
-        replacements=`cat vms | awk 'BEGIN{ORS=" "}{print "-e \""$1"{s,"backend","$2",g}\""}' backend=$backend`
+        replacements=`cat /etc/secrets/vms | awk 'BEGIN{ORS=" "}{print "-e \""$1"{s,"backend","$2",g}\""}' backend=$backend`
         echo "sed -i $replacements /data/srv/state/frontend/server.conf"
-        sed -i $replacements /data/srv/state/frontend/server.conf
+        sed -i "$replacements" /data/srv/state/frontend/server.conf
     fi
+
+
+
+
 fi
 # allow to overwrite server.conf with one supplied by configuration
 if [ -f /etc/secrets/server.conf ]; then
