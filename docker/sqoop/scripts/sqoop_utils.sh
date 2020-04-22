@@ -1,5 +1,6 @@
 function setJava()
 {
+  export PATH="$PATH:/usr/hdp/sqoop/bin/"
   DEFAULT_JAVA_HOME='/usr/lib/jvm/java-1.8.0'
   if [ -z $1 ]
   then
@@ -16,9 +17,9 @@ function sendMail()
   OUTPUT_ERROR=`cat $1 | egrep -i error`
 
   SUBJECT="Error in $2 loading [$3]"
-  MAIL=`cat ~/.forward`
+  #MAIL=`cat ~/.forward`
   if [[ $OUTPUT_ERROR == *"ERROR"* ]]; then
-    (echo "Check file [$1] for more info." && echo "===========" && echo "${OUTPUT_ERROR}") | mail -s "$SUBJECT" $MAIL
+    (echo "Check file [$1] for more info." && echo "===========" && echo "${OUTPUT_ERROR}") #| mail -s "$SUBJECT" $MAIL
   fi
 }
 
@@ -106,7 +107,7 @@ function import_table()
 
    echo "sqoop import..."
 
-   sqoop import --direct --connect $JDBC_URL --fetch-size 10000 --username $USERNAME --password $PASSWORD --target-dir $OUTPUT_FOLDER -m 1 --query "$Q" \
+   sqoop import -Dmapreduce.job.user.classpath.first=true -Ddfs.client.socket-timeout=120000 --direct --connect $JDBC_URL --fetch-size 10000 --username $USERNAME --password $PASSWORD --target-dir $OUTPUT_FOLDER -m 1 --query "$Q" \
    --fields-terminated-by , --escaped-by \\ --optionally-enclosed-by '\"' \
    1>$TMP_OUT 2>$TMP_ERR
 
@@ -159,7 +160,7 @@ function import_counts()
    echo "Folder: $OUTPUT_FOLDER" >> $LOG_FILE.cron
    echo "quering...$QUERY" >> $LOG_FILE.cron
 
-   sqoop import --direct --connect $JDBC_URL --fetch-size 10000 --username $USERNAME --password $PASSWORD --target-dir $OUTPUT_FOLDER -m 1 --query "$QUERY" \
+   sqoop import -Dmapreduce.job.user.classpath.first=true -Ddfs.client.socket-timeout=120000 --direct --connect $JDBC_URL --fetch-size 10000 --username $USERNAME --password $PASSWORD --target-dir $OUTPUT_FOLDER -m 1 --query "$QUERY" \
    --fields-terminated-by , --escaped-by \\ --optionally-enclosed-by '\"' \
    1>>$LOG_FILE.stdout 2>>$LOG_FILE.stderr
 
