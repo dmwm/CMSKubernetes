@@ -68,11 +68,9 @@ deploy_cronjobs()
 {
     # create cron accounts
     k apply -f crons/proxy-account.yaml -n http
-    k apply -f crons/sqoop-account.yaml -n sqoop
 
     # create new cronjob
     k apply -f crons/cron-proxy.yaml -n http
-    k apply -f crons/cron-proxy.yaml -n sqoop
 }
 
 # cluster proxies deployment
@@ -102,8 +100,8 @@ deploy_proxies()
     proxy=/tmp/$USER/proxy
     voms-proxy-init -voms cms -rfc --key $robot_key --cert $robot_crt -valid 95:50 --out $proxy
 
-    # create proxy-secrets
-    for ns in http sqoop; do
+    # create proxy-secrets for list of namespaces
+    for ns in http; do
         if [ -n "`kubectl -n $ns get secrets | grep proxy-secrets`" ]; then
             echo "delete proxy-secrets in $ns namespace"
             kubectl -n $ns delete secret proxy-secrets
