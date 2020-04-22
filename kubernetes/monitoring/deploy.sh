@@ -72,6 +72,7 @@ deploy_cronjobs()
 
     # create new cronjob
     k apply -f crons/cron-proxy.yaml -n http
+    k apply -f crons/cron-proxy.yaml -n sqoop
 }
 
 # cluster proxies deployment
@@ -89,7 +90,6 @@ deploy_proxies()
         echo "please setup ROBOT_CERT environment"
         exit 1
     fi
-    proxy=/tmp/$USER/proxy
 
     # create robot-secrets
     if [ -n "`kubectl -n http get secrets | grep robot-secrets`" ]; then
@@ -99,14 +99,17 @@ deploy_proxies()
     kubectl create secret generic robot-secrets --from-file=$robot_key --from-file=$robot_crt --dry-run -o yaml | kubectl apply --namespace=http -f -
 
     # obtain proxy file
-    voms-proxy-init -voms cms -rfc --key $robot_key --cert $robot_crt --out $proxy
+    proxy=/tmp/$USER/proxy
+    voms-proxy-init -voms cms -rfc --key $robot_key --cert $robot_crt -valid 95:50 --out $proxy
 
     # create proxy-secrets
-    if [ -n "`kubectl -n http get secrets | grep proxy-secrets`" ]; then
-        echo "delete robot-secrets in http namespace"
-        kubectl -n http delete secret proxy-secrets
-    fi
-    kubectl create secret generic proxy-secrets --from-file=$proxy --dry-run -o yaml | kubectl apply --namespace=http -f -
+    for ns in http sqoop; do
+        if [ -n "`kubectl -n $ns get secrets | grep proxy-secrets`" ]; then
+            echo "delete proxy-secrets in $ns namespace"
+            kubectl -n $ns delete secret proxy-secrets
+        fi
+        kubectl create secret generic proxy-secrets --from-file=$proxy --dry-run -o yaml | kubectl apply --namespace=$ns -f -
+    done
 }
 
 # cluster secrets deployment
