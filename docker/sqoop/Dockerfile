@@ -7,6 +7,8 @@ RUN yum install -y java-1.8.0-openjdk-devel
 ENV WDIR=/data
 ADD scripts $WDIR/sqoop
 ADD queries $WDIR/sqoop/queries
+ADD run.sh $WDIR/sqoop
+ADD daemon.sh $WDIR/sqoop
 RUN hadoop-set-default-conf.sh analytix
 RUN source hadoop-setconf.sh analytix
 ENV PATH $PATH:/usr/hdp/hadoop/bin:/usr/hdp/sqoop/bin
