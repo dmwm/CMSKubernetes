@@ -17,24 +17,14 @@ spec:
       spec:
         containers:
         - args:
-          - sudo
-          - /usr/sbin/crond
-          - -n
-          image: cmssw/sqoop
+          - /data/sqoop/daemon.sh
+          - /data/sqoop
+          - "7200"
+          image: cmssw/sqoop:20200422_v3
           name: sqoop
-          env:
-          - name: HADOOP_MAPRED_HOME
-            value: /usr/hdp/hadoop
-          # here is an example how to run post command
-          tty: true
-          stdin: true
-          lifecycle:
-            postStart:
-              exec:
-                command: ["echo", "vkuznet@gmail.com", ">", "~/.forward"]
           volumeMounts:
           - name: sqoop-secrets
-            mountPath: /etc/sqoop
+            mountPath: /etc/cmsdb
             readOnly: true
         volumes:
         - name: sqoop-secrets
