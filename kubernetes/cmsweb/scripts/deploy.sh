@@ -51,8 +51,8 @@ cmsweb_ns=`grep namespace $sdir/* | awk '{print $3}' | sort | uniq`
 
 # services for cmsweb cluster, adjust if necessary
 #cmsweb_ing="ing-srv"
-cmsweb_ing="ing-confdb ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tzero"
-cmsweb_srvs="httpgo httpsgo frontend acdcserver confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks"
+cmsweb_ing="ing-confdb ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tzero ing-exitcodes"
+cmsweb_srvs="httpgo httpsgo frontend acdcserver confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
 
 # list of DBS instances
 dbs_instances="migrate  global-r global-w phys03-r phys03-w"
@@ -95,8 +95,8 @@ kubectl get node
 if [ "$deployment" == "services" ]; then
     # services for cmsweb cluster, adjust if necessary
     #cmsweb_ing="ing-srv"
-    cmsweb_ing="ing-confdb ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tzero"
-    cmsweb_srvs="httpgo httpsgo acdcserver confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks"
+    cmsweb_ing="ing-confdb ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tzero ing-exitcodes"
+    cmsweb_srvs="httpgo httpsgo acdcserver confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
     echo "+++ deploy services: $cmsweb_srvs"
     echo "+++ deploy ingress : $cmsweb_ing"
 elif [ "$deployment" == "frontend" ]; then
