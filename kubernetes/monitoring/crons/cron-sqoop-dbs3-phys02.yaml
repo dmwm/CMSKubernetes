@@ -1,0 +1,26 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cron-sqoop-dbs3-phys02
+  namespace: sqoop
+spec:
+  schedule: "03 22 * * TUE"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: sqoop-account
+          containers:
+          - args:
+            - /data/sqoop/run.sh
+            - /data/sqoop/cms-dbs3-full-copy-PHYS02.sh
+            name: sqoop
+            image: cmssw/sqoop:20200422_v3
+            volumeMounts:
+            - name: sqoop-secrets
+              mountPath: /etc/cmsdb
+          restartPolicy: Never
+          volumes:
+          - name: sqoop-secrets
+            secret:
+              secretName: sqoop-secrets
