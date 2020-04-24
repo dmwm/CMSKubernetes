@@ -304,13 +304,13 @@ deploy_secrets()
         # create secrets with our robot certificates
         kubectl create secret generic robot-secrets \
             --from-file=$robot_key --from-file=$robot_crt \
-            $files --dry-run=client -o yaml | \
+            $files --dry-run -o yaml | \
             kubectl apply --namespace=$ns -f -
 
         # create proxy secret
         if [ -f $proxy ]; then
             kubectl create secret generic proxy-secrets \
-                --from-file=$proxy --dry-run=client -o yaml | \
+                --from-file=$proxy --dry-run -o yaml | \
                 kubectl apply --namespace=$ns -f -
         fi
 
@@ -356,7 +356,7 @@ deploy_secrets()
                     kubectl create secret generic ${srv}-${inst}-secrets \
                         --from-file=$robot_key --from-file=$robot_crt \
                         --from-file=$hmac \
-                        $files $dbsfiles --dry-run=client -o yaml | \
+                        $files $dbsfiles --dry-run -o yaml | \
                         kubectl apply --namespace=$ns -f -
                 done
             else
@@ -368,7 +368,7 @@ deploy_secrets()
                 kubectl create secret generic ${srv}-secrets \
                     --from-file=$robot_key --from-file=$robot_crt \
                     --from-file=$hmac \
-                    $files --dry-run=client -o yaml | \
+                    $files --dry-run -o yaml | \
                     kubectl apply --namespace=$ns -f -
             fi
         done
@@ -377,7 +377,7 @@ deploy_secrets()
 
     # create ingress secrets file, it requires tls.key/tls.crt files
     kubectl create secret generic ing-secrets \
-        --from-file=$tls_key --from-file=$tls_crt --dry-run=client -o yaml | \
+        --from-file=$tls_key --from-file=$tls_crt --dry-run -o yaml | \
         kubectl apply -f -
 
     # perform clean-up
