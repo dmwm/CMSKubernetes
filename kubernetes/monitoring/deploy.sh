@@ -174,7 +174,7 @@ deploy_secrets()
         echo "Please provide secrets/cms-htcondor-es area with collectors.json file"
         exit 1
     fi
-    kubectl -n sqoop create secret generic sqoop-secrets --from-file=secrets/sqoop/cmsr_cstring --from-file=secrets/sqoop/lcgr_cstring
+    kubectl -n sqoop create secret generic sqoop-secrets --from-file=secrets/sqoop/cmsr_cstring --from-file=secrets/sqoop/lcgr_cstring --from-file=secrets/sqoop/keytab
 }
 
 # cluster storages deployment
