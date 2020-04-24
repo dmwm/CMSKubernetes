@@ -2,12 +2,6 @@
 # Sqoop jobs taken from AWG and CERN DB IT group to dump CMS databases
 #
 
-
-cms-aso.sh            cms-dbs3-full-copy-PHYS01.sh  cms-jm.sh                        phedex-file-catalog.sh
-cms-dbs3-blocks.sh    cms-dbs3-full-copy-PHYS02.sh  cmssw-popularity.sh              sqoop_utils.sh
-cms-dbs3-datasets.sh  cms-dbs3-full-copy-PHYS03.sh  jm-cms-data-pop.sh
-cms-dbs3-files.sh     cms-dbs3-full-copy.sh         phedex-blk-replicas-snapshot.sh
-
 # jobmon dump
 #13 04 * * * cd /data/sqoop; ./cms-jm.sh
 #13 04 * * * cd /data/sqoop; ./jm-cms-data-pop.sh
