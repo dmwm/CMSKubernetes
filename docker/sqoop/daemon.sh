@@ -1,24 +1,28 @@
 #!/bin/bash
+# clean-up log daemon
 
 wdir=$1
-interval=$2
+mtime=$2
+interval=$3
 
 if [ "$wdir" == "" ]; then
-    wdir=/data/sqoop
+    wdir=/data/sqoop/log # default directory to look
+fi
+if [ "$mtime" == "" ]; then
+    mtime=7 # default modification time to find
 fi
 if [ "$interval" == "" ]; then
-    interval=3600
+    interval=3600 # default sleep interval
 fi
-echo "daemon: $wdir with interval=$interval"
-if [ -d $wdir ]; then
-    cd $wdir
-fi
+echo "daemon: $wdir with interval=$interval, mtime=$mtime"
 
 # run daemon
 while true; do
-   rm -f $wdir/log/*
-   $wdir/run.sh $wdir/cms-dbs3-datasets.sh
-   $wdir/run.sh $wdir/cms-dbs3-blocks.sh
-   $wdir/run.sh $wdir/cms-dbs3-files.sh
-   sleep $interval
+    files=`find $wdir -mtime +$mtime`
+    for f in $files; do
+        if [ -f $f ] && [ ! -d $f ]; then
+            echo "delete: $f"
+        fi
+    done
+    sleep $interval
 done

@@ -18,9 +18,10 @@ spec:
         containers:
         - args:
           - /data/sqoop/daemon.sh
-          - /data/sqoop
+          - /data/sqoop/log
+          - "7"
           - "7200"
-          image: cmssw/sqoop:20200422_v3
+          image: cmssw/sqoop:20200424
           name: sqoop
           volumeMounts:
           - name: sqoop-secrets
