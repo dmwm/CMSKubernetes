@@ -97,3 +97,4 @@ curl http://${GATEWAY_URL}/httpgo
 ### Resources
 1. [Istio Service Mesh video](https://www.youtube.com/watch?v=6zDrLvpfCK4&app=desktop)
 2. [Istio](http://istio.io)
+3. [How Istio Works Behind the Scenes on Kubernetes](https://link.medium.com/HBR6WdOf45)
