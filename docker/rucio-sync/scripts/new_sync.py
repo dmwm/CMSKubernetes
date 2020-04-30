@@ -8,12 +8,14 @@ import string
 from multiprocessing import Pool
 
 import yaml
+from phedex import PhEDEx
 from rucio.api.replica import list_datasets_per_rse, list_dataset_replicas
+from rucio.api.rule import list_replication_rules
 from rucio.core import monitor
 from rucio.db.sqla.constants import DIDType
+from syncaccounts import SYNC_ACCOUNT_FMT
 
 from BlockSyncer import BlockSyncer
-from phedex import PhEDEx
 
 # import time
 
@@ -65,7 +67,7 @@ def save_last_synced(last_synced):
     return
 
 
-def compare_site_blocks(phedex=None, rucio=None, rse=''):
+def compare_site_blocks(phedex=None, rucio=None, rse='', patterns=None):
     """
 
     :param phedex: Dictionary with file counts for PhEDEx
@@ -75,6 +77,20 @@ def compare_site_blocks(phedex=None, rucio=None, rse=''):
     with monitor.record_timer_block('cms_sync.time_node_diff'):
         phedex_blocks = set(phedex.keys())
         rucio_blocks = set(rucio.keys())
+
+        if patterns:
+            phedex_match = set()
+            rucio_match = set()
+
+            for pattern in patterns:
+                phedex_match = phedex_match | {p for p in phedex_blocks if pattern in p}
+                rucio_match = rucio_match | {r for r in rucio_blocks if pattern in r}
+
+            logging.info('Pattern matching reduces Rucio %s->%s and PhEDEx %s->%s',
+                         len(rucio_blocks), len(rucio_match), len(phedex_blocks), len(phedex_match))
+            phedex_blocks = phedex_match
+            rucio_blocks = rucio_match
+
         missing_phedex = rucio_blocks - phedex_blocks
         missing_rucio = phedex_blocks - rucio_blocks
         both = phedex_blocks & rucio_blocks
@@ -96,8 +112,9 @@ class SiteSyncer(object):
         self.config = load_config(options.config)
         self.last_synced = {}  # load_last_synced()
         self.phedex_svc = PhEDEx()
+        self.patterns = []
 
-        pass
+        return
 
     def sync_site(self, site_pair):
         """
@@ -114,6 +131,8 @@ class SiteSyncer(object):
         if self.config.get('default', None):
             if self.config['default'].get('chunck', 0):
                 BLOCKS_PER_ACTION = int(self.config['default']['chunck'])
+            if self.config['default'].get('select', None):
+                self.patterns = [self.config['default']['select']]
 
         with monitor.record_timer_block('cms_sync.time_site_sync'):
 
@@ -140,16 +159,19 @@ class SiteSyncer(object):
                 logging.info("At %s:%s, nothing in PhEDEx or Rucio. Quitting." % (site, prefix))
                 return
 
-            block_report = compare_site_blocks(phedex=phedex_blocks, rucio=rucio_blocks, rse=site)
+            block_report = compare_site_blocks(phedex=phedex_blocks, rucio=rucio_blocks, rse=site, patterns=self.patterns)
 
             n_blocks_not_in_rucio = len(block_report['not_rucio'])
             n_blocks_not_in_phedex = len(block_report['not_phedex'])
             n_incomplete_blocks = len(block_report['incomplete'])
 
-            logging.info("At %s: In both/PhEDEx only/Rucio only: %s/%s/%s" %
-                         (site, len(block_report['complete']),
+            logging.info("At %s:%s In both/PhEDEx only/Rucio only: %s/%s/%s" %
+                         (site, prefix, len(block_report['complete']),
                           n_blocks_not_in_rucio, n_blocks_not_in_phedex))
-
+            if len(block_report['complete']) or n_blocks_not_in_rucio or n_blocks_not_in_phedex:
+                logging.info('At %s:%s %3.0f%% complete',
+                             site, prefix, len(block_report['complete']) * 100
+                             / (len(block_report['complete']) + n_blocks_not_in_rucio + n_blocks_not_in_phedex))
             # Truncate lists if we want to reduce cycle time
             if BLOCKS_PER_ACTION and n_blocks_not_in_rucio > BLOCKS_PER_ACTION:
                 block_report['not_rucio'] = set(list(block_report['not_rucio'])[:BLOCKS_PER_ACTION])
@@ -211,17 +233,25 @@ class SiteSyncer(object):
         if prefix:
             filters['name'] = '/' + prefix + '*'
 
+
+        account = SYNC_ACCOUNT_FMT % rse.lower()
+        rule_filters = {'account': account, 'scope': 'cms', 'did_type': DIDType.DATASET}
+
         with monitor.record_timer_block('cms_sync.time_rse_datasets'):
+            synced_ds = {item['name'] for item in list_replication_rules(filters=rule_filters)
+                         if item['expires_at'] is None and (prefix is None or item['name'].startswith('/' + prefix))}
+
             all_datasets = [dataset['name'] for dataset in list_datasets_per_rse(rse=rse, filters=filters)]
 
-            for dataset in all_datasets:
-                datasets = {dataset: ds['available_length']
-                            for ds in list_dataset_replicas(scope='cms', name=dataset, deep=True)
-                            if ds['rse'] == rse
-                            }
+            logging.info('Getting all datasets at %s with prefix %s' % (rse, prefix))
 
-            # datasets = {dataset['name']: dataset['available_length']
-            #             for dataset in list_datasets_per_rse(rse=rse, filters=filters, deep=True)}
+            datasets = {}
+
+            for dataset in all_datasets:
+                if dataset in synced_ds:
+                    for ds in list_dataset_replicas(scope='cms', name=dataset, deep=True):
+                        if ds['rse'] == rse:
+                            datasets.update({dataset: ds['available_length']})
 
         return datasets
 
