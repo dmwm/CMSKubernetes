@@ -1,15 +1,24 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
+metadata:
+  labels:
+      app: rucio-client
+      release: custom
 metadata:
   name: client
   labels:
     app: client
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: rucio-client
+      release: custom
   template:
     metadata:
       labels:
-        app: client
+        app: rucio-client
+        release: custom
     spec:
       containers:
         - name: client

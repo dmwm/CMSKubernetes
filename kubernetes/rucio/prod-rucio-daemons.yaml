@@ -1,3 +1,6 @@
+reaper2count: 0
+
+
 reaper2:
   includeRses: "cms_type=test"
   excludeDids: "/NANOAOD"
