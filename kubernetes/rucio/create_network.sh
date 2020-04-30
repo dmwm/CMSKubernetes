@@ -9,7 +9,7 @@ kubectl get node -o name | grep node | grep -v master | while read node; do
 done
 
 # Change this value by two or three if setting up a cluster like int2/dev2 etc to avoid collision in the LANDB names
-n=2
+n=0
 kubectl get node -l role=ingress -o name | grep -v master | while read node; do
   # Remove any existing aliases
   openstack server unset --property landb-alias ${node##node/}

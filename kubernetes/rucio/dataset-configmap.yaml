@@ -14,6 +14,7 @@ data:
     default:
         pool: 1
         chunck: 1000
+        select: NANOAOD
     T1_DE_KIT_Disk:
         pool: 5
         multi_das_calls: True
