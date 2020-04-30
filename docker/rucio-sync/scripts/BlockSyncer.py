@@ -1,6 +1,8 @@
 from __future__ import absolute_import, division, print_function
 
+import copy
 import logging
+import json
 import os
 
 from CMSRucio import replica_file_list
@@ -10,12 +12,14 @@ from rucio.api.replica import list_replicas, add_replicas, delete_replicas
 from rucio.api.rse import get_rse, list_rses
 from rucio.api.rule import add_replication_rule, list_replication_rules, delete_replication_rule
 from rucio.common.exception import (DataIdentifierNotFound, DataIdentifierAlreadyExists, DuplicateContent,
-                                    FileAlreadyExists)
+                                    FileAlreadyExists,ReplicaNotFound)
 from rucio.common.types import InternalScope
 from rucio.common.utils import chunks
 from rucio.core import monitor
 from rucio.core.replica import update_replica_state as core_update_state
+from rucio.core.replica import update_replicas_states
 from syncaccounts import SYNC_ACCOUNT_FMT
+from rucio.core.rule import get_rule, add_rule, delete_rule
 
 REMOVE_CHUNK_SIZE = 20
 DEFAULT_SCOPE = 'cms'
@@ -56,6 +60,8 @@ class BlockSyncer(object):
             self.rse = list_rses('cms_type=real&pnn=%s' % self.pnn)[0]['rse']
         else:
             self.rse = rse
+        rse_details = get_rse(self.rse)
+        self.rse_id = rse_details['id']
 
         self.account = SYNC_ACCOUNT_FMT % self.pnn.lower()
         self.container = self.phedex_svc.check_data_item(pditem=block_name)['pds']
@@ -145,6 +151,7 @@ class BlockSyncer(object):
                     monitor.record_counter('cms_sync.dataset_created')
             except DataIdentifierAlreadyExists:
                 logging.warning('Attempt to add %s:%s failed, already exists.', self.scope, self.block_name)
+                monitor.record_counter('cms_sync.dataset_collision')
 
             try:
                 attach_dids(scope=self.scope, name=self.container,
@@ -156,7 +163,6 @@ class BlockSyncer(object):
                 logging.error('Attempt to add %s:%s to %s failed. Container does not exist.',
                               self.scope, self.block_name, self.container)
                 return False
-            monitor.record_counter('cms_sync.dataset_created')
             self.block_exists = True
 
         return self.block_exists
@@ -188,7 +194,8 @@ class BlockSyncer(object):
                 logging.info("Removing rules for dataset %s at rse %s.", self.block_name, self.rse)
             else:
                 for rule in remove_rules:
-                    delete_replication_rule(rule['id'], purge_replicas=False, issuer=self.account)
+                    # delete_replication_rule(rule['id'], purge_replicas=False, issuer=self.account)
+                    delete_rule(rule_id=rule['id'], purge_replicas=True, soft=False)
                     monitor.record_counter('cms_sync.rules_removed')
             self.rule_exists = False
 
@@ -267,16 +274,23 @@ class BlockSyncer(object):
         :param to_remove: replicas to remove from Rucio
         :return:
         """
-
+        scope = InternalScope(self.scope)
         with monitor.record_timer_block('cms_sync.time_remove_replica'):
             if to_remove and self.dry_run:
                 logging.info('Dry run: Removing replicas %s from rse %s.', str(to_remove), self.rse)
             elif to_remove:
                 logging.debug('Removing %s replicas from rse %s.', len(to_remove), self.rse)
                 for to_remove_chunk in chunks(to_remove, REMOVE_CHUNK_SIZE):
-                    delete_replicas(rse=self.rse, issuer=self.account,
-                                    files=[{'scope': self.scope, 'name': lfn} for lfn in to_remove_chunk])
-                    # FIXME: Do we need a retry here on DatabaseException? If so, use the retry module
+                    replicas = [{'scope': scope, 'name': lfn, "rse_id": self.rse_id, "state": "U"}
+                                for lfn in to_remove_chunk]
+                    # transactional_session here?
+                    # while lock is set stuck, judge-repairer might make transfer requests before rule is gone but does it matter?
+                    update_replicas_states(
+                        replicas=replicas, add_tombstone=False,
+                    )
+
+                # delete_replicas(rse=self.rse, issuer=self.account,
+                #                     files=[{'scope': self.scope, 'name': lfn} for lfn in to_remove_chunk])
                 return len(to_remove)
 
     def add_missing_replicas(self, missing):
@@ -292,7 +306,14 @@ class BlockSyncer(object):
                 logging.debug('Adding %s replicas to rse %s.', len(missing), self.rse)
                 replicas_to_add = [self.replicas[lfn] for lfn in missing]
                 files = replica_file_list(replicas=replicas_to_add, scope=self.scope)
-                add_replicas(rse=self.rse, files=files, issuer=self.account)
+                for rucio_file in files:
+                    try:
+                        update_file = copy.deepcopy(rucio_file)
+                        update_file.update({'scope': InternalScope(self.scope), "rse_id": self.rse_id, "state": "A"})
+                        update_replicas_states(replicas=[update_file], add_tombstone=False)
+                    except ReplicaNotFound:
+                        add_replicas(rse=self.rse, files=[rucio_file], issuer=self.account, ignore_availability=True)
+                # add_replicas(rse=self.rse, files=files, issuer=self.account)
                 lfns = [item['name'] for item in list_files(scope=self.scope, name=self.block_name, long=False)]
 
                 missing_lfns = list(set(missing) - set(lfns))
@@ -321,9 +342,12 @@ class BlockSyncer(object):
         :return: None
         """
 
-        (grouping, weight, lifetime, locked, subscription_id, source_replica_expression, activity, notify,
-         purge_replicas, ignore_availability, comment, ask_approval, asynchronous, priority, split_container, meta) = (
-            'DATASET', None, None, False, None, None, None, None, False, False, None, False, False, 3, False, None)
+        (grouping, weight, lifetime, locked, subscription_id, source_replica_expression,  notify,
+         purge_replicas, ignore_availability, comment, ask_approval, asynchronous, priority, split_container) = (
+            'DATASET', None, None, False, None, None,  None, False, False, None, False, False, 3, False)
+
+        activity = 'Data Consolidation'
+        meta = json.dumps({"phedex_group": "DataOps", "phedex_custodial": True})
 
         add_replication_rule(dids=dids, copies=copies, rse_expression=rse_expression, account=account,
                              grouping=grouping, weight=weight, lifetime=lifetime, locked=locked,

@@ -36,6 +36,9 @@ RUN git clone https://github.com/dmwm/rucio.git
 WORKDIR /root/rucio
 RUN git checkout CMS
 
+# Might get recreated if apache was upgraded
+RUN rm /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/userdir.conf /etc/httpd/conf.d/ssl.conf
+
 # Patch httpd for performance. OK in 1.22 branch?
 ADD https://raw.githubusercontent.com/rucio/containers/master/server/httpd.conf.j2 /tmp/httpd.conf.j2
 
