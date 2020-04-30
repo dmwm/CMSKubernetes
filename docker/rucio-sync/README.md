@@ -7,6 +7,6 @@ Steps to create image and push to docker hub
 
 For the NanoAOD transition version
 
-* export RUCIO_VERSION=1.21.12.nano1
+* export RUCIO_VERSION=1.22.3.nano1
 * docker build  --build-arg RUCIO_VERSION=$RUCIO_VERSION -t cmssw/rucio-sync:release-$RUCIO_VERSION .
 * docker push cmssw/rucio-sync:release-$RUCIO_VERSION

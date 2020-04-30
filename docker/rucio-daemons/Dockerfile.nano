@@ -34,6 +34,7 @@ RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/daemons/reaper/
 RUN chmod 755 /root/rucio/bin/rucio-*
 RUN chmod 755 /usr/bin/rucio-*
 
+# And rule creation
 ADD https://raw.githubusercontent.com/ericvaandering/rucio/restrict_reaper_1_21/lib/rucio/core/permission/cms.py /usr/lib/python2.7/site-packages/rucio/core/permission/cms.py
 RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/core/permission
 
