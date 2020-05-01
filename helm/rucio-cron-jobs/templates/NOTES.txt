@@ -1,5 +1,0 @@
-Set the following variables (minimally) which will, through environment variables, modify the rucio.cfg
-
-RUCIO_CFG_DATABASE_DEFAULT=[DB connect string]
-RUCIO_CFG_MONITOR_USER_SCOPE=rucio [scope for placing of metrics into statsd
-RUCIO_CFG_MONITOR_CARBON_SERVER=[server name for statsd on the internal network]
