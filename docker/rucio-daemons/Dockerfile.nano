@@ -27,15 +27,15 @@ RUN chmod 755 /usr/lib/python2.7/site-packages/cmstfc.py
 
 ## Temporary for restricting Reaper2
 
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/restrict_reaper_1_21/bin/rucio-reaper2 /root/rucio/bin/rucio-reaper2 
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/restrict_reaper_1_21/bin/rucio-reaper2 /usr/bin/rucio-reaper2 
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/restrict_reaper_1_21/lib/rucio/daemons/reaper/reaper2.py /usr/lib/python2.7/site-packages/rucio/daemons/reaper/reaper2.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano1/bin/rucio-reaper2 /root/rucio/bin/rucio-reaper2
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano1/bin/rucio-reaper2 /usr/bin/rucio-reaper2
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano1/lib/rucio/daemons/reaper/reaper2.py /usr/lib/python2.7/site-packages/rucio/daemons/reaper/reaper2.py
 RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/daemons/reaper/
 RUN chmod 755 /root/rucio/bin/rucio-*
 RUN chmod 755 /usr/bin/rucio-*
 
 # And rule creation
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/restrict_reaper_1_21/lib/rucio/core/permission/cms.py /usr/lib/python2.7/site-packages/rucio/core/permission/cms.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano1/lib/rucio/core/permission/cms.py /usr/lib/python2.7/site-packages/rucio/core/permission/cms.py
 RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/core/permission
 
 ADD cms-entrypoint.sh /
