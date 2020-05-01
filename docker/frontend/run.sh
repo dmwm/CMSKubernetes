@@ -57,14 +57,16 @@ fi
 
 # check if we provided server.services explicitly and use it if necessary
 if [ -f /etc/secrets/cmsweb.services ]; then
-    cp /data/srv/state/frontend/server.conf /data/srv/state/frontend/server.conf.orig
-    srvs=`cat /etc/secrets/cmsweb.services | awk '{print "s,%{ENV:BACKEND}:[0-9][0-9][0-9][0-9],"$1",g"}'`
-    sed -i -e "$srvs" /data/srv/state/frontend/server.conf
+    #cp /data/srv/state/frontend/server.conf /data/srv/state/frontend/server.conf.orig
+    #srvs=`cat /etc/secrets/cmsweb.services | awk '{print "s,%{ENV:BACKEND}:[0-9][0-9][0-9][0-9],"$1",g"}'`
+    srvs=`cat /etc/secrets/cmsweb.services`
+    sed -i "s/cmsweb-srv.cern.ch/$srvs/g"  /data/srv/current/config/frontend/backends.txt
+
     # put back vms if necessary
-    if [ -f /etc/secrets/vms ]; then
-        backend=`cat /etc/secrets/cmsweb.services`
-        cat /etc/secrets/vms | awk '{print ""$1"{s,"backend","$2",g}"}' backend=$backend | awk '{print "sed -i -e \""$0"\" /data/srv/state/frontend/server.conf"}' | /bin/sh
-    fi
+#    if [ -f /etc/secrets/vms ]; then
+#        backend=`cat /etc/secrets/cmsweb.services`
+#        cat /etc/secrets/vms | awk '{print ""$1"{s,"backend","$2",g}"}' backend=$backend | awk '{print "sed -i -e \""$0"\" /data/srv/state/frontend/server.conf"}' | /bin/sh
+#    fi
 fi
 # allow to overwrite server.conf with one supplied by configuration
 if [ -f /etc/secrets/server.conf ]; then
@@ -95,7 +97,7 @@ done
 # link backends files
 if [ -f $cdir/backends.txt ]; then
     echo "link $cdir/backends.txt"
-    bfiles="backends-prod.txt backends-preprod.txt backends-dev.txt"
+    bfiles="backends-prod.txt backends-preprod.txt backends-dev.txt backends-k8s.txt"
     for f in $bfiles; do
         if [ -f $cdir/$f ]; then
             rm $cdir/$f
