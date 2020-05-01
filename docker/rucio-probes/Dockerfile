@@ -14,6 +14,7 @@ FROM rucio/probes:latest
 ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/cmstfc.py  /usr/lib/python2.7/site-packages/cmstfc.py
 RUN chmod 755 /usr/lib/python2.7/site-packages/cmstfc.py
 
+# TODO: move to sqlalchemy and feed upstream
 ADD https://raw.githubusercontent.com/ericvaandering/probes/more_cms_probes/common/check_updated_dids /probes/common
 ADD https://raw.githubusercontent.com/ericvaandering/probes/more_cms_probes/common/check_new_dids /probes/common
 ADD https://raw.githubusercontent.com/ericvaandering/probes/more_cms_probes/common/check_expired_dids /probes/common
