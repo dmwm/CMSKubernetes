@@ -11,6 +11,7 @@ ARG RUCIO_VERSION
 
 FROM rucio/rucio-daemons:release-$RUCIO_VERSION
 
+# Patch until fixed by Rucio (also cms-entrypoint)
 RUN yum install -y sendmail sendmail-cf
 
 # Install what's needed out of dmwm/rucio/CMS branch
