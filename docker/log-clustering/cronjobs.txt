@@ -1,0 +1,7 @@
+#
+# Sqoop jobs taken from AWG and CERN DB IT group to dump CMS databases
+#
+
+# jobmon dump
+#13 04 * * * cd /data/sqoop; ./run.sh ./cms-jm.sh
+#13 04 * * * cd /data/sqoop; ./run.sh ./jm-cms-data-pop.sh
