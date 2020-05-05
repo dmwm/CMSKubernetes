@@ -15,7 +15,7 @@ from rucio.core import monitor
 from rucio.db.sqla.constants import DIDType
 from syncaccounts import SYNC_ACCOUNT_FMT
 
-from BlockSyncer import BlockSyncer
+from BlockSyncer import BlockSyncer, touch
 
 # import time
 
@@ -142,10 +142,14 @@ class SiteSyncer(object):
                 r_timer = 'cms_sync.time_rucio_block_list_partial'
                 p_timer = 'cms_sync.time_phedex_block_list_partial'
 
+            # Add touches to keep from getting killed as long as progress is being made
             with monitor.record_timer_block(p_timer):
+                touch('PQ ' + site)
                 phedex_blocks = self.phedex_svc.blocks_at_site(pnn=site, prefix=prefix, since=None)
             with monitor.record_timer_block(r_timer):
+                touch('RQ ' + site)
                 rucio_blocks = self.get_datasets_at_rse(rse=site, prefix=prefix)
+                touch('DQ ' + site)
 
             n_blocks_in_phedex = len(phedex_blocks)
             n_blocks_in_rucio = len(rucio_blocks)
@@ -196,11 +200,6 @@ class SiteSyncer(object):
                 bs.add_to_rucio(recover=True)
 
             logging.info('Finished syncing                      %s:%s' % (site, prefix))
-
-        # FIXME: Resurrect code to check for size differences
-
-        # self.last_synced[site_pair] = now
-        # save_last_synced(self.last_synced)
 
     def chunks_to_sync(self):
         """
