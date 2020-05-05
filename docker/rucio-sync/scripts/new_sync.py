@@ -144,12 +144,12 @@ class SiteSyncer(object):
 
             # Add touches to keep from getting killed as long as progress is being made
             with monitor.record_timer_block(p_timer):
-                touch('PQ ' + site)
+                touch(text='PQ ' + site)
                 phedex_blocks = self.phedex_svc.blocks_at_site(pnn=site, prefix=prefix, since=None)
             with monitor.record_timer_block(r_timer):
-                touch('RQ ' + site)
+                touch(text='RQ ' + site)
                 rucio_blocks = self.get_datasets_at_rse(rse=site, prefix=prefix)
-                touch('DQ ' + site)
+                touch(text='DQ ' + site)
 
             n_blocks_in_phedex = len(phedex_blocks)
             n_blocks_in_rucio = len(rucio_blocks)
