@@ -242,7 +242,9 @@ deploy_kmon()
 deploy_namespaces()
 {
     for ns in $namespaces; do
-        kubectl create namespace $ns
+        if [ -z "`kubectl get ns | grep $ns`" ]; then
+            kubectl create namespace $ns
+        fi
     done
 }
 
