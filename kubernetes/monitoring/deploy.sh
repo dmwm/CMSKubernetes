@@ -77,13 +77,13 @@ deploy_cronjobs()
 deploy_proxies()
 {
     robot_key=${ROBOT_KEY:-/afs/cern.ch/user/v/valya/private/certificates/robotkey.pem}
-    if [ -f $robot_key ]; then
+    if [ ! -f $robot_key ]; then
         echo "Unable to locate: $robot_key"
         echo "please setup ROBOT_KEY environment"
         exit 1
     fi
     robot_crt=${ROBOT_CERT:-/afs/cern.ch/user/v/valya/private/certificates/robotcert.pem}
-    if [ -f $robot_crt ]; then
+    if [ ! -f $robot_crt ]; then
         echo "Unable to locate: $robot_crt"
         echo "please setup ROBOT_CERT environment"
         exit 1
