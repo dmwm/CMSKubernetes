@@ -67,10 +67,10 @@ deploy_prometheus_operator()
 deploy_cronjobs()
 {
     # create cron accounts
-    k apply -f crons/proxy-account.yaml -n http
+    kubectl apply -f crons/proxy-account.yaml -n http
 
     # create new cronjob
-    k apply -f crons/cron-proxy.yaml -n http
+    kubectl apply -f crons/cron-proxy.yaml -n http
 }
 
 # cluster proxies deployment
