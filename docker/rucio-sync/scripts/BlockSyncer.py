@@ -69,7 +69,9 @@ class BlockSyncer(object):
         self.block_name = block_name
         self.lifetime = lifetime
 
-        self.is_at_pnn = self.phedex_svc.block_at_pnn_phedex(block=self.block_name, pnn=self.pnn)
+        self.group, self.custodial = self.pcli.block_at_pnn_phedex(block=self.dataset, pnn=self.pnn)
+        self.is_at_pnn = bool(self.group)
+
         if self.is_at_pnn:
             self.replicas = self.phedex_svc.fileblock_files_phedex(pnn=pnn, pfb=block_name)
         else:
@@ -328,8 +330,7 @@ class BlockSyncer(object):
                         logging.warning('Trying to attach already existing files to %s', self.block_name)
                 return len(missing_lfns)
 
-    @staticmethod
-    def add_replication_rule_with_defaults(dids, copies, rse_expression, account):
+    def add_replication_rule_with_defaults(self,dids, copies, rse_expression, account):
 
         """
         Add replication rule requires one to send all the values. Add a list of defaults.
@@ -347,7 +348,7 @@ class BlockSyncer(object):
             'DATASET', None, None, False, None, None,  None, False, False, None, False, False, 3, False)
 
         activity = 'Data Consolidation'
-        meta = json.dumps({"phedex_group": "DataOps", "phedex_custodial": True})
+        meta = json.dumps({"phedex_group": self.group, "phedex_custodial": self.custodial})
 
         add_replication_rule(dids=dids, copies=copies, rse_expression=rse_expression, account=account,
                              grouping=grouping, weight=weight, lifetime=lifetime, locked=locked,
