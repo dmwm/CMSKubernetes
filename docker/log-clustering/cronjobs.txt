@@ -1,7 +1,4 @@
 #
-# Sqoop jobs taken from AWG and CERN DB IT group to dump CMS databases
+# crontab jobs
 #
-
-# jobmon dump
-#13 04 * * * cd /data/sqoop; ./run.sh ./cms-jm.sh
-#13 04 * * * cd /data/sqoop; ./run.sh ./jm-cms-data-pop.sh
+15 04 * * * cd /data/log-clustering; ./run_spark workflow/workflow.py --creds=/etc/secrets/creds.json
