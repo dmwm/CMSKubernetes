@@ -69,7 +69,7 @@ class BlockSyncer(object):
         self.block_name = block_name
         self.lifetime = lifetime
 
-        self.group, self.custodial = self.pcli.block_at_pnn_phedex(block=self.dataset, pnn=self.pnn)
+        self.group, self.custodial = self.phedex_svc.block_at_pnn_phedex(block=self.dataset, pnn=self.pnn)
         self.is_at_pnn = bool(self.group)
 
         if self.is_at_pnn:
