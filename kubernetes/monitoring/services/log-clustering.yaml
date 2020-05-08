@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-clustering
+  namespace: hdfs
+  labels:
+     app: log-clustering
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: log-clustering
+   template:
+      metadata:
+         labels:
+           app: log-clustering
+      spec:
+        # we should keep host network here to avoid latency problems with
+        # HDFS, w/o hostNetwork the workflow is timeout on HDFS nodes
+        hostNetwork: true
+        dnsPolicy: ClusterFirstWithHostNet
+        containers:
+        - args:
+          - crond
+          - -n
+          image: cmssw/log-clustering:20200508
+          name: log-clustering
+          volumeMounts:
+          - name: log-clustering-secrets
+            mountPath: /etc/secrets
+            readOnly: true
+        volumes:
+        - name: log-clustering-secrets
+          secret:
+            secretName: log-clustering-secrets
