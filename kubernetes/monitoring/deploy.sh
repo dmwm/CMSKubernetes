@@ -41,7 +41,7 @@ template=${TEMPLATE:-"kubernetes-1.15.3-3"}
 keypair=${KEY:-"cloud"}
 secrets="prometheus-secrets nats-secrets spider-specrets sqoop-secrets"
 services="prometheus pushgateway victoria-metrics victoria-metrics-test nats-sub-exitcode nats-sub-stats nats-sub-t1 nats-sub-t2"
-namespaces="nats spider sqoop http"
+namespaces="nats spider sqoop http hdfs"
 
 # prometheus operator deployment (so far we don't use it)
 deploy_prometheus_operator()
@@ -94,7 +94,7 @@ deploy_proxies()
         echo "delete robot-secrets in http namespace"
         kubectl -n http delete secret robot-secrets
     fi
-    kubectl create secret generic robot-secrets --from-file=$robot_key --from-file=$robot_crt --dry-run -o yaml | kubectl apply --namespace=http -f -
+    kubectl create secret generic robot-secrets --from-file=$robot_key --from-file=$robot_crt --dry-run=client -o yaml | kubectl apply --namespace=http -f -
 
     # obtain proxy file
     proxy=/tmp/$USER/proxy
@@ -106,7 +106,7 @@ deploy_proxies()
             echo "delete proxy-secrets in $ns namespace"
             kubectl -n $ns delete secret proxy-secrets
         fi
-        kubectl create secret generic proxy-secrets --from-file=$proxy --dry-run -o yaml | kubectl apply --namespace=$ns -f -
+        kubectl create secret generic proxy-secrets --from-file=$proxy --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
     done
 }
 
@@ -170,11 +170,14 @@ deploy_secrets()
         echo "delete sqoop-secrets"
         kubectl -n sqoop delete secret sqoop-secrets
     fi
-    if [ ! -d secrets/cms-htcondor-es ]; then
-        echo "Please provide secrets/cms-htcondor-es area with collectors.json file"
-        exit 1
+    kubectl -n sqoop create secret generic sqoop-secrets --from-file=secrets/sqoop/cmsr_cstring --from-file=secrets/sqoop/lcgr_cstring --from-file=secrets/sqoop/keytab --from-file=secrets/sqoop/cms-es-size.json
+
+    # add log-clustering secrets
+    if [ -n "`kubectl -n hdfs get secrets | grep log-clustering-secrets`" ]; then
+        echo "delete log-clustering-secrets"
+        kubectl -n sqoop delete secret sqoop-secrets
     fi
-    kubectl -n sqoop create secret generic sqoop-secrets --from-file=secrets/sqoop/cmsr_cstring --from-file=secrets/sqoop/lcgr_cstring --from-file=secrets/sqoop/keytab
+    kubectl create secret generic log-clustering-secrets --from-file=secrets/log-clustering/keytab --from-file=secrets/log-clustering/creds.json --dry-run=client -o yaml | kubectl apply --namespace=hdfs -f -
 }
 
 # cluster storages deployment
@@ -219,7 +222,9 @@ deploy_ingress()
 # deploy roles for our cluster
 deploy_roles()
 {
-    kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard
+    if [ -z "`kubectl get clusterrolebinding -A | grep kubernetes-dashboard`" ]; then
+        kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard
+    fi
 }
 
 # deploy metrics server and kube-eagle to monitor the cluster
