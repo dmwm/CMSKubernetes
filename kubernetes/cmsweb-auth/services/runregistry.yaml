@@ -66,13 +66,11 @@ metadata:
   name: rr-prod-api
   namespace: runregistry
 spec:
-  type: NodePort
   selector:
     app: rr-prod-api
   ports:
     - port: 8351
       targetPort: 9500
-      nodePort: 31500
       name: rr-prod-api
 ---
 kind: Deployment
@@ -221,7 +219,6 @@ metadata:
   name: rr-dev-api
   namespace: runregistry
 spec:
-  type: NodePort
   selector:
     app: rr-dev-api
   ports:
