@@ -1,46 +1,36 @@
-# There are four components of runregistry:
-#   1. The server required to serve the front end, server side rendered using next.js
-#   2. The API server
-#   3. The Workers (in charge of processing jsons, and fetching new runs) (not exposed to the outer world) (not in this file, currently in development)
-#   4. A redis client in charge of providing a queue system for the workers to know when to operate and where to publish results
-
-# There are two environments for runregistry
-#   1. Production environment (production services are namespaced rr-prod-<service>)
-#   2. Staging environmnent (Staging services are namespaced rr-dev-<service>)
-
 kind: Service
 apiVersion: v1
 metadata:
-  name: rr-prod-frontend
+  name: rr-prod-fe
   namespace: runregistry
 spec:
   selector:
-    app: rr-prod-frontend
+    app: rr-prod-fe
   ports:
     - port: 8350
       targetPort: 7001
-      name: rr-prod-frontend
+      name: rr-prod-fe
 ---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
   labels:
-    app: rr-prod-frontend
-  name: rr-prod-frontend
+    app: rr-prod-fe
+  name: rr-prod-fe
   namespace: runregistry
 spec:
   selector:
     matchLabels:
-      app: rr-prod-frontend
+      app: rr-prod-fe
   replicas: 1 #PROD# 1
   template:
     metadata:
       labels:
-        app: rr-prod-frontend
+        app: rr-prod-fe
     spec:
       containers:
         - image: cmssw/runregistry-frontend
-          name: rr-prod-frontend
+          name: rr-prod-fe
           tty: true
           stdin: true
           env:
@@ -58,7 +48,7 @@ spec:
           ports:
             - containerPort: 7001
               protocol: TCP
-              name: rr-prod-frontend
+              name: rr-prod-fe
 ---
 kind: Service
 apiVersion: v1
@@ -164,36 +154,36 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: rr-dev-frontend
+  name: rr-dev-fe
   namespace: runregistry
 spec:
   selector:
-    app: rr-dev-frontend
+    app: rr-dev-fe
   ports:
     - port: 8354
       targetPort: 7001
-      name: rr-dev-frontend
+      name: rr-dev-fe
 ---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
   labels:
-    app: rr-dev-frontend
-  name: rr-dev-frontend
+    app: rr-dev-fe
+  name: rr-dev-fe
   namespace: runregistry
 spec:
   selector:
     matchLabels:
-      app: rr-dev-frontend
+      app: rr-dev-fe
   replicas: 1 #PROD# 1
   template:
     metadata:
       labels:
-        app: rr-dev-frontend
+        app: rr-dev-fe
     spec:
       containers:
         - image: cmssw/runregistry-frontend
-          name: rr-dev-frontend
+          name: rr-dev-fe
           tty: true # Not sure
           stdin: true # Not sure
           env:
@@ -211,7 +201,7 @@ spec:
           ports:
             - containerPort: 9600
               protocol: TCP
-              name: rr-dev-frontend
+              name: rr-dev-fe
 ---
 kind: Service
 apiVersion: v1
