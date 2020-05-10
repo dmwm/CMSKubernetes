@@ -1,0 +1,313 @@
+# There are four components of runregistry:
+#   1. The server required to serve the front end, server side rendered using next.js
+#   2. The API server
+#   3. The Workers (in charge of processing jsons, and fetching new runs) (not exposed to the outer world) (not in this file, currently in development)
+#   4. A redis client in charge of providing a queue system for the workers to know when to operate and where to publish results
+
+# There are two environments for runregistry
+#   1. Production environment (production services are namespaced rr-prod-<service>)
+#   2. Staging environmnent (Staging services are namespaced rr-dev-<service>)
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: rr-prod-frontend
+  namespace: runregistry
+spec:
+  selector:
+    app: rr-prod-frontend
+  ports:
+    - port: 8350
+      targetPort: 7001
+      name: rr-prod-frontend
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: rr-prod-frontend
+  name: rr-prod-frontend
+  namespace: runregistry
+spec:
+  selector:
+    matchLabels:
+      app: rr-prod-frontend
+  replicas: 1 #PROD# 1
+  template:
+    metadata:
+      labels:
+        app: rr-prod-frontend
+    spec:
+      containers:
+        - image: cmssw/runregistry-frontend
+          name: rr-prod-frontend
+          tty: true
+          stdin: true
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: ENV
+              value: production
+          resources:
+            requests:
+              memory: '256Mi'
+              cpu: '300m'
+            limits:
+              memory: '3Gi'
+              cpu: '1000m'
+          ports:
+            - containerPort: 7001
+              protocol: TCP
+              name: rr-prod-frontend
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: rr-prod-api
+  namespace: runregistry
+spec:
+  selector:
+    app: rr-prod-api
+  ports:
+    - port: 8351
+      targetPort: 9500
+      name: rr-prod-api
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: rr-prod-api
+  name: rr-prod-api
+  namespace: runregistry
+spec:
+  selector:
+    matchLabels:
+      app: rr-prod-api
+  replicas: 1 #PROD# 1
+  template:
+    metadata:
+      labels:
+        app: rr-prod-api
+    spec:
+      containers:
+        - image: cmssw/runregistry-backend
+          name: rr-prod-api
+          tty: true # Not sure
+          stdin: true # Not sure
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: ENV
+              value: prod_kubernetes
+          resources:
+            requests:
+              memory: '256Mi'
+              cpu: '300m'
+            limits:
+              memory: '3Gi'
+              cpu: '1000m'
+          ports:
+            - containerPort: 9500
+              protocol: TCP
+              name: rr-prod-api
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: rr-prod-redis
+  namespace: runregistry
+spec:
+  selector:
+    app: rr-prod-redis
+  ports:
+    - port: 8353
+      targetPort: 6379
+      name: rr-prod-redis
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: rr-prod-redis
+  name: rr-prod-redis
+  namespace: runregistry
+spec:
+  selector:
+    matchLabels:
+      app: rr-prod-redis
+  replicas: 1 #PROD# 1
+  template:
+    metadata:
+      labels:
+        app: rr-prod-redis
+    spec:
+      containers:
+        - image: redis:5.0.7-alpine
+          name: rr-prod-redis
+          tty: true # Not sure
+          stdin: true # Not sure
+          resources:
+            requests:
+              memory: '256Mi'
+              cpu: '300m'
+            limits:
+              memory: '3Gi'
+              cpu: '1000m'
+          ports:
+            - containerPort: 6379
+              protocol: TCP
+              name: rr-prod-redis
+---
+# For development we have the same DEVELOPMENT
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: rr-dev-frontend
+  namespace: runregistry
+spec:
+  selector:
+    app: rr-dev-frontend
+  ports:
+    - port: 8354
+      targetPort: 7001
+      name: rr-dev-frontend
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: rr-dev-frontend
+  name: rr-dev-frontend
+  namespace: runregistry
+spec:
+  selector:
+    matchLabels:
+      app: rr-dev-frontend
+  replicas: 1 #PROD# 1
+  template:
+    metadata:
+      labels:
+        app: rr-dev-frontend
+    spec:
+      containers:
+        - image: cmssw/runregistry-frontend
+          name: rr-dev-frontend
+          tty: true # Not sure
+          stdin: true # Not sure
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: ENV
+              value: staging
+          resources:
+            requests:
+              memory: '256Mi'
+              cpu: '300m'
+            limits:
+              memory: '3Gi'
+              cpu: '1000m'
+          ports:
+            - containerPort: 9600
+              protocol: TCP
+              name: rr-dev-frontend
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: rr-dev-api
+  namespace: runregistry
+spec:
+  selector:
+    app: rr-dev-api
+  ports:
+    - port: 8355
+      targetPort: 9500
+      name: rr-dev-api
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: rr-dev-api
+  name: rr-dev-api
+  namespace: runregistry
+spec:
+  selector:
+    matchLabels:
+      app: rr-dev-api
+  replicas: 1 #PROD# 1
+  template:
+    metadata:
+      labels:
+        app: rr-dev-api
+    spec:
+      containers:
+        - image: cmssw/runregistry-backend
+          name: rr-dev-api
+          tty: true # Not sure
+          stdin: true # Not sure
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: ENV
+              value: dev_kubernetes
+          resources:
+            requests:
+              memory: '256Mi'
+              cpu: '300m'
+            limits:
+              memory: '3Gi'
+              cpu: '1000m'
+          ports:
+            - containerPort: 9500
+              protocol: TCP
+              name: rr-dev-api
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: rr-dev-redis
+  namespace: runregistry
+spec:
+  selector:
+    app: rr-dev-redis
+  ports:
+    - port: 8357
+      targetPort: 6379
+      name: rr-dev-redis
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: rr-dev-redis
+  name: rr-dev-redis
+  namespace: runregistry
+spec:
+  selector:
+    matchLabels:
+      app: rr-dev-redis
+  replicas: 1 #PROD# 1
+  template:
+    metadata:
+      labels:
+        app: rr-dev-redis
+    spec:
+      containers:
+        - image: redis:5.0.7-alpine
+          name: rr-dev-redis
+          tty: true # Not sure
+          stdin: true # Not sure
+          resources:
+            requests:
+              memory: '256Mi'
+              cpu: '10m'
+            limits:
+              memory: '3Gi'
+              cpu: '1000m'
+          ports:
+            - containerPort: 6379
+              protocol: TCP
+              name: rr-dev-redis
