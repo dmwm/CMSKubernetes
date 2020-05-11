@@ -17,6 +17,8 @@ transmogrifierCount: 1
 undertakerCount: 1
 reaperCount: 0
 reaper2Count: 3
+minosCount: 1
+necromancerCount: 1
 
 reaper2:
   greedy: 1
