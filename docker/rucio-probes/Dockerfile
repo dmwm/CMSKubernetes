@@ -15,9 +15,22 @@ ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient
 RUN chmod 755 /usr/lib/python2.7/site-packages/cmstfc.py
 
 # TODO: move to sqlalchemy and feed upstream
-ADD https://raw.githubusercontent.com/ericvaandering/probes/more_cms_probes/common/check_updated_dids /probes/common
-ADD https://raw.githubusercontent.com/ericvaandering/probes/more_cms_probes/common/check_new_dids /probes/common
-ADD https://raw.githubusercontent.com/ericvaandering/probes/more_cms_probes/common/check_expired_dids /probes/common
+ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_with_alchemy/common/check_updated_dids /probes/common
+ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_with_alchemy/common/check_new_dids /probes/common
+ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_with_alchemy/common/check_expired_dids /probes/common
+
+# TODO: Merge Donata's probes somewhere
+
+ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_expected_total_number_of_files_per_rse /probes/common
+ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_free_space /probes/common
+ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_not_OK_rules /probes/common
+ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_not_OK_rules_per_rse /probes/common
+ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_number_of_missing_files_per_rse /probes/common
+ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_report_free_space /probes/common
+ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_report_used_space /probes/common
+ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_rules_with_0_completion_volume /probes/common
+ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_used_space /probes/common
+
 RUN chmod +x /probes/common/check_*
 
 # Was in upstream, aside from the connection counting, probably not needed anymore.
