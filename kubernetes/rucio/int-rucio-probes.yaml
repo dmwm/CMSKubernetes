@@ -1,3 +1,19 @@
 probeSettings:  
   ftsProxySecret: cms-ruciod-int-rucio-x509up 
 
+probes:
+  check_expected_total_number_of_files_per_rse:
+    interval: 1
+  check_not_OK_rules:
+    interval: 1
+  check_not_OK_rules_per_rse:
+    interval: 1
+  check_number_of_missing_files_per_rse:
+    interval: 1
+  check_report_free_space:
+    interval: 1
+  check_report_used_space:
+    interval: 1
+  check_rules_with_0_completion_volume:
+    interval: 1
+
