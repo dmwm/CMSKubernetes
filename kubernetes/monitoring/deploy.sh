@@ -170,12 +170,12 @@ deploy_secrets()
         echo "delete sqoop-secrets"
         kubectl -n sqoop delete secret sqoop-secrets
     fi
-    kubectl -n sqoop create secret generic sqoop-secrets --from-file=secrets/sqoop/cmsr_cstring --from-file=secrets/sqoop/lcgr_cstring --from-file=secrets/sqoop/keytab --from-file=secrets/sqoop/cms-es-size.json
+    kubectl create secret generic sqoop-secrets --from-file=secrets/sqoop/keytab --from-file=secrets/sqoop/cmsr_cstring --from-file=secrets/sqoop/lcgr_cstring --from-file=secrets/sqoop/token --from-file=secrets/sqoop/cms-es-size.json --dry-run=client -o yaml | kubectl apply --namespace=sqoop -f -
 
     # add log-clustering secrets
     if [ -n "`kubectl -n hdfs get secrets | grep log-clustering-secrets`" ]; then
         echo "delete log-clustering-secrets"
-        kubectl -n sqoop delete secret sqoop-secrets
+        kubectl -n hdfs delete secret log-clustering-secrets
     fi
     kubectl create secret generic log-clustering-secrets --from-file=secrets/log-clustering/keytab --from-file=secrets/log-clustering/creds.json --dry-run=client -o yaml | kubectl apply --namespace=hdfs -f -
 }
