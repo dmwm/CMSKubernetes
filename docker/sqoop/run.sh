@@ -12,4 +12,5 @@ fi
 klist -k "$keytab"
 
 # execute given script
-$1
+export PATH=$PATH:/usr/hdp/hadoop/bin
+$@

@@ -18,3 +18,16 @@ WORKDIR $WDIR/sqoop
 RUN ln -s /etc/cmsdb/cmsr_cstring
 RUN ln -s /etc/cmsdb/lcgr_cstring
 RUN crontab cronjobs.txt
+
+# cms-monitoring es-sizes
+WORKDIR $WDIR
+ENV GOPATH=$WDIR/gopath
+RUN mkdir -p $GOPATH
+ENV PATH="${PATH}:${GOROOT}/bin:${WDIR}"
+ENV PYTHONPATH="${WDIR}/CMSMonitoring/src/python"
+RUN git clone https://github.com/dmwm/CMSMonitoring.git
+RUN go get github.com/go-stomp/stomp
+WORKDIR $WDIR/CMSMonitoring/src/go/MONIT
+RUN go build monit.go
+RUN cp monit $WDIR
+WORKDIR $WDIR

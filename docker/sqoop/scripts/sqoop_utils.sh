@@ -42,7 +42,7 @@ function exit_on_failure()
 
            if hdfs dfs -test -e "$BASE_PATH/new"
            then
-              hdfs dfs -rm -r $BASE_PATH/new >/dev/null 2>&1
+              hdfs dfs -rm -r -skipTrash $BASE_PATH/new >/dev/null 2>&1
 	   fi
 	   exit 1
         fi
@@ -53,7 +53,7 @@ function clean()
     kinit -R
     if hdfs dfs -test -e "$BASE_PATH/new"
     then
-       hdfs dfs -rm -r $BASE_PATH/new >/dev/null 2>&1
+       hdfs dfs -rm -r -skipTrash $BASE_PATH/new >> $LOG_FILE.cron
 	   echo "Removing old $BASE_PATH/new" >> $LOG_FILE.cron
     fi
 }
@@ -72,7 +72,7 @@ function deploy()
     if hdfs dfs -test -e "$BASE_PATH/old"
     then
        echo "Removing old $BASE_PATH/old" >> $LOG_FILE.cron
-       hdfs dfs -rm -r $BASE_PATH/old >>$LOG_FILE.stderr 2>>$LOG_FILE.stderr
+       hdfs dfs -rm -r -skipTrash $BASE_PATH/old >>$LOG_FILE.stderr 2>>$LOG_FILE.stderr
        error=$(($error+$?))
     fi
     if hdfs dfs -test -e "$BASE_PATH/current"

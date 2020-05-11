@@ -16,6 +16,11 @@ if [ "$interval" == "" ]; then
 fi
 echo "daemon: $wdir with interval=$interval, mtime=$mtime"
 
+# start crond if it is not run
+if [ -z "`ps auxww | grep crond | grep -v grep`" ]; then
+    crond -n &
+fi
+
 # run daemon
 while true; do
     files=`find $wdir -mtime +$mtime`
