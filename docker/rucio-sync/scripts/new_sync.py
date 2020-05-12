@@ -216,7 +216,11 @@ class SiteSyncer(object):
                         to_sync.append((site, prefix))
                 else:
                     to_sync.append((site, None))
-        random.shuffle(to_sync)
+
+        # Cut the list (keep in order but choose a random starting point)
+        offset = random.randrange(len(to_sync))
+        to_sync = to_sync[offset:] + to_sync[:offset]
+
         return to_sync
 
     @staticmethod
