@@ -13,7 +13,7 @@ data:
           "for:13000"   # True YAML does not work
     default:
         pool: 1
-        chunck: 1000
+        chunck: 5000
         select: NANOAOD
     T1_DE_KIT_Disk:
         pool: 5
@@ -52,17 +52,17 @@ data:
         select:
           - '\S+NANOAOD\S+'
           - '\S+Neutrino_E-10_gun\S+'
+    T1_UK_RAL_Disk:
+        pool: 5
+        multi_das_calls: True
+        select:
+          - '\S+NANOAOD\S+'
     T1_US_FNAL_Disk:
         pool: 5
         multi_das_calls: True
         select:
           - '\S+NANOAOD\S+'
           - '\S+Neutrino_E-10_gun\S+'
-    #    T1_UK_RAL_Disk
-    #        pool: 5
-    #        multi_das_calls: True
-    #        select:
-    #          - '\S+NANOAOD\S+'
     #T1_DE_KIT_Buffer
     #T1_ES_PIC_Buffer
     #T1_FR_CCIN2P3_Buffer
@@ -86,6 +86,7 @@ data:
         select:
           - '\S+NANOAOD\S+'
     T2_CH_CERN:
+        multi_das_calls: True
         select:
           - '\S+NANOAOD\S+'
     T2_CH_CSCS:
@@ -95,6 +96,7 @@ data:
         select:
           - '\S+NANOAOD\S+'
     T2_DE_DESY:
+        multi_das_calls: True
         select:
           - '\S+NANOAOD\S+'
     T2_DE_RWTH:
@@ -134,9 +136,11 @@ data:
         select:
           - '\S+NANOAOD\S+'
     T2_IT_Bari:
+        multi_das_calls: True
         select:
           - '\S+NANOAOD\S+'
     T2_IT_Legnaro:
+        multi_das_calls: True
         select:
           - '\S+NANOAOD\S+'
     T2_IT_Pisa:
@@ -203,44 +207,73 @@ data:
         select:
           - '\S+NANOAOD\S+'
     T2_US_Nebraska:
+        multi_das_calls: True         
         select:
           - '\S+NANOAOD\S+'
     T2_US_UCSD:
+        multi_das_calls: True         
         select:
           - '\S+NANOAOD\S+'
     T2_US_Florida:
+        multi_das_calls: True         
         select:
           - '\S+NANOAOD\S+'
     T2_US_Caltech:
+        multi_das_calls: True         
         select:
           - '\S+NANOAOD\S+'
     T2_US_MIT:
+        multi_das_calls: True         
         select:
           - '\S+NANOAOD\S+'
     T2_US_Purdue:
+        multi_das_calls: True         
         select:
           - '\S+NANOAOD\S+'
     T2_US_Vanderbilt:
+        multi_das_calls: True         
         select:
           - '\S+NANOAOD\S+'
     T2_US_Wisconsin:
+        multi_das_calls: True         
         select:
           - '\S+NANOAOD\S+'
     T3_FR_IPNL:
         select:
           - '\S+NANOAOD\S+'
-    #T1_FR_CCIN2P3_Buffer:
-    #    chunck: 3000
-    #    pool: 1
-    #    multi_das_calls: True
-    #    ignore:
-    #        - '\S+/Commissioning09\S+'
-    #        - '\S+/CRUZET\S+'
-    #        - '\S+/Commissioning08\S+'
-    #        - '\S+/CRAFT09\S+'
-    #        - '\S+/BeamCommissioning09\S+'
-    #        - '\S+/BeamCommissioning08\S+'
-    #    run: False
-    #    rse: T1_FR_CCIN2P3_Tape
-    #T1_UK_RAL_Disk:
-    #    pool: 10
+    T3_US_NotreDame:
+        select:
+          - '\S+NANOAOD\S+'
+    T3_CH_CERN_OpenData:
+        select:
+          - '\S+NANOAOD\S+'
+    T3_IT_Trieste:
+        select:
+          - '\S+NANOAOD\S+'
+    T3_KR_KISTI:
+        select:
+          - '\S+NANOAOD\S+'
+    T3_US_Baylor:
+        select:
+          - '\S+NANOAOD\S+'
+    T3_US_Colorado:
+        select:
+          - '\S+NANOAOD\S+'
+    T3_US_FNALLPC:
+        select:
+          - '\S+NANOAOD\S+'
+    T3_US_MIT:
+        select:
+          - '\S+NANOAOD\S+'
+    T3_US_Princeton_ICSE:
+        select:
+          - '\S+NANOAOD\S+'
+    T3_US_Rutgers:
+        select:
+          - '\S+NANOAOD\S+'
+    T3_US_UMD:
+        select:
+          - '\S+NANOAOD\S+'
+    T3_US_UMiss:
+        select:
+          - '\S+NANOAOD\S+'

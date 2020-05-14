@@ -95,3 +95,21 @@ tracerKronos:
     requests:
       cpu: 1000m 
   
+abacusAccount:
+    resources:
+      limits:
+        cpu: 700m
+        memory: 2000Mi
+      requests:
+        cpu: 700m
+        memory: 250Mi
+
+abacusRse:
+    resources:
+      limits:
+        cpu: 700m
+        memory: 4000Mi
+      requests:
+        cpu: 700m
+        memory: 900Mi
+

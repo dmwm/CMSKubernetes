@@ -28,7 +28,7 @@ spec:
                   mountPath: /opt/rucio/keys/
               env:
                 - name: RUCIO_HOME
-                  value: "/opt/rucio-futureprod"
+                  value: "/opt/rucio-prod"
                 - name: TEST_SUFFIX
                   value: "prod"
                 - name: GITLAB_TOKEN
