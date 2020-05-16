@@ -6,6 +6,8 @@ There is a new testbed cluster in kuberneteds for CMSWeb in "CMS Web" project wh
 
 Users/developers may request for access of this cluster in their namespace in [https://gitlab.cern.ch/cms-http-group/doc/issues/199](https://gitlab.cern.ch/cms-http-group/doc/issues/199) forum. 
 
+Logs or application running ont this cluster are directed to CEPHS volume and accessible in real time on vocms0750 at /cephfs/testbed
+
    
 ## Service Deployment Steps in K8S testbed cluster:
 
