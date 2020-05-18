@@ -21,12 +21,12 @@ metadata:
     account: httpgo
 ---
 ###
-### Deployment using 1.0.1 version
+### Deployment using v1 version
 ###
 apiVersion: apps/v1 # istio version
 kind: Deployment
 metadata:
-  name: httpgo-1.0.1
+  name: httpgo-v1
   namespace: dev
   labels:
     app: httpgo
@@ -45,18 +45,18 @@ spec:
     spec:
       serviceAccountName: httpgo-account
       containers:
-      - image: cmssw/httpgo:1.0.1
+      - image: cmssw/httpgo
         name: httpgo
         ports:
         - containerPort: 8888
 ---
 ###
-### Deployment using HG2002e version
+### Deployment using v2 version
 ###
 apiVersion: apps/v1 # istio version
 kind: Deployment
 metadata:
-  name: httpgo-hg2002e
+  name: httpgo-v2
   namespace: dev
   labels:
     app: httpgo
@@ -75,7 +75,7 @@ spec:
     spec:
       serviceAccountName: httpgo-account
       containers:
-      - image: cmssw/httpgo:HG2002e
+      - image: cmssw/httpgo
         name: httpgo
         ports:
         - containerPort: 8888
