@@ -37,14 +37,11 @@ WORKDIR /root/rucio
 RUN git checkout CMS
 
 # Might get recreated if apache was upgraded
-RUN rm /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/userdir.conf /etc/httpd/conf.d/ssl.conf
+RUN rm -f /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/userdir.conf /etc/httpd/conf.d/ssl.conf
 
 # Patch for NanoAOD restrictions
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano1/lib/rucio/core/permission/cms.py /usr/lib/python2.7/site-packages/rucio/core/permission/cms.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano2/lib/rucio/core/permission/cms.py /usr/lib/python2.7/site-packages/rucio/core/permission/cms.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano2/lib/rucio/core/permission/generic.py /usr/lib/python2.7/site-packages/rucio/core/permission/generic.py
 RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/core/permission
-
-# Patch for WebUI authentication
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano1/lib/rucio/web/ui/common/utils.py /usr/lib/python2.7/site-packages/rucio/web/ui/common/utils.py
-RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/web/ui/common/
 
 ENTRYPOINT ["/cms-entrypoint.sh"]
