@@ -2,8 +2,9 @@ reaper2count: 0
 
 
 reaper2:
-  includeRses: "cms_type=test"
-  excludeDids: "/NANOAOD"
+#  includeRses: "cms_type=test"
+  includeRses: "reaper=True"
+  includeDids: "/NANOAOD"
 
 conveyorTransferSubmitter:
   threads: 5

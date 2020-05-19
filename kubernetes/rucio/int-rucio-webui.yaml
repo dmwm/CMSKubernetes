@@ -1,6 +1,3 @@
-image:
-  # Needed until official images are built correctly
-  repository: cmssw/rucio-ui
 ingress:
   hosts: 
     - "cmsrucio-webui-int.cern.ch"
