@@ -11,9 +11,6 @@ ARG RUCIO_VERSION
 
 FROM rucio/rucio-daemons:release-$RUCIO_VERSION
 
-# Patch until fixed by Rucio (also cms-entrypoint)
-RUN yum install -y sendmail sendmail-cf
-
 # Install what's needed out of dmwm/rucio/CMS branch
 RUN yum install -y git
 WORKDIR /opt/rucio/etc/mail_templates/
@@ -28,16 +25,12 @@ RUN chmod 755 /usr/lib/python2.7/site-packages/cmstfc.py
 
 ## Temporary for restricting Reaper2
 
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano1/bin/rucio-reaper2 /root/rucio/bin/rucio-reaper2
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano1/bin/rucio-reaper2 /usr/bin/rucio-reaper2
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano1/lib/rucio/daemons/reaper/reaper2.py /usr/lib/python2.7/site-packages/rucio/daemons/reaper/reaper2.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano2/bin/rucio-reaper2 /root/rucio/bin/rucio-reaper2
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano2/bin/rucio-reaper2 /usr/bin/rucio-reaper2
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano2/lib/rucio/daemons/reaper/reaper2.py /usr/lib/python2.7/site-packages/rucio/daemons/reaper/reaper2.py
 RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/daemons/reaper/
 RUN chmod 755 /root/rucio/bin/rucio-*
 RUN chmod 755 /usr/bin/rucio-*
-
-# Patch necromancer
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano1/lib/rucio/core/replica.py /usr/lib/python2.7/site-packages/rucio/core/replica.py
-RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/core
 
 # And rule creation
 ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano1/lib/rucio/core/permission/cms.py /usr/lib/python2.7/site-packages/rucio/core/permission/cms.py

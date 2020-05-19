@@ -236,7 +236,6 @@ class SiteSyncer(object):
         if prefix:
             filters['name'] = '/' + prefix + '*'
 
-
         account = SYNC_ACCOUNT_FMT % rse.lower()
         rule_filters = {'account': account, 'scope': 'cms', 'did_type': DIDType.DATASET}
 
