@@ -203,6 +203,9 @@ data:
     T2_UK_London_IC:
         select:
           - '\S+NANOAOD\S+'
+    T2_UK_SGrid_RALPP:
+        select:
+          - '\S+NANOAOD\S+'
     T2_UK_SGrid_Bristol:
         select:
           - '\S+NANOAOD\S+'

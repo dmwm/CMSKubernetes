@@ -102,7 +102,7 @@ spec:
             secretKeyRef:
               key: policy_support
               name: cms-ruciod-prod-rucio-daemons.cfg
-        image: cmssw/rucio-sync:release-1.22.3.nano1
+        image: cmssw/rucio-sync:release-1.22.6.nano1
         imagePullPolicy: Always
         name: cms-rucio-sync
         resources:

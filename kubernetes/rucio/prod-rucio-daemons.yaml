@@ -2,7 +2,8 @@ reaper2count: 0
 
 
 reaper2:
-  includeRses: "cms_type=test"
+#  includeRses: "cms_type=test"
+  includeRses: "reaper=True"
   includeDids: "/NANOAOD"
 
 conveyorTransferSubmitter:
