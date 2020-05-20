@@ -63,7 +63,7 @@ class BlockSyncer(object):
         rse_details = get_rse(self.rse)
         self.rse_id = rse_details['id']
 
-        self.account = SYNC_ACCOUNT_FMT % self.pnn.lower()
+        self.account = SYNC_ACCOUNT_FMT % self.rse.lower()
         self.container = self.phedex_svc.check_data_item(pditem=block_name)['pds']
         self.scope = DEFAULT_SCOPE
         self.block_name = block_name

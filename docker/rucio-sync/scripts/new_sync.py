@@ -122,6 +122,12 @@ class SiteSyncer(object):
         :return:
         """
         site, prefix = site_pair
+
+        if site.endswith('_Tape'):
+            pnn = site.replace('_Tape', '_MSS')
+        else:
+            pnn = site
+
         # now = int(time.time())
 
         # Set 1980 as the last sync date if no data exists
@@ -145,7 +151,7 @@ class SiteSyncer(object):
             # Add touches to keep from getting killed as long as progress is being made
             with monitor.record_timer_block(p_timer):
                 touch(text='PQ ' + site)
-                phedex_blocks = self.phedex_svc.blocks_at_site(pnn=site, prefix=prefix, since=None)
+                phedex_blocks = self.phedex_svc.blocks_at_site(pnn=pnn, prefix=prefix, since=None)
             with monitor.record_timer_block(r_timer):
                 touch(text='RQ ' + site)
                 rucio_blocks = self.get_datasets_at_rse(rse=site, prefix=prefix)
@@ -186,17 +192,17 @@ class SiteSyncer(object):
 
             logging.info('Adding   %6d blocks to   Rucio for %s:%s', n_blocks_not_in_rucio, site, prefix)
             for block in block_report['not_rucio']:
-                bs = BlockSyncer(block_name=block, pnn=site, rse=site)
+                bs = BlockSyncer(block_name=block, pnn=pnn, rse=site)
                 bs.add_to_rucio()
 
             logging.info('Removing %6d blocks from Rucio for %s:%s', n_blocks_not_in_phedex, site, prefix)
             for block in block_report['not_phedex']:
-                bs = BlockSyncer(block_name=block, pnn=site, rse=site)
+                bs = BlockSyncer(block_name=block, pnn=pnn, rse=site)
                 bs.remove_from_rucio()
 
             for block in block_report['incomplete']:
                 logging.warn('Redoing sync for %s at %s', block, site)
-                bs = BlockSyncer(block_name=block, pnn=site, rse=site)
+                bs = BlockSyncer(block_name=block, pnn=pnn, rse=site)
                 bs.add_to_rucio(recover=True)
 
             logging.info('Finished syncing                      %s:%s' % (site, prefix))
