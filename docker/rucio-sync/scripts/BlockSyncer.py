@@ -12,7 +12,7 @@ from rucio.api.replica import list_replicas, add_replicas, delete_replicas
 from rucio.api.rse import get_rse, list_rses
 from rucio.api.rule import add_replication_rule, list_replication_rules, delete_replication_rule
 from rucio.common.exception import (DataIdentifierNotFound, DataIdentifierAlreadyExists, DuplicateContent,
-                                    FileAlreadyExists,ReplicaNotFound)
+                                    FileAlreadyExists, ReplicaNotFound, RucioException)
 from rucio.common.types import InternalScope
 from rucio.common.utils import chunks
 from rucio.core import monitor
@@ -314,7 +314,10 @@ class BlockSyncer(object):
                         update_file.update({'scope': InternalScope(self.scope), "rse_id": self.rse_id, "state": "A"})
                         update_replicas_states(replicas=[update_file], add_tombstone=False)
                     except ReplicaNotFound:
-                        add_replicas(rse=self.rse, files=[rucio_file], issuer=self.account, ignore_availability=True)
+                        try:
+                            add_replicas(rse=self.rse, files=[rucio_file], issuer=self.account, ignore_availability=True)
+                        except RucioException:
+                            logging.critical('Could not add %s to %s. Constaint violated?', rucio_file, self.rse)
                 # add_replicas(rse=self.rse, files=files, issuer=self.account)
                 lfns = [item['name'] for item in list_files(scope=self.scope, name=self.block_name, long=False)]
 
