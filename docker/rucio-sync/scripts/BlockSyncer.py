@@ -93,6 +93,8 @@ class BlockSyncer(object):
                 if recover:
                     self.make_replicas_available()
                 self.update_rule()
+            else:
+                logging.critical('Unable to make the block %s', self.block_name)
 
     def remove_from_rucio(self):
         """"""
@@ -111,18 +113,22 @@ class BlockSyncer(object):
             get_did(scope=self.scope, name=self.container)
             monitor.record_counter('cms_sync.container_exists')
             self.container_exists = True
+            logging.info('Found container %s', self.container )
         except DataIdentifierNotFound:
             if self.is_at_pnn:
-                logging.debug('Create container %s in scope %s.', self.container, self.scope)
                 try:
+                    logging.info('Create container %s in scope %s.', self.container, self.scope)
                     add_did(scope=self.scope, name=self.container, type='CONTAINER',
                             issuer=self.account, lifetime=self.lifetime)
                     monitor.record_counter('cms_sync.container_created')
                     self.container_exists = True
+                    logging.info('Created container %s in scope %s.', self.container, self.scope)
                 except DataIdentifierAlreadyExists:
                     logging.warning('Container was created in the meanwhile')
                     monitor.record_counter('cms_sync.container_collision')
                     self.container_exists = True
+            else:
+                logging.warning('Container was not at PNN')
 
         return self.container_exists
 
@@ -145,7 +151,7 @@ class BlockSyncer(object):
             logging.info('Dry Run: Create dataset %s in scope %s.', self.block_name, self.scope)
             self.block_exists = True
         elif self.is_at_pnn:
-            logging.debug('Create dataset %s in scope %s.', self.block_name, self.scope)
+            logging.info('Create block %s in scope %s.', self.block_name, self.scope)
             try:
                 if not self.block_exists:
                     add_did(scope=self.scope, name=self.block_name, type='DATASET',
@@ -166,6 +172,8 @@ class BlockSyncer(object):
                               self.scope, self.block_name, self.container)
                 return False
             self.block_exists = True
+        else:
+            logging.warning('Block %s was not at PNN', self.block_name)
 
         return self.block_exists
 
