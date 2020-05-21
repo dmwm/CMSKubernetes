@@ -192,11 +192,13 @@ class SiteSyncer(object):
 
             logging.info('Adding   %6d blocks to   Rucio for %s:%s', n_blocks_not_in_rucio, site, prefix)
             for block in block_report['not_rucio']:
+                logging.info('Adding to rucio: %s at %s', block, site)
                 bs = BlockSyncer(block_name=block, pnn=pnn, rse=site)
                 bs.add_to_rucio()
 
             logging.info('Removing %6d blocks from Rucio for %s:%s', n_blocks_not_in_phedex, site, prefix)
             for block in block_report['not_phedex']:
+                logging.info('Removing from rucio: %s at %s', block, site)
                 bs = BlockSyncer(block_name=block, pnn=pnn, rse=site)
                 bs.remove_from_rucio()
 
