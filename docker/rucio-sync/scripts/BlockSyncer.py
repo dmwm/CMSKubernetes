@@ -7,7 +7,7 @@ import os
 
 from CMSRucio import replica_file_list
 from phedex import PhEDEx
-from rucio.api.did import add_did, attach_dids, get_did, list_files
+from rucio.api.did import add_did, attach_dids, get_did, list_files, resurrect
 from rucio.api.replica import list_replicas, add_replicas, delete_replicas
 from rucio.api.rse import get_rse, list_rses
 from rucio.api.rule import add_replication_rule, list_replication_rules, delete_replication_rule
@@ -207,7 +207,7 @@ class BlockSyncer(object):
         """
 
         with monitor.record_timer_block('cms_sync.time_update_replica'):
-            logging.debug('Updating replicas for %s:%s at %s', self.scope, self.block_name, self.rse)
+            logging.info('Updating replicas for %s:%s at %s', self.scope, self.block_name, self.rse)
             replicas = list_replicas(dids=[{'scope': self.scope, 'name': self.block_name}],
                                      rse_expression='rse=%s' % self.rse)
             try:
@@ -305,7 +305,7 @@ class BlockSyncer(object):
             if missing and self.dry_run:
                 logging.info('Dry run: Adding replicas %s to rse %s.', str(missing), self.rse)
             elif missing:
-                logging.debug('Adding %s replicas to rse %s.', len(missing), self.rse)
+                logging.info('Adding %s replicas to rse %s.', len(missing), self.rse)
                 replicas_to_add = [self.replicas[lfn] for lfn in missing]
                 files = replica_file_list(replicas=replicas_to_add, scope=self.scope)
                 for rucio_file in files:
@@ -317,7 +317,12 @@ class BlockSyncer(object):
                         try:
                             add_replicas(rse=self.rse, files=[rucio_file], issuer=self.account, ignore_availability=True)
                         except RucioException:
-                            logging.critical('Could not add %s to %s. Constaint violated?', rucio_file, self.rse)
+                            logging.critical('Could not add %s to %s. Constraint violated?', rucio_file, self.rse)
+                            resurrect([{'scope': rucio_file['scope'], 'name': rucio_file['name']}], issuer=self.account)
+                            add_replicas(rse=self.rse, files=[rucio_file], issuer=self.account, ignore_availability=True)
+                            logging.critical('Resurrected %s at %s', rucio_file, self.rse)
+
+
                 # add_replicas(rse=self.rse, files=files, issuer=self.account)
                 lfns = [item['name'] for item in list_files(scope=self.scope, name=self.block_name, long=False)]
 
@@ -332,7 +337,7 @@ class BlockSyncer(object):
                     except FileAlreadyExists:
                         logging.warning('Trying to attach already existing files to %s', self.block_name)
                     except DataIdentifierNotFound:
-                        logging.critical('Could not attach to %s at %s. Constaint violated?', self.block_name, self.rse)
+                        logging.critical('Could not attach to %s at %s. Constraint violated?', self.block_name, self.rse)
                 return len(missing_lfns)
 
     def add_replication_rule_with_defaults(self,dids, copies, rse_expression, account):
