@@ -331,6 +331,8 @@ class BlockSyncer(object):
                                     issuer=self.account)
                     except FileAlreadyExists:
                         logging.warning('Trying to attach already existing files to %s', self.block_name)
+                    except DataIdentifierNotFound:
+                        logging.critical('Could not attach to %s at %s. Constaint violated?', self.block_name, self.rse)
                 return len(missing_lfns)
 
     def add_replication_rule_with_defaults(self,dids, copies, rse_expression, account):
