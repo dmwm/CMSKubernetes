@@ -6,7 +6,8 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 8181 # the port here is matching port used in cmssw/auth-proxy-server cotainer
+  - port: 443
+    targetPort: 8181
     protocol: TCP
     name: http
   selector:
@@ -30,7 +31,7 @@ spec:
         app: auth-proxy-server
     spec:
       containers:
-      - image: veknet/auth-proxy-server
+      - image: cmssw/auth-proxy-server
         name: auth-proxy-server
         args:
           - /data/proxy_auth_server
@@ -47,8 +48,19 @@ spec:
         volumeMounts:
         - name: auth-secrets
           mountPath: /etc/secrets
-          readOnly: true
+          defaultMode: 256
+        - name: www-htdocs
+          mountPath: /www
+      initContainers:
+      - name: htdocs
+        image: cmssw/htdocs
+        command: ['sh', '-c', 'cp -r /www/* /tmp/htdocs']
+        volumeMounts:
+        - name: www-htdocs
+          mountPath: /tmp/htdocs
       volumes:
       - name: auth-secrets
         secret:
           secretName: auth-secrets
+      - name: www-htdocs
+        emptyDir: {}
