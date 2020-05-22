@@ -39,9 +39,9 @@ project=${OS_PROJECT_NAME:-"CMS Web"}
 cluster=${CLUSTER:-"monitoring-cluster"}
 template=${TEMPLATE:-"kubernetes-1.15.3-3"}
 keypair=${KEY:-"cloud"}
-secrets="prometheus-secrets nats-secrets spider-specrets sqoop-secrets"
+secrets="prometheus-secrets nats-secrets spider-specrets sqoop-secrets alerts-secrets"
 services="prometheus pushgateway victoria-metrics victoria-metrics-test nats-sub-exitcode nats-sub-stats nats-sub-t1 nats-sub-t2"
-namespaces="nats spider sqoop http hdfs"
+namespaces="nats spider sqoop http hdfs alerts"
 
 # prometheus operator deployment (so far we don't use it)
 deploy_prometheus_operator()
@@ -178,6 +178,14 @@ deploy_secrets()
         kubectl -n hdfs delete secret log-clustering-secrets
     fi
     kubectl create secret generic log-clustering-secrets --from-file=secrets/log-clustering/keytab --from-file=secrets/log-clustering/creds.json --dry-run=client -o yaml | kubectl apply --namespace=hdfs -f -
+
+    # add alerts secrets
+    if [ -n "`kubectl -n alerts get secrets | grep alerts-secrets`" ]; then
+        echo "delete alerts-secrets"
+        kubectl -n alerts delete secret alerts-secrets
+    fi
+    kubectl create secret generic alerts-secrets --from-file=secrets/alerts/token --dry-run=client -o yaml | kubectl apply --namespace=alerts -f -
+
 }
 
 # cluster storages deployment
