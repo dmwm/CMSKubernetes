@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cmsmon-alerts
+  name: ssb-alerts
   namespace: alerts
   labels:
-     app: cmsmon-alerts
+     app: ssb-alerts
 spec:
    replicas: 1
    selector:
      matchLabels:
-       app: cmsmon-alerts
+       app: ssb-alerts
    template:
       metadata:
          labels:
-           app: cmsmon-alerts
+           app: ssb-alerts
       spec:
         containers:
         - args:
