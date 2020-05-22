@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cmsmon-alerts
+  namespace: alerts
+  labels:
+     app: cmsmon-alerts
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: cmsmon-alerts
+   template:
+      metadata:
+         labels:
+           app: cmsmon-alerts
+      spec:
+        containers:
+        - args:
+          - /data/CMSMonitoring/scripts/ssb_alert.sh
+          - "select * from outages where time > now() - 2h limit 1"
+          - "/etc/cmsmon-alerts/token"
+          - "http://cms-monitoring.cern.ch:30093"
+          - "60"
+          - "1"
+          image: veknet/cmsmon-alerts
+          name: alerts
+          volumeMounts:
+          - name: alerts-secrets
+            mountPath: /etc/cmsmon-alerts
+            readOnly: true
+        volumes:
+        - name: alerts-secrets
+          secret:
+            secretName: alerts-secrets

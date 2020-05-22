@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ggus-alerts
+  namespace: alerts
+  labels:
+     app: ggus-alerts
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: ggus-alerts
+   template:
+      metadata:
+         labels:
+           app: ggus-alerts
+      spec:
+        containers:
+        - args:
+          - /data/CMSMonitoring/scripts/ggus_alert.sh
+          - "csv"
+          - "http://cms-monitoring.cern.ch:30093"
+          - "60"
+          - "cms"
+          - "10"
+          - "1"
+          image: veknet/cmsmon-alerts
+          name: alerts
+          volumeMounts:
+          - name: alerts-secrets
+            mountPath: /etc/cmsmon-alerts
+            readOnly: true
+        volumes:
+        - name: alerts-secrets
+          secret:
+            secretName: alerts-secrets
