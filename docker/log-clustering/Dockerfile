@@ -19,9 +19,18 @@ ENV WDIR=/data
 ENV PATH="${PATH}:${WDIR}:${WDIR}/log-clustering:${WDIR}/log-clustering/workflow"
 ENV PYTHONPATH="/usr/local/lib64/python3.6/site-packages:${WDIR}/log-clustering/workflow"
 
+# build Go monit tool
+ENV GOPATH=$WDIR/gopath
+RUN mkdir -p $GOPATH
+ENV PATH="${PATH}:${GOROOT}/bin:${WDIR}"
+RUN git clone https://github.com/dmwm/CMSMonitoring.git
+RUN go get github.com/go-stomp/stomp
+RUN cp CMSMonitoring/src/go/MONIT/monit.go .
+RUN go build monit.go
+RUN cp monit $WDIR
+
 # install log-clustering and required dependencies
 WORKDIR $WDIR
-#RUN pip install --upgrade pip
 RUN git clone https://github.com/vkuznet/log-clustering.git
 RUN pip-3 install Cython
 RUN pip-3 install -r log-clustering/workflow/requirements.txt
