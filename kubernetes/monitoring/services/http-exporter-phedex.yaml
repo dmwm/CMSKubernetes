@@ -1,0 +1,45 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: http-exporter-phedex
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 18007
+    protocol: TCP
+    name: http
+  selector:
+    app: http-exporter-phedex
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-exporter-phedex
+  namespace: http
+  labels:
+     app: http-exporter-phedex
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: http-exporter-phedex
+   template:
+      metadata:
+         labels:
+           app: http-exporter-phedex
+      spec:
+        containers:
+        - args:
+          - /data/http_exporter
+          - -uri
+          - "https://cmsweb.cern.ch/phedex"
+          - -namespace
+          - "phedex"
+          - -port
+          - ":18007"
+          - -verbose
+          name: http-exporter-phedex
+          image: cmssw/http-exporter
+          ports:
+          - containerPort: 18007

@@ -1,0 +1,45 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: http-exporter-wmstats
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 18008
+    protocol: TCP
+    name: http
+  selector:
+    app: http-exporter-wmstats
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-exporter-wmstats
+  namespace: http
+  labels:
+     app: http-exporter-wmstats
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: http-exporter-wmstats
+   template:
+      metadata:
+         labels:
+           app: http-exporter-wmstats
+      spec:
+        containers:
+        - args:
+          - /data/http_exporter
+          - -uri
+          - "https://cmsweb.cern.ch/wmstats/index.html"
+          - -namespace
+          - "wmstats"
+          - -port
+          - ":18008"
+          - -verbose
+          name: http-exporter-wmstats
+          image: cmssw/http-exporter
+          ports:
+          - containerPort: 18008

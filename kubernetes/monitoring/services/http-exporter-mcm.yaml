@@ -1,0 +1,45 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: http-exporter-mcm
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 18004
+    protocol: TCP
+    name: http
+  selector:
+    app: http-exporter-mcm
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-exporter-mcm
+  namespace: http
+  labels:
+     app: http-exporter-mcm
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: http-exporter-mcm
+   template:
+      metadata:
+         labels:
+           app: http-exporter-mcm
+      spec:
+        containers:
+        - args:
+          - /data/http_exporter
+          - -uri
+          - "https://cms-pdmv.cern.ch/mcm/"
+          - -namespace
+          - "mcm"
+          - -port
+          - ":18006"
+          - -verbose
+          name: http-exporter-mcm
+          image: cmssw/http-exporter
+          ports:
+          - containerPort: 18006
