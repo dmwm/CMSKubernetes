@@ -96,10 +96,10 @@ spec:
 #PROD#    mountPath: /data/srv/logs/reqmgr2
         securityContext:
           privileged: true
-      initContainers:
-      - name: checkcouchdb
-        image: busybox:1.28
-        command: ['sh', '-c', 'until nslookup couchdb.couchdb; do echo "Waiting for couchdb"; sleep 10; done;']
+#      initContainers:
+#      - name: checkcouchdb
+#        image: busybox:1.28
+#        command: ['sh', '-c', 'until nslookup couchdb.couchdb; do echo "Waiting for couchdb"; sleep 10; done;']
       volumes:
       - name: proxy-secrets
         secret:

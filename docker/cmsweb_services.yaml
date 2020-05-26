@@ -1,25 +1,22 @@
 ---
 cmssw:
-    - acdcserver
     - cmsmon
     - cmsweb
     - confdb
-    - couchdb
     - crabcache
     - crabserver
     - das2go
     - dbs
     - dbsmigration
     - dmwmmon
-    - dqmgui
     - exporters
     - frontend
     - httpgo
     - httpsgo
-    - phedex
     - reqmgr
     - reqmgr2ms
     - reqmon
     - t0_reqmon
     - t0wmadatasvc
     - workqueue
+    - exitcodes

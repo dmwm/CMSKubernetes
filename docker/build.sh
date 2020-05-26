@@ -35,7 +35,9 @@ CMSK8STAG=${CMSK8STAG:-}
 echo "to prune all images"
 echo "docker system prune -f -a"
 
-cmssw_pkgs="proxy frontend exporters exitcodes nats-sub das dbs2go dbs couchdb reqmgr2 reqmgr2ms reqmon workqueue acdcserver confdb crabserver crabcache cmsmon dmwmmon dqmgui t0_reqmon t0wmadatasvc dbsmigration phedex httpgo httpsgo"
+#cmssw_pkgs="proxy frontend exporters exitcodes nats-sub das dbs2go dbs couchdb reqmgr2 reqmgr2ms reqmon workqueue acdcserver confdb crabserver crabcache cmsmon dmwmmon dqmgui t0_reqmon t0wmadatasvc dbsmigration phedex httpgo httpsgo"
+
+cmssw_pkgs="proxy frontend exporters exitcodes nats-sub das dbs2go dbs reqmgr2 reqmgr2ms reqmon workqueue confdb crabserver crabcache cmsmon dmwmmon t0_reqmon t0wmadatasvc dbsmigration httpgo httpsgo"
 
 if [ $# -eq 1 ]; then
     cmssw_pkgs="$1"
