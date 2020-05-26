@@ -6,6 +6,16 @@ metadata:
 spec:
   selector:
     app: frontend
+# VK: use this section if we'll deploy OAuth and leave machine tools to go
+# through frontend on port 8843
+#   type: NodePort
+#   ports:
+#     - port: 8443
+#       targetPort: 8443
+#       name: https-machine
+#     - port: 18443
+#       targetPort: 18443
+#       name: http-mon
   ports:
     - port: 80
       targetPort: 80
