@@ -1,0 +1,39 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: karma
+  namespace: default
+spec:
+  selector:
+    app: karma
+  type: NodePort
+  ports:
+  - port: 8080
+    nodePort: 30080
+    targetPort: 8080
+    name: karma
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: karma
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: karma
+  template:
+    metadata:
+      labels:
+        app: karma
+    spec:
+      containers:
+      - name: karma
+        image: indrarahul2018/karma_cms:latest
+#         imagePullPolicy: Always
+        env:
+        - name: ALERTMANAGER_URI
+          value: http://alertmanager:9093
+        ports:
+        - containerPort: 8080
