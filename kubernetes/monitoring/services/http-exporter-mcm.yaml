@@ -6,7 +6,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 18004
+  - port: 18006
     protocol: TCP
     name: http
   selector:
@@ -36,6 +36,8 @@ spec:
           - "https://cms-pdmv.cern.ch/mcm/"
           - -namespace
           - "mcm"
+          - -proxyfile
+          - /etc/proxy/proxy
           - -port
           - ":18006"
           - -verbose
@@ -43,3 +45,11 @@ spec:
           image: cmssw/http-exporter
           ports:
           - containerPort: 18006
+          volumeMounts:
+          - name: proxy-secrets
+            mountPath: /etc/proxy
+            readOnly: true
+        volumes:
+        - name: proxy-secrets
+          secret:
+            secretName: proxy-secrets
