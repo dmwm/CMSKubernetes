@@ -36,6 +36,8 @@ spec:
           - "https://cmsweb.cern.ch/phedex"
           - -namespace
           - "phedex"
+          - -proxyfile
+          - /etc/proxy/proxy
           - -port
           - ":18007"
           - -verbose
@@ -43,3 +45,11 @@ spec:
           image: cmssw/http-exporter
           ports:
           - containerPort: 18007
+          volumeMounts:
+          - name: proxy-secrets
+            mountPath: /etc/proxy
+            readOnly: true
+        volumes:
+        - name: proxy-secrets
+          secret:
+            secretName: proxy-secrets
