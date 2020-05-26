@@ -67,10 +67,10 @@ deploy_prometheus_operator()
 deploy_cronjobs()
 {
     # create cron accounts
-    kubectl apply -f crons/proxy-account.yaml -n http
-
-    # create new cronjob
-    kubectl apply -f crons/cron-proxy.yaml -n http
+    for ns in http alerts; do
+        kubectl apply -f crons/proxy-account.yaml -n $ns
+        kubectl apply -f crons/cron-proxy.yaml -n $ns
+    done
 }
 
 # cluster proxies deployment
@@ -89,19 +89,19 @@ deploy_proxies()
         exit 1
     fi
 
-    # create robot-secrets
-    if [ -n "`kubectl -n http get secrets | grep robot-secrets`" ]; then
-        echo "delete robot-secrets in http namespace"
-        kubectl -n http delete secret robot-secrets
-    fi
-    kubectl create secret generic robot-secrets --from-file=$robot_key --from-file=$robot_crt --dry-run=client -o yaml | kubectl apply --namespace=http -f -
-
     # obtain proxy file
     proxy=/tmp/$USER/proxy
     voms-proxy-init -voms cms -rfc --key $robot_key --cert $robot_crt -valid 95:50 --out $proxy
 
     # create proxy-secrets for list of namespaces
-    for ns in http; do
+    for ns in http alerts; do
+        # create robot-secrets
+        if [ -n "`kubectl -n $ns get secrets | grep robot-secrets`" ]; then
+            echo "delete robot-secrets in $ns namespace"
+            kubectl -n $ns delete secret robot-secrets
+        fi
+        kubectl create secret generic robot-secrets --from-file=$robot_key --from-file=$robot_crt --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
+
         if [ -n "`kubectl -n $ns get secrets | grep proxy-secrets`" ]; then
             echo "delete proxy-secrets in $ns namespace"
             kubectl -n $ns delete secret proxy-secrets
