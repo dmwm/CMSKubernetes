@@ -52,7 +52,7 @@ cmsweb_ns=`grep namespace $sdir/* | awk '{print $3}' | sort | uniq`
 # services for cmsweb cluster, adjust if necessary
 #cmsweb_ing="ing-srv"
 cmsweb_ing="ing-confdb ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tfaas ing-tzero"
-cmsweb_srvs="httpgo httpsgo frontend acdcserver confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks"
+cmsweb_srvs="httpgo httpsgo frontend acdcserver confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks runregistry"
 
 # list of DBS instances
 dbs_instances="migrate  global-r global-w phys03-r phys03-w"
@@ -304,13 +304,13 @@ deploy_secrets()
         # create secrets with our robot certificates
         kubectl create secret generic robot-secrets \
             --from-file=$robot_key --from-file=$robot_crt \
-            $files --dry-run -o yaml | \
+            $files --dry-run=client -o yaml | \
             kubectl apply --namespace=$ns --validate=false -f -
 
         # create proxy secret
         if [ -f $proxy ]; then
             kubectl create secret generic proxy-secrets \
-                --from-file=$proxy --dry-run -o yaml | \
+                --from-file=$proxy --dry-run=client -o yaml | \
                 kubectl apply --namespace=$ns --validate=false -f -
         fi
 
@@ -351,7 +351,7 @@ deploy_secrets()
                     kubectl create secret generic ${srv}-${inst}-secrets \
                         --from-file=$robot_key --from-file=$robot_crt \
                         --from-file=$hmac \
-                        $files $dbsfiles --dry-run -o yaml | \
+                        $files $dbsfiles --dry-run=client -o yaml | \
                         kubectl apply --namespace=$ns --validate=false -f -
                 done
             else
@@ -363,7 +363,7 @@ deploy_secrets()
                 kubectl create secret generic ${srv}-secrets \
                     --from-file=$robot_key --from-file=$robot_crt \
                     --from-file=$hmac \
-                    $files --dry-run -o yaml | \
+                    $files --dry-run=client -o yaml | \
                     kubectl apply --namespace=$ns --validate=false -f -
             fi
         done
@@ -372,7 +372,7 @@ deploy_secrets()
 
     # create ingress secrets file, it requires tls.key/tls.crt files
     kubectl create secret generic ing-secrets \
-        --from-file=$tls_key --from-file=$tls_crt --dry-run -o yaml | \
+        --from-file=$tls_key --from-file=$tls_crt --dry-run=client -o yaml | \
         kubectl apply --validate=false -f -
 
     # perform clean-up
