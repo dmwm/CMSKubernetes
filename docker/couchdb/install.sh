@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG2006c
+VER=HG2006e
 REPO="comp"
 AREA=/data/cfg/admin
 # for couchdb we need to install cmsweb service packages
