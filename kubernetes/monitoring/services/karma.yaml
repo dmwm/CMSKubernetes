@@ -30,7 +30,8 @@ spec:
     spec:
       containers:
       - name: karma
-        image: indrarahul2018/karma_cms:latest
+        image: cmssw/karma:20200527
+#         image: indrarahul2018/karma_cms:latest
 #         imagePullPolicy: Always
         env:
         - name: ALERTMANAGER_URI
