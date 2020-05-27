@@ -1,0 +1,84 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: reqmon-tasks
+  labels:
+    app: reqmon-tasks
+  namespace: dmwm
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+    cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    su -c /data/run.sh - _reqmon
+---    
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: reqmon-tasks
+  name: reqmon-tasks
+  namespace: dmwm
+spec:
+  selector:
+    matchLabels:
+      app: reqmon-tasks
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: reqmon-tasks
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      containers:
+      - image: cmssw/reqmon
+        name: reqmon-tasks
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/srv/logs/reqmon
+        securityContext:
+          privileged: true
+#      initContainers:
+#      - name: checkcouchdb
+#        image: busybox:1.28
+#        command: ['sh', '-c', 'until nslookup couchdb.couchdb; do echo "Waiting for couchdb"; sleep 10; done;']
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: reqmon-tasks-secrets
+      - name: etc-grid-security
+        hostPath:
+          path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: reqmon-tasks
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim-dmwm
