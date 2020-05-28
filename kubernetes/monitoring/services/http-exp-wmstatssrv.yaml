@@ -1,0 +1,55 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: http-exp-wmstatssrv
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 18009
+    protocol: TCP
+    name: http
+  selector:
+    app: http-exp-wmstatssrv
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-exp-wmstatssrv
+  namespace: http
+  labels:
+     app: http-exp-wmstatssrv
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: http-exp-wmstatssrv
+   template:
+      metadata:
+         labels:
+           app: http-exp-wmstatssrv
+      spec:
+        containers:
+        - args:
+          - /data/http_exporter
+          - -uri
+          - "https://cmsweb.cern.ch/wmstatsserver/data/info"
+          - -namespace
+          - "wmstatsserver"
+          - -proxyfile
+          - /etc/proxy/proxy
+          - -port
+          - ":18009"
+          - -verbose
+          name: http-exp-wmstatssrv
+          image: cmssw/http-exporter
+          ports:
+          - containerPort: 18009
+          volumeMounts:
+          - name: proxy-secrets
+            mountPath: /etc/proxy
+            readOnly: true
+        volumes:
+        - name: proxy-secrets
+          secret:
+            secretName: proxy-secrets
