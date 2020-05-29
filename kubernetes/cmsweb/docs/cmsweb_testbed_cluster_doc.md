@@ -49,7 +49,20 @@ To deploy new service, the service first needs to be deleted and then redeployed
  - Then, following command can be used to deploy service in testbed cluster. 
   - 
    ```
-   cat services/xxx.yaml | sed -e "s,1 #PROD#,,g" | sed -e "s,#PROD#,      ,g" | sed -e "s,logs-cephfs-claim,logs-cephfs-claim-preprod,g" | kubectl apply --validate=false -f -
+   cat services/xxx.yaml | sed -e "s,1 #PROD#,,g" | sed -e "s,#PROD#,      ,g" | sed -e "s,logs-cephfs-claim,logs-cephfs-claim-preprod,g" | kubectl apply -f -
    ```
 
- - Please note that string #PROD# should be replaced by six spaces and logs-cephfs-claim should be replaced by logs-cephfs-claim-preprod for testbed cluster as shown above in the command. 
+ - Please note that string #PROD# should be replaced by six spaces and logs-cephfs-claim should be replaced by logs-cephfs-claim-preprod for testbed cluster as shown above in the command.
+
+
+## CMSWEB Testbed Cluster Monitoring
+
+There are monitoring pages for CMSWEB k8s testbed clusters in `https://monit-grafana.cern.ch` 
+
+- The URL to access frontend cluster is available [here](https://monit-grafana.cern.ch/d/cmsweb-k8s-testbed-frontend/cmsweb-k8s-testbed-frontends?orgId=11&refresh=30s)
+
+- The URL to access backend cluster is available [here](https://monit-grafana.cern.ch/d/cmsweb-k8s-testbed-services/cmsweb-k8s-testbed-services?orgId=11&refresh=30s)
+
+These webpages provide cluster and pod resource usage in terms of `RAM` and `CPU`. 
+
+ 
