@@ -40,6 +40,6 @@ spec:
           - ":18000"
           - -verbose
           name: http-sub
-          image: cmssw/http-exporter
+          image: cmssw/http-exporter:20200529
           ports:
           - containerPort: 18000

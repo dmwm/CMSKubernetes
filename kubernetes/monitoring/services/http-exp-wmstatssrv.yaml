@@ -38,11 +38,13 @@ spec:
           - "wmstatsserver"
           - -proxyfile
           - /etc/proxy/proxy
+          - -contentType
+          - "*/*"
           - -port
           - ":18009"
           - -verbose
           name: http-exp-wmstatssrv
-          image: cmssw/http-exporter
+          image: cmssw/http-exporter:20200529
           ports:
           - containerPort: 18009
           volumeMounts:

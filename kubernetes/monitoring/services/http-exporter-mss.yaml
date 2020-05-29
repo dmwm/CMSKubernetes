@@ -40,6 +40,6 @@ spec:
           - ":18003"
           - -verbose
           name: http-exporter-mss
-          image: cmssw/http-exporter
+          image: cmssw/http-exporter:20200529
           ports:
           - containerPort: 18003

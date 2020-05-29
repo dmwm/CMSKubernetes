@@ -42,7 +42,7 @@ spec:
           - ":18007"
           - -verbose
           name: http-exporter-phedex
-          image: cmssw/http-exporter
+          image: cmssw/http-exporter:20200529
           ports:
           - containerPort: 18007
           volumeMounts:

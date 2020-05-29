@@ -42,7 +42,7 @@ spec:
           - ":18008"
           - -verbose
           name: http-exporter-wmstats
-          image: cmssw/http-exporter
+          image: cmssw/http-exporter:20200529
           ports:
           - containerPort: 18008
           volumeMounts:

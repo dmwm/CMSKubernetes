@@ -40,6 +40,6 @@ spec:
           - ":18002"
           - -verbose
           name: http-exporter-detox
-          image: cmssw/http-exporter
+          image: cmssw/http-exporter:20200529
           ports:
           - containerPort: 18002
