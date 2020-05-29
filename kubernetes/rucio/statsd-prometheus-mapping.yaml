@@ -32,3 +32,70 @@ mappings:
       fts_server: "$1"
       operation: "$2"
       outcome: "$3"
+  - match: "rucio.judge.number_of_missing_files.*"
+    help: "Rucio number missing of files"
+    name: "rucio_judge_number_of_missing_files"
+    labels:
+      dst_rse: "$1"  
+  - match: "rucio.judge.expected_number_of_files.*"
+    help: "Rucio expected number of files"
+    name: "rucio_judge_expected_number_of_files"
+    labels:
+      dst_rse: "$1"   
+  - match: "rucio.judge.not_OK_rules.*"
+    help: "Rucio stuck rules"
+    name: "rucio_judge_not_OK_rules"
+    labels:
+      dst_rse: "$1"
+  - match: "rucio.judge.replicating_rules.*"
+    help: "Rucio replicating rules"
+    name: "rucio_judge_replicating_rules"
+    labels:
+      dst_rse: "$1" 
+  - match: "rucio.judge.rules_with_0_completion_volume.*"
+    help: "Rucio stuck rules with 0 completion volume"
+    name: "rucio_judge_rules_with_0_completion_volume"
+    labels:
+      dst_rse: "$1"
+  - match: "rucio.judge.used_space.*"
+    help: "Rucio used space"
+    name: "rucio_judge_used_space"
+    labels:
+      dst_rse: "$1"
+  - match: "rucio.judge.free_space.*"
+    help: "Rucio free space"
+    name: "rucio_judge_free_space"
+    labels:
+      dst_rse: "$1"
+  - match: "rucio.requests.missing_data.*.*"
+    help: "Rucio backlog volume"
+    name: "rucio_requests_missing_data_volume"
+    labels:
+      rse_type: "$1"
+      dst_rse: "$2"
+  - match: "rucio.requests.replicating_data.*.*"
+    help: "Rucio replicating volume"
+    name: "rucio_requests_replicating_data_volume"
+    labels:
+      rse_type: "$1"
+      dst_rse: "$2"      
+  - match: "rucio.reaper.unlocked_rse_replicas.*"
+    help: "Rucio unlocked replicas per RSE"
+    name: "rucio_reaper_unlocked_rse_replicas"
+    labels:
+      dst_rse: "$1"      
+  - match: "rucio.reaper.expired_rse_replicas.*"
+    help: "Rucio expired replicas per RSE"
+    name: "rucio_reaper_expired_rse_replicas"
+    labels:
+      dst_rse: "$1"    
+  - match: "rucio.judge.expiring_rules_number.*"
+    help: "Rucio expiring rules per RSE"
+    name: "rucio_judge_expiring_rules_number"
+    labels:
+      dst_rse: "$1"       
+  - match: "rucio.judge.number_of_replicating_files.*"
+    help: "Rucio number of replicating files"
+    name: "rucio_judge_number_of_replicating_files"
+    labels:
+      dst_rse: "$1"            
