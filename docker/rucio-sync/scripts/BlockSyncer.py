@@ -104,31 +104,19 @@ class BlockSyncer(object):
 
     def register_container(self):
         self.container_exists = False
-        if self.is_at_pnn and self.dry_run:
+        if self.dry_run:
             logging.info('Dry Run: Create container %s in scope %s.', self.container, self.scope)
             self.container_exists = True
             return self.container_exists
 
-        try:
-            get_did(scope=self.scope, name=self.container)
+        existed, created, attached, already_attached = self.register_and_attach_did(scope=self.scope,
+                                                                                    name=self.container,
+                                                                                    did_type='CONTAINER')
+        self.container_exists = existed | created
+        if existed:
             monitor.record_counter('cms_sync.container_exists')
-            self.container_exists = True
-            logging.info('Found container %s', self.container )
-        except DataIdentifierNotFound:
-            if self.is_at_pnn:
-                try:
-                    logging.info('Create container %s in scope %s.', self.container, self.scope)
-                    add_did(scope=self.scope, name=self.container, type='CONTAINER',
-                            issuer=self.account, lifetime=self.lifetime)
-                    monitor.record_counter('cms_sync.container_created')
-                    self.container_exists = True
-                    logging.info('Created container %s in scope %s.', self.container, self.scope)
-                except DataIdentifierAlreadyExists:
-                    logging.warning('Container was created in the meanwhile')
-                    monitor.record_counter('cms_sync.container_collision')
-                    self.container_exists = True
-            else:
-                logging.warning('Container was not at PNN')
+        if created:
+            monitor.record_counter('cms_sync.container_created')
 
         return self.container_exists
 
@@ -140,40 +128,22 @@ class BlockSyncer(object):
 
         # FIXME: The logic here could use some improvement as we try to create a block even if it exists already
 
-        try:
-            get_did(scope=self.scope, name=self.block_name)
-            self.block_exists = True
-            monitor.record_counter('cms_sync.dataset_exists')
-        except DataIdentifierNotFound:
-            self.block_exists = False
+        existed, created, attached, already_attached = self.register_and_attach_did(scope=self.scope,
+                                                                                    name=self.block_name,
+                                                                                    did_type='DATASET',
+                                                                                    parent_did=self.container)
 
         if self.is_at_pnn and self.dry_run:
             logging.info('Dry Run: Create dataset %s in scope %s.', self.block_name, self.scope)
             self.block_exists = True
-        elif self.is_at_pnn:
-            logging.info('Create block %s in scope %s.', self.block_name, self.scope)
-            try:
-                if not self.block_exists:
-                    add_did(scope=self.scope, name=self.block_name, type='DATASET',
-                            issuer=self.account, lifetime=self.lifetime)
-                    monitor.record_counter('cms_sync.dataset_created')
-            except DataIdentifierAlreadyExists:
-                logging.warning('Attempt to add %s:%s failed, already exists.', self.scope, self.block_name)
-                monitor.record_counter('cms_sync.dataset_collision')
 
-            try:
-                attach_dids(scope=self.scope, name=self.container,
-                            attachment={'dids': [{'scope': self.scope, 'name': self.block_name}]}, issuer=self.account)
-            except DuplicateContent:
-                logging.warning('Attempt to add %s:%s to %s failed, already exists.',
-                                self.scope, self.block_name, self.container)
-            except DataIdentifierNotFound:
-                logging.error('Attempt to add %s:%s to %s failed. Container does not exist.',
-                              self.scope, self.block_name, self.container)
-                return False
-            self.block_exists = True
-        else:
-            logging.warning('Block %s was not at PNN', self.block_name)
+        self.block_exists = existed | created
+        if existed:
+            monitor.record_counter('cms_sync.dataset_exists')
+        if created:
+            monitor.record_counter('cms_sync.dataset_created')
+        if not existed and not created:
+            monitor.record_counter('cms_sync.dataset_create_failed')
 
         return self.block_exists
 
@@ -375,3 +345,55 @@ class BlockSyncer(object):
                              ignore_availability=ignore_availability, comment=comment, ask_approval=ask_approval,
                              asynchronous=asynchronous, priority=priority, split_container=split_container, meta=meta,
                              issuer=account)
+
+    def register_and_attach_did(self, scope='cms', name=None, did_type=None, parent_did=None):
+
+        existed = False
+        created = False
+        attached = False
+        already_attached = False
+
+        try:
+            get_did(scope=scope, name=name)
+            existed = True
+            logging.info('DID existed: %s %s:%s', did_type, scope, name)
+        except DataIdentifierNotFound:
+            try:
+                add_did(scope=scope, name=name, type=did_type,
+                        issuer=self.account, lifetime=self.lifetime)
+                created = True
+                logging.info('Created DID: %s %s:%s', did_type, scope, name)
+            except:
+                logging.critical('Attempt to add %s:%s failed. Unknown', scope, name)
+                logging.critical('Reg and attach exiting. Existed %s, created %s, attached %s', existed, created,
+                                 attached)
+        except:
+            logging.critical('Attempt to get %s:%s failed. Unknown', scope, name)
+            logging.critical('Reg and attach exiting. Existed %s, created %s, attached %s', existed, created,
+                             attached)
+
+        if parent_did:
+            try:
+                attach_dids(scope=scope, name=parent_did,
+                            attachment={'dids': [{'scope': scope, 'name': name}]}, issuer=self.account)
+                logging.info('Attached %s to %s', name, parent_did)
+                attached = True
+            except DuplicateContent:
+                logging.warning('Attempt to add %s:%s to %s failed, already exists.',
+                                self.scope, self.block_name, self.container)
+                attached = True
+                already_attached = True
+            except DataIdentifierNotFound:
+                logging.critical('Attempt to add %s to %s failed. Parent does not exist.',
+                                 self.block_name, self.container)
+                logging.critical('Reg and attach failed to attach. Existed %s, created %s, attached %s', existed,
+                                 created,
+                                 attached)
+            except:
+                logging.critical('Attempt to attach %s to %s failed. Unknown', name, parent_did)
+                logging.critical('Reg and attach failed to attach. Existed %s, created %s, attached %s', existed,
+                                 created,
+                                 attached)
+                self.block_exists = True
+
+        return existed, created, attached, already_attached
