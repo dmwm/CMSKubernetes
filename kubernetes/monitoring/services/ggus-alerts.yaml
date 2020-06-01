@@ -17,14 +17,14 @@ spec:
       spec:
         containers:
         - args:
-          - /data/CMSMonitoring/scripts/ggus_alert.sh
+          - /data/ggus_alert.sh
           - "xml"
           - "http://cms-monitoring.cern.ch:30093"
           - "60"
           - "cms"
           - "10"
           - "1"
-          image: cmssw/cmsmon-alerts:20200525
+          image: cmssw/cmsmon-alerts:20200601-v1
           name: alerts
           env:
             - name: X509_USER_PROXY

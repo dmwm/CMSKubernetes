@@ -17,13 +17,13 @@ spec:
       spec:
         containers:
         - args:
-          - /data/CMSMonitoring/scripts/ssb_alert.sh
+          - /data/ssb_alert.sh
           - "select * from outages where time > now() - 2h"
           - "/etc/cmsmon-alerts/token"
           - "http://cms-monitoring.cern.ch:30093"
           - "60"
           - "1"
-          image: cmssw/cmsmon-alerts:20200525
+          image: cmssw/cmsmon-alerts:20200601-v1
           name: alerts
           volumeMounts:
           - name: alerts-secrets
