@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG2006e
+VER=HG2006g
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend das mongodb"
