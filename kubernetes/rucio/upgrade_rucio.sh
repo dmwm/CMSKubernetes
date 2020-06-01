@@ -15,12 +15,11 @@ helm3 upgrade --recreate-pods --values cms-rucio-common.yaml,cms-rucio-webui.yam
 helm3 upgrade --recreate-pods --values cms-rucio-common.yaml,cms-rucio-probes.yaml,${INSTANCE}-rucio-probes.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $PROBE_NAME $REPO/rucio-probes
 
 # statsd exporter to prometheus
-helm upgrade --recreate-pods --values statsd-prometheus-mapping.yaml,${INSTANCE}-statsd-exporter.yaml statsd-exporter cms-kubernetes/rucio-statsd-exporter
-helm upgrade --recreate-pods --values eagle.yaml,${INSTANCE}-eagle.yaml kube-eagle kube-eagle/kube-eagle
+helm3 upgrade --recreate-pods --values statsd-prometheus-mapping.yaml,${INSTANCE}-statsd-exporter.yaml statsd-exporter cms-kubernetes/rucio-statsd-exporter
+helm3 upgrade --recreate-pods --values eagle.yaml,${INSTANCE}-eagle.yaml kube-eagle kube-eagle/kube-eagle
 
 # Label is key to prevent it from also syncing datasets
 kubectl apply -f ${INSTANCE}-sync-jobs.yaml -l syncs=rses
-
 
 # List the whole system
 kubectl get pods -A 
