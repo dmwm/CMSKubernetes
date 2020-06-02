@@ -46,4 +46,9 @@ probes:
     interval: 120
   check_rules_with_0_completion_volume:
     interval: 1
-
+  check_expiring_rules_per_rse:
+    interval: 1
+  check_missing_data_at_rse:
+    interval: 1
+  check_unlocked_replicas_per_rse:
+    interval: 1

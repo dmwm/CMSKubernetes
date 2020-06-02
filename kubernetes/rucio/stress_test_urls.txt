@@ -1,5 +1,0 @@
-http://cms-rucio-int.cern.ch/ping
-http://cms-rucio-int.cern.ch/rses/T2_US_Nebraska
-http://cms-rucio-int.cern.ch/rses/
-http://cms-rucio-int.cern.ch/dids/cms/%2FHeavyHiggsToZAToZZHTo4l2b_MH-500_MA-220_TuneCP5_PSweights_13TeV_madgraph_pythia8%2FRunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1%2FMINIAODSIM%23d8a9c312-4ead-4cfd-852e-e6b9c9b74062/rules
-http://cms-rucio-int.cern.ch/dids/cms/%2FGluGluHToZZTo2L2Q_M800_13TeV_powheg2_JHUGenV7011_pythia8%2FRunIIFall17NanoAOD-PU2017_12Apr2018_94X_mc2017_realistic_v14-v2%2FNANOAODSIM%2354fe27b7-53fc-4c0f-8431-0624d43ae953
