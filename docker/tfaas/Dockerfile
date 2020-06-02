@@ -1,4 +1,4 @@
-FROM cmssw/cmsweb:20190814
+FROM cmssw/cmsweb:20190814 as builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 # add environment
@@ -65,10 +65,17 @@ WORKDIR $WDIR/TFaaS/src/Go
 RUN make
 ENV PATH="${WDIR}/TFaaS/src/Go:${PATH}"
 
-# run the service
-RUN mkdir models
-RUN mv config.json config.json.orig
-ADD config.json config.json
-ADD run.sh run.sh
-#CMD ["tfaas",  "-config", "config.json"]
+# final image
+FROM cern/cc7-base:20200504-1.x86_64
+RUN mkdir -p /data/lib
+COPY --from=builder /data/TFaaS/src/Go /data/
+COPY --from=builder /data/lib /data/lib
+RUN mkdir /data/models
+ENV WDIR=/data
+ENV LIBRARY_PATH="${WDIR}/lib"
+ENV LD_LIBRARY_PATH="${WDIR}/lib"
+ENV PATH="${WDIR}:${PATH}"
+WORKDIR $WDIR
+ADD config.json /data/config.json
+ADD run.sh /data/run.sh
 CMD ["run.sh"]
