@@ -42,9 +42,11 @@ spec:
           - "*/*"
           - -port
           - ":18009"
+          - -agent
+          - "monitoring"
           - -verbose
           name: http-exp-wmstatssrv
-          image: cmssw/http-exporter:20200529
+          image: cmssw/http-exporter:20200602
           ports:
           - containerPort: 18009
           volumeMounts:

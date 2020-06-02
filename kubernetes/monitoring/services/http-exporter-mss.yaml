@@ -38,8 +38,10 @@ spec:
           - "mss"
           - -port
           - ":18003"
+          - -agent
+          - "monitoring"
           - -verbose
           name: http-exporter-mss
-          image: cmssw/http-exporter:20200529
+          image: cmssw/http-exporter:20200602
           ports:
           - containerPort: 18003

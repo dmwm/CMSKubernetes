@@ -40,9 +40,11 @@ spec:
           - /etc/proxy/proxy
           - -port
           - ":18006"
+          - -agent
+          - "monitoring"
           - -verbose
           name: http-exporter-mcm
-          image: cmssw/http-exporter:20200529
+          image: cmssw/http-exporter:20200602
           ports:
           - containerPort: 18006
           volumeMounts:

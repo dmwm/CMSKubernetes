@@ -40,9 +40,11 @@ spec:
           - /etc/proxy/proxy
           - -port
           - ":18008"
+          - -agent
+          - "monitoring"
           - -verbose
           name: http-exporter-wmstats
-          image: cmssw/http-exporter:20200529
+          image: cmssw/http-exporter:20200602
           ports:
           - containerPort: 18008
           volumeMounts:

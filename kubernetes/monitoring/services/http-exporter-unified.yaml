@@ -38,8 +38,10 @@ spec:
           - "unified"
           - -port
           - ":18005"
+          - -agent
+          - "monitoring"
           - -verbose
           name: http-exporter-unified
-          image: cmssw/http-exporter:20200529
+          image: cmssw/http-exporter:20200602
           ports:
           - containerPort: 18005

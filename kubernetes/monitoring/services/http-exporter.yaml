@@ -38,8 +38,10 @@ spec:
           - "cms_monitoring"
           - -port
           - ":18000"
+          - -agent
+          - "monitoring"
           - -verbose
           name: http-sub
-          image: cmssw/http-exporter:20200529
+          image: cmssw/http-exporter:20200602
           ports:
           - containerPort: 18000
