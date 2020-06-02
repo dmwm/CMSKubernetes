@@ -31,10 +31,10 @@ spec:
         app: auth-proxy-server
     spec:
       containers:
-      - image: cmssw/auth-proxy-server
+      - image: cmssw/auth-proxy-server:20200602
         name: auth-proxy-server
         args:
-          - /data/proxy_auth_server
+          - /data/auth-proxy-server
           - -config=/etc/secrets/config.json
         resources:
           requests:
