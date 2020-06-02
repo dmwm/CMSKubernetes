@@ -1,9 +1,13 @@
-FROM golang:latest
+FROM golang:latest as go-builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 ENV WDIR=/data
 ENV USER=http
-EXPOSE 8181
 WORKDIR $WDIR
-RUN go mod init github.com/vkuznet/auth-proxy-server
-ADD proxy_auth_server.go $WDIR/proxy_auth_server.go
-RUN go build proxy_auth_server.go
+ARG CGO_ENABLED=0
+RUN mkdir $WDIR/gopath
+ENV GOPATH $WDIR/gopath
+RUN go get -u -ldflags="-s -w -extldflags -static" github.com/vkuznet/auth-proxy-server
+
+FROM alpine
+RUN mkdir /data
+COPY --from=go-builder /data/gopath/bin/auth-proxy-server /data/
