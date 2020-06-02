@@ -1,42 +1,26 @@
-FROM cmssw/cmsweb:20200504
+FROM golang:latest as go-builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
-ENV USER=_das
-ADD mongodb.conf $WDIR/mongodb.conf
-
-RUN yum install -y git-core krb5-devel readline-devel openssl
-RUN yum clean all
-
-# Create new user account
-RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
-# add user to sudoers file
-RUN echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-# switch to user
-USER ${USER}
-# if I want to run service under user account I need to run it on non-priveleged
-# port. But if kubernetes can't redirect traffic to non-privileged port
-# I'll need to add iptables routing of https traffict to local port
-# https://wiki.jenkins.io/display/JENKINS/Running+Jenkins+on+Port+80+or+443+using+iptables
-# https://unix.stackexchange.com/questions/68714/how-can-i-redirect-ports-80-and-443-to-8080-and-8443-with-iptables
-# https://serverfault.com/questions/540241/iptables-how-to-redirect-all-8443-incoming-and-outgoing-to-443
-
-# start the setup
-RUN mkdir -p $WDIR
+RUN mkdir -p $WDIR/bin
 WORKDIR ${WDIR}
 
 # download mongodb
-RUN curl -k -L -O https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-rhel70-3.6.2.tgz
-RUN tar xfz mongodb-linux-x86_64-rhel70-3.6.2.tgz
-ENV MROOT=$WDIR/mongodb-linux-x86_64-rhel70-3.6.2
-RUN mkdir -p $WDIR/mongodb/{logs,db}
-RUN rm mongodb-linux-x86_64-rhel70-3.6.2.tgz
+#RUN curl -k -L -O https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-rhel70-3.6.2.tgz
+#RUN tar xfz mongodb-linux-x86_64-rhel70-3.6.2.tgz
+#ENV MROOT=$WDIR/mongodb-linux-x86_64-rhel70-3.6.2
+#RUN rm mongodb-linux-x86_64-rhel70-3.6.2.tgz
+RUN curl -ksLO https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-debian92-3.6.18.tgz
+RUN tar xfz mongodb-linux-x86_64-debian92-3.6.18.tgz
+ENV MROOT=$WDIR/mongodb-linux-x86_64-debian92-3.6.18
+RUN rm mongodb-linux-x86_64-debian92-3.6.18.tgz
 
 # get latest DASMaps
 RUN git clone https://github.com/dmwm/DASMaps.git
 
 # get go dependencies
 ENV GOPATH=$WDIR/gopath
+ARG CGO_ENABLED=0
 RUN mkdir -p $GOPATH
 ENV PATH="${GOROOT}/bin:${MROOT}/bin:${WDIR}:${PATH}"
 RUN go get github.com/dmwm/cmsauth
@@ -56,7 +40,6 @@ WORKDIR $GOPATH/src/github.com/dmwm/DASTools
 RUN make
 
 # build das2go
-ADD config.json $WDIR/config.json
 WORKDIR $GOPATH/src/github.com/dmwm/das2go
 RUN make
 RUN go build monitor/das2go_monitor.go
@@ -66,10 +49,25 @@ ENV PATH="${GOPATH}/src/github.com/dmwm/das2go:${PATH}"
 ENV PATH="${GOPATH}/src/github.com/dmwm/das2go/FlameGraph:${PATH}"
 ENV PATH="${GOPATH}/src/github.com/dmwm/DASTools/bin:${PATH}"
 
-ENV X509_USER_PROXY=/data/srv/current/auth/proxy/proxy
-
-# run the service
-ADD run.sh $WDIR/run.sh
-ADD monitor.sh $WDIR/monitor.sh
-WORKDIR ${WDIR}
+# for musl C-libary and smallest base image we will use alpine
+#FROM alpine
+# for gibc library we will use debian:stretch
+FROM debian:stretch
+RUN mkdir -p /data/das2go
+ENV PATH $PATH:/data
+COPY --from=go-builder /data/gopath/bin /data/
+COPY --from=go-builder /data/gopath/src/github.com/dmwm/DASTools/bin /data/
+COPY --from=go-builder /data/gopath/src/github.com/dmwm/das2go/bin /data/
+COPY --from=go-builder /data/gopath/src/github.com/dmwm/das2go/templates /data/templates
+COPY --from=go-builder /data/gopath/src/github.com/dmwm/das2go/das2go_monitor /data/
+COPY --from=go-builder /data/mongodb-linux-x86_64-debian92-3.6.18/bin /data/
+RUN mkdir -p /data/mongodb/db
+RUN mkdir -p /data/mongodb/logs
+RUN apt-get update
+RUN apt-get -y install openssl
+ADD config.json /data/config.json
+ADD run.sh /data/run.sh
+ADD monitor.sh /data/monitor.sh
+ADD mongodb.conf /data/mongodb.conf
+WORKDIR /data
 CMD ["run.sh"]
