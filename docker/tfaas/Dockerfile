@@ -1,4 +1,4 @@
-FROM cmssw/cmsweb:20191007
+FROM cmssw/cmsweb:20190814
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 # add environment
@@ -33,11 +33,18 @@ RUN go get github.com/shirou/gopsutil
 
 # download and insta TensorFlow libraries
 # https://www.tensorflow.org/versions/master/install/install_go
-ENV TF_LIB="libtensorflow-cpu-linux-x86_64-1.14.0.tar.gz"
+ENV TF_LIB="libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz"
 RUN curl -k -L -O "https://storage.googleapis.com/tensorflow/libtensorflow/${TF_LIB}"
 RUN tar xfz $TF_LIB
 ENV LIBRARY_PATH="${LIBRARY_PATH}:${WDIR}/lib"
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${WDIR}/lib"
+# until TF is fixed: https://github.com/tensorflow/tensorflow/issues/39744
+RUN git clone https://github.com/tensorflow/tensorflow.git
+RUN cd tensorflow && git checkout r1.11
+RUN mkdir -p $GOPATH/src/github.com/tensorflow
+RUN mv tensorflow $GOPATH/src/github.com/tensorflow
+
+#RUN go get github.com/tensorflow/tensorflow/tensorflow/go/core/core_protos_go_proto
 RUN go get github.com/tensorflow/tensorflow/tensorflow/go
 RUN go get github.com/tensorflow/tensorflow/tensorflow/go/op
 
