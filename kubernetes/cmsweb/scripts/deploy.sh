@@ -56,7 +56,7 @@ cmsweb_ing="ing-confdb ing-crab ing-dbs ing-das ing-dmwm ing-http ing-tzero ing-
 
 #cmsweb_srvs="httpgo httpsgo frontend acdcserver confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
 
-cmsweb_srvs="httpgo httpsgo frontend confdb crabcache crabserver das dbs reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmon reqmon-tasks t0_reqmon t0wmadatasvc workqueue exitcodes"
+cmsweb_srvs="httpgo httpsgo frontend confdb crabcache crabserver das dbs dbsmigration reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmon reqmon-tasks t0_reqmon t0wmadatasvc workqueue exitcodes"
 
 # list of DBS instances
 dbs_instances="migrate  global-r global-w phys03-r phys03-w"
@@ -103,7 +103,7 @@ if [ "$deployment" == "services" ]; then
     cmsweb_ing="ing-confdb ing-crab ing-dbs ing-das ing-dmwm ing-http ing-tzero ing-exitcodes"
 
     #cmsweb_srvs="httpgo httpsgo acdcserver confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
-cmsweb_srvs="httpgo httpsgo confdb crabcache crabserver das dbs reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor  reqmon reqmon-tasks t0_reqmon t0wmadatasvc workqueue exitcodes"
+cmsweb_srvs="httpgo httpsgo confdb crabcache crabserver das dbs dbsmigration reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor  reqmon reqmon-tasks t0_reqmon t0wmadatasvc workqueue exitcodes"
 
     echo "+++ deploy services: $cmsweb_srvs"
     echo "+++ deploy ingress : $cmsweb_ing"
@@ -168,6 +168,8 @@ scale()
 {
     if [ "$deployment" == "services" ]; then
         # dbs, generic scalers
+        kubectl autoscale deployment dbsmigration --cpu-percent=80 --min=2 --max=10
+
         kubectl autoscale deployment dbs-migrate --cpu-percent=80 --min=2 --max=10
 #        kubectl autoscale deployment dbs-global-m --cpu-percent=80 --min=2 --max=4
         kubectl autoscale deployment dbs-global-r --cpu-percent=80 --min=6 --max=12

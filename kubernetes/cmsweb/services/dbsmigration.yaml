@@ -1,28 +1,28 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: dbs-migrate
+  name: dbsmigration
   namespace: dbs
 spec:
   selector:
-    app: dbs-migrate
+    app: dbsmigration
   ports:
-    - port: 8257
-      targetPort: 8257
-      name: dbs-migrate
-    - port: 18257
-      targetPort: 18257
-      name: dbs-mig-mon
-    - port: 19257
-      targetPort: 19257
-      name: dbs-mig-cpy-mon
+    - port: 8251
+      targetPort: 8251
+      name: dbsmigration
+    - port: 18251
+      targetPort: 18251
+      name: dbsmig-mon
+    - port: 19251
+      targetPort: 19251
+      name: dbsmig-cpy-mon
 ---
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: dbs-migrate
+  name: dbsmigration
   labels:
-    app: dbs-migrate
+    app: dbsmigration
   namespace: dbs
 data:
   setup-certs-and-run.sh: |
@@ -30,31 +30,31 @@ data:
     cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
-    su -c /data/run.sh - _dbs
+    su -c /data/run.sh - _dbsmigration
 ---    
 kind: Deployment
 apiVersion: apps/v1
 metadata:
   labels:
-    app: dbs-migrate
-  name: dbs-migrate
+    app: dbsmigration
+  name: dbsmigration
   namespace: dbs
 spec:
   selector:
     matchLabels:
-      app: dbs-migrate
+      app: dbsmigration
   replicas: 1 #PROD# 2
   template:
     metadata:
       labels:
-        app: dbs-migrate
+        app: dbsmigration
     spec:
       securityContext:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/dbs
-        name: dbs-migrate
+      - image: cmssw/dbsmigration
+        name: dbsmigration
         resources:
           requests:
             memory: "256Mi"
@@ -63,15 +63,15 @@ spec:
             memory: "10Gi"
             cpu: "800m"
         ports:
-        - containerPort: 8257
+        - containerPort: 8251
           protocol: TCP
-          name: dbs-migrate
-        - containerPort: 18257
+          name: dbsmigration
+        - containerPort: 18251
           protocol: TCP
-          name: dbs-mig-mon
-        - containerPort: 19257
+          name: dbsmig-mon
+        - containerPort: 19251
           protocol: TCP
-          name: dbs-mig-cpy-mon
+          name: dbsmig-cpy-mon
         command:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
@@ -88,7 +88,7 @@ spec:
         - name: setup-certs-and-run
           mountPath: /opt/setup-certs-and-run
 #PROD#  - name: logs-cephfs
-#PROD#    mountPath: /data/srv/logs/dbs
+#PROD#    mountPath: /data/srv/logs/dbsmigration
         securityContext:
           privileged: true
       volumes:
@@ -97,13 +97,13 @@ spec:
           secretName: proxy-secrets
       - name: secrets
         secret:
-          secretName: dbs-migrate-secrets
+          secretName: dbsmigration-secrets
       - name: etc-grid-security
         hostPath:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: dbs-migrate
+          name: dbsmigration
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-dbs

@@ -20,6 +20,10 @@ spec:
       - path: /dbs/int/global/DBSMigrate
         backend:
           serviceName: dbs-migrate
+          servicePort: 8257
+      - path: /dbs/int/global/DBSMigrate
+        backend:
+          serviceName: dbsmigration
           servicePort: 8251
       - path: /dbs/int/global/DBSReader
         backend:
