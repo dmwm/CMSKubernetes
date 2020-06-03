@@ -1,0 +1,47 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: http-exporter-dmytro
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 18010
+    protocol: TCP
+    name: http
+  selector:
+    app: http-exporter-dmytro
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-exporter-dmytro
+  namespace: http
+  labels:
+     app: http-exporter-dmytro
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: http-exporter-dmytro
+   template:
+      metadata:
+         labels:
+           app: http-exporter-dmytro
+      spec:
+        containers:
+        - args:
+          - /data/http_exporter
+          - -uri
+          - "https://dmytro.web.cern.ch/dmytro/cmsprodmon"
+          - -namespace
+          - "dmytro"
+          - -port
+          - ":18010"
+          - -agent
+          - "monitoring"
+          - -verbose
+          name: http-exporter-dmytro
+          image: cmssw/http-exporter:20200602
+          ports:
+          - containerPort: 18010
