@@ -10,8 +10,8 @@ spec:
     - port: 8247
       targetPort: 8247
       name: ms-transferor
-    - port: 18248
-      targetPort: 18248
+    - port: 18247
+      targetPort: 18247
       name: ms-transfer-mon
 ---
 kind: ConfigMap
@@ -73,7 +73,7 @@ spec:
         - containerPort: 8247
           protocol: TCP
           name: ms-transferor
-        - containerPort: 18248
+        - containerPort: 18247
           protocol: TCP
           name: ms-transfer-mon
         command:

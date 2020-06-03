@@ -10,8 +10,8 @@ spec:
     - port: 8245
       targetPort: 8245
       name: ms-output
-    - port: 18248
-      targetPort: 18248
+    - port: 18245
+      targetPort: 18245
       name: ms-output-mon
 ---
 kind: ConfigMap
@@ -73,7 +73,7 @@ spec:
         - containerPort: 8245
           protocol: TCP
           name: ms-output
-        - containerPort: 18248
+        - containerPort: 18245
           protocol: TCP
           name: ms-output-mon
         command:
