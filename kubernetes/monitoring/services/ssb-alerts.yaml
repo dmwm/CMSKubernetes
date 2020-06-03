@@ -20,10 +20,12 @@ spec:
           - /data/ssb_alert.sh
           - "select * from outages where time > now() - 2h"
           - "/etc/cmsmon-alerts/token"
+          - "/data/data.json"
           - "http://cms-monitoring.cern.ch:30093"
           - "60"
           - "1"
-          image: cmssw/cmsmon-alerts:20200601-v1
+          image: cmssw/cmsmon-alerts:20200603-v1
+          #image: cmssw/cmsmon-alerts:20200601-v1
           name: alerts
           volumeMounts:
           - name: alerts-secrets
