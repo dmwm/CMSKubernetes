@@ -33,7 +33,7 @@ spec:
         - args:
           - /data/http_exporter
           - -uri
-          - "http://cms-rucio-auth.cern.ch/ping"
+          - "https://cms-rucio-auth.cern.ch/ping"
           - -namespace
           - "rucio_auth"
           - -port
