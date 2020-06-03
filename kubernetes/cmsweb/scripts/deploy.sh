@@ -450,11 +450,26 @@ deploy_monitoring()
     #        fi
     #    done
     #fi
+
+    # locate all prometheus files
+    local mon=""
     if [ "$deployment" == "services" ]; then
-        kubectl -n monitoring apply -f monitoring/prometheus-services.yaml
+        mon="services"
+#        kubectl -n monitoring apply -f monitoring/prometheus-services.yaml
     elif [ "$deployment" == "frontend" ]; then
-        kubectl -n monitoring apply -f monitoring/prometheus-frontend.yaml
+        mon="frontend"
+#        kubectl -n monitoring apply -f monitoring/prometheus-frontend.yaml
     fi
+    local files=""
+    if [ -d monitoring ] && [ -n "`ls monitoring/prometheus/$mon`" ]; then
+        for fname in monitoring/prometheus/$mon/* monitoring/prometheus/rules/*; do
+            files="$files --from-file=$fname"
+        done
+    fi
+    kubectl create secret generic prometheus-secrets \
+        $files --dry-run=client -o yaml | \
+        kubectl apply --namespace=monitoring -f -
+    kubectl -n monitoring apply -f monitoring/prometheus.yaml
     kubectl -n monitoring get deployments
     kubectl -n monitoring get pods
     prom=`kubectl -n monitoring get pods | grep prom | awk '{print $1}'`
