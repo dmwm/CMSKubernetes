@@ -30,7 +30,7 @@ reaper2:
       memory: 1000Gi
 
 conveyorTransferSubmitter:
-    activities: "'User Subscriptions' 'Functional Test'"
+    activities: "'Data Brokering' 'Data rebalancing' 'Debug' 'Express' 'Functional Test' 'Group Subscriptions' 'Production Input' 'Production Output' 'Analysis Input' 'Analysis Output' 'Staging' 'T0 Export' 'T0 Tape' 'Upload/Download (Job)' 'Upload/Download (User)' 'User Subscriptions'"
     # Same size or smaller than bulk which is 100
     groupBulk: 50
 
