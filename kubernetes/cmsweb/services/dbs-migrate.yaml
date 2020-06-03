@@ -88,7 +88,7 @@ spec:
         - name: setup-certs-and-run
           mountPath: /opt/setup-certs-and-run
 #PROD#  - name: logs-cephfs
-#PROD#    mountPath: /data/srv/logs/dbs
+#PROD#    mountPath: /data/srv/logs/dbsmigration
         securityContext:
           privileged: true
       volumes:
