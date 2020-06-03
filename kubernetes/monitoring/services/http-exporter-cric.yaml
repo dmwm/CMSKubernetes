@@ -42,6 +42,6 @@ spec:
           - "monitoring"
           - -verbose
           name: http-exporter-cric
-          image: cmssw/http-exporter:20200602
+          image: cmssw/http-exporter:20200603
           ports:
           - containerPort: 18004
