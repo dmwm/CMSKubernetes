@@ -1,0 +1,117 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: reqmgr2ms-o
+  namespace: dmwm
+spec:
+  selector:
+    app: reqmgr2ms-o
+  ports:
+    - port: 8248
+      targetPort: 8248
+      name: reqmgr2ms-o
+    - port: 18248
+      targetPort: 18248
+      name: reqmgr2ms-o-mon
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: reqmgr2ms-o
+  labels:
+    app: reqmgr2ms-o
+  namespace: dmwm
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+    cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    su -c /data/run.sh - _reqmgr2ms
+---    
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: reqmgr2ms-o
+  name: reqmgr2ms-o
+  namespace: dmwm
+spec:
+  selector:
+    matchLabels:
+      app: reqmgr2ms-o
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: reqmgr2ms-o
+    spec:
+      # use hostNetwork to allow communication between reqmgr2ms/reqmon/workqueue and couch
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      containers:
+      - image: cmssw/reqmgr2ms
+        name: reqmgr2ms-o
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - bash
+              - -c
+              - sudo chmod 0777 /data/srv/logs/reqmgr2ms; sudo chown _reqmgr2ms:_reqmgr2ms /data/srv/logs/reqmgr2ms
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 8248
+          protocol: TCP
+          name: reqmgr2ms-o
+        - containerPort: 18248
+          protocol: TCP
+          name: reqmgr2ms-o-mon
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/srv/logs/reqmgr2ms
+        securityContext:
+          privileged: true
+#      initContainers:
+#      - name: checkcouchdb
+#        image: busybox:1.28
+#        command: ['sh', '-c', 'until nslookup couchdb.couchdb; do echo "Waiting for couchdb"; sleep 10; done;']
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: reqmgr2ms-secrets
+      - name: etc-grid-security
+        hostPath:
+            path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: reqmgr2ms-o
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim-dmwm
