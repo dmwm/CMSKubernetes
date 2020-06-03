@@ -1,25 +1,25 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: reqmgr2ms-o
+  name: ms-output
   namespace: dmwm
 spec:
   selector:
-    app: reqmgr2ms-o
+    app: ms-output
   ports:
-    - port: 8248
-      targetPort: 8248
-      name: reqmgr2ms-o
-    - port: 18248
-      targetPort: 18248
-      name: reqmgr2ms-o-mon
+    - port: 8245
+      targetPort: 8245
+      name: ms-output
+    - port: 18245
+      targetPort: 18245
+      name: ms-output-mon
 ---
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: reqmgr2ms-o
+  name: ms-output
   labels:
-    app: reqmgr2ms-o
+    app: ms-output
   namespace: dmwm
 data:
   setup-certs-and-run.sh: |
@@ -33,18 +33,18 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   labels:
-    app: reqmgr2ms-o
-  name: reqmgr2ms-o
+    app: ms-output
+  name: ms-output
   namespace: dmwm
 spec:
   selector:
     matchLabels:
-      app: reqmgr2ms-o
+      app: ms-output
   replicas: 1
   template:
     metadata:
       labels:
-        app: reqmgr2ms-o
+        app: ms-output
     spec:
       # use hostNetwork to allow communication between reqmgr2ms/reqmon/workqueue and couch
 #       hostNetwork: true
@@ -54,7 +54,7 @@ spec:
         runAsGroup: 0
       containers:
       - image: cmssw/reqmgr2ms
-        name: reqmgr2ms-o
+        name: ms-output
         lifecycle:
           postStart:
             exec:
@@ -70,12 +70,12 @@ spec:
             memory: "3Gi"
             cpu: "1000m"
         ports:
-        - containerPort: 8248
+        - containerPort: 8245
           protocol: TCP
-          name: reqmgr2ms-o
-        - containerPort: 18248
+          name: ms-output
+        - containerPort: 18245
           protocol: TCP
-          name: reqmgr2ms-o-mon
+          name: ms-output-mon
         command:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
@@ -111,7 +111,7 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: reqmgr2ms-o
+          name: ms-output
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-dmwm

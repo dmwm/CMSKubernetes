@@ -1,25 +1,25 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: reqmgr2ms-t
+  name: ms-transferor
   namespace: dmwm
 spec:
   selector:
-    app: reqmgr2ms-t
+    app: ms-transferor
   ports:
-    - port: 8248
-      targetPort: 8248
-      name: reqmgr2ms-t
-    - port: 18248
-      targetPort: 18248
-      name: reqmgr2ms-t-mon
+    - port: 8247
+      targetPort: 8247
+      name: ms-transferor
+    - port: 18247
+      targetPort: 18247
+      name: ms-transfer-mon
 ---
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: reqmgr2ms-t
+  name: ms-transferor
   labels:
-    app: reqmgr2ms-t
+    app: ms-transferor
   namespace: dmwm
 data:
   setup-certs-and-run.sh: |
@@ -33,18 +33,18 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   labels:
-    app: reqmgr2ms-t
-  name: reqmgr2ms-t
+    app: ms-transferor
+  name: ms-transferor
   namespace: dmwm
 spec:
   selector:
     matchLabels:
-      app: reqmgr2ms-t
+      app: ms-transferor
   replicas: 1
   template:
     metadata:
       labels:
-        app: reqmgr2ms-t
+        app: ms-transferor
     spec:
       # use hostNetwork to allow communication between reqmgr2ms/reqmon/workqueue and couch
 #       hostNetwork: true
@@ -54,7 +54,7 @@ spec:
         runAsGroup: 0
       containers:
       - image: cmssw/reqmgr2ms
-        name: reqmgr2ms-t
+        name: ms-transferor
         lifecycle:
           postStart:
             exec:
@@ -70,12 +70,12 @@ spec:
             memory: "3Gi"
             cpu: "1000m"
         ports:
-        - containerPort: 8248
+        - containerPort: 8247
           protocol: TCP
-          name: reqmgr2ms-t
-        - containerPort: 18248
+          name: ms-transferor
+        - containerPort: 18247
           protocol: TCP
-          name: reqmgr2ms-t-mon
+          name: ms-transfer-mon
         command:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
@@ -111,7 +111,7 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: reqmgr2ms-t
+          name: ms-transferor
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-dmwm

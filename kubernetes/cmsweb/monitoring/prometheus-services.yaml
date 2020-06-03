@@ -39,6 +39,15 @@ data:
       - job_name: 'reqmgr2-service'
         static_configs:
             - targets: ['reqmgr2.dmwm.svc.cluster.local:18240']
+      - job_name: 'ms-monitor-service'
+        static_configs:
+            - targets: ['ms-monitor.dmwm.svc.cluster.local:18248']
+      - job_name: 'ms-output-service'
+        static_configs:
+            - targets: ['ms-output.dmwm.svc.cluster.local:18245']
+      - job_name: 'ms-transferor-service'
+        static_configs:
+            - targets: ['ms-transferor.dmwm.svc.cluster.local:18247']
       - job_name: 'crabserver-service'
         static_configs:
             - targets: ['crabserver.crab.svc.cluster.local:18270']
