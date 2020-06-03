@@ -1,0 +1,14 @@
+groups:
+- name: crabserver
+  rules:
+
+  - alert: service_down
+    expr: crabserver_num_cpus == 0
+    for: 5m
+    labels:
+      severity: high
+      tag: cmsweb
+      service: crab
+    annotations:
+      summary: "crabserver {{ $labels.env }} is down"
+      description: "{{ $labels.env }} has been down for more than 5m"

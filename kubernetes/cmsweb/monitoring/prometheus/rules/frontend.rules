@@ -1,0 +1,51 @@
+groups:
+- name: frontend
+  rules:
+  - record: rate_accesses_total
+    expr: rate(apache_accesses_total{job="frontend-prod"}[5m])
+  - record: rage_size_total
+    expr: rate(apache_sent_kilobytes_total{job="frontend-prod"}[5m])
+
+  - alert: service_down
+    expr: avg_over_time(apache_up[5m]) < .9
+    for: 5m
+    labels:
+      severity: high
+      tag: cmsweb
+      service: apache
+    annotations:
+      summary: "Frontend {{ $labels.instance }} down"
+      description: "Frontend {{ $labels.instance }} has been down for more than 5m"
+
+  - alert: high_load
+    expr: rate_accesses_total > 250
+    for: 1m
+    labels:
+      severity: medium
+      tag: cmsweb
+      service: apache
+    annotations:
+      summary: "Instance {{ $labels.instance }} under high load"
+      description: "{{ $labels.instance }} is under high load, rate_access_total > 250"
+
+  - alert: high_request_load
+    expr: rate_size_total > 10000
+    for: 1m
+    labels:
+      severity: medium
+      tag: cmsweb
+      service: apache
+    annotations:
+      summary: "Instance {{ $labels.instance }} under high load"
+      description: "{{ $labels.instance }} is under high load, sent request is above 5KB for 5m"
+
+  - alert: high_scoreboard
+    expr: avg_over_time(apache_scoreboard{state="reply"}[1m]) > 250
+    for: 1m
+    labels:
+      severity: medium
+      tag: cmsweb
+      service: apache
+    annotations:
+      summary: "Instance {{ $labels.instance }} under high load"
+      description: "{{ $labels.instance }} is under high load, apache_scoreboard with reply state > 250"

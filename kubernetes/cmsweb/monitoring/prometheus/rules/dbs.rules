@@ -1,0 +1,128 @@
+groups:
+- name: dbs
+  rules:
+  - record: avg_cpu_total
+    expr: avg_over_time(dbs_global_exporter_process_cpu_seconds_total[5m])
+  - record: avg_open_fds
+    expr: avg_over_time(dbs_global_exporter_process_open_fds[5m])
+  - record: avg_est_connections
+    expr: avg_over_time(dbs_global_exporter_established_connections[5m])
+  - record: sum_avg_dbs_global_exporter_proc_cpu
+    expr: sum(avg_over_time(dbs_global_exporter_proc_cpu[1h]))
+    labels:
+      aggregate: 1h
+      monit_forward: "true"
+  - record: sum_avg_dbs_global_exporter_proc_mem
+    expr: sum(avg_over_time(dbs_global_exporter_proc_mem[1h]))
+    labels:
+      aggregate: 1h
+      monit_forward: "true"
+  - record: sum_avg_dbs_global_exporter_swap_percent
+    expr: sum(avg_over_time(dbs_global_exporter_swap_percent[1h]))
+    labels:
+      aggregate: 1h
+      monit_forward: "true"
+  - record: sum_avg_dbs_global_exporter_num_threads
+    expr: sum(avg_over_time(dbs_global_exporter_num_threads[1h]))
+    labels:
+      aggregate: 1h
+      monit_forward: "true"
+  - record: sum_avg_dbs_global_exporter_load1
+    expr: sum(avg_over_time(dbs_global_exporter_load1[1h]))
+    labels:
+      aggregate: 1h
+      monit_forward: "true"
+  - record: sum_avg_dbs_global_exporter_load5
+    expr: sum(avg_over_time(dbs_global_exporter_load5[1h]))
+    labels:
+      aggregate: 1h
+      monit_forward: "true"
+  - record: sum_avg_dbs_global_exporter_process_cpu_seconds_total
+    expr: sum(avg_over_time(dbs_global_exporter_process_cpu_seconds_total[1h]))
+    labels:
+      aggregate: 1h
+      monit_forward: "true"
+  - record: sum_avg_dbs_global_exporter_process_resident_memory_bytes
+    expr: sum(avg_over_time(dbs_global_exporter_process_resident_memory_bytes[1h]))
+    labels:
+      aggregate: 1h
+      monit_forward: "true"
+  - record: sum_avg_dbs_global_exporter_process_open_fds
+    expr: sum(avg_over_time(dbs_global_exporter_process_open_fds[1h]))
+    labels:
+      aggregate: 1h
+      monit_forward: "true"
+  - record: sum_avg_dbs_global_exporter_process_open_fds
+    expr: sum(avg_over_time(dbs_global_exporter_process_open_fds[1h]))
+    labels:
+      aggregate: 1h
+      monit_forward: "true"
+  - record: sum_avg_dbs_global_exporter_listen_connections
+    expr: sum(avg_over_time(dbs_global_exporter_listen_connections[1h]))
+    labels:
+      aggregate: 1h
+      monit_forward: "true"
+  - record: sum_avg_dbs_global_exporter_established_connections
+    expr: sum(avg_over_time(dbs_global_exporter_established_connections[1h]))
+    labels:
+      aggregate: 1h
+      monit_forward: "true"
+  - record: sum_avg_dbs_global_exporter_total_connections
+    expr: sum(avg_over_time(dbs_global_exporter_total_connections[1h]))
+    labels:
+      aggregate: 1h
+      monit_forward: "true"
+  - record: sum_avg_dbs_global_exporter_time_wait_connections
+    expr: sum(avg_over_time(dbs_global_exporter_time_wait_connections[1h]))
+    labels:
+      aggregate: 1h
+      monit_forward: "true"
+  - record: sum_avg_dbs_global_exporter_close_wait_connections
+    expr: sum(avg_over_time(dbs_global_exporter_close_wait_connections[1h]))
+    labels:
+      aggregate: 1h
+      monit_forward: "true"
+
+  - alert: service_down
+    expr: avg_open_fds < 1
+    for: 5m
+    labels:
+      severity: high
+      tag: cmsweb
+      service: dbs
+    annotations:
+      summary: "DBS global instance {{ $labels.env }} down"
+      description: "{{ $labels.env }} has been down for more than 5m"
+
+  - alert: high_fds
+    expr: avg_open_fds > 300
+    for: 1m
+    labels:
+      severity: high
+      tag: cmsweb
+      service: dbs
+    annotations:
+      summary: "DBS global {{ $labels.env }} environment"
+      description: "{{ $labels.env }} has high level of fds (above 1k) for more than 1m"
+
+  - alert: no_cpu
+    expr: avg_cpu_total == 0
+    for: 1m
+    labels:
+      severity: high
+      tag: cmsweb
+      service: dbs
+    annotations:
+      summary: "DBS global {{ $labels.env }} environment"
+      description: "{{ $labels.env }} has no CPU activity for more than 1m"
+
+  - alert: high_connection
+    expr: avg_est_connections > 1000
+    for: 1m
+    labels:
+      severity: high
+      tag: cmsweb
+      service: dbs
+    annotations:
+      summary: "DBS global {{ $labels.env }} environment"
+      description: "{{ $labels.env }} has large number of connections (above 1k) for more than 1m"
