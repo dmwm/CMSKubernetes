@@ -35,7 +35,7 @@ spec:
           - -uri
           - "http://cms-rucio-auth.cern.ch/ping"
           - -namespace
-          - "rucio"
+          - "rucio_auth"
           - -port
           - ":18012"
           - -agent
