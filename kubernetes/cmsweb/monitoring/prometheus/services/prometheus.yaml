@@ -23,16 +23,16 @@ remote_write:
 scrape_configs:
   - job_name: 'kube-eagle'
     static_configs:
-        - targets: ['kube-eagle.default.svc.cluster.local:8080']
+        - targets: ['kube-eagle.monitoring.svc.cluster.local:8080']
   - job_name: 'das-service'
     static_configs:
         - targets: ['das.das.svc.cluster.local:18217']
   - job_name: 'mongodb-service'
     static_configs:
         - targets: ['das.das.svc.cluster.local:18230']
-  - job_name: 'dbs-migrate-service'
+  - job_name: 'dbsmigration'
     static_configs:
-        - targets: ['dbs-migrate.dbs.svc.cluster.local:18251']
+        - targets: ['dbsmigration.dbs.svc.cluster.local:18251']
   - job_name: 'dbs-global-r-service'
     static_configs:
         - targets: ['dbs-global-r.dbs.svc.cluster.local:18252', 'dbs-global-r.dbs.svc.cluster.local:19252']
@@ -45,6 +45,9 @@ scrape_configs:
   - job_name: 'dbs-phys03-w-service'
     static_configs:
         - targets: ['dbs-phys03-w.dbs.svc.cluster.local:18255', 'dbs-phys03-w.dbs.svc.cluster.local:19255']
+  - job_name: 'dbs-migrate-service'
+    static_configs:
+        - targets: ['dbs-migrate.dbs.svc.cluster.local:18257']
   - job_name: 'reqmgr2-service'
     static_configs:
         - targets: ['reqmgr2.dmwm.svc.cluster.local:18240']
