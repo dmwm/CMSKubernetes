@@ -30,7 +30,7 @@ data:
     cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
-    su -c /data/run.sh - _dbs
+    su  -c "cd /data && /data/run.sh" --preserve-environment _dbs
 ---    
 kind: Deployment
 apiVersion: apps/v1
