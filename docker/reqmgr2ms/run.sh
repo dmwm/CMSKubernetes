@@ -74,6 +74,7 @@ for fname in $files; do
 done
 
 # start the service
+/data/srv/current/config/mongodb/manage start 'I did read documentation'
 /data/srv/current/config/$srv/manage start 'I did read documentation'
 
 # run monitoring script
