@@ -44,7 +44,7 @@ spec:
           - "monitoring"
           - -verbose
           name: http-exporter-wmstats
-          image: cmssw/http-exporter:20200603
+          image: cmssw/http-exporter:20200603-v1
           ports:
           - containerPort: 18008
           volumeMounts:

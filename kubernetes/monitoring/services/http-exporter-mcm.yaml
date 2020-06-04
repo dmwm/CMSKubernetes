@@ -44,7 +44,7 @@ spec:
           - "monitoring"
           - -verbose
           name: http-exporter-mcm
-          image: cmssw/http-exporter:20200603
+          image: cmssw/http-exporter:20200603-v1
           ports:
           - containerPort: 18006
           volumeMounts:

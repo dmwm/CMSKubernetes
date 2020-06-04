@@ -42,6 +42,6 @@ spec:
           - "monitoring"
           - -verbose
           name: http-exporter-dmytro
-          image: cmssw/http-exporter:20200603
+          image: cmssw/http-exporter:20200603-v1
           ports:
           - containerPort: 18010
