@@ -42,6 +42,19 @@ fi
 
 # use service configuration files from /etc/secrets if they are present
 cdir=/data/srv/current/config/$srv
+# check if /etc/secrets area contain at least one dbs configuration files
+cfiles="config-monitor.py config-output.py config-transferor.py"
+for fname in $cfiles; do
+    if [ -f /etc/secrets/$fname ]; then
+        cd $cdir
+        rm $cfiles
+        cd -
+    fi
+    if [ -f /etc/secrets/$fname ]; then
+        sudo cp /etc/secrets/$fname $cdir/$fname
+        sudo chown $USER.$USER $cdir/$fname
+    fi
+done
 files=`ls $cdir`
 for fname in $files; do
     if [ -f /etc/secrets/$fname ]; then
