@@ -2,8 +2,8 @@
 
 # start process exporters
 if [ -f /etc/secrets/DBSMigrate.py ]; then
-    process_monitor.sh ".*DBSMigrate" dbs_migrate_exporter ":18251" 15 2>&1 1>& dbs_migrate_exporter.log &
-    cpy_exporter -uri http://localhost:8251/dbs/stats -address ":19251" 2>&1 1>& cpy_exporter.log &
+    process_monitor.sh ".*DBSMigrate" dbs_migrate_exporter ":18257" 15 2>&1 1>& dbs_migrate_exporter.log &
+    cpy_exporter -uri http://localhost:8257/dbs/stats -address ":19257" 2>&1 1>& cpy_exporter.log &
 fi
 if [ -f /etc/secrets/DBSGlobalReader.py ]; then
     process_monitor.sh ".*DBSGlobalReader" dbs_global_exporter ":18252" 15 2>&1 1>& dbs_global_exporter.log &
