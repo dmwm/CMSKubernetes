@@ -22,7 +22,7 @@ if [ -f /tmp/robotkey.pem ] && [ -f /tmp/robotcert.pem ]; then
     out=$?
     if [ $out -eq 0 ]; then
         kubectl create secret generic proxy-secrets \
-            --from-file=/tmp/proxy --dry-run -o yaml | \
+            --from-file=/tmp/proxy --dry-run=client -o yaml | \
             kubectl apply --validate=false -f -
     else
         echo "Failed to obtain new proxy, voms-proxy-init error $out"
