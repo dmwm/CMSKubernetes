@@ -7,7 +7,15 @@ for p in "config-monitor" "config-output" "config-transferor"; do
     if [ -n "$pid" ]; then
         prefix=reqmgr2ms_exporter
         prefix=`echo $p | sed -e "s,config-,ms_,g"`
-        address=":18248"
+        if [ "$p" == "config-monitor" ]; then
+            address=":18248"
+        fi
+        if [ "$p" == "config-output" ]; then
+            address=":18245"
+        fi
+        if [ "$p" == "config-transferor" ]; then
+            address=":18247"
+        fi
         nohup process_exporter -pid $pid -prefix $prefix -address "$address" 2>&1 1>& ${prefix}.log < /dev/null &
     fi
 done
