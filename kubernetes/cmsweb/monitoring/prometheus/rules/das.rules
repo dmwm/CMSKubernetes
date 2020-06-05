@@ -2,29 +2,31 @@ groups:
 - name: das
   rules:
 
-  - alert: service_down
+  - alert: DAS service is down
     expr: avg_over_time(das2go_uptime[5m]) < .9
     for: 5m
     labels:
       severity: high
       tag: cmsweb
       service: das
+      action: Please restart DAS and MongoDB services
     annotations:
       summary: "DAS {{ $labels.env }} is down"
       description: "{{ $labels.env }} has been down for more than 5m"
 
-  - alert: high_memory_usage
+  - alert: DAS high memory usage
     expr: avg_over_time(das2go_memory_percent[5m]) > 90
     for: 5m
     labels:
-      severity: medium
+      severity: high
       tag: cmsweb
       service: das
+      action: Please restart DAS service
     annotations:
       summary: "DAS {{ $labels.env }} has high memory usage"
       description: "{{ $labels.env }} memory usage above 90% for more than 5m"
 
-  - alert: high_cpu_usage
+  - alert: DAS high cpu usage
     expr: avg_over_time(das2go_cpu_percent[5m]) > 90
     for: 5m
     labels:
