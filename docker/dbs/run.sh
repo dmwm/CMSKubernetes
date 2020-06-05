@@ -43,7 +43,7 @@ fi
 # use service configuration files from /etc/secrets if they are present
 cdir=/data/srv/current/config/$srv
 # check if /etc/secrets area contain at least one dbs configuration files
-cfiles="DBSDef.py DBSMigrate.py DBSGlobalReader.py DBSGlobalWriter.py DBSPhys03Reader.py DBSPhys03Writer.py"
+cfiles="DBSDef.py DBSMigrate.py DBSGlobalReader.py DBSGlobalWriter.py DBSPhys03Reader.py DBSPhys03Writer.py Migration.py"
 for fname in $cfiles; do
     if [ -f /etc/secrets/$fname ]; then
         cd $cdir
