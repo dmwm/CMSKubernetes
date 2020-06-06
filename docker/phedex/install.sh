@@ -66,6 +66,6 @@ sed -i -e "s,\$config->{SSL_SERVER_ROOT} \.,,g" /data/srv/state/phedex/htdocs/We
 sed -i -e "s#ServerMonitor/2.0#ServerMonitor-phedex#g" /data/srv/current/config/admin/ServerMonitor
 
 # adjust crontabs
-crontab -l | egrep -v "reboot" > /tmp/mycron
+crontab -l | egrep -v "reboot|ProxyRenew|LogArchive" > /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron
