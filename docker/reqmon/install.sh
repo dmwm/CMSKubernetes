@@ -70,6 +70,7 @@ done
 sed -i -e "s#ServerMonitor/2.0#ServerMonitor-reqmon#g" /data/srv/current/config/admin/ServerMonitor
 
 # adjust crontab
-crontab -l | egrep -v "reqmgr2|workqueue|couchdb|reboot" > /tmp/mycron
+crontab -l | egrep -v "reqmgr2|workqueue|couchdb" > /tmp/mycron
+crontab -l | egrep -v "reboot|ProxyRenew|LogArchive" >> /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron

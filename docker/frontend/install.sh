@@ -105,7 +105,7 @@ crontab -l | \
         -e "s,/data/certs/hostkey.pem,/data/srv/current/auth/proxy/proxy,g" | crontab -
 
 # add proxy generation via robot certificate
-crontab -l > /tmp/mycron
+crontab -l | egrep -v "reboot|ProxyRenew|LogArchive" > /tmp/mycron
 echo "0 0 * * * sudo /usr/sbin/fetch-crl" >> /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron
