@@ -66,13 +66,13 @@ scrape_configs:
   - job_name: 'reqmon-service'
     static_configs:
         - targets: ['reqmon.dmwm.svc.cluster.local:18249']
-  - job_name: 'confdb-service'
   - job_name: 't0reqmon-service'
     static_configs:
         - targets: ['t0reqmon.tzero.svc.cluster.local:18243']
   - job_name: 't0wmadatasvc-service'
     static_configs:
         - targets: ['t0wmadatasvc.tzero.svc.cluster.local:18308']
+  - job_name: 'confdb-service'
     static_configs:
         - targets: ['confdb.confdb.svc.cluster.local:18340']
   - job_name: 'crabserver-service'
