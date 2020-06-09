@@ -2,7 +2,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: ingress
-  namespace: default
+  namespace: auth
   annotations:
     kubernetes.io/ingress.class: traefik
 spec:
@@ -10,11 +10,11 @@ spec:
   - host: cms-monitoring.cern.ch
     http:
       paths:
-      - path: /prometheus
+      - path: /
         backend:
-          serviceName: prometheus
-          servicePort: 9090
-      - path: /pushgateway
-        backend:
-          serviceName: pushgateway
-          servicePort: 9091
+          serviceName: auth-proxy-server
+          servicePort: 443
+  tls:
+  - hosts:
+    - cms-monitoring.cern.ch
+  secretName: auth-secrets
