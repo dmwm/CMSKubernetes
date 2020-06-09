@@ -186,6 +186,13 @@ deploy_secrets()
     fi
     kubectl create secret generic alerts-secrets --from-file=secrets/alerts/token --dry-run=client -o yaml | kubectl apply --namespace=alerts -f -
 
+    # auth-proxy secrets
+    if [ -n "`kubectl -n auth get secrets | grep auth-secrets`" ]; then
+        echo "delete auth-secrets"
+        kubectl -n auth delete secret auth-secrets
+    fi
+    kubectl create secret generic auth-secrets --from-file=secrets/auth-proxy-server/config.json --from-file=secrets/auth-proxy-server/tls.crt --from-file=secrets/auth-proxy-server/tls.key --from-file=secrets/auth-proxy-server/hmac --dry-run=client -o yaml | kubectl apply --namespace=auth -f -
+
 }
 
 # cluster storages deployment
