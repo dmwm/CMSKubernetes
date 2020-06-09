@@ -24,45 +24,73 @@ scrape_configs:
   - job_name: 'kube-eagle'
     static_configs:
         - targets: ['kube-eagle.monitoring.svc.cluster.local:8080']
+          labels:
+            env: 'k8s'
   - job_name: 'das-service'
     static_configs:
         - targets: ['das.das.svc.cluster.local:18217']
+          labels:
+            env: 'k8s'
   - job_name: 'mongodb-service'
     static_configs:
         - targets: ['das.das.svc.cluster.local:18230']
+          labels:
+            env: 'k8s'
   - job_name: 'dbsmigration'
     static_configs:
         - targets: ['dbsmigration.dbs.svc.cluster.local:18251']
+          labels:
+            env: 'k8s'
   - job_name: 'dbs-global-r-service'
     static_configs:
         - targets: ['dbs-global-r.dbs.svc.cluster.local:18252', 'dbs-global-r.dbs.svc.cluster.local:19252']
+          labels:
+            env: 'k8s'
   - job_name: 'dbs-global-w-service'
     static_configs:
         - targets: ['dbs-global-w.dbs.svc.cluster.local:18253', 'dbs-global-w.dbs.svc.cluster.local:19253']
+          labels:
+            env: 'k8s'
   - job_name: 'dbs-phys03-r-service'
     static_configs:
         - targets: ['dbs-phys03-r.dbs.svc.cluster.local:18254', 'dbs-phys03-r.dbs.svc.cluster.local:19254']
+          labels:
+            env: 'k8s'
   - job_name: 'dbs-phys03-w-service'
     static_configs:
         - targets: ['dbs-phys03-w.dbs.svc.cluster.local:18255', 'dbs-phys03-w.dbs.svc.cluster.local:19255']
+          labels:
+            env: 'k8s'
   - job_name: 'dbs-migrate-service'
     static_configs:
         - targets: ['dbs-migrate.dbs.svc.cluster.local:18257']
+          labels:
+            env: 'k8s'
   - job_name: 'reqmgr2-service'
     static_configs:
         - targets: ['reqmgr2.dmwm.svc.cluster.local:18240']
+          labels:
+            env: 'k8s'
   - job_name: 'ms-monitor-service'
     static_configs:
         - targets: ['ms-monitor.dmwm.svc.cluster.local:18248']
+          labels:
+            env: 'k8s'
   - job_name: 'ms-output-service'
     static_configs:
         - targets: ['ms-output.dmwm.svc.cluster.local:18245']
+          labels:
+            env: 'k8s'
   - job_name: 'ms-transferor-service'
     static_configs:
         - targets: ['ms-transferor.dmwm.svc.cluster.local:18247']
+          labels:
+            env: 'k8s'
   - job_name: 'crabserver-service'
     static_configs:
         - targets: ['crabserver.crab.svc.cluster.local:18270']
+          labels:
+            env: 'k8s'
 
   - job_name: 'kubernetes-apiservers'
 
