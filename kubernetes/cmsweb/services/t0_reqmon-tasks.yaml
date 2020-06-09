@@ -1,25 +1,9 @@
-kind: Service
-apiVersion: v1
-metadata:
-  name: t0reqmon
-  namespace: tzero
-spec:
-  selector:
-    app: t0reqmon
-  ports:
-    - port: 8243
-      targetPort: 8243
-      name: t0reqmon
-    - port: 18243
-      targetPort: 18243
-      name: t0reqmon-mon
----
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: t0reqmon
+  name: t0reqmon-tasks
   labels:
-    app: t0reqmon
+    app: t0reqmon-tasks
   namespace: tzero
 data:
   setup-certs-and-run.sh: |
@@ -34,18 +18,18 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   labels:
-    app: t0reqmon
-  name: t0reqmon
+    app: t0reqmon-tasks
+  name: t0reqmon-tasks
   namespace: tzero
 spec:
   selector:
     matchLabels:
-      app: t0reqmon
-  replicas: 1 #PROD# 5
+      app: t0reqmon-tasks
+  replicas: 1
   template:
     metadata:
       labels:
-        app: t0reqmon
+        app: t0reqmon-tasks
     spec:
       # use hostNetwork to allow communication between reqmgr/t0reqmon/workqueue and couch
 #       hostNetwork: true
@@ -55,7 +39,7 @@ spec:
         runAsGroup: 0
       containers:
       - image: cmssw/t0_reqmon
-        name: t0reqmon
+        name: t0reqmon-tasks
         resources:
           requests:
             memory: "256Mi"
@@ -63,13 +47,6 @@ spec:
           limits:
             memory: "3Gi"
             cpu: "1000m"
-        ports:
-        - containerPort: 8243
-          protocol: TCP
-          name: t0reqmon
-        - containerPort: 18243
-          protocol: TCP
-          name: t0reqmon-mon
         command:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
@@ -105,7 +82,7 @@ spec:
           path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: t0reqmon
+          name: t0reqmon-tasks
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-tzero
