@@ -25,3 +25,15 @@ spec:
         backend:
           serviceName: reqmon
           servicePort: 8249
+      - path: /ms-transferor
+        backend:
+          serviceName: ms-transferor
+          servicePort: 8247
+      - path: /ms-monitor
+        backend:
+          serviceName: ms-monitor
+          servicePort: 8248
+      - path: /ms-output
+        backend:
+          serviceName: ms-output
+          servicePort: 8245
