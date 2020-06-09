@@ -1,9 +1,15 @@
-FROM cmssw/cmsweb
+FROM cern/cc7-base:20200504-1.x86_64
+#FROM cmssw/cmsweb
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
+
+ADD hadoop.repo /etc/yum.repos.d/hadoop.repo
+# ADD slc7-cernonly.repo /etc/yum.repos.d/slc7-cernonly.repo
+# ADD RPM-GPG-KEY-wlcg /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg
 
 # hadoop related RPMs
 RUN yum install -y cern-hadoop-config spark-bin-2.3.0 hadoop-bin-2.7.5 hbase-bin-1.2.6 sqoop-bin-1.4 \
-    java-1.8.0-openjdk-devel python27-python-pip python36-pip python36-devel gcc
+    java-1.8.0-openjdk-devel python27-python-pip python36-pip python36-devel gcc git golang
+RUN yum clean all
 
 # replace python2 with python3
 RUN rm /usr/bin/python
@@ -38,4 +44,5 @@ RUN python3 -c "import nltk; nltk.download('stopwords')"
 
 # add crons
 ADD cronjobs.txt $WDIR
+ADD hadoop-env.sh $WDIR
 RUN crontab cronjobs.txt
