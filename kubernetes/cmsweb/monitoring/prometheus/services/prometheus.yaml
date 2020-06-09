@@ -36,9 +36,9 @@ scrape_configs:
         - targets: ['das.das.svc.cluster.local:18230']
           labels:
             env: 'k8s'
-  - job_name: 'dbsmigration'
+  - job_name: 'dbsmigration-service'
     static_configs:
-        - targets: ['dbsmigration.dbs.svc.cluster.local:18251']
+        - targets: ['dbsmigration.dbs.svc.cluster.local:18251', 'dbsmigration.dbs.svc.cluster.local:19251']
           labels:
             env: 'k8s'
   - job_name: 'dbs-global-r-service'
@@ -66,6 +66,11 @@ scrape_configs:
         - targets: ['dbs-migrate.dbs.svc.cluster.local:18257']
           labels:
             env: 'k8s'
+  - job_name: 'acdcserver-service'
+    static_configs:
+        - targets: ['acdcserver.dmwm.svc.cluster.local:15984']
+          labels:
+            env: 'k8s'
   - job_name: 'reqmgr2-service'
     static_configs:
         - targets: ['reqmgr2.dmwm.svc.cluster.local:18240']
@@ -89,6 +94,31 @@ scrape_configs:
   - job_name: 'crabserver-service'
     static_configs:
         - targets: ['crabserver.crab.svc.cluster.local:18270']
+          labels:
+            env: 'k8s'
+  - job_name: 'crabcache-service'
+    static_configs:
+        - targets: ['crabcache.crab.svc.cluster.local:18271']
+          labels:
+            env: 'k8s'
+  - job_name: 'reqmon-service'
+    static_configs:
+        - targets: ['reqmon.dmwm.svc.cluster.local:18249']
+          labels:
+            env: 'k8s'
+  - job_name: 't0reqmon-service'
+    static_configs:
+        - targets: ['t0reqmon.tzero.svc.cluster.local:18243']
+          labels:
+            env: 'k8s'
+  - job_name: 't0wmadatasvc-service'
+    static_configs:
+        - targets: ['t0wmadatasvc.tzero.svc.cluster.local:18308']
+          labels:
+            env: 'k8s'
+  - job_name: 'confdb-service'
+    static_configs:
+        - targets: ['confdb.confdb.svc.cluster.local:18340']
           labels:
             env: 'k8s'
 

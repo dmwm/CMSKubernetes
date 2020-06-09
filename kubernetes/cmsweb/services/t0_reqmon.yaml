@@ -41,7 +41,7 @@ spec:
   selector:
     matchLabels:
       app: t0reqmon
-  replicas: 1
+  replicas: 1 #PROD# 5
   template:
     metadata:
       labels:

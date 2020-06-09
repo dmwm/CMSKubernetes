@@ -33,7 +33,7 @@ spec:
         - args:
           - /data/http_exporter
           - -uri
-          - "https://dmytro.web.cern.ch/dmytro/cmsprodmon"
+          - "https://dmytro.web.cern.ch/dmytro/cmsprodmon/requests.php?prep_id=task_EXO-RunIIFall17MiniAOD-00764"
           - -namespace
           - "dmytro"
           - -port

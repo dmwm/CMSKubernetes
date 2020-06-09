@@ -1,26 +1,10 @@
-kind: Service
-apiVersion: v1
-metadata:
-  name: reqmon
-  namespace: dmwm
-spec:
-  selector:
-    app: reqmon
-  ports:
-    - port: 8249
-      targetPort: 8249
-      name: reqmon
-    - port: 18249
-      targetPort: 18249
-      name: reqmon-mon
----
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: reqmon
+  name: t0reqmon-tasks
   labels:
-    app: reqmon
-  namespace: dmwm
+    app: t0reqmon-tasks
+  namespace: tzero
 data:
   setup-certs-and-run.sh: |
     #!/bin/bash
@@ -28,48 +12,41 @@ data:
     cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
-    su  -c "cd /data && /data/run.sh" --preserve-environment _reqmon
----    
+    su  -c "cd /data && /data/run.sh" --preserve-environment _t0_reqmon
+---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
   labels:
-    app: reqmon
-  name: reqmon
-  namespace: dmwm
+    app: t0reqmon-tasks
+  name: t0reqmon-tasks
+  namespace: tzero
 spec:
   selector:
     matchLabels:
-      app: reqmon
-  replicas: 1 #PROD# 5
+      app: t0reqmon-tasks
+  replicas: 1
   template:
     metadata:
       labels:
-        app: reqmon
+        app: t0reqmon-tasks
     spec:
-      # use hostNetwork to allow communication between reqmgr/reqmon/workqueue and couch
+      # use hostNetwork to allow communication between reqmgr/t0reqmon/workqueue and couch
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       securityContext:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/reqmon
-        name: reqmon
+      - image: cmssw/t0_reqmon
+        name: t0reqmon-tasks
         resources:
           requests:
             memory: "256Mi"
             cpu: "300m"
           limits:
-            memory: "8Gi"
+            memory: "3Gi"
             cpu: "1000m"
-        ports:
-        - containerPort: 8249
-          protocol: TCP
-          name: reqmon
-        - containerPort: 18249
-          protocol: TCP
-          name: reqmon-mon
         command:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
@@ -86,7 +63,7 @@ spec:
         - name: setup-certs-and-run
           mountPath: /opt/setup-certs-and-run
 #PROD#  - name: logs-cephfs
-#PROD#    mountPath: /data/srv/logs/reqmon
+#PROD#    mountPath: /data/srv/logs/t0_reqmon
         securityContext:
           privileged: true
 #      initContainers:
@@ -99,13 +76,13 @@ spec:
           secretName: proxy-secrets
       - name: secrets
         secret:
-          secretName: reqmon-secrets
+          secretName: t0reqmon-secrets
       - name: etc-grid-security
         hostPath:
           path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: reqmon
+          name: t0reqmon-tasks
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
-#PROD#      claimName: logs-cephfs-claim-dmwm
+#PROD#      claimName: logs-cephfs-claim-tzero

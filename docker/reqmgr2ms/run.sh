@@ -40,21 +40,25 @@ if [ -f /etc/secrets/hmac ]; then
     sudo chown $USER.$USER /data/srv/current/auth/$srv/header-auth-key
 fi
 
-# use service configuration files from /etc/secrets if they are present
+# In case there is at least one configuration file under /etc/secrets, remove
+# the default config files from the image and copy over those from the secrets area
 cdir=/data/srv/current/config/$srv
-# check if /etc/secrets area contain at least one dbs configuration files
 cfiles="config-monitor.py config-output.py config-transferor.py"
 for fname in $cfiles; do
     if [ -f /etc/secrets/$fname ]; then
-        cd $cdir
+        pushd $cdir
         rm $cfiles
-        cd -
+        popd
+        break
     fi
+done
+for fname in $cfiles; do
     if [ -f /etc/secrets/$fname ]; then
         sudo cp /etc/secrets/$fname $cdir/$fname
         sudo chown $USER.$USER $cdir/$fname
     fi
 done
+
 files=`ls $cdir`
 for fname in $files; do
     if [ -f /etc/secrets/$fname ]; then
@@ -65,6 +69,7 @@ for fname in $files; do
         sudo chown $USER.$USER $cdir/$fname
     fi
 done
+
 files=`ls /etc/secrets`
 for fname in $files; do
     if [ ! -f $cdir/$fname ]; then
@@ -74,7 +79,10 @@ for fname in $files; do
 done
 
 # start the service
-/data/srv/current/config/mongodb/manage start 'I did read documentation'
+# if it is ms-output, then we also need to start mongodb
+if [ -f $cdir/config-output.py ]; then
+    /data/srv/current/config/mongodb/manage start 'I did read documentation'
+fi
 /data/srv/current/config/$srv/manage start 'I did read documentation'
 
 # run monitoring script
