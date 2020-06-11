@@ -43,7 +43,7 @@ spec:
   selector:
     matchLabels:
       app: dbsmigration
-  replicas: 1 #PROD# 2
+  replicas: 1 #PROD# 5
   template:
     metadata:
       labels:
