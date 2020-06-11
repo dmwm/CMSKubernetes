@@ -43,7 +43,7 @@ RUN yum install -y filebeat
 # Install Spark with custom Hadoop
 RUN yum install -y HEP_OSlibs python-pip hadoop-bin hadoop-tools \
     spark spark-bin cern-hadoop-client cern-hadoop-xrootd-connector
-RUN pip install --upgrade pip setuptools
+#RUN pip install --upgrade pip setuptools
 RUN cp /usr/hdp/spark/kubernetes/dockerfiles/spark/entrypoint.sh /usr/bin/entrypoint.sh
 RUN touch /etc/hadoop/conf/topology.table.file
 
@@ -126,6 +126,9 @@ WORKDIR ${WDIR}
 ADD print_hmac $WDIR/bin/print_hmac
 ADD proxy.sh $WDIR/bin/proxy.sh
 ADD hadoop-env.sh $WDIR/bin/hadoop-env.sh
+
+# add fetch-crl to fetch all sertificates
+RUN echo "32 */6 * * * root ! /usr/sbin/fetch-crl -q -r 360" > /etc/cron.d/fetch-crl-docker
 
 # start the setup
 WORKDIR ${WDIR}

@@ -23,9 +23,6 @@ ENV CMSK8S=$CMSK8S
 # install
 RUN $WDIR/install.sh
 
-# add fetch-crl to fetch all sertificates
-RUN echo "32 */6 * * * root ! /usr/sbin/fetch-crl -q -r 360" > /etc/cron.d/fetch-crl-docker
-
 # run the service
 ADD run.sh $WDIR/run.sh
 ADD monitor.sh $WDIR/monitor.sh
