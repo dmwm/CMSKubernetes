@@ -95,17 +95,29 @@ groups:
       summary: "DBS global instance {{ $labels.env }} down"
       description: "{{ $labels.env }} has been down for more than 5m"
 
-  - alert: DBS service has high number of fds
+  - alert: DBS service has large number of fds
     expr: avg_open_fds > 300
+    for: 1m
+    labels:
+      severity: warning
+      tag: cmsweb
+      service: dbs
+      action: Please check DBS instance {{ $labels.instance }}
+    annotations:
+      summary: "DBS global {{ $labels.env }} environment"
+      description: "{{ $labels.env }} has large level of fds {{ $value }} for more than 1m"
+
+  - alert: DBS service has high number of fds
+    expr: avg_open_fds > 800
     for: 1m
     labels:
       severity: high
       tag: cmsweb
       service: dbs
-      action: Please restart DBS instance {{ $labels.instance }}
+      action: Please check DBS instance {{ $labels.instance }} and possibly restart it
     annotations:
       summary: "DBS global {{ $labels.env }} environment"
-      description: "{{ $labels.env }} has high level of fds (above 1k) for more than 1m"
+      description: "{{ $labels.env }} has high level of fds {{ $value }} for more than 1m"
 
   - alert: DBS service has no cpu activity
     expr: avg_cpu_total == 0
@@ -129,4 +141,4 @@ groups:
       action: Please check DBS logs on {{ $labels.instance }} for suspicious activity
     annotations:
       summary: "DBS global {{ $labels.env }} environment"
-      description: "{{ $labels.env }} has large number of connections (above 1k) for more than 1m"
+      description: "{{ $labels.env }} has large number of connections {{ $value }} for more than 1m"
