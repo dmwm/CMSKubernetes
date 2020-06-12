@@ -75,6 +75,7 @@ done
 
 if [ -f /etc/secrets/view_instances_k8s_migration.json ]; then
         sudo cp /etc/secrets/view_instances_k8s_migration.json /data/srv/state/dbsmigration/view_instances_k8s_migration.json
+        sudo chown _dbsmigration:_dbsmigration /data/srv/state/dbsmigration/view_instances_k8s_migration.json
         sudo sed -i 's/view_instances.json/view_instances_k8s_migration.json/g' /data/srv/current/config/dbsmigration/manage
 fi
 
