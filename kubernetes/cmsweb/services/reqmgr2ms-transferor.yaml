@@ -105,7 +105,7 @@ spec:
           secretName: proxy-secrets
       - name: secrets
         secret:
-          secretName: reqmgr2ms-secrets
+          secretName: reqmgr2ms-transferor-secrets
       - name: etc-grid-security
         hostPath:
             path: /etc/grid-security
