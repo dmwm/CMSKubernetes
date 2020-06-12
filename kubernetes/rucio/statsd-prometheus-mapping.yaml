@@ -1,3 +1,5 @@
+defaults:
+    ttl: 30m
 mappings:
   - match: "rucio.fts3.*.submitted"
     help: "FTS3 stats"
