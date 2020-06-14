@@ -13,9 +13,9 @@ Logs or application running ont this cluster are directed to CEPHS volume and ac
 
 - `ssh lxplus-cloud`
 
-Use export KUBECONFIG to point to the relevant configurations for the clusters. Please note that these configurations are for the backend clusters as users will only need to work in the backend clusters to deploy/undeploy their services. The configuration file for backend cluster can be downloaded from [here](https://cernbox.cern.ch/index.php/s/7COxHer1Ipv1UgB/download)
+Use export KUBECONFIG to point to the relevant configurations for the clusters. Please note that these configurations are for the backend clusters as users will only need to work in the backend clusters to deploy/undeploy their services. The configuration file for backend cluster can be downloaded from [here](https://cernbox.cern.ch/index.php/s/Fnxcj4x3sUm92cs/download)
 
-- `wget https://cernbox.cern.ch/index.php/s/i3ejXEfRzjzKSVO/download -O config.cmsweb-k8s-services-testbed`
+- `wget https://cernbox.cern.ch/index.php/s/Fnxcj4x3sUm92cs/download -O config.cmsweb-k8s-services-testbed`
 - `export OS_TOKEN=$(openstack token issue -c id -f value)`
 - `export KUBECONFIG=$PWD/config.cmsweb-k8s-services-testbed`
  
