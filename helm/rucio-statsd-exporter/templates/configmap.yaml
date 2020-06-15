@@ -8,3 +8,5 @@ data:
   statsd_mapping.yaml: |-
     mappings:
 {{ toYaml .Values.mappings | indent 6 }}
+  defaults:
+    ttl: {{ .Values.ttl }}
