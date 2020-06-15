@@ -42,6 +42,6 @@ spec:
           - "monitoring"
           - -verbose
           name: http-exporter-unified
-          image: cmssw/http-exporter:20200611
+          image: cmssw/http-exporter:20200615
           ports:
           - containerPort: 18005

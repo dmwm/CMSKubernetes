@@ -43,10 +43,10 @@ spec:
           - -agent
           - "monitoring"
           - -renewClientInterval
-          - "60"
+          - "600"
           - -verbose
           name: http-exporter-arucio
-          image: cmssw/http-exporter:20200611
+          image: cmssw/http-exporter:20200615
           ports:
           - containerPort: 18012
           volumeMounts:
