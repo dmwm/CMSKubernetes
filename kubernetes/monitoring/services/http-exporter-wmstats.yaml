@@ -42,6 +42,8 @@ spec:
           - ":18008"
           - -agent
           - "monitoring"
+          - -renewClientInterval
+          - "60"
           - -verbose
           name: http-exporter-wmstats
           image: cmssw/http-exporter:20200611

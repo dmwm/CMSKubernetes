@@ -42,6 +42,8 @@ spec:
           - ":18007"
           - -agent
           - "monitoring"
+          - -renewClientInterval
+          - "60"
           - -verbose
           name: http-exporter-phedex
           image: cmssw/http-exporter:20200611

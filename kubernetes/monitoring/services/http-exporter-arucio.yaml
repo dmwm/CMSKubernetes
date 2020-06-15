@@ -42,6 +42,8 @@ spec:
           - ":18012"
           - -agent
           - "monitoring"
+          - -renewClientInterval
+          - "60"
           - -verbose
           name: http-exporter-arucio
           image: cmssw/http-exporter:20200611

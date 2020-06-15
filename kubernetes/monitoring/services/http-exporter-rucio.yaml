@@ -40,6 +40,8 @@ spec:
           - ":18011"
           - -agent
           - "monitoring"
+          - -renewClientInterval
+          - "60"
           - -verbose
           name: http-exporter-rucio
           image: cmssw/http-exporter:20200611
