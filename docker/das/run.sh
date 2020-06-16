@@ -62,6 +62,14 @@ done
 
 # start the service
 /data/srv/current/config/mongodb/manage start 'I did read documentation'
+
+# get proper frontend to use and adjust URLs in staging area with DAS maps
+frontend=`cat /data/srv/current/config/das/das2go-config.json | grep frontend | awk '{print $2}' | sed -e "s/,//g" -e "s,\",,g"`
+dbsInst=`cat /data/srv/current/config/das/das2go-config.json | grep dbsInstances | awk '{print $2}' | sed -e "s,\[,,g" -e "s/,//g" -e "s,\",,g"`
+ls /data/srv/state/das/stagingarea/*.js | \
+    awk '{print "sed -i -e \"s,ch/dbs/prod/global,ch/dbs/"dbsInst",g\" -e \"s,https://cmsweb.cern.ch,"frontend",g\" "$1""}' \
+    frontend=$frontend dbsInst=$dbsInst
+
 /data/srv/current/config/$srv/manage start 'I did read documentation'
 
 # run monitoring script
