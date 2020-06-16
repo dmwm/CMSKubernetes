@@ -1,0 +1,90 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: dbs-phys03-r
+spec:
+  selector:
+    app: dbs-phys03-r
+  ports:
+    - port: 8254
+      targetPort: 8254
+      name: dbs-phys03-r
+    - port: 18254
+      targetPort: 18254
+      name: dbs-pr-mon
+    - port: 19254
+      targetPort: 19254
+      name: dbs-pr-cpy-mon
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: dbs-phys03-r
+  name: dbs-phys03-r
+spec:
+  selector:
+    matchLabels:
+      app: dbs-phys03-r
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dbs-phys03-r
+    spec:
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: cmssw/dbs:1.0.1
+        name: dbs-phys03-r
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "10Gi"
+            cpu: "800m"
+        ports:
+        - containerPort: 8254
+          protocol: TCP
+          name: dbs-phys03-r
+        - containerPort: 18254
+          protocol: TCP
+          name: dbs-pr-mon
+        - containerPort: 19254
+          protocol: TCP
+          name: dbs-pr-cpy-mon
+        volumeMounts:
+#         - name: logs-pvc
+#           mountPath: /logs/dbs
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          defaultMode: 256
+        - name: secrets
+          mountPath: /etc/secrets
+          defaultMode: 256
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: dbs-phys03-r-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File
+#       - name: logs-pvc
+#         persistentVolumeClaim:
+#           claimName: cmsweb-pvc
+#           readOnly: false

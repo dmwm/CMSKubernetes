@@ -1,0 +1,76 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: crabcache
+spec:
+  selector:
+    app: crabcache
+  ports:
+    - port: 8271
+      targetPort: 8271
+      name: crabcache
+    - port: 18271
+      targetPort: 18271
+      name: crabcache-mon
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: crabcache
+  name: crabcache
+spec:
+  selector:
+    matchLabels:
+      app: crabcache
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: crabcache
+    spec:
+      containers:
+      - image: cmssw/crabcache:1.0.1
+        name: crabcache
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "2Gi"
+            cpu: "800m"
+        ports:
+        - containerPort: 8271
+          protocol: TCP
+          name: crabcache
+        - containerPort: 18271
+          protocol: TCP
+          name: crabcache-mon
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          defaultMode: 256
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: crabcache-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File

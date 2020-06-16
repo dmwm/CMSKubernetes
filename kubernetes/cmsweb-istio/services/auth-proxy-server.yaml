@@ -1,0 +1,66 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: auth-proxy-server
+  namespace: auth
+spec:
+  type: ClusterIP
+  ports:
+  - port: 443
+    targetPort: 8181
+    protocol: TCP
+    name: http
+  selector:
+    app: auth-proxy-server
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: auth-proxy-server
+  name: auth-proxy-server
+  namespace: auth
+spec:
+  selector:
+    matchLabels:
+      app: auth-proxy-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: auth-proxy-server
+    spec:
+      containers:
+      - image: cmssw/auth-proxy-server:20200602
+        name: auth-proxy-server
+        args:
+          - /data/auth-proxy-server
+          - -config=/etc/secrets/config.json
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 8181
+        volumeMounts:
+        - name: auth-secrets
+          mountPath: /etc/secrets
+          defaultMode: 256
+        - name: www-htdocs
+          mountPath: /www
+      initContainers:
+      - name: htdocs
+        image: cmssw/htdocs
+        command: ['sh', '-c', 'cp -r /www/* /tmp/htdocs']
+        volumeMounts:
+        - name: www-htdocs
+          mountPath: /tmp/htdocs
+      volumes:
+      - name: auth-secrets
+        secret:
+          secretName: auth-secrets
+      - name: www-htdocs
+        emptyDir: {}

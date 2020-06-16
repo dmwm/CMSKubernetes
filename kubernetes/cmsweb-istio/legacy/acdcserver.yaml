@@ -1,0 +1,82 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: acdcserver
+spec:
+  selector:
+    app: acdcserver
+  ports:
+    - port: 5984
+      targetPort: 5984
+      name: acdcserver
+    - port: 15984
+      targetPort: 15984
+      name: acdcserver-mon
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: acdcserver
+  name: acdcserver
+spec:
+  selector:
+    matchLabels:
+      app: acdcserver
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: acdcserver
+    spec:
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: cmssw/acdcserver:1.0.1
+        name: acdcserver
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "2Gi"
+            cpu: "800m"
+        ports:
+        - containerPort: 5984
+          protocol: TCP
+          name: acdcserver
+        - containerPort: 15984
+          protocol: TCP
+          name: acdcserver-mon
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          defaultMode: 256
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+      initContainers:
+      - name: checkcouchdb
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nslookup couchdb.default; do echo "Waiting for couchdb"; sleep 10; done;']
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: acdcserver-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File

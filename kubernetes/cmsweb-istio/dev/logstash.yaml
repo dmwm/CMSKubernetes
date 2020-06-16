@@ -1,0 +1,173 @@
+# Reference:
+# https://hackernoon.com/deployment-of-full-scale-elk-stack-to-kubernetes-6f38f6c57c55
+# https://github.com/ITSvitCo/aws-k8s/tree/master/kubernetes-manifests/monitoring
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash
+  namespace: monitoring
+data:
+  logstash.conf: |-
+    input {
+      beats {
+        port => 5044
+      }
+    }
+
+    filter {
+      ruby {
+        code => "event.set('timestamp',(event.get('@timestamp').to_f * 1000).to_i)"
+      }
+      mutate { replace => { "producer" => "cmsweb" } }
+
+      # https://github.com/elastic/logstash/blob/v1.4.2/patterns/grok-patterns
+
+      # capture apache records
+      # example of cmsweb apache entry
+      #[10/Mar/2019:00:59:59 +0100] cmsweb.cern.ch 137.138.152.31 "GET /reqmgr2/data/request?name=vlimant_ACDC0_task_B2G-RunIIFall17wmLHEGS-00607__v1_T_190304_194213_4399 HTTP/1.1" 200 [data: 3044 in 29413 out 11256 body 70659 us ] [auth: TLSv1.2 ECDHE-RSA-AES128-GCM-SHA256 "/DC=ch/DC=cern/OU=computers/CN=wmagent/vocms0308.cern.ch" "-" ] [ref: "-" "WMCore.Services.Requests/v001" ]
+
+      grok {
+        match => { "message" => '\[%{HTTPDATE:tstamp}\] %{DATA:frontend} %{IPORHOST:clientip} "%{WORD:method} %{NOTSPACE:request} %{DATA:httpversion}" %{NUMBER:code:int} \[data:.*\] \[auth: %{DATA:tls} %{DATA:crypto} "%{DATA:dn}".*\] \[ref: "%{DATA}.*" "%{DATA:client}" \]' }
+      }
+      grok {
+         match => { "request" => '/%{WORD:system}%{UNIXPATH:uri_path}%{URIPARAM:uri_params}?' }
+      }
+      if [uri_params] {
+          grok {
+             match => { "uri_path" => '/.*/%{DATA:api}$' }
+          }
+          if [api] == "" {
+              grok {
+                 match => { "uri_path" => '/.*/%{DATA:api}/$' }
+              }
+          }
+      } else {
+          grok {
+             match => { "request" => '/.*/%{DATA:api}$' }
+          }
+          if [api] == "" {
+              grok {
+                 match => { "request" => '/.*/%{DATA:api}/$' }
+              }
+          }
+          # mutate { replace => { "api" => "" } }
+      }
+      if [uri_params] and ![api] {
+          grok {
+             match => { "uri_path" => '/.*/%{DATA:api}/$' }
+          }
+      }
+      if ![api] {
+          mutate { replace => { "api" => "%{request}" } }
+          mutate { replace => { "system" => "%{request}" } }
+      }
+      # https://www.elastic.co/guide/en/logstash/current/plugins-filters-date.html
+      # date string example: [10/Mar/2019:00:59:59 +0100]
+      date {
+         match => [ "tstamp", "dd/MMM/yyyy:HH:mm:ss Z" ]
+         target => "date_object"
+      }
+      ruby {
+         code => "event.set('rec_timestamp',event.get('date_object').to_i)
+                  event.set('rec_date',event.get('date_object'))
+                 "
+      }
+
+      #Remove the numeric CNs from the client dn.
+      mutate {
+        gsub =>  [
+            "dn","/CN=\d+",""
+        ]
+      }
+    }
+
+    # send results (JSON records) to local file
+    output {
+      file {
+          path => "/tmp/logstash-output.log"
+      }
+    }
+
+    # send results (JSON records) to CERN MONIT HTTP endpoint
+    #output {
+    #    if [type] == "apache" {
+    #        http {
+    #            http_method => post
+    #            url => "http://monit-logs.cern.ch:10012/"
+    #            format => "message"
+    #            content_type => "application/json; charset=UTF-8"
+    #            message => '[{"producer": "%{producer}","type": "%{type}","method":"%{method}","code":"%{code}","client":"%{client}","api":"%{api}","clientip":"%{clientip}","dn":"%{dn}","system":"%{system}","uri_path":"%{uri_path}","host":"%{host}","frontend":"%{frontend}","timestamp":"%{timestamp}","path":"%{path}","rec_timestamp":"%{rec_timestamp}","rec_date":"%{rec_date}"}]'
+    #        }
+    #    }
+    #}
+  logstash.yml: |-
+    http.host: "0.0.0.0"
+    path.config: /usr/share/logstash/pipeline
+    xpack.monitoring.enabled: false
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: logstash
+  namespace: monitoring
+spec:
+  template:
+    metadata:
+      labels:
+        app: logstash
+    spec:
+      containers:
+      - image: docker.elastic.co/logstash/logstash:5.5.0
+        name: logstash
+        ports:
+        - name: logstash
+          containerPort: 5044
+          protocol: TCP
+        volumeMounts:
+        - name: config
+          mountPath: /usr/share/logstash/config/logstash.yml
+          subPath: logstash.yml
+          readOnly: true
+        - name: pipeline
+          mountPath: /usr/share/logstash/pipeline
+          readOnly: true
+        args:
+        - -f
+        - /usr/share/logstash/pipeline/logstash.conf
+        resources:
+          limits:
+            memory: 2Gi
+            cpu: "200m"
+          requests:
+            memory: 2Gi
+            cpu: "200m"
+      volumes:
+      - name: pipeline
+        configMap:
+          name: logstash
+          items:
+          - key: logstash.conf
+            path: logstash.conf
+      - name: config
+        configMap:
+          name: logstash
+          items:
+          - key: logstash.yml
+            path: logstash.yml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: logstash
+  namespace: monitoring
+  labels:
+    app: logstash
+spec:
+  selector:
+    app: logstash
+  ports:
+  - name: logstash
+    port: 5044
+    targetPort: 5044
+    protocol: TCP

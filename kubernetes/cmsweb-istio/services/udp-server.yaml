@@ -1,0 +1,57 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: udp-server
+  namespace: udp
+spec:
+#   type: ClusterIP
+  type: NodePort
+  ports:
+  - port: 9331 # the port here is matching port used in cmssw/udp-server cotainer
+    targetPort: 9331
+    nodePort: 30001
+    protocol: UDP
+    name: http
+  selector:
+    app: udp-server
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: udp-server
+  name: udp-server
+  namespace: udp
+spec:
+  selector:
+    matchLabels:
+      app: udp-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: udp-server
+    spec:
+      containers:
+      - image: veknet/udp-server
+        name: udp-server
+        args:
+          - /data/udp_server
+          - -config=/etc/secrets/udp_server.json
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 9331
+        volumeMounts:
+        - name: udp-secrets
+          mountPath: /etc/secrets
+          readOnly: true
+      volumes:
+      - name: udp-secrets
+        secret:
+          secretName: udp-secrets

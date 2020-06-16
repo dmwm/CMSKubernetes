@@ -1,0 +1,104 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: frontend
+  namespace: default
+spec:
+  selector:
+    app: frontend
+# VK: use this section if we'll deploy OAuth and leave machine tools to go
+# through frontend on port 8843
+#   type: NodePort
+#   ports:
+#     - port: 8443
+#       targetPort: 8443
+#       name: https-machine
+#     - port: 18443
+#       targetPort: 18443
+#       name: http-mon
+  ports:
+    - port: 80
+      targetPort: 80
+      name: http
+    - port: 443
+      targetPort: 8443
+      name: https
+    - port: 8443
+      targetPort: 8443
+      name: https-machine
+    - port: 18443
+      targetPort: 18443
+      name: http-mon
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: frontend
+  name: frontend
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  replicas: 2 #PROD# 4
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - image: cmssw/frontend
+        name: frontend
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 80
+          protocol: TCP
+          name: http
+        - containerPort: 443
+          protocol: TCP
+          name: https
+        - containerPort: 8443
+          protocol: TCP
+          name: https-machine
+        - containerPort: 18443
+          protocol: TCP
+          name: http-mon
+
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+# We use explicit path declaration for certificates in FE because we need certificates directory in /etc/grid-security/ which is not created without explicit declaration
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/srv/logs/frontend
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: frontend-secrets
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim-default

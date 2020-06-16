@@ -1,0 +1,78 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: dbsmig
+spec:
+  selector:
+    app: dbsmig
+  ports:
+    - port: 8257
+      targetPort: 8257
+      name: dbsmig
+    - port: 18257
+      targetPort: 18257
+      name: dbsmig-mon
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: dbsmig
+  name: dbsmig
+spec:
+  selector:
+    matchLabels:
+      app: dbsmig
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dbsmig
+    spec:
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: cmssw/dbsmigration:1.0.1
+        name: dbsmig
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "10Gi"
+            cpu: "800m"
+        ports:
+        - containerPort: 8257
+          protocol: TCP
+          name: dbsmig
+        - containerPort: 18257
+          protocol: TCP
+          name: dbsmig-mon
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          defaultMode: 256
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: dbsmig-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File
