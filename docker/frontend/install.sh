@@ -20,6 +20,9 @@ cmsk8s_prod=${CMSK8S:-https://cmsweb.cern.ch}
 cmsk8s_prep=${CMSK8S:-https://cmsweb-testbed.cern.ch}
 cmsk8s_dev=${CMSK8S:-https://cmsweb-dev.cern.ch}
 cmsk8s_priv=${CMSK8S:-https://cmsweb-test.cern.ch}
+cmsweb_env=${CMSWEB_ENV:-preprod}
+echo "cmsweb_env=$cmsweb_env"
+echo "cmsk8s_prod=$cmsk8s_prod"
 sed -i -e "s,https://cmsweb.cern.ch,$cmsk8s_prod,g" \
     -e "s,https://cmsweb-testbed.cern.ch,$cmsk8s_prep,g" \
     -e "s,https://cmsweb-dev.cern.ch,$cmsk8s_dev,g" \
@@ -40,8 +43,11 @@ sed -i -e "s,https://cmsweb.cern.ch,$cmsk8s_prod,g" \
 # all other will go to our k8host
 #echo "^ ${k8host}.cern.ch" >> b.txt
 #rm $WDIR/cfg/frontend/backends-prod.txt
-cp $WDIR/cfg/frontend/backends-k8s.txt $WDIR/cfg/frontend/backends.txt
-
+if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod" ]] ; then
+	cp $WDIR/cfg/frontend/backends-k8s-prod.txt $WDIR/cfg/frontend/backends.txt
+else
+        cp $WDIR/cfg/frontend/backends-k8s.txt $WDIR/cfg/frontend/backends.txt
+fi
 # add rules for httpgo
 # add nossl rule for httpgo
 cat > $WDIR/cfg/frontend/app_httpgo_nossl.conf << EOF_nossl
@@ -54,7 +60,7 @@ RewriteRule ^/auth/complete(/httpgo(/.*)?)$ http://%{ENV:BACKEND}:8888\${escape:
 EOF_ssl
 
 # overwrite dev/preprod backends with production one for k8s
-files="backends-prod.txt backends-preprod.txt backends-dev.txt backends-k8s.txt"
+files="backends-prod.txt backends-preprod.txt backends-dev.txt backends-k8s.txt backends-k8s-prod.txt backends-k8s-preprod.txt"
 for fname in $files; do
     rm $WDIR/cfg/frontend/$fname
     ln -s $WDIR/cfg/frontend/backends.txt $WDIR/cfg/frontend/$fname
