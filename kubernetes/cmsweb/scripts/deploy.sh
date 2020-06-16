@@ -30,16 +30,16 @@ cluster_ns=${OS_PROJECT_NAME:-"CMS Web"}
 cmsweb_hostname=${CMSWEB_HOSTNAME:-cmsweb-srv.cern.ch}
 cmsweb_hostname_frontend=${CMSWEB_HOSTNAME_FRONTEND:-cmsweb-test.cern.ch}
 prod_prefix="#PROD#"
+# we define logs_prefix as empty for all use-cases
+logs_prefix=""
+# we'll use specific logs_prefix on preproduction and production deployment and this will be used for cephfs shares
 if [ "$CMSWEB_ENV" == "production" ] || [ "$CMSWEB_ENV" == "prod" ]; then
     prod_prefix="      " # will replace '#PROD#' prefix
+    logs_prefix="-prod" # will append this prefix to logs-cephfs-claim
 fi
-# we define preprod_prefix as empty for all use-cases
-preprod_prefix=""
-# we'll use specific preprod_prefix on preproduction deployment
-# this will be used for cephfs shares
 if [ "$CMSWEB_ENV" == "preproduction" ] || [ "$CMSWEB_ENV" == "preprod" ]; then
     prod_prefix="      " # will replace '#PROD#' prefix
-    preprod_prefix="-preprod" # will replace logs-cephfs-claim with this prefix
+    logs_prefix="-preprod" # will append this prefix to logs-cephfs-claim
 fi
 sdir=services
 mdir=monitoring
@@ -558,7 +558,7 @@ deploy_services()
                 	    cat $sdir/${srv}-${inst}.yaml | \
                         	sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
                         	sed -e "s,#PROD#,$prod_prefix,g" | \
-                        	sed -e "s,logs-cephfs-claim,logs-cephfs-claim$preprod_prefix,g" | \
+                        	sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
                         	kubectl apply -f -
 			else
 	                        kubectl apply -f $sdir/${srv}-${inst}.yaml
@@ -573,7 +573,7 @@ deploy_services()
         	            sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
                 	    sed -e "s,replicas: 2 #PROD#,replicas: ,g" | \
 	                    sed -e "s,#PROD#,$prod_prefix,g" | \
-	                    sed -e "s,logs-cephfs-claim,logs-cephfs-claim$preprod_prefix,g" | \
+	                    sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
         	            kubectl apply -f -
 		else
 			kubectl apply -f $sdir/${srv}.yaml
