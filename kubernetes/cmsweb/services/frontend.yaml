@@ -42,14 +42,14 @@ spec:
   selector:
     matchLabels:
       app: frontend
-  replicas: 2 #PROD# 4
+  replicas: 2 #PROD# 8
   template:
     metadata:
       labels:
         app: frontend
     spec:
       containers:
-      - image: cmssw/frontend
+      - image: cmssw/frontend #imagetag
         name: frontend
         resources:
           requests:
