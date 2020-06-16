@@ -29,6 +29,8 @@ cluster=${CMSWEB_CLUSTER:-cmsweb}
 cluster_ns=${OS_PROJECT_NAME:-"CMS Web"}
 cmsweb_hostname=${CMSWEB_HOSTNAME:-cmsweb-srv.cern.ch}
 cmsweb_hostname_frontend=${CMSWEB_HOSTNAME_FRONTEND:-cmsweb-test.cern.ch}
+cmsweb_image_tag=${CMSWEB_IMAGE_TAG:-:latest}
+
 prod_prefix="#PROD#"
 # we define logs_prefix as empty for all use-cases
 logs_prefix=""
@@ -68,6 +70,8 @@ if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == 
 fi
 echo "+++ cmsweb environment: $CMSWEB_ENV"
 echo "+++ cmsweb yaml prefix: '$prod_prefix'"
+echo "+++ cmsweb_image_tag=  $cmsweb_image_tag"
+
 action=$1
 deployment=$2
 if [ "$action" == "create" ]; then
@@ -559,6 +563,7 @@ deploy_services()
                         	sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
                         	sed -e "s,#PROD#,$prod_prefix,g" | \
                         	sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
+				sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
                         	kubectl apply -f -
 			else
 	                        kubectl apply -f $sdir/${srv}-${inst}.yaml
@@ -574,6 +579,7 @@ deploy_services()
                 	    sed -e "s,replicas: 2 #PROD#,replicas: ,g" | \
 	                    sed -e "s,#PROD#,$prod_prefix,g" | \
 	                    sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
+                            sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
         	            kubectl apply -f -
 		else
 			kubectl apply -f $sdir/${srv}.yaml
