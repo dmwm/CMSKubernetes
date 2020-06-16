@@ -26,6 +26,8 @@ WORKDIR ${WDIR}
 # pass env variable to the build
 ARG CMSK8S
 ENV CMSK8S=$CMSK8S
+ARG CMSWEB_ENV
+ENV CMSWEB_ENV=$CMSWEB_ENV
 
 # install
 ADD install.sh $WDIR/install.sh
