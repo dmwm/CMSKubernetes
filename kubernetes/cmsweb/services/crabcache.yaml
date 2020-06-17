@@ -52,7 +52,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/crabcache
+      - image: cmssw/crabcache #imagetag
         name: crabcache
         tty: true
         stdin: true

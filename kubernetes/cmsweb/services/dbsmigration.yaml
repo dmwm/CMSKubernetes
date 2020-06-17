@@ -53,7 +53,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/dbsmigration
+      - image: cmssw/dbsmigration #imagetag
         name: dbsmigration
         resources:
           requests:

@@ -51,7 +51,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/couchdb
+      - image: cmssw/couchdb #imagetag
         name: couchdb
         tty: true
         stdin: true

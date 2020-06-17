@@ -30,7 +30,7 @@ spec:
         app: httpgo
     spec:
       containers:
-      - image: cmssw/httpgo
+      - image: cmssw/httpgo #imagetag
         name: httpgo
         resources:
           requests:

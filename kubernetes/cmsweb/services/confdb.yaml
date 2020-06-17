@@ -53,7 +53,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/confdb
+      - image: cmssw/confdb #imagetag
         name: confdb
         resources:
           requests:

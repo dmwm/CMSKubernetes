@@ -54,7 +54,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/t0_reqmon
+      - image: cmssw/t0_reqmon #imagetag
         name: t0reqmon
         resources:
           requests:

@@ -53,7 +53,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/reqmgr2ms
+      - image: cmssw/reqmgr2ms #imagetag
         name: ms-monitor
         lifecycle:
           postStart:

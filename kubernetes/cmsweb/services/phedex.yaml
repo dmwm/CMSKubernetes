@@ -57,7 +57,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/phedex
+      - image: cmssw/phedex #imagetag
         name: phedex
         resources:
           requests:

@@ -34,7 +34,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/workqueue
+      - image: cmssw/workqueue #imagetag
         name: workqueue-tasks
         resources:
           requests:

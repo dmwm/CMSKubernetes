@@ -51,7 +51,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/dmwmmon
+      - image: cmssw/dmwmmon #imagetag
         name: dmwmmon
         ports:
         - containerPort: 8280

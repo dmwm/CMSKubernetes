@@ -54,7 +54,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/reqmgr2
+      - image: cmssw/reqmgr2 #imagetag
         name: reqmgr2
         lifecycle:
           postStart:
