@@ -115,6 +115,7 @@ elif [ "$deployment" == "frontend" ]; then
     # services for cmsweb cluster
     cmsweb_ing="ing-frontend"
     cmsweb_srvs="httpgo httpsgo frontend"
+    cmsweb_ns="default http"
     echo "+++ deploy services: $cmsweb_srvs"
     echo "+++ deploy ingress : $cmsweb_ing"
 elif [ "$deployment" == "ingress" ]; then
