@@ -49,8 +49,8 @@ idir=ingress
 cdir=crons
 
 # cmsweb service namespaces
-cmsweb_ns=`grep namespace $sdir/* | awk '{print $3}' | sort | uniq | grep -v default | grep -v phedex | grep -v couchdb | grep -v dqm`
-cmsweb_ns="default $cmsweb_ns"
+#cmsweb_ns=`grep namespace $sdir/* | awk '{print $3}' | sort | uniq | grep -v default | grep -v phedex | grep -v couchdb | grep -v dqm | grep -v auth | grep -v mongodb | grep -v udp | grep -v tfaas`
+cmsweb_ns="default confdb crab das dbs dmwm http tzero"
 # services for cmsweb cluster, adjust if necessary
 #cmsweb_ing="ing-srv"
 #cmsweb_ing="ing-confdb ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tzero ing-exitcodes"
