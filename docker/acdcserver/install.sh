@@ -71,7 +71,6 @@ sed -i -e "s#ServerMonitor/2.0#ServerMonitor-acdcserver#g" /data/srv/current/con
 
 # add proxy generation via robot certificate
 # disable workqueue/reqmon/couch on acdcserver pod
-crontab -l | egrep -v "workqueue|reqmon|couchdb" > /tmp/mycron
-crontab -l | egrep -v "reboot|ProxyRenew|LogArchive" >> /tmp/mycron
+crontab -l | egrep -v "workqueue|reqmon|couchdb|reboot|ProxyRenew|LogArchive" > /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron
