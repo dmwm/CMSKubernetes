@@ -86,7 +86,6 @@ sed -i -e "s#ServerMonitor/2.0#ServerMonitor-reqmgr2ms#g" /data/srv/current/conf
 
 # adjust crontabs
 # disable workqueue/reqmon/couch on reqmgr pod
-crontab -l | egrep -v "workqueue|reqmon|couchdb|reqmgr2" > /tmp/mycron
-crontab -l | egrep -v "reboot|ProxyRenew|LogArchive" >> /tmp/mycron
+crontab -l | egrep -v "workqueue|reqmon|couchdb|reqmgr2|reboot|ProxyRenew|LogArchive" > /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron
