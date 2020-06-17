@@ -30,7 +30,7 @@ spec:
         app: exitcodes
     spec:
       containers:
-      - image: cmssw/exitcodes
+      - image: cmssw/exitcodes #imagetag
         name: exitcodes
         resources:
           requests:

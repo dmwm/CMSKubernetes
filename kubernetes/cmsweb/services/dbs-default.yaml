@@ -35,7 +35,7 @@ spec:
         app: dbs-default
     spec:
       containers:
-      - image: cmssw/dbs
+      - image: cmssw/dbs #imagetag
         name: dbs-default
         ports:
         - containerPort: 8250

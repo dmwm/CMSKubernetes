@@ -54,7 +54,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/t0wmadatasvc
+      - image: cmssw/t0wmadatasvc #imagetag
         name: t0wmadatasvc
         resources:
           requests:

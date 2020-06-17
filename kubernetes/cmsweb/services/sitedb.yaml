@@ -32,7 +32,7 @@ spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/sitedb
+      - image: cmssw/sitedb #imagetag
         name: sitedb
         ports:
         - containerPort: 8051
