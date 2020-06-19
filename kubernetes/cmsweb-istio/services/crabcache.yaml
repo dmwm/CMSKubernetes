@@ -1,0 +1,121 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: crabcache
+  namespace: crab
+spec:
+  selector:
+    app: crabcache
+  ports:
+    - port: 8271
+      targetPort: 8271
+      name: crabcache
+    - port: 18271
+      targetPort: 18271
+      name: crabcache-mon
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: crabcache
+  labels:
+    app: crabcache
+  namespace: crab
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+    cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    su  -c "cd /data && /data/run.sh" --preserve-environment  _crabcache
+---    
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: crabcache
+  name: crabcache
+  namespace: crab
+spec:
+  selector:
+    matchLabels:
+      app: crabcache
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: crabcache
+    spec:
+#       nodeSelector:
+#           storage: crabcache
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      containers:
+      - image: cmssw/crabcache
+        name: crabcache
+        tty: true
+        stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - bash
+              - -c
+              - sudo chmod 0777 /data/srv/state/crabcache/files; sudo chown _crabcache:_crabcache /data/srv/state/crabcache/files
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 8271
+          protocol: TCP
+          name: crabcache
+        - containerPort: 18271
+          protocol: TCP
+          name: crabcache-mon
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+        # TMP: use cinder storage for time being
+#PROD#  - name: crabcache-storage
+#PROD#    mountPath: /data/srv/state/crabcache/files
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/srv/logs/crabcache
+        securityContext:
+          privileged: true
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: crabcache-secrets
+      - name: etc-grid-security
+        hostPath:
+            path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: crabcache
+      # TMP: use ciner storage for time being
+#PROD#- name: crabcache-storage
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: crabcache-claim
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim-crab

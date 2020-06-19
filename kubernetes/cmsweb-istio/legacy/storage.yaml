@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cmsweb-pvc
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1G
+  storageClassName: geneva-cephfs-testing
+#   storageClassName: manila-cephfs-pvc

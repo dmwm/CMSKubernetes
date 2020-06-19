@@ -1,0 +1,78 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: confdb
+spec:
+  selector:
+    app: confdb
+  ports:
+    - port: 8340
+      targetPort: 8340
+      name: confdb
+    - port: 18340
+      targetPort: 18340
+      name: confdb-mon
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: confdb
+  name: confdb
+spec:
+  selector:
+    matchLabels:
+      app: confdb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: confdb
+    spec:
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: cmssw/confdb:1.0.1
+        name: confdb
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "2Gi"
+            cpu: "800m"
+        ports:
+        - containerPort: 8340
+          protocol: TCP
+          name: confdb
+        - containerPort: 18340
+          protocol: TCP
+          name: confdb-mon
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          defaultMode: 256
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: confdb-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File

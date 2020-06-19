@@ -1,0 +1,51 @@
+# CephFS volume claims:
+# for production storage use
+#   storageClassName: meyrin-cephfs
+# for test storage use
+#   storageClassName: geneva-cephfs-testing
+# ---
+#
+# CouchDB storage claim
+#
+#apiVersion: v1
+#kind: PersistentVolumeClaim
+#metadata:
+#  name: cephfs-claim-couchdb
+#  namespace: couchdb
+#spec:
+#  accessModes:
+#  - ReadWriteMany
+#  resources:
+#    requests:
+#      storage: 700Gi
+#  storageClassName: meyrin-cephfs
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: couchdb
+  namespace: couchdb
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: c7e81859-4862-48d6-a9eb-6fa9b5dcf835
+  osShareAccessID: bf256ef8-14ff-441a-8e22-238bd03190f3
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cephfs-claim-couchdb
+  namespace: couchdb
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 700G
+  storageClassName: couchdb
+---

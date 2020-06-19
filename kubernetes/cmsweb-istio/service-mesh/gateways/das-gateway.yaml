@@ -1,0 +1,48 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: das-gateway
+  namespace: das
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+  apiVersion: networking.istio.io/v1alpha3
+  kind: VirtualService
+  metadata:
+    name: das-vs
+    namespace: das
+  spec:
+    hosts:
+    - "*"
+    gateways:
+    - das-gateway
+    http:
+    - match:
+      - uri:
+          exact: /das/
+      route:
+      - destination:
+          host: das
+          port:
+            number: 8217
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: das-dr
+spec:
+  host: das.das.svc.cluster.local
+  trafficPolicy:
+    loadBalancer:
+      consistentHash:
+        httpCookie:
+          name: route
+          ttl: 172800s

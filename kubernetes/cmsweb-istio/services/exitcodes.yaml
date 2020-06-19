@@ -1,0 +1,43 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: exitcodes
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 9201
+    protocol: TCP
+    name: http
+  selector:
+    app: exitcodes
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: exitcodes
+  name: exitcodes
+  namespace: http
+spec:
+  selector:
+    matchLabels:
+      app: exitcodes
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: exitcodes
+    spec:
+      containers:
+      - image: cmssw/exitcodes
+        name: exitcodes
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "300m"
+        ports:
+        - containerPort: 9201

@@ -1,0 +1,111 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: t0wmadatasvc
+  namespace: tzero
+spec:
+  selector:
+    app: t0wmadatasvc
+  ports:
+    - port: 8308
+      targetPort: 8308
+      name: t0wmadatasvc
+    - port: 18308
+      targetPort: 18308
+      name: t0wmadsvc-mon
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: t0wmadatasvc
+  labels:
+    app: t0wmadatasvc
+  namespace: tzero
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+    
+    cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    su  -c "cd /data && /data/run.sh" --preserve-environment _t0wmadatasvc
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: t0wmadatasvc
+  name: t0wmadatasvc
+  namespace: tzero
+spec:
+  selector:
+    matchLabels:
+      app: t0wmadatasvc
+  replicas: 1 #PROD# 5
+  template:
+    metadata:
+      labels:
+        app: t0wmadatasvc
+    spec:
+      # use hostNetwork to allow communication between reqmgr/t0wmadatasvc/workqueue and couch
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      containers:
+      - image: cmssw/t0wmadatasvc
+        name: t0wmadatasvc
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 8308
+          protocol: TCP
+          name: t0wmadatasvc
+        - containerPort: 18308
+          protocol: TCP
+          name: t0wmadsvc-mon
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/srv/logs/t0wmadatasvc
+        securityContext:
+          privileged: true
+#      initContainers:
+#      - name: checkcouchdb
+#        image: busybox:1.28
+#        command: ['sh', '-c', 'until nslookup couchdb.couchdb; do echo "Waiting for couchdb"; sleep 10; done;']
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: t0wmadatasvc-secrets
+      - name: etc-grid-security
+        hostPath:
+          path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: t0wmadatasvc
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim-tzero

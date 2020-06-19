@@ -1,0 +1,16 @@
+groups:
+- name: mongodb
+  rules:
+
+  - alert: MongoDB service is down
+    expr: mongodb_instance_uptime_seconds == 0
+    for: 5m
+    labels:
+      severity: high
+      tag: cmsweb
+      service: mongodb
+      kind: database
+      action: Please restart MongoDB on {{ $labels.instance }}
+    annotations:
+      summary: "mongodb {{ $labels.env }} is down"
+      description: "{{ $labels.env }} has been down for more than 5m"

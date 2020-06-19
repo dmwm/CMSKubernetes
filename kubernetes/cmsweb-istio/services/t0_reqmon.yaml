@@ -1,0 +1,111 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: t0reqmon
+  namespace: tzero
+spec:
+  selector:
+    app: t0reqmon
+  ports:
+    - port: 8243
+      targetPort: 8243
+      name: t0reqmon
+    - port: 18243
+      targetPort: 18243
+      name: t0reqmon-mon
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: t0reqmon
+  labels:
+    app: t0reqmon
+  namespace: tzero
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+
+    cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    su  -c "cd /data && /data/run.sh" --preserve-environment _t0_reqmon
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: t0reqmon
+  name: t0reqmon
+  namespace: tzero
+spec:
+  selector:
+    matchLabels:
+      app: t0reqmon
+  replicas: 1 #PROD# 5
+  template:
+    metadata:
+      labels:
+        app: t0reqmon
+    spec:
+      # use hostNetwork to allow communication between reqmgr/t0reqmon/workqueue and couch
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      containers:
+      - image: cmssw/t0_reqmon
+        name: t0reqmon
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 8243
+          protocol: TCP
+          name: t0reqmon
+        - containerPort: 18243
+          protocol: TCP
+          name: t0reqmon-mon
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/srv/logs/t0_reqmon
+        securityContext:
+          privileged: true
+#      initContainers:
+#      - name: checkcouchdb
+#        image: busybox:1.28
+#        command: ['sh', '-c', 'until nslookup couchdb.couchdb; do echo "Waiting for couchdb"; sleep 10; done;']
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: t0reqmon-secrets
+      - name: etc-grid-security
+        hostPath:
+          path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: t0reqmon
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim-tzero

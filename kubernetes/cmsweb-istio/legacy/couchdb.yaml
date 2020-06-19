@@ -1,0 +1,80 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: couchdb
+spec:
+  selector:
+    app: couchdb
+  ports:
+    - port: 5984
+      targetPort: 5984
+      name: couchdb
+    - port: 9984
+      targetPort: 9984
+      name: couchdb-mon
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: couchdb
+  name: couchdb
+spec:
+  selector:
+    matchLabels:
+      app: couchdb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: couchdb
+    spec:
+      # use hostNetwork to allow communication between reqmgr/reqmon/workqueue and couch
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: cmssw/couchdb:1.0.1
+        name: couchdb
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "10Gi"
+            cpu: "800m"
+        ports:
+        - containerPort: 5984
+          protocol: TCP
+          name: couchdb
+        - containerPort: 9984
+          protocol: TCP
+          name: couchdb-mon
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          defaultMode: 256
+#           readOnly: true
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: couchdb-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File

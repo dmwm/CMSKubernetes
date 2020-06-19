@@ -1,0 +1,27 @@
+# kubectl get hpa.v2beta2.autoscaling -o yaml > hpa-v2.yaml
+# then inspect and create appropriate yaml configuration
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: dbs-global-r-hpa
+  namespace: dbs
+spec:
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - resource:
+      name: cpu
+      target:
+        averageUtilization: 70
+        type: Utilization
+    type: Resource
+  - resource:
+      name: memory
+      target:
+        averageUtilization: 70
+        type: Utilization
+    type: Resource
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: dbs-global-r

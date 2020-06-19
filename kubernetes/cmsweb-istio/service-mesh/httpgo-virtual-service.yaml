@@ -1,0 +1,28 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: httpgo
+  namespace: dev
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - httpgo-gateway
+  http:
+  - match:
+    - uri:
+        exact: /httpgo
+    route:
+    - destination:
+        host: httpgo
+        subset: v1
+        port:
+          number: 8888
+      weight: 50
+    - destination:
+        host: httpgo
+        subset: v2
+        port:
+          number: 8888
+      weight: 50

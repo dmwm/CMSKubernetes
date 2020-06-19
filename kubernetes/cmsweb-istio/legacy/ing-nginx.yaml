@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  rules:
+  - host: cmsweb-test.web.cern.ch
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: frontend
+          servicePort: 443
+  tls:
+  - hosts:
+    - cmsweb-test.web.cern.ch

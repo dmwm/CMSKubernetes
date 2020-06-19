@@ -1,0 +1,83 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: t0reqmon
+spec:
+  selector:
+    app: t0reqmon
+  ports:
+    - port: 8243
+      targetPort: 8243
+      name: t0reqmon
+    - port: 18243
+      targetPort: 18243
+      name: t0reqmon-mon
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: t0reqmon
+  name: t0reqmon
+spec:
+  selector:
+    matchLabels:
+      app: t0reqmon
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: t0reqmon
+    spec:
+      # use hostNetwork to allow communication between reqmgr/t0reqmon/workqueue and couch
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: cmssw/t0_reqmon:1.0.1
+        name: t0reqmon
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "2Gi"
+            cpu: "800m"
+        ports:
+        - containerPort: 8243
+          protocol: TCP
+          name: t0reqmon
+        - containerPort: 18243
+          protocol: TCP
+          name: t0reqmon-mon
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          defaultMode: 256
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+      initContainers:
+      - name: checkcouchdb
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nslookup couchdb.default; do echo "Waiting for couchdb"; sleep 10; done;']
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: t0reqmon-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File

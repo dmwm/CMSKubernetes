@@ -1,0 +1,88 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: t0reqmon-tasks
+  labels:
+    app: t0reqmon-tasks
+  namespace: tzero
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+
+    cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    su  -c "cd /data && /data/run.sh" --preserve-environment _t0_reqmon
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: t0reqmon-tasks
+  name: t0reqmon-tasks
+  namespace: tzero
+spec:
+  selector:
+    matchLabels:
+      app: t0reqmon-tasks
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: t0reqmon-tasks
+    spec:
+      # use hostNetwork to allow communication between reqmgr/t0reqmon/workqueue and couch
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      containers:
+      - image: cmssw/t0_reqmon
+        name: t0reqmon-tasks
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/srv/logs/t0_reqmon
+        securityContext:
+          privileged: true
+#      initContainers:
+#      - name: checkcouchdb
+#        image: busybox:1.28
+#        command: ['sh', '-c', 'until nslookup couchdb.couchdb; do echo "Waiting for couchdb"; sleep 10; done;']
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: t0reqmon-secrets
+      - name: etc-grid-security
+        hostPath:
+          path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: t0reqmon-tasks
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim-tzero

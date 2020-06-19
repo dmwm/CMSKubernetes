@@ -1,0 +1,14 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: ingress-policy
+  namespace: istio-system
+spec:
+  selector:
+    matchLabels:
+      app: istio-ingressgateway
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        ipBlocks: ["137.138.31.19", "137.138.158.91", "137.138.33.200", "137.138.54.48"]

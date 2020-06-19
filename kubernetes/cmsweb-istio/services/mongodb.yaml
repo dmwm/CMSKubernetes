@@ -1,0 +1,66 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: mongodb
+  namespace: mongodb
+spec:
+  selector:
+    app: mongodb
+  ports:
+  - port: 8230
+    targetPort: 8230
+    name: mongodb
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+  namespace: mongodb
+  labels:
+     app: mongodb
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: mongodb
+   template:
+      metadata:
+         labels:
+           app: mongodb
+      spec:
+        securityContext:
+          fsGroup: 1000
+        containers:
+        - args:
+          - --dbpath=/tmp
+          - --port=8230
+          - --logappend
+#           - --storageEngine=mmapv1
+          name: mongodb
+          image: mongo
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                - bash
+                - -c
+                - mongoimport --port=8230 --db=mapping --collection=db --file=/etc/mongodb/das_maps.js
+          ports:
+          - containerPort: 8230
+            protocol: TCP
+            name: mongodb
+          volumeMounts:
+#           - name: cinder-volume
+#             mountPath: /tmp/mongodb
+#             readOnly: false
+          - name: mongodb-secrets
+            mountPath: /etc/mongodb
+            readOnly: true
+        volumes:
+        - name: mongodb-secrets
+          secret:
+            secretName: mongodb-secrets
+#         - name: cinder-volume
+#           persistentVolumeClaim:
+#             claimName: mongodb-volume-claim

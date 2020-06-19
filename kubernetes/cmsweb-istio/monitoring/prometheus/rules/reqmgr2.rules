@@ -1,0 +1,40 @@
+groups:
+- name: reqmgr2
+  rules:
+
+  - alert: ReqMgr2 service is down
+    expr: reqmgr2_num_cpus == 0 or rate(reqmgr2_process_cpu_seconds_total[5m]) == 0
+    for: 5m
+    labels:
+      severity: high
+      tag: cmsweb
+      service: reqmgr2
+      kind: dmwm
+      action: Please restart ReqMgr2 service on {{ $labels.instance }}
+    annotations:
+      summary: "reqmgr2 {{ $labels.env }} is down"
+      description: "{{ $labels.env }} has been down for more than 5m"
+
+  - alert: ReqMgr2 high memory usage
+    expr: reqmgr2_proc_mem > 70
+    for: 5m
+    labels:
+      severity: medium
+      tag: cmsweb
+      service: reqmgr2
+      kind: dmwm
+    annotations:
+      summary: "reqmgr2 {{ $labels.env }} has large memory usage"
+      description: "{{ $labels.env }} memory usage above 70% for more than 5m"
+
+  - alert: ReqMgr2 high cpu usage
+    expr: reqmgr2_proc_cpu > 70
+    for: 5m
+    labels:
+      severity: medium
+      tag: cmsweb
+      service: reqmgr2
+      kind: dmwm
+    annotations:
+      summary: "reqmgr2 {{ $labels.env }} has large cpu usage"
+      description: "{{ $labels.env }} cpu usage above 70% for more than 5m"

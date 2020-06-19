@@ -1,0 +1,95 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: frontend
+  ports:
+    - port: 80
+      targetPort: 80
+      name: http
+    - port: 443
+      targetPort: 8443
+      name: https
+    - port: 8443
+      targetPort: 8443
+      name: https-machine
+    - port: 18443
+      targetPort: 18443
+      name: http-mon
+
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: frontend
+  name: frontend
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: cmssw/frontend:1.0.1
+        name: frontend
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "2Gi"
+            cpu: "800m"
+        ports:
+        - containerPort: 80
+          protocol: TCP
+          name: http
+        - containerPort: 443
+          protocol: TCP
+          name: https
+        - containerPort: 8443
+          protocol: TCP
+          name: https-machine
+        - containerPort: 18443
+          protocol: TCP
+          name: http-mon
+
+        volumeMounts:
+#         - name: logs-pvc
+#           mountPath: /logs/frontend
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        # mount hostcert/hostkey.pem files from the minion node
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: frontend-secrets
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+#       - name: logs-pvc
+#         persistentVolumeClaim:
+#           claimName: cmsweb-pvc
+#           readOnly: false
