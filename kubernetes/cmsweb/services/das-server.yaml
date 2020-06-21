@@ -1,0 +1,75 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: das-server
+  namespace: das
+spec:
+  selector:
+    app: das-server
+  ports:
+    - port: 8217
+      targetPort: 8217
+      name: das
+    - port: 18217
+      targetPort: 18217
+      name: das-mon
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: das-server
+  name: das-server
+  namespace: das
+spec:
+  selector:
+    matchLabels:
+      app: das-server
+  replicas: 1 #PROD# 3
+  template:
+    metadata:
+      labels:
+        app: das-server
+    spec:
+      containers:
+      - image: veknet/das-server #imagetag
+        name: das-server
+        env:
+        - name: X509_USER_PROXY
+          value: /etc/proxy/proxy
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "200m"
+          limits:
+            memory: "3Gi"
+            cpu: "4000m"
+        ports:
+        - containerPort: 8217
+          protocol: TCP
+          name: das
+        - containerPort: 18217
+          protocol: TCP
+          name: das-mon
+        command:
+        - /data/das2go
+        - -config
+        - /etc/secrets/dasconfig.json
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+      initContainers:
+      - name: checkcouchdb
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nslookup das-mongo.das; do echo "Waiting for das-mongo"; sleep 10; done;']
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: das-server-secrets

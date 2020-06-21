@@ -1,0 +1,55 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: das-mongo
+  namespace: das
+spec:
+  selector:
+    app: das-mongo
+  ports:
+    - port: 8230
+      targetPort: 8230
+      name: das
+    - port: 18230
+      targetPort: 18230
+      name: das-mongo-mon
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: das-mongo
+  name: das-mongo
+  namespace: das
+spec:
+  selector:
+    matchLabels:
+      app: das-mongo
+  replicas: 1 #PROD# 3
+  template:
+    metadata:
+      labels:
+        app: das-mongo
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      containers:
+      - image: veknet/das-mongo #imagetag
+        name: das-mongo
+        tty: true
+        stdin: true
+        resources:
+          requests:
+            memory: "500Mi"
+            cpu: "2000m"
+          limits:
+            memory: "3Gi"
+            cpu: "4000m"
+        ports:
+        - containerPort: 8230
+          protocol: TCP
+          name: das
+        - containerPort: 18230
+          protocol: TCP
+          name: das-mongo-mon
