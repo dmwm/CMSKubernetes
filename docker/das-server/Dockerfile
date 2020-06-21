@@ -18,11 +18,16 @@ RUN go build -o /build/das2go_monitor -ldflags="-s -w -extldflags -static" /data
 WORKDIR /data/das2go
 RUN go build -o /build/das2go -ldflags="-s -w -extldflags -static"
 RUN cp -r js css images templates /build
+RUN curl -ksLO "https://yui.github.io/yui2/archives/yui_2.9.0.zip"
+RUN curl -ksLO http://ftp.us.debian.org/debian/pool/main/u/unzip/unzip_6.0-23+deb10u1_amd64.deb
+RUN dpkg -i unzip_6.0-23+deb10u1_amd64.deb
+RUN unzip -qq -d /build /data/das2go/yui_2.9.0.zip
 
 FROM alpine
 RUN mkdir -p /data
 COPY --from=go-builder /build/das* /data/
 COPY --from=go-builder /build/js /data/js
 COPY --from=go-builder /build/css /data/css
+COPY --from=go-builder /build/yui /data/yui
 COPY --from=go-builder /build/images /data/images
 COPY --from=go-builder /build/templates /data/templates
