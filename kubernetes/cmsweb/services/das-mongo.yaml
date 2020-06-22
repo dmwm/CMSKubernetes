@@ -35,7 +35,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: veknet/das-mongo #imagetag
+      - image: cmssw/das-mongo #imagetag
         name: das-mongo
         tty: true
         stdin: true
@@ -53,3 +53,11 @@ spec:
         - containerPort: 18230
           protocol: TCP
           name: das-mongo-mon
+        volumeMounts:
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+      volumes:
+      - name: secrets
+        secret:
+          secretName: das-mongo-secrets
