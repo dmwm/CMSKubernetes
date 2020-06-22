@@ -28,10 +28,6 @@ fetchmaps(){
   set +e
 }
 
-port=8230
-journal="--nojournal"
-journal="--journal"
-
 # fetch das maps
 mkdir -p $STAGEDIR
 fetchmaps
@@ -44,6 +40,12 @@ mongod --config /data/mongodb.conf
 if [ -f /etc/secrets/frontend ]; then
     fe=`cat /etc/secrets/frontend`
     ls $STAGEDIR/*.js | awk '{print "sed -i -e \"s,cmsweb.cern.ch,"fe",g\" "$1""}' fe=$fe | /bin/sh
+fi
+if [ -f /etc/secrets/dasmap ]; then
+    if [ -n "grep testbed in $fe" ]; then
+        dasmap=`cat /etc/secrets/dasmap`
+        cp -f $STAGEDIR/$dasmap $STAGEDIR/update_mapping_db.js
+    fi
 fi
 das_js_import $STAGEDIR
 
