@@ -1,4 +1,7 @@
 #
 # crontab jobs
 #
-1 15 * * * cd /data/log-clustering; ./run_spark workflow/workflow.py --fout=/data/data.json --creds=/etc/secrets/creds.json 2>&1 1>& log
+# run once an hour
+0 * * * * cd /data/log-clustering; ./run_spark workflow/workflow.py --fout=/data/data.json --creds=/etc/secrets/creds.json 2>&1 1>& log
+# run once a day
+#1 15 * * * cd /data/log-clustering; ./run_spark workflow/workflow.py --fout=/data/data.json --creds=/etc/secrets/creds.json 2>&1 1>& log
