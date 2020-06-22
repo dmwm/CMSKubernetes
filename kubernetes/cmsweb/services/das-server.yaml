@@ -32,7 +32,7 @@ spec:
         app: das-server
     spec:
       containers:
-      - image: veknet/das-server #imagetag
+      - image: cmssw/das-server #imagetag
         name: das-server
         env:
         - name: X509_USER_PROXY
