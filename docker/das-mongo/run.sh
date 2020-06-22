@@ -41,6 +41,10 @@ mkdir -p /data/mongodb/{wtdb,logs}
 mongod --config /data/mongodb.conf
 
 # import das maps
+if [ -f /etc/secrets/frontend ]; then
+    fe=`cat /etc/secrets/frontend`
+    ls $STAGEDIR/*.js | awk '{print "sed -i -e \"s,cmsweb.cern.ch,"fe",g\" "$1""}' fe=$fe | /bin/sh
+fi
 das_js_import $STAGEDIR
 
 # mongostat daemon
