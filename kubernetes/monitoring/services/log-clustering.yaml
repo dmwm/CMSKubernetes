@@ -24,7 +24,7 @@ spec:
           - crond
           - -n
           #image: cmssw/log-clustering:20200605
-          image: cmssw/log-clustering:20200622
+          image: cmssw/log-clustering:20200623
           name: log-clustering
           volumeMounts:
           - name: log-clustering-secrets
