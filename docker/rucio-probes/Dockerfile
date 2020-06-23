@@ -21,6 +21,9 @@ ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_with_alchemy/com
 
 # TODO: Merge Donata's probes somewhere
 
+ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_expiring_rules_per_rse /probes/common
+ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_missing_data_at_rse /probes/common
+ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_unlocked_replicas_per_rse /probes/common
 ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_expected_total_number_of_files_per_rse /probes/common
 ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_free_space /probes/common
 ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_not_OK_rules /probes/common

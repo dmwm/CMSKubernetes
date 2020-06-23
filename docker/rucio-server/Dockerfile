@@ -28,6 +28,9 @@ ENV RUCIO_CA_PATH="/etc/grid-security/certificates"
 ADD cms-entrypoint.sh /
 RUN echo "32 */6 * * * root ! /usr/sbin/fetch-crl -q -r 360 ; killall -HUP httpd" > /etc/cron.d/fetch-crl-docker
 
+# Might get recreated if apache was upgraded
+RUN rm -f /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/userdir.conf /etc/httpd/conf.d/ssl.conf
+
 # Install what's needed out of dmwm/rucio/CMS branch
 RUN yum install -y git
 WORKDIR /opt/rucio/etc/mail_templates/
@@ -36,7 +39,12 @@ RUN git clone https://github.com/dmwm/rucio.git
 WORKDIR /root/rucio
 RUN git checkout CMS
 
-# Might get recreated if apache was upgraded
-RUN rm -f /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/userdir.conf /etc/httpd/conf.d/ssl.conf
+
+# Our schema
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano3/lib/rucio/common/schema/cms.py /usr/lib/python2.7/site-packages/rucio/common/schema/cms.py
+RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/common/schema
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano3/lib/rucio/api/did.py /usr/lib/python2.7/site-packages/rucio/api/did.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano3/lib/rucio/api/replica.py /usr/lib/python2.7/site-packages/rucio/api/replica.py
+RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/api
 
 ENTRYPOINT ["/cms-entrypoint.sh"]

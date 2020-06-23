@@ -44,16 +44,11 @@ ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano2/lib/rucio/c
 ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano2/lib/rucio/core/permission/generic.py /usr/lib/python2.7/site-packages/rucio/core/permission/generic.py
 RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/core/permission
 
-# Patch for is_default for DAS. PR submitted
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano2/lib/rucio/core/identity.py /usr/lib/python2.7/site-packages/rucio/core/identity.py
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano2/lib/rucio/web/rest/webpy/v1/account.py /usr/lib/python2.7/site-packages/rucio/web/rest/webpy/v1/account.py
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano2/lib/rucio/web/rest/webpy/v1/account.py /usr/lib/python2.7/site-packages/rucio/web/rest/account.py
-RUN chmod 644 /usr/lib/python2.7/site-packages/rucio/web/rest/account.py
-RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/core/
-RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/web/rest/webpy/v1/
-RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/web/rest/
-RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/web/
-
-
+# Our schema
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano3/lib/rucio/common/schema/cms.py /usr/lib/python2.7/site-packages/rucio/common/schema/cms.py
+RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/common/schema
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano3/lib/rucio/api/did.py /usr/lib/python2.7/site-packages/rucio/api/did.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano3/lib/rucio/api/replica.py /usr/lib/python2.7/site-packages/rucio/api/replica.py
+RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/api
 
 ENTRYPOINT ["/cms-entrypoint.sh"]

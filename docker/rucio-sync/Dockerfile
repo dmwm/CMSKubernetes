@@ -31,5 +31,3 @@ ADD cms-entrypoint.sh /
 ADD sync-live-check.sh /
 
 ENTRYPOINT ["/cms-entrypoint.sh"]
-
-
