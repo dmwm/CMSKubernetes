@@ -107,6 +107,6 @@ crontab -l | \
         -e "s,/data/certs/hostkey.pem,/etc/secrets/proxy,g" | crontab -
 
 # add proxy generation via robot certificate
-crontab -l | egrep -v "reboot|ProxyRenew|LogArchive" > /tmp/mycron
+crontab -l | egrep -v "reboot|ProxyRenew|LogArchive|ServerMonitor" > /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron

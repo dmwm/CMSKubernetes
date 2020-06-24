@@ -63,6 +63,6 @@ done
 sed -i -e "s#ServerMonitor/2.0#ServerMonitor-crabserver#g" /data/srv/current/config/admin/ServerMonitor
 
 # adjust crontab
-crontab -l | egrep -v "reboot|ProxyRenew|LogArchive" > /tmp/mycron
+crontab -l | egrep -v "reboot|ProxyRenew|LogArchive|ServerMonitor" > /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron
