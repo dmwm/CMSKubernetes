@@ -72,6 +72,6 @@ crontab -l | \
 
 # add proxy generation via robot certificate
 # adjust crontab
-crontab -l | egrep -v "reboot|ProxyRenew|LogArchive" > /tmp/mycron
+crontab -l | egrep -v "reboot|ProxyRenew|LogArchive|ServerMonitor" > /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron
