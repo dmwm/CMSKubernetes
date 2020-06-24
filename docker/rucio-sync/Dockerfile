@@ -18,14 +18,13 @@ RUN yum install -y git \
 
 WORKDIR /root
 
-RUN pip install pyyaml
+RUN pip --no-cache-dir install pyyaml
 
 COPY scripts /root/scripts
 
 ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/phedex.py  /root/scripts
 ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/CMSRucio.py  /root/scripts
 ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/syncaccounts.py  /root/scripts
-
 
 ADD cms-entrypoint.sh /
 ADD sync-live-check.sh /
