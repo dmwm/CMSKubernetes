@@ -35,20 +35,14 @@ RUN yum install -y cern-get-certificate fetch-crl \
     libaio libaio-devel net-tools lsof bind-utils initscripts patch \
     voms-devel globus-gsi-credential-devel globus-gsi-cert-utils-devel \
     globus-common-devel globus-gsi-sysconfig-devel globus-gsi-callback-devel \
-    oracle-instantclient-tnsnames.ora
+    oracle-instantclient-tnsnames.ora filebeat \
+    HEP_OSlibs python-pip hadoop-bin hadoop-tools \
+    spark spark-bin cern-hadoop-client cern-hadoop-xrootd-connector \
+    && yum clean all && rm -rf /var/cache/yum
 
-# add filebeat for monitoring
-RUN yum install -y filebeat
-
-# Install Spark with custom Hadoop
-RUN yum install -y HEP_OSlibs python-pip hadoop-bin hadoop-tools \
-    spark spark-bin cern-hadoop-client cern-hadoop-xrootd-connector
 #RUN pip install --upgrade pip setuptools
 RUN cp /usr/hdp/spark/kubernetes/dockerfiles/spark/entrypoint.sh /usr/bin/entrypoint.sh
 RUN touch /etc/hadoop/conf/topology.table.file
-
-# clean-up yum
-RUN yum clean all && rm -r /var/cache/yum/*
 
 # create bashs link to bash
 RUN ln -s /bin/bash /usr/bin/bashs
@@ -117,6 +111,7 @@ RUN curl -k -L -O "https://github.com/dcu/mongodb_exporter/archive/v1.0.0.tar.gz
 RUN tar xfz v1.0.0.tar.gz
 RUN mkdir -p $GOPATH/src/github.com/dcu/
 RUN cp -r mongodb_exporter-1.0.0 $GOPATH/src/github.com/dcu/mongodb_exporter
+RUN rm -f v1.0.0.tar.gz
 WORKDIR $GOPATH/src/github.com/dcu/mongodb_exporter
 RUN go get github.com/Masterminds/glide
 RUN make build
