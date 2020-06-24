@@ -38,6 +38,8 @@ RUN mkdir /data/gopath
 ENV GOPATH /data/gopath
 RUN go get github.com/Lusitaniae/apache_exporter
 
+RUN crontab -l > /data/crontab.txt
+
 # extract relevant pieces from web-builder
 FROM cern/cc7-base:20200531-2.x86_64
 ENV WDIR=/data
@@ -57,6 +59,7 @@ RUN echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 RUN echo "32 */6 * * * root ! /usr/sbin/fetch-crl -q -r 360" > /etc/cron.d/fetch-crl-docker
 USER ${USER}
 COPY --chown=_frontend:_frontend --from=web-builder /data /data
+RUN crontab /data/crontab.txt
 
 # run the service
 ADD run.sh $WDIR/run.sh
