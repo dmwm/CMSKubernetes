@@ -46,7 +46,7 @@ ENV WDIR=/data
 ENV USER=_frontend
 ADD logstash.repo /etc/yum.repos.d/logstash.repo
 RUN rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
-RUN yum install -y perl filebeat
+RUN yum install -y perl filebeat && yum clean all && rm -rf /var/cache/yum
 RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
 RUN echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 USER ${USER}
