@@ -1,0 +1,45 @@
+## DEPLOYMENTS
+# REDIS-CHECKPOINT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: spider
+  name: redis-checkpoint
+  labels:
+    app: redis-checkpoint
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-checkpoint
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: redis-checkpoint
+    spec:
+      containers:
+      - command:
+        - redis-server
+        - --appendonly
+        - "yes"
+        image: redis:alpine
+        name: redis-checkpoint
+        ports:
+        - containerPort: 6379
+        resources: 
+          requests:
+            cpu: 100m
+            memory: 200Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+        volumeMounts:
+        - mountPath: /data
+          name: redis-checkpoint-claim0
+      restartPolicy: Always
+      volumes:
+      - name: redis-checkpoint-claim0
+        emptyDir: {}
+status: {}

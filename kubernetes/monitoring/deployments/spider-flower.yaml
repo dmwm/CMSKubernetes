@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: spider
+  name: spider-flower
+  labels:
+    app: spider-flower
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spider-flower
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: spider-flower
+    spec:
+      containers:
+      - args:
+        - flower
+        - --broker=redis://$(REDIS_SERVICE_HOST):$(REDIS_SERVICE_PORT_6379)/0
+        - --port=8888
+        - "-A"
+        - "htcondor_es.celery.celery"
+        image: cronosnull/cms_htcondor_es:0.3
+        name: spider-flower
+        ports:
+        - containerPort: 8888
+        resources:
+          requests:
+             cpu: 100m
+             memory: 100Mi
+          limits:
+            cpu: 300m
+            memory: 1Gi
+      restartPolicy: Always
+status: {}

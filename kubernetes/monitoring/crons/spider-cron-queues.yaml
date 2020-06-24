@@ -1,0 +1,93 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  namespace: spider
+  name: cron-spider-queues
+spec:
+  schedule: "*/12 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: spider-account
+          containers:
+          - name: cms-htcondor-es
+            image: cronosnull/cms_htcondor_es:0.3
+            imagePullPolicy: Always
+            args:
+            - python
+            - /cms-htcondor-es/celery_spider_cms.py
+            - --feed_es
+            - --query_queue_batch_size
+            - "500"
+            - --amq_bunch_size
+            - "500"
+            env: &spider_env
+              - name: AFFILIATION_DIR_LOCATION
+                value: /cms_shared/affiliation_dir.json
+              - name: CELERY_BROKER_URL
+                value: redis://$(REDIS_SERVICE_HOST):$(REDIS_SERVICE_PORT_6379)/0
+              - name: CELERY_RESULT_BACKEND
+                value: redis://$(REDIS_SERVICE_HOST):$(REDIS_SERVICE_PORT_6379)/1
+              - name: CELERY_TEST
+                value: '"true"'
+              - name: CMS_AMQ_PASSWORD_FILE
+                value: /cms_secrets/amq-password/amq-password
+              - name: CMS_AMQ_USERNAME_FILE
+                value: /cms_secrets/amq-username/amq-username
+              - name: CMS_ES_CONF_FILE
+                value: /cms_secrets/es-conf/es-conf
+              - name: CMS_HTCONDOR_BROKER
+                value: cms-test-mb.cern.ch
+              - name: CMS_HTCONDOR_PRODUCER
+                value: condor-test
+              - name: CMS_HTCONDOR_TOPIC
+                value: /topic/cms.jobmon.condor
+              - name: COLLECTORS_FILE_LOCATION
+                value: /cms_secrets/collectors/collectors
+              - name: C_FORCE_ROOT
+                value: '"true"'
+              - name: PYTHONPATH
+                value: /cms-htcondor-es/src:$PYTHONPATH
+              - name: REQUESTS_CA_BUNDLE
+                value: /etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt
+              - name: SPIDER_CHECKPOINT
+                value: redis://$(REDIS_CHECKPOINT_SERVICE_HOST):$(REDIS_CHECKPOINT_SERVICE_PORT)/0
+            volumeMounts:  &spider_mounts
+              - mountPath: /cms_secrets/amq-username
+                name: amq-username
+              - mountPath: /cms_secrets/amq-password
+                name: amq-password
+              - mountPath: /cms_secrets/es-conf
+                name: es-conf
+              - mountPath: /cms_secrets/collectors
+                name: collectors        
+          restartPolicy: Never
+          securityContext:
+              fsGroup: 1414
+          volumes:  &spider_volumes
+            - name: amq-username
+              secret:
+                items:
+                - key: amq-username
+                  path: amq-username
+                secretName: amq-username
+            - name: amq-password
+              secret:
+                items:
+                - key: amq-password
+                  path: amq-password
+                secretName: amq-password
+            - name: es-conf
+              secret:
+                items:
+                - key: es-conf
+                  path: es-conf
+                secretName: es-conf
+            - name: collectors
+              secret:
+                items:
+                - key: collectors
+                  path: collectors
+                secretName: collectors
+
