@@ -1,0 +1,50 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: das-mongo-exporter
+  namespace: das
+spec:
+  selector:
+    app: das-mongo-exporter
+  ports:
+    - port: 18230
+      targetPort: 18230
+      name: das-mongo-p
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: das-mongo-exporter
+  name: das-mongo-exporter
+  namespace: das
+spec:
+  selector:
+    matchLabels:
+      app: das-mongo-exporter
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: das-mongo-exporter
+    spec:
+      containers:
+      - image: cmssw/exporters #imagetag
+        name: das-mongo-exporter
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "200m"
+          limits:
+            memory: "100Mi"
+            cpu: "400m"
+        command:
+        - /data/mongodb_exporter
+        - -mongodb.uri
+        - "mongodb://das-mongo.das.svc.cluster.local:8230"
+        - --web.listen-address
+        - ":18230"
+        ports:
+        - containerPort: 18230
+          protocol: TCP
+          name: das-mongo-p
