@@ -58,6 +58,6 @@ done
 sed -i -e "s#ServerMonitor/2.0#ServerMonitor-confdb#g" /data/srv/current/config/admin/ServerMonitor
 
 # adjust contab
-crontab -l | egrep -v "reboot|ServerMonitor" > /tmp/mycron
+crontab -l | egrep -v "reboot|LogArchive|ServerMonitor" > /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron
