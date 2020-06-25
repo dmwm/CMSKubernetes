@@ -7,8 +7,8 @@ spec:
   selector:
     app: das-exporter
   ports:
-    - port: 18230
-      targetPort: 18230
+    - port: 18217
+      targetPort: 18217
       name: das-exporter
 ---
 kind: Deployment
@@ -46,7 +46,7 @@ spec:
         - -address
         - ":18217"
         ports:
-        - containerPort: 18230
+        - containerPort: 18217
           protocol: TCP
           name: das-exporter
         volumeMounts:
