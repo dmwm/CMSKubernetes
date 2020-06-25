@@ -19,5 +19,5 @@ spec:
       paths:
       - path: /das
         backend:
-          serviceName: das
+          serviceName: das-server
           servicePort: 8217

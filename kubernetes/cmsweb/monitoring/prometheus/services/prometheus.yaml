@@ -28,12 +28,12 @@ scrape_configs:
             env: 'k8s'
   - job_name: 'das-service'
     static_configs:
-        - targets: ['das.das.svc.cluster.local:18217']
+        - targets: ['das-exporter.das.svc.cluster.local:18217']
           labels:
             env: 'k8s'
   - job_name: 'mongodb-service'
     static_configs:
-        - targets: ['das.das.svc.cluster.local:18230']
+        - targets: ['das-mongo-exporter.das.svc.cluster.local:18230']
           labels:
             env: 'k8s'
   - job_name: 'dbsmigration-service'
