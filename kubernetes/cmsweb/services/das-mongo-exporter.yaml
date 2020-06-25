@@ -48,3 +48,7 @@ spec:
         - containerPort: 18230
           protocol: TCP
           name: das-mongo-p
+      initContainers:
+      - name: checkcouchdb
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nslookup das-mongo.das; do echo "Waiting for das-mongo"; sleep 10; done;']
