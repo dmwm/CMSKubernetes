@@ -40,10 +40,16 @@ spec:
             cpu: "400m"
         command:
         - /data/mongodb_exporter
+        - -web.listen-address
+        - ":18230"
         - -mongodb.uri
         - "mongodb://das-mongo.das.svc.cluster.local:8230"
-        - --web.listen-address
-        - ":18230"
+        - -mongodb.collect.replset=false
+        - -mongodb.collect.oplog=false
+        - -mongodb.collect.database
+        - "das"
+        - -groups.enabled
+        - "asserts,durability,background_flushing,connections,extra_info,global_lock,index_counters,network,op_counters,memory,locks,metrics"
         ports:
         - containerPort: 18230
           protocol: TCP
