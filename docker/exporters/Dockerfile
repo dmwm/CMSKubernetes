@@ -33,7 +33,10 @@ ENV PATH="${GOPATH}/src/github.com/Masterminds/glide:${GOPATH}/bin:${PATH}"
 RUN git clone https://github.com/dcu/mongodb_exporter.git $GOPATH/src/github.com/dcu/mongodb_exporter
 # TMP: https://github.com/dcu/mongodb_exporter/issues/127
 WORKDIR $GOPATH/src/github.com/dcu/mongodb_exporter
-RUN curl -ksLO https://raw.githubusercontent.com/vkuznet/mongodb_exporter/master/collector/metrics.go -o $GOPATH/src/github.com/dcu/mongodb_exporter/collector/metrics.go
+RUN cd $GOPATH/src/github.com/dcu/mongodb_exporter
+RUN curl -ksLO https://raw.githubusercontent.com/vkuznet/mongodb_exporter/master/collector/metrics.go
+RUN mv -f metrics.go collector/metrics.go
+RUN cat $GOPATH/src/github.com/dcu/mongodb_exporter/collector/metrics.go
 RUN CGO_ENABLED=0 make build
 RUN cp mongodb_exporter /build
 
