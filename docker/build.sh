@@ -64,7 +64,7 @@ for pkg in $cmssw_pkgs; do
     if [ -n "$CMSK8STAG" ]; then
         docker push $repo/$pkg:$CMSK8STAG
     fi
-    if [ "$pkg" != "cmsweb" ]; then
+    if [ "$pkg" != "cmsweb" ] && [ "$pkg" != "cmsweb-base" ]; then
         echo "Images was uploaded to docker hub, time to clean-up, press CTRL+C to interrupt..."
         sleep 5
         docker rmi $repo/$pkg
