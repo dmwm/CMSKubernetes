@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: scheduler
+  name: scheduler
+  namespace: redash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: scheduler
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        io.kompose.service: scheduler
+    spec:
+      containers:
+      - args:
+        - scheduler
+        env:
+        - name: QUEUES
+          value: celery
+        - name: WORKERS_COUNT
+          value: "1"
+        - name: PYTHONUNBUFFERED
+          value: "0"
+        - name: REDASH_LOG_LEVEL
+          value: INFO
+        - name: REDASH_REDIS_URL
+          value: redis://redis.redash:6379/0
+        - name: REDASH_WEB_WORKERS
+          value: "4"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redash-secret
+              key: POSTGRES_PASSWORD
+        - name: REDASH_COOKIE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: redash-secret
+              key: REDASH_COOKIE_SECRET
+        - name: REDASH_DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: redash-secret
+              key: REDASH_DATABASE_URL
+        image: redash/redash:8.0.0.b32245
+        imagePullPolicy: ""
+        name: scheduler
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}

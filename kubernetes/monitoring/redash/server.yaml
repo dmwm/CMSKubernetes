@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: server
+  name: server
+  namespace: redash
+spec:
+  ports:
+  - name: "5000"
+    port: 5000
+    targetPort: 5000
+  selector:
+    io.kompose.service: server
+status:
+  loadBalancer: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: server
+  name: server
+  namespace: redash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: server
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        io.kompose.service: server
+    spec:
+      containers:
+      - args:
+        - server
+        env:
+        - name: PYTHONUNBUFFERED
+          value: "0"
+        - name: REDASH_LOG_LEVEL
+          value: INFO
+        - name: REDASH_REDIS_URL
+          value: redis://redis.redash:6379/0
+        - name: REDASH_WEB_WORKERS
+          value: "4"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redash-secret
+              key: POSTGRES_PASSWORD
+        - name: REDASH_COOKIE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: redash-secret
+              key: REDASH_COOKIE_SECRET
+        - name: REDASH_DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: redash-secret
+              key: REDASH_DATABASE_URL
+        - name: REDASH_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: redash-secret
+              key: REDASH_SECRET_KEY
+        image: redash/redash:8.0.0.b32245
+        imagePullPolicy: ""
+        name: server
+        ports:
+        - containerPort: 5000
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}

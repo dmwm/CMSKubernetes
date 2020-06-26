@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: nginx
+  name: nginx
+  namespace: redash
+spec:
+  ports:
+  - name: "80"
+    port: 80
+    targetPort: 80
+  selector:
+    io.kompose.service: nginx
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: redash
+data:
+  nginx.conf: |-
+    events { }
+    http {
+        upstream redash {
+          server server.redash.svc.cluster.local:5000;
+        }
+
+        server {
+          listen   80 default;
+
+          gzip on;
+          gzip_types *;
+          gzip_proxied any;
+
+          location / {
+            proxy_set_header Host $http_host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+
+            proxy_pass       http://redash;
+          }
+        }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: nginx
+  name: nginx
+  namespace: redash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: nginx
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        io.kompose.service: nginx
+    spec:
+      containers:
+      - image: redash/nginx:latest
+        imagePullPolicy: ""
+        name: nginx
+        volumeMounts:
+          - name: nginx-config
+            mountPath: /etc/nginx/nginx.conf
+            subPath: nginx.conf
+        ports:
+        - containerPort: 80
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: nginx-config
