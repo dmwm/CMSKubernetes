@@ -69,9 +69,8 @@ class BlockSyncer(object):
         self.block_name = block_name
         self.lifetime = lifetime
 
-        self.group, self.custodial = self.phedex_svc.block_at_pnn_phedex(block=self.block_name, pnn=self.pnn)
+        self.group, self.custodial, self.is_at_pnn = self.phedex_svc.block_at_pnn_phedex(block=self.block_name, pnn=self.pnn)
         self.block_in_phedex = self.phedex_svc.block_exists(block=self.block_name)
-        self.is_at_pnn = bool(self.group)
 
         if self.is_at_pnn:
             self.replicas = self.phedex_svc.fileblock_files_phedex(pnn=pnn, pfb=block_name)

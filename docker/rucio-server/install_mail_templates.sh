@@ -5,7 +5,9 @@ cd /tmp
 git clone https://github.com/dmwm/rucio.git
 cd /tmp/rucio
 git checkout CMS
-mkdir -p /opt/rucio/etc/mail_templates/
-cp etc/mail_templates/* /opt/rucio/etc/mail_templates/
+mkdir -p /root/mail_templates/
+cp etc/mail_templates/* /root/mail_templates/
 cd /tmp
 rm -rf rucio
+yum autoremove -y git
+

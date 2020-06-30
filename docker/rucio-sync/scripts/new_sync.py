@@ -231,8 +231,8 @@ class SiteSyncer(object):
                             for fnal_prefix in ('T1', 'T4', 'T5', 'TH', 'TK', 'TO', 'TA', 'TB', 'TC', 'TG', 'TZ', 'T_',
                                                 'TT', 'TW', 'Tk', 'To', 'Ta', 'Tb', 'Te', 'Tp', 'Tr', 'Ts', 'Tt', 'Tw'):
                                 to_sync.append((site, fnal_prefix))
-                    else:
-                        to_sync.append((site, prefix))
+                        else:
+                            to_sync.append((site, prefix))
             else:
                 to_sync.append((site, None))
 

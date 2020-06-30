@@ -1,7 +1,7 @@
 #! /bin/bash
 
-cp  /root/rucio/etc/mail_templates/* /opt/rucio/etc/mail_templates/
-
+mkdir -p /opt/rucio/etc/mail_templates/
+cp  /root/mail_templates/* /opt/rucio/etc/mail_templates/
 ls /opt/rucio/etc/mail_templates/
 
 /usr/sbin/fetch-crl & 
