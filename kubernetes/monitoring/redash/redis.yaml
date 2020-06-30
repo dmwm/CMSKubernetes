@@ -13,11 +13,13 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  labels:
+    app: redis
   name: redis-config
   namespace: redash
 data:
   redis.conf: |
-    bind 0.0.0.0 ::1
+    bind 0.0.0.0
     maxmemory 2mb
     maxmemory-policy allkeys-lru
 ---
@@ -25,19 +27,18 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    io.kompose.service: redis
+    app: redis
   name: redis
   namespace: redash
 spec:
-  replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: redis
-  strategy: {}
+      app: redis
+  replicas: 1
   template:
     metadata:
       labels:
-        io.kompose.service: redis
+        app: redis
     spec:
       containers:
       - image: redis:5.0-alpine
@@ -46,10 +47,10 @@ spec:
         command:
           - redis-server
           - "/etc/redis/redis.conf"
-        #env:
-        #- name: MASTER
-        #  value: "true"
-        resources: {}
+        env:
+        - name: MASTER
+          value: "true"
+        esources: {}
         volumeMounts:
           - name: redis-config
             mountPath: /etc/redis/redis.conf
