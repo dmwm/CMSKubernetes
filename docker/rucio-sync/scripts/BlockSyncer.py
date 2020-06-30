@@ -305,14 +305,19 @@ class BlockSyncer(object):
                         update_file.update({'scope': InternalScope(self.scope), "rse_id": self.rse_id, "state": "A"})
                         update_replicas_states(replicas=[update_file], add_tombstone=False)
                     except ReplicaNotFound:
+                        resurrect_file = copy.deepcopy(rucio_file)
+                        resurrect_file.update({'scope': 'cms', 'type': 'FILE'})
                         try:
-                            add_replicas(rse=self.rse, files=[rucio_file], issuer=self.account, ignore_availability=True)
+                            add_replicas(rse=self.rse, files=[resurrect_file], issuer=self.account,
+                                         ignore_availability=True)
                         except RucioException:
-                            logging.critical('Could not add %s to %s. Constraint violated?', rucio_file, self.rse)
-                            resurrect([{'scope': rucio_file['scope'], 'name': rucio_file['name']}], issuer=self.account)
-                            add_replicas(rse=self.rse, files=[rucio_file], issuer=self.account, ignore_availability=True)
-                            logging.critical('Resurrected %s at %s', rucio_file, self.rse)
-
+                            logging.critical('Could not add %s to %s. Constraint violated?', resurrect_file, self.rse)
+                            resurrect_file.update({'scope': 'cms', 'type': 'FILE'})  # Reset to Internal scope by call
+                            resurrect([resurrect_file], issuer=self.account)
+                            resurrect_file.update({'scope': 'cms', 'type': 'FILE'})  # Reset to Internal scope by call
+                            add_replicas(rse=self.rse, files=[resurrect_file], issuer=self.account,
+                                         ignore_availability=True)
+                            logging.critical('Resurrected %s at %s', resurrect_file, self.rse)
 
                 # add_replicas(rse=self.rse, files=files, issuer=self.account)
                 lfns = [item['name'] for item in list_files(scope=self.scope, name=self.block_name, long=False)]
