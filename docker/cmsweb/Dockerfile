@@ -70,8 +70,7 @@ ENV PATH="${WDIR}/bin:${GOPATH}/bin:${PATH}"
 
 # build mongo exporter
 WORKDIR ${WDIR}
-RUN curl -k -L -O "https://github.com/dcu/mongodb_exporter/archive/v1.0.0.tar.gz" && tar xfz v1.0.0.tar.gz && mkdir -p $GOPATH/src/github.com/dcu/ && cp -r mongodb_exporter-1.0.0 $GOPATH/src/github.com/dcu/mongodb_exporter
-RUN rm -f v1.0.0.tar.gz
+RUN curl -k -L -O "https://github.com/dcu/mongodb_exporter/archive/v1.0.0.tar.gz" && tar xfz v1.0.0.tar.gz && mkdir -p $GOPATH/src/github.com/dcu/ && cp -r mongodb_exporter-1.0.0 $GOPATH/src/github.com/dcu/mongodb_exporter && rm -f v1.0.0.tar.gz
 WORKDIR $GOPATH/src/github.com/dcu/mongodb_exporter
 RUN go get github.com/Masterminds/glide && make build && cp mongodb_exporter $WDIR/bin
 
