@@ -12,9 +12,7 @@ ADD RPM-GPG-KEY-wlcg /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg
 ADD logstash.repo /etc/yum.repos.d/logstash.repo
 
 # add logstash GPG key
-RUN rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
-
-RUN yum update -y && yum clean all
+RUN rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch && yum update -y && yum clean all
 
 # add necessary RPMs for cmsweb deployment
 RUN yum install -y cern-get-certificate fetch-crl \
@@ -41,24 +39,13 @@ RUN yum install -y cern-get-certificate fetch-crl \
     && yum clean all && rm -rf /var/cache/yum
 
 #RUN pip install --upgrade pip setuptools
-RUN cp /usr/hdp/spark/kubernetes/dockerfiles/spark/entrypoint.sh /usr/bin/entrypoint.sh
-RUN touch /etc/hadoop/conf/topology.table.file
-
-# create bashs link to bash
-RUN ln -s /bin/bash /usr/bin/bashs
+RUN cp /usr/hdp/spark/kubernetes/dockerfiles/spark/entrypoint.sh /usr/bin/entrypoint.sh && touch /etc/hadoop/conf/topology.table.file && ln -s /bin/bash /usr/bin/bashs
 
 # cd to workdir
 WORKDIR $WDIR
 
 # Install latest kubectl
-RUN curl -k -O -L https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-RUN mv kubectl /usr/bin
-RUN chmod +x /usr/bin/kubectl
-
-# download golang and install it
-RUN curl -k -L -O https://dl.google.com/go/go1.12.1.linux-amd64.tar.gz
-RUN tar xfz go1.12.1.linux-amd64.tar.gz
-RUN rm go1.12.1.linux-amd64.tar.gz
+RUN curl -k -O -L https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && mv kubectl /usr/bin && chmod +x /usr/bin/kubectl && curl -k -L -O https://dl.google.com/go/go1.12.1.linux-amd64.tar.gz && tar xfz go1.12.1.linux-amd64.tar.gz && rm go1.12.1.linux-amd64.tar.gz
 ENV GOROOT=$WDIR/go
 ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
 
@@ -66,40 +53,16 @@ ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
 ENV GOPATH=$WDIR/gopath
 RUN mkdir -p $GOPATH
 ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
-RUN go get github.com/dmwm/cmsauth
-RUN go get github.com/vkuznet/x509proxy
-RUN go get github.com/buger/jsonparser
-RUN go get github.com/Lusitaniae/apache_exporter
-RUN go get github.com/prometheus/client_golang/prometheus
-RUN go get github.com/prometheus/common/log
-RUN go get -d github.com/vkuznet/cmsweb-exporters
-RUN go get github.com/shirou/gopsutil
-RUN go get github.com/ryotarai/prometheus-query
-
-# make bin area in WDIR
-RUN mkdir ${WDIR}/bin
+RUN go get github.com/dmwm/cmsauth && go get github.com/vkuznet/x509proxy && go get github.com/buger/jsonparser && go get github.com/Lusitaniae/apache_exporter && go get github.com/prometheus/client_golang/prometheus && go get github.com/prometheus/common/log && go get -d github.com/vkuznet/cmsweb-exporters && go get github.com/shirou/gopsutil && go get github.com/ryotarai/prometheus-query && mkdir ${WDIR}/bin
 
 # download node exporter
 WORKDIR ${WDIR}
-RUN curl -k -L -O https://github.com/prometheus/node_exporter/releases/download/v0.15.2/node_exporter-0.15.2.linux-amd64.tar.gz
-RUN tar xfz node_exporter-0.15.2.linux-amd64.tar.gz
-RUN cp node_exporter*/node_exporter $WDIR/bin
-RUN rm -r node_exporter-0.15.2.linux-amd64/
-RUN rm -r node_exporter-0.15.2.linux-amd64.tar.gz
+RUN curl -k -L -O https://github.com/prometheus/node_exporter/releases/download/v0.15.2/node_exporter-0.15.2.linux-amd64.tar.gz && tar xfz node_exporter-0.15.2.linux-amd64.tar.gz && cp node_exporter*/node_exporter $WDIR/bin && rm -r node_exporter-0.15.2.linux-amd64/ && rm -r node_exporter-0.15.2.linux-amd64.tar.gz
 
 # build exporters
 WORKDIR $GOPATH/src/github.com/vkuznet/cmsweb-exporters
-RUN go build das2go_exporter.go
-RUN cp das2go_exporter $WDIR/bin
-RUN go build reqmgr_exporter.go
-RUN cp reqmgr_exporter $WDIR/bin
-RUN go build process_exporter.go
-RUN cp process_exporter $WDIR/bin
-RUN cp process_monitor.sh $WDIR/bin
-RUN go build wmcore_exporter.go
-RUN cp wmcore_exporter $WDIR/bin
-RUN go build cpy_exporter.go
-RUN cp cpy_exporter $WDIR/bin
+RUN go build das2go_exporter.go && cp das2go_exporter $WDIR/bin && go build reqmgr_exporter.go && cp reqmgr_exporter $WDIR/bin && go build process_exporter.go && cp process_exporter $WDIR/bin && cp process_monitor.sh $WDIR/bin && go build wmcore_exporter.go && cp wmcore_exporter $WDIR/bin && go build cpy_exporter.go && cp cpy_exporter $WDIR/bin
+
 ENV PATH="${GOPATH}/src/github.com/vkuznet/cmsweb-exporters:${GOPATH}/src/github.com/vkuznet/cmsweb-exporters/bin:${PATH}"
 
 # setup final environment
@@ -107,15 +70,9 @@ ENV PATH="${WDIR}/bin:${GOPATH}/bin:${PATH}"
 
 # build mongo exporter
 WORKDIR ${WDIR}
-RUN curl -k -L -O "https://github.com/dcu/mongodb_exporter/archive/v1.0.0.tar.gz"
-RUN tar xfz v1.0.0.tar.gz
-RUN mkdir -p $GOPATH/src/github.com/dcu/
-RUN cp -r mongodb_exporter-1.0.0 $GOPATH/src/github.com/dcu/mongodb_exporter
-RUN rm -f v1.0.0.tar.gz
+RUN curl -k -L -O "https://github.com/dcu/mongodb_exporter/archive/v1.0.0.tar.gz" && tar xfz v1.0.0.tar.gz && mkdir -p $GOPATH/src/github.com/dcu/ && cp -r mongodb_exporter-1.0.0 $GOPATH/src/github.com/dcu/mongodb_exporter && rm -f v1.0.0.tar.gz
 WORKDIR $GOPATH/src/github.com/dcu/mongodb_exporter
-RUN go get github.com/Masterminds/glide
-RUN make build
-RUN cp mongodb_exporter $WDIR/bin
+RUN go get github.com/Masterminds/glide && make build && cp mongodb_exporter $WDIR/bin
 
 WORKDIR ${WDIR}
 ADD print_hmac $WDIR/bin/print_hmac
