@@ -4,9 +4,9 @@ image:
 abacusAccountCount: 1
 abacusRseCount: 1
 #conveyorTransferSubmitterCount: 2
-conveyorTransferSubmitterCount: 1
-conveyorPollerCount: 1
-conveyorFinisherCount: 1
+conveyorTransferSubmitterCount: 3
+conveyorPollerCount: 2
+conveyorFinisherCount: 2
 hermesCount: 1
 judgeCleanerCount: 1
 judgeEvaluatorCount: 1
@@ -19,6 +19,9 @@ reaperCount: 0
 reaper2Count: 1
 minosCount: 1
 necromancerCount: 1
+
+abacusRse:
+  threads: 2
 
 reaper2:
   greedy: 1
@@ -55,6 +58,26 @@ judgeEvaluator:
       cpu: 3750m 
     requests:
       cpu: 750m 
+
+judgeCleaner:
+  threads: 2
+  resources:
+    limits:
+      cpu: 3750m 
+      memory: 4000Mi
+    requests:
+      cpu: 750m 
+      memory: 400Mi
+
+judgeInjector:
+  threads: 2
+  resources:
+    limits:
+      cpu: 3750m 
+      memory: 4000Mi
+    requests:
+      cpu: 750m 
+      memory: 400Mi
 
 judgeRepairer:
   resources:
