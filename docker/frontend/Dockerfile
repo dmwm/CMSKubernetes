@@ -1,4 +1,4 @@
-FROM cmssw/cmsweb:20200531 as web-builder
+FROM cmssw/cmsweb:20200701 as web-builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
@@ -41,7 +41,7 @@ RUN go get github.com/Lusitaniae/apache_exporter
 RUN crontab -l > /data/crontab.txt
 
 # extract relevant pieces from web-builder
-FROM cmssw/cmsweb-base:20200531
+FROM cmssw/cmsweb-base:20200701
 ENV WDIR=/data
 ENV USER=_frontend
 ADD logstash.repo /etc/yum.repos.d/logstash.repo
