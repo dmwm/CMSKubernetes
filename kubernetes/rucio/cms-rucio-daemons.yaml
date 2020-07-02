@@ -41,7 +41,7 @@ conveyorTransferSubmitter:
 ftsRenewal:
   enabled: 1
   image:
-    repository: ericvaandering/fts-cron
+    repository: rucio/fts-cron
     tag: latest
   voms: "cms:/cms/Role=production"
   servers: "https://fts3-devel.cern.ch:8446,https://cmsfts3.fnal.gov:8446,https://fts3.cern.ch:8446,https://lcgfts3.gridpp.rl.ac.uk:8446,https://fts3-pilot.cern.ch:8446"
@@ -88,7 +88,7 @@ judgeRepairer:
 
 config:
     common:
-        loglevel: "DEBUG"
+        loglevel: "INFO"
     messaging_hermes:
         port: "61323"
         brokers: "cms-mb.cern.ch"
