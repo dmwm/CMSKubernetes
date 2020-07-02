@@ -69,8 +69,8 @@ class BlockSyncer(object):
         self.block_name = block_name
         self.lifetime = lifetime
 
-        self.group, self.custodial = self.phedex_svc.block_at_pnn_phedex(block=self.block_name, pnn=self.pnn)
-        self.is_at_pnn = bool(self.group)
+        self.group, self.custodial, self.is_at_pnn = self.phedex_svc.block_at_pnn_phedex(block=self.block_name, pnn=self.pnn)
+        self.block_in_phedex = self.phedex_svc.block_exists(block=self.block_name)
 
         if self.is_at_pnn:
             self.replicas = self.phedex_svc.fileblock_files_phedex(pnn=pnn, pfb=block_name)
@@ -85,6 +85,12 @@ class BlockSyncer(object):
 
     def add_to_rucio(self, recover=False):
         """"""
+
+        logging.info('ADD exists is %s', self.block_in_phedex)
+        if not self.block_in_phedex:
+            logging.info('Declining to add %s since it is not in PhEDEx', self.block_in_phedex)
+            return
+
         with monitor.record_timer_block('cms_sync.time_add_block'):
             self.register_container()
             block_exists = self.register_block()
@@ -98,6 +104,12 @@ class BlockSyncer(object):
 
     def remove_from_rucio(self):
         """"""
+
+        logging.info('REMOVE exists is %s', self.block_in_phedex)
+        if not self.block_in_phedex:
+            logging.info('Declining to remove %s since it is not in PhEDEx', self.block_in_phedex)
+            return
+
         with monitor.record_timer_block('cms_sync.time_remove_block'):
             self.update_replicas()
             self.update_rule()
@@ -292,14 +304,19 @@ class BlockSyncer(object):
                         update_file.update({'scope': InternalScope(self.scope), "rse_id": self.rse_id, "state": "A"})
                         update_replicas_states(replicas=[update_file], add_tombstone=False)
                     except ReplicaNotFound:
+                        resurrect_file = copy.deepcopy(rucio_file)
+                        resurrect_file.update({'scope': 'cms', 'type': 'FILE'})
                         try:
-                            add_replicas(rse=self.rse, files=[rucio_file], issuer=self.account, ignore_availability=True)
+                            add_replicas(rse=self.rse, files=[resurrect_file], issuer=self.account,
+                                         ignore_availability=True)
                         except RucioException:
-                            logging.critical('Could not add %s to %s. Constraint violated?', rucio_file, self.rse)
-                            resurrect([{'scope': rucio_file['scope'], 'name': rucio_file['name']}], issuer=self.account)
-                            add_replicas(rse=self.rse, files=[rucio_file], issuer=self.account, ignore_availability=True)
-                            logging.critical('Resurrected %s at %s', rucio_file, self.rse)
-
+                            logging.critical('Could not add %s to %s. Constraint violated?', resurrect_file, self.rse)
+                            resurrect_file.update({'scope': 'cms', 'type': 'FILE'})  # Reset to Internal scope by call
+                            resurrect([resurrect_file], issuer=self.account)
+                            resurrect_file.update({'scope': 'cms', 'type': 'FILE'})  # Reset to Internal scope by call
+                            add_replicas(rse=self.rse, files=[resurrect_file], issuer=self.account,
+                                         ignore_availability=True)
+                            logging.critical('Resurrected %s at %s', resurrect_file, self.rse)
 
                 # add_replicas(rse=self.rse, files=files, issuer=self.account)
                 lfns = [item['name'] for item in list_files(scope=self.scope, name=self.block_name, long=False)]

@@ -14,9 +14,9 @@ from syncaccounts import SYNC_ACCOUNT_FMT
 
 from BlockSyncer import BlockSyncer, touch
 
-block = '/CITo2Mu_M300_CUETP8M1_Lam10TeVConLR_13TeV-pythia8/RunIISummer16NanoAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2/NANOAODSIM#451ee984-a4b7-429e-bf00-38db258bdfdd'
-site = 'T1_US_FNAL_Tape'
-pnn = 'T1_US_FNAL_MSS'
+block = '/WprimeToWhToWhadhinc_narrow_M-800_TuneCP5_13TeV-madgraph-pythia8/RunIIAutumn18NanoAODv5-Nano1June2019_102X_upgrade2018_realistic_v19-v1/NANOAODSIM#ae4ef901-537b-4747-912a-22eeda04d39f'
+site = 'T0_CERN_CH_Tape'
+pnn = 'T0_CH_CERN_MSS'
 
 logging.info('Constructing syncer for: %s at %s', block, site)
 bs = BlockSyncer(block_name=block, pnn=pnn, rse=site)

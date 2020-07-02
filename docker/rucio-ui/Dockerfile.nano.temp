@@ -7,9 +7,50 @@
 # Authors:
 # - Eric Vaandering, <ewv@fnal.gov>, 2018
 
+
+# Copyright European Organization for Nuclear Research (CERN) 2017
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+#
+# Authors:
+# - Thomas Beermann, <thomas.beermann@cern.ch>, 2019
+
+FROM centos:7
+
 ARG RUCIO_VERSION
 
-FROM rucio/rucio-ui:release-$RUCIO_VERSION
+WORKDIR /tmp
+ADD oic.rpm /tmp
+
+RUN yum install -y epel-release.noarch
+RUN yum upgrade -y
+RUN yum install -y httpd mod_wsgi python-pip libaio gcc python-devel.x86_64 mod_ssl  openssl-devel.x86_64
+
+RUN rpm -i /tmp/oic.rpm; \
+    echo "/usr/lib/oracle/12.2/client64/lib" >/etc/ld.so.conf.d/oracle.conf; \
+    ldconfig
+RUN pip install --upgrade pip
+RUN pip install --upgrade setuptools
+RUN rm -rf /usr/lib/python2.7/site-packages/ipaddress*
+RUN pip install --pre rucio[oracle,mysql,postgresql]==$RUCIO_VERSION
+RUN pip install --pre rucio_webui==$RUCIO_VERSION
+RUN pip install j2cli psycopg2-binary
+# only necessary temporarily until setup.py for webui is fixed
+RUN pip install cx_oracle==6.3.1 PyMySQL
+
+ADD rucio.cfg.j2 /tmp/
+ADD rucio.conf.j2 /tmp/
+ADD httpd.conf.j2 /tmp/
+ADD 00-mpm.conf.j2 /tmp
+ADD docker-entrypoint.sh /
+RUN rm /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/userdir.conf /etc/httpd/conf.d/ssl.conf
+
+VOLUME /var/log/httpd
+VOLUME /opt/rucio/etc
+
+EXPOSE 443
 
 RUN yum -y install http://linuxsoft.cern.ch/wlcg/centos7/x86_64/wlcg-repo-1.0.0-1.el7.noarch.rpm
 ADD http://repository.egi.eu/sw/production/cas/1/current/repo-files/EGI-trustanchors.repo /etc/yum.repos.d/egi.repo
@@ -20,6 +61,7 @@ RUN yum update  -y
 
 RUN yum -y install ca-policy-egi-core
 RUN yum -y install ca-certificates.noarch  # fetch-crl cronie psmisc
+
 
 ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/cmstfc.py  /usr/lib/python2.7/site-packages/cmstfc.py
 
@@ -40,3 +82,5 @@ ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano3/lib/rucio/a
 RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/api
 
 ENV RUCIO_CA_PATH="/etc/grid-security/certificates"
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
