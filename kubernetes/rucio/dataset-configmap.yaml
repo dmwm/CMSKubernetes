@@ -15,6 +15,9 @@ data:
         pool: 1
         chunck: 5000
         select: NANOAOD
+    T0_CH_CERN_Tape:
+        pool: 5
+        multi_das_calls: True
     T1_DE_KIT_Tape:
         pool: 5
         multi_das_calls: True
@@ -164,15 +167,6 @@ data:
         select:
           - '\S+NANOAOD\S+'
     T2_RU_JINR:
-        select:
-          - '\S+NANOAOD\S+'
-    T2_RU_PNPI:
-        select:
-          - '\S+NANOAOD\S+'
-    T2_RU_SINP:
-        select:
-          - '\S+NANOAOD\S+'
-    T2_TH_CUNSTDA:
         select:
           - '\S+NANOAOD\S+'
     T2_TR_METU:
