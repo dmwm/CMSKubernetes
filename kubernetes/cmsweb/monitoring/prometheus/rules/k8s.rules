@@ -1,0 +1,179 @@
+groups:
+- name: k8s
+  rules:
+
+  - alert: KubernetesNodeReady
+    expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+    for: 5m
+    labels:
+      severity: critical
+      tag: k8s
+      kind: cluster
+    annotations:
+      summary: "Kubernetes Node ready (instance {{ $labels.instance }})"
+      description: "Node {{ $labels.node }} has been unready for a long time\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+  - alert: KubernetesMemoryPressure
+    expr: kube_node_status_condition{condition="MemoryPressure",status="true"} == 1
+    for: 5m
+    labels:
+      severity: critical
+      tag: k8s
+      kind: cluster
+    annotations:
+      summary: "Kubernetes memory pressure (instance {{ $labels.instance }})"
+      description: "{{ $labels.node }} has MemoryPressure condition\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+  - alert: KubernetesDiskPressure
+    expr: kube_node_status_condition{condition="DiskPressure",status="true"} == 1
+    for: 5m
+    labels:
+      severity: critical
+      tag: k8s
+      kind: cluster
+    annotations:
+      summary: "Kubernetes disk pressure (instance {{ $labels.instance }})"
+      description: "{{ $labels.node }} has DiskPressure condition\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+  - alert: KubernetesOutOfDisk
+    expr: kube_node_status_condition{condition="OutOfDisk",status="true"} == 1
+    for: 5m
+    labels:
+      severity: critical
+      tag: k8s
+      kind: cluster
+    annotations:
+      summary: "Kubernetes out of disk (instance {{ $labels.instance }})"
+      description: "{{ $labels.node }} has OutOfDisk condition\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+  - alert: KubernetesJobFailed
+    expr: kube_job_status_failed > 0
+    for: 5m
+    labels:
+      severity: warning
+      tag: k8s
+      kind: cluster
+    annotations:
+      summary: "Kubernetes Job failed (instance {{ $labels.instance }})"
+      description: "Job {{$labels.namespace}}/{{$labels.exported_job}} failed to complete\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+  - alert: KubernetesCronjobSuspended
+    expr: kube_cronjob_spec_suspend != 0
+    for: 5m
+    labels:
+      severity: warning
+      tag: k8s
+      kind: cluster
+    annotations:
+      summary: "Kubernetes CronJob suspended (instance {{ $labels.instance }})"
+      description: "CronJob {{ $labels.namespace }}/{{ $labels.cronjob }} is suspended\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+  - alert: KubernetesPersistentvolumeclaimPending
+    expr: kube_persistentvolumeclaim_status_phase{phase="Pending"} == 1
+    for: 5m
+    labels:
+      severity: warning
+      tag: k8s
+      kind: cluster
+    annotations:
+      summary: "Kubernetes PersistentVolumeClaim pending (instance {{ $labels.instance }})"
+      description: "PersistentVolumeClaim {{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }} is pending\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+  - alert: KubernetesVolumeOutOfDiskSpace
+    expr: kubelet_volume_stats_available_bytes / kubelet_volume_stats_capacity_bytes * 100 < 10
+    for: 5m
+    labels:
+      severity: warning
+      tag: k8s
+      kind: cluster
+    annotations:
+      summary: "Kubernetes Volume out of disk space (instance {{ $labels.instance }})"
+      description: "Volume is almost full (< 10% left)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+  - alert: KubernetesVolumeFullInFourDays
+    expr: predict_linear(kubelet_volume_stats_available_bytes[6h], 4 * 24 * 3600) < 0
+    for: 5m
+    labels:
+      severity: critical
+      tag: k8s
+      kind: cluster
+    annotations:
+      summary: "Kubernetes Volume full in four days (instance {{ $labels.instance }})"
+      description: "{{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }} is expected to fill up within four days. Currently {{ $value | humanize }}% is available.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+  - alert: KubernetesPersistentvolumeError
+    expr: kube_persistentvolume_status_phase{phase=~"Failed|Pending",job="kube-state-metrics"} > 0
+    for: 5m
+    labels:
+      severity: critical
+      tag: k8s
+      kind: cluster
+    annotations:
+      summary: "Kubernetes PersistentVolume error (instance {{ $labels.instance }})"
+      description: "Persistent volume is in bad state\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+  - alert: KubernetesHpaScalingAbility
+    expr: kube_hpa_status_condition{condition="false", status="AbleToScale"} == 1
+    for: 5m
+    labels:
+      severity: warning
+      tag: k8s
+      kind: cluster
+    annotations:
+      summary: "Kubernetes HPA scaling ability (instance {{ $labels.instance }})"
+      description: "Pod is unable to scale\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+#  - alert: KubernetesPodNotHealthy
+#    expr: min_over_time(sum by (namespace, pod) (kube_pod_status_phase{phase=~"Pending|Unknown|Failed"})[1h:]) > 0
+#    for: 5m
+#    labels:
+#      severity: critical
+#      tag: k8s
+#      kind: cluster
+#    annotations:
+#      summary: "Kubernetes Pod not healthy (instance {{ $labels.instance }})"
+#      description: "Pod has been in a non-ready state for longer than an hour.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+  - alert: KubernetesPodCrashLooping
+    expr: rate(kube_pod_container_status_restarts_total[15m]) * 60 * 5 > 5
+    for: 5m
+    labels:
+      severity: warning
+      tag: k8s
+      kind: cluster
+    annotations:
+      summary: "Kubernetes pod crash looping (instance {{ $labels.instance }})"
+      description: "Pod {{ $labels.pod }} is crash looping\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+  - alert: KubernetesApiServerErrors
+    expr: sum(rate(apiserver_request_count{job="apiserver",code=~"^(?:5..)$"}[2m])) / sum(rate(apiserver_request_count{job="apiserver"}[2m])) * 100 > 3
+    for: 5m
+    labels:
+      severity: critical
+      tag: k8s
+      kind: cluster
+    annotations:
+      summary: "Kubernetes API server errors (instance {{ $labels.instance }})"
+      description: "Kubernetes API server is experiencing high error rate\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+  - alert: KubernetesApiClientErrors
+    expr: (sum(rate(rest_client_requests_total{code=~"(4|5).."}[2m])) by (instance, job) / sum(rate(rest_client_requests_total[2m])) by (instance, job)) * 100 > 1
+    for: 5m
+    labels:
+      severity: critical
+      tag: k8s
+      kind: cluster
+    annotations:
+      summary: "Kubernetes API client errors (instance {{ $labels.instance }})"
+      description: "Kubernetes API client is experiencing high error rate\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+  - alert: KubernetesApiServerLatency
+    expr: histogram_quantile(0.99, sum(apiserver_request_latencies_bucket{verb!~"CONNECT|WATCHLIST|WATCH|PROXY"}) WITHOUT (instance, resource)) / 1e+06 > 1
+    for: 5m
+    labels:
+      severity: warning
+      tag: k8s
+      kind: cluster
+    annotations:
+      summary: "Kubernetes API server latency (instance {{ $labels.instance }})"
+      description: "Kubernetes API server has a 99th percentile latency of {{ $value }} seconds for {{ $labels.verb }} {{ $labels.resource }}.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"

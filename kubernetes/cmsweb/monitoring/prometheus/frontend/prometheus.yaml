@@ -10,6 +10,7 @@ alerting:
 
 rule_files:
   - "/etc/prometheus/frontend.rules"
+  - "/etc/prometheus/k8s.rules"
 
 remote_write:
   - url: http://cms-monitoring.cern.ch:30428/api/v1/write
