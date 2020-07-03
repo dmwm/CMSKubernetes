@@ -121,8 +121,8 @@ check_configs()
     if [ $? -ne 0 ]; then
         echo "Fail to validate prometheus config file"
     fi
-    if [ ! -d secrets/alertmanager/alertmanager.yaml ]; then
-        echo "Please provide secrets/alertmanager/alermanager.yaml file"
+    if [ ! -f secrets/alertmanager/alertmanager.yaml ]; then
+        echo "Please provide secrets/alertmanager/alertmanager.yaml file"
         exit 1
     fi
     amtool check-config secrets/alertmanager/alertmanager.yaml
