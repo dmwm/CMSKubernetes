@@ -1,21 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: redash
+spec:
+  selector:
+    app: postgres
+  ports:
+  - port: 5432
+    targetPort: 5432
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    io.kompose.service: postgres
+    app: postgres
   name: postgres
   namespace: redash
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: postgres
+      app: postgres
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        io.kompose.service: postgres
+        app: postgres
     spec:
       containers:
       - env:
@@ -55,10 +67,11 @@ spec:
         #- mountPath: /var/lib/postgresql/data
         - mountPath: /tmp/data
           name: postgres-claim0
+        ports:
+        - containerPort: 5432
       restartPolicy: Always
       serviceAccountName: ""
       volumes:
       - name: postgres-claim0
         persistentVolumeClaim:
           claimName: postgres-claim0
-status: {}

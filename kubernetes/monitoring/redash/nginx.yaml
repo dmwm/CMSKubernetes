@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    io.kompose.service: nginx
+    app: nginx
   name: nginx
   namespace: redash
 spec:
@@ -11,7 +11,7 @@ spec:
     port: 80
     targetPort: 80
   selector:
-    io.kompose.service: nginx
+    app: nginx
 status:
   loadBalancer: {}
 ---
@@ -50,19 +50,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    io.kompose.service: nginx
+    app: nginx
   name: nginx
   namespace: redash
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: nginx
+      app: nginx
   strategy: {}
   template:
     metadata:
       labels:
-        io.kompose.service: nginx
+        app: nginx
     spec:
       containers:
       - image: redash/nginx:latest

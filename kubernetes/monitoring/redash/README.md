@@ -24,8 +24,6 @@ postgres pvc
 postgres
 redis
 server
-server service
 scheduler
 scheduled-worker
 adhoc-worker
-nginx

@@ -2,19 +2,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    io.kompose.service: adhoc-worker
+    app: adhoc-worker
   name: adhoc-worker
   namespace: redash
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: adhoc-worker
+      app: adhoc-worker
   strategy: {}
   template:
     metadata:
       labels:
-        io.kompose.service: adhoc-worker
+        app: adhoc-worker
     spec:
       containers:
       - args:

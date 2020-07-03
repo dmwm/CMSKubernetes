@@ -2,19 +2,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    io.kompose.service: scheduled-worker
+    app: scheduled-worker
   name: scheduled-worker
   namespace: redash
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: scheduled-worker
+      app: scheduled-worker
   strategy: {}
   template:
     metadata:
       labels:
-        io.kompose.service: scheduled-worker
+        app: scheduled-worker
     spec:
       containers:
       - args:
