@@ -1,5 +1,5 @@
 reaper2:
-  includeRses: "cms_type=test"
+  includeRses: "cms_type=test|rse=T3_US_NERSC"
 
 conveyorTransferSubmitter:
   threads: 5

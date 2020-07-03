@@ -48,3 +48,5 @@ tolerations: []
 affinity: {}
 
 mappings:
+
+ttl: 30m

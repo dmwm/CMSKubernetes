@@ -1,4 +1,4 @@
-FROM cmssw/cmsweb:20200531 as web-builder
+FROM cmssw/cmsweb:20200701 as web-builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
@@ -7,20 +7,12 @@ ENV USER=_frontend
 # create bashs link to bash
 # RUN ln -s /bin/bash /usr/bin/bashs
 # add new user
-RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
-# add user to sudoers file
-RUN echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN useradd ${USER} && install -o ${USER} -d ${WDIR} && echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 # switch to user
 USER ${USER}
 
 # add fake host certs since we'll manage them at run time
-RUN mkdir -p /data/certs
-RUN echo "bla" > /data/certs/hostcert.pem
-RUN echo "bla" > /data/certs/hostkey.pem
-RUN chmod 0600 /data/certs/hostkey.pem
-
-# start the setup
-RUN mkdir -p $WDIR
+RUN mkdir -p /data/certs && echo "bla" > /data/certs/hostcert.pem && echo "bla" > /data/certs/hostkey.pem && chmod 0600 /data/certs/hostkey.pem && mkdir -p $WDIR
 WORKDIR ${WDIR}
 
 # pass env variable to the build
@@ -36,19 +28,14 @@ RUN $WDIR/install.sh
 # build apache exporter
 RUN mkdir /data/gopath
 ENV GOPATH /data/gopath
-RUN go get github.com/Lusitaniae/apache_exporter
-
-RUN crontab -l > /data/crontab.txt
+RUN go get github.com/Lusitaniae/apache_exporter && crontab -l > /data/crontab.txt
 
 # extract relevant pieces from web-builder
-FROM cmssw/cmsweb-base:20200531
+FROM cmssw/cmsweb-base:20200701
 ENV WDIR=/data
 ENV USER=_frontend
 ADD logstash.repo /etc/yum.repos.d/logstash.repo
-RUN rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
-RUN yum install -y perl filebeat && yum clean all && rm -rf /var/cache/yum
-RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
-RUN echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch && yum install -y perl filebeat && yum clean all && rm -rf /var/cache/yum && useradd ${USER} && install -o ${USER} -d ${WDIR} && echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 USER ${USER}
 COPY --chown=_frontend:_frontend --from=web-builder /data /data
 RUN crontab /data/crontab.txt

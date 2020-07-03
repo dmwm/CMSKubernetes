@@ -221,16 +221,20 @@ class SiteSyncer(object):
             if site not in ['default', 'main']:
                 if site_config.get('multi_das_calls', False):
                     for prefix in list(string.letters + string.digits):
-                        if 'FNAL' in site and prefix == 'S':
+                        if ('T0' in site or 'FNAL' in site) and prefix == 'S':
                             for fnal_prefix in ('Sc', 'Se', 'Si', 'Sp', 'St', 'SI', 'SM', 'ST', 'SU', 'SV'):
                                 to_sync.append((site, fnal_prefix))
                         elif 'FNAL' in site and prefix == 'M':
-                                    for fnal_prefix in ('Ma', 'MC', 'ME', 'Mi', 'Mo', 'MS', 'Mu'):
-                                        to_sync.append((site, fnal_prefix))
+                            for fnal_prefix in ('Ma', 'MC', 'ME', 'Mi', 'Mo', 'MS', 'Mu'):
+                                to_sync.append((site, fnal_prefix))
+                        elif ('T0' in site or 'FNAL' in site) and prefix == 'T':
+                            for fnal_prefix in ('T1', 'T4', 'T5', 'TH', 'TK', 'TO', 'TA', 'TB', 'TC', 'TG', 'TZ', 'T_',
+                                                'TT', 'TW', 'Tk', 'To', 'Ta', 'Tb', 'Te', 'Tp', 'Tr', 'Ts', 'Tt', 'Tw'):
+                                to_sync.append((site, fnal_prefix))
                         else:
                             to_sync.append((site, prefix))
-                else:
-                    to_sync.append((site, None))
+            else:
+                to_sync.append((site, None))
 
         # Cut the list (keep in order but choose a random starting point)
         offset = random.randrange(len(to_sync))
