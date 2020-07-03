@@ -46,10 +46,16 @@ openstack server set --property landb-alias=cmsmon-redash--load-0- redash-k7q7uu
 kubectl create ns auth
 kubectl create ns redash
 
+# create a link to secrets area which we can download from gitlab cms
+# monitoring area
+
 # create auth-secrets in auth namespace
 kubectl create secret generic auth-secrets --from-file=secrets/redash-auth/config.json --from-file=secrets/redash-auth/hmac --from-file=secrets/redash-auth/tls.crt --from-file=secrets/redash-auth/tls.key --dry-run=client -o yaml | kubectl apply --namespace=auth -f -
 
 # create redash secrets in redash namesapce
+# The secret file contains POSTGRES_PASSWORD, REDASH_COOKIE_SECRET,
+# REDASH_DATABASE_URL and REDASH_SECRET_KEY key-value pairs
+# Please refer to redash setup to understand their values.
 kubectl apply -f secrets/redash/redash-secrets.yaml
 
 # deploy storage
@@ -62,7 +68,9 @@ kubectl apply -f server.yaml
 kubectl apply -f scheduler.yaml
 kubectl apply -f worker.yaml
 
-# deploy auth proxy service
+# configure and deploy auth proxy service
+# it relias on auth-secrets in auth namespace. The auth-secrets
+# contains config.json, tls.crt, tls.key and hmac files for auth proxy server.
 kubectl apply -f auth-proxy-server.yaml
 
 # add ingress
