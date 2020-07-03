@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress
+  namespace: auth
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  rules:
+  - host: cmsmon-redash.cern.ch
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: auth-proxy-server
+          servicePort: 443
+  tls:
+  - hosts:
+    - cmsmon-redash.cern.ch
+  secretName: auth-secrets
