@@ -34,8 +34,6 @@ spec:
         app: server
     spec:
       containers:
-#       - command: ["/bin/sh"]
-#         args: ["/app/manage.py database create_tables ; server", 
       - args:
         - server
         env:
@@ -70,6 +68,15 @@ spec:
         image: redash/redash:8.0.0.b32245
         imagePullPolicy: ""
         name: server
+        tty: true
+        stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - bash
+              - -c
+              - /app/manage.py database create_tables
         ports:
         - containerPort: 5000
         resources: {}
