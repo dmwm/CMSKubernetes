@@ -1,10 +1,21 @@
+### Introduction
+[Redash](http://redash.io) is a middleware which allows to
+connect and query your data sources, build
+dashboards to visualize data and share them with anyone.
+
+This repository contains all relevant redash k8s manifest files
+which we obtained using their docker compose deployment procedure.
+
 ### Preparation step
-The redash deployment is based on docker compose.
-We can either use [docker compose](https://kubernetes.io/docs/tasks/configure-pod-container/translate-compose-kubernetes/) file into k8s manifest files
-or use [docker stack deploy](https://www.docker.com/blog/simplifying-kubernetes-with-docker-compose-and-friends/)
+The redash deployment is based on docker compose, please see their
+[setup repository](https://github.com/getredash/setup).
+In k8s we can either use
+[translate compose to k8s procedure](https://kubernetes.io/docs/tasks/configure-pod-container/translate-compose-kubernetes/)
+or use
+[docker stack deploy](https://www.docker.com/blog/simplifying-kubernetes-with-docker-compose-and-friends/)
 
 The generated k8s yaml files may contain passwords, etc. Therefore, we need
-to crate a new secret yaml file and replace our sensitive info in all
+to create a new secret yaml file and replace our sensitive info in all
 k8s yaml files to use them from secret file, see the following
 [document](https://www.digitalocean.com/community/tutorials/how-to-migrate-a-docker-compose-workflow-to-kubernetes)
 So, basically we need to replace sensitive value with
