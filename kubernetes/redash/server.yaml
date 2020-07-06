@@ -37,6 +37,8 @@ spec:
       - args:
         - server
         env:
+        - name: REQUESTS_CA_BUNDLE
+          value: "/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt"
         - name: PYTHONUNBUFFERED
           value: "0"
         - name: REDASH_LOG_LEVEL
@@ -65,7 +67,8 @@ spec:
             secretKeyRef:
               name: redash-secret
               key: REDASH_SECRET_KEY
-        image: redash/redash:8.0.0.b32245
+        image: veknet/redash
+#         image: redash/redash:8.0.0.b32245
         imagePullPolicy: ""
         name: server
         tty: true
