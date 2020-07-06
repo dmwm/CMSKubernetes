@@ -7,11 +7,11 @@ spec:
     app: tfaas
   ports:
     - port: 8083
-      nodePort: 30883
-  type: NodePort
+      targetPort: 8083
+      name: tfaas
 ---
+apiVersion: apps/v1
 kind: Deployment
-apiVersion: extensions/v1beta1
 metadata:
   labels:
     app: tfaas
@@ -27,8 +27,17 @@ spec:
         app: tfaas
     spec:
       containers:
-      - image: veknet/tfaas
+      - image: cmssw/tfaas
         name: tfaas
         ports:
         - containerPort: 8083
           protocol: TCP
+          name: tfaas
+        volumeMounts:
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+      volumes:
+      - name: secrets
+        secret:
+          secretName: tfaas-secrets
