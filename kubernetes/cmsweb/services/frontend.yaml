@@ -53,11 +53,11 @@ spec:
         name: frontend
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "300m"
+            memory: "1Gi"
+            cpu: "500m"
           limits:
             memory: "3Gi"
-            cpu: "1000m"
+            cpu: "1500m"
         ports:
         - containerPort: 80
           protocol: TCP
