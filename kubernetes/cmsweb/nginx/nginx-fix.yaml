@@ -1,0 +1,99 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: change-nofile
+  namespace: kube-system
+  labels:
+    k8s-app: change-nofile
+data:
+  script.sh: |
+    #!/bin/bash
+
+    set -x
+
+    sed -i 's/--default-ulimit.*/--default-ulimit nofile=1048576:1048576 \\/' /etc/sysconfig/docker
+    systemctl daemon-reload
+    systemctl restart docker
+    while true ; do
+        #run
+        #echo "--default-ulimit in /etc/sysconfig/docker"
+        grep "default-ulimit" /etc/sysconfig/docker
+        #echo "sleeping 60s ..."
+        sleep 60s
+    done
+
+    # end
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    k8s-app: change-nofile
+  name: change-nofile
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      k8s-app: change-nofile
+  template:
+    metadata:
+      labels:
+        k8s-app: change-nofile
+    spec:
+      nodeSelector:
+        role: "ingress"
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - effect: NoExecute
+        operator: Exists
+      hostPID: true
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      securityContext:
+        seLinuxOptions:
+          type: "spc_t"
+        runAsUser: 0
+        fsGroup: 0
+      volumes:
+      - name: host-etc
+        hostPath:
+          path: /etc
+      - name: host-run
+        hostPath:
+          path: /run
+      - name: host-var
+        hostPath:
+          path: /var
+      - name: change-nofile
+        configMap:
+          name: change-nofile
+      containers:
+      - name: change-nofile
+        image: gitlab-registry.cern.ch/strigazi/debug:v0.0.4
+        #image: registry.fedoraproject.org/fedora:32
+        securityContext:
+          privileged: true
+          runAsUser: 0
+          runAsGroup: 0
+          allowPrivilegeEscalation: true
+          capabilities:
+            add: ["SYS_ADMIN"]
+        env:
+        - name: "SYSTEMD_IGNORE_CHROOT"
+          value: "1"
+        command:
+        - /bin/bash
+        - /opt/cci/script.sh
+        volumeMounts:
+        - name: host-etc
+          mountPath: /etc
+        - name: host-run
+          mountPath: /run
+        - name: host-var
+          mountPath: /var
+        - name: change-nofile
+          mountPath: /opt/cci
