@@ -462,14 +462,26 @@ deploy_monitoring()
     local mon=""
     if [ "$deployment" == "services" ]; then
         mon="services"
-#        kubectl -n monitoring apply -f monitoring/prometheus-services.yaml
     elif [ "$deployment" == "frontend" ]; then
         mon="frontend"
-#        kubectl -n monitoring apply -f monitoring/prometheus-frontend.yaml
     fi
     local files=""
     if [ -d monitoring ] && [ -n "`ls monitoring/prometheus/$mon`" ]; then
-        for fname in monitoring/prometheus/$mon/* monitoring/prometheus/rules/*; do
+        # change "k8s" env label in prometheus.yaml files based on our cmsweb environment
+        if [ -f monitoring/prometheus/$mon/prometheus.yaml ]; then
+            if [ "$CMSWEB_ENV" == "production" ] || [ "$CMSWEB_ENV" == "prod" ]; then
+                cat monitoring/prometheus/$mon/prometheus.yaml | sed -e 's,"k8s","k8s-prod",g' > /tmp/prometheus.yaml
+            fi
+            if [ "$CMSWEB_ENV" == "preproduction" ] || [ "$CMSWEB_ENV" == "preprod" ]; then
+                cat monitoring/prometheus/$mon/prometheus.yaml | sed -e 's,"k8s","k8s-preprod",g' > /tmp/prometheus.yaml
+            fi
+        fi
+        if [ -f /tmp/prometheus.yaml ]; then
+            files="$files --from-file=/tmp/prometheus.yaml"
+        else
+            files="$files --from-file=/monitoring/prometheus/$mon/prometheus.yaml"
+        fi
+        for fname in monitoring/prometheus/rules/*; do
             files="$files --from-file=$fname"
         done
     fi
