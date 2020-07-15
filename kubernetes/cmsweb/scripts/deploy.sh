@@ -525,11 +525,20 @@ deploy_ingress()
     mkdir -p $tmpDir
     for ing in $cmsweb_ing; do
         cp ingress/${ing}.yaml $tmpDir
-	cat ingress/${ing}.yaml | \
-    	awk '{if($1=="nginx.ingress.kubernetes.io/whitelist-source-range:") {print "    nginx.ingress.kubernetes.io/whitelist-source-range: "ips""} else print $0}' ips=$ips | \
-    	awk '{if($2=="host:") {print "  - host : "hostname""} else print $0}' hostname=$cmsweb_hostname | \
-        awk '{if($2=="cmsweb-test.cern.ch") {print "    - "hostname""} else print $0}' hostname=$cmsweb_hostname \
-    	> $tmpDir/${ing}.yaml
+        if [[ "$CMSWEB_ENV" == "production" || "$CMSWEB_ENV" == "prod" ]] && [[ "$ing" == "ing-dbs"  ]] ; then
+		cat ingress/${ing}.yaml | \
+    		awk '{if($1=="nginx.ingress.kubernetes.io/whitelist-source-range:") {print "    nginx.ingress.kubernetes.io/whitelist-source-range: "ips""} else print $0}' ips=$ips | \
+    		awk '{if($2=="host:") {print "  - host : "hostname""} else print $0}' hostname=$cmsweb_hostname | \
+        	awk '{if($2=="cmsweb-test.cern.ch") {print "    - "hostname""} else print $0}' hostname=$cmsweb_hostname | \
+        	sed -e "s,dbs/int,dbs/prod,g"  \
+    		> $tmpDir/${ing}.yaml
+        else
+                cat ingress/${ing}.yaml | \
+                awk '{if($1=="nginx.ingress.kubernetes.io/whitelist-source-range:") {print "    nginx.ingress.kubernetes.io/whitelist-source-range: "ips""} else print $0}' ips=$ips | \
+                awk '{if($2=="host:") {print "  - host : "hostname""} else print $0}' hostname=$cmsweb_hostname | \
+                awk '{if($2=="cmsweb-test.cern.ch") {print "    - "hostname""} else print $0}' hostname=$cmsweb_hostname \
+                > $tmpDir/${ing}.yaml
+        fi
 	echo "deploy ingress: $tmpDir/${ing}.yaml"
         cat $tmpDir/${ing}.yaml
         kubectl apply -f $tmpDir/${ing}.yaml
