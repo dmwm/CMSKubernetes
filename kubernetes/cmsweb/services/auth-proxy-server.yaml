@@ -7,9 +7,9 @@ spec:
   type: ClusterIP
   ports:
   - port: 443
-    targetPort: 8181
+    targetPort: 8443
     protocol: TCP
-    name: http
+    name: https
   selector:
     app: auth-proxy-server
 ---
@@ -24,15 +24,16 @@ spec:
   selector:
     matchLabels:
       app: auth-proxy-server
-  replicas: 1
+  replicas: 1 #PROD# 4
   template:
     metadata:
       labels:
         app: auth-proxy-server
     spec:
       containers:
-      - image: cmssw/auth-proxy-server:20200602
+      - image: cmssw/auth-proxy-server:20200714-x509
         name: auth-proxy-server
+        imagePullPolicy: Always
         args:
           - /data/auth-proxy-server
           - -config=/etc/secrets/config.json
@@ -45,6 +46,7 @@ spec:
             cpu: "1000m"
         ports:
         - containerPort: 8181
+          name: https
         volumeMounts:
         - name: auth-secrets
           mountPath: /etc/secrets
