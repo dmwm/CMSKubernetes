@@ -46,6 +46,8 @@ spec:
     metadata:
       labels:
         app: crabserver
+      annotations:
+        prometheus.io/scrape: 'true'
     spec:
       securityContext:
         runAsUser: 0

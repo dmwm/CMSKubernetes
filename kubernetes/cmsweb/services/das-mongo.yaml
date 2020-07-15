@@ -30,6 +30,8 @@ spec:
     metadata:
       labels:
         app: das-mongo
+      annotations:
+        prometheus.io/scrape: 'true'
     spec:
       securityContext:
         runAsUser: 0

@@ -30,6 +30,8 @@ spec:
     metadata:
       labels:
         app: alertscollector
+      annotations:
+        prometheus.io/scrape: 'true'
     spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet

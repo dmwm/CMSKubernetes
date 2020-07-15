@@ -47,6 +47,8 @@ spec:
     metadata:
       labels:
         app: frontend
+      annotations:
+        prometheus.io/scrape: 'true'
     spec:
       containers:
       - image: cmssw/frontend #imagetag

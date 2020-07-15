@@ -46,6 +46,8 @@ spec:
     metadata:
       labels:
         app: reqmgr2
+      annotations:
+        prometheus.io/scrape: 'true'
     spec:
       # use hostNetwork to allow communication between reqmgr2/reqmon/workqueue and couch
 #       hostNetwork: true

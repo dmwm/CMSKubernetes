@@ -46,6 +46,8 @@ spec:
     metadata:
       labels:
         app: couchdb
+      annotations:
+        prometheus.io/scrape: 'true'
     spec:
       securityContext:
         runAsUser: 0

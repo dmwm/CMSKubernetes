@@ -48,6 +48,8 @@ spec:
     metadata:
       labels:
         app: dbs-global-w
+      annotations:
+        prometheus.io/scrape: 'true'
     spec:
       securityContext:
         runAsUser: 0

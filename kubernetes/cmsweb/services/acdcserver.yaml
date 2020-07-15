@@ -46,6 +46,8 @@ spec:
     metadata:
       labels:
         app: acdcserver
+      annotations:
+        prometheus.io/scrape: 'true'
     spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet

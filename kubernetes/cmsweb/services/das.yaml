@@ -50,6 +50,8 @@ spec:
     metadata:
       labels:
         app: das
+      annotations:
+        prometheus.io/scrape: 'true'
     spec:
       securityContext:
         runAsUser: 0

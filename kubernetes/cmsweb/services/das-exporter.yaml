@@ -27,6 +27,8 @@ spec:
     metadata:
       labels:
         app: das-exporter
+      annotations:
+        prometheus.io/scrape: 'true'
     spec:
       containers:
       - image: cmssw/exporters #imagetag

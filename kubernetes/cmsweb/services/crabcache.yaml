@@ -45,6 +45,8 @@ spec:
     metadata:
       labels:
         app: crabcache
+      annotations:
+        prometheus.io/scrape: 'true'
     spec:
 #       nodeSelector:
 #           storage: crabcache

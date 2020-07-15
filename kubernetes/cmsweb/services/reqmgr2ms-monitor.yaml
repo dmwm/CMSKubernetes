@@ -45,6 +45,8 @@ spec:
     metadata:
       labels:
         app: ms-monitor
+      annotations:
+        prometheus.io/scrape: 'true'
     spec:
       # use hostNetwork to allow communication between reqmgr2ms/reqmon/workqueue and couch
 #       hostNetwork: true

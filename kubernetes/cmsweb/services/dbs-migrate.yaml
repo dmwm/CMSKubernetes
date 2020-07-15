@@ -48,6 +48,8 @@ spec:
     metadata:
       labels:
         app: dbs-migrate
+      annotations:
+        prometheus.io/scrape: 'true'
     spec:
       securityContext:
         runAsUser: 0

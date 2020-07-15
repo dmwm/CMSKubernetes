@@ -29,6 +29,8 @@ spec:
     metadata:
       labels:
         app: reqmgr2-tasks
+      annotations:
+        prometheus.io/scrape: 'true'
     spec:
       securityContext:
         runAsUser: 0

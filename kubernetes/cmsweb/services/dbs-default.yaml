@@ -33,6 +33,8 @@ spec:
     metadata:
       labels:
         app: dbs-default
+      annotations:
+        prometheus.io/scrape: 'true'
     spec:
       containers:
       - image: cmssw/dbs #imagetag

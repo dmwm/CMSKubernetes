@@ -28,6 +28,8 @@ spec:
     metadata:
       labels:
         app: exitcodes
+      annotations:
+        prometheus.io/scrape: 'true'
     spec:
       containers:
       - image: cmssw/exitcodes #imagetag

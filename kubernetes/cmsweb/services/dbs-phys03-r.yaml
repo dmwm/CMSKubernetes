@@ -49,6 +49,8 @@ spec:
     metadata:
       labels:
         app: dbs-phys03-r
+      annotations:
+        prometheus.io/scrape: 'true'
     spec:
       securityContext:
         runAsUser: 0

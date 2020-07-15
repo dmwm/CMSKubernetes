@@ -29,6 +29,8 @@ spec:
     metadata:
       labels:
         app: x509-proxy-server
+      annotations:
+        prometheus.io/scrape: 'true'
     spec:
       containers:
       - image: cmssw/auth-proxy-server:20200714-x509

@@ -26,6 +26,8 @@ spec:
     metadata:
       labels:
         app: tfaas
+      annotations:
+        prometheus.io/scrape: 'true'
     spec:
 #       hostNetwork: true
       containers:
