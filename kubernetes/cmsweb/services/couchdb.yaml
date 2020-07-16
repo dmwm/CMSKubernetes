@@ -68,11 +68,11 @@ spec:
               - sudo chmod 0777 /data/srv/state/couchdb/database; sudo chown _couchdb:_couchdb /data/srv/state/couchdb/database
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "500m"
+            memory: "512Mi"
+            cpu: "1000m"
           limits:
             memory: "3Gi"
-            cpu: "2000m"
+            cpu: "4000m"
         ports:
         - containerPort: 5984
           protocol: TCP
