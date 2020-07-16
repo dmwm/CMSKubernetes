@@ -49,6 +49,7 @@ spec:
     metadata:
       labels:
         app: dbs-phys03-w
+        env: k8s #k8s#
       annotations:
         prometheus.io/scrape: 'true'
     spec:

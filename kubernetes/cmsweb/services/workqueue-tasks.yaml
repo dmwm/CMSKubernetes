@@ -29,6 +29,7 @@ spec:
     metadata:
       labels:
         app: workqueue-tasks
+        env: k8s #k8s#
       annotations:
         prometheus.io/scrape: 'true'
     spec:

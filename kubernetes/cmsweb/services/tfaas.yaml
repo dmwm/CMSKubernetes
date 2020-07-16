@@ -26,6 +26,7 @@ spec:
     metadata:
       labels:
         app: tfaas
+        env: k8s #k8s#
       annotations:
         prometheus.io/scrape: 'true'
     spec:

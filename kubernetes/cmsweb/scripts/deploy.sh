@@ -31,6 +31,7 @@ cmsweb_hostname=${CMSWEB_HOSTNAME:-cmsweb-srv.cern.ch}
 cmsweb_hostname_frontend=${CMSWEB_HOSTNAME_FRONTEND:-cmsweb-test.cern.ch}
 cmsweb_image_tag=${CMSWEB_IMAGE_TAG:-:latest}
 
+env_prefix="k8s"
 prod_prefix="#PROD#"
 # we define logs_prefix as empty for all use-cases
 logs_prefix=""
@@ -38,10 +39,12 @@ logs_prefix=""
 if [ "$CMSWEB_ENV" == "production" ] || [ "$CMSWEB_ENV" == "prod" ]; then
     prod_prefix="      " # will replace '#PROD#' prefix
     logs_prefix="-prod" # will append this prefix to logs-cephfs-claim
+    env_prefix="k8s-prod" # will replace k8s #k8s# part
 fi
 if [ "$CMSWEB_ENV" == "preproduction" ] || [ "$CMSWEB_ENV" == "preprod" ]; then
     prod_prefix="      " # will replace '#PROD#' prefix
     logs_prefix="-preprod" # will append this prefix to logs-cephfs-claim
+    env_prefix="k8s-preprod" # will replace k8s #k8s# part
 fi
 sdir=services
 mdir=monitoring
@@ -70,6 +73,7 @@ if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == 
 fi
 echo "+++ cmsweb environment: $CMSWEB_ENV"
 echo "+++ cmsweb yaml prefix: '$prod_prefix'"
+echo "+++ cmsweb env prefix : '$env_prefix'"
 echo "+++ cmsweb_image_tag=  $cmsweb_image_tag"
 
 action=$1
@@ -582,10 +586,11 @@ deploy_services()
                     #kubectl apply -f "$sdir/${srv}-${inst}.yaml"
 	                if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]] ; then
                 	    cat $sdir/${srv}-${inst}.yaml | \
-                        	sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
-                        	sed -e "s,#PROD#,$prod_prefix,g" | \
-                        	sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
-				sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
+                            sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
+                            sed -e "s,#PROD#,$prod_prefix,g" | \
+                            sed -e "s,k8s #k8s#,$env_prefix,g" | \
+                            sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
+                            sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
                         	kubectl apply -f -
 			else
 	                        kubectl apply -f $sdir/${srv}-${inst}.yaml
@@ -597,11 +602,12 @@ deploy_services()
                 #kubectl apply -f $sdir/${srv}.yaml 
                 if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]] ; then
 			cat $sdir/${srv}.yaml | \
-        	            sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
-                	    sed -e "s,replicas: 2 #PROD#,replicas: ,g" | \
-	                    sed -e "s,#PROD#,$prod_prefix,g" | \
-	                    sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
-                            sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
+                        sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
+                        sed -e "s,replicas: 2 #PROD#,replicas: ,g" | \
+                        sed -e "s,#PROD#,$prod_prefix,g" | \
+                        sed -e "s,k8s #k8s#,$env_prefix,g" | \
+                        sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
+                        sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
         	            kubectl apply -f -
 		else
 			kubectl apply -f $sdir/${srv}.yaml

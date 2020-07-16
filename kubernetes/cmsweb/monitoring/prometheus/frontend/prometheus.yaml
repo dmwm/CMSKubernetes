@@ -24,11 +24,11 @@ scrape_configs:
         - targets: ["kube-eagle.default.svc.cluster.local:8080"]
 #           labels:
 #             env: "k8s"
-  - job_name: "frontend-service"
-    static_configs:
-        - targets: ["frontend.default.svc.cluster.local:18443"]
-          labels:
-            env: "k8s"
+#   - job_name: "frontend-service"
+#     static_configs:
+#         - targets: ["frontend.default.svc.cluster.local:18443"]
+#           labels:
+#             env: "k8s"
 
   - job_name: "kubernetes-apiservers"
 

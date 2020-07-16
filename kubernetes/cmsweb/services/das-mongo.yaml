@@ -30,6 +30,7 @@ spec:
     metadata:
       labels:
         app: das-mongo
+        env: k8s #k8s#
       annotations:
         prometheus.io/scrape: 'true'
     spec:

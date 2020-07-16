@@ -45,6 +45,7 @@ spec:
     metadata:
       labels:
         app: ms-monitor
+        env: k8s #k8s#
       annotations:
         prometheus.io/scrape: 'true'
     spec:
