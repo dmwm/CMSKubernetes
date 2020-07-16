@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG2007j
+VER=HG2008a
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend dbs"
