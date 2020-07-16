@@ -46,7 +46,7 @@ spec:
             cpu: "300m"
           limits:
             memory: "3Gi"
-            cpu: "1000m"
+            cpu: "8000m"
         ports:
         - containerPort: 8181
           name: https
