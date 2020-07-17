@@ -56,9 +56,10 @@ spec:
           protocol: TCP
           name: das-mon
         command:
-        - /data/das2go
-        - -config
-        - /etc/secrets/dasconfig.json
+        - /data/run.sh
+#         - /data/das2go
+#         - -config
+#         - /etc/secrets/dasconfig.json
         volumeMounts:
         - name: proxy-secrets
           mountPath: /etc/proxy
