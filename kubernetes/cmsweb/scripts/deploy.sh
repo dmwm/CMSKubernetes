@@ -492,7 +492,11 @@ deploy_monitoring()
     kubectl create secret generic prometheus-secrets \
         $files --dry-run=client -o yaml | \
         kubectl apply --namespace=monitoring -f -
+    # add config map for prometheus adapter
+    kubectl create configmap prometheus-adapter-configmap \
+        --from-file=monitoring/prometheus/adapter/prometheus_adapter.yml -n monitoring
     kubectl -n monitoring apply -f monitoring/prometheus.yaml
+    kubectl -n monitoring apply -f monitoring/prometheus-adapter.yaml
     kubectl -n monitoring get deployments
     kubectl -n monitoring get pods
     prom=`kubectl -n monitoring get pods | grep prom | awk '{print $1}'`
