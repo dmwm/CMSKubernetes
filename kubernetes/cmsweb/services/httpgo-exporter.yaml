@@ -9,6 +9,8 @@ spec:
   - port: 8888 # the port here is matching port used in cmssw/httpgo cotainer
     protocol: TCP
     name: http
+    nodePort: 30200
+  type: NodePort
   selector:
     app: httpgo-exporter
 ---
