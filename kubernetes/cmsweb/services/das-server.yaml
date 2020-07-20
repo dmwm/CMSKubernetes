@@ -68,6 +68,8 @@ spec:
         - name: secrets
           mountPath: /etc/secrets
           readOnly: true
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/logs
       initContainers:
       - name: checkcouchdb
         image: busybox:1.28
@@ -79,3 +81,6 @@ spec:
       - name: secrets
         secret:
           secretName: das-server-secrets
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim-das
