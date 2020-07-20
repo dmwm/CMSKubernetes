@@ -52,6 +52,8 @@ spec:
         env: k8s #k8s#
       annotations:
         prometheus.io/scrape: 'true'
+        prometheus.io/port: "18252"
+        prometheus.io/port: "19252"
     spec:
       securityContext:
         runAsUser: 0
