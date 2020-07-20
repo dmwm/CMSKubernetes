@@ -15,11 +15,14 @@ spec:
   - type: Object
     object:
       metric:
-        name: myapphttp_process_open_fds # name of prometheus metrics to use for hpa
+#         name: myapphttp_process_open_fds # name of prometheus metrics to use for hpa
+#         name: myapphttp_process_cpu_seconds_total
+#         name: myapphttp_established_connections
+        name: myapphttp_load1
       describedObject:
         apiVersion: batch/v1
         kind: Job
         name: httpgo-exporter
       target:
         type: Value
-        value: 200
+        value: 0.25
