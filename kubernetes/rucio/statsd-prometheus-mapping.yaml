@@ -44,14 +44,14 @@ mappings:
     name: "rucio_judge_expected_number_of_files"
     labels:
       dst_rse: "$1"   
-  - match: "rucio.not_OK_rules.*"
+  - match: "rucio.rules.not_OK_per_rse.*"
     help: "Rucio stuck rules per rse"
-    name: "rucio_not_OK_rules"
+    name: "rucio_rules_not_OK_per_rse"
     labels:
       dst_rse: "$1"
-  - match: "rucio.replicating_rules.*"
+  - match: "rucio.rules.replicating_rules_per_rse.*"
     help: "Rucio replicating rules per rse"
-    name: "rucio_replicating_rules"
+    name: "rucio_rules_replicating_rules_per_rse"
     labels:
       dst_rse: "$1" 
   - match: "rucio.judge.rules_with_0_completion_volume.*"
@@ -100,4 +100,14 @@ mappings:
     help: "Rucio number of replicating files"
     name: "rucio_judge_number_of_replicating_files"
     labels:
-      dst_rse: "$1"            
+      dst_rse: "$1" 
+  - match: "rucio.judge.datasets_with_locked_rules.*"
+    help: "Rucio datasets with locked rules"
+    name: "rucio_judge_datasets_with_locked_rules"
+    labels:
+      dst_rse: "$1"       
+  - match: "rucio.judge.locked_expired_rules.*"
+    help: "Rucio datasets with locked expired rules"
+    name: "rucio_judge_locked_expired_rules"
+    labels:
+      dst_rse: "$1"             
