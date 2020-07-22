@@ -1,0 +1,215 @@
+# This manifest is used to deploy Prometheus Adapter.
+# Its configuration is provided through a ConfigMap.
+# This manifest defines: ServiceAccount, ClusterRole, ClusterRoleBinding, RoleBinding, Service, Deployment and APIService
+
+# create ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: prometheus-adapter
+    chart: prometheus-adapter-2.3.1
+  name: prometheus-adapter
+  namespace: monitoring
+---
+
+# create ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app: prometheus-adapter
+    chart: prometheus-adapter-2.3.1
+  name: prometheus-adapter-server-resources
+rules:
+- apiGroups:
+  - custom.metrics.k8s.io
+  resources: ["*"]
+  verbs: ["*"]
+---
+# create ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app: prometheus-adapter
+    chart: prometheus-adapter-2.3.1
+  name: prometheus-adapter-resource-reader
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  - pods
+  - services
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+---
+# create ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: prometheus-adapter
+    chart: prometheus-adapter-2.3.1
+  name: prometheus-adapter:system:auth-delegator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+- kind: ServiceAccount
+  name: prometheus-adapter
+  namespace: monitoring
+---
+
+# create ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: prometheus-adapter
+    chart: prometheus-adapter-2.3.1
+  name: prometheus-adapter-resource-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus-adapter-resource-reader
+subjects:
+- kind: ServiceAccount
+  name: prometheus-adapter
+  namespace: monitoring
+---
+
+#create ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: prometheus-adapter
+    chart: prometheus-adapter-2.3.1
+  name: prometheus-adapter-hpa-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus-adapter-server-resources
+subjects:
+- kind: ServiceAccount
+  name: prometheus-adapter
+  namespace: monitoring
+---
+
+# create RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app: prometheus-adapter
+    chart: prometheus-adapter-2.3.1
+  name: prometheus-adapter-auth-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: extension-apiserver-authentication-reader
+subjects:
+- kind: ServiceAccount
+  name: prometheus-adapter
+  namespace: monitoring
+---
+
+# create Service
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    {}
+  labels:
+    app: prometheus-adapter
+    chart: prometheus-adapter-2.3.1
+  name: prometheus-adapter
+  namespace: monitoring
+spec:
+  ports:
+  - port: 443
+    protocol: TCP
+    targetPort: 6443
+    nodePort: 30007 
+    #targetPort: https
+  selector:
+    app: prometheus-adapter
+  type: NodePort
+
+---
+
+# create Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: prometheus-adapter
+    chart: prometheus-adapter-2.3.1
+  name: prometheus-adapter
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-adapter
+  template:
+    metadata:
+      labels:
+        app: prometheus-adapter
+        chart: prometheus-adapter-2.3.1
+      name: prometheus-adapter
+    spec:
+      serviceAccountName: prometheus-adapter
+      containers:
+      - name: prometheus-adapter
+        image: "directxman12/k8s-prometheus-adapter-amd64:v0.6.0"
+        imagePullPolicy: IfNotPresent
+        args:
+        - /adapter
+        - --secure-port=6443
+        - --cert-dir=/tmp/cert
+        - --logtostderr=true
+        - --prometheus-url=http://prometheus-service.monitoring.svc:8080/
+        - --metrics-relist-interval=1m
+        - --v=6
+        - --config=/etc/adapter/prometheus_adapter.yml
+        ports:
+        - containerPort: 6443
+          name: https
+        volumeMounts:
+        - mountPath: /etc/adapter/
+          name: config-volume
+          readOnly: true
+        - mountPath: /tmp
+          name: tmp
+      volumes:
+      - name: config-volume
+        configMap:
+          name: prometheus-adapter-configmap
+      - name: tmp
+        emptyDir: {}
+---
+
+# create ApiService
+apiVersion: apiregistration.k8s.io/v1beta1
+kind: APIService
+metadata:
+  labels:
+    app: prometheus-adapter
+    chart: prometheus-adapter-2.3.1
+  name: v1beta1.custom.metrics.k8s.io
+spec:
+  service:
+    name: prometheus-adapter
+    namespace: monitoring
+  group: custom.metrics.k8s.io
+  version: v1beta1
+  insecureSkipTLSVerify: true
+  groupPriorityMinimum: 100
+  versionPriority: 100

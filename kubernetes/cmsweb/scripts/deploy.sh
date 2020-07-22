@@ -31,6 +31,7 @@ cmsweb_hostname=${CMSWEB_HOSTNAME:-cmsweb-srv.cern.ch}
 cmsweb_hostname_frontend=${CMSWEB_HOSTNAME_FRONTEND:-cmsweb-test.cern.ch}
 cmsweb_image_tag=${CMSWEB_IMAGE_TAG:-:latest}
 
+env_prefix="k8s"
 prod_prefix="#PROD#"
 # we define logs_prefix as empty for all use-cases
 logs_prefix=""
@@ -38,10 +39,12 @@ logs_prefix=""
 if [ "$CMSWEB_ENV" == "production" ] || [ "$CMSWEB_ENV" == "prod" ]; then
     prod_prefix="      " # will replace '#PROD#' prefix
     logs_prefix="-prod" # will append this prefix to logs-cephfs-claim
+    env_prefix="k8s-prod" # will replace k8s #k8s# part
 fi
 if [ "$CMSWEB_ENV" == "preproduction" ] || [ "$CMSWEB_ENV" == "preprod" ]; then
     prod_prefix="      " # will replace '#PROD#' prefix
     logs_prefix="-preprod" # will append this prefix to logs-cephfs-claim
+    env_prefix="k8s-preprod" # will replace k8s #k8s# part
 fi
 sdir=services
 mdir=monitoring
@@ -58,7 +61,7 @@ cmsweb_ing="ing-confdb ing-crab ing-dbs ing-das ing-dmwm ing-http ing-tzero ing-
 
 #cmsweb_srvs="httpgo httpsgo frontend acdcserver confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
 
-cmsweb_srvs="httpgo httpsgo frontend confdb crabcache crabserver das dbs dbsmigration reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes"
+cmsweb_srvs="httpgo httpsgo frontend confdb crabcache crabserver das-server das-mongo das-mongo-exporter dbs dbsmigration reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes"
 
 # list of DBS instances
 dbs_instances="migrate  global-r global-w phys03-r phys03-w"
@@ -70,6 +73,7 @@ if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == 
 fi
 echo "+++ cmsweb environment: $CMSWEB_ENV"
 echo "+++ cmsweb yaml prefix: '$prod_prefix'"
+echo "+++ cmsweb env prefix : '$env_prefix'"
 echo "+++ cmsweb_image_tag=  $cmsweb_image_tag"
 
 action=$1
@@ -107,7 +111,7 @@ if [ "$deployment" == "services" ]; then
     cmsweb_ing="ing-confdb ing-crab ing-dbs ing-das ing-dmwm ing-http ing-tzero ing-exitcodes"
 
     #cmsweb_srvs="httpgo httpsgo acdcserver confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
-cmsweb_srvs="httpgo httpsgo confdb crabcache crabserver das dbs dbsmigration reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor  reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes"
+cmsweb_srvs="httpgo httpsgo confdb crabcache crabserver das-server das-mongo das-mongo-exporter dbs dbsmigration reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor  reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes"
 
     echo "+++ deploy services: $cmsweb_srvs"
     echo "+++ deploy ingress : $cmsweb_ing"
@@ -462,21 +466,37 @@ deploy_monitoring()
     local mon=""
     if [ "$deployment" == "services" ]; then
         mon="services"
-#        kubectl -n monitoring apply -f monitoring/prometheus-services.yaml
     elif [ "$deployment" == "frontend" ]; then
         mon="frontend"
-#        kubectl -n monitoring apply -f monitoring/prometheus-frontend.yaml
     fi
     local files=""
     if [ -d monitoring ] && [ -n "`ls monitoring/prometheus/$mon`" ]; then
-        for fname in monitoring/prometheus/$mon/* monitoring/prometheus/rules/*; do
+        # change "k8s" env label in prometheus.yaml files based on our cmsweb environment
+        if [ -f monitoring/prometheus/$mon/prometheus.yaml ]; then
+            if [ "$CMSWEB_ENV" == "production" ] || [ "$CMSWEB_ENV" == "prod" ]; then
+                cat monitoring/prometheus/$mon/prometheus.yaml | sed -e 's,"k8s","k8s-prod",g' > /tmp/prometheus.yaml
+            fi
+            if [ "$CMSWEB_ENV" == "preproduction" ] || [ "$CMSWEB_ENV" == "preprod" ]; then
+                cat monitoring/prometheus/$mon/prometheus.yaml | sed -e 's,"k8s","k8s-preprod",g' > /tmp/prometheus.yaml
+            fi
+        fi
+        if [ -f /tmp/prometheus.yaml ]; then
+            files="$files --from-file=/tmp/prometheus.yaml"
+        else
+            files="$files --from-file=/monitoring/prometheus/$mon/prometheus.yaml"
+        fi
+        for fname in monitoring/prometheus/rules/*; do
             files="$files --from-file=$fname"
         done
     fi
     kubectl create secret generic prometheus-secrets \
         $files --dry-run=client -o yaml | \
         kubectl apply --namespace=monitoring -f -
+    # add config map for prometheus adapter
+    kubectl create configmap prometheus-adapter-configmap \
+        --from-file=monitoring/prometheus/adapter/prometheus_adapter.yml -n monitoring
     kubectl -n monitoring apply -f monitoring/prometheus.yaml
+    kubectl -n monitoring apply -f monitoring/prometheus-adapter.yaml
     kubectl -n monitoring get deployments
     kubectl -n monitoring get pods
     prom=`kubectl -n monitoring get pods | grep prom | awk '{print $1}'`
@@ -525,11 +545,20 @@ deploy_ingress()
     mkdir -p $tmpDir
     for ing in $cmsweb_ing; do
         cp ingress/${ing}.yaml $tmpDir
-	cat ingress/${ing}.yaml | \
-    	awk '{if($1=="nginx.ingress.kubernetes.io/whitelist-source-range:") {print "    nginx.ingress.kubernetes.io/whitelist-source-range: "ips""} else print $0}' ips=$ips | \
-    	awk '{if($2=="host:") {print "  - host : "hostname""} else print $0}' hostname=$cmsweb_hostname | \
-        awk '{if($2=="cmsweb-test.cern.ch") {print "    - "hostname""} else print $0}' hostname=$cmsweb_hostname \
-    	> $tmpDir/${ing}.yaml
+        if [[ "$CMSWEB_ENV" == "production" || "$CMSWEB_ENV" == "prod" ]] && [[ "$ing" == "ing-dbs"  ]] ; then
+		cat ingress/${ing}.yaml | \
+    		awk '{if($1=="nginx.ingress.kubernetes.io/whitelist-source-range:") {print "    nginx.ingress.kubernetes.io/whitelist-source-range: "ips""} else print $0}' ips=$ips | \
+    		awk '{if($2=="host:") {print "  - host : "hostname""} else print $0}' hostname=$cmsweb_hostname | \
+        	awk '{if($2=="cmsweb-test.cern.ch") {print "    - "hostname""} else print $0}' hostname=$cmsweb_hostname | \
+        	sed -e "s,dbs/int,dbs/prod,g"  \
+    		> $tmpDir/${ing}.yaml
+        else
+                cat ingress/${ing}.yaml | \
+                awk '{if($1=="nginx.ingress.kubernetes.io/whitelist-source-range:") {print "    nginx.ingress.kubernetes.io/whitelist-source-range: "ips""} else print $0}' ips=$ips | \
+                awk '{if($2=="host:") {print "  - host : "hostname""} else print $0}' hostname=$cmsweb_hostname | \
+                awk '{if($2=="cmsweb-test.cern.ch") {print "    - "hostname""} else print $0}' hostname=$cmsweb_hostname \
+                > $tmpDir/${ing}.yaml
+        fi
 	echo "deploy ingress: $tmpDir/${ing}.yaml"
         cat $tmpDir/${ing}.yaml
         kubectl apply -f $tmpDir/${ing}.yaml
@@ -561,10 +590,11 @@ deploy_services()
                     #kubectl apply -f "$sdir/${srv}-${inst}.yaml"
 	                if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]] ; then
                 	    cat $sdir/${srv}-${inst}.yaml | \
-                        	sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
-                        	sed -e "s,#PROD#,$prod_prefix,g" | \
-                        	sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
-				sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
+                            sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
+                            sed -e "s,#PROD#,$prod_prefix,g" | \
+                            sed -e "s,k8s #k8s#,$env_prefix,g" | \
+                            sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
+                            sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
                         	kubectl apply -f -
 			else
 	                        kubectl apply -f $sdir/${srv}-${inst}.yaml
@@ -576,11 +606,12 @@ deploy_services()
                 #kubectl apply -f $sdir/${srv}.yaml 
                 if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]] ; then
 			cat $sdir/${srv}.yaml | \
-        	            sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
-                	    sed -e "s,replicas: 2 #PROD#,replicas: ,g" | \
-	                    sed -e "s,#PROD#,$prod_prefix,g" | \
-	                    sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
-                            sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
+                        sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
+                        sed -e "s,replicas: 2 #PROD#,replicas: ,g" | \
+                        sed -e "s,#PROD#,$prod_prefix,g" | \
+                        sed -e "s,k8s #k8s#,$env_prefix,g" | \
+                        sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
+                        sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
         	            kubectl apply -f -
 		else
 			kubectl apply -f $sdir/${srv}.yaml

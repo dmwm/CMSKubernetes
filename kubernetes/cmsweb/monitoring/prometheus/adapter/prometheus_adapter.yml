@@ -1,0 +1,29 @@
+rules:
+  - seriesQuery: 'myapphttp_process_open_fds'
+    resources:
+      template: "<<.Resource>>"
+    name:
+      matches: "^(.*)"
+      as: "${1}"
+    metricsQuery: 'avg(<<.Series>>) by (job)'
+  - seriesQuery: 'myapphttp_process_cpu_seconds_total'
+    resources:
+      template: "<<.Resource>>"
+    name:
+      matches: "^(.*)"
+      as: "${1}"
+    metricsQuery: 'avg(<<.Series>>) by (job)'
+  - seriesQuery: 'myapphttp_established_connections'
+    resources:
+      template: "<<.Resource>>"
+    name:
+      matches: "^(.*)"
+      as: "${1}"
+    metricsQuery: 'avg(<<.Series>>) by (job)'
+  - seriesQuery: 'myapphttp_load1'
+    resources:
+      template: "<<.Resource>>"
+    name:
+      matches: "^(.*)"
+      as: "${1}"
+    metricsQuery: 'avg(<<.Series>>) by (job)'

@@ -1,0 +1,93 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: server
+  name: server
+  namespace: redash
+spec:
+  ports:
+  - name: "5000"
+    port: 5000
+    targetPort: 5000
+  selector:
+    app: server
+status:
+  loadBalancer: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: server
+  name: server
+  namespace: redash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: server
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: server
+    spec:
+      containers:
+      - args:
+        - server
+        env:
+        - name: REQUESTS_CA_BUNDLE
+          value: "/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt"
+        - name: PYTHONUNBUFFERED
+          value: "0"
+        - name: REDASH_LOG_LEVEL
+          value: INFO
+        - name: REDASH_REDIS_URL
+          value: redis://redis.redash:6379/0
+        - name: REDASH_WEB_WORKERS
+          value: "4"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redash-secret
+              key: POSTGRES_PASSWORD
+        - name: REDASH_COOKIE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: redash-secret
+              key: REDASH_COOKIE_SECRET
+        - name: REDASH_DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: redash-secret
+              key: REDASH_DATABASE_URL
+        - name: REDASH_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: redash-secret
+              key: REDASH_SECRET_KEY
+        image: veknet/redash
+#         image: redash/redash:8.0.0.b32245
+        imagePullPolicy: ""
+        name: server
+        tty: true
+        stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - bash
+              - -c
+              - /app/manage.py database create_tables
+        ports:
+        - containerPort: 5000
+        resources: {}
+      initContainers:
+      - name: initdb
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nslookup postgres.redash; do echo "Waiting for postgres"; sleep 10; done;']
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}

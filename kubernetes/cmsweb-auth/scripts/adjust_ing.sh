@@ -10,6 +10,7 @@ kubectl -n magnum-tiller get secret helm-client-secret -o jsonpath='{.data.ca\.p
 kubectl -n magnum-tiller get secret helm-client-secret -o jsonpath='{.data.key\.pem}' | base64 --decode > "$HELM_HOME/key.pem"
 kubectl -n magnum-tiller get secret helm-client-secret -o jsonpath='{.data.cert\.pem}' | base64 --decode > "$HELM_HOME/cert.pem"
 
+helm init --upgrade
 helm ls
 helm init -c
 helm get values nginx-ingress > ing-values.yaml

@@ -28,14 +28,16 @@ RUN cp process_monitor.sh /build
 
 # build mongo exporter
 WORKDIR /tmp
-RUN curl -k -L -O "https://github.com/dcu/mongodb_exporter/archive/v1.0.0.tar.gz"
-RUN tar xfz v1.0.0.tar.gz
-RUN mkdir -p $GOPATH/src/github.com/dcu/
-RUN cp -r mongodb_exporter-1.0.0 $GOPATH/src/github.com/dcu/mongodb_exporter
-WORKDIR $GOPATH/src/github.com/dcu/mongodb_exporter
 RUN go get github.com/Masterminds/glide
 ENV PATH="${GOPATH}/src/github.com/Masterminds/glide:${GOPATH}/bin:${PATH}"
-RUN make build
+RUN git clone https://github.com/dcu/mongodb_exporter.git $GOPATH/src/github.com/dcu/mongodb_exporter
+# TMP: https://github.com/dcu/mongodb_exporter/issues/127
+WORKDIR $GOPATH/src/github.com/dcu/mongodb_exporter
+RUN cd $GOPATH/src/github.com/dcu/mongodb_exporter
+RUN curl -ksLO https://raw.githubusercontent.com/vkuznet/mongodb_exporter/master/collector/metrics.go
+RUN mv -f metrics.go collector/metrics.go
+RUN cat $GOPATH/src/github.com/dcu/mongodb_exporter/collector/metrics.go
+RUN CGO_ENABLED=0 make build
 RUN cp mongodb_exporter /build
 
 FROM alpine

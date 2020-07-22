@@ -36,7 +36,8 @@ spec:
           - --log.level=info
           - --config.file=/etc/alertmanager/alertmanager.yaml
           - --storage.path=/tmp/alertmanager
-          - --web.external-url=http://cms-monitoring.cern.ch:30093
+          - --web.external-url=https://cms-monitoring.cern.ch/alertmanager
+          - --web.route-prefix=/
           name: alertmanager
           image: prom/alertmanager
           ports:

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG2007e
+VER=HG2008c
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend frontend"
@@ -111,7 +111,7 @@ crontab -l | \
         -e "s,/data/certs/hostkey.pem,/data/srv/current/auth/proxy/proxy,g" | crontab -
 
 # add proxy generation via robot certificate
-crontab -l | egrep -v "reboot|ProxyRenew|LogArchive" > /tmp/mycron
+crontab -l | egrep -v "reboot|ProxyRenew|LogArchive|ServerMonitor" > /tmp/mycron
 echo "0 0 * * * sudo /usr/sbin/fetch-crl" >> /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG2007e
+VER=HG2008c
 REPO="comp"
 AREA=/data/cfg/admin
 # for couchdb we need to install cmsweb service packages
@@ -79,6 +79,6 @@ done
 sed -i -e "s#ServerMonitor/2.0#ServerMonitor-couchdb#g" /data/srv/current/config/admin/ServerMonitor
 
 # add proxy generation via robot certificate
-crontab -l | egrep -v "workqueue|reqmon|reqmgr2|reboot|ProxyRenew|LogArchive" > /tmp/mycron
+crontab -l | egrep -v "workqueue|reqmon|reqmgr2|reboot|ProxyRenew|LogArchive|ServerMonitor" > /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron

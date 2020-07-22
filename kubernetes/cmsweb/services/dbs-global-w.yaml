@@ -48,6 +48,11 @@ spec:
     metadata:
       labels:
         app: dbs-global-w
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18253"
+        prometheus.io/port: "19253"
     spec:
       securityContext:
         runAsUser: 0

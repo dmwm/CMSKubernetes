@@ -110,9 +110,33 @@ deploy_proxies()
     done
 }
 
+# check prometheus and alertmanager configs
+check_configs()
+{
+    if [ ! -f secrets/prometheus/prometheus.yaml ]; then
+        echo "Please provide secrets/prometheus/prometheus.yaml file"
+        exit 1
+    fi
+    promtool check config secrets/prometheus/prometheus.yaml
+    if [ $? -ne 0 ]; then
+        echo "Fail to validate prometheus config file"
+    fi
+    if [ ! -f secrets/alertmanager/alertmanager.yaml ]; then
+        echo "Please provide secrets/alertmanager/alertmanager.yaml file"
+        exit 1
+    fi
+    amtool check-config secrets/alertmanager/alertmanager.yaml
+    if [ $? -ne 0 ]; then
+        echo "Fail to validate alertmanager config file"
+    fi
+    amtool config routes show --config.file=$PWD/secrets/alertmanager/alertmanager.yaml
+}
+
 # cluster secrets deployment
 deploy_secrets()
 {
+    check_configs
+
     # add prometheus secrets
     if [ ! -d secrets/prometheus ]; then
         echo "Please provide secrets/prometheus area with prometheus files"

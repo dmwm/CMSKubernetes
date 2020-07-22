@@ -1,0 +1,29 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: frontend-cpu
+spec:
+  maxReplicas: 8 #PROD# 12
+  minReplicas: 4 #PROD# 8
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: frontend # deployment name
+  targetCPUUtilizationPercentage: 150
+---
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: frontend-memory
+spec:
+  maxReplicas: 8 #PROD# 12
+  minReplicas: 4 #PROD# 8
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: frontend # deployment name
+  metrics:
+  - type: Resource
+    resource:
+      name: memory
+      targetAverageUtilization: 150
