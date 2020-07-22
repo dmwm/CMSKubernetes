@@ -37,7 +37,7 @@ spec:
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/port: "18250"
-        prometheus.io/port: "19250"
+#         prometheus.io/port: "19250"
     spec:
       containers:
       - image: cmssw/dbs #imagetag

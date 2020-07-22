@@ -53,7 +53,7 @@ spec:
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/port: "18254"
-        prometheus.io/port: "19254"
+#         prometheus.io/port: "19254"
     spec:
       securityContext:
         runAsUser: 0
