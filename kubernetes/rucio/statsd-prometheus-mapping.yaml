@@ -111,3 +111,4 @@ mappings:
     name: "rucio_judge_deletable_space_per_RSE"
     labels:
       dst_rse: "$1"
+      
