@@ -29,6 +29,9 @@ spec:
           - -dryRun
           - -kubectl
           - "/data/kubectl"
+          - -interval
+          - "60"
+        imagePullPolicy: Always
         resources:
           requests:
             memory: "32Mi"
