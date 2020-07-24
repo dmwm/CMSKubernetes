@@ -1,4 +1,11 @@
 rules:
+  - seriesQuery: 'dbs_global_exporter_process_open_fds'
+    resources:
+      template: "<<.Resource>>"
+    name:
+      matches: "^(.*)"
+      as: "${1}"
+    metricsQuery: 'avg(<<.Series>>) by (job)'
   - seriesQuery: 'myapphttp_process_open_fds'
     resources:
       template: "<<.Resource>>"
