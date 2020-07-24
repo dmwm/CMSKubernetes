@@ -16,7 +16,7 @@ spec:
         app: check-metric
     spec:
       containers:
-      - image: veknet/check-metric #imagetag
+      - image: cmssw/check-metric #imagetag
         name: check-metric
         args:
           - /data/check-metric
