@@ -495,6 +495,10 @@ deploy_monitoring()
     # add config map for prometheus adapter
     kubectl create configmap prometheus-adapter-configmap \
         --from-file=monitoring/prometheus/adapter/prometheus_adapter.yml -n monitoring
+    # add config map for logstash
+    kubectl create configmap logstash \
+        --from-file=monitoring/logstash.conf --from-file=monitoring/logstash.yml -n monitoring
+
     kubectl -n monitoring apply -f monitoring/prometheus.yaml
     kubectl -n monitoring apply -f monitoring/prometheus-adapter.yaml
     kubectl -n monitoring get deployments
