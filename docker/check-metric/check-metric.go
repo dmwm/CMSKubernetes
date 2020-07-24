@@ -1,5 +1,10 @@
 package main
 
+// File       : check-metric.go
+// Author     : Valentin Kuznetsov <vkuznet AT gmail dot com>
+// Created    : Fri Jul 24 15:13:57 EDT 2020
+// Description: client k8s to check metrics in Prometheus and act upon them
+
 import (
 	"encoding/json"
 	"errors"
@@ -160,6 +165,15 @@ func main() {
 	flag.StringVar(&kubectl, "kubectl", "", "kubectl command to use")
 	var dryRun bool
 	flag.BoolVar(&dryRun, "dryRun", false, "do not execute kubectl command but run the entire pipeline")
+	var interval int
+	flag.IntVar(&interval, "interval", 0, "run as daemon and check metrics with this interval (in seconds)")
 	flag.Parse()
-	run(rurl, metric, value, kubectl, dryRun, verbose)
+	if interval > 0 {
+		for {
+			run(rurl, metric, value, kubectl, dryRun, verbose)
+			time.Sleep(time.Duration(interval) * time.Second)
+		}
+	} else {
+		run(rurl, metric, value, kubectl, dryRun, verbose)
+	}
 }
