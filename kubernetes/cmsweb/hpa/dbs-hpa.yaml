@@ -39,7 +39,7 @@ spec:
   - type: Object
     object:
       metric:
-        name: gbs_globalW_exporter_process_open_fds
+        name: dbs_globalW_exporter_process_open_fds
       describedObject:
         apiVersion: batch/v1
         kind: Job
