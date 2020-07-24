@@ -492,10 +492,18 @@ deploy_monitoring()
     kubectl create secret generic prometheus-secrets \
         $files --dry-run=client -o yaml | \
         kubectl apply --namespace=monitoring -f -
+
     # add config map for prometheus adapter
+    if [ -n "`kubectl get cm -n monitoring | grep prometheus-adapter-configmap`" ]; then
+        kubectl delete configmap prometheus-adapter-configmap -n monitoring
+    fi
     kubectl create configmap prometheus-adapter-configmap \
         --from-file=monitoring/prometheus/adapter/prometheus_adapter.yml -n monitoring
+
     # add config map for logstash
+    if [ -n "`kubectl get cm -n monitoring | grep logstash`" ]; then
+        kubectl delete configmap logstash -n monitoring
+    fi
     kubectl create configmap logstash \
         --from-file=monitoring/logstash.conf --from-file=monitoring/logstash.yml -n monitoring
 
