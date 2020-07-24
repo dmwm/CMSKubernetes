@@ -6,6 +6,41 @@ rules:
       matches: "^(.*)"
       as: "${1}"
     metricsQuery: 'avg(<<.Series>>) by (job)'
+  - seriesQuery: 'dbs_globalW_exporter_process_open_fds'
+    resources:
+      template: "<<.Resource>>"
+    name:
+      matches: "^(.*)"
+      as: "${1}"
+    metricsQuery: 'avg(<<.Series>>) by (job)'
+  - seriesQuery: 'dbs_migrate_exporter_process_open_fds'
+    resources:
+      template: "<<.Resource>>"
+    name:
+      matches: "^(.*)"
+      as: "${1}"
+    metricsQuery: 'avg(<<.Series>>) by (job)'
+  - seriesQuery: 'dbs_phys03R_exporter_process_open_fds'
+    resources:
+      template: "<<.Resource>>"
+    name:
+      matches: "^(.*)"
+      as: "${1}"
+    metricsQuery: 'avg(<<.Series>>) by (job)'
+  - seriesQuery: 'dbs_phys03W_exporter_process_open_fds'
+    resources:
+      template: "<<.Resource>>"
+    name:
+      matches: "^(.*)"
+      as: "${1}"
+    metricsQuery: 'avg(<<.Series>>) by (job)'
+  - seriesQuery: 'dbsmigration_process_open_fds'
+    resources:
+      template: "<<.Resource>>"
+    name:
+      matches: "^(.*)"
+      as: "${1}"
+    metricsQuery: 'avg(<<.Series>>) by (job)'
   - seriesQuery: 'myapphttp_process_open_fds'
     resources:
       template: "<<.Resource>>"

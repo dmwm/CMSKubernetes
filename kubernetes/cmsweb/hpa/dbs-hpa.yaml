@@ -8,21 +8,142 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: dbs-global-r # should match deployment target
-  minReplicas: 5
+  minReplicas: 8
   maxReplicas: 10
   metrics:
-
   - type: Object
     object:
       metric:
-#         name: myapphttp_process_open_fds # name of prometheus metrics to use for hpa
-#         name: myapphttp_process_cpu_seconds_total
-#         name: myapphttp_established_connections
         name: dbs_global_exporter_process_open_fds
       describedObject:
         apiVersion: batch/v1
         kind: Job
         name: dbs-global-r
+      target:
+        type: Value
+        value: 1000
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: dbs-global-w-hpa
+  namespace: dbs
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: dbs-global-w # should match deployment target
+  minReplicas: 8
+  maxReplicas: 10
+  metrics:
+  - type: Object
+    object:
+      metric:
+        name: dbs_globalW_exporter_process_open_fds
+      describedObject:
+        apiVersion: batch/v1
+        kind: Job
+        name: dbs-global-w
+      target:
+        type: Value
+        value: 1000
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: dbs-phys03-r-hpa
+  namespace: dbs
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: dbs-phys03-r # should match deployment target
+  minReplicas: 8
+  maxReplicas: 10
+  metrics:
+  - type: Object
+    object:
+      metric:
+        name: dbs_phys03R_exporter_process_open_fds
+      describedObject:
+        apiVersion: batch/v1
+        kind: Job
+        name: dbs-phys03-r
+      target:
+        type: Value
+        value: 1000
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: dbs-phys03-w-hpa
+  namespace: dbs
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: dbs-phys03-w # should match deployment target
+  minReplicas: 8
+  maxReplicas: 10
+  metrics:
+  - type: Object
+    object:
+      metric:
+        name: dbs_phys03W_exporter_process_open_fds
+      describedObject:
+        apiVersion: batch/v1
+        kind: Job
+        name: dbs-phys03-w
+      target:
+        type: Value
+        value: 1000
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: dbs-migrate
+  namespace: dbs
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: dbs-migrate # should match deployment target
+  minReplicas: 5
+  maxReplicas: 10
+  metrics:
+  - type: Object
+    object:
+      metric:
+        name: dbs_migrate_exporter_process_open_fds
+      describedObject:
+        apiVersion: batch/v1
+        kind: Job
+        name: dbs-migrate
+      target:
+        type: Value
+        value: 1000
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: dbsmigration
+  namespace: dbs
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: dbsmigration # should match deployment target
+  minReplicas: 5
+  maxReplicas: 10
+  metrics:
+  - type: Object
+    object:
+      metric:
+        name: dbsmigration_process_open_fds
+      describedObject:
+        apiVersion: batch/v1
+        kind: Job
+        name: dbsmigration
       target:
         type: Value
         value: 1000

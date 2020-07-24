@@ -49,6 +49,7 @@ spec:
       labels:
         app: dbsmigration
         env: k8s #k8s#
+        job: dbsmigration
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/port: "18251"
