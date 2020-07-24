@@ -130,9 +130,9 @@ func run(rurl, metric, value, kubectl string, dryRun bool, verbose int) {
 		for _, pod := range pods {
 			ns := pod.Namespace
 			pn := pod.Name
-			cmd := fmt.Sprintf("%s -n %s delete pod %s\n", kubectl, ns, pn)
+			cmd := fmt.Sprintf("%s -n %s delete pod %s", kubectl, ns, pn)
 			if dryRun {
-				fmt.Println(cmd)
+				log.Println(cmd)
 			} else {
 				out, err := exec.Command(cmd).Output()
 				if err != nil {
