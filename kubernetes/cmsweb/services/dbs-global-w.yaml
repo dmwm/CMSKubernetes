@@ -49,6 +49,7 @@ spec:
       labels:
         app: dbs-global-w
         env: k8s #k8s#
+        job: dbs-global-w
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/port: "18253"
