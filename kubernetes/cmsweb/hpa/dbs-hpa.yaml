@@ -39,7 +39,7 @@ spec:
   - type: Object
     object:
       metric:
-        name: dbs_global_exporter_process_open_fds
+        name: gbs_globalW_exporter_process_open_fds
       describedObject:
         apiVersion: batch/v1
         kind: Job
@@ -64,7 +64,7 @@ spec:
   - type: Object
     object:
       metric:
-        name: dbs_global_exporter_process_open_fds
+        name: dbs_phys03R_exporter_process_open_fds
       describedObject:
         apiVersion: batch/v1
         kind: Job
@@ -89,7 +89,7 @@ spec:
   - type: Object
     object:
       metric:
-        name: dbs_global_exporter_process_open_fds
+        name: dbs_phys03W_exporter_process_open_fds
       describedObject:
         apiVersion: batch/v1
         kind: Job
@@ -114,7 +114,7 @@ spec:
   - type: Object
     object:
       metric:
-        name: dbs_global_exporter_process_open_fds
+        name: dbs_migrate_exporter_process_open_fds
       describedObject:
         apiVersion: batch/v1
         kind: Job
@@ -139,7 +139,7 @@ spec:
   - type: Object
     object:
       metric:
-        name: dbs_global_exporter_process_open_fds
+        name: dbsmigration_process_open_fds
       describedObject:
         apiVersion: batch/v1
         kind: Job
