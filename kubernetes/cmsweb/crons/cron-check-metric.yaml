@@ -9,10 +9,10 @@ spec:
     spec:
       template:
         spec:
-          serviceAccountName: scaler-account
+          serviceAccountName: proxy-account
           containers:
           - name: check-metric-cron
-            image: cmssw/check-metric
+            image: veknet/check-metric
             args:
             - /bin/sh
             - -c
