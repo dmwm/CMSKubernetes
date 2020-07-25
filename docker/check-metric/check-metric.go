@@ -139,7 +139,7 @@ func run(rurl, metric, value, kubectl string, dryRun bool, verbose int) {
 			if dryRun {
 				log.Println(cmd)
 			} else {
-				out, err := exec.Command(cmd).Output()
+				out, err := exec.Command(kubectl, "-n", ns, "delete", "pod", pn).Output()
 				if err != nil {
 					log.Printf("Fail to execute: %s, error %v\n", cmd, err)
 				}
