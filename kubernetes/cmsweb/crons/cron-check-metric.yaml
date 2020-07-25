@@ -9,7 +9,7 @@ spec:
     spec:
       template:
         spec:
-          serviceAccountName: check-metric-account
+          serviceAccountName: scaler-account
           containers:
           - name: check-metric-cron
             image: cmssw/check-metric
