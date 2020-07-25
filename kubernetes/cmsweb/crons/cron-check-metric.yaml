@@ -12,7 +12,7 @@ spec:
           serviceAccountName: proxy-account
           containers:
           - name: check-metric-cron
-            image: veknet/check-metric
+            image: cmssw/check-metric
             args:
             - /bin/sh
             - -c
