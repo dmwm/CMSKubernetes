@@ -2,9 +2,10 @@ apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
   name: cron-check-metric
+  namespace: dbs
 spec:
   # run crontab job every hour
-  schedule: "*/5 * * * *"
+  schedule: "*/10 * * * *"
   jobTemplate:
     spec:
       template:
@@ -16,5 +17,5 @@ spec:
             args:
             - /bin/sh
             - -c
-            - /data/check-metric -url "http://cmsweb-k8s-testbedsrv.cern.ch:30000" -metric dbs_global_exporter_process_open_fds -value 1000 -kubectl /data/kubectl
+            - /data/check-metric -url "http://cmsweb-k8s-testbedsrv.cern.ch:30000" -metric dbs_global_exporter_process_open_fds -value 1000 -kubectl /data/kubectl ; /data/check-metric -url "http://cmsweb-k8s-testbedsrv.cern.ch:30000" -metric dbs_globalW_exporter_process_open_fds -value 1000 -kubectl /data/kubectl ; /data/check-metric -url "http://cmsweb-k8s-testbedsrv.cern.ch:30000" -metric dbs_phys03R_exporter_process_open_fds -value 1000 -kubectl /data/kubectl ; /data/check-metric -url "http://cmsweb-k8s-testbedsrv.cern.ch:30000" -metric dbs_phys03W_exporter_process_open_fds -value 1000 -kubectl /data/kubectl ;  /data/check-metric -url "http://cmsweb-k8s-testbedsrv.cern.ch:30000" -metric dbs_migrate_exporter_process_open_fds -value 1000 -kubectl /data/kubectl ; /data/check-metric -url "http://cmsweb-k8s-testbedsrv.cern.ch:30000" -metric dbsmigration_process_open_fds -value 1000 -kubectl /data/kubectl
           restartPolicy: Never
