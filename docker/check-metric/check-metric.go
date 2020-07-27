@@ -17,6 +17,8 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"strings"
+	"sync"
 	"time"
 )
 
@@ -125,7 +127,8 @@ func findPods(rurl, metric, value string, verbose int) ([]Pod, error) {
 	return pods, nil
 }
 
-func run(rurl, metric, value, kubectl string, dryRun bool, verbose int) {
+func run(rurl, metric, value, kubectl string, dryRun bool, verbose int, wg *sync.WaitGroup) {
+	defer wg.Done()
 	pods, err := findPods(rurl, metric, value, verbose)
 	if err != nil {
 		log.Println("Unable to find pods", err)
@@ -168,12 +171,34 @@ func main() {
 	var interval int
 	flag.IntVar(&interval, "interval", 0, "run as daemon and check metrics with this interval (in seconds)")
 	flag.Parse()
+	// get list of metrics and their values
+	metrics := strings.Split(metric, ",")
+	values := strings.Split(value, ",")
+	if len(metrics) != len(values) {
+		log.Fatal("length metrics != length values")
+	}
 	if interval > 0 {
+		// run in daemon mode and concurrently
 		for {
-			run(rurl, metric, value, kubectl, dryRun, verbose)
+			var wg sync.WaitGroup
+			for i := 0; i < len(values); i++ {
+				wg.Add(1)
+				m := strings.Trim(metrics[i], " ")
+				v := strings.Trim(values[i], " ")
+				go run(rurl, m, v, kubectl, dryRun, verbose, &wg)
+			}
+			wg.Wait()
 			time.Sleep(time.Duration(interval) * time.Second)
 		}
 	} else {
-		run(rurl, metric, value, kubectl, dryRun, verbose)
+		// run once, but concurrently
+		var wg sync.WaitGroup
+		for i := 0; i < len(values); i++ {
+			wg.Add(1)
+			m := strings.Trim(metrics[i], " ")
+			v := strings.Trim(values[i], " ")
+			go run(rurl, m, v, kubectl, dryRun, verbose, &wg)
+		}
+		wg.Wait()
 	}
 }
