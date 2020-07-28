@@ -30,6 +30,8 @@ spec:
           - "/data/kubectl"
           - -interval
           - "60"
+          - verbose
+          - "2"
         imagePullPolicy: Always
         resources:
           requests:
