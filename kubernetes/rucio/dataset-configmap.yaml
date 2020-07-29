@@ -261,3 +261,19 @@ data:
     T3_US_UMiss:
         select:
           - '\S+NANOAOD\S+'
+    T3_CH_PSI:
+        select:
+          - '\S+NANOAOD\S+'  
+    T3_TW_NTU_HEP:
+        select:
+          - '\S+NANOAOD\S+'  
+    T3_US_Brown:
+        select:
+          - '\S+NANOAOD\S+'  
+    T3_US_TAMU:
+        select:
+          - '\S+NANOAOD\S+'  
+    T3_KR_UOS:
+        select:
+          - '\S+NANOAOD\S+'  
+
