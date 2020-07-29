@@ -101,12 +101,12 @@ mappings:
     name: "rucio_judge_number_of_replicating_files"
     labels:
       dst_rse: "$1"
-  - match: "rucio_judge_Total_deletable_files_*"
+  - match: "rucio.judge.deletable_space.*"
     help: "Rucio number of deletable files per RSE"
     name: "rucio_judge_number_of_deletable_files"
     labels:
         dst_rse: "$1"
-  - match: "rucio_judge_Total_deletable_space_*"
+  - match: "rucio.judge.deletable_files.*"
     help: "Rucio number of deletable space per RSE"
     name: "rucio_judge_deletable_space_per_RSE"
     labels:
