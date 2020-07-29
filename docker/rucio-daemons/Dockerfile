@@ -22,14 +22,14 @@ ADD cms-entrypoint.sh /
 
 # Better delete
 
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano3/lib/rucio/rse/protocols/gfal.py /usr/lib/python2.7/site-packages/rucio/rse/protocols/gfal.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano4/lib/rucio/rse/protocols/gfal.py /usr/lib/python2.7/site-packages/rucio/rse/protocols/gfal.py
 RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/rse/protocols
 
 # Our schema
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano3/lib/rucio/common/schema/cms.py /usr/lib/python2.7/site-packages/rucio/common/schema/cms.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano4/lib/rucio/common/schema/cms.py /usr/lib/python2.7/site-packages/rucio/common/schema/cms.py
 RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/common/schema
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano3/lib/rucio/api/did.py /usr/lib/python2.7/site-packages/rucio/api/did.py
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano3/lib/rucio/api/replica.py /usr/lib/python2.7/site-packages/rucio/api/replica.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano4/lib/rucio/api/did.py /usr/lib/python2.7/site-packages/rucio/api/did.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano4/lib/rucio/api/replica.py /usr/lib/python2.7/site-packages/rucio/api/replica.py
 RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/api
 
 ENTRYPOINT ["/cms-entrypoint.sh"]

@@ -19,6 +19,12 @@ ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_with_alchemy/com
 ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_with_alchemy/common/check_new_dids /probes/common
 ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_with_alchemy/common/check_expired_dids /probes/common
 
+# SOME of Donata's stuff
+ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_not_OK_rules /probes/common
+ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_rule_counts /probes/common
+ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_injecting_rules /probes/common
+ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_report_expired_locked_rules /probes/common
+
 # TODO: Merge Donata's probes somewhere
 
 ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_expiring_rules_per_rse /probes/common
@@ -26,7 +32,6 @@ ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common
 ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_unlocked_replicas_per_rse /probes/common
 ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_expected_total_number_of_files_per_rse /probes/common
 ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_free_space /probes/common
-ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_not_OK_rules /probes/common
 ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_not_OK_rules_per_rse /probes/common
 ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_number_of_missing_files_per_rse /probes/common
 ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_report_free_space /probes/common
