@@ -41,10 +41,15 @@ ADD install_mail_templates.sh /tmp/
 RUN /tmp/install_mail_templates.sh
 
 # Our schema
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano3/lib/rucio/common/schema/cms.py /usr/lib/python2.7/site-packages/rucio/common/schema/cms.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano4/lib/rucio/common/schema/cms.py /usr/lib/python2.7/site-packages/rucio/common/schema/cms.py
 RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/common/schema
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano3/lib/rucio/api/did.py /usr/lib/python2.7/site-packages/rucio/api/did.py
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano3/lib/rucio/api/replica.py /usr/lib/python2.7/site-packages/rucio/api/replica.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano4/lib/rucio/api/did.py /usr/lib/python2.7/site-packages/rucio/api/did.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano4/lib/rucio/api/replica.py /usr/lib/python2.7/site-packages/rucio/api/replica.py
 RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/api
+
+# Test for Katy
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/test_ignore_lock/lib/rucio/core/rule.py /usr/lib/python2.7/site-packages/rucio/core/rule.py
+RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/core
+
 
 ENTRYPOINT ["/cms-entrypoint.sh"]

@@ -20,26 +20,26 @@ RUN chmod 755 /usr/lib/python2.7/site-packages/cmstfc.py
 
 ## Temporary for restricting Reaper2
 
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano2/bin/rucio-reaper2 /root/rucio/bin/rucio-reaper2
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano2/bin/rucio-reaper2 /usr/bin/rucio-reaper2
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano2/lib/rucio/daemons/reaper/reaper2.py /usr/lib/python2.7/site-packages/rucio/daemons/reaper/reaper2.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano4/bin/rucio-reaper2 /root/rucio/bin/rucio-reaper2
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano4/bin/rucio-reaper2 /usr/bin/rucio-reaper2
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano4/lib/rucio/daemons/reaper/reaper2.py /usr/lib/python2.7/site-packages/rucio/daemons/reaper/reaper2.py
 RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/daemons/reaper/
 RUN chmod 755 /root/rucio/bin/rucio-*
 RUN chmod 755 /usr/bin/rucio-*
 
 # And rule creation
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano3/lib/rucio/core/permission/cms.py /usr/lib/python2.7/site-packages/rucio/core/permission/cms.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano4/lib/rucio/core/permission/cms.py /usr/lib/python2.7/site-packages/rucio/core/permission/cms.py
 RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/core/permission
 
 # Delete checks that it exists
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano3/lib/rucio/rse/protocols/gfal.py /usr/lib/python2.7/site-packages/rucio/rse/protocols/gfal.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano4/lib/rucio/rse/protocols/gfal.py /usr/lib/python2.7/site-packages/rucio/rse/protocols/gfal.py
 RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/rse/protocols
 
 # Our schema
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano3/lib/rucio/common/schema/cms.py /usr/lib/python2.7/site-packages/rucio/common/schema/cms.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano4/lib/rucio/common/schema/cms.py /usr/lib/python2.7/site-packages/rucio/common/schema/cms.py
 RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/common/schema
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano3/lib/rucio/api/did.py /usr/lib/python2.7/site-packages/rucio/api/did.py
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano3/lib/rucio/api/replica.py /usr/lib/python2.7/site-packages/rucio/api/replica.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano4/lib/rucio/api/did.py /usr/lib/python2.7/site-packages/rucio/api/did.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano4/lib/rucio/api/replica.py /usr/lib/python2.7/site-packages/rucio/api/replica.py
 RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/api
 
 

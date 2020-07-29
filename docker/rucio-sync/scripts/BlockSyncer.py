@@ -86,7 +86,6 @@ class BlockSyncer(object):
     def add_to_rucio(self, recover=False):
         """"""
 
-        logging.info('ADD exists is %s', self.block_in_phedex)
         if not self.block_in_phedex:
             logging.info('Declining to add %s since it is not in PhEDEx', self.block_in_phedex)
             return
@@ -105,9 +104,8 @@ class BlockSyncer(object):
     def remove_from_rucio(self):
         """"""
 
-        logging.info('REMOVE exists is %s', self.block_in_phedex)
         if not self.block_in_phedex:
-            logging.info('Declining to remove %s since it is not in PhEDEx', self.block_in_phedex)
+            logging.info('Declining to remove since it is not in PhEDEx')
             return
 
         with monitor.record_timer_block('cms_sync.time_remove_block'):
