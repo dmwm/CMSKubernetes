@@ -1,9 +1,19 @@
 apiVersion: v1
 entries:
+  rucio-cron-jobs:
+  - apiVersion: v2
+    appVersion: latest
+    created: 2020-07-30T17:40:26.653678306+02:00
+    description: A Helm chart for Kubernetes
+    digest: a1e4dff84b5abf20afa37cb424538d7e23cf0e2d63612177013a5b60ca7aa5b1
+    name: rucio-cron-jobs
+    urls:
+    - rucio-cron-jobs-0.1.0.tgz
+    version: 0.1.0
   rucio-statsd-exporter:
   - apiVersion: v1
     appVersion: "1.0"
-    created: "2020-06-19T21:24:02.598244597+02:00"
+    created: 2020-07-30T17:40:26.702301648+02:00
     description: A Helm chart to deploy statsd-exporter for CMS Rucio
     digest: 4853813aa6eaa201cba9bfaec14da1f69fe92117cbfa2c8cdbba93c8d632fe6b
     home: https://github.com/dmwm/CMSKubernetes
@@ -21,7 +31,7 @@ entries:
     version: 1.0.1
   - apiVersion: v1
     appVersion: "1.0"
-    created: "2020-06-19T21:24:02.597577703+02:00"
+    created: 2020-07-30T17:40:26.683139859+02:00
     description: A Helm chart to deploy statsd-exporter for CMS Rucio
     digest: ef55662c2c848c4df9a38e4be8d686e9a469ff1f47dee42a86d6e80a4a29d2ad
     home: https://github.com/dmwm/CMSKubernetes
@@ -39,7 +49,7 @@ entries:
     version: 1.0.0
   - apiVersion: v1
     appVersion: "1.0"
-    created: "2020-06-19T21:24:02.580519508+02:00"
+    created: 2020-07-30T17:40:26.678934964+02:00
     description: A Helm chart to deploy statsd-exporter for CMS Rucio
     digest: 693f3fef0466e64b55e38132094570a52f9563577d754d5a23e0104250c0ac8b
     home: https://github.com/dmwm/CMSKubernetes
@@ -55,4 +65,4 @@ entries:
     urls:
     - rucio-statsd-exporter-0.1.0.tgz
     version: 0.1.0
-generated: "2020-06-19T21:24:02.554945919+02:00"
+generated: 2020-07-30T17:40:26.652765624+02:00
