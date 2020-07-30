@@ -108,6 +108,12 @@ if [ -f $cdir/backends.txt ]; then
     done
 fi
 
+# adjust frontend log file name since we need distingushed name in k8s with CephFS
+hname=`hostname -s`
+sed -i -e "s,access_log,access_log_${hname},g" \
+    -e "s,error_log,error_log_${hname},g" \
+    /data/srv/state/frontend/server.conf
+
 # run frontend server
 /data/cfg/admin/InstallDev -s start
 ps auxw | grep httpd

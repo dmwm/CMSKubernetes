@@ -36,6 +36,8 @@ kubernetes/monitoring/secrets-afs
 kubernetes/monitoring/metrics-server
 kubernetes/monitoring/prometheus_secrets
 kubernetes/monitoring/prometheus-config.yaml
+kubernetes/redash/config.*
+kubernetes/redash/secrets
 
 
 # Files containing DB passwords

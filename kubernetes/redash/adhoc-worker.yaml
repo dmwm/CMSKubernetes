@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: adhoc-worker
+  name: adhoc-worker
+  namespace: redash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adhoc-worker
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: adhoc-worker
+    spec:
+      containers:
+      - args:
+        - worker
+        env:
+        - name: QUEUES
+          value: queries
+        - name: WORKERS_COUNT
+          value: "2"
+        - name: PYTHONUNBUFFERED
+          value: "0"
+        - name: REDASH_LOG_LEVEL
+          value: INFO
+        - name: REDASH_REDIS_URL
+          value: redis://redis.redash:6379/0
+        - name: REDASH_WEB_WORKERS
+          value: "4"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redash-secret
+              key: POSTGRES_PASSWORD
+        - name: REDASH_COOKIE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: redash-secret
+              key: REDASH_COOKIE_SECRET
+        - name: REDASH_DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: redash-secret
+              key: REDASH_DATABASE_URL
+        - name: REDASH_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: redash-secret
+              key: REDASH_SECRET_KEY
+        image: redash/redash:8.0.0.b32245
+        imagePullPolicy: ""
+        name: adhoc-worker
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null

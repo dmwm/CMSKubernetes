@@ -38,6 +38,8 @@ spec:
           - --storage.tsdb.path=/tmp/prometheus
           - --web.console.templates=/etc/prometheus/consoles
           - --web.console.libraries=/etc/prometheus/console_libraries
+          - --web.external-url=https://cms-monitoring.cern.ch/prometheus
+          - --web.route-prefix=/
           name: prometheus
           image: prom/prometheus
           ports:
