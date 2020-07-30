@@ -111,10 +111,6 @@ mappings:
     name: "rucio_judge_deletable_files_per_RSE"
     labels:
       dst_rse: "$1"
-<<<<<<< HEAD
-
-=======
-      dst_rse: "$1" 
   - match: "rucio.judge.datasets_with_locked_rules.*"
     help: "Rucio datasets with locked rules"
     name: "rucio_judge_datasets_with_locked_rules"
@@ -125,4 +121,3 @@ mappings:
     name: "rucio_judge_locked_expired_rules"
     labels:
       dst_rse: "$1"
->>>>>>> b17f6cae85008e0fd0703389cf9f409c8079da15
