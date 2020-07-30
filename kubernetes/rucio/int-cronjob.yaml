@@ -1,0 +1,4 @@
+cronjobSettings:
+  daemonName: "cms-ruciod-int"
+  instance: "int"
+
