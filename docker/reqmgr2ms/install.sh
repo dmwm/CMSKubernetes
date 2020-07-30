@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG2007e
+VER=HG2008c
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend reqmgr2ms"
@@ -86,6 +86,6 @@ sed -i -e "s#ServerMonitor/2.0#ServerMonitor-reqmgr2ms#g" /data/srv/current/conf
 
 # adjust crontabs
 # disable workqueue/reqmon/couch on reqmgr pod
-crontab -l | egrep -v "workqueue|reqmon|couchdb|reqmgr2|reboot|ProxyRenew|LogArchive|mongodb" > /tmp/mycron
+crontab -l | egrep -v "workqueue|reqmon|couchdb|reqmgr2|reboot|ProxyRenew|LogArchive|mongodb|ServerMonitor" > /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron

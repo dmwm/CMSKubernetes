@@ -30,10 +30,15 @@ spec:
     metadata:
       labels:
         app: das-server
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18217"
     spec:
       containers:
       - image: cmssw/das-server #imagetag
         name: das-server
+        imagePullPolicy: Always
         env:
         - name: X509_USER_PROXY
           value: /etc/proxy/proxy
@@ -52,9 +57,10 @@ spec:
           protocol: TCP
           name: das-mon
         command:
-        - /data/das2go
-        - -config
-        - /etc/secrets/dasconfig.json
+        - /data/run.sh
+#         - /data/das2go
+#         - -config
+#         - /etc/secrets/dasconfig.json
         volumeMounts:
         - name: proxy-secrets
           mountPath: /etc/proxy
@@ -62,6 +68,8 @@ spec:
         - name: secrets
           mountPath: /etc/secrets
           readOnly: true
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/logs
       initContainers:
       - name: checkcouchdb
         image: busybox:1.28
@@ -73,3 +81,6 @@ spec:
       - name: secrets
         secret:
           secretName: das-server-secrets
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim-das

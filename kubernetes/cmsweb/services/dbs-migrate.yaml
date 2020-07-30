@@ -48,6 +48,12 @@ spec:
     metadata:
       labels:
         app: dbs-migrate
+        env: k8s #k8s#
+        job: dbs-migrate
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18257"
+#         prometheus.io/port: "19257"
     spec:
       securityContext:
         runAsUser: 0

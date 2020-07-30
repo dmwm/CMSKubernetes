@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG2007e
+VER=HG2008c
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend confdb"
@@ -58,6 +58,6 @@ done
 sed -i -e "s#ServerMonitor/2.0#ServerMonitor-confdb#g" /data/srv/current/config/admin/ServerMonitor
 
 # adjust contab
-crontab -l | egrep -v "reboot" > /tmp/mycron
+crontab -l | egrep -v "reboot|LogArchive|ServerMonitor" > /tmp/mycron
 crontab /tmp/mycron
 rm /tmp/mycron

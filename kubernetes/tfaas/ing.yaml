@@ -4,14 +4,19 @@ metadata:
   name: tfaas-ingress
   namespace: default
   annotations:
-    kubernetes.io/ingress.class: traefik
-    traefik.frontend.entryPoints: "http"
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   rules:
-  - host: tfaas.web.cern.ch
+  - host: cms-tfaas.cern.ch
     http:
       paths:
       - path: /
         backend:
           serviceName: tfaas
           servicePort: 8083
+  tls:
+  - hosts:
+    - cms-tfaas.cern.ch
+  secretName: auth-secrets

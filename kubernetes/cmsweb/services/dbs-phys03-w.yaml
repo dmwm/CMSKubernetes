@@ -49,6 +49,12 @@ spec:
     metadata:
       labels:
         app: dbs-phys03-w
+        env: k8s #k8s#
+        job: dbs-phys03-w
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18255"
+#         prometheus.io/port: "19255"
     spec:
       securityContext:
         runAsUser: 0

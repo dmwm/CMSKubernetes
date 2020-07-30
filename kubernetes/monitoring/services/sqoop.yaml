@@ -21,7 +21,7 @@ spec:
           - /data/sqoop/log
           - "7"
           - "7200"
-          image: cmssw/sqoop:20200515
+          image: cmssw/sqoop:20200708
           name: sqoop
           volumeMounts:
           - name: sqoop-secrets

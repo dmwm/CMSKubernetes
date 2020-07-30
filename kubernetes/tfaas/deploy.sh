@@ -11,6 +11,10 @@ clsname=`kubectl get nodes | tail -1 | awk '{print $1}'`
 kubectl label node $clsname role=ingress --overwrite
 kubectl get node -l role=ingress
 
+echo "### deploy secrets"
+kubectl create secret generic auth-secrets --from-file=tls.crt --from-file=tls.key --dry-run=client -o yaml | kubectl apply -f -
+kubectl create secret generic tfaas-secrets --from-file=tls.crt --from-file=tls.key --from-file=config.json --dry-run=client -o yaml | kubectl apply -f -
+
 echo
 echo "### delete services"
 kubectl delete -f tfaas.yaml
@@ -18,13 +22,13 @@ kubectl delete -f ing.yaml
 kubectl apply -f tfaas.yaml --validate=false
 kubectl apply -f ing.yaml --validate=false
 
-sleep 2
-echo
-echo "### delete daemon ingress-traefik"
-if [ -n "`kubectl get daemonset -n kube-system | grep ingress-traefik`" ]; then
-    kubectl -n kube-system delete daemonset ingress-traefik
-    kubectl -n kube-system delete svc ingress-traefik
-fi
-sleep 2
-echo "### deploy traefik"
-kubectl -n kube-system apply -f traefik.yaml --validate=false
+#sleep 2
+#echo
+#echo "### delete daemon ingress-traefik"
+#if [ -n "`kubectl get daemonset -n kube-system | grep ingress-traefik`" ]; then
+#    kubectl -n kube-system delete daemonset ingress-traefik
+#    kubectl -n kube-system delete svc ingress-traefik
+#fi
+#sleep 2
+#echo "### deploy traefik"
+#kubectl -n kube-system apply -f traefik.yaml --validate=false

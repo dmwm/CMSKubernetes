@@ -31,3 +31,7 @@ WORKDIR $WDIR/CMSMonitoring/src/go/MONIT
 RUN go build monit.go
 RUN cp monit $WDIR
 WORKDIR $WDIR
+
+# get amtool
+RUN curl -ksLO https://github.com/prometheus/alertmanager/releases/download/v0.20.0/alertmanager-0.20.0.linux-amd64.tar.gz
+RUN tar xfz alertmanager-0.20.0.linux-amd64.tar.gz && mv alertmanager-0.20.0.linux-amd64/amtool $WDIR/ && rm -rf alertmanager-0.20.0.linux-amd64*

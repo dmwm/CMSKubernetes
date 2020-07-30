@@ -313,6 +313,13 @@ or adding additional (persistent) storage to our services. This section
 describes all of these steps.
 
 #### Adjusting ngix controller settings
+
+We need to adjust nginx ingress controller settings for file descriptors. In this regard, following configurations needs to be applied in both frontend and backend clusters. For example, in cmsweb directory, run following command:
+
+```
+kubectl apply -f nginx/nginx-fix.yaml
+```
+
 The default nginx controller has limited resources and needs an adjustement.
 The procedure can be done using the following script:
 ```

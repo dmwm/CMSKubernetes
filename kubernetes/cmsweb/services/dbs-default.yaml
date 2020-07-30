@@ -33,6 +33,11 @@ spec:
     metadata:
       labels:
         app: dbs-default
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18250"
+#         prometheus.io/port: "19250"
     spec:
       containers:
       - image: cmssw/dbs #imagetag
