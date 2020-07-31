@@ -169,7 +169,8 @@ class SiteSyncer(object):
                 logging.info("At %s:%s, nothing in PhEDEx or Rucio. Quitting." % (site, prefix))
                 return
 
-            block_report = compare_site_blocks(phedex=phedex_blocks, rucio=rucio_blocks, rse=site, patterns=self.patterns)
+            block_report = compare_site_blocks(phedex=phedex_blocks, rucio=rucio_blocks, rse=site,
+                                               patterns=self.patterns)
 
             n_blocks_not_in_rucio = len(block_report['not_rucio'])
             n_blocks_not_in_phedex = len(block_report['not_phedex'])
@@ -182,6 +183,9 @@ class SiteSyncer(object):
                 logging.info('At %s:%s %3.0f%% complete',
                              site, prefix, len(block_report['complete']) * 100
                              / (len(block_report['complete']) + n_blocks_not_in_rucio + n_blocks_not_in_phedex))
+                logging.info('At %s:%s %3.0f%% completely added',
+                             site, prefix, len(block_report['complete']) * 100
+                             / (len(block_report['complete']) + n_blocks_not_in_rucio))
             # Truncate lists if we want to reduce cycle time
             if BLOCKS_PER_ACTION and n_blocks_not_in_rucio > BLOCKS_PER_ACTION:
                 block_report['not_rucio'] = set(list(block_report['not_rucio'])[:BLOCKS_PER_ACTION])
@@ -218,6 +222,7 @@ class SiteSyncer(object):
         to_sync = []
 
         for site, site_config in self.config.items():
+            print('Site %s (%s)is ok %s' % (site, type(site), site not in ['default', 'main']))
             if site not in ['default', 'main']:
                 if site_config.get('multi_das_calls', False):
                     for prefix in list(string.letters + string.digits):
@@ -227,14 +232,21 @@ class SiteSyncer(object):
                         elif 'FNAL' in site and prefix == 'M':
                             for fnal_prefix in ('Ma', 'MC', 'ME', 'Mi', 'Mo', 'MS', 'Mu'):
                                 to_sync.append((site, fnal_prefix))
+                        elif ('T0' in site or 'FNAL' in site) and prefix == 'D':
+                            for fnal_prefix in ('Da', 'Di', 'DM', 'Do', 'DP', 'Ds', 'DS', 'DY'):
+                                to_sync.append((site, fnal_prefix))
                         elif ('T0' in site or 'FNAL' in site) and prefix == 'T':
                             for fnal_prefix in ('T1', 'T4', 'T5', 'TH', 'TK', 'TO', 'TA', 'TB', 'TC', 'TG', 'TZ', 'T_',
                                                 'TT', 'TW', 'Tk', 'To', 'Ta', 'Tb', 'Te', 'Tp', 'Tr', 'Ts', 'Tt', 'Tw'):
                                 to_sync.append((site, fnal_prefix))
+                        elif ('T0' in site or 'FNAL' in site) and prefix == 'H':
+                            for fnal_prefix in ('H0', 'H1', 'Ha', 'He', 'Hi', 'HJ', 'Hp', 'HP', 'Hs', 'HS', 'HT', 'HV',
+                                                'HW', 'HZ'):
+                                to_sync.append((site, fnal_prefix))
                         else:
                             to_sync.append((site, prefix))
-            else:
-                to_sync.append((site, None))
+                else:
+                    to_sync.append((site, None))
 
         # Cut the list (keep in order but choose a random starting point)
         offset = random.randrange(len(to_sync))
