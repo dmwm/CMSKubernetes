@@ -19,8 +19,8 @@ spec:
       paths:
       - path: /
         backend:
-          serviceName: frontend
-#           serviceName: auth-proxy-server
+#           serviceName: frontend
+          serviceName: auth-proxy-server
           servicePort: 443
   tls:
   - hosts:
