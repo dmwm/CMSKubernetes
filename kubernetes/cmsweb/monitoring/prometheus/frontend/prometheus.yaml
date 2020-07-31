@@ -73,6 +73,8 @@ scrape_configs:
     kubernetes_sd_configs:
     - role: pod
 
+    # for more information about prometheus relabeling see
+    # https://blog.freshtracks.io/prometheus-relabel-rules-and-the-action-parameter-39c71959354a
     relabel_configs:
     - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
       action: keep
@@ -86,14 +88,15 @@ scrape_configs:
       regex: ([^:]+)(?::\d+)?;(\d+)
       replacement: $1:$2
       target_label: __address__
+    - action: labeldrop
+      regex: __meta_kubernetes_pod_label_pod_(.+)
+    - action: labeldrop
+      regex: __meta_kubernetes_namespace(.+)
     - action: labelmap
       regex: __meta_kubernetes_pod_label_(.+)
-    - source_labels: [__meta_kubernetes_namespace]
-      action: replace
-      target_label: kubernetes_namespace
     - source_labels: [__meta_kubernetes_pod_name]
       action: replace
-      target_label: kubernetes_pod_name
+      target_label: apod
 
   - job_name: "kubernetes-cadvisor"
 
