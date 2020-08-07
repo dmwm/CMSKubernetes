@@ -64,11 +64,11 @@ spec:
         name: dbs-phys03-w
         resources:
           requests:
-            memory: "1000Mi"
+            memory: "2000Mi"
             cpu: "300m"
           limits:
             memory: "10Gi"
-            cpu: "1000m"
+            cpu: "2000m"
         ports:
         - containerPort: 8255
           protocol: TCP
