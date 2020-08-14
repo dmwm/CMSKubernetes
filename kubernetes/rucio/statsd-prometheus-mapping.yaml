@@ -102,7 +102,7 @@ mappings:
     labels:
       dst_rse: "$1"
   - match: "rucio.judge.deletable_space.*"
-    help: "Rucio total deletable space per RSE"
+    help: "Rucio total deletable space per RSE (TB)"
     name: "rucio_total_deletable_space"
     labels:
         dst_rse: "$1"

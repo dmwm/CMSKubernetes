@@ -16,10 +16,7 @@ probes:
     interval: 1
   check_rules_with_0_completion_volume:
     interval: 1
-  check_deletable_space_per_rse:
-    interval: 1
-  check_deletable_files_per_rse:
+    check_deletable_replicas:
     interval: 1
   check_ok_rules:
     interval: 1
-
