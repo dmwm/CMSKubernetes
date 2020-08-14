@@ -39,8 +39,8 @@ project=${OS_PROJECT_NAME:-"CMS Web"}
 cluster=${CLUSTER:-"monitoring-cluster"}
 template=${TEMPLATE:-"kubernetes-1.15.3-3"}
 keypair=${KEY:-"cloud"}
-secrets="prometheus-secrets nats-secrets spider-specrets sqoop-secrets alerts-secrets"
-services="prometheus pushgateway victoria-metrics victoria-metrics-test nats-sub-exitcode nats-sub-stats nats-sub-t1 nats-sub-t2"
+secrets="prometheus-secrets nats-secrets spider-specrets sqoop-secrets alerts-secrets intelligence-secrets"
+services="prometheus pushgateway victoria-metrics victoria-metrics-test nats-sub-exitcode nats-sub-stats nats-sub-t1 nats-sub-t2 karma ggus-alerts ssb-alerts cmsmon-intelligence auth-proxy-server"
 namespaces="nats spider sqoop http hdfs alerts"
 
 # prometheus operator deployment (so far we don't use it)
@@ -216,6 +216,13 @@ deploy_secrets()
         kubectl -n auth delete secret auth-secrets
     fi
     kubectl create secret generic auth-secrets --from-file=secrets/auth-proxy-server/config.json --from-file=secrets/auth-proxy-server/tls.crt --from-file=secrets/auth-proxy-server/tls.key --from-file=secrets/auth-proxy-server/hmac --dry-run=client -o yaml | kubectl apply --namespace=auth -f -
+
+    # cmsmon secrets
+    if [ -n "`kubectl -n auth get secrets | grep intelligence-secrets`" ]; then
+        echo "delete intelligence-secrets"
+        kubectl -n default delete secret intelligence-secrets
+    fi
+    kubectl create secret generic intelligence-secrets --from-file=secrets/cmsmon-intelligence/config.json --dry-run=client -o yaml | kubectl apply --namespace=default -f -
 
 }
 

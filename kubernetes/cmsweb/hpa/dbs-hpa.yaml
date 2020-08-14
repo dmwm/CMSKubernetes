@@ -21,7 +21,7 @@ spec:
         name: dbs-global-r
       target:
         type: Value
-        value: 1000
+        value: 800
 ---
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
@@ -46,7 +46,7 @@ spec:
         name: dbs-global-w
       target:
         type: Value
-        value: 1000
+        value: 800
 ---
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
@@ -58,8 +58,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: dbs-phys03-r # should match deployment target
-  minReplicas: 8
-  maxReplicas: 10
+  minReplicas: 5
+  maxReplicas: 8
   metrics:
   - type: Object
     object:
@@ -71,7 +71,7 @@ spec:
         name: dbs-phys03-r
       target:
         type: Value
-        value: 1000
+        value: 800
 ---
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
@@ -83,8 +83,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: dbs-phys03-w # should match deployment target
-  minReplicas: 8
-  maxReplicas: 10
+  minReplicas: 5
+  maxReplicas: 8
   metrics:
   - type: Object
     object:
@@ -96,7 +96,7 @@ spec:
         name: dbs-phys03-w
       target:
         type: Value
-        value: 1000
+        value: 800
 ---
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
@@ -108,8 +108,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: dbs-migrate # should match deployment target
-  minReplicas: 5
-  maxReplicas: 10
+  minReplicas: 3
+  maxReplicas: 5
   metrics:
   - type: Object
     object:
@@ -121,7 +121,7 @@ spec:
         name: dbs-migrate
       target:
         type: Value
-        value: 1000
+        value: 800
 ---
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
@@ -134,7 +134,7 @@ spec:
     kind: Deployment
     name: dbsmigration # should match deployment target
   minReplicas: 5
-  maxReplicas: 10
+  maxReplicas: 8
   metrics:
   - type: Object
     object:
@@ -146,4 +146,4 @@ spec:
         name: dbsmigration
       target:
         type: Value
-        value: 1000
+        value: 800
