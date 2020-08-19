@@ -54,6 +54,7 @@ openstack \
         --labels nvidia_gpu_enabled="true" \
 	--labels tiller_enabled="true" \
 	--labels use_podman="true" \
+        --labels cinder_csi_enabled="true" \
 	--coe kubernetes \
 	--image 5b338766-0fbf-47fa-9d9a-8f9543be9729 \
 	--external-network CERN_NETWORK \
