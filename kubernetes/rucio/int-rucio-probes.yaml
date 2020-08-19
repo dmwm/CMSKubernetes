@@ -22,4 +22,3 @@ probes:
     interval: 1
   check_expired_locked_rules:
     interval: 1
-    
