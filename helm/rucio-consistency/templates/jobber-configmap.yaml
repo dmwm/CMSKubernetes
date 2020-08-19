@@ -63,21 +63,21 @@ data:
       #    notifyOnError: [*programSink]  # what to do with result when job has an error
       #    notifyOnFailure: [*systemEmailSink, *programSink]  # what to do with result when the job stops due to errors
       #    notifyOnSuccess: [*filesystemSink]  # what to do with result when the job succeeds
-#      T2_US_Purdue_Test:
-#        cmd: /consistency/site.sh T2_US_Purdue_Test
-#        time: '0 0 1 * * 1'
 {{- range $site, $config := .Values.consistency.sites }}
+{{ if gt $config.interval 0.0 }}
       {{ $site }}:
         cmd: /consistency/site.sh {{ $site }}
         onError: {{ $config.onError | default "Continue" }}
-{{ if eq $config.interval "daily" }}
+{{ if eq $config.interval 1.0 }}
         time: 'R R R * * *'
-{{ else if eq $config.interval "biweekly" }}
+{{ else if eq $config.interval 7.0 }}
+        time: 'R R R * * R'
+{{ else if eq $config.interval 14.0 }}
         time: 'R R R R1-7,R15-21 * *'
-{{ else if eq $config.interval "monthly" }}
+{{ else if eq $config.interval 31.0 }}
         time: 'R R R R * *'
 {{ else }}
-        time: 'R R R * * R'
+        time: 'R R R */{{ $config.interval }} * *'
 {{- end }}
 {{- end }}
-
+{{- end }}
