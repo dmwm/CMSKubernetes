@@ -34,6 +34,17 @@ ingress:
 
 # Auth server runs on 443 and needs the connection forwarded straight through
 
+useSSL:
+  authServer: true
+
+authService:
+  type: ClusterIP
+  port: 443
+  targetPort: https
+  protocol: TCP
+  name: https
+  annotations: {}
+
 authServer:
   useSSL: true
   servicePort: 443

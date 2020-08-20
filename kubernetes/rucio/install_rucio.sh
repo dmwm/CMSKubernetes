@@ -18,6 +18,7 @@ helm3 install $UI_NAME --values cms-rucio-common.yaml,cms-rucio-webui.yaml,${INS
 helm3 install $PROBE_NAME --values cms-rucio-common.yaml,cms-rucio-probes.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $REPO/rucio-probes
 
 # statsd exporter to prometheus and kube-eagle monitoring
+helm3 install cms-cron-${INSTANCE} --values ${INSTANCE}-cronjob.yaml cms-kubernetes/rucio-cron-jobs
 helm3 install statsd-exporter --values statsd-prometheus-mapping.yaml,${INSTANCE}-statsd-exporter.yaml cms-kubernetes/rucio-statsd-exporter
 helm3 install kube-eagle --values eagle.yaml,${INSTANCE}-eagle.yaml kube-eagle/kube-eagle
 
@@ -25,9 +26,9 @@ helm3 install kube-eagle --values eagle.yaml,${INSTANCE}-eagle.yaml kube-eagle/k
 kubectl delete job --ignore-not-found=true fts
 kubectl create job --from=cronjob/${DAEMON_NAME}-renew-fts-proxy fts
 
-# Label is key to prevent it from also syncing datasets
+# Configmap for syncing datasets (will go away)
 kubectl apply -f dataset-configmap.yaml
-kubectl apply -f ${INSTANCE}-sync-jobs.yaml -l syncs=rses
+
 # Filebeat and logstash
 #helm install --name logstash --values cms-rucio-logstash.yml,${INSTANCE}-logstash-filter.yaml stable/logstash
 #helm install --name filebeat --values cms-rucio-filebeat.yml  stable/filebeat

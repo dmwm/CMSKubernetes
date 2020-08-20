@@ -20,10 +20,10 @@ ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_with_alchemy/com
 ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_with_alchemy/common/check_expired_dids /probes/common
 
 # SOME of Donata's stuff
-ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_not_OK_rules /probes/common
+# Remove from running ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_not_OK_rules /probes/common
 ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_rule_counts /probes/common
 ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_injecting_rules /probes/common
-ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_report_expired_locked_rules /probes/common
+# Remove from running AADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_report_expired_locked_rules /probes/common
 
 # TODO: Merge Donata's probes somewhere
 
