@@ -22,7 +22,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config1: {{ include (print $.Template.BasePath "/jobber-configmap.yaml") . | sha256sum }}
+        checksum/jobberConfig: {{ include (print $.Template.BasePath "/jobber-configmap.yaml") . | sha256sum }}
     {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
     {{- end }}
@@ -169,7 +169,7 @@ spec:
       - name: consistency-config
         configMap:
           defaultMode: 0644
-          name: consistency-config
+          name: {{ include "rucio-consistency.fullname" . }}-consistency-config
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

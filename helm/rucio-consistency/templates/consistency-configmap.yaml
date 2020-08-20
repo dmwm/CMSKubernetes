@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "rucio-consistency.fullname" . }}-consistency-config
+data:
+  config.yaml: |+
+    rses:
+      "*": # default
+        partitions:     5
+        scanner:
+          recursion:      3
+          workers:        5
+          timeout:        120
+        dbdump:
+          lfn_root:   /
+          lfn_to_path:
+          - path: "^/+store/(.*)"
+            out: "/$1"
+
+      T2_US_Purdue_Test2:
+              scanner:
+                      server: xrootd.rcac.purdue.edu
+                      root:   /store/test/rucio/int/cms/store
+      T2_US_Purdue_Temp2:
+              scanner:
+                      server: xrootd.rcac.purdue.edu
+                      root:   /store/test/rucio/cms
+      FNAL_dCache:
+              scanner:
+                      server: cmsdcadisk.fnal.gov
+                      root: /dcache/uscmsdisk/store/mc
+                      recursion:      2
+                      workers:        5
+                      timeout:        30
+                      remove_prefix: /dcache/uscmsdisk
+{{ range $site, $config := .Values.consistency.sites }}
+      {{ $site }}:
+{{- if $config }}
+{{- if or ($config.server) ($config.root) }}
+        scanner:
+{{- if or ($config.server) }}
+          server: {{ $config.server }}
+{{- end }}
+{{- if or ($config.root) }}
+          root: {{ $config.root }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
