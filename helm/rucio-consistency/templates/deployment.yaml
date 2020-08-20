@@ -21,8 +21,9 @@ spec:
     type: RollingUpdate
   template:
     metadata:
-    {{- with .Values.podAnnotations }}
       annotations:
+        checksum/config1: {{ include (print $.Template.BasePath "/jobber-configmap.yaml") . | sha256sum }}
+    {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
     {{- end }}
       labels:
