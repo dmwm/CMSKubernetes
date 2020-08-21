@@ -1,0 +1,9 @@
+{{- if .Values.scratchStorageClass.create -}}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: csi-sc-cpio1
+provisioner: cinder.csi.openstack.org
+parameters:
+  type: cpio1
+{{- end }}
