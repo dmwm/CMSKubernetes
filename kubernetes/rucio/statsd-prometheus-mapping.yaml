@@ -116,7 +116,7 @@ mappings:
     name: "rucio_judge_datasets_with_locked_rules"
     labels:
       dst_rse: "$1"       
-  - match: "rucio.judge.expired_locked_rules.*"
+  - match: "rucio.judge.locked_expired_rules.*"
     help: "Rucio datasets with locked expired rules per RSE"
     name: "rucio_judge_locked_expired_rules"
     labels:

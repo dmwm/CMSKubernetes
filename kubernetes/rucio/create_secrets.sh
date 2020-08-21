@@ -54,6 +54,10 @@ kubectl create secret generic ${SERVER_NAME}-hostcert --from-file=hostcert.pem
 kubectl create secret generic ${SERVER_NAME}-hostkey --from-file=hostkey.pem
 kubectl create secret generic ${SERVER_NAME}-cafile  --from-file=ca.pem
 
+kubectl create secret generic ${SERVER_NAME}-auth-hostcert --from-file=hostcert.pem
+kubectl create secret generic ${SERVER_NAME}-auth-hostkey --from-file=hostkey.pem
+kubectl create secret generic ${SERVER_NAME}-auth-cafile  --from-file=ca.pem
+
 kubectl create secret generic ${DAEMON_NAME}-host-cert --from-file=hostcert.pem
 kubectl create secret generic ${DAEMON_NAME}-host-key --from-file=hostkey.pem
 kubectl create secret generic ${DAEMON_NAME}-cafile  --from-file=ca.pem

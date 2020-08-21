@@ -67,6 +67,7 @@ data:
         select:
           - '\S+NANOAOD\S+'
     T2_BE_UCL:
+        multi_das_calls: True
         select:
           - '\S+NANOAOD\S+'
     T2_BR_SPRACE:

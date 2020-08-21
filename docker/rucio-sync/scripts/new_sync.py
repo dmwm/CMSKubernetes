@@ -183,6 +183,7 @@ class SiteSyncer(object):
                 logging.info('At %s:%s %3.0f%% complete',
                              site, prefix, len(block_report['complete']) * 100
                              / (len(block_report['complete']) + n_blocks_not_in_rucio + n_blocks_not_in_phedex))
+            if len(block_report['complete']) or n_blocks_not_in_rucio:
                 logging.info('At %s:%s %3.0f%% completely added',
                              site, prefix, len(block_report['complete']) * 100
                              / (len(block_report['complete']) + n_blocks_not_in_rucio))
