@@ -1,9 +1,19 @@
 apiVersion: v1
 entries:
+  rucio-consistency:
+  - apiVersion: v2
+    appVersion: 0.1.0
+    created: 2020-08-21T18:21:00.896601035+02:00
+    description: A Helm chart for Kubernetes
+    digest: 1aa71d0fec182834ebb95fd882bd22d4ec503f646eb0e7df9c0e5d869a27289f
+    name: rucio-consistency
+    urls:
+    - rucio-consistency-0.1.0.tgz
+    version: 0.1.0
   rucio-cron-jobs:
   - apiVersion: v2
     appVersion: latest
-    created: 2020-07-30T18:28:44.688038225+02:00
+    created: 2020-08-21T18:21:00.922141937+02:00
     description: A Helm chart for Kubernetes
     digest: ebb2bd605ec02b6b925a2ff69de380add6f4c70720836a4a39b59efb1159ed58
     name: rucio-cron-jobs
@@ -12,7 +22,7 @@ entries:
     version: 0.2.0
   - apiVersion: v2
     appVersion: latest
-    created: 2020-07-30T18:28:44.68761278+02:00
+    created: 2020-08-21T18:21:00.920654476+02:00
     description: A Helm chart for Kubernetes
     digest: a1e4dff84b5abf20afa37cb424538d7e23cf0e2d63612177013a5b60ca7aa5b1
     name: rucio-cron-jobs
@@ -22,7 +32,7 @@ entries:
   rucio-statsd-exporter:
   - apiVersion: v1
     appVersion: "1.0"
-    created: 2020-07-30T18:28:44.6894946+02:00
+    created: 2020-08-21T18:21:00.94330941+02:00
     description: A Helm chart to deploy statsd-exporter for CMS Rucio
     digest: 4853813aa6eaa201cba9bfaec14da1f69fe92117cbfa2c8cdbba93c8d632fe6b
     home: https://github.com/dmwm/CMSKubernetes
@@ -40,7 +50,7 @@ entries:
     version: 1.0.1
   - apiVersion: v1
     appVersion: "1.0"
-    created: 2020-07-30T18:28:44.689030838+02:00
+    created: 2020-08-21T18:21:00.934781936+02:00
     description: A Helm chart to deploy statsd-exporter for CMS Rucio
     digest: ef55662c2c848c4df9a38e4be8d686e9a469ff1f47dee42a86d6e80a4a29d2ad
     home: https://github.com/dmwm/CMSKubernetes
@@ -58,7 +68,7 @@ entries:
     version: 1.0.0
   - apiVersion: v1
     appVersion: "1.0"
-    created: 2020-07-30T18:28:44.688580245+02:00
+    created: 2020-08-21T18:21:00.930210072+02:00
     description: A Helm chart to deploy statsd-exporter for CMS Rucio
     digest: 693f3fef0466e64b55e38132094570a52f9563577d754d5a23e0104250c0ac8b
     home: https://github.com/dmwm/CMSKubernetes
@@ -74,4 +84,4 @@ entries:
     urls:
     - rucio-statsd-exporter-0.1.0.tgz
     version: 0.1.0
-generated: 2020-07-30T18:28:44.686267866+02:00
+generated: 2020-08-21T18:21:00.895382981+02:00
