@@ -53,15 +53,15 @@ cdir=crons
 
 # cmsweb service namespaces
 #cmsweb_ns=`grep namespace $sdir/* | awk '{print $3}' | sort | uniq | grep -v default | grep -v phedex | grep -v couchdb | grep -v dqm | grep -v auth | grep -v mongodb | grep -v udp | grep -v tfaas`
-cmsweb_ns="default confdb crab das dbs dmwm http tzero"
+cmsweb_ns="default crab das dbs dmwm http tzero"
 # services for cmsweb cluster, adjust if necessary
 #cmsweb_ing="ing-srv"
-#cmsweb_ing="ing-confdb ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tzero ing-exitcodes"
-cmsweb_ing="ing-confdb ing-crab ing-dbs ing-das ing-dmwm ing-http ing-tzero ing-exitcodes"
+#cmsweb_ing="ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tzero ing-exitcodes"
+cmsweb_ing="ing-crab ing-dbs ing-das ing-dmwm ing-http ing-tzero ing-exitcodes"
 
-#cmsweb_srvs="httpgo httpsgo frontend acdcserver confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
+#cmsweb_srvs="httpgo httpsgo frontend acdcserver couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
 
-cmsweb_srvs="httpgo httpsgo frontend confdb crabcache crabserver das-server das-mongo das-mongo-exporter dbs dbsmigration reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes"
+cmsweb_srvs="httpgo httpsgo frontend crabcache crabserver das-server das-mongo das-mongo-exporter dbs dbsmigration reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes"
 
 # list of DBS instances
 dbs_instances="migrate  global-r global-w phys03-r phys03-w"
@@ -107,11 +107,11 @@ kubectl get node
 if [ "$deployment" == "services" ]; then
     # services for cmsweb cluster, adjust if necessary
     #cmsweb_ing="ing-srv"
-    #cmsweb_ing="ing-confdb ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tzero ing-exitcodes"
-    cmsweb_ing="ing-confdb ing-crab ing-dbs ing-das ing-dmwm ing-http ing-tzero ing-exitcodes"
+    #cmsweb_ing="ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tzero ing-exitcodes"
+    cmsweb_ing="ing-crab ing-dbs ing-das ing-dmwm ing-http ing-tzero ing-exitcodes"
 
-    #cmsweb_srvs="httpgo httpsgo acdcserver confdb couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
-cmsweb_srvs="httpgo httpsgo confdb crabcache crabserver das-server das-mongo das-mongo-exporter dbs dbsmigration reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor  reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes"
+    #cmsweb_srvs="httpgo httpsgo acdcserver couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
+cmsweb_srvs="httpgo httpsgo crabcache crabserver das-server das-mongo das-mongo-exporter dbs dbsmigration reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor  reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes"
 
     echo "+++ deploy services: $cmsweb_srvs"
     echo "+++ deploy ingress : $cmsweb_ing"
