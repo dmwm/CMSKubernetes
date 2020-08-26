@@ -2,7 +2,6 @@
 cmssw:
     - cmsmon
     - cmsweb
-    - confdb
     - crabcache
     - crabserver
     - das2go
