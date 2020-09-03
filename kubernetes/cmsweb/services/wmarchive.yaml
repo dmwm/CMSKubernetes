@@ -1,0 +1,64 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: wmarchive
+  namespace: wma
+spec:
+  type: ClusterIP
+  ports:
+  selector:
+    app: wmarchive
+  ports:
+    - port: 8200
+      targetPort: 8200
+      name: wma
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: wmarchive
+  name: wmarchive
+  namespace: wma
+spec:
+  selector:
+    matchLabels:
+      app: wmarchive
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wmarvchive
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18200"
+    spec:
+      containers:
+      - image: cmssw/wmarchive
+        name: wmarchive
+        args:
+          - /data/wmarchive
+          - -config=/etc/secrets/wmarch_go.json
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 8200
+        volumeMounts:
+        - name: wma-secrets
+          mountPath: /etc/secrets
+          readOnly: true
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/srv/logs/wma
+      volumes:
+      - name: wma-secrets
+        secret:
+          secretName: wma-secrets
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim-wma
