@@ -76,13 +76,13 @@ deploy_cronjobs()
 # cluster proxies deployment
 deploy_proxies()
 {
-    robot_key=${ROBOT_KEY:-/afs/cern.ch/user/v/valya/private/certificates/robotkey.pem}
+    robot_key=${ROBOT_KEY:-/afs/cern.ch/user/v/valya/private/certificates/robotkey-cmsmon.pem}
     if [ ! -f $robot_key ]; then
         echo "Unable to locate: $robot_key"
         echo "please setup ROBOT_KEY environment"
         exit 1
     fi
-    robot_crt=${ROBOT_CERT:-/afs/cern.ch/user/v/valya/private/certificates/robotcert.pem}
+    robot_crt=${ROBOT_CERT:-/afs/cern.ch/user/v/valya/private/certificates/robotcert-cmsmon.pem}
     if [ ! -f $robot_crt ]; then
         echo "Unable to locate: $robot_crt"
         echo "please setup ROBOT_CERT environment"
@@ -216,6 +216,7 @@ deploy_secrets()
         kubectl -n auth delete secret auth-secrets
     fi
     kubectl create secret generic auth-secrets --from-file=secrets/auth-proxy-server/config.json --from-file=secrets/auth-proxy-server/tls.crt --from-file=secrets/auth-proxy-server/tls.key --from-file=secrets/auth-proxy-server/hmac --dry-run=client -o yaml | kubectl apply --namespace=auth -f -
+    kubectl create secret generic cern-certificates --from-file=secrets/CERN_CAs/CERN_CA.crt --from-file=secrets/CERN_CAs/CERN_CA1.crt --from-file=secrets/CERN_CAs/CERN_Grid_CA.crt --from-file=secrets/CERN_CAs/CERN_Root_CA2.crt --dry-run=client -o yaml | kubectl apply --namespace=auth -f -
 
     # cmsmon secrets
     if [ -n "`kubectl -n auth get secrets | grep intelligence-secrets`" ]; then
