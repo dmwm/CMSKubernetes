@@ -7,7 +7,7 @@ spec:
   type: ClusterIP
   ports:
   - port: 443
-    targetPort: 8181
+    targetPort: 443
     protocol: TCP
     name: http
   selector:
@@ -32,7 +32,9 @@ spec:
     spec:
       containers:
       #- image: cmssw/auth-proxy-server:20200602
-      - image: cmssw/auth-proxy-server:20200703
+      #- image: cmssw/auth-proxy-server:20200703
+      #- image: cmssw/auth-proxy-server:20200903
+      - image: cmssw/auth-proxy-server:20200904
         name: auth-proxy-server
 #         imagePullPolicy: Always
         args:
@@ -46,10 +48,16 @@ spec:
             memory: "3Gi"
             cpu: "1000m"
         ports:
-        - containerPort: 8181
+        - containerPort: 443
         volumeMounts:
         - name: auth-secrets
           mountPath: /etc/secrets
+          defaultMode: 256
+        - name: cmsmon-static
+          mountPath: /data/static
+          defaultMode: 256
+        - name: cern-certificates
+          mountPath: /etc/certificates
           defaultMode: 256
         - name: www-htdocs
           mountPath: /www
@@ -64,5 +72,11 @@ spec:
       - name: auth-secrets
         secret:
           secretName: auth-secrets
+      - name: cmsmon-static
+        secret:
+          secretName: cmsmon-static
+      - name: cern-certificates
+        secret:
+          secretName: cern-certificates
       - name: www-htdocs
         emptyDir: {}
