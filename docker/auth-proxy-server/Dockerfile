@@ -11,6 +11,6 @@ RUN go get -u -ldflags="-s -w -extldflags -static" github.com/vkuznet/auth-proxy
 FROM cmssw/cmsweb-base:latest as cmsweb-base
 
 FROM alpine
-RUN mkdir /data
+RUN mkdir -p /data/static
 COPY --from=go-builder /data/gopath/bin/auth-proxy-server /data/
 COPY --from=cmsweb-base /etc/grid-security /etc/grid-security
