@@ -12,7 +12,7 @@ fi
 klist -k "$keytab"
 
 # execute given script
-export PATH=$PATH:/usr/hdp/hadoop/bin
+export PATH=$PATH:/usr/hdp/hadoop/bin:/data:/data/sqoop
 $@
 if [ $? -ne 0 ]; then
     expire=`date -d '+2 hour' --rfc-3339=ns | tr ' ' 'T'`
