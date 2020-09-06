@@ -34,7 +34,7 @@ spec:
       #- image: cmssw/auth-proxy-server:20200602
       #- image: cmssw/auth-proxy-server:20200703
       #- image: cmssw/auth-proxy-server:20200903
-      - image: cmssw/auth-proxy-server:20200904-v3
+      - image: cmssw/auth-proxy-server:20200905
         name: auth-proxy-server
         imagePullPolicy: Always
         args:
