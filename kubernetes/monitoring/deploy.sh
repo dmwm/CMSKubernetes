@@ -225,6 +225,9 @@ deploy_secrets()
     fi
     kubectl create secret generic intelligence-secrets --from-file=secrets/cmsmon-intelligence/config.json --dry-run=client -o yaml | kubectl apply --namespace=default -f -
 
+    # karma secrets
+    kubectl create secret generic karma-secrets --from-file=secrets/karma/karma.yaml --dry-run=client -o yaml | kubectl apply -f -
+
 }
 
 # cluster storages deployment
