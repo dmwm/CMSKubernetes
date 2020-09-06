@@ -35,5 +35,15 @@ spec:
         env:
         - name: ALERTMANAGER_URI
           value: http://alertmanager:9093
+        - name: CONFIG_FILE
+          value: /etc/secrets/karma.yaml
         ports:
         - containerPort: 8080
+        volumeMounts:
+        - name: karma-secrets
+          mountPath: /etc/secrets
+          defaultMode: 256
+      volumes:
+      - name: karma-secrets
+        secret:
+          secretName: karma-secrets
