@@ -1,5 +1,6 @@
 {
     "base": "/wmarchive/data/",
     "port": 8200,
+    "logFile": "/tmp/wmarchive.log",
     "verbose": 0
 }
