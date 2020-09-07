@@ -1,0 +1,5 @@
+{
+    "base": "/wmarchive/data/",
+    "port": 8200,
+    "verbose": 0
+}
