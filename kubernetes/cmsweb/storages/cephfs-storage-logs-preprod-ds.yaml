@@ -267,3 +267,33 @@ spec:
     requests:
       storage: 22G
   storageClassName: tzero-share
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: wma-share
+  namespace: wma
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: 50eb4f6b-09fe-481c-a3ed-2b871cd0c21a
+  osShareAccessID: 3beb8243-cd2a-43bd-9cdf-387deb4e3f14
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-wma
+  namespace: wma
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 22G
+  storageClassName: wma-share
