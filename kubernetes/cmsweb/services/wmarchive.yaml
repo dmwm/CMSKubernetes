@@ -56,8 +56,7 @@ spec:
       - image: cmssw/wmarchive #imagetag
         name: wmarchive
         args:
-          - /data/wmarchive
-          - -config=/etc/secrets/wmarch_go.json
+          - /data/run.sh
         resources:
           requests:
             memory: "256Mi"
