@@ -13,7 +13,7 @@ WORKDIR $WDIR
 RUN mkdir gopath
 ENV GOPATH=$WDIR/gopath
 ARG CGO_ENABLED=0
-RUN go get github.com/go-stomp/stomp && go get github.com/google/uuid
+RUN go get github.com/go-stomp/stomp && go get github.com/google/uuid && go get github.com/lestrrat-go/file-rotatelogs
 RUN git clone https://github.com/dmwm/WMArchive.git
 WORKDIR $WDIR/WMArchive
 RUN git checkout tags/$TAG -b build && go build -o $WDIR/wmarchive src/go/wmarchive.go
