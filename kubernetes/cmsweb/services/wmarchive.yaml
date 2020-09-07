@@ -13,6 +13,21 @@ spec:
       targetPort: 8200
       name: wma
 ---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: wmarchive
+  labels:
+    app: wmarchive
+  namespace: wma
+data:
+  setup-certs-and-run.sh: |
+   #!/bin/bash
+   cp /host/etc/grid-security/* /etc/grid-security
+   echo 'INFO Files in /etc/grid-security'
+   ls -lahZ /etc/grid-security
+   su  -c "cd /data && /data/run.sh" --preserve-environment _wmarchive
+---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -28,14 +43,17 @@ spec:
   template:
     metadata:
       labels:
-        app: wmarvchive
+        app: wmarchive
         env: k8s #k8s#
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/port: "18200"
     spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
       containers:
-      - image: cmssw/wmarchive
+      - image: cmssw/wmarchive #imagetag
         name: wmarchive
         args:
           - /data/wmarchive
@@ -50,15 +68,32 @@ spec:
         ports:
         - containerPort: 8200
         volumeMounts:
-        - name: wma-secrets
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
           mountPath: /etc/secrets
           readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
 #PROD#  - name: logs-cephfs
 #PROD#    mountPath: /data/srv/logs/wma
       volumes:
-      - name: wma-secrets
+      - name: proxy-secrets
         secret:
-          secretName: wma-secrets
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: wmarchive-secrets
+      - name: etc-grid-security
+        hostPath:
+          path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: wmarchive
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-wma
