@@ -2,8 +2,8 @@
 
 set -e
 
-export CMS_VERSION=1.23.4.nano1
-export RUCIO_VERSION=1.23.4
+export CMS_VERSION=1.23.5.nano2
+export RUCIO_VERSION=1.23.5.post1
 
 docker build --build-arg RUCIO_VERSION=$RUCIO_VERSION -t cmssw/rucio-server:release-$CMS_VERSION  -f Dockerfile.nano .
 docker push cmssw/rucio-server:release-$CMS_VERSION

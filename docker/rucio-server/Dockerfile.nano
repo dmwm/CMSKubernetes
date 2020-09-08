@@ -41,11 +41,11 @@ RUN /tmp/install_mail_templates.sh
 RUN rm -f /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/userdir.conf /etc/httpd/conf.d/ssl.conf
 
 # Patch for NanoAOD restrictions
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano6/lib/rucio/core/permission/cms.py /usr/lib/python2.7/site-packages/rucio/core/permission/cms.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano7/lib/rucio/core/permission/cms.py /usr/lib/python2.7/site-packages/rucio/core/permission/cms.py
 RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/core/permission
 
 # Our schema
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano6/lib/rucio/common/schema/cms.py /usr/lib/python2.7/site-packages/rucio/common/schema/cms.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano7/lib/rucio/common/schema/cms.py /usr/lib/python2.7/site-packages/rucio/common/schema/cms.py
 RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/common/schema
 
 ENTRYPOINT ["/cms-entrypoint.sh"]
