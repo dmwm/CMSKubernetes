@@ -14,6 +14,23 @@ data:
     default:
         pool: 1
         chunck: 5000
+        #select: "/BTag/Run2012A-v1/RAW"
+        #"/Cosmics/Commissioning2015-PromptReco-v1/RECO"
+        #"/DoubleMuon/Run2018A-v1/RAW"
+        #"/HLTPhysicsIsolatedBunch/Run2016H-v1/RAW"
+        #"/JetHT/Run2012C-v1/RAW"
+        #"/MinBias_TuneCP5_14TeV-pythia8/PhaseIITDRSpring19GS-106X_upgrade2023_realistic_v2_ext1-v1/GEN-SIM"
+        #"/MinBias_TuneCUETP8M1_13TeV-pythia8/RunIIWinter15GS-MCRUN2_71_V1-v1/GEN-SIM"
+        #"/Neutrino_E-10_gun/RunIISpring15PrePremix-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v2-v2/GEN-SIM-DIGI-RAW"
+        #"/Neutrino_E-10_gun/RunIISummer17PrePremix-PUAutumn18_102X_upgrade2018_realistic_v15-v1/GEN-SIM-DIGI-RAW"
+        #"/NoBPTX/Run2016D-v2/RAW"
+        #"/NoBPTX/Run2016F-23Sep2016-v1/DQMIO"
+        #"/RelValH125GGgluonfusion_13/CMSSW_8_1_0-81X_upgrade2017_realistic_v26-v1/GEN-SIM"
+        #"/RelValH125GGgluonfusion_14/CMSSW_10_6_1-106X_mcRun3_2021_realistic_v1_rsb-v1/GEN-SIM"
+        #"/RelValMinBias_13/CMSSW_10_6_1-106X_mc2017_realistic_v6-v1/GEN-SIM"
+        #"/RelValMinBias_13/CMSSW_8_1_0-81X_upgrade2017_realistic_v26-v1/GEN-SIM"
+        #"/RelValMinBias_14TeV/CMSSW_10_6_1-106X_mcRun3_2021_realistic_v1_rsb-v1/GEN-SIM"
+        #"/WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/MINIAODSIM"
         select: /TTToSemi
     T1_DE_KIT_Tape:
         pool: 5
