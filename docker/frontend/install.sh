@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG2009f
+VER=HG2009g
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend frontend"
@@ -46,7 +46,7 @@ sed -i -e "s,https://cmsweb.cern.ch,$cmsk8s_prod,g" \
 if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod" ]] ; then
 	cp $WDIR/cfg/frontend/backends-k8s-prod.txt $WDIR/cfg/frontend/backends.txt
 else
-        cp $WDIR/cfg/frontend/backends-k8s.txt $WDIR/cfg/frontend/backends.txt
+        cp $WDIR/cfg/frontend/backends-k8s-preprod.txt $WDIR/cfg/frontend/backends.txt
 fi
 # add rules for httpgo
 # add nossl rule for httpgo
