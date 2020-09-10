@@ -215,7 +215,8 @@ deploy_secrets()
         echo "delete auth-secrets"
         kubectl -n auth delete secret auth-secrets
     fi
-    kubectl create secret generic auth-secrets --from-file=secrets/auth-proxy-server/config.json --from-file=secrets/auth-proxy-server/tls.crt --from-file=secrets/auth-proxy-server/tls.key --from-file=secrets/auth-proxy-server/hmac --dry-run=client -o yaml | kubectl apply --namespace=auth -f -
+    #kubectl create secret generic auth-secrets --from-file=secrets/auth-proxy-server/config.json --from-file=secrets/auth-proxy-server/tls.crt --from-file=secrets/auth-proxy-server/tls.key --from-file=secrets/auth-proxy-server/hmac --dry-run=client -o yaml | kubectl apply --namespace=auth -f -
+    kubectl create secret generic auth-secrets --from-file=secrets/cmsmon-auth/config.json --from-file=secrets/cmsmon-auth/tls.crt --from-file=secrets/cmsmon-auth/tls.key --from-file=secrets/cmsmon-auth/hmac --dry-run=client -o yaml | kubectl apply --namespace=auth -f -
     kubectl create secret generic cern-certificates --from-file=secrets/CERN_CAs/CERN_CA.crt --from-file=secrets/CERN_CAs/CERN_CA1.crt --from-file=secrets/CERN_CAs/CERN_Grid_CA.crt --from-file=secrets/CERN_CAs/CERN_Root_CA2.crt --dry-run=client -o yaml | kubectl apply --namespace=auth -f -
 
     # cmsmon secrets
