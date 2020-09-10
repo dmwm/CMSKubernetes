@@ -36,13 +36,16 @@ data:
 {{ range $site, $config := .Values.consistency.sites }}
       {{ $site }}:
 {{- if $config }}
-{{- if or ($config.server) ($config.root) }}
+{{- if or (or $config.server $config.root) $config.timeout }}
         scanner:
-{{- if or ($config.server) }}
+{{- if  ($config.server) }}
           server: {{ $config.server }}
 {{- end }}
-{{- if or ($config.root) }}
+{{- if  ($config.root) }}
           root: {{ $config.root }}
+{{- end }}
+{{- if  ($config.timeout) }}
+          timeout: {{ $config.timeout }}
 {{- end }}
 {{- end }}
 {{- end }}

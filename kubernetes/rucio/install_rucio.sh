@@ -17,8 +17,11 @@ helm3 install $DAEMON_NAME --values cms-rucio-common.yaml,cms-rucio-daemons.yaml
 helm3 install $UI_NAME --values cms-rucio-common.yaml,cms-rucio-webui.yaml,${INSTANCE}-rucio-webui.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $REPO/rucio-ui
 helm3 install $PROBE_NAME --values cms-rucio-common.yaml,cms-rucio-probes.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $REPO/rucio-probes
 
-# statsd exporter to prometheus and kube-eagle monitoring
+# CMS Rucio stuff
+# helm3 install cms-consistency-${INSTANCE} --values ${INSTANCE}-consistency-jobs.yaml ~/CMSKubernetes/helm/rucio-consistency 
 helm3 install cms-cron-${INSTANCE} --values ${INSTANCE}-cronjob.yaml cms-kubernetes/rucio-cron-jobs
+
+# statsd exporter to prometheus and kube-eagle monitoring
 helm3 install statsd-exporter --values statsd-prometheus-mapping.yaml,${INSTANCE}-statsd-exporter.yaml cms-kubernetes/rucio-statsd-exporter
 helm3 install kube-eagle --values eagle.yaml,${INSTANCE}-eagle.yaml kube-eagle/kube-eagle
 

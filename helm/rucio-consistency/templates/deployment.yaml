@@ -23,6 +23,7 @@ spec:
     metadata:
       annotations:
         checksum/jobberConfig: {{ include (print $.Template.BasePath "/jobber-configmap.yaml") . | sha256sum }}
+        checksum/jobberConfig: {{ include (print $.Template.BasePath "/consistency-configmap.yaml") . | sha256sum }}
     {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
     {{- end }}

@@ -14,8 +14,12 @@ helm3 upgrade --values cms-rucio-common.yaml,cms-rucio-daemons.yaml,${INSTANCE}-
 helm3 upgrade --values cms-rucio-common.yaml,cms-rucio-webui.yaml,${INSTANCE}-rucio-webui.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $UI_NAME $REPO/rucio-ui
 helm3 upgrade --values cms-rucio-common.yaml,cms-rucio-probes.yaml,${INSTANCE}-rucio-probes.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $PROBE_NAME $REPO/rucio-probes
 
-# Cron jobs, statsd exporter to prometheus, and Eagle reporting MONIT
+# CMS Stuff
+# helm3 upgrade --values ${INSTANCE}-consistency-jobs.yaml cms-consistency-${INSTANCE} ~/CMSKubernetes/helm/rucio-consistency
 helm3 upgrade --values ${INSTANCE}-cronjob.yaml cms-cron-${INSTANCE} cms-kubernetes/rucio-cron-jobs
+
+
+# statsd exporter to prometheus, and Eagle reporting MONIT
 helm3 upgrade --values statsd-prometheus-mapping.yaml,${INSTANCE}-statsd-exporter.yaml statsd-exporter cms-kubernetes/rucio-statsd-exporter
 helm3 upgrade --values eagle.yaml,${INSTANCE}-eagle.yaml kube-eagle kube-eagle/kube-eagle
 
