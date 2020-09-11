@@ -21,6 +21,11 @@ spec:
       containers:
       - image: docker.elastic.co/logstash/logstash:7.4.1
         name: logstash
+        env:
+        - name: CMSWEB_CLUSTER
+          value: dev # cluster
+        - name: CMSWEB_ENV
+          value: dev # cmsweb_env
         ports:
         - name: logstash
           containerPort: 5044

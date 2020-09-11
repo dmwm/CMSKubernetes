@@ -450,6 +450,10 @@ deploy_monitoring()
     kubectl apply -f monitoring/kube-eagle.yaml
     # use common logstash yaml for ALL services
     kubectl -n monitoring apply -f monitoring/logstash.yaml
+    cat monitoring/logstash.yaml \
+        sed -e "s,dev # cmsweb_env,$env_prefix,g" | \
+        sed -e "s,dev # cluster,$cluster,g" | \
+        kubectl -n monitoring apply -f -
     # if we need to split monitoring by services
     #if [ "$deployment" == "frontend" ]; then
     #    kubectl -n monitoring apply -f monitoring/logstash-frontend.yaml
