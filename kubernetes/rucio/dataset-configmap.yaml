@@ -14,7 +14,6 @@ data:
     default:
         pool: 1
         chunck: 5000
-        select: NANOAOD
     T0_CH_CERN_Tape:
         pool: 5
         multi_das_calls: True
