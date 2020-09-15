@@ -4,7 +4,6 @@ reaper2:
 conveyorTransferSubmitter:
   threads: 5
 
-config:
-  common:
-    loglevel: "INFO"
+podLabels:
+  rucioInstance: "int"
 

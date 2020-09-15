@@ -1,0 +1,15 @@
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm3 install pushgateway --values int-pushgateway.yaml prometheus-community/prometheus-pushgateway
+
+
+curl http://pushgateway-prometheus-pushgateway:9091/metrics from inside cluster
+
+# Not sure we need our own pushgateway
+
+
+
+ kubectl create ns monitoring
+helm3 install prometheus-adapter prometheus-community/prometheus-adapter -f cms-prometheus-adapter.yaml
+helm3 install prometheus prometheus-community/prometheus
+helm3 upgrade --values cms-prometheus.yaml prometheus prometheus-community/prometheus
+

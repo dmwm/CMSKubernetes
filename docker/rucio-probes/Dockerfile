@@ -14,15 +14,14 @@ FROM rucio/probes:latest
 ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/cmstfc.py  /usr/lib/python2.7/site-packages/cmstfc.py
 RUN chmod 755 /usr/lib/python2.7/site-packages/cmstfc.py
 
-# TODO: move to sqlalchemy and feed upstream
-ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_with_alchemy/common/check_updated_dids /probes/common
-ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_with_alchemy/common/check_new_dids /probes/common
-ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_with_alchemy/common/check_expired_dids /probes/common
-
 # SOME of Donata's stuff
 # Remove from running ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_not_OK_rules /probes/common
 ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_rule_counts /probes/common
+ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_expired_locked_rules /probes/common
+ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_expired_rules /probes/common
 ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_injecting_rules /probes/common
+ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/probe_utils.py /probes/common
+ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/__init__.py /probes/common
 # Remove from running AADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_report_expired_locked_rules /probes/common
 
 # TODO: Merge Donata's probes somewhere
@@ -40,6 +39,9 @@ ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common
 ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_used_space /probes/common
 
 RUN chmod +x /probes/common/check_*
+
+# Temporary while we are adding variables to the config. Push to rucio-containers
+ADD https://raw.githubusercontent.com/ericvaandering/containers/probes_prom/probes/rucio.cfg.j2 /tmp/
 
 # Was in upstream, aside from the connection counting, probably not needed anymore.
 # TODO: should move that one into our own repository area and create a way to run user specified probes

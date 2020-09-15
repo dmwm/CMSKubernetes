@@ -86,6 +86,10 @@ judgeRepairer:
     requests:
       cpu: 750m 
 
+monitoring:
+  enabled: true
+  serviceMonitorEnabled: false
+
 config:
     common:
         loglevel: "INFO"
@@ -96,6 +100,9 @@ config:
         ssl_cert_file: "/opt/rucio/certs/usercert.pem"
         destination: "/topic/cms.rucio.events"
         voname: "cms"
+    monitor:
+      enable_metrics: "True"
+      metrics_port: "8080"
     tracer_kronos:
         username: "cmsrucio"
         port: "61313"

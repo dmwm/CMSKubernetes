@@ -18,6 +18,9 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "rucio-statsd-exporter.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
+    {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
     spec:
       volumes:
         - name: statsd-configmap
