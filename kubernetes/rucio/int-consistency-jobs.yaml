@@ -1,0 +1,12 @@
+consistency:
+  sites:
+    T2_US_Purdue_Test:      
+      interval: 1
+      server: xrootd.rcac.purdue.edu
+      root:   /store/test/rucio/int/cms/store
+      timeout: 120
+    T2_BR_UERJ_Test:      
+      interval: 1
+      server: xrootd.hepgrid.uerj.br
+      root:   /store/test/rucio/int/cms/store
+      timeout: 120
