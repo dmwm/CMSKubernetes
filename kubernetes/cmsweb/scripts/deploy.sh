@@ -449,8 +449,8 @@ deploy_monitoring()
     # add kube-eagle
     kubectl apply -f monitoring/kube-eagle.yaml
     # use common logstash yaml for ALL services
-    kubectl -n monitoring apply -f monitoring/logstash.yaml
-    cat monitoring/logstash.yaml \
+    #kubectl -n monitoring apply -f monitoring/logstash.yaml
+    cat monitoring/logstash.yaml | \
         sed -e "s,dev # cmsweb_env,$env_prefix,g" | \
         sed -e "s,dev # cluster,$cluster,g" | \
         kubectl -n monitoring apply -f -
