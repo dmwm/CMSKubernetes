@@ -19,3 +19,4 @@ cmssw:
     - t0wmadatasvc
     - workqueue
     - exitcodes
+    - wmarchive
