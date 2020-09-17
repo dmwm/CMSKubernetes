@@ -11,38 +11,37 @@ data:
           recursion:      3
           workers:        5
           timeout:        120
+          filter: NANOAOD
+          remove_prefix: /
+          add_prefix: /store/
+          roots: 
+          - path: mc
+          - path: data
         dbdump:
-          lfn_root:   /
-          lfn_to_path:
-          - path: "^/+store/(.*)"
-            out: "/$1"
+          filter: NANOAOD
+          path_root:   /
+        #  lfn_to_path:
+        #  - path: "^/+store/(.*)"
+        #    out: "/$1"
 
-      T2_US_Purdue_Test2:
-              scanner:
-                      server: xrootd.rcac.purdue.edu
-                      root:   /store/test/rucio/int/cms/store
-      T2_US_Purdue_Temp2:
-              scanner:
-                      server: xrootd.rcac.purdue.edu
-                      root:   /store/test/rucio/cms
-      FNAL_dCache:
-              scanner:
-                      server: cmsdcadisk.fnal.gov
-                      root: /dcache/uscmsdisk/store/mc
-                      recursion:      2
-                      workers:        5
-                      timeout:        30
-                      remove_prefix: /dcache/uscmsdisk
+
+      # Individual sites are configure thus where values differ (scanner is omitted in the helm values)
+      # T2_BR_UERJ_Test:
+      #   scanner:
+      #     server: xrootd.hepgrid.uerj.br
+      #     server_root: /store/test/rucio/int/cms/store
+      #     timeout: 120
+
 {{ range $site, $config := .Values.consistency.sites }}
       {{ $site }}:
 {{- if $config }}
-{{- if or (or $config.server $config.root) $config.timeout }}
+{{- if or (or $config.server $config.server_root) $config.timeout }}
         scanner:
 {{- if  ($config.server) }}
           server: {{ $config.server }}
 {{- end }}
-{{- if  ($config.root) }}
-          root: {{ $config.root }}
+{{- if  ($config.server_root) }}
+          server_root: {{ $config.server_root }}
 {{- end }}
 {{- if  ($config.timeout) }}
           timeout: {{ $config.timeout }}
