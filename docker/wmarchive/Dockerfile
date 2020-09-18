@@ -16,7 +16,7 @@ ARG CGO_ENABLED=0
 RUN go get github.com/go-stomp/stomp && go get github.com/google/uuid && go get github.com/lestrrat-go/file-rotatelogs && go get github.com/nats-io/nats.go
 RUN git clone https://github.com/dmwm/WMArchive.git
 WORKDIR $WDIR/WMArchive
-RUN git checkout tags/$TAG -b build && go build -o $WDIR/wmarchive src/go/*.go
+RUN git checkout tags/$TAG -b build && cd src/go && make && cp wmarchive /data/
 
 # for musl C-libary and smallest base image we will use alpine
 FROM alpine
