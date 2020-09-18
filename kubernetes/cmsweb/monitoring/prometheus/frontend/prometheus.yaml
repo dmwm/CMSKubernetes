@@ -29,6 +29,11 @@ scrape_configs:
 #         - targets: ["frontend.default.svc.cluster.local:18443"]
 #           labels:
 #             env: "k8s"
+  - job_name: "nginx-service"
+    static_configs:
+        - targets: ["nginx-ingress-controller-metrics.kube-system.svc.cluster.local:9913"]
+          labels:
+            env: "k8s"
 
   - job_name: "kubernetes-apiservers"
 
