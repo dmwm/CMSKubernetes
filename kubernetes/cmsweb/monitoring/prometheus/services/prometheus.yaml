@@ -37,6 +37,7 @@ scrape_configs:
         - targets: ["nginx-ingress-controller-metrics.kube-system.svc.cluster.local:9913"]
           labels:
             env: "k8s"
+            cluster: "be"
 
   - job_name: "mongodb-service"
     static_configs:
