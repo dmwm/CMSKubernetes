@@ -8,3 +8,7 @@ reaper2:
 
 conveyorTransferSubmitter:
   threads: 5
+
+transmogrifier:
+  threads: 5
+  sleepTime: 30
