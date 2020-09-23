@@ -121,3 +121,8 @@ mappings:
     name: "rucio_judge_locked_expired_rules"
     labels:
       dst_rse: "$1"
+  - match: "rucio.judge.used_space_uniquely_by_rucio.*"
+    help: "Rucio Used space uniquely by rucio"
+    name: "rucio_used_space_uniquely_by_rucio"
+    labels:
+      dst_rse: "$1"
