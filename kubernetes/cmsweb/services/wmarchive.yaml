@@ -79,7 +79,7 @@ spec:
         - name: setup-certs-and-run
           mountPath: /opt/setup-certs-and-run
 #PROD#  - name: logs-cephfs
-#PROD#    mountPath: /data/srv/logs/wma
+#PROD#    mountPath: /data/srv/logs/wmarchive
       volumes:
       - name: proxy-secrets
         secret:
