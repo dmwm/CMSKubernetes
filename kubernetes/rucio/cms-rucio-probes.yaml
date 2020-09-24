@@ -50,3 +50,5 @@ probes:
     interval: 1
   check_unlocked_replicas_per_rse:
     interval: 1
+  check_space_uniquely_used_by_rucio:
+    interval: 120

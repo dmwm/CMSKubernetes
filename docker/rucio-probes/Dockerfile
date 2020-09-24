@@ -39,6 +39,10 @@ ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common
 ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_rules_with_0_completion_volume /probes/common
 ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_used_space /probes/common
 
+# CMS Specific probes
+
+ADD https://raw.githubusercontent.com/FernandoGarzon/CMSRucio/cms-only-probes/probes/common/check_space_uniquely_used_by_rucio /probes/common
+
 RUN chmod +x /probes/common/check_*
 
 # Was in upstream, aside from the connection counting, probably not needed anymore.
