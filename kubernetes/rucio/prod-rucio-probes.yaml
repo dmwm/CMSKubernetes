@@ -1,2 +1,6 @@
 probeSettings:  
   ftsProxySecret: cms-ruciod-prod-rucio-x509up 
+
+config:
+  monitor:
+    prometheus_labels: '{"rucioInstance": "prod"}'
