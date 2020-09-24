@@ -8,11 +8,149 @@ consistency:
       interval: 1
       server: xrootd.hepgrid.uerj.br
       server_root:   /store/test/rucio/int/cms/store
-<<<<<<< HEAD
     T2_ES_PIC_Test:
       interval: 1
       server: xrootd-cmst1-door.pic.es
       server_root:   /store/test/rucio/int/cms/store
-   
-=======
->>>>>>> deb7ccbf3b09011e3ee778e97f667d9b99d687cb
+    T2_UK_London_IC_Test:
+      server: gfe02.grid.hep.ph.ic.ac.uk:1095
+      interval: 1
+    T2_ES_CIEMAT_Test:
+      server: gaexroot01.ciemat.es:1095
+      interval: 1
+    T2_PT_NCG_Lisbon_Test:
+      server: xroot-data02.ncg.ingrid.pt:1094
+      interval: 1
+    T2_UK_SGrid_Bristol_Test:
+      server: heplnx228.pp.rl.ac.uk:1094
+      interval: 1
+    T2_FR_CCIN2P3_Test:
+      server: ccxrpli003.in2p3.fr:1094
+      interval: 1
+    T2_DE_RWTH_Test:
+      server: grid-vo-cms.physik.rwth-aachen.de:1094
+      interval: 1
+    T2_FR_GRIF_IRFU_Test:
+      server: node12.datagrid.cea.fr:11001
+      interval: 1
+    T2_HU_Budapest_Test:
+      server: grid143.kfki.hu:11000
+      interval: 1
+    T2_BR_SPRACE_Test:
+      server: xrd-ds06.sprace.org.br:1094
+      interval: 1
+    T2_RU_IHEP_Test:
+      server: vobox0002.m45.ihep.su:1095
+      interval: 1
+    T2_TR_METU_Test:
+      server: eymir.grid.metu.edu.tr:11001
+      interval: 1
+    T2_US_UCSD_Test:
+      server: gftp-1.t2.ucsd.edu:1094
+      interval: 1
+    T2_IT_Bari_Test:
+      server: ss-02.recas.ba.infn.it:8080
+      interval: 1
+    T2_FR_GRIF_LLR_Test:
+      server: polgrid4.in2p3.fr:11001
+      interval: 1
+    T2_RU_JINR_Test:
+      server: lcgsexrd.jinr.ru:1095
+      interval: 1
+    T2_IT_Pisa_Test:
+      server: stormgf2.pi.infn.it:1094
+      interval: 1
+    T2_FI_HIP_Test:
+      server: nute.csc.fi:1094
+      interval: 1
+    T2_IT_Legnaro_Test:
+      server: t2-xrdcms.lnl.infn.it:7070
+      interval: 1
+    T3_TW_NTU_HEP_Test:
+      server: ntugrid6.phys.ntu.edu.tw:11000
+      interval: 1
+    T2_BE_IIHE_Test:
+      server: maite.iihe.ac.be:1095
+      interval: 1
+    T2_PL_Swierk_Test:
+      server: se.cis.gov.pl:11000
+      interval: 1
+    T2_EE_Estonia_Test:
+      server: [2001:bb8:4004:ff:d::3]:1094
+      interval: 1
+    T2_UK_SGrid_RALPP_Test:
+      server: heplnx228.pp.rl.ac.uk:1094
+      interval: 1
+    T2_US_Wisconsin_Test:
+      server: g22n07.hep.wisc.edu:1094
+      interval: 1
+    T2_CN_Beijing_Test:
+      server: seadmin.ihep.ac.cn:1094
+      interval: 1
+    T2_PL_Warsaw_Test:
+      server: se.grid.icm.edu.pl:11001
+      interval: 1
+    T2_US_Caltech_Test:
+      server: transfer-9.ultralight.org:1095
+      interval: 1
+    T2_US_Florida_Test:
+      server: cmsio7.rc.ufl.edu:1094
+      interval: 1
+    T2_IT_Rome_Test:
+      server: cmsrm-xrootd01.roma1.infn.it:7070
+      interval: 1
+    T2_GR_Ioannina_Test:
+      server: grid02.physics.uoi.gr:11001
+      interval: 1
+    T2_PK_NCP_Test:
+      server: pcncp22.ncp.edu.pk:11001
+      interval: 1
+    T3_CH_PSI_Test:
+      server: t3se01.psi.ch:1095
+      interval: 1
+    T2_UK_London_Brunel_Test:
+      server: dc2-grid-64.brunel.ac.uk:11001
+      interval: 1
+    T2_BE_UCL_Test:
+      server: ingrid-se04.cism.ucl.ac.be:1094
+      interval: 1
+    T1_US_FNAL_Disk_Test:
+      server: cmsxrootd-site1.fnal.gov:1093
+      interval: 1
+    T2_US_Vanderbilt_Test:
+      server: xrootd-srv.accre.vanderbilt.edu:1094
+      interval: 1
+    T2_RU_INR_Test:
+      server: grse001.inr.troitsk.ru:11000
+      interval: 1
+    T2_RU_ITEP_Test:
+      server: se3.itep.ru:1095
+      interval: 1
+    T2_IN_TIFR_Test:
+      server: se01.indiacms.res.in:11001
+      interval: 1
+    T2_CH_CSCS_Test:
+      server: cms02.lcg.cscs.ch:1094
+      interval: 1
+    T2_FR_IPHC_Test:
+      server: sbgse1.in2p3.fr:11001
+      interval: 1
+    T2_AT_Vienna_Test:
+      server: hephyse.oeaw.ac.at:11001
+      interval: 1
+    T2_ES_IFCA_Test:
+      server: pool04.ifca.es:1094
+      interval: 1
+    T3_IT_Trieste_Test:
+      server: cmsxrd.ts.infn.it:1094
+      interval: 1
+    T3_US_Baylor_Test:
+      server: kodiak-se.baylor.edu:1094
+      interval: 1
+    T2_CH_CERN_Test:
+      server: eoscms-qdb-250e2da131.cern.ch:1098
+      interval: 1
+    T2_KR_KISTI_Test:
+      server: cms-t2-se01.sdfarm.kr:1095
+      interval: 1
+
