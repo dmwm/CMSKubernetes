@@ -134,7 +134,7 @@ data:
         select:
           - '\S+NANOAOD\S+'
     T2_IT_Pisa:
-        multi_das_calls: True
+        multi_das_calls: True         
         select:
           - '\S+NANOAOD\S+'
     T2_IT_Rome:
@@ -180,9 +180,11 @@ data:
         select:
           - '\S+NANOAOD\S+'
     T2_UK_London_Brunel:
+        multi_das_calls: True         
         select:
           - '\S+NANOAOD\S+'
     T2_UK_London_IC:
+        multi_das_calls: True         
         select:
           - '\S+NANOAOD\S+'
     T2_UK_SGrid_RALPP:
