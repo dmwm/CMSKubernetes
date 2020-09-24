@@ -8,6 +8,9 @@ config:
   nagios:
     fts_vo: "cms"
     update_distances: "False"
+  monitor:
+    prometheus_servers: "prometheus-pushgateway:9091"
+    prometheus_prefix: "rucio_"
 
 probes:
   check_fts_backlog:
@@ -50,3 +53,5 @@ probes:
     interval: 1
   check_unlocked_replicas_per_rse:
     interval: 1
+  check_space_uniquely_used_by_rucio:
+    interval: 120
