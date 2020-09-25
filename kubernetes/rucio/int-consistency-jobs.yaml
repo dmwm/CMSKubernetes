@@ -1,11 +1,11 @@
 consistency:
   sites:
     T2_US_Purdue_Test:      
-      interval: 1
+      interval: 7
       server: xrootd.rcac.purdue.edu
-      server_root:   /store/test/rucio/int/cms/store
+      #      server_root:   /store/test/rucio/int/cms/store
     T2_BR_UERJ_Test:      
-      interval: 1
+      interval: 7
       server: xrootd.hepgrid.uerj.br
       server_root:   /store/test/rucio/int/cms/store
     T2_ES_PIC_Test:
@@ -74,9 +74,6 @@ consistency:
       interval: 1
     T2_PL_Swierk_Test:
       server: se.cis.gov.pl:11000
-      interval: 1
-    T2_EE_Estonia_Test:
-      server: [2001:bb8:4004:ff:d::3]:1094
       interval: 1
     T2_UK_SGrid_RALPP_Test:
       server: heplnx228.pp.rl.ac.uk:1094
@@ -153,4 +150,9 @@ consistency:
     T2_KR_KISTI_Test:
       server: cms-t2-se01.sdfarm.kr:1095
       interval: 1
+    T1_US_FNAL_Disk_Test:
+      interval: 1
+      server: cmsdcadisk.fnal.gov
+      server_root: /dcache/uscmsdisk/store/test/rucio/int/cms/store
+      remove_prefix: /dcache/uscmsdisk/store/test/rucio/int/cms/
 
