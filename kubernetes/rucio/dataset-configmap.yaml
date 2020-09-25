@@ -102,14 +102,12 @@ data:
         select:
           - '\S+NANOAOD\S+'
     T2_FI_HIP:
-        multi_das_calls: True
         select:
           - '\S+NANOAOD\S+'
     T2_FR_CCIN2P3:
         select:
           - '\S+NANOAOD\S+'
     T2_FR_GRIF_LLR:
-        multi_das_calls: True
         select:
           - '\S+NANOAOD\S+'
     T2_FR_GRIF_IRFU:
@@ -190,7 +188,6 @@ data:
         select:
           - '\S+NANOAOD\S+'
     T2_UK_SGrid_RALPP:
-        multi_das_calls: True
         select:
           - '\S+NANOAOD\S+'
     T2_UK_SGrid_Bristol:
