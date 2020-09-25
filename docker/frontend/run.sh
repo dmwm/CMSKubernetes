@@ -9,6 +9,7 @@
 ### - phedex.vms, couchdb.vms, empty files which will indicate that we'll use VMs
 ### - server.conf, frontend server configuration file
 ### - backends.txt, frontend redirect rules for backends
+### - gitlab_token.txt file containing a valid gitlab token that has access to read: https://gitlab.cern.ch/cmsweb/cmsweb-blacklisting
 
 if [ -f /etc/secrets/hostkey.pem ]; then
     # overwrite host PEM files in /data/certs since we used them during installation time
@@ -46,14 +47,24 @@ if [ -f /etc/proxy/proxy ]; then
     ln -s /etc/proxy/proxy /data/srv/current/auth/proxy/proxy
 fi
 
+# copy gitlab_token.txt from secrets
+if [ -f /etc/secrets/gitlab_token.txt ]; then
+    cp /etc/secrets/gitlab_token.txt /data/srv/current/auth/frontend/gitlab_token.txt
+fi
+
 # obtain original voms-gridmap to be used by frontend
 if [ -f /data/srv/current/auth/proxy/proxy ] && [ -f /data/srv/current/config/frontend/mkvomsmap ]; then
     /data/srv/current/config/frontend/mkvomsmap \
         --key /data/srv/current/auth/proxy/proxy \
         --cert /data/srv/current/auth/proxy/proxy \
         -c /data/srv/current/config/frontend/mkgridmap.conf \
-        -o /data/srv/state/frontend/etc/voms-gridmap.txt --vo cms
+        -o /data/srv/state/frontend/etc/voms-gridmap.txt --vo cms --git-token-path /data/srv/current/auth/frontend/gitlab_token.txt
 fi
+
+# Modify the cron that generates voms-gridmap to use gitlab token file
+crontab -l | \
+    sed -e "s,voms-gridmap.txt --vo cms,voms-gridmap.txt --vo cms --git-token-path /data/srv/current/auth/frontend/gitlab_token.txt,g" | crontab -
+
 
 # check if we provided server.services explicitly and use it if necessary
 if [ -f /etc/secrets/cmsweb.services ]; then
