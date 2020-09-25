@@ -1,0 +1,14 @@
+consistency:
+  sites:
+    T2_US_Purdue_Test:      
+      interval: 1
+      server: xrootd.rcac.purdue.edu
+      server_root:   /store/test/rucio/int/cms/store
+    T2_BR_UERJ_Test:      
+      interval: 1
+      server: xrootd.hepgrid.uerj.br
+      server_root:   /store/test/rucio/int/cms/store
+    T2_ES_PIC_Test:
+      interval: 1
+      server: xrootd-cmst1-door.pic.es
+      server_root:   /store/test/rucio/int/cms/store

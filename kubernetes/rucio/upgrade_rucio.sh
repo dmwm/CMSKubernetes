@@ -15,7 +15,7 @@ helm3 upgrade --values cms-rucio-common.yaml,cms-rucio-webui.yaml,${INSTANCE}-ru
 helm3 upgrade --values cms-rucio-common.yaml,cms-rucio-probes.yaml,${INSTANCE}-rucio-probes.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $PROBE_NAME $REPO/rucio-probes
 
 # CMS Stuff
-# helm3 upgrade --values ${INSTANCE}-consistency-jobs.yaml cms-consistency-${INSTANCE} ~/CMSKubernetes/helm/rucio-consistency
+# helm3 upgrade --values cms-consistency.yaml,${INSTANCE}-consistency.yaml,${INSTANCE}-consistency-jobs.yaml cms-consistency-${INSTANCE} ~/CMSKubernetes/helm/rucio-consistency
 helm3 upgrade --values ${INSTANCE}-cronjob.yaml cms-cron-${INSTANCE} cms-kubernetes/rucio-cron-jobs
 
 
