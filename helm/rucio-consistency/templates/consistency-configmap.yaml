@@ -12,6 +12,7 @@ data:
           workers:        5
           timeout:        120
           filter: NANOAOD
+          server_root: {{.Values.consistency.defaultRoot }}
           remove_prefix: /
           add_prefix: /store/
           server_root: /store/test/rucio/int/cms/store

@@ -153,4 +153,28 @@ consistency:
     T2_KR_KISTI_Test:
       server: cms-t2-se01.sdfarm.kr:1095
       interval: 7
+    T2_UA_KIPT_Test:
+      server: cms-se0.kipt.kharkov.ua:11001
+      interval: 1
+    T3_US_UMD_Test:
+      server: hepcms-0.umd.edu:1094
+      interval: 1
+    T2_US_MIT_Test:
+      server: xrootd9.cmsaf.mit.edu:1094
+      interval: 1
+    T2_KR_KNU_Test:
+      server: xrootd.knu.ac.kr:1095
+      interval: 1
+    T3_US_Colorado_Test:
+      server: hepxrd01.colorado.edu:1094
+      interval: 1
+    T2_DE_DESY_Test:
+      server: t2-cms-xrootd03.desy.de:1094
+      interval: 1
+    T2_US_Nebraska_Test:
+      server: red-gridftp10.unl.edu:1094
+      interval: 1
+    T2_TW_NCHC_Test:
+      server: se01.grid.nchc.org.tw:11001
+      interval: 1
 

@@ -1,4 +1,4 @@
 consistency:
-  instance: "prod"
+  instance: "int"
   defaultRoot: "/store/test/rucio/int/cms/store"
 
