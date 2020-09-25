@@ -1,9 +1,6 @@
 image:
   repository: cmssw/rucio-probes
 
-probeSettings:  
-  ftsProxySecret: cms-ruciod-int-rucio-x509up 
-
 config:
   nagios:
     fts_vo: "cms"
@@ -54,4 +51,4 @@ probes:
   check_unlocked_replicas_per_rse:
     interval: 1
   check_space_uniquely_used_by_rucio:
-    interval: 120
+    interval: 30
