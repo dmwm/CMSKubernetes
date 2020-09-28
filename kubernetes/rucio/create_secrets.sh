@@ -39,15 +39,15 @@ export ROBOTKEY=new_userkey.pem
 echo "Removing existing secrets"
 
 kubectl delete secret rucio-server.tls-secret
-kubectl delete secret ca host-key host-cert
 kubectl delete secret ${DAEMON_NAME}-fts-cert ${DAEMON_NAME}-fts-key ${DAEMON_NAME}-hermes-cert ${DAEMON_NAME}-hermes-key 
 kubectl delete secret ${DAEMON_NAME}-rucio-ca-bundle ${DAEMON_NAME}-rucio-ca-bundle-reaper
 kubectl delete secret ${SERVER_NAME}-hostcert ${SERVER_NAME}-hostkey ${SERVER_NAME}-cafile  
-kubectl delete secret ${DAEMON_NAME}-host-cert ${DAEMON_NAME}-host-key ${DAEMON_NAME}-cafile  
-kubectl delete secret ${UI_NAME}-hostcert ${UI_NAME}-hostkey ${UI_NAME}-cafile webui-host-cert webui-host-key webui-cafile
+kubectl delete secret ${SERVER_NAME}-auth-hostcert ${SERVER_NAME}-auth-hostkey ${SERVER_NAME}-auth-cafile  
+kubectl delete secret ${UI_NAME}-hostcert ${UI_NAME}-hostkey ${UI_NAME}-cafile 
+
+# cms-ruciod-prod-rucio-x509up is created by the FTS key generator
 
 echo "Creating new secrets"
-
 kubectl create secret tls rucio-server.tls-secret --key=tls.key --cert=tls.crt
 
 kubectl create secret generic ${SERVER_NAME}-hostcert --from-file=hostcert.pem
@@ -58,18 +58,7 @@ kubectl create secret generic ${SERVER_NAME}-auth-hostcert --from-file=hostcert.
 kubectl create secret generic ${SERVER_NAME}-auth-hostkey --from-file=hostkey.pem
 kubectl create secret generic ${SERVER_NAME}-auth-cafile  --from-file=ca.pem
 
-kubectl create secret generic ${DAEMON_NAME}-host-cert --from-file=hostcert.pem
-kubectl create secret generic ${DAEMON_NAME}-host-key --from-file=hostkey.pem
-kubectl create secret generic ${DAEMON_NAME}-cafile  --from-file=ca.pem
-
-# Make 1st set of stuff for WEBUI - maybe can remove later
-
-export UI_NAME=webui
-kubectl create secret generic ${UI_NAME}-host-cert --from-file=hostcert.pem
-kubectl create secret generic ${UI_NAME}-host-key --from-file=hostkey.pem
-kubectl create secret generic ${UI_NAME}-cafile  --from-file=ca.pem
-
-# Make 2nd set of stuff for WEBUI - seems this is newer version
+# Make secrets for WEBUI
 # We don't make the CA file here, but lower because it is different than the regular server
 
 export UI_NAME=cms-webui-${INSTANCE}
@@ -83,7 +72,6 @@ kubectl create secret generic ${DAEMON_NAME}-fts-key --from-file=$ROBOTKEY
 kubectl create secret generic ${DAEMON_NAME}-hermes-cert --from-file=$ROBOTCERT
 kubectl create secret generic ${DAEMON_NAME}-hermes-key --from-file=$ROBOTKEY
 kubectl create secret generic ${DAEMON_NAME}-rucio-ca-bundle --from-file=/etc/pki/tls/certs/CERN-bundle.pem
-kubectl create secret generic ${DAEMON_NAME}-rucio-ca-bundle-reaper --from-file=/etc/pki/tls/certs/CERN-bundle.pem
 
 # WebUI needs whole bundle as ca.pem. Keep this at end since we just over-wrote ca.pem
 
@@ -94,11 +82,10 @@ kubectl create secret generic ${UI_NAME}-cafile  --from-file=ca.pem
 rm tls.key tls.crt hostkey.pem hostcert.pem ca.pem
 rm usercert.pem new_userkey.pem
 
-# Bundle may not be enough, build a whole directory of certificates
+# Reapers needs the whole directory of certificates
 mkdir /tmp/reaper-certs
 cp /etc/grid-security/certificates/*.0 /tmp/reaper-certs/
 cp /etc/grid-security/certificates/*.signing_policy /tmp/reaper-certs/
-kubectl delete secret ${DAEMON_NAME}-rucio-ca-bundle-reaper 
 kubectl create secret generic ${DAEMON_NAME}-rucio-ca-bundle-reaper --from-file=/tmp/reaper-certs/
 rm -rf /tmp/reaper-certs
 
