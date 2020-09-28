@@ -33,7 +33,8 @@ spec:
       containers:
 #       - image: cmssw/auth-proxy-server:20200602
 #       - image: cmssw/auth-proxy-server:20200703
-      - image: cmssw/auth-proxy-server:test-x509
+#       - image: cmssw/auth-proxy-server:test-x509
+      - image: cmssw/auth-proxy-server:20200908
         name: auth-proxy-server
         imagePullPolicy: Always
         args:
@@ -47,7 +48,7 @@ spec:
             memory: "3Gi"
             cpu: "1000m"
         ports:
-        - containerPort: 8181
+        - containerPort: 8443
           name: https
         volumeMounts:
         - name: auth-secrets
