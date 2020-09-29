@@ -39,7 +39,7 @@ spec:
         app: rr-prod-fe
     spec:
       containers:
-        - image: cmssw/runregistry-frontend:0.1-cmsweb
+        - image: cmssw/runregistry-frontend:0.2-cmsweb
           name: rr-prod-fe
           tty: true
           stdin: true
@@ -91,7 +91,7 @@ spec:
         app: rr-prod-api
     spec:
       containers:
-        - image: cmssw/runregistry-backend:0.1-cmsweb
+        - image: cmssw/runregistry-backend:0.2-cmsweb
           name: rr-prod-api
           tty: true # Not sure
           stdin: true # Not sure
@@ -226,7 +226,7 @@ spec:
         app: rr-dev-fe
     spec:
       containers:
-        - image: cmssw/runregistry-frontend:0.1-cmsweb
+        - image: cmssw/runregistry-frontend:0.2-cmsweb
           name: rr-dev-fe
           tty: true # Not sure
           stdin: true # Not sure
@@ -278,7 +278,7 @@ spec:
         app: rr-dev-api
     spec:
       containers:
-        - image: cmssw/runregistry-backend:0.1-cmsweb
+        - image: cmssw/runregistry-backend:0.2-cmsweb
           name: rr-dev-api
           tty: true # Not sure
           stdin: true # Not sure
