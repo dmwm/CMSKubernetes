@@ -2,7 +2,7 @@ FROM golang:latest as go-builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 # DAS tag to use
-ENV TAG=04.06.23
+ENV TAG=04.06.26
 
 # build procedure
 ENV WDIR=/data
