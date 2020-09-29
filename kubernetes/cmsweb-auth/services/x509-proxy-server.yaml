@@ -24,19 +24,16 @@ spec:
   selector:
     matchLabels:
       app: x509-proxy-server
-  replicas: 1
+  replicas: 2
   template:
     metadata:
       labels:
         app: x509-proxy-server
     spec:
       containers:
-#       - image: cmssw/x509-proxy-server:20200602
-#       - image: cmssw/x509-proxy-server:20200703
-#       - image: cmssw/auth-proxy-server:test-x509
-      - image: cmssw/auth-proxy-server:20200908
+      - image: cmssw/auth-proxy-server:20200929-lb-stomp
         name: x509-proxy-server
-        imagePullPolicy: Always
+#         imagePullPolicy: Always
         args:
           - /data/auth-proxy-server
           - -config=/etc/secrets/config.json
@@ -47,7 +44,7 @@ spec:
             cpu: "300m"
           limits:
             memory: "3Gi"
-            cpu: "1000m"
+            cpu: "4000m" # we can add higher limit here
         ports:
         - containerPort: 8443
           name: https2
@@ -64,9 +61,14 @@ spec:
         volumeMounts:
         - name: www-htdocs
           mountPath: /tmp/htdocs
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/srv/logs/frontend
       volumes:
       - name: auth-secrets
         secret:
           secretName: auth-secrets
       - name: www-htdocs
         emptyDir: {}
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim-auth
