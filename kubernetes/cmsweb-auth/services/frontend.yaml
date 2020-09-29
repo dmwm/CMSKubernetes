@@ -2,7 +2,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: frontend
-  namespace: default
+  namespace: auth
 spec:
   selector:
     app: frontend
@@ -27,7 +27,7 @@ metadata:
   labels:
     app: frontend
   name: frontend
-  namespace: default
+  namespace: auth
 spec:
   selector:
     matchLabels:
@@ -39,15 +39,15 @@ spec:
         app: frontend
     spec:
       containers:
-      - image: veknet/frontend
+      - image: cmssw/frontend #imagetag
         name: frontend
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "300m"
+            memory: "1Gi"
+            cpu: "500m"
           limits:
             memory: "3Gi"
-            cpu: "1000m"
+            cpu: "1500m"
         ports:
         - containerPort: 80
           protocol: TCP
