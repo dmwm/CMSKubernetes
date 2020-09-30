@@ -31,7 +31,7 @@ spec:
         app: auth-proxy-server
     spec:
       containers:
-      - image: cmssw/auth-proxy-server:20200929-lb-stomp
+      - image: cmssw/auth-proxy-server:20200930-0.1.9
         name: auth-proxy-server
 #         imagePullPolicy: Always
         args:
