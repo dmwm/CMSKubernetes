@@ -61,11 +61,6 @@ if [ -f /data/srv/current/auth/proxy/proxy ] && [ -f /data/srv/current/config/fr
         -o /data/srv/state/frontend/etc/voms-gridmap.txt --vo cms --git-token-path /data/srv/current/auth/frontend/gitlab_token.txt
 fi
 
-# Modify the cron that generates voms-gridmap to use gitlab token file
-crontab -l | \
-    sed -e "s,voms-gridmap.txt --vo cms,voms-gridmap.txt --vo cms --git-token-path /data/srv/current/auth/frontend/gitlab_token.txt,g" | crontab -
-
-
 # check if we provided server.services explicitly and use it if necessary
 if [ -f /etc/secrets/cmsweb.services ]; then
     cp /data/srv/state/frontend/server.conf /data/srv/state/frontend/server.conf.orig
