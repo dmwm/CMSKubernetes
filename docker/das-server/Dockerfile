@@ -13,11 +13,9 @@ RUN go get gopkg.in/yaml.v2 && \
     git clone https://github.com/dmwm/DASTools && \
     git clone https://github.com/dmwm/das2go
 WORKDIR /data/das2go
-RUN git checkout tags/$TAG -b build && \
-    git tag | sed -e "s,v,,g" | sort -r | head -n 1 && sed -i -e "s,{{VERSION}},${TAG},g" main.go
 ARG CGO_ENABLED=0
+RUN git checkout tags/$TAG -b build && make && cp das2go /build
 RUN go build -o /build/das2go_monitor -ldflags="-s -w -extldflags -static" /data/das2go/monitor/das2go_monitor.go
-RUN go build -o /build/das2go -ldflags="-s -w -extldflags -static"
 RUN cp -r js css images templates /build
 WORKDIR /data
 RUN curl -ksLO https://raw.githubusercontent.com/dmwm/cmsweb-exporters/master/das2go_exporter.go
