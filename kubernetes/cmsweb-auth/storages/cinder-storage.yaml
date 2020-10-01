@@ -9,7 +9,7 @@ parameters:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: crabcache-claim
+  name: crabserver-claim
   namespace: crab
   annotations:
     volume.beta.kubernetes.io/storage-class: cpio1
@@ -18,13 +18,13 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 2000Gi # pass here the size of the volume
+      storage: 10Gi # pass here the size of the volume
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: dqmgui-claim
-  namespace: dqm
+  name: frontendlogs-claim
+  namespace: auth
   annotations:
     volume.beta.kubernetes.io/storage-class: cpio1
 spec:
@@ -32,18 +32,4 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 10000Gi # pass here the size of the volume
-#---
-#kind: PersistentVolumeClaim
-#apiVersion: v1
-#metadata:
-#  name: couchdb-claim
-#  namespace: couchdb
-#  annotations:
-#    volume.beta.kubernetes.io/storage-class: cpio1
-#spec:
-#  accessModes:
-#    - ReadWriteOnce
-#  resources:
-#    requests:
-#      storage: 10000Gi # pass here the size of the volume
+      storage: 10Gi # pass here the size of the volume
