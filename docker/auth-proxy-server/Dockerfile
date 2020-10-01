@@ -5,7 +5,7 @@ ENV USER=http
 WORKDIR $WDIR
 
 # tag to use
-ENV TAG=0.1.9
+ENV TAG=0.1.12
 
 ARG CGO_ENABLED=0
 RUN mkdir $WDIR/gopath
