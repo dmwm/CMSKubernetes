@@ -58,11 +58,11 @@ spec:
         name: reqmon
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "300m"
+            memory: "5Gi"
+            cpu: "1"
           limits:
             memory: "8Gi"
-            cpu: "1000m"
+            cpu: "2"
         ports:
         - containerPort: 8249
           protocol: TCP
