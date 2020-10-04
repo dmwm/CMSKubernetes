@@ -29,9 +29,13 @@ spec:
     metadata:
       labels:
         app: x509-proxy-server
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "8443"
     spec:
       containers:
-      - image: cmssw/auth-proxy-server:20200930-0.1.9
+      - image: cmssw/auth-proxy-server:20201001-0.1.15
         name: x509-proxy-server
 #         imagePullPolicy: Always
         args:
