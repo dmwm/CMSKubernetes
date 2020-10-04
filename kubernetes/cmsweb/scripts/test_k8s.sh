@@ -18,7 +18,7 @@ fi
 # scram architecture
 arch=${SCRAM_ARCH:-slc7_amd64_gcc700}
 
-urls="$url/couchdb $url/acdcserver/_all_docs $url/reqmgr2/data/info $url/dbs/$inst/global/DBSReader/datasets?dataset=/ZMM*/*/* $url/das $url/workqueue/index.html $url/phedex $url/phedex/datasvc/doc $url/t0_reqmon/data/info $url/crabserver/preprod/info $url/crabcache/info $url/wmstatsserver/data/info $url/wmstats/index.html $url/t0wmadatasvc/replayone/hello $url/exitcodes $url/wmarchive/data"
+urls="$url/couchdb $url/acdcserver/_all_docs $url/reqmgr2/data/info $url/dbs/$inst/global/DBSReader/datasets?dataset=/ZMM*/*/* $url/das $url/workqueue/index.html $url/phedex $url/phedex/datasvc/doc $url/t0_reqmon/data/info $url/crabserver/preprod/info $url/crabcache/info $url/wmstatsserver/data/info $url/wmstats/index.html $url/t0wmadatasvc/replayone/hello $url/exitcodes $url/wmarchive/data $url/ms-transferor/data/status $url/ms-monitor/data/status $url/ms-output/data/status"
 
 X509_USER_KEY=$HOME/.globus/userkey.pem
 X509_USER_CERT=$HOME/.globus/usercert.pem
