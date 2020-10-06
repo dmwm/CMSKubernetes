@@ -35,7 +35,7 @@ spec:
         prometheus.io/port: "8443"
     spec:
       containers:
-      - image: cmssw/auth-proxy-server:20201005-0.1.19
+      - image: cmssw/auth-proxy-server:20201006-0.1.21
         name: x509-proxy-server
 #         imagePullPolicy: Always
         args:
