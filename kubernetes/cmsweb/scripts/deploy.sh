@@ -529,7 +529,7 @@ deploy_storages()
         kubectl label node $n failure-domain.beta.kubernetes.io/zone=nova --overwrite
         kubectl label node $n failure-domain.beta.kubernetes.io/region=cern --overwrite
     done
-    kubectl apply -f storages/cinder-storage.yaml
+    #kubectl apply -f storages/cinder-storage.yaml
 }
 
 # deploy cluster roles
