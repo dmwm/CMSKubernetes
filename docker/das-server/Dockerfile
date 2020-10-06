@@ -16,7 +16,7 @@ WORKDIR /data/das2go
 ARG CGO_ENABLED=0
 RUN git checkout tags/$TAG -b build && make && cp das2go /build
 RUN go build -o /build/das2go_monitor -ldflags="-s -w -extldflags -static" /data/das2go/monitor/das2go_monitor.go
-RUN cp -r js css images templates /build
+RUN cp -r js css images templates examples /build
 WORKDIR /data
 RUN curl -ksLO https://raw.githubusercontent.com/dmwm/cmsweb-exporters/master/das2go_exporter.go
 RUN go get github.com/vkuznet/x509proxy && \
@@ -31,4 +31,5 @@ COPY --from=go-builder /build/js /data/js
 COPY --from=go-builder /build/css /data/css
 COPY --from=go-builder /build/images /data/images
 COPY --from=go-builder /build/templates /data/templates
+COPY --from=go-builder /build/examples /data/examples
 ADD run.sh /data/run.sh
