@@ -8,8 +8,10 @@ spec:
   ports:
   - port: 443
     targetPort: 8443
-    protocol: TCP
     name: https
+  - port: 9091
+    targetPort: 9091
+    name: metircs
   selector:
     app: auth-proxy-server
 ---
@@ -32,10 +34,10 @@ spec:
         env: k8s #k8s#
       annotations:
         prometheus.io/scrape: 'true'
-        prometheus.io/port: "443"
+        prometheus.io/port: "9091"
     spec:
       containers:
-      - image: cmssw/auth-proxy-server:20201006-0.1.21
+      - image: cmssw/auth-proxy-server:20201007-0.1.23
         name: auth-proxy-server
 #         imagePullPolicy: Always
         args:
@@ -51,6 +53,8 @@ spec:
         ports:
         - containerPort: 8443
           name: https
+        - containerPort: 9091
+          name: metrics
         volumeMounts:
         - name: auth-secrets
           mountPath: /etc/secrets
