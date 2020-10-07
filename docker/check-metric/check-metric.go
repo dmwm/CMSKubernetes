@@ -23,14 +23,16 @@ import (
 )
 
 type Metric struct {
-	Name      string `json:"__name__"`
-	App       string `json:"app"`
-	Env       string `json:"env"`
-	Instnace  string `json:"instance"`
-	Job       string `json:"job"`
-	Namespace string `json:"kubernetes_namespace"`
-	PodName   string `json:"kubernetes_pod_name"`
-	PodHash   string `json:"pod_template_hash"`
+	Name      string `json:"__name__"`             // metric name
+	App       string `json:"app"`                  // cmsweb k8s annotation
+	Apod      string `json:"apod"`                 // cmsweb k8s annotation
+	NS        string `json:"ns"`                   // cmsweb k8s annotations
+	Env       string `json:"env"`                  // cmsweb env
+	Instance  string `json:"instance"`             // cmsweb instance
+	Job       string `json:"job"`                  // pod job name
+	Namespace string `json:"kubernetes_namespace"` // k8s namespace
+	PodName   string `json:"kubernetes_pod_name"`  // k8s pod name
+	PodHash   string `json:"pod_template_hash"`    // k8d pod hash
 }
 
 type Record struct {
@@ -50,6 +52,26 @@ type Response struct {
 type Pod struct {
 	Namespace string `json:"namespace"`
 	Name      string `json:"name"`
+}
+
+// helper function to get pod name and namespace from metric record
+func getPodNameAndNS(m Metric) (string, string) {
+	var name, ns string
+	if m.Name != "" {
+		name = m.Name
+	} else if m.Apod != "" {
+		name = m.Apod
+	} else {
+		log.Fatalf("unable to determine pod name from metric record %+v\n", m)
+	}
+	if m.Namespace != "" {
+		ns = m.Namespace
+	} else if m.NS != "" {
+		ns = m.NS
+	} else {
+		log.Fatalf("unable to determine namespace from metric record %+v\n", m)
+	}
+	return name, ns
 }
 
 func findPods(rurl, metric, value string, verbose int) ([]Pod, error) {
@@ -108,7 +130,8 @@ func findPods(rurl, metric, value string, verbose int) ([]Pod, error) {
 	}
 	for _, r := range r.Data.Result {
 		m := r.Metric
-		if m.Name == metric {
+		name, ns := getPodNameAndNS(m)
+		if name == metric {
 			if len(r.Value) == 2 {
 				s := r.Value[1].(string)
 				v, e := strconv.ParseFloat(s, 10)
@@ -117,8 +140,8 @@ func findPods(rurl, metric, value string, verbose int) ([]Pod, error) {
 					return pods, e
 				}
 				if v > val {
-					log.Printf("pod %s in namespace %s has %s=%v above threshold %v\n", m.PodName, m.Namespace, metric, v, val)
-					pod := Pod{Name: m.PodName, Namespace: m.Namespace}
+					log.Printf("pod %s in namespace %s has %s=%v above threshold %v\n", name, ns, metric, v, val)
+					pod := Pod{Name: name, Namespace: ns}
 					pods = append(pods, pod)
 				}
 			}
