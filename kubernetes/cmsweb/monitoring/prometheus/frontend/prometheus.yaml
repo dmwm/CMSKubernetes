@@ -120,6 +120,9 @@ scrape_configs:
       target_label: __address__
     - action: labeldrop
       regex: __meta_kubernetes_pod_label_pod_(.+)
+    - source_labels: [__meta_kubernetes_namespace]
+      action: replace
+      target_label: ns
     - action: labeldrop
       regex: __meta_kubernetes_namespace(.+)
     - action: labelmap
