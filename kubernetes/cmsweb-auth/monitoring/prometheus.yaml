@@ -11,40 +11,12 @@ data:
       scrape_interval: 10s
       evaluation_interval: 10s
 
+    remote_write:
+      - url: http://cms-monitoring.cern.ch:30428/api/v1/write
+        queue_config:
+          max_samples_per_send: 10000
+          max_shards: 30
     scrape_configs:
-      - job_name: 'das-service'
-        static_configs:
-            - targets: ['das.das.svc.cluster.local:18217']
-      - job_name: 'mongodb-service'
-        static_configs:
-            - targets: ['das.das.svc.cluster.local:18230']
-      - job_name: 'dbs-migrate-service'
-        static_configs:
-            - targets: ['dbs-migrate.dbs.svc.cluster.local:18251', 'dbs-migrate.dbs.svc.cluster.local:19251']
-      - job_name: 'dbs-global-r-service'
-        static_configs:
-            - targets: ['dbs-global-r.dbs.svc.cluster.local:18252', 'dbs-global-r.dbs.svc.cluster.local:19252']
-      - job_name: 'dbs-global-w-service'
-        static_configs:
-            - targets: ['dbs-global-w.dbs.svc.cluster.local:18253', 'dbs-global-w.dbs.svc.cluster.local:19253']
-      - job_name: 'dbs-phys03-r-service'
-        static_configs:
-            - targets: ['dbs-phys03-r.dbs.svc.cluster.local:18254', 'dbs-phys03-r.dbs.svc.cluster.local:19254']
-      - job_name: 'dbs-phys03-w-service'
-        static_configs:
-            - targets: ['dbs-phys03-w.dbs.svc.cluster.local:18255', 'dbs-phys03-w.dbs.svc.cluster.local:19255']
-      - job_name: 'reqmgr2-service'
-        static_configs:
-            - targets: ['reqmgr2.dmwm.svc.cluster.local:18240']
-      - job_name: 'crabserver-service'
-        static_configs:
-            - targets: ['crabserver.crab.svc.cluster.local:18270']
-      - job_name: 'frontend-service'
-        static_configs:
-            - targets: ['frontend.default.svc.cluster.local:18443']
-      - job_name: 'couchdb-service'
-        static_configs:
-            - targets: ['couchdb.couchdb.svc.cluster.local:9984']
 
       - job_name: 'kubernetes-apiservers'
 
@@ -88,6 +60,8 @@ data:
         kubernetes_sd_configs:
         - role: pod
 
+        # for more information about prometheus relabeling see
+        # https://blog.freshtracks.io/prometheus-relabel-rules-and-the-action-parameter-39c71959354a
         relabel_configs:
         - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
           action: keep
@@ -101,14 +75,18 @@ data:
           regex: ([^:]+)(?::\d+)?;(\d+)
           replacement: $1:$2
           target_label: __address__
-        - action: labelmap
-          regex: __meta_kubernetes_pod_label_(.+)
+        - action: labeldrop
+          regex: __meta_kubernetes_pod_label_pod_(.+)
         - source_labels: [__meta_kubernetes_namespace]
           action: replace
-          target_label: kubernetes_namespace
+          target_label: ns
+        - action: labeldrop
+          regex: __meta_kubernetes_namespace(.+)
+        - action: labelmap
+          regex: __meta_kubernetes_pod_label_(.+)
         - source_labels: [__meta_kubernetes_pod_name]
           action: replace
-          target_label: kubernetes_pod_name
+          target_label: apod
 
       - job_name: 'kubernetes-cadvisor'
 
@@ -131,12 +109,15 @@ data:
           target_label: __metrics_path__
           replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prometheus
   namespace: monitoring
 spec:
+  selector:
+    matchLabels:
+      app: prometheus-server
   replicas: 1
   template:
     metadata:
