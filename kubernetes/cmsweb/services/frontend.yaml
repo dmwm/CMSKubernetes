@@ -57,10 +57,10 @@ spec:
         name: frontend
         resources:
           requests:
-            memory: "1Gi"
+            memory: "2Gi"
             cpu: "500m"
           limits:
-            memory: "3Gi"
+            memory: "5Gi"
             cpu: "1500m"
         ports:
         - containerPort: 80
