@@ -57,17 +57,17 @@ type Pod struct {
 // helper function to get pod name and namespace from metric record
 func getPodNameAndNS(m Metric) (string, string) {
 	var name, ns string
-	if m.Name != "" {
-		name = m.Name
-	} else if m.Apod != "" {
+	if m.Apod != "" {
 		name = m.Apod
+	} else if m.Name != "" {
+		name = m.Name
 	} else {
 		log.Fatalf("unable to determine pod name from metric record %+v\n", m)
 	}
-	if m.Namespace != "" {
-		ns = m.Namespace
-	} else if m.NS != "" {
+	if m.NS != "" {
 		ns = m.NS
+	} else if m.Namespace != "" {
+		ns = m.Namespace
 	} else {
 		log.Fatalf("unable to determine namespace from metric record %+v\n", m)
 	}
@@ -131,13 +131,19 @@ func findPods(rurl, metric, value string, verbose int) ([]Pod, error) {
 	for _, r := range r.Data.Result {
 		m := r.Metric
 		name, ns := getPodNameAndNS(m)
-		if name == metric {
+		if verbose > 1 {
+			log.Println("look-up", name, "in", ns, "namespace")
+		}
+		if m.Name == metric {
 			if len(r.Value) == 2 {
 				s := r.Value[1].(string)
 				v, e := strconv.ParseFloat(s, 10)
 				if e != nil {
 					log.Printf("Fail to convert value: %v, error %v\n", r.Value[1], e)
 					return pods, e
+				}
+				if verbose > 1 {
+					log.Println("check metric", metric, "of", name, "in", ns, "namespace, current value", v, "compare to requested value", val)
 				}
 				if v > val {
 					log.Printf("pod %s in namespace %s has %s=%v above threshold %v\n", name, ns, metric, v, val)
