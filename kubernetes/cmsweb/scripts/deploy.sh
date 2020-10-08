@@ -654,6 +654,8 @@ create()
         deploy_secrets
     elif [ "$deployment" == "ingress" ]; then
         deploy_ingress
+    elif [ "$deployment" == "monitoring" ]; then
+        deploy_monitoring
     else
         deploy_ns
         deploy_secrets
