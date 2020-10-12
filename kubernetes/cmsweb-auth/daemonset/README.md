@@ -5,10 +5,16 @@ it can be apache or any other server(s). Here we provide instructions
 how to setup custom daemon set instead of nginx-controller one.
 
 If node is already has nginx ingress-controller we need:
-- stop ingress-controller
+- deploy new daemonset in auth namespace
+```
+k deploy -f daemonset/x509-proxy-server.yaml
+k deploy -f daemonset/auth-proxy-server.yaml
+```
+
+- look-up daemon sets in our namespacs
 ```
 k get ds -n kube-system
-k delete ds -n kube-system
+k get ds -n auth
 ```
 
 Then, we should create a new label role for our nodes:
@@ -19,12 +25,6 @@ k get nodes | grep node | awk '{print $1}' | awk '{print "kubectl label node "$1
 Please note, that only nodes with `role=auth` will be used to run our
 daemonset (this is controlled in k8s manifest files through nodeSelector
 settings).
-
-Now, we should be able to start new daemonset
-```
-k deploy -f daemonset/x509-proxy-server.yaml
-k deploy -f daemonset/auth-proxy-server.yaml
-```
 
 #### References
 [k8s daemonset](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/)
