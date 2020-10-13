@@ -36,7 +36,7 @@ spec:
       securityContext: {}
 
       containers:
-      - image: cmssw/auth-proxy-server:20201012-0.1.37
+      - image: cmssw/auth-proxy-server:20201013-0.1.42
         name: x509-proxy-server
 #         imagePullPolicy: Always
         args:
@@ -61,6 +61,10 @@ spec:
           defaultMode: 256
         - name: www-htdocs
           mountPath: /www
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
       initContainers:
       - name: htdocs
         image: cmssw/htdocs
@@ -76,6 +80,12 @@ spec:
           secretName: xps-secrets
       - name: www-htdocs
         emptyDir: {}
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
       - name: logs-cephfs
         persistentVolumeClaim:
           claimName: logs-cephfs-claim-auth
