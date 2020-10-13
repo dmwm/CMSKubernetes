@@ -26,5 +26,12 @@ Please note, that only nodes with `role=auth` will be used to run our
 daemonset (this is controlled in k8s manifest files through nodeSelector
 settings).
 
+To reverse back to usage of nginx we only need to relabel nodes again, e.g.
+```
+k get nodes | grep node | awk '{print $1}' | awk '{print "kubectl label node "$1" role=ingress --overwrite"}'
+```
+and, that would be sufficent for k8s to terminate aps/xps pods and start
+ingress ones.
+
 #### References
 [k8s daemonset](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/)
