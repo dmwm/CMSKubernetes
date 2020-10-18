@@ -27,3 +27,15 @@ kubectl delete rolebinding user-view
 # list existing rolebindings
 kubectl get rolebinding
 ```
+
+### Troubleshooting if it does not work
+
+We need to restart `k8s-keystone-auth-xxxx` pod in `kube-system` if for some reason above procedure does not work. It can be done like this:
+```
+% kubectl get pods -n kube-system | grep keystone
+k8s-keystone-auth-qj4g7                          1/1     Running   0          50d
+% kubectl delete pod k8s-keystone-auth-qj4g7 -n kube-system
+pod "k8s-keystone-auth-qj4g7" deleted
+% kubectl get pods -n kube-system | grep keystone
+k8s-keystone-auth-lhd9k                          1/1     Running   0          3s
+```
