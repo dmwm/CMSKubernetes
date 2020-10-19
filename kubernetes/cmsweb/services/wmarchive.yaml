@@ -12,6 +12,9 @@ spec:
     - port: 8200
       targetPort: 8200
       name: wma
+    - port: 18200
+      targetPort: 18200
+      name: wma-mon
 ---
 kind: ConfigMap
 apiVersion: v1
@@ -66,6 +69,11 @@ spec:
             cpu: "1000m"
         ports:
         - containerPort: 8200
+          protocol: TCP
+          name: wma
+        - containerPort: 18200
+          protocol: TCP
+          name: wma-mon
         volumeMounts:
         - name: proxy-secrets
           mountPath: /etc/proxy
