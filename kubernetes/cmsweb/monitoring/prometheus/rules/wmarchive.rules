@@ -3,7 +3,7 @@ groups:
   rules:
 
   - alert: wmarchive service is down
-    expr: avg_over_time(wma_uptime[5m]) < .9
+    expr: avg_over_time(wma_exporter_uptime[5m]) < .9
     for: 5m
     labels:
       severity: high
@@ -15,7 +15,7 @@ groups:
       description: "{{ $labels.env }} has been down for more than 5m"
 
   - alert: wmarchive high memory usage
-    expr: avg_over_time(wma_memory_percent[5m]) > 90
+    expr: avg_over_time(wma_exporter_memory_percent[5m]) > 90
     for: 5m
     labels:
       severity: high
@@ -27,7 +27,7 @@ groups:
       description: "{{ $labels.env }} memory usage above 90% for more than 5m"
 
   - alert: wmarchive high cpu usage
-    expr: avg_over_time(wma_cpu_percent[5m]) > 90
+    expr: avg_over_time(wma_exporter_cpu_percent[5m]) > 90
     for: 5m
     labels:
       severity: medium
