@@ -9,6 +9,9 @@ fi
 keytab=$1
 localLogArea=$2
 remoteLogArea=$3
+remoteHost=`echo $remoteLogArea | awk '{split($1,a,":"); print a[1]}'`
+# add remote Host to ~/.ssh/known_hosts
+ssh-keyscan $remoteHost >> ~/.ssh/known_hosts 2> /dev/null
 
 principal=`klist -k "$keytab" | tail -1 | awk '{print $2}'`
 echo "principal=$principal" 2>&1 1>& /dev/null
