@@ -15,8 +15,10 @@ kubernetes-prometheus
 # skip configs/secrets
 kubernetes/cmsweb/configs
 kubernetes/cmsweb/new
+kubernetes/cmsweb/secrets/
 kubernetes/cmsweb/CMSWeb-openrc.sh
 kubernetes/cmsweb-auth/configs/
+kubernetes/cmsweb-auth/secrets/
 kubernetes/udp-collector/secrets
 kubernetes/udp-collector/config.*
 kubernetes/udp-collector/helm_home
