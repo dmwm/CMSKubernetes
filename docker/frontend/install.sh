@@ -89,6 +89,9 @@ sh -x ./bootstrap.sh -architecture $ARCH -path $WDIR/tmp/$VER/sw -repository $RE
 # end of TMP block
 
 # deploy services
+cat $WDIR/cfg/frontend/deploy | egrep -v "80|443" > $WDIR/cfg/frontend/deploy.new
+mv $WDIR/cfg/frontend/deploy $WDIR/cfg/frontend/deploy.orig
+mv $WDIR/cfg/frontend/deploy.new $WDIR/cfg/frontend/deploy
 $WDIR/cfg/Deploy -A $ARCH -R comp@$VER -r comp=$REPO -t $VER -w $SERVER -s prep $WDIR/srv "$PKGS"
 if [ $? -ne 0 ]; then
     cat $WDIR/srv/.deploy/*-prep.log
