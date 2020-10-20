@@ -1,0 +1,39 @@
+groups:
+- name: crabcache
+  rules:
+
+  - alert: Crabcache  is down
+    expr: crabcache_exporter_num_cpus == 0
+    for: 5m
+    labels:
+      severity: high
+      tag: cmsweb
+      service: crabcache
+      action: Please restart Crabcache on {{ $labels.instance }}
+    annotations:
+      summary: "crabserver {{ $labels.env }} is down"
+      description: "{{ $labels.env }} has been down for more than 5m"
+
+  - alert: crabcache high memory usage
+    expr: avg_over_time(crabcache_exporter_memory_percent[5m]) > 90
+    for: 5m
+    labels:
+      severity: high
+      tag: cmsweb
+      service: crabcache
+      action: Please restart crabcache service
+    annotations:
+      summary: "crabcache {{ $labels.env }} has high memory usage"
+      description: "{{ $labels.env }} memory usage above 90% for more than 5m"
+
+  - alert: crabcache high cpu usage
+    expr: avg_over_time(crabcache_exporter_cpu_percent[5m]) > 90
+    for: 5m
+    labels:
+      severity: high
+      tag: cmsweb
+      service: crabcache
+      action: Please restart crabcache service
+    annotations:
+      summary: "crabcache {{ $labels.env }} has high CPU usage"
+      description: "{{ $labels.env }} CPU usage above 90% for more than 5m"
