@@ -12,6 +12,7 @@
 ##H   cluster    create openstack cluster
 ##H   services   deploy services cluster
 ##H   frontend   deploy frontend cluster
+##H   daemonset  deploy cluster's daemonsets
 ##H   ingress    deploy ingress controller
 ##H   monitoring deploy monitoring components
 ##H   crons      deploy crons components
@@ -58,6 +59,7 @@ cmsweb_ns="default crab das dbs dmwm http tzero wma"
 #cmsweb_ing="ing-srv"
 #cmsweb_ing="ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tzero ing-exitcodes"
 cmsweb_ing="ing-crab ing-dbs ing-das ing-dmwm ing-http ing-tzero ing-exitcodes ing-wma"
+cmsweb_ds=""
 
 #cmsweb_srvs="httpgo httpsgo frontend acdcserver couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
 
@@ -122,6 +124,9 @@ elif [ "$deployment" == "frontend" ]; then
     cmsweb_ns="default http"
     echo "+++ deploy services: $cmsweb_srvs"
     echo "+++ deploy ingress : $cmsweb_ing"
+elif [ "$deployment" == "daemonset" ]; then
+    cmsweb_ds="frontend"
+    echo "+++ deploy daemonset: $cmsweb_ds"
 elif [ "$deployment" == "ingress" ]; then
     echo "+++ deploy ingress: $cmsweb_ing"
 else
@@ -230,6 +235,13 @@ cleanup()
     for ing in $cmsweb_ing; do
         kubectl delete -f ingress/${ing}.yaml
     done
+
+    # delete daemonset
+    echo "--- delete daemonset"
+    for ds in $cmsweb_ds; do
+        kubectl delete -f daemonset/${ds}.yaml
+    done
+    kubectl get nodes | grep node | awk '{print $1}' | awk '{print "kubectl label node "$1" role=ingress --overwrite"}'
 
     # delete secrets
     echo "--- delete secrets"
@@ -538,6 +550,15 @@ deploy_roles()
     kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard
 }
 
+# deploy appripriate daemonset for our cluster
+deploy_daemonset()
+{
+    kubectl get nodes | grep node | awk '{print $1}' | awk '{print "kubectl label node "$1" role=auth --overwrite"}'
+    for ds in $cmsweb_ds; do
+        kubectl apply -f daemonset/${ds}.yaml
+    done
+}
+
 # deploy appripriate ingress controller for our cluster
 deploy_ingress()
 {
@@ -654,6 +675,8 @@ create()
         deploy_secrets
     elif [ "$deployment" == "ingress" ]; then
         deploy_ingress
+    elif [ "$deployment" == "daemonset" ]; then
+        deploy_daemonset
     elif [ "$deployment" == "monitoring_backend" ]; then
         deployment=services
         deploy_monitoring
