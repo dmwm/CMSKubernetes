@@ -12,6 +12,9 @@ hmac
 # 3rd party packages
 kubernetes-prometheus
 
+# docker area 
+docker/sqoop/awg-ETL-crons/
+
 # skip configs/secrets
 kubernetes/cmsweb/configs
 kubernetes/cmsweb/new
