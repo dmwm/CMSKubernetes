@@ -49,10 +49,10 @@ if [ $? -ne 0 ]; then
 fi
 
 # comment out usage of port 8443 in k8s setup
-files=`find /data/srv/$VER/sw/$ARCH -type f | xargs grep ":8443" | awk '{print $1}' | sed -e "s,:,,g" | grep py$`
-for fname in $files; do
-    sed -i -e "s,:8443,,g" $fname
-done
+#files=`find /data/srv/$VER/sw/$ARCH -type f | xargs grep ":8443" | awk '{print $1}' | sed -e "s,:,,g" | grep py$`
+#for fname in $files; do
+#    sed -i -e "s,:8443,,g" $fname
+#done
 
 # add mod_status to dmwmmon configuration
 sconf=/data/srv/state/dmwmmon/server.conf
