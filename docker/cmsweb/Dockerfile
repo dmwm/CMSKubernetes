@@ -82,6 +82,8 @@ ADD cmsweb-logs.sh $WDIR/bin/cmsweb-logs.sh
 
 # add fetch-crl to fetch all sertificates
 RUN echo "32 */6 * * * root ! /usr/sbin/fetch-crl -q -r 360" > /etc/cron.d/fetch-crl-docker
+# example how to run cmsweb-logs rsync
+# RUN echo "*/10 * * * * /data/cmsweb/bin/cmsweb-logs.sh /etc/secrets/id_dsa_public /data/srv/logs cmsweb@vocms055:/build/k8s-logs" > /etc/cron.d/cmsweb-logs
 
 # start the setup
 WORKDIR ${WDIR}
