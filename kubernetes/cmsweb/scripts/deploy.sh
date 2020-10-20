@@ -654,7 +654,11 @@ create()
         deploy_secrets
     elif [ "$deployment" == "ingress" ]; then
         deploy_ingress
-    elif [ "$deployment" == "monitoring" ]; then
+    elif [ "$deployment" == "monitoring_backend" ]; then
+        deployment=services
+        deploy_monitoring
+    elif [ "$deployment" == "monitoring_frontend" ]; then
+        deployment=frontend
         deploy_monitoring
     else
         deploy_ns
