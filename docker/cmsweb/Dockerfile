@@ -78,6 +78,7 @@ WORKDIR ${WDIR}
 ADD print_hmac $WDIR/bin/print_hmac
 ADD proxy.sh $WDIR/bin/proxy.sh
 ADD hadoop-env.sh $WDIR/bin/hadoop-env.sh
+ADD cmsweb-logs.sh $WDIR/bin/cmsweb-logs.sh
 
 # add fetch-crl to fetch all sertificates
 RUN echo "32 */6 * * * root ! /usr/sbin/fetch-crl -q -r 360" > /etc/cron.d/fetch-crl-docker
