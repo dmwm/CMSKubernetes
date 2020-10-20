@@ -7,8 +7,8 @@ how to setup custom daemon set instead of nginx-controller one.
 If node is already has nginx ingress-controller we need:
 - deploy new daemonset in auth namespace
 ```
-k deploy -f daemonset/x509-proxy-server.yaml
-k deploy -f daemonset/auth-proxy-server.yaml
+# for example we can use apache FEs daemonset and deploy it to our cluster
+k deploy -f daemonset/frontend.yaml
 ```
 
 - look-up daemon sets in our namespacs
