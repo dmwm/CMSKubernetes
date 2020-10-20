@@ -21,9 +21,10 @@ spec:
           - /data/nats-sub
           - -rootCAs=/etc/nats/CERN_CA.crt,/etc/nats/CERN_CA1.crt
           - -t
+          - -raw
           - -cmsAuth=/etc/nats/cms-auth
           - -vmUri=http://cms-monitoring.cern.ch:30422
-          - "cms.wmarchive.exitCode.>"
+          - "cms.wmarchive.exitCodes.>"
           name: nats-sub
           image: cmssw/nats-sub
           volumeMounts:
