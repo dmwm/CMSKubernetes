@@ -4,7 +4,7 @@ metadata:
   labels:
     app: frontend
   name: frontend
-  namespace: auth
+  namespace: default
 spec:
   selector:
     matchLabels:
@@ -76,7 +76,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: frontend
-  namespace: auth
+  namespace: default
 roleRef:
   kind: ClusterRole
   name: frontend
@@ -102,7 +102,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: frontend
-  namespace: auth
+  namespace: default
   labels:
     k8s-app: frontend
 ---
