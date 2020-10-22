@@ -61,7 +61,7 @@ RUN curl -k -L -O https://github.com/prometheus/node_exporter/releases/download/
 
 # build exporters
 WORKDIR $GOPATH/src/github.com/vkuznet/cmsweb-exporters
-RUN go build das2go_exporter.go && cp das2go_exporter $WDIR/bin && go build reqmgr_exporter.go && cp reqmgr_exporter $WDIR/bin && go build process_exporter.go && cp process_exporter $WDIR/bin && cp process_monitor.sh $WDIR/bin && go build wmcore_exporter.go && cp wmcore_exporter $WDIR/bin && go build cpy_exporter.go && cp cpy_exporter $WDIR/bin
+RUN go build das2go_exporter.go && cp das2go_exporter $WDIR/bin && go build reqmgr_exporter.go && cp reqmgr_exporter $WDIR/bin && go build process_exporter.go && cp process_exporter $WDIR/bin && cp process_monitor.sh $WDIR/bin && go build wmcore_exporter.go && cp wmcore_exporter $WDIR/bin && go build cpy_exporter.go && cp cpy_exporter $WDIR/bin && go build cmsweb-ping.go && cp cmsweb-ping $WDIR/bin
 
 ENV PATH="${GOPATH}/src/github.com/vkuznet/cmsweb-exporters:${GOPATH}/src/github.com/vkuznet/cmsweb-exporters/bin:${PATH}"
 
