@@ -67,6 +67,12 @@ spec:
           limits:
             memory: "3Gi"
             cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /wmarchive/data
+            port: 8200
+            initialDelaySeconds: 3
+            periodSeconds: 3
         ports:
         - containerPort: 8200
           protocol: TCP
