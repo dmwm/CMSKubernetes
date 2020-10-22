@@ -59,7 +59,7 @@ spec:
           secretName: proxy-secrets
       - name: secrets
         secret:
-          secretName: frontend-secrets
+          secretName: frontend-ds-secrets
       - name: hostcert
         hostPath:
             path: /etc/grid-security/hostcert.pem
