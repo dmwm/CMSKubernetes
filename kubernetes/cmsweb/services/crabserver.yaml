@@ -58,6 +58,16 @@ spec:
       #- image: sbelforte/crabserver:3.3.1911.rc3
       - image: cmssw/crabserver #imagetag
         name: crabserver
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8270/crabserver/prod/info"
+            - "--authz=/etc/secrets/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 300
+          periodSeconds: 10
         resources:
           requests:
             memory: "256Mi"

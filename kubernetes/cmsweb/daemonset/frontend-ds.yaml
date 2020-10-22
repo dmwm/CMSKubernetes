@@ -45,7 +45,7 @@ spec:
         volumeMounts:
         - name: proxy-secrets
           mountPath: /etc/proxy
-          defaultMode: 256
+          readOnly: true
         - name: secrets
           mountPath: /etc/secrets
           readOnly: true
@@ -59,13 +59,15 @@ spec:
           secretName: proxy-secrets
       - name: secrets
         secret:
-          secretName: frontend-secrets
+          secretName: frontend-ds-secrets
       - name: hostcert
         hostPath:
             path: /etc/grid-security/hostcert.pem
       - name: hostkey
         hostPath:
             path: /etc/grid-security/hostkey.pem
+      nodeSelector:
+        role: auth
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
