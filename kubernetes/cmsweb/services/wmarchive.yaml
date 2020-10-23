@@ -60,6 +60,12 @@ spec:
         name: wmarchive
         args:
           - /data/run.sh
+        livenessProbe:
+          httpGet:
+            path: /wmarchive/data
+            port: 8200
+          initialDelaySeconds: 300
+          periodSeconds: 10
         resources:
           requests:
             memory: "256Mi"
