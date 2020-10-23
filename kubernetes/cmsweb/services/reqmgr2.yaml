@@ -67,6 +67,16 @@ spec:
               - bash
               - -c
               - sudo chmod 0777 /data/srv/logs/reqmgr2; sudo chown _reqmgr2:_reqmgr2 /data/srv/logs/reqmgr2
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8246/reqmgr2/data/info"
+            - "--authz=/etc/secrets/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 300
+          periodSeconds: 10
         resources:
           requests:
             memory: "256Mi"

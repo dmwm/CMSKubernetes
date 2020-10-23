@@ -56,6 +56,16 @@ spec:
       containers:
       - image: cmssw/workqueue #imagetag
         name: workqueue
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8240/workqueue/index.html"
+            - "--authz=/etc/secrets/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 300
+          periodSeconds: 10
         resources:
           requests:
             memory: "256Mi"
