@@ -67,6 +67,16 @@ spec:
               - bash
               - -c
               - sudo chmod 0777 /data/srv/state/crabcache/files; sudo chown _crabcache:_crabcache /data/srv/state/crabcache/files
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8271/crabcache/info"
+            - "--authz=/etc/secrets/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 300
+          periodSeconds: 10
         resources:
           requests:
             memory: "256Mi"

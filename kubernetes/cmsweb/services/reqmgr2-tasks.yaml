@@ -41,6 +41,15 @@ spec:
       containers:
       - image: cmssw/reqmgr2 #imagetag
         name: reqmgr2-tasks
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8246/reqmgr2/data/info"
+            - "--authz=/etc/secrets/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 300
         resources:
           requests:
             memory: "256Mi"

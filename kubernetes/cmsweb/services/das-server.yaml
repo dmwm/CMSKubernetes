@@ -53,11 +53,11 @@ spec:
           httpGet:
             path: /das/status
             port: 8217
-            initialDelaySeconds: 3
-            periodSeconds: 3
             httpHeaders:
             - name: Accept
-              valye: application/json
+              value: application/json
+          initialDelaySeconds: 300
+          periodSeconds: 10
         ports:
         - containerPort: 8217
           protocol: TCP
