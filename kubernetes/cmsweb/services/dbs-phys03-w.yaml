@@ -62,6 +62,16 @@ spec:
       containers:
       - image: cmssw/dbs #imagetag
         name: dbs-phys03-w
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8255/dbs/int/phys03/DBSWriter/"
+            - "--authz=/etc/secrets/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 300
+          periodSeconds: 10
         resources:
           requests:
             memory: "2000Mi"

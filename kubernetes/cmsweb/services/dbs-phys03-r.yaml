@@ -62,6 +62,16 @@ spec:
       containers:
       - image: cmssw/dbs #imagetag
         name: dbs-phys03-r
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8254/dbs/int/phys03/DBSReader/"
+            - "--authz=/etc/secrets/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 300
+          periodSeconds: 10
         resources:
           requests:
             memory: "2000Mi"

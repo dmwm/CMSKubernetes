@@ -61,6 +61,16 @@ spec:
       containers:
       - image: cmssw/dbs #imagetag
         name: dbs-migrate
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8257/dbs/dev/global/DBSMigrate/"
+            - "--authz=/etc/secrets/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 300
+          periodSeconds: 10
         resources:
           requests:
             memory: "256Mi"
