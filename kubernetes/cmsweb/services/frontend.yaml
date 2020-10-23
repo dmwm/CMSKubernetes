@@ -55,6 +55,12 @@ spec:
       containers:
       - image: cmssw/frontend #imagetag
         name: frontend
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 300
+          periodSeconds: 10
         resources:
           requests:
             memory: "2Gi"
