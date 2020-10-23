@@ -37,6 +37,12 @@ spec:
       containers:
       - image: cmssw/exitcodes #imagetag
         name: exitcodes
+        livenessProbe:
+          httpGet:
+            path: /exitcodes/status
+            port: 9201
+          initialDelaySeconds: 300
+          periodSeconds: 10
         resources:
           requests:
             memory: "64Mi"
