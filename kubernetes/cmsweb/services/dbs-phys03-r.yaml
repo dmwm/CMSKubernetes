@@ -66,7 +66,7 @@ spec:
           exec:
             command:
             - cmsweb-ping
-            - "--url=http://localhost:8254/dbs/int/phys03/DBSReader/"
+            - "--url=http://localhost:8254/dbs/prod/phys03/DBSReader/"
             - "--authz=/etc/secrets/hmac"
             - -verbose
             - "0"

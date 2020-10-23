@@ -65,7 +65,7 @@ spec:
           exec:
             command:
             - cmsweb-ping
-            - "--url=http://localhost:8257/dbs/dev/global/DBSMigrate/"
+            - "--url=http://localhost:8257/dbs/prod/global/DBSMigrate/"
             - "--authz=/etc/secrets/hmac"
             - -verbose
             - "0"
