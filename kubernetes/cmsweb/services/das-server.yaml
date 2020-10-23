@@ -42,15 +42,6 @@ spec:
         env:
         - name: X509_USER_PROXY
           value: /etc/proxy/proxy
-        livenessProbe:
-          httpGet:
-            path: /das/status
-            port: 8217
-          initialDelaySeconds: 300
-          periodSeconds: 10
-          httpHeaders:
-            - name: Accept
-              value: application/json
         resources:
           requests:
             memory: "100Mi"
