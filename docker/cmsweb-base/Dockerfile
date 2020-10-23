@@ -1,4 +1,4 @@
-FROM cern/cc7-base:20200901-1.x86_64
+FROM cern/cc7-base:20201001-1.x86_64
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 ADD http://repository.egi.eu/sw/production/cas/1/current/repo-files/EGI-trustanchors.repo /etc/yum.repos.d/egi.repo
 ADD http://linuxsoft.cern.ch/wlcg/wlcg-centos7.repo /etc/yum.repos.d/wlcg-centos7.repo
