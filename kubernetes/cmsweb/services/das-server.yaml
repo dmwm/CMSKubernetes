@@ -44,10 +44,13 @@ spec:
           value: /etc/proxy/proxy
         livenessProbe:
           httpGet:
-            path: /das
+            path: /das/status
             port: 8217
           initialDelaySeconds: 300
           periodSeconds: 10
+          httpHeaders:
+            - name: Accept
+              value: application/json
         resources:
           requests:
             memory: "100Mi"
@@ -59,11 +62,11 @@ spec:
           httpGet:
             path: /das/status
             port: 8217
-            initialDelaySeconds: 3
-            periodSeconds: 3
             httpHeaders:
             - name: Accept
-              valye: application/json
+              value: application/json
+          initialDelaySeconds: 300
+          periodSeconds: 10
         ports:
         - containerPort: 8217
           protocol: TCP
