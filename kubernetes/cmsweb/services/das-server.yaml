@@ -55,6 +55,15 @@ spec:
           limits:
             memory: "3Gi"
             cpu: "4000m"
+        livenessProbe:
+          httpGet:
+            path: /das/status
+            port: 8217
+            initialDelaySeconds: 3
+            periodSeconds: 3
+            httpHeaders:
+            - name: Accept
+              valye: application/json
         ports:
         - containerPort: 8217
           protocol: TCP

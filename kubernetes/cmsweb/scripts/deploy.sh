@@ -51,15 +51,17 @@ sdir=services
 mdir=monitoring
 idir=ingress
 cdir=crons
+ddir=daemonset
+
 
 # cmsweb service namespaces
 #cmsweb_ns=`grep namespace $sdir/* | awk '{print $3}' | sort | uniq | grep -v default | grep -v phedex | grep -v couchdb | grep -v dqm | grep -v auth | grep -v mongodb | grep -v udp | grep -v tfaas`
-cmsweb_ns="default crab das dbs dmwm http tzero wma"
+cmsweb_ns="auth default crab das dbs dmwm http tzero wma"
 # services for cmsweb cluster, adjust if necessary
 #cmsweb_ing="ing-srv"
 #cmsweb_ing="ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tzero ing-exitcodes"
 cmsweb_ing="ing-crab ing-dbs ing-das ing-dmwm ing-http ing-tzero ing-exitcodes ing-wma"
-cmsweb_ds=""
+cmsweb_ds="frontend-ds"
 
 #cmsweb_srvs="httpgo httpsgo frontend acdcserver couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
 
@@ -125,7 +127,7 @@ elif [ "$deployment" == "frontend" ]; then
     echo "+++ deploy services: $cmsweb_srvs"
     echo "+++ deploy ingress : $cmsweb_ing"
 elif [ "$deployment" == "daemonset" ]; then
-    cmsweb_ds="frontend"
+    cmsweb_ds="frontend-ds"
     echo "+++ deploy daemonset: $cmsweb_ds"
 elif [ "$deployment" == "ingress" ]; then
     echo "+++ deploy ingress: $cmsweb_ing"
@@ -404,9 +406,32 @@ deploy_secrets()
             fi
         done
 
+        for srv in $cmsweb_ds; do
+            local secretdir=$conf/$srv
+            # the underscrore is not allowed in secret names
+            local osrv=$srv
+            srv=`echo $srv | sed -e "s,_,,g"`
+            local files=""
+            if [ -d $secretdir ] && [ -n "`ls $secretdir`" ]; then
+                for fname in $secretdir/*; do
+                    files="$files --from-file=$fname"
+                done
+            fi
+            local srv_ns=`grep namespace $ddir/${osrv}.yaml | grep $ns`
+                if [ -z "$srv_ns" ] ; then
+                    continue
+                fi
+                kubectl create secret generic ${srv}-secrets \
+                    --from-file=$robot_key --from-file=$robot_crt \
+                    --from-file=$hmac \
+                    $files --dry-run -o yaml | \
+                    kubectl apply --namespace=$ns -f -
+        done
+
     done
 
     # create ingress secrets file, it requires tls.key/tls.crt files
+
     kubectl create secret generic ing-secrets \
         --from-file=$tls_key --from-file=$tls_crt --dry-run -o yaml | \
         kubectl apply -f -
@@ -691,7 +716,7 @@ create()
 	fi
         deploy_services
         deploy_roles
-        deploy_ingress
+#        deploy_ingress
         deploy_crons
         deploy_monitoring
     fi
