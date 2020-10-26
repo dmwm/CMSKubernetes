@@ -18,7 +18,7 @@ RUN git checkout tags/$TAG -b build && make
 FROM cmssw/cmsweb-base:latest as cmsweb-base
 
 FROM alpine
-RUN mkdir -p /data/static
+RUN mkdir -p /data/static && mkdir -p /data/srv/logs/frontend
 COPY --from=go-builder /data/auth-proxy-server/auth-proxy-server /data/
 COPY --from=go-builder /data/auth-proxy-server/static/cmsmon/index.html /data/static/
 COPY --from=cmsweb-base /etc/grid-security /etc/grid-security
