@@ -67,6 +67,8 @@ spec:
           initialDelaySeconds: 300
           periodSeconds: 10
         resources:
+          # This service also relies on the DataCache thread, so the
+          # memory footprint can be very high
           requests:
             memory: "5Gi"
             cpu: "1"
