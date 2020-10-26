@@ -21,9 +21,13 @@ spec:
       serviceAccountName: auth-proxy-server
       terminationGracePeriodSeconds: 60
       hostNetwork: true
+      # this daemonset will be applied to all nodes which will have role=autha label
+      # kubectl label node <node-name> role=auth --overwrite
+      nodeSelector:
+        role: auth
       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/auth-proxy-server:20201014-0.1.43
+      - image: cmssw/auth-proxy-server:20201026-0.1.43
         name: auth-proxy-server
 #         imagePullPolicy: Always
         args:
