@@ -32,6 +32,8 @@ cmsweb_hostname=${CMSWEB_HOSTNAME:-cmsweb-srv.cern.ch}
 cmsweb_hostname_frontend=${CMSWEB_HOSTNAME_FRONTEND:-cmsweb-test.cern.ch}
 cmsweb_image_tag=${CMSWEB_IMAGE_TAG:-:latest}
 
+
+
 env_prefix="k8s"
 prod_prefix="#PROD#"
 # we define logs_prefix as empty for all use-cases
@@ -309,6 +311,13 @@ deploy_secrets()
         cp $cmsweb_crt $conf/frontend/hostcert.pem
     fi
 
+    if [ ! -f $conf/frontend-ds/hostkey.pem ]; then
+        cp $cmsweb_key $conf/frontend-ds/hostkey.pem
+    fi
+    if [ ! -f $conf/frontend-ds/hostcert.pem ]; then
+        cp $cmsweb_crt $conf/frontend-ds/hostcert.pem
+    fi
+
     tls_key=/tmp/$USER/tls.key
     tls_crt=/tmp/$USER/tls.crt
     proxy=/tmp/$USER/proxy
@@ -578,7 +587,12 @@ deploy_roles()
 # deploy appripriate daemonset for our cluster
 deploy_daemonset()
 {
-    kubectl get nodes | grep node | awk '{print $1}' | awk '{print "kubectl label node "$1" role=auth --overwrite"}'
+
+    for n in `kubectl get nodes | grep -v master | grep -v NAME | awk '{print $1}'`; do
+        kubectl label node $n role=auth --overwrite
+        kubectl get node -l role=auth
+    done
+    
     for ds in $cmsweb_ds; do
         kubectl apply -f daemonset/${ds}.yaml
     done
@@ -714,9 +728,13 @@ create()
 	if [[ ("$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod")  && ("$deployment" == "services") ]]; then
      		deploy_storages
 	fi
+
+
         deploy_services
         deploy_roles
-#        deploy_ingress
+        if [ "$SERVICES_INGRESS" == "yes" ]; then
+           deploy_ingress
+        fi
         deploy_crons
         deploy_monitoring
     fi
