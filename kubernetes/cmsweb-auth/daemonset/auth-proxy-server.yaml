@@ -27,7 +27,7 @@ spec:
         role: auth
       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/auth-proxy-server:20201026-0.1.43
+      - image: cmssw/auth-proxy-server:20201026-0.1.47
         name: auth-proxy-server
 #         imagePullPolicy: Always
         args:
