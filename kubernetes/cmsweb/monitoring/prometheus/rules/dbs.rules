@@ -7,6 +7,22 @@ groups:
     expr: avg_over_time(dbs_global_exporter_process_open_fds[5m])
   - record: avg_est_connections
     expr: avg_over_time(dbs_global_exporter_established_connections[5m])
+  - record: avg_dbs_global_w_cpu_rate
+    expr: avg_over_time(dbs_globalW_exporter_process_cpu_seconds_total[15m])
+  - record: max_dbs_global_w_fds
+    expr: max_over_time(dbs_globalW_exporter_process_open_fds[1m])
+  - record: max_dbs_migrate_cpu_rate
+    expr: avg_over_time(dbs_migrate_exporter_process_cpu_seconds_total[15m])
+  - record: max_dbs_migrate_fds
+    expr: max_over_time(dbs_migrate_exporter_process_open_fds[1m])
+  - record: avg_dbs_phys03_r_cpu_rate
+    expr: avg_over_time(dbs_phys03R_exporter_process_cpu_seconds_total[15m])
+  - record: max_dbs_phys03_r_fds
+    expr: max_over_time(dbs_phys03R_exporter_process_open_fds[1m])
+  - record: avg_dbs_phys03_w_cpu_rate
+    expr: avg_over_time(dbs_phys03W_exporter_process_cpu_seconds_total[15m])
+  - record: max_dbs_phys03_w_fds
+    expr: max_over_time(dbs_phys03W_exporter_process_open_fds[1m])
   - record: sum_avg_dbs_global_exporter_proc_cpu
     expr: sum(avg_over_time(dbs_global_exporter_proc_cpu[1h]))
     labels:
@@ -37,6 +53,11 @@ groups:
     labels:
       aggregate: 1h
       monit_forward: "true"
+  - record: sum_avg_dbs_global_exporter_process_open_fds
+    expr: sum(avg_over_time(dbs_global_exporter_process_open_fds[1h]))
+    labels:
+      aggregate: 1h
+      monit_forward: "true"
   - record: sum_avg_dbs_global_exporter_process_cpu_seconds_total
     expr: sum(avg_over_time(dbs_global_exporter_process_cpu_seconds_total[1h]))
     labels:
@@ -44,11 +65,6 @@ groups:
       monit_forward: "true"
   - record: sum_avg_dbs_global_exporter_process_resident_memory_bytes
     expr: sum(avg_over_time(dbs_global_exporter_process_resident_memory_bytes[1h]))
-    labels:
-      aggregate: 1h
-      monit_forward: "true"
-  - record: sum_avg_dbs_global_exporter_process_open_fds
-    expr: sum(avg_over_time(dbs_global_exporter_process_open_fds[1h]))
     labels:
       aggregate: 1h
       monit_forward: "true"
@@ -142,3 +158,111 @@ groups:
     annotations:
       summary: "DBS global {{ $labels.env }} environment"
       description: "{{ $labels.env }} has large number of connections {{ $value }} for more than 1m"
+
+  - alert: No data for DBS-globalW CPU rate
+    expr: avg_dbs_global_w_cpu_rate < 0.0001
+    for: 1m
+    labels:
+      severity: high
+      tag: cmsweb
+      service: dbs
+      action: There is no data for DBS-globalW CPU rate, please check DBS instance {{ $labels.instance }}
+    annotations:
+      summary: "DBS global {{ $labels.env }} environment"
+      description: "For {{ $labels.env }} environment : there is no data for DBS-globalW CPU rate"
+
+  - alert: Number of DBS-globalW file descriptors is high
+    expr: max_dbs_global_w_fds > 1000
+    for: 1m
+    labels:
+      severity: high
+      tag: cmsweb
+      service: dbs
+      action: Number of DBS-globalW file descriptors is high (above 1000), please check DBS instance {{ $labels.instance }}
+    annotations:
+      summary: "DBS global {{ $labels.env }} environment"
+      description: "For {{ $labels.env }} environment : Number of DBS-globalW file descriptors is {{ $value }}."
+
+  - alert: No data for DBS-migrate CPU rate
+    expr: max_dbs_migrate_cpu_rate < 0.0001
+    for: 1m
+    labels:
+     severity: high
+     tag: cmsweb
+     service: dbs
+     action: There is no data for DBS-migrate CPU rate, please check DBS instance {{ $labels.instance }}
+    annotations:
+     summary: "DBS global {{ $labels.env }} environment"
+     description: "For {{ $labels.env }} environment : there is no data for DBS-migrate CPU rate"
+
+  - alert: Number of DBS-migrate file descriptors is in warning
+    expr: max_dbs_migrate_fds > 500
+    for: 1m
+    labels:
+     severity: warning
+     tag: cmsweb
+     service: dbs
+     action: Number of DBS-migrate file descriptors is in warning (above 500), please check DBS instance {{ $labels.instance }}
+    annotations:
+     summary: "DBS global {{ $labels.env }} environment"
+     description: "For {{ $labels.env }} environment : Number of DBS-migrate file descriptors is {{ $value }}."
+
+  - alert: Number of DBS-migrate file descriptors is high
+    expr: max_dbs_migrate_fds > 1000
+    for: 1m
+    labels:
+     severity: high
+     tag: cmsweb
+     service: dbs
+     action: Number of DBS-migrate file descriptors is high (above 1000), please check DBS instance {{ $labels.instance }}
+    annotations:
+     summary: "DBS global {{ $labels.env }} environment"
+     description: "For {{ $labels.env }} environment : Number of DBS-migrate file descriptors is {{ $value }}."
+
+  - alert: No data for DBS-phys03R CPU rate
+    expr: avg_dbs_phys03_r_cpu_rate < 0.0001
+    for: 1m
+    labels:
+     severity: high
+     tag: cmsweb
+     service: dbs
+     action: There is no data for DBS-phys03R CPU rate, please check DBS instance {{ $labels.instance }}
+    annotations:
+     summary: "DBS global {{ $labels.env }} environment"
+     description: "For {{ $labels.env }} environment : there is no data for DBS-phys03R CPU rate"
+
+  - alert: Number of DBS-phys03R file descriptors is high
+    expr: max_dbs_phys03_r_fds > 1000
+    for: 1m
+    labels:
+     severity: high
+     tag: cmsweb
+     service: dbs
+     action: Number of DBS-phys03R file descriptors is high (above 1000), please check DBS instance {{ $labels.instance }}
+    annotations:
+     summary: "DBS global {{ $labels.env }} environment"
+     description: "For {{ $labels.env }} environment : Number of DBS-phys03R file descriptors is {{ $value }}."
+
+  - alert: No data for DBS-phys03W CPU rate
+    expr: avg_dbs_phys03_w_cpu_rate < 0.0001
+    for: 1m
+    labels:
+     severity: high
+     tag: cmsweb
+     service: dbs
+     action: There is no data for DBS-phys03W CPU rate, please check DBS instance {{ $labels.instance }}
+    annotations:
+     summary: "DBS global {{ $labels.env }} environment"
+     description: "For {{ $labels.env }} environment : there is no data for DBS-phys03W CPU rate"
+
+  - alert: Number of DBS-phys03W file descriptors is high
+    expr: max_dbs_phys03_w_fds > 1000
+    for: 1m
+    labels:
+     severity: high
+     tag: cmsweb
+     service: dbs
+     action: Number of DBS-phys03W file descriptors is high (above 1000), please check DBS instance {{ $labels.instance }}
+    annotations:
+     summary: "DBS global {{ $labels.env }} environment"
+     description: "For {{ $labels.env }} environment : Number of DBS-phys03W file descriptors is {{ $value }}."
