@@ -41,7 +41,7 @@ spec:
           httpGet:
             path: /exitcodes/status
             port: 9201
-          initialDelaySeconds: 100
+          initialDelaySeconds: 120
           periodSeconds: 10
         resources:
           requests:
