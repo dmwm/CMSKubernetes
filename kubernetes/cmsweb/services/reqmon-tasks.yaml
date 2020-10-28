@@ -44,7 +44,7 @@ spec:
             - "--authz=/etc/secrets/hmac"
             - -verbose
             - "0"
-          initialDelaySeconds: 300
+          initialDelaySeconds: 100
           periodSeconds: 10
         resources:
           requests:
