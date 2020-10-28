@@ -224,6 +224,9 @@ scrape_configs:
       regex: ([^:]+)(?::\d+)?;(\d+)
       replacement: $1:$2
       target_label: __address__
+    - source_labels: [__meta_kubernetes_pod_node_name]
+      action: replace
+      target_label: host
     - action: labeldrop
       regex: __meta_kubernetes_pod_label_pod_(.+)
     - source_labels: [__meta_kubernetes_namespace]
