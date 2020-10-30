@@ -9,6 +9,7 @@ groups:
       severity: high
       tag: cmsweb
       service: crab
+      host: "{{ $labels.host }}"
       action: Please restart CRAB server on {{ $labels.instance }}
     annotations:
       summary: "crabserver {{ $labels.env }} is down"

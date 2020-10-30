@@ -9,6 +9,7 @@ groups:
       severity: high
       tag: cmsweb
       service: mongodb
+      host: "{{ $labels.host }}"
       kind: database
       action: Please restart MongoDB on {{ $labels.instance }}
     annotations:

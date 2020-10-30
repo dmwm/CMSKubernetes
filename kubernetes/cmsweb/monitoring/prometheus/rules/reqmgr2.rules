@@ -9,6 +9,7 @@ groups:
       severity: high
       tag: cmsweb
       service: reqmgr2
+      host: "{{ $labels.host }}"
       kind: dmwm
       action: Please restart ReqMgr2 service on {{ $labels.instance }}
     annotations:
@@ -22,6 +23,7 @@ groups:
       severity: medium
       tag: cmsweb
       service: reqmgr2
+      host: "{{ $labels.host }}"
       kind: dmwm
     annotations:
       summary: "reqmgr2 {{ $labels.env }} has large memory usage"
@@ -34,6 +36,7 @@ groups:
       severity: medium
       tag: cmsweb
       service: reqmgr2
+      host: "{{ $labels.host }}"
       kind: dmwm
     annotations:
       summary: "reqmgr2 {{ $labels.env }} has large cpu usage"

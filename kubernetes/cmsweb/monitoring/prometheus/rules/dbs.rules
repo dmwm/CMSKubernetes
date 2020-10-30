@@ -53,11 +53,6 @@ groups:
     labels:
       aggregate: 1h
       monit_forward: "true"
-  - record: sum_avg_dbs_global_exporter_process_open_fds
-    expr: sum(avg_over_time(dbs_global_exporter_process_open_fds[1h]))
-    labels:
-      aggregate: 1h
-      monit_forward: "true"
   - record: sum_avg_dbs_global_exporter_process_cpu_seconds_total
     expr: sum(avg_over_time(dbs_global_exporter_process_cpu_seconds_total[1h]))
     labels:
@@ -106,6 +101,7 @@ groups:
       severity: high
       tag: cmsweb
       service: dbs
+      host: "{{ $labels.host }}"
       action: Please restart DBS instance {{ $labels.instance }}
     annotations:
       summary: "DBS global instance {{ $labels.env }} down"
@@ -118,6 +114,7 @@ groups:
       severity: warning
       tag: cmsweb
       service: dbs
+      host: "{{ $labels.host }}"
       action: Please check DBS instance {{ $labels.instance }}
     annotations:
       summary: "DBS global {{ $labels.env }} environment"
@@ -130,6 +127,7 @@ groups:
       severity: high
       tag: cmsweb
       service: dbs
+      host: "{{ $labels.host }}"
       action: Please check DBS instance {{ $labels.instance }} and possibly restart it
     annotations:
       summary: "DBS global {{ $labels.env }} environment"
@@ -142,6 +140,7 @@ groups:
       severity: high
       tag: cmsweb
       service: dbs
+      host: "{{ $labels.host }}"
       action: Please restart DBS instance {{ $labels.instance }}
     annotations:
       summary: "DBS global {{ $labels.env }} environment"
@@ -154,6 +153,7 @@ groups:
       severity: high
       tag: cmsweb
       service: dbs
+      host: "{{ $labels.host }}"
       action: Please check DBS logs on {{ $labels.instance }} for suspicious activity
     annotations:
       summary: "DBS global {{ $labels.env }} environment"
@@ -166,6 +166,7 @@ groups:
       severity: high
       tag: cmsweb
       service: dbs
+      host: "{{ $labels.host }}"
       action: There is no data for DBS-globalW CPU rate, please check DBS instance {{ $labels.instance }}
     annotations:
       summary: "DBS global {{ $labels.env }} environment"
@@ -178,6 +179,7 @@ groups:
       severity: high
       tag: cmsweb
       service: dbs
+      host: "{{ $labels.host }}"
       action: Number of DBS-globalW file descriptors is high (above 1000), please check DBS instance {{ $labels.instance }}
     annotations:
       summary: "DBS global {{ $labels.env }} environment"
@@ -187,82 +189,89 @@ groups:
     expr: max_dbs_migrate_cpu_rate < 0.0001
     for: 1m
     labels:
-     severity: high
-     tag: cmsweb
-     service: dbs
-     action: There is no data for DBS-migrate CPU rate, please check DBS instance {{ $labels.instance }}
+      severity: high
+      tag: cmsweb
+      service: dbs
+      host: "{{ $labels.host }}"
+      action: There is no data for DBS-migrate CPU rate, please check DBS instance {{ $labels.instance }}
     annotations:
-     summary: "DBS global {{ $labels.env }} environment"
-     description: "For {{ $labels.env }} environment : there is no data for DBS-migrate CPU rate"
+      summary: "DBS global {{ $labels.env }} environment"
+      description: "For {{ $labels.env }} environment : there is no data for DBS-migrate CPU rate"
 
   - alert: Number of DBS-migrate file descriptors is in warning
     expr: max_dbs_migrate_fds > 500
     for: 1m
     labels:
-     severity: warning
-     tag: cmsweb
-     service: dbs
-     action: Number of DBS-migrate file descriptors is in warning (above 500), please check DBS instance {{ $labels.instance }}
+      severity: warning
+      tag: cmsweb
+      service: dbs
+      host: "{{ $labels.host }}"
+      action: Number of DBS-migrate file descriptors is in warning (above 500), please check DBS instance {{ $labels.instance }}
     annotations:
-     summary: "DBS global {{ $labels.env }} environment"
-     description: "For {{ $labels.env }} environment : Number of DBS-migrate file descriptors is {{ $value }}."
+      summary: "DBS global {{ $labels.env }} environment"
+      description: "For {{ $labels.env }} environment : Number of DBS-migrate file descriptors is {{ $value }}."
 
   - alert: Number of DBS-migrate file descriptors is high
     expr: max_dbs_migrate_fds > 1000
     for: 1m
     labels:
-     severity: high
-     tag: cmsweb
-     service: dbs
-     action: Number of DBS-migrate file descriptors is high (above 1000), please check DBS instance {{ $labels.instance }}
+      severity: high
+      tag: cmsweb
+      service: dbs
+      host: "{{ $labels.host }}"
+      action: Number of DBS-migrate file descriptors is high (above 1000), please check DBS instance {{ $labels.instance }}
     annotations:
-     summary: "DBS global {{ $labels.env }} environment"
-     description: "For {{ $labels.env }} environment : Number of DBS-migrate file descriptors is {{ $value }}."
+      summary: "DBS global {{ $labels.env }} environment"
+      description: "For {{ $labels.env }} environment : Number of DBS-migrate file descriptors is {{ $value }}."
 
   - alert: No data for DBS-phys03R CPU rate
     expr: avg_dbs_phys03_r_cpu_rate < 0.0001
     for: 1m
     labels:
-     severity: high
-     tag: cmsweb
-     service: dbs
-     action: There is no data for DBS-phys03R CPU rate, please check DBS instance {{ $labels.instance }}
+      severity: high
+      tag: cmsweb
+      service: dbs
+      host: "{{ $labels.host }}"
+      action: There is no data for DBS-phys03R CPU rate, please check DBS instance {{ $labels.instance }}
     annotations:
-     summary: "DBS global {{ $labels.env }} environment"
-     description: "For {{ $labels.env }} environment : there is no data for DBS-phys03R CPU rate"
+      summary: "DBS global {{ $labels.env }} environment"
+      description: "For {{ $labels.env }} environment : there is no data for DBS-phys03R CPU rate"
 
   - alert: Number of DBS-phys03R file descriptors is high
     expr: max_dbs_phys03_r_fds > 1000
     for: 1m
     labels:
-     severity: high
-     tag: cmsweb
-     service: dbs
-     action: Number of DBS-phys03R file descriptors is high (above 1000), please check DBS instance {{ $labels.instance }}
+      severity: high
+      tag: cmsweb
+      service: dbs
+      host: "{{ $labels.host }}"
+      action: Number of DBS-phys03R file descriptors is high (above 1000), please check DBS instance {{ $labels.instance }}
     annotations:
-     summary: "DBS global {{ $labels.env }} environment"
-     description: "For {{ $labels.env }} environment : Number of DBS-phys03R file descriptors is {{ $value }}."
+      summary: "DBS global {{ $labels.env }} environment"
+      description: "For {{ $labels.env }} environment : Number of DBS-phys03R file descriptors is {{ $value }}."
 
   - alert: No data for DBS-phys03W CPU rate
     expr: avg_dbs_phys03_w_cpu_rate < 0.0001
     for: 1m
     labels:
-     severity: high
-     tag: cmsweb
-     service: dbs
-     action: There is no data for DBS-phys03W CPU rate, please check DBS instance {{ $labels.instance }}
+      severity: high
+      tag: cmsweb
+      service: dbs
+      host: "{{ $labels.host }}"
+      action: There is no data for DBS-phys03W CPU rate, please check DBS instance {{ $labels.instance }}
     annotations:
-     summary: "DBS global {{ $labels.env }} environment"
-     description: "For {{ $labels.env }} environment : there is no data for DBS-phys03W CPU rate"
+      summary: "DBS global {{ $labels.env }} environment"
+      description: "For {{ $labels.env }} environment : there is no data for DBS-phys03W CPU rate"
 
   - alert: Number of DBS-phys03W file descriptors is high
     expr: max_dbs_phys03_w_fds > 1000
     for: 1m
     labels:
-     severity: high
-     tag: cmsweb
-     service: dbs
-     action: Number of DBS-phys03W file descriptors is high (above 1000), please check DBS instance {{ $labels.instance }}
+      severity: high
+      tag: cmsweb
+      service: dbs
+      host: "{{ $labels.host }}"
+      action: Number of DBS-phys03W file descriptors is high (above 1000), please check DBS instance {{ $labels.instance }}
     annotations:
-     summary: "DBS global {{ $labels.env }} environment"
-     description: "For {{ $labels.env }} environment : Number of DBS-phys03W file descriptors is {{ $value }}."
+      summary: "DBS global {{ $labels.env }} environment"
+      description: "For {{ $labels.env }} environment : Number of DBS-phys03W file descriptors is {{ $value }}."

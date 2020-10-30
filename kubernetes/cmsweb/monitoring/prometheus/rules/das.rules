@@ -9,6 +9,7 @@ groups:
       severity: high
       tag: cmsweb
       service: das
+      host: "{{ $labels.host }}"
       action: Please restart DAS and MongoDB services
     annotations:
       summary: "DAS {{ $labels.env }} is down"
@@ -21,6 +22,7 @@ groups:
       severity: high
       tag: cmsweb
       service: das
+      host: "{{ $labels.host }}"
       action: Please restart DAS service
     annotations:
       summary: "DAS {{ $labels.env }} has high memory usage"
@@ -33,6 +35,7 @@ groups:
       severity: medium
       tag: cmsweb
       service: das
+      host: "{{ $labels.host }}"
     annotations:
       summary: "DAS {{ $labels.env }} has high CPU usage"
       description: "{{ $labels.env }} CPU usage above 90% for more than 5m"
