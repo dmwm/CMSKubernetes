@@ -15,6 +15,10 @@ conf=$3
     echo "+++ cms service : $srv"
     echo "+++ namespaces   : $ns"
 
+    if [ ! -d $conf/$srv ]; then
+	echo "Unable to locate $conf/$srv, please provide proper directory structure like <configuration>/<service>/<files>"
+  	exit 1
+    fi
 
     # check (and copy if necessary) hostkey/hostcert.pem files in configuration area of frontend
 
