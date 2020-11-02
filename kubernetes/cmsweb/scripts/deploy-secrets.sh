@@ -1,28 +1,20 @@
 #!/bin/bash
 # helper script to deploy given service with given tag to k8s infrastructure
 
-if [ $# -ne 5 ]; then
-    echo "Usage: deploy-secrets.sh <namespace> <service-name> <path_to_configuration> <path_to_certificates> <path_to_hmac>"
+if [ $# -ne 3 ]; then
+    echo "Usage: deploy-secrets.sh <namespace> <service-name> <path_to_configuration>"
     exit 1
 fi
 
 ns=$1
 srv=$2
 conf=$3
-certificates=$4
-hmac=$5
 
     # cmsweb configuration area
     echo "+++ configuration: $conf"
-    echo "+++ certificates : $certificates"
     echo "+++ cms service : $srv"
     echo "+++ namespaces   : $ns"
 
-    # robot keys and cmsweb host certificates
-    robot_key=$certificates/robotkey.pem
-    robot_crt=$certificates/robotcert.pem
-    cmsweb_key=$certificates/cmsweb-hostkey.pem
-    cmsweb_crt=$certificates/cmsweb-hostcert.pem
 
     # check (and copy if necessary) hostkey/hostcert.pem files in configuration area of frontend
 
@@ -68,9 +60,9 @@ hmac=$5
                 fi
         fi
 
+
+echo $files
         kubectl create secret generic ${srv}-secrets \
-        	--from-file=$robot_key --from-file=$robot_crt \
-                --from-file=$hmac \
                 $files --dry-run -o yaml | \
                 kubectl apply --namespace=$ns -f -
 
