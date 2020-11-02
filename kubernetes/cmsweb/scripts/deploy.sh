@@ -346,7 +346,7 @@ deploy_secrets()
         # create secrets with our robot certificates
         kubectl create secret generic robot-secrets \
             --from-file=$robot_key --from-file=$robot_crt \
-            $files --dry-run -o yaml | \
+            --from-file=$hmac  $files --dry-run -o yaml | \
             kubectl apply --namespace=$ns -f -
 
         # create proxy secret
