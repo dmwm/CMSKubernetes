@@ -61,7 +61,6 @@ conf=$3
         fi
 
 
-echo $files
         kubectl create secret generic ${srv}-secrets \
                 $files --dry-run -o yaml | \
                 kubectl apply --namespace=$ns -f -
