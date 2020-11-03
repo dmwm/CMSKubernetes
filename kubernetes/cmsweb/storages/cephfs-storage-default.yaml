@@ -2,7 +2,7 @@ apiVersion: storage.k8s.io/v1beta1
 kind: StorageClass
 metadata:
   name: default-share
-  namespace: default
+  namespace: auth
 provisioner: manila-provisioner
 parameters:
   type: "Meyrin CephFS"
@@ -19,7 +19,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: logs-cephfs-claim-preprod-default
-  namespace: default
+  namespace: auth
 spec:
   accessModes:
   - ReadWriteMany
@@ -27,4 +27,3 @@ spec:
     requests:
       storage: 22G
   storageClassName: default-share
-
