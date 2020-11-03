@@ -10,7 +10,7 @@ RUN go get github.com/go-stomp/stomp
 RUN go get github.com/vkuznet/x509proxy
 
 # tag to use
-ENV TAG=0.5.4
+ENV TAG=0.5.5
 
 RUN git clone https://github.com/dmwm/CMSMonitoring.git
 WORKDIR $WDIR/CMSMonitoring
