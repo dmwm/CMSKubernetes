@@ -36,7 +36,7 @@ spec:
       securityContext: {}
 
       containers:
-      - image: cmssw/auth-proxy-server:20201026-0.1.47
+      - image: cmssw/auth-proxy-server:20201103-0.1.49
         name: x509-proxy-server
 #         imagePullPolicy: Always
         args:
