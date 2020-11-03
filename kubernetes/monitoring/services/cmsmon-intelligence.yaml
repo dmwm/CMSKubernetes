@@ -20,7 +20,7 @@ spec:
           - /data/intelligence
           - -config
           - /etc/secrets/config.json
-          image: cmssw/cmsmon-intelligence:20201101-v1
+          image: cmssw/cmsmon-intelligence:20201103-v1
           name: intelligence
           imagePullPolicy: Always
           volumeMounts:
