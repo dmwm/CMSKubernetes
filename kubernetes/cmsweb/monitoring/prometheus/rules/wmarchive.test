@@ -1,0 +1,61 @@
+rule_files:
+  - wmarchive.rules
+
+evaluation_interval: 1m
+
+tests:
+- interval: 1m
+  input_series:
+  - series: 'avg_uptime{env="prod",host="k8s-test"}'
+    values: '0+0x100'
+  alert_rule_test:
+      - eval_time: 10m
+        alertname: wmarchive service is down
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: wmarchive
+                 host: k8s-test
+                 action: Please restart wmarchive services
+                 env: prod
+              exp_annotations:
+                 summary: "wmarchive prod is down"
+                 description: "prod has been down for more than 5m"
+
+- interval: 1m
+  input_series:
+  - series: 'avg_mem_pct{env="prod",host="k8s-test"}'
+    values: '100+100x7'
+  alert_rule_test:
+      - eval_time: 10m
+        alertname: wmarchive high memory usage
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: wmarchive
+                 host: k8s-test
+                 action: Please restart wmarchive service
+                 env: prod
+              exp_annotations:
+                 summary: "wmarchive prod has high memory usage"
+                 description: "prod memory usage above 90% for more than 5m"
+
+- interval: 1m
+  input_series:
+  - series: 'avg_cpu_pct{env="prod",host="k8s-test"}'
+    values: '100+100x7'
+  alert_rule_test:
+      - eval_time: 10m
+        alertname: wmarchive high cpu usage
+        exp_alerts:
+            - exp_labels:
+                 severity: medium
+                 tag: cmsweb
+                 service: wmarchive
+                 host: k8s-test
+                 env: prod
+              exp_annotations:
+                 summary: "wmarchive prod has high CPU usage"
+                 description: "prod CPU usage above 90% for more than 5m"

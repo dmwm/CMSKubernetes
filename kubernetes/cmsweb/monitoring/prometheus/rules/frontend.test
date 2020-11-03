@@ -1,0 +1,81 @@
+rule_files:
+  - frontend.rules
+
+evaluation_interval: 1m
+
+tests:
+- interval: 1m
+  input_series:
+  - series: 'apache_up{instance="localhost:80",host="k8s-test"}'
+    values: '0+0x7' # '0 0 0 0 0 0 0 0'
+  alert_rule_test:
+      - eval_time: 10m
+        alertname: Frontend service is down
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: apache
+                 host: k8s-test
+                 action: Please restart frontend localhost:80
+                 instance: localhost:80
+              exp_annotations:
+                 summary: "Frontend localhost:80 down"
+                 description: "Frontend localhost:80 has been down for more than 5m"
+
+- interval: 1m
+  input_series:
+  - series: 'rate_accesses_total{job="frontend-prod",instance="localhost:80",host="k8s-test"}'
+    values: '251+251x100'
+  alert_rule_test:
+      - eval_time: 10m
+        alertname: Frontend is under high load
+        exp_alerts:
+            - exp_labels:
+                 severity: medium
+                 tag: cmsweb
+                 service: apache
+                 host: k8s-test
+                 instance: localhost:80
+                 job: frontend-prod
+              exp_annotations:
+                 summary: "Instance localhost:80 under high load"
+                 description: "localhost:80 is under high load, rate_access_total > 250"
+
+- interval: 1m
+  input_series:
+  - series: 'rate_size_total{job="frontend-prod",instance="localhost:80",host="k8s-test"}'
+    values: '11111+11111x100'
+  alert_rule_test:
+      - eval_time: 10m
+        alertname: Frontend is under high request load
+        exp_alerts:
+            - exp_labels:
+                 severity: medium
+                 tag: cmsweb
+                 service: apache
+                 host: k8s-test
+                 instance: localhost:80
+                 job: frontend-prod
+              exp_annotations:
+                 summary: "Instance localhost:80 under high load"
+                 description: "localhost:80 is under high load, sent request is above 5KB for 5m"
+
+- interval: 1m
+  input_series:
+  - series: 'apache_scoreboard{state="reply",instance="localhost:80",host="k8s-test"}'
+    values: '3000000+3000000x60'
+  alert_rule_test:
+      - eval_time: 10m
+        alertname: Frontend high scoreboard
+        exp_alerts:
+            - exp_labels:
+                 severity: medium
+                 tag: cmsweb
+                 service: apache
+                 host: k8s-test
+                 instance: localhost:80
+                 state: reply
+              exp_annotations:
+                 summary: "Instance localhost:80 under high load"
+                 description: "localhost:80 is under high load, apache_scoreboard with reply state > 250"

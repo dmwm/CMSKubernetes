@@ -1,0 +1,26 @@
+rule_files:
+  - mongodb.rules
+
+evaluation_interval: 1m
+
+tests:
+- interval: 1m
+  input_series:
+  - series: 'mongodb_instance_uptime_seconds{env="prod",instance="test-instance",host="k8s-test"}'
+    values: '0+0x100000'
+  alert_rule_test:
+      - eval_time: 10m
+        alertname: MongoDB service is down
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: mongodb
+                 host: k8s-test
+                 kind: database
+                 action: Please restart MongoDB on test-instance
+                 instance: test-instance
+                 env: prod
+              exp_annotations:
+                 summary: "mongodb prod is down"
+                 description: "prod has been down for more than 5m"
