@@ -1,0 +1,129 @@
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: scitokens-proxy-server
+  name: scitokens-proxy-server
+  namespace: auth
+spec:
+  selector:
+    matchLabels:
+      app: scitokens-proxy-server
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: scitokens-proxy-server
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "9093"
+    spec:
+      serviceAccountName: scitokens-proxy-server
+      terminationGracePeriodSeconds: 60
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      # this daemonset will be applied to all nodes which will have role=autha label
+      # kubectl label node <node-name> role=auth --overwrite
+      nodeSelector:
+        role: auth
+      priorityClassName: system-node-critical
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+
+      containers:
+      - image: cmssw/auth-proxy-server:20201103-0.1.49
+        name: scitokens-proxy-server
+#         imagePullPolicy: Always
+        args:
+          - /data/auth-proxy-server
+          - -config=/etc/secrets/config.json
+          - -scitokens
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "4000m" # we can add higher limit here
+        ports:
+        - containerPort: 8843
+          name: https
+        - containerPort: 9093
+          name: metrics
+        volumeMounts:
+        - name: sps-secrets
+          mountPath: /etc/secrets
+          defaultMode: 256
+        - name: www-htdocs
+          mountPath: /www
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+      initContainers:
+      - name: htdocs
+        image: cmssw/htdocs
+        command: ['sh', '-c', 'cp -r /www/* /tmp/htdocs']
+        volumeMounts:
+        - name: www-htdocs
+          mountPath: /tmp/htdocs
+#         - name: logs-cephfs
+#           mountPath: /data/srv/logs/frontend
+      volumes:
+      - name: sps-secrets
+        secret:
+          secretName: sps-secrets
+      - name: www-htdocs
+        emptyDir: {}
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+#       - name: logs-cephfs
+#         persistentVolumeClaim:
+#           claimName: logs-cephfs-claim-auth
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: scitokens-proxy-server
+subjects:
+- kind: ServiceAccount
+  name: scitokens-proxy-server
+  namespace: auth
+roleRef:
+  kind: ClusterRole
+  name: scitokens-proxy-server
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: scitokens-proxy-server
+  labels:
+    k8s-app: scitokens-proxy-server
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources:
+  - namespaces
+  - pods
+  verbs:
+  - get
+  - watch
+  - list
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: scitokens-proxy-server
+  namespace: auth
+  labels:
+    k8s-app: scitokens-proxy-server
+---
