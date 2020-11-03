@@ -5,10 +5,14 @@ WORKDIR $WDIR
 ENV PATH $PATH:$WDIR:$WDIR/CMSMonitoring/scripts
 RUN mkdir gopath
 ENV GOPATH $WDIR/gopath
+
+# tag to use
+ENV TAG=0.5.4
+
 RUN git clone https://github.com/dmwm/CMSMonitoring.git
 ARG CGO_ENABLED=0
-WORKDIR $WDIR/CMSMonitoring/src/go/intelligence
-RUN go build -ldflags="-s -w -extldflags -static"
+WORKDIR $WDIR/CMSMonitoring
+RUN git checkout tags/$TAG -b build && cd src/go/intelligence && make
 
 FROM alpine
 RUN mkdir /data
