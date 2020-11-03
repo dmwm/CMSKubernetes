@@ -23,13 +23,13 @@ spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/frontend:20201020-vk2 #imagetag
+      - image: cmssw/frontend #imagetag
         name: frontend
 #         imagePullPolicy: Always
         resources:
           requests:
-            memory: "2Gi"
-            cpu: "500m"
+            memory: "50Mi"
+            cpu: "30m"
           limits:
             memory: "5Gi"
             cpu: "2000m" # we can add higher limit here
@@ -53,6 +53,8 @@ spec:
           mountPath: /etc/grid-security/hostcert.pem
         - name: hostkey
           mountPath: /etc/grid-security/hostkey.pem
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/srv/logs/frontend
       volumes:
       - name: proxy-secrets
         secret:
@@ -66,6 +68,9 @@ spec:
       - name: hostkey
         hostPath:
             path: /etc/grid-security/hostkey.pem
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim-default
       nodeSelector:
         role: auth
 ---
