@@ -2,7 +2,7 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: filebeat
-  namespace: default
+  namespace: auth
   labels:
     app: filebeat
 spec:
@@ -53,5 +53,5 @@ spec:
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-default
 #PROD#- name: filebeat-data-cephfs
-#PROD#  dpersistentVolumeClaim:
+#PROD#  persistentVolumeClaim:
 #PROD#      claimName: filebeat-cephfs-claim-default
