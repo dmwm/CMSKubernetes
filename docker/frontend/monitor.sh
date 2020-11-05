@@ -26,7 +26,7 @@ output.logstash:
 EOF
 
 # run filebeat
-if [ -f /tmp/filebeat.yaml ] && [ -f /usr/bin/filebeat ]; then
+if [ -f /data/filebeat.yaml ] && [ -f /usr/bin/filebeat ]; then
     ldir=/tmp/filebeat
     mkdir -p $ldir/data
     nohup /usr/bin/filebeat \
