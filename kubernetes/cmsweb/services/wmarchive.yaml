@@ -42,7 +42,7 @@ spec:
   selector:
     matchLabels:
       app: wmarchive
-  replicas: 1
+  replicas: 1 #PROD# 2
   template:
     metadata:
       labels:
