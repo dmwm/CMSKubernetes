@@ -1,0 +1,61 @@
+rule_files:
+  - das.rules
+
+evaluation_interval: 1m
+
+tests:
+- interval: 1m
+  input_series:
+  - series: 'das2go_uptime{env="prod",host="k8s-test"}'
+    values: '0+0x100'
+  alert_rule_test:
+      - eval_time: 10m
+        alertname: DAS service is down
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: das
+                 host: k8s-test
+                 action: Please restart DAS and MongoDB services
+                 env: prod
+              exp_annotations:
+                 summary: "DAS prod is down"
+                 description: "prod has been down for more than 5m"
+
+- interval: 1m
+  input_series:
+  - series: 'das2go_memory_percent{env="prod",host="k8s-test"}'
+    values: '100+100x7'
+  alert_rule_test:
+      - eval_time: 10m
+        alertname: DAS high memory usage
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: das
+                 host: k8s-test
+                 action: Please restart DAS service
+                 env: prod
+              exp_annotations:
+                 summary: "DAS prod has high memory usage"
+                 description: "prod memory usage above 90% for more than 5m"
+
+- interval: 1m
+  input_series:
+  - series: 'das2go_cpu_percent{env="prod",host="k8s-test"}'
+    values: '100+100x7'
+  alert_rule_test:
+      - eval_time: 10m
+        alertname: DAS high cpu usage
+        exp_alerts:
+            - exp_labels:
+                 severity: medium
+                 tag: cmsweb
+                 service: das
+                 host: k8s-test
+                 env: prod
+              exp_annotations:
+                 summary: "DAS prod has high CPU usage"
+                 description: "prod CPU usage above 90% for more than 5m"

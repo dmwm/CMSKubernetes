@@ -1,0 +1,285 @@
+rule_files:
+  - dbs.rules
+
+evaluation_interval: 1m
+
+tests:
+- interval: 1m
+  input_series:
+  - series: 'avg_open_fds{env="prod",instance="test-instance",host="k8s-test"}'
+    values: '0+0x100'
+  alert_rule_test:
+      - eval_time: 10m
+        alertname: DBS service is down
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: dbs
+                 action: Please restart DBS instance test-instance
+                 instance: test-instance
+                 host: k8s-test
+                 env: prod
+              exp_annotations:
+                 summary: "DBS global instance prod down"
+                 description: "prod has been down for more than 5m"
+
+- interval: 1m
+  input_series:
+  - series: 'avg_open_fds{env="prod",instance="test-instance",host="k8s-test"}'
+    values: '500+1x100'
+  alert_rule_test:
+      - eval_time: 10m
+        alertname: DBS service has large number of fds
+        exp_alerts:
+            - exp_labels:
+                 severity: warning
+                 tag: cmsweb
+                 service: dbs
+                 action: Please check DBS instance test-instance
+                 instance: test-instance
+                 host: k8s-test
+                 env: prod
+              exp_annotations:
+                 summary: "DBS global prod environment"
+                 description: "prod has large level of fds 510 for more than 1m"
+
+- interval: 1m
+  input_series:
+  - series: 'avg_open_fds{env="prod",instance="test-instance",host="k8s-test"}'
+    values: '1000+1000x100'
+  alert_rule_test:
+      - eval_time: 10m
+        alertname: DBS service has high number of fds
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: dbs
+                 action: Please check DBS instance test-instance and possibly restart it
+                 instance: test-instance
+                 host: k8s-test
+                 env: prod
+              exp_annotations:
+                 summary: "DBS global prod environment"
+                 description: "prod has high level of fds 11000 for more than 1m"
+
+- interval: 1m
+  input_series:
+  - series: 'avg_cpu_total{env="prod",instance="test-instance",host="k8s-test"}'
+    values: '0+0x7'
+  alert_rule_test:
+      - eval_time: 10m
+        alertname: DBS service has no cpu activity
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: dbs
+                 action: Please restart DBS instance test-instance
+                 instance: test-instance
+                 host: k8s-test
+                 env: prod
+              exp_annotations:
+                 summary: "DBS global prod environment"
+                 description: "prod has no CPU activity for more than 1m"
+
+- interval: 1m
+  input_series:
+  - series: 'avg_est_connections{env="prod",instance="test-instance",host="k8s-test"}'
+    values: '10000+10000x100'
+  alert_rule_test:
+      - eval_time: 10m
+        alertname: DBS service has number of high connection
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: dbs
+                 instance: test-instance
+                 action: Please check DBS logs on test-instance for suspicious activity
+                 host: k8s-test
+                 env: prod
+              exp_annotations:
+                 summary: "DBS global prod environment"
+                 description: "prod has large number of connections 110000 for more than 1m"
+                 
+- interval: 1m
+  input_series:
+  - series: 'avg_dbs_global_w_cpu_rate{env="prod",instance="test-instance",host="k8s-test"}'
+    values: '0.00001+0x1000'
+  alert_rule_test:
+      - eval_time: 15m
+        alertname: No data for DBS-globalW CPU rate
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: dbs
+                 instance: test-instance
+                 action: There is no data for DBS-globalW CPU rate, please check DBS instance test-instance
+                 host: k8s-test
+                 env: prod
+              exp_annotations:
+                 summary: "DBS global prod environment"
+                 description: "For prod environment : there is no data for DBS-globalW CPU rate"
+
+- interval: 1m
+  input_series:
+  - series: 'max_dbs_global_w_fds{env="prod",instance="test-instance",host="k8s-test"}'
+    values: '10000+10000x10'
+  alert_rule_test:
+      - eval_time: 5m
+        alertname: Number of DBS-globalW file descriptors is high
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: dbs
+                 instance: test-instance
+                 action: Number of DBS-globalW file descriptors is high (above 1000), please check DBS instance test-instance
+                 host: k8s-test
+                 env: prod
+              exp_annotations:
+                 summary: "DBS global prod environment"
+                 description: "For prod environment : Number of DBS-globalW file descriptors is 60000."
+
+- interval: 1m
+  input_series:
+  - series: 'max_dbs_migrate_cpu_rate{env="prod",instance="test-instance",host="k8s-test"}'
+    values: '0.00001+0x1000'
+  alert_rule_test:
+      - eval_time: 15m
+        alertname: No data for DBS-migrate CPU rate
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: dbs
+                 instance: test-instance
+                 action: There is no data for DBS-migrate CPU rate, please check DBS instance test-instance
+                 host: k8s-test
+                 env: prod
+              exp_annotations:
+                 summary: "DBS global prod environment"
+                 description: "For prod environment : there is no data for DBS-migrate CPU rate"
+
+- interval: 1m
+  input_series:
+  - series: 'max_dbs_migrate_fds{env="prod",instance="test-instance",host="k8s-test"}'
+    values: '500+10x10'
+  alert_rule_test:
+      - eval_time: 5m
+        alertname: Number of DBS-migrate file descriptors is in warning
+        exp_alerts:
+            - exp_labels:
+                 severity: warning
+                 tag: cmsweb
+                 service: dbs
+                 instance: test-instance
+                 action: Number of DBS-migrate file descriptors is in warning (above 500), please check DBS instance test-instance
+                 host: k8s-test
+                 env: prod
+              exp_annotations:
+                 summary: "DBS global prod environment"
+                 description: "For prod environment : Number of DBS-migrate file descriptors is 550."
+
+- interval: 1m
+  input_series:
+  - series: 'max_dbs_migrate_fds{env="prod",instance="test-instance",host="k8s-test"}'
+    values: '500+10000x10'
+  alert_rule_test:
+      - eval_time: 5m
+        alertname: Number of DBS-migrate file descriptors is high
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: dbs
+                 instance: test-instance
+                 action: Number of DBS-migrate file descriptors is high (above 1000), please check DBS instance test-instance
+                 host: k8s-test
+                 env: prod
+              exp_annotations:
+                 summary: "DBS global prod environment"
+                 description: "For prod environment : Number of DBS-migrate file descriptors is 50500."
+
+- interval: 1m
+  input_series:
+  - series: 'avg_dbs_phys03_r_cpu_rate{env="prod",instance="test-instance",host="k8s-test"}'
+    values: '0.00001+0x1000'
+  alert_rule_test:
+      - eval_time: 15m
+        alertname: No data for DBS-phys03R CPU rate
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: dbs
+                 instance: test-instance
+                 action: There is no data for DBS-phys03R CPU rate, please check DBS instance test-instance
+                 host: k8s-test
+                 env: prod
+              exp_annotations:
+                 summary: "DBS global prod environment"
+                 description: "For prod environment : there is no data for DBS-phys03R CPU rate"
+
+- interval: 1m
+  input_series:
+  - series: 'max_dbs_phys03_r_fds{env="prod",instance="test-instance",host="k8s-test"}'
+    values: '1000+10x10'
+  alert_rule_test:
+      - eval_time: 5m
+        alertname: Number of DBS-phys03R file descriptors is high
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: dbs
+                 instance: test-instance
+                 action: Number of DBS-phys03R file descriptors is high (above 1000), please check DBS instance test-instance
+                 host: k8s-test
+                 env: prod
+              exp_annotations:
+                 summary: "DBS global prod environment"
+                 description: "For prod environment : Number of DBS-phys03R file descriptors is 1050."
+
+- interval: 1m
+  input_series:
+  - series: 'avg_dbs_phys03_w_cpu_rate{env="prod",instance="test-instance",host="k8s-test"}'
+    values: '0.00001+0x1000'
+  alert_rule_test:
+      - eval_time: 15m
+        alertname: No data for DBS-phys03W CPU rate
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: dbs
+                 instance: test-instance
+                 action: There is no data for DBS-phys03W CPU rate, please check DBS instance test-instance
+                 host: k8s-test
+                 env: prod
+              exp_annotations:
+                 summary: "DBS global prod environment"
+                 description: "For prod environment : there is no data for DBS-phys03W CPU rate"
+
+- interval: 1m
+  input_series:
+  - series: 'max_dbs_phys03_w_fds{env="prod",instance="test-instance",host="k8s-test"}'
+    values: '10000+10000x10'
+  alert_rule_test:
+      - eval_time: 5m
+        alertname: Number of DBS-phys03W file descriptors is high
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: dbs
+                 instance: test-instance
+                 action: Number of DBS-phys03W file descriptors is high (above 1000), please check DBS instance test-instance
+                 host: k8s-test
+                 env: prod
+              exp_annotations:
+                 summary: "DBS global prod environment"
+                 description: "For prod environment : Number of DBS-phys03W file descriptors is 60000."

@@ -592,10 +592,19 @@ deploy_daemonset()
         kubectl label node $n role=auth --overwrite
         kubectl get node -l role=auth
     done
+    if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]] ; then
     
     for ds in $cmsweb_ds; do
-        kubectl apply -f daemonset/${ds}.yaml
+
+	 cat daemonset/${ds}.yaml | \
+                            sed -e "s,#PROD#,$prod_prefix,g" | \
+                            sed -e "s,k8s #k8s#,$env_prefix,g" | \
+                            sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
+                            sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
+                        	kubectl apply -f -
+
     done
+    fi
 }
 
 # deploy appripriate ingress controller for our cluster

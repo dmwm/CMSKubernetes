@@ -1,0 +1,25 @@
+rule_files:
+  - crabserver.rules
+
+evaluation_interval: 1m
+
+tests:
+- interval: 1m
+  input_series:
+  - series: 'crabserver_num_cpus{env="prod",instance="test-instance",host="k8s-test"}'
+    values: '0+0x100000'
+  alert_rule_test:
+      - eval_time: 10m
+        alertname: CRAB server is down
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: crab
+                 host: k8s-test
+                 action: Please restart CRAB server on test-instance
+                 instance: test-instance
+                 env: prod
+              exp_annotations:
+                 summary: "crabserver prod is down"
+                 description: "prod has been down for more than 5m"
