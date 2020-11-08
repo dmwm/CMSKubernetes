@@ -16,6 +16,10 @@ filebeat.inputs:
   backoff: 5s
   max_backoff: 10s
   tags: ["frontend"]
+# disable internal monitoring, uncomment line below, default is true
+# logging.metrics.enabled: false
+# change loggin metrics interval, when logging.metrics is enabled
+# logging.metrics.period: 30s
 output.logstash:
     hosts: ["logstash.monitoring:5044"]
 #output.file:
