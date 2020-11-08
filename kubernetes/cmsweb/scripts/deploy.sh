@@ -346,8 +346,13 @@ deploy_secrets()
         # create secrets with our robot certificates
         kubectl create secret generic robot-secrets \
             --from-file=$robot_key --from-file=$robot_crt \
-            $files --dry-run -o yaml | \
+            --dry-run -o yaml | \
             kubectl apply --namespace=$ns -f -
+      
+        # create hmac secrets
+        kubectl create secret generic hmac-secrets  --from-file=$hmac  --dry-run -o yaml |   kubectl apply --namespace=$ns -f -
+
+
 
         # create proxy secret
         if [ -f $proxy ]; then
@@ -592,10 +597,19 @@ deploy_daemonset()
         kubectl label node $n role=auth --overwrite
         kubectl get node -l role=auth
     done
+    if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]] ; then
     
     for ds in $cmsweb_ds; do
-        kubectl apply -f daemonset/${ds}.yaml
+
+	 cat daemonset/${ds}.yaml | \
+                            sed -e "s,#PROD#,$prod_prefix,g" | \
+                            sed -e "s,k8s #k8s#,$env_prefix,g" | \
+                            sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
+                            sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
+                        	kubectl apply -f -
+
     done
+    fi
 }
 
 # deploy appripriate ingress controller for our cluster
