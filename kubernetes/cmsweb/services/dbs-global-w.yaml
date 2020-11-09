@@ -98,6 +98,12 @@ spec:
         - name: secrets
           mountPath: /etc/secrets
           readOnly: true
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
         - mountPath: /host/etc/grid-security
           name: etc-grid-security
           readOnly: true
@@ -114,6 +120,12 @@ spec:
       - name: secrets
         secret:
           secretName: dbs-global-w-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
       - name: etc-grid-security
         hostPath:
             path: /etc/grid-security
