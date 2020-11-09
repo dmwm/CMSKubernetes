@@ -32,6 +32,17 @@ if [ -f /etc/secrets/hmac ]; then
     cp /etc/secrets/hmac /data/srv/state/frontend/etc/keys/authz-headers
 fi
 
+
+if [ -f /etc/hmac/hmac ]; then
+    cp /data/srv/current/auth/wmcore-auth/header-auth-key /data/srv/current/auth/wmcore-auth/header-auth-key.orig
+    sudo rm /data/srv/current/auth/wmcore-auth/header-auth-key
+    cp /data/srv/state/frontend/etc/keys/authz-headers /data/srv/state/frontend/etc/keys/authz-headers.orig
+    sudo rm /data/srv/state/frontend/etc/keys/authz-headers
+    cp /etc/hmac/hmac /data/srv/current/auth/wmcore-auth/header-auth-key
+    cp /etc/hmac/hmac /data/srv/state/frontend/etc/keys/authz-headers
+fi
+
+
 # overwrite proxy if it is present in /etc/proxy
 if [ -f /etc/proxy/proxy ]; then
     export X509_USER_PROXY=/etc/proxy/proxy

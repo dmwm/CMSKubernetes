@@ -49,6 +49,9 @@ spec:
         - name: secrets
           mountPath: /etc/secrets
           readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
         - name: hostkey
@@ -62,6 +65,9 @@ spec:
       - name: secrets
         secret:
           secretName: frontend-ds-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
       - name: hostcert
         hostPath:
             path: /etc/grid-security/hostcert.pem

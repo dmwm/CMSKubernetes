@@ -89,6 +89,9 @@ spec:
         - name: secrets
           mountPath: /etc/secrets
           readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
 # We use explicit path declaration for certificates in FE because we need certificates directory in /etc/grid-security/ which is not created without explicit declaration
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
@@ -103,6 +106,9 @@ spec:
       - name: secrets
         secret:
           secretName: frontend-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
       - name: hostcert
         hostPath:
             path: /etc/grid-security/hostcert.pem
