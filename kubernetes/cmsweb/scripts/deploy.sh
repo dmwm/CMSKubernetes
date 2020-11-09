@@ -609,7 +609,18 @@ deploy_daemonset()
                         	kubectl apply -f -
 
     done
+    
+    else
+
+   for ds in $cmsweb_ds; do
+
+         cat daemonset/${ds}.yaml | \
+                            sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
+                                kubectl apply -f -
+
+    done
     fi
+
 }
 
 # deploy appripriate ingress controller for our cluster
