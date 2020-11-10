@@ -1,0 +1,63 @@
+rule_files:
+  - reqmon.rules
+
+evaluation_interval: 1m
+
+tests:
+- interval: 1m
+  input_series:
+  - series: 'reqmon_exporter_num_cpus{env="prod",instance="test-instance",host="k8s-test"}'
+    values: '0+0x100000'
+  alert_rule_test:
+      - eval_time: 10m
+        alertname: reqmon is down
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: reqmon
+                 host: k8s-test
+                 action: Please restart reqmon on test-instance
+                 instance: test-instance
+                 env: prod
+              exp_annotations:
+                 summary: "reqmon prod is down"
+                 description: "prod has been down for more than 5m"
+
+- interval: 1m
+  input_series:
+  - series: 'avg_mem_pct{env="prod",host="k8s-test"}'
+    values: '100+100x7'
+  alert_rule_test:
+      - eval_time: 10m
+        alertname: reqmon high memory usage
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: reqmon
+                 host: k8s-test
+                 action: Please restart reqmon service
+                 env: prod
+              exp_annotations:
+                 summary: "reqmon prod has high memory usage"
+                 description: "prod memory usage above 90% for more than 5m"
+
+- interval: 1m
+  input_series:
+  - series: 'avg_cpu_pct{env="prod",host="k8s-test"}'
+    values: '100+100x7'
+  alert_rule_test:
+      - eval_time: 10m
+        alertname: reqmon high cpu usage
+        exp_alerts:
+            - exp_labels:
+                 severity: medium
+                 tag: cmsweb
+                 service: reqmon
+                 host: k8s-test
+                 env: prod
+                 action: Please restart reqmon service
+              exp_annotations:
+                 summary: "reqmon prod has high CPU usage"
+                 description: "prod CPU usage above 90% for more than 5m"
