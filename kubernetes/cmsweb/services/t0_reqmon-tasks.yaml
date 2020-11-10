@@ -50,7 +50,7 @@ spec:
             command:
             - cmsweb-ping
             - "--url=http://localhost:8243/t0_reqmon/data/info"
-            - "--authz=/etc/secrets/hmac"
+            - "--authz=/etc/hmac/hmac"
             - -verbose
             - "0"
           initialDelaySeconds: 120

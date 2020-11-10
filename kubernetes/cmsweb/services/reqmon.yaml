@@ -61,7 +61,7 @@ spec:
             command:
             - cmsweb-ping
             - "--url=http://localhost:8249/wmstatsserver/data/info"
-            - "--authz=/etc/secrets/hmac"
+            - "--authz=/etc/hmac/hmac"
             - -verbose
             - "0"
           initialDelaySeconds: 120
