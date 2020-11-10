@@ -67,7 +67,7 @@ spec:
             command:
             - cmsweb-ping
             - "--url=http://localhost:8252/dbs/prod/global/DBSReader/"
-            - "--authz=/etc/secrets/hmac"
+            - "--authz=/etc/hmac/hmac"
             - -verbose
             - "0"
           initialDelaySeconds: 120

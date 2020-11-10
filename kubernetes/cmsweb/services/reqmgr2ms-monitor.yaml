@@ -71,7 +71,7 @@ spec:
             command:
             - cmsweb-ping
             - "--url=http://localhost:8248/ms-monitor/data/status"
-            - "--authz=/etc/secrets/hmac"
+            - "--authz=/etc/hmac/hmac"
             - -verbose
             - "0"
           initialDelaySeconds: 120
