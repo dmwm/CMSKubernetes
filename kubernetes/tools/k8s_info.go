@@ -161,8 +161,12 @@ func main() {
 	flag.StringVar(&pod, "pod", "", "k8s pod")
 	flag.Parse()
 	if pod != "" && ns != "" {
-		pinfo, err := info(pod, ns)
-		fmt.Printf("%s %s %+v, error %v\n", pod, ns, pinfo, err)
+		p, err := info(pod, ns)
+		if err == nil {
+			fmt.Println(p.Info(verbose))
+		} else {
+			fmt.Println("pod", pod, "error", err)
+		}
 	} else {
 		nss, _ := namespaces()
 		if ns != "" {
