@@ -1,0 +1,46 @@
+groups:
+- name: t0reqmon
+  rules:
+  - record: avg_mem_pct
+    expr: avg_over_time(t0reqmon_exporter_memory_percent[5m])
+  - record: avg_cpu_pct
+    expr: avg_over_time(t0reqmon_exporter_cpu_percent[5m])
+
+  - alert: t0reqmon is down
+    expr: t0reqmon_exporter_num_cpus == 0
+    for: 5m
+    labels:
+      severity: high
+      tag: cmsweb
+      service: t0reqmon
+      host: "{{ $labels.host }}"
+      action: Please restart t0reqmon on {{ $labels.instance }}
+    annotations:
+      summary: "t0reqmon {{ $labels.env }} is down"
+      description: "{{ $labels.env }} has been down for more than 5m"
+
+  - alert: t0reqmon high memory usage
+    expr: avg_mem_pct > 90
+    for: 5m
+    labels:
+      severity: high
+      tag: cmsweb
+      service: t0reqmon
+      host: "{{ $labels.host }}"
+      action: Please restart t0reqmon service
+    annotations:
+      summary: "t0reqmon {{ $labels.env }} has high memory usage"
+      description: "{{ $labels.env }} memory usage above 90% for more than 5m"
+
+  - alert: t0reqmon high cpu usage
+    expr: avg_cpu_pct > 90
+    for: 5m
+    labels:
+      severity: medium
+      tag: cmsweb
+      service: t0reqmon
+      host: "{{ $labels.host }}"
+      action: Please restart t0reqmon service
+    annotations:
+      summary: "t0reqmon {{ $labels.env }} has high CPU usage"
+      description: "{{ $labels.env }} CPU usage above 90% for more than 5m"

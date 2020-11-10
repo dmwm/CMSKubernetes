@@ -1,0 +1,46 @@
+groups:
+- name: t0wmadatasvc
+  rules:
+  - record: avg_mem_pct
+    expr: avg_over_time(t0wmadatasvc_exporter_memory_percent[5m])
+  - record: avg_cpu_pct
+    expr: avg_over_time(t0wmadatasvc_exporter_cpu_percent[5m])
+
+  - alert: Reqmon is down
+    expr: t0wmadatasvc_exporter_num_cpus == 0
+    for: 5m
+    labels:
+      severity: high
+      tag: cmsweb
+      service: t0wmadatasvc
+      host: "{{ $labels.host }}"
+      action: Please restart t0wmadatasvc on {{ $labels.instance }}
+    annotations:
+      summary: "t0wmadatasvc {{ $labels.env }} is down"
+      description: "{{ $labels.env }} has been down for more than 5m"
+
+  - alert: t0wmadatasvc high memory usage
+    expr: avg_mem_pct > 90
+    for: 5m
+    labels:
+      severity: high
+      tag: cmsweb
+      service: t0wmadatasvc
+      host: "{{ $labels.host }}"
+      action: Please restart t0wmadatasvc service
+    annotations:
+      summary: "t0wmadatasvc {{ $labels.env }} has high memory usage"
+      description: "{{ $labels.env }} memory usage above 90% for more than 5m"
+
+  - alert: t0wmadatasvc high cpu usage
+    expr: avg_cpu_pct > 90
+    for: 5m
+    labels:
+      severity: medium
+      tag: cmsweb
+      service: t0wmadatasvc
+      host: "{{ $labels.host }}"
+      action: Please restart t0wmadatasvc service
+    annotations:
+      summary: "t0wmadatasvc {{ $labels.env }} has high CPU usage"
+      description: "{{ $labels.env }} CPU usage above 90% for more than 5m"
