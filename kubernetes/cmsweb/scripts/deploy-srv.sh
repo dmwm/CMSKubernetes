@@ -12,6 +12,30 @@ env=$3
 cmsweb_env=k8s-$3
 cmsweb_log=logs-cephfs-claim-$3
 
+cluster_name=`kubectl config get-clusters | grep -v NAME`
+check=true
+
+if [[ "$cluster_name" == *"testbed"* ]] ; then
+        if [[ "$env" != "preprod" ]] ; then
+        check=false
+        fi
+fi
+if [[ "$cluster_name" == *"prod"* ]] ; then
+        if [[ "$env" != "prod" ]] ; then
+        check=false
+        fi
+fi
+if [[ "$cluster_name"  == *"cmsweb-test"* ]] ; then
+        if [[ "$env" != "test" ]] ; then
+        check=false
+        fi
+fi
+if [[ $check == false ]] ; then
+
+        echo "The environment and config did not match. Please check."
+        exit 1;
+fi
+
 tmpDir=/tmp/$USER/k8s/srv
 
 # use tmp area to store service file
