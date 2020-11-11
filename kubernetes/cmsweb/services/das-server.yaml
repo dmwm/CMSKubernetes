@@ -77,6 +77,12 @@ spec:
         - name: secrets
           mountPath: /etc/secrets
           readOnly: true
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
 #PROD#  - name: logs-cephfs
 #PROD#    mountPath: /data/logs
       initContainers:
@@ -90,6 +96,12 @@ spec:
       - name: secrets
         secret:
           secretName: das-server-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-das
