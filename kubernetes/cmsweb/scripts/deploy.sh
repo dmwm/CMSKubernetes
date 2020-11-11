@@ -401,8 +401,6 @@ deploy_secrets()
                         continue
                     fi
                     kubectl create secret generic ${srv}-${inst}-secrets \
-                        --from-file=$robot_key --from-file=$robot_crt \
-                        --from-file=$hmac \
                         $files $dbsfiles --dry-run -o yaml | \
                         kubectl apply --namespace=$ns -f -
                 done
@@ -413,8 +411,6 @@ deploy_secrets()
                     continue
                 fi
                 kubectl create secret generic ${srv}-secrets \
-                    --from-file=$robot_key --from-file=$robot_crt \
-                    --from-file=$hmac \
                     $files --dry-run -o yaml | \
                     kubectl apply --namespace=$ns -f -
             fi
@@ -436,8 +432,6 @@ deploy_secrets()
                     continue
                 fi
                 kubectl create secret generic ${srv}-secrets \
-                    --from-file=$robot_key --from-file=$robot_crt \
-                    --from-file=$hmac \
                     $files --dry-run -o yaml | \
                     kubectl apply --namespace=$ns -f -
         done
