@@ -17,6 +17,10 @@ rule_files:
   - "/etc/prometheus/k8s.rules"
   - "/etc/prometheus/wmarchive.rules"
   - "/etc/prometheus/crabcache.rules"
+  - "/etc/prometheus/t0wmadatasvc.rules"
+  - "/etc/prometheus/reqmon.rules"
+  - "/etc/prometheus/t0reqmon.rules"
+
 
 remote_write:
   - url: http://cms-monitoring.cern.ch:30428/api/v1/write
