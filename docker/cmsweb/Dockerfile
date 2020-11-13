@@ -1,4 +1,4 @@
-FROM cern/cc7-base:20201001-1.x86_64
+FROM cern/cc7-base:20201101-1.x86_64
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data/cmsweb
