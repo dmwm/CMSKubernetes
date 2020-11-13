@@ -16,7 +16,6 @@ if [ $# -ne 3 ]; then
         fi
 fi
 
-echo $env
 
 srv=$1
 cmsweb_image_tag=:$2
@@ -25,7 +24,6 @@ if [ $# == 3 ]; then
 	env=$3
 fi
 
-echo $env
 
 cmsweb_env=k8s-$env
 cmsweb_log=logs-cephfs-claim-$env
