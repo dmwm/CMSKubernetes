@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG2011h
+VER=HG2012a
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend dqmgui"
