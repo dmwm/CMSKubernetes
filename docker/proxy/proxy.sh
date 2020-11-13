@@ -13,6 +13,19 @@ if [ ! -f /tmp/robotcert.pem ] && [ -f /etc/secrets/robotcert.pem ]; then
     sudo chown $USER /tmp/robotcert.pem
     sudo chgrp $USER /tmp/robotcert.pem
 fi
+
+if [ ! -f /tmp/robotkey.pem ] && [ -f /etc/robots/robotkey.pem ]; then
+    sudo cp /etc/robots/robotkey.pem /tmp
+    sudo chmod 0400 /tmp/robotkey.pem
+    sudo chown $USER /tmp/robotkey.pem
+    sudo chgrp $USER /tmp/robotkey.pem
+fi
+if [ ! -f /tmp/robotcert.pem ] && [ -f /etc/robots/robotcert.pem ]; then
+    sudo cp /etc/robots/robotcert.pem /tmp
+    sudo chown $USER /tmp/robotcert.pem
+    sudo chgrp $USER /tmp/robotcert.pem
+fi
+
 if [ -f /tmp/robotkey.pem ] && [ -f /tmp/robotcert.pem ]; then
     # keep proxy validity for 4 days (roll over long weekend)
     voms-proxy-init -voms cms -rfc -valid 95:50 \
