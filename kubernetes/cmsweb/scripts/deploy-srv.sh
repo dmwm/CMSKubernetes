@@ -1,16 +1,32 @@
 #!/bin/bash
 # helper script to deploy given service with given tag to k8s infrastructure
 
+cluster_name=`kubectl config get-clusters | grep -v NAME`
+check=true
+
 if [ $# -ne 3 ]; then
-    echo "Usage: deploy-srv.sh <srv> <imagetag> <env (prod or preprod or test)>"
-    exit 1
+	if [[ "$cluster_name" == *"testbed"* ]] ; then
+		env="preprod"
+	fi
+	if [[ "$cluster_name" == *"prod"* ]] ; then
+                env="prod"
+        fi
+	if [[ "$cluster_name" == *"cmsweb-test"* ]] ; then
+                env="test"
+        fi
 fi
 
 srv=$1
 cmsweb_image_tag=:$2
-env=$3
-cmsweb_env=k8s-$3
-cmsweb_log=logs-cephfs-claim-$3
+
+if [ $# == 3 ]; then
+	env=$3
+fi
+
+
+cmsweb_env=k8s-$env
+cmsweb_log=logs-cephfs-claim-$env
+
 
 cluster_name=`kubectl config get-clusters | grep -v NAME`
 check=true
@@ -35,6 +51,13 @@ if [[ $check == false ]] ; then
         echo "The environment and config did not match. Please check."
         exit 1;
 fi
+
+
+
+
+
+cmsweb_env=k8s-$3
+cmsweb_log=logs-cephfs-claim-$3
 
 tmpDir=/tmp/$USER/k8s/srv
 
