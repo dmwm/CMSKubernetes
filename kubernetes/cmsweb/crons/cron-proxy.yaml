@@ -4,7 +4,7 @@ metadata:
   name: cron-proxy
 spec:
   # run crontab job every hour
-  schedule: "5 0 * * *"
+  schedule: "5 */6 * * *"
   jobTemplate:
     spec:
       template:
