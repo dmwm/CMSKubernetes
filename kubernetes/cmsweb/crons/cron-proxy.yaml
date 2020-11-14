@@ -16,10 +16,10 @@ spec:
             args:
             - /bin/sh
             - -c
-            - echo "run proxy.sh"; ls -al ; echo "### /etc/secrets"; ls -la /etc/secrets; echo "### /tmp"; ls -al /tmp; cat /data/proxy.sh; /data/proxy.sh; echo "### /tmp"; ls -al /tmp;
+            - echo "run proxy.sh"; ls -al ; echo "### /etc/robots"; ls -la /etc/robots; echo "### /tmp"; ls -al /tmp; cat /data/proxy.sh; /data/proxy.sh; echo "### /tmp"; ls -al /tmp;
             volumeMounts:
             - name: robot-secrets
-              mountPath: /etc/secrets
+              mountPath: /etc/robots
           restartPolicy: Never
           volumes:
           - name: proxy-secrets
