@@ -24,6 +24,11 @@ ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/comm
 ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/__init__.py /probes/common
 # Remove from running AADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_report_expired_locked_rules /probes/common
 
+# Until Fernando ports to SQLAlchemy and/or merged
+
+ADD https://raw.githubusercontent.com/ericvaandering/probes/hack_obsolete_replicas/common/check_obsolete_replicas /probes/common
+
+
 # TODO: Merge Donata's probes somewhere
 
 ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_expiring_rules_per_rse /probes/common
