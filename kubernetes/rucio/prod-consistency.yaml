@@ -1,0 +1,4 @@
+consistency:
+  instance: "prod"
+  defaultRoot: "/store/"
+

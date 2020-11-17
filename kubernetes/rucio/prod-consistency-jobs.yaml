@@ -1,0 +1,194 @@
+consistency:
+  sites:
+    T2_US_Purdue:      
+      interval: 7
+      server: xrootd.rcac.purdue.edu
+    T2_BR_UERJ:      
+      interval: 7
+      server: xrootd.hepgrid.uerj.br
+    T1_ES_PIC_Disk:
+      interval: 7
+      server: xrootd-cmst1-door.pic.es
+    T1_US_FNAL_Disk:
+      interval: 7
+      server: cmsdcadisk.fnal.gov
+      server_root: /dcache/uscmsdisk/store/
+      remove_prefix: /dcache/uscmsdisk/
+    T2_TW_NCHC:
+      server: se01.grid.nchc.org.tw:11001
+      interval: 7
+    #T2_UK_London_IC_Test:
+    #  server: gfe02.grid.hep.ph.ic.ac.uk:1095
+    #  interval: 1
+    T2_ES_CIEMAT:
+      server: gaexroot01.ciemat.es:1095
+      interval: 7
+    #T2_PT_NCG_Lisbon_Test:
+    #  server: xroot-data02.ncg.ingrid.pt:1094
+    #  interval: 1
+    T2_UK_SGrid_Bristol:
+      server: heplnx228.pp.rl.ac.uk:1094
+      interval: 7
+    T2_FR_CCIN2P3:
+      server: ccxrpli003.in2p3.fr:1094
+      interval: 7
+    T2_DE_RWTH:
+      server: grid-vo-cms.physik.rwth-aachen.de:1094
+      interval: 7
+    T2_FR_GRIF_IRFU:
+      server: node12.datagrid.cea.fr:11001
+      interval: 7
+    #T2_HU_Budapest_Test:
+    #  server: grid143.kfki.hu:11000
+    #  interval: 1
+    #T2_BR_SPRACE_Test:
+    #  server: xrd-ds06.sprace.org.br:1094
+    #  interval: 1
+    T2_RU_IHEP:
+      server: vobox0002.m45.ihep.su:1095
+      interval: 7
+    #T2_TR_METU_Test:
+    #  server: eymir.grid.metu.edu.tr:11001
+    #  interval: 1
+    #T2_US_UCSD_Test:
+    #  server: gftp-1.t2.ucsd.edu:1094
+    #  interval: 1
+    T2_IT_Bari:
+      server: ss-01.recas.ba.infn.it:8080
+      interval: 7
+    T2_FR_GRIF_LLR:
+      server: polgrid4.in2p3.fr:11001
+      interval: 7
+    T2_RU_JINR:
+      server: lcgsexrd.jinr.ru:1095
+      interval: 7
+    T2_IT_Pisa:
+      server: stormgf2.pi.infn.it:1094
+      interval: 7
+    T2_FI_HIP:
+      server: nute.csc.fi:1094
+      interval: 7
+    T2_IT_Legnaro:
+      server: t2-xrdcms.lnl.infn.it:7070
+      # server: "193.206.93.80:1094"
+      interval: 7
+    #T3_TW_NTU_HEP_Test:
+    #  server: ntugrid6.phys.ntu.edu.tw:11000
+    #  interval: 1
+    T2_BE_IIHE:
+      server: maite.iihe.ac.be:1095
+      interval: 7
+    T2_PL_Swierk:
+      server: se.cis.gov.pl:11000
+      interval: 7
+    #T2_EE_Estonia_Test:
+      #server: [2001:bb8:4004:ff:d::3]:1094
+      #interval: 1
+    T2_UK_SGrid_RALPP:
+      server: heplnx228.pp.rl.ac.uk:1094
+      interval: 7
+    T2_US_Wisconsin:
+      server: g22n07.hep.wisc.edu:1094
+      interval: 7
+    #T2_CN_Beijing_Test:
+    #  server: seadmin.ihep.ac.cn:1094
+    #  interval: 1
+    T2_PL_Warsaw:
+      server: se.grid.icm.edu.pl:11001
+      interval: 7
+    #T2_US_Caltech_Test:
+    #  #server: transfer-9.ultralight.org:1095
+    #  server: transfer-1.ultralight.org:1095
+    #  interval: 1
+    #T2_US_Florida_Test:
+    #  server: cmsio5.rc.ufl.edu:1094
+    #  #server: cmsio7.rc.ufl.edu:1094
+    #  interval: 1
+    T2_IT_Rome:
+      server: cmsrm-xrootd02.roma1.infn.it:7070
+      interval: 7
+    #T2_GR_Ioannina_Test:
+    #  server: grid02.physics.uoi.gr:11001
+    #  interval: 1
+    T2_PK_NCP:
+      server: pcncp22.ncp.edu.pk:11001
+      interval: 7
+    #T3_CH_PSI_Test:
+    #  server: t3se01.psi.ch
+    #  #server: t3se01.psi.ch:1095
+    #  interval: 1
+    #T2_UK_London_Brunel_Test:
+    #  server: dc2-grid-64.brunel.ac.uk
+    #  #server: dc2-grid-64.brunel.ac.uk:11001
+    #  interval: 1
+    #T2_BE_UCL_Test:
+    #  server: ingrid-se04.cism.ucl.ac.be:1094
+    #  interval: 1
+    #T2_US_Vanderbilt_Test:
+    #  server: xrootd.accre.vanderbilt.edu
+    #  #server: xrootd-srv.accre.vanderbilt.edu:1094
+    #  interval: 1
+    T2_RU_INR:
+      server: grse001.inr.troitsk.ru:11000
+      interval: 7
+    #T2_RU_ITEP_Test:
+    #  server: se3.itep.ru:1095
+    #  interval: 1
+    T2_IN_TIFR:
+      server: se01.indiacms.res.in:11001
+      interval: 7
+    T2_CH_CSCS:
+      server: cms02.lcg.cscs.ch:1094
+      interval: 7
+    T2_FR_IPHC:
+      server: sbgse1.in2p3.fr
+      #server: sbgse1.in2p3.fr:11001
+      interval: 7
+    T2_AT_Vienna:
+      server: hephyse.oeaw.ac.at:11001
+      interval: 7
+    #T2_ES_IFCA_Test:
+    #  server: pool04.ifca.es:1094
+    #  interval: 1
+    #T3_IT_Trieste_Test:
+    #  server: cmsxrd.ts.infn.it:1094
+    #  interval: 1
+    #T3_US_Baylor_Test:
+    #  server: kodiak-se.baylor.edu:1094
+    #  interval: 1
+    #T2_CH_CERN_Test:
+    #  #server: eoscms-qdb-250e2da131.cern.ch:1098
+    #  server: eoscms.cern.ch:1094
+    #  interval: 1
+    T2_KR_KISTI:
+      server: cms-t2-se01.sdfarm.kr:1095
+      interval: 7
+    #T2_UA_KIPT_Test:
+    #  server: cms-se0.kipt.kharkov.ua:11001
+    #  interval: 1
+    #T3_US_UMD_Test:
+    #  server: hepcms-0.umd.edu:1094
+    #  interval: 1
+    #T2_US_MIT_Test:
+    #  server: t3serv006.mit.edu
+    #  #server: xrootd9.cmsaf.mit.edu:1094
+    #  interval: 1
+    #T2_KR_KNU_Test:
+    #  server: xrootd.knu.ac.kr:1095
+    #  interval: 1
+    #T3_US_Colorado_Test:
+    #  server: hepxrd01.colorado.edu:1094
+    #  interval: 1
+    #T2_DE_DESY_Test:
+    #  server: t2-cms-xrootd03.desy.de:1094
+    #  interval: 1
+    #T2_US_Nebraska_Test:
+    #  server: red-gridftp10.unl.edu:1094
+    #  interval: 1
+    #T2_TW_NCHC_Test:
+    #  server: se01.grid.nchc.org.tw:11001
+    #  interval: 1
+    T3_US_Rutgers:
+      server: ruhex-osgce.rutgers.edu
+      interval: 7
+
