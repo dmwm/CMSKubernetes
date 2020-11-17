@@ -1,25 +1,26 @@
 from __future__ import absolute_import, division, print_function
 
 import copy
-import logging
 import json
+import logging
 import os
 
 from CMSRucio import replica_file_list
 from phedex import PhEDEx
 from rucio.api.did import add_did, attach_dids, get_did, list_files, resurrect
-from rucio.api.replica import list_replicas, add_replicas, delete_replicas
+from rucio.api.replica import list_replicas, add_replicas, set_tombstone
 from rucio.api.rse import get_rse, list_rses
-from rucio.api.rule import add_replication_rule, list_replication_rules, delete_replication_rule
-from rucio.common.exception import (DataIdentifierNotFound, DataIdentifierAlreadyExists, DuplicateContent,
+from rucio.api.rule import add_replication_rule, list_replication_rules
+from rucio.common.exception import (DataIdentifierNotFound, DuplicateContent,
                                     FileAlreadyExists, ReplicaNotFound, RucioException)
 from rucio.common.types import InternalScope
 from rucio.common.utils import chunks
 from rucio.core import monitor
 from rucio.core.replica import update_replica_state as core_update_state
 from rucio.core.replica import update_replicas_states
+from rucio.core.rule import delete_rule
+from rucio.db.sqla.constants import OBSOLETE
 from syncaccounts import SYNC_ACCOUNT_FMT
-from rucio.core.rule import get_rule, add_rule, delete_rule
 
 REMOVE_CHUNK_SIZE = 20
 DEFAULT_SCOPE = 'cms'
@@ -63,7 +64,7 @@ class BlockSyncer(object):
         rse_details = get_rse(self.rse)
         self.rse_id = rse_details['id']
 
-        self.account = SYNC_ACCOUNT_FMT % self.rse.lower()
+        self.account = (SYNC_ACCOUNT_FMT % self.rse.lower())[:25]
         self.container = self.phedex_svc.check_data_item(pditem=block_name)['pds']
         self.scope = DEFAULT_SCOPE
         self.block_name = block_name
@@ -105,7 +106,7 @@ class BlockSyncer(object):
         """"""
 
         if not self.block_in_phedex:
-            logging.info('Declining to remove since it is not in PhEDEx')
+            logging.info('Declining to remove %s since it is not in PhEDEx', self.block_name)
             return
 
         with monitor.record_timer_block('cms_sync.time_remove_block'):
@@ -187,6 +188,7 @@ class BlockSyncer(object):
                     # delete_replication_rule(rule['id'], purge_replicas=False, issuer=self.account)
                     delete_rule(rule_id=rule['id'], purge_replicas=True, soft=False)
                     monitor.record_counter('cms_sync.rules_removed')
+                    logging.info('Removed rule %s for %s', rule['id'], self.block_name)
             self.rule_exists = False
 
     def update_replicas(self):
@@ -333,7 +335,7 @@ class BlockSyncer(object):
                         logging.critical('Could not attach to %s at %s. Constraint violated?', self.block_name, self.rse)
                 return len(missing_lfns)
 
-    def add_replication_rule_with_defaults(self,dids, copies, rse_expression, account):
+    def add_replication_rule_with_defaults(self, dids, copies, rse_expression, account):
 
         """
         Add replication rule requires one to send all the values. Add a list of defaults.
@@ -348,7 +350,7 @@ class BlockSyncer(object):
 
         (grouping, weight, lifetime, locked, subscription_id, source_replica_expression,  notify,
          purge_replicas, ignore_availability, comment, ask_approval, asynchronous, priority, split_container) = (
-            'DATASET', None, None, False, None, None,  None, False, False, None, False, False, 3, False)
+            'DATASET', None, None, False, None, None,  None, False, True, None, False, False, 3, False)
 
         activity = 'Data Consolidation'
         meta = json.dumps({"phedex_group": self.group, "phedex_custodial": self.custodial})
