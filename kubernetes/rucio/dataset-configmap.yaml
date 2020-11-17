@@ -14,6 +14,7 @@ data:
     default:
         pool: 1
         chunck: 5000
+        #select: /AOD
     T0_CH_CERN_Tape:
         pool: 5
         multi_das_calls: True
@@ -63,13 +64,13 @@ data:
         select:
           - '\S+NANOAOD\S+'
     T2_BE_IIHE:
-        select:
-          - '\S+NANOAOD\S+'
+        multi_das_calls: True
     T2_BE_UCL:
         multi_das_calls: True
         select:
           - '\S+NANOAOD\S+'
     T2_BR_SPRACE:
+        multi_das_calls: True
         select:
           - '\S+NANOAOD\S+'
     T2_BR_UERJ:
@@ -93,9 +94,11 @@ data:
         select:
           - '\S+NANOAOD\S+'
     T2_EE_Estonia:
+        multi_das_calls: True
         select:
           - '\S+NANOAOD\S+'
     T2_ES_CIEMAT:
+        multi_das_calls: True
         select:
           - '\S+NANOAOD\S+'
     T2_ES_IFCA:
@@ -113,9 +116,11 @@ data:
         select:
           - '\S+NANOAOD\S+'
     T2_FR_GRIF_IRFU:
+        multi_das_calls: True
         select:
           - '\S+NANOAOD\S+'
     T2_FR_IPHC:
+        multi_das_calls: True
         select:
           - '\S+NANOAOD\S+'
     T2_GR_Ioannina:
@@ -136,13 +141,14 @@ data:
         select:
           - '\S+NANOAOD\S+'
     T2_IT_Pisa:
-        multi_das_calls: True         
+        multi_das_calls: True
         select:
           - '\S+NANOAOD\S+'
     T2_IT_Rome:
         select:
           - '\S+NANOAOD\S+'
     T2_KR_KISTI:
+        multi_das_calls: True
         select:
           - '\S+NANOAOD\S+'
     T2_KR_KNU:
@@ -167,8 +173,7 @@ data:
         select:
           - '\S+NANOAOD\S+'
     T2_RU_ITEP:
-        select:
-          - '\S+NANOAOD\S+'
+        multi_das_calls: True
     T2_RU_JINR:
         select:
           - '\S+NANOAOD\S+'
@@ -176,17 +181,19 @@ data:
         select:
           - '\S+NANOAOD\S+'
     T2_TW_NCHC:
+        multi_das_calls: True
         select:
           - '\S+NANOAOD\S+'
     T2_UA_KIPT:
+        multi_das_calls: True
         select:
           - '\S+NANOAOD\S+'
     T2_UK_London_Brunel:
-        multi_das_calls: True         
+        multi_das_calls: True
         select:
           - '\S+NANOAOD\S+'
     T2_UK_London_IC:
-        multi_das_calls: True         
+        multi_das_calls: True
         select:
           - '\S+NANOAOD\S+'
     T2_UK_SGrid_RALPP:
