@@ -8,17 +8,20 @@ data:
       "*": # default
         partitions:     5
         scanner:
-          recursion:      3
-          workers:        5
-          timeout:        120
+          recursion:      1
+          nworkers:        8
+          timeout:        180
           filter: NANOAOD
           server_root: {{.Values.consistency.defaultRoot }}
           remove_prefix: /
           add_prefix: /store/
-          server_root: /store/test/rucio/int/cms/store
           roots: 
           - path: mc
           - path: data
+          - path: generator
+          - path: results
+          - path: hidata
+          - path: himc
         dbdump:
           filter: NANOAOD
           path_root:   /

@@ -49,7 +49,7 @@ consistency:
       server: gftp-1.t2.ucsd.edu:1094
       interval: 1
     T2_IT_Bari_Test:
-      server: ss-02.recas.ba.infn.it:8080
+      server: ss-01.recas.ba.infn.it:8080
       interval: 7
     T2_FR_GRIF_LLR_Test:
       server: polgrid4.in2p3.fr:11001
@@ -65,6 +65,7 @@ consistency:
       interval: 7
     T2_IT_Legnaro_Test:
       server: t2-xrdcms.lnl.infn.it:7070
+      # server: "193.206.93.80:1094"
       interval: 7
     T3_TW_NTU_HEP_Test:
       server: ntugrid6.phys.ntu.edu.tw:11000
@@ -91,13 +92,15 @@ consistency:
       server: se.grid.icm.edu.pl:11001
       interval: 7
     T2_US_Caltech_Test:
-      server: transfer-9.ultralight.org:1095
+      #server: transfer-9.ultralight.org:1095
+      server: transfer-1.ultralight.org:1095
       interval: 1
     T2_US_Florida_Test:
-      server: cmsio7.rc.ufl.edu:1094
+      server: cmsio5.rc.ufl.edu:1094
+      #server: cmsio7.rc.ufl.edu:1094
       interval: 1
     T2_IT_Rome_Test:
-      server: cmsrm-xrootd01.roma1.infn.it:7070
+      server: cmsrm-xrootd02.roma1.infn.it:7070
       interval: 7
     T2_GR_Ioannina_Test:
       server: grid02.physics.uoi.gr:11001
@@ -106,10 +109,12 @@ consistency:
       server: pcncp22.ncp.edu.pk:11001
       interval: 7
     T3_CH_PSI_Test:
-      server: t3se01.psi.ch:1095
+      server: t3se01.psi.ch
+      #server: t3se01.psi.ch:1095
       interval: 1
     T2_UK_London_Brunel_Test:
-      server: dc2-grid-64.brunel.ac.uk:11001
+      server: dc2-grid-64.brunel.ac.uk
+      #server: dc2-grid-64.brunel.ac.uk:11001
       interval: 1
     T2_BE_UCL_Test:
       server: ingrid-se04.cism.ucl.ac.be:1094
@@ -118,7 +123,8 @@ consistency:
     #  server: cmsxrootd-site1.fnal.gov:1093
     #  interval: 1
     T2_US_Vanderbilt_Test:
-      server: xrootd-srv.accre.vanderbilt.edu:1094
+      server: xrootd.accre.vanderbilt.edu
+      #server: xrootd-srv.accre.vanderbilt.edu:1094
       interval: 1
     T2_RU_INR_Test:
       server: grse001.inr.troitsk.ru:11000
@@ -133,7 +139,8 @@ consistency:
       server: cms02.lcg.cscs.ch:1094
       interval: 7
     T2_FR_IPHC_Test:
-      server: sbgse1.in2p3.fr:11001
+      server: sbgse1.in2p3.fr
+      #server: sbgse1.in2p3.fr:11001
       interval: 7
     T2_AT_Vienna_Test:
       server: hephyse.oeaw.ac.at:11001
@@ -148,7 +155,8 @@ consistency:
       server: kodiak-se.baylor.edu:1094
       interval: 1
     T2_CH_CERN_Test:
-      server: eoscms-qdb-250e2da131.cern.ch:1098
+      #server: eoscms-qdb-250e2da131.cern.ch:1098
+      server: eoscms.cern.ch:1094
       interval: 1
     T2_KR_KISTI_Test:
       server: cms-t2-se01.sdfarm.kr:1095
@@ -160,7 +168,8 @@ consistency:
       server: hepcms-0.umd.edu:1094
       interval: 1
     T2_US_MIT_Test:
-      server: xrootd9.cmsaf.mit.edu:1094
+      server: t3serv006.mit.edu
+      #server: xrootd9.cmsaf.mit.edu:1094
       interval: 1
     T2_KR_KNU_Test:
       server: xrootd.knu.ac.kr:1095
@@ -176,5 +185,8 @@ consistency:
       interval: 1
     T2_TW_NCHC_Test:
       server: se01.grid.nchc.org.tw:11001
+      interval: 1
+    T3_US_Rutgers_Test:
+      server: ruhex-osgce.rutgers.edu
       interval: 1
 
