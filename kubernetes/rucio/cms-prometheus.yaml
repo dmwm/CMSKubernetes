@@ -9,11 +9,3 @@ server:
       queue_config:
         max_samples_per_send: 10000
         max_shards: 30
-
-extraScrapeConfigs: |
-  - job_name: "statsd-exporter"
-    metrics_path: "/metrics"
-    static_configs:
-    - targets: ['statsd-exporter-rucio-statsd-exporter:9102']
-      labels: 
-        rucioInstance: 'int'
