@@ -8,8 +8,8 @@
 # - Eric Vaandering, <ewv@fnal.gov>, 2018
 
 ARG RUCIO_VERSION
-
 FROM rucio/rucio-ui:release-$RUCIO_VERSION
+ARG CMS_TAG
 
 RUN yum -y install http://linuxsoft.cern.ch/wlcg/centos7/x86_64/wlcg-repo-1.0.0-1.el7.noarch.rpm \
     && yum clean all \
@@ -38,11 +38,11 @@ RUN chmod 755 /usr/lib/python2.7/site-packages/cmstfc.py
 RUN rm -f /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/userdir.conf /etc/httpd/conf.d/ssl.conf
 
 # Patch for NanoAOD restrictions
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano7/lib/rucio/core/permission/cms.py /usr/lib/python2.7/site-packages/rucio/core/permission/cms.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/core/permission/cms.py /usr/lib/python2.7/site-packages/rucio/core/permission/cms.py
 RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/core/permission
 
 # Our schema
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano7/lib/rucio/common/schema/cms.py /usr/lib/python2.7/site-packages/rucio/common/schema/cms.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/common/schema/cms.py /usr/lib/python2.7/site-packages/rucio/common/schema/cms.py
 RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/common/schema
 
 ENV RUCIO_CA_PATH="/etc/grid-security/certificates"
