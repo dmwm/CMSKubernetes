@@ -75,8 +75,12 @@ def compare_site_blocks(phedex=None, rucio=None, rse='', patterns=None):
     :return:
     """
     with monitor.record_timer_block('cms_sync.time_node_diff'):
+#        from  pprint import pformat
         phedex_blocks = set(phedex.keys())
+#        logging.info('Blocks in PhEDEx %s', pformat(phedex_blocks))
+
         rucio_blocks = set(rucio.keys())
+#        logging.info('Blocks in Rucio %s', pformat(rucio_blocks))
 
         if patterns:
             phedex_match = set()
@@ -127,6 +131,9 @@ class SiteSyncer(object):
             pnn = site.replace('_Tape', '_MSS')
         else:
             pnn = site
+
+        if site == 'T3_CH_CERN_CTA_CastorTest':
+            pnn = 'T0_CH_CERN_MSS'
 
         # now = int(time.time())
 
@@ -227,31 +234,49 @@ class SiteSyncer(object):
             if site not in ['default', 'main']:
                 if site_config.get('multi_das_calls', False):
                     for prefix in list(string.letters + string.digits):
-                        if ('T0' in site or 'FNAL' in site) and prefix == 'S':
+                        if (('CERN' in site) or ('FNAL' in site) or ('_Tape' in site)) and prefix == 'S':
                             for fnal_prefix in ('Sc', 'Se', 'Si', 'Sp', 'St', 'SI', 'SM', 'ST', 'SU', 'SV'):
                                 to_sync.append((site, fnal_prefix))
-                        elif 'FNAL' in site and prefix == 'M':
+                        elif (('T0' in site) or ('FNAL' in site) or ('_Tape' in site)) and prefix == 'M':
                             for fnal_prefix in ('Ma', 'MC', 'ME', 'Mi', 'Mo', 'MS', 'Mu'):
                                 to_sync.append((site, fnal_prefix))
-                        elif ('T0' in site or 'FNAL' in site) and prefix == 'D':
+                        elif (('T0' in site) or ('FNAL' in site) or ('_Tape' in site)) and prefix == 'D':
                             for fnal_prefix in ('Da', 'Di', 'DM', 'Do', 'DP', 'Ds', 'DS', 'DY'):
                                 to_sync.append((site, fnal_prefix))
-                        elif ('T0' in site or 'FNAL' in site) and prefix == 'T':
+                        elif (('T0' in site) or ('FNAL' in site) or ('_Tape' in site)) and prefix == 'T':
                             for fnal_prefix in ('T1', 'T4', 'T5', 'TH', 'TK', 'TO', 'TA', 'TB', 'TC', 'TG', 'TZ', 'T_',
                                                 'TT', 'TW', 'Tk', 'To', 'Ta', 'Tb', 'Te', 'Tp', 'Tr', 'Ts', 'Tt', 'Tw'):
                                 to_sync.append((site, fnal_prefix))
-                        elif ('T0' in site or 'FNAL' in site) and prefix == 'H':
-                            for fnal_prefix in ('H0', 'H1', 'Ha', 'He', 'Hi', 'HJ', 'Hp', 'HP', 'Hs', 'HS', 'HT', 'HV',
-                                                'HW', 'HZ'):
+                        elif (('CERN' in site) or ('FNAL' in site)) and prefix == 'H':
+                            for fnal_prefix in ('H0', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'Ha', 'HA', 'Hc', 'He', 'HE',
+                                                'HF', 'Hi', 'HI', 'HJ', 'HL', 'Hp', 'HP', 'Hs', 'HS', 'HT', 'HV', 'HW',
+                                                'Hy', 'HZ'):
+                                to_sync.append((site, fnal_prefix))
+                        elif (('T0' in site) or ('FNAL' in site) or ('_Tape' in site) or (
+                                '_CTA' in site)) and prefix == 'C':
+                            for fnal_prefix in ('Ca', 'CE', 'CG', 'Ch', 'CI', 'CM', 'Co', 'CS'):
+                                to_sync.append((site, fnal_prefix))
+                        elif (('CERN' in site) or ('FNAL' in site)) and prefix == 'Z':
+                            for fnal_prefix in ('Z0', 'Z1', 'Z2', 'Z3', 'Z4', 'Z5', 'ZA', 'Zb', 'ZB', 'Zc', 'ZC', 'Ze',
+                                                'ZE', 'ZG', 'ZH', 'ZJ', 'ZL', 'Zm', 'ZM', 'Zn', 'ZN', 'Zp', 'ZP', 'ZR',
+                                                'Zt', 'ZT', 'ZU', 'ZV', 'ZZ'):
+                                to_sync.append((site, fnal_prefix))
+                        elif (('CERN' in site) or ('FNAL' in site)) and prefix == 'G':
+                            for fnal_prefix in ('G_', 'G1', 'Ga', 'Ge', 'GF', 'GG', 'Gj', 'GJ', 'Gl', 'GM', 'Gr',
+                                                'Gs', 'GV'):
                                 to_sync.append((site, fnal_prefix))
                         else:
                             to_sync.append((site, prefix))
                 else:
                     to_sync.append((site, None))
 
+
+
         # Cut the list (keep in order but choose a random starting point)
         offset = random.randrange(len(to_sync))
         to_sync = to_sync[offset:] + to_sync[:offset]
+
+#        to_sync = [('T0_CH_CERN_Tape', 'Hi'), ('T1_US_FNAL_Tape', 'Hi')]
 
         return to_sync
 
