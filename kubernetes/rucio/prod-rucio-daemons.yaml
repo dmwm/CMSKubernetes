@@ -1,12 +1,39 @@
-reaper2count: 0
+reaper2Count: 4
+judgeInjectorCount: 1
+conveyorPollerCount: 2
+
+# Should be one in normal running
 
 
 reaper2:
-#  includeRses: "cms_type=test"
   includeRses: "reaper=True"
-  includeDids: "/NANOAOD"
+  threads: 8
+  greedy: 0
+  sleepTime: 15
 
 conveyorTransferSubmitter:
+  threads: 5
+
+conveyorPoller:
+  threads: 5
+  resources: 
+    limits:
+      cpu: 2000m
+      memory: 1000Mi
+    requests:
+      cpu: 750m
+      memory: 400Mi
+
+judgeEvaluator:
+  resources:
+    limits:
+      memory: 1000Mi
+    requests:
+      memory: 400Mi
+
+
+
+conveyorFinisher: 
   threads: 5
 
 podLabels:
@@ -15,3 +42,10 @@ podLabels:
 transmogrifier:
   threads: 5
   sleepTime: 30
+
+
+config:
+    common:
+        loglevel: "INFO"
+#        loglevel: "DEBUG"
+

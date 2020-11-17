@@ -1,3 +1,8 @@
+conveyorTransferSubmitterCount: 1
+conveyorPollerCount: 1
+conveyorFinisherCount: 1
+
+
 reaper2:
   includeRses: "cms_type=test|rse=T3_US_NERSC"
 
@@ -6,4 +11,9 @@ conveyorTransferSubmitter:
 
 podLabels:
   rucioInstance: "int"
+
+config:
+    common:
+        #loglevel: "DEBUG"
+        loglevel: "INFO"
 
