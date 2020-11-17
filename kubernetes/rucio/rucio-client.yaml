@@ -22,6 +22,10 @@ spec:
     spec:
       containers:
         - name: client
+          #image: ericvaandering/rucio_client_test
           image: cmssw/rucio_client
+          #image: rucio/rucio-clients:release-1.23.8_py3
           imagePullPolicy: Always
+          command: ["sleep"]
+          args: ["infinity"]
 

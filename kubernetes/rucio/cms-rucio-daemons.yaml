@@ -24,7 +24,7 @@ abacusRse:
   threads: 2
 
 reaper2:
-  greedy: 1
+  greedy: 0
   threads: 8
   resources:
     requests:
@@ -33,7 +33,7 @@ reaper2:
       memory: 1000Gi
 
 conveyorTransferSubmitter:
-    activities: "'Data Brokering' 'Data rebalancing' 'Debug' 'Express' 'Functional Test' 'Group Subscriptions' 'Production Input' 'Production Output' 'Analysis Input' 'Analysis Output' 'Staging' 'T0 Export' 'T0 Tape' 'Upload/Download (Job)' 'Upload/Download (User)' 'User Subscriptions'"
+    activities: "'Recovery' 'Data Brokering' 'Data rebalancing' 'Debug' 'Express' 'Functional Test' 'Group Subscriptions' 'Production Input' 'Production Output' 'Analysis Input' 'Analysis Output' 'Staging' 'T0 Export' 'T0 Tape' 'Upload/Download (Job)' 'Upload/Download (User)' 'User Subscriptions'"
     # Same size or smaller than bulk which is 100
     groupBulk: 50
 
@@ -83,6 +83,7 @@ judgeRepairer:
   resources:
     limits:
       cpu: 3750m 
+      memory: 4000Mi
     requests:
       cpu: 750m 
 
@@ -108,9 +109,8 @@ config:
         port: "61313"
         brokers: "cms-mb.cern.ch"
         queue: "/queue/Consumer.kronos.cms.rucio.tracer"
-#    # Until 1.21.9
-#    tracer:
-#        queue: "/queue/Consumer.kronos.cms.rucio.tracer"
+        chunksize: "50"
+        prefetch_size: "50"
 
 transmogrifierResources:
     requests:
@@ -119,6 +119,7 @@ transmogrifierResources:
       memory: 1450Mi
 
 tracerKronos:
+  threads: 5
   resources:
     limits:
       cpu: 3000m 
