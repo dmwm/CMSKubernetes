@@ -75,12 +75,12 @@ def compare_site_blocks(phedex=None, rucio=None, rse='', patterns=None):
     :return:
     """
     with monitor.record_timer_block('cms_sync.time_node_diff'):
-#        from  pprint import pformat
+        #        from  pprint import pformat
         phedex_blocks = set(phedex.keys())
-#        logging.info('Blocks in PhEDEx %s', pformat(phedex_blocks))
+        #        logging.info('Blocks in PhEDEx %s', pformat(phedex_blocks))
 
         rucio_blocks = set(rucio.keys())
-#        logging.info('Blocks in Rucio %s', pformat(rucio_blocks))
+        #        logging.info('Blocks in Rucio %s', pformat(rucio_blocks))
 
         if patterns:
             phedex_match = set()
@@ -235,17 +235,19 @@ class SiteSyncer(object):
                 if site_config.get('multi_das_calls', False):
                     for prefix in list(string.letters + string.digits):
                         if (('CERN' in site) or ('FNAL' in site) or ('_Tape' in site)) and prefix == 'S':
-                            for fnal_prefix in ('Sc', 'Se', 'Si', 'Sp', 'St', 'SI', 'SM', 'ST', 'SU', 'SV'):
+                            for fnal_prefix in ('Sc', 'Se', 'Si', 'Sp', 'St', 'SI', 'SM', 'ST', 'SU', 'SV', 'SS',
+                                                'Su', 'SP'):
                                 to_sync.append((site, fnal_prefix))
                         elif (('T0' in site) or ('FNAL' in site) or ('_Tape' in site)) and prefix == 'M':
                             for fnal_prefix in ('Ma', 'MC', 'ME', 'Mi', 'Mo', 'MS', 'Mu'):
                                 to_sync.append((site, fnal_prefix))
                         elif (('T0' in site) or ('FNAL' in site) or ('_Tape' in site)) and prefix == 'D':
-                            for fnal_prefix in ('Da', 'Di', 'DM', 'Do', 'DP', 'Ds', 'DS', 'DY'):
+                            for fnal_prefix in ('D0', 'Da', 'Di', 'DM', 'Do', 'Dp', 'DP', 'Ds', 'DS', 'DY'):
                                 to_sync.append((site, fnal_prefix))
                         elif (('T0' in site) or ('FNAL' in site) or ('_Tape' in site)) and prefix == 'T':
                             for fnal_prefix in ('T1', 'T4', 'T5', 'TH', 'TK', 'TO', 'TA', 'TB', 'TC', 'TG', 'TZ', 'T_',
-                                                'TT', 'TW', 'Tk', 'To', 'Ta', 'Tb', 'Te', 'Tp', 'Tr', 'Ts', 'Tt', 'Tw'):
+                                                'TS', 'TT', 'TW', 'Tk', 'To', 'Ta', 'Tb', 'Te', 'Tp', 'Tr', 'Ts',
+                                                'Tt', 'Tw', 'Ty'):
                                 to_sync.append((site, fnal_prefix))
                         elif (('CERN' in site) or ('FNAL' in site)) and prefix == 'H':
                             for fnal_prefix in ('H0', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'Ha', 'HA', 'Hc', 'He', 'HE',
@@ -270,13 +272,28 @@ class SiteSyncer(object):
                 else:
                     to_sync.append((site, None))
 
-
-
         # Cut the list (keep in order but choose a random starting point)
         offset = random.randrange(len(to_sync))
         to_sync = to_sync[offset:] + to_sync[:offset]
 
-#        to_sync = [('T0_CH_CERN_Tape', 'Hi'), ('T1_US_FNAL_Tape', 'Hi')]
+        # to_sync = [
+        #            ('T2_CH_CERN', 'StreamExpress/Commissi'),
+        #            ('T2_CH_CERN', 'StreamExpress/Run2016B'),
+        #            ('T2_CH_CERN', 'StreamExpress/Run2017A'),
+        #            ('T2_CH_CERN', 'StreamExpress/Run2017B'),
+        #            ('T2_CH_CERN', 'StreamExpress/Run2017C'),
+        #            ('T2_CH_CERN', 'StreamExpress/Run2018A'),
+        #            ('T2_CH_CERN', 'StreamExpress/Run2018B'),
+        #            ('T2_CH_CERN', 'StreamExpress/Run2018C'),
+        #            ('T2_CH_CERN', 'StreamExpress/Run2018D'),
+        #            ('T2_CH_CERN', 'StreamExpress/Run2018E'),
+        #            ('T2_CH_CERN', 'StreamExpress/Tier0_RE'),
+        #            ('T2_CH_CERN', 'StreamExpressAlignment/'),
+        #            ('T2_CH_CERN', 'StreamExpressCosmics/C'),
+        #            ('T2_CH_CERN', 'StreamExpressCosmics/H'),
+        #            ('T2_CH_CERN', 'StreamExpressCosmics/R'),
+        #            ('T2_CH_CERN', 'StreamExpressCosmics/T'),
+        #            ]
 
         return to_sync
 
