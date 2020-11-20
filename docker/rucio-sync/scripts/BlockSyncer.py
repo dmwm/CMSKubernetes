@@ -72,6 +72,7 @@ class BlockSyncer(object):
 
         self.group, self.custodial, self.is_at_pnn = self.phedex_svc.block_at_pnn_phedex(block=self.block_name, pnn=self.pnn)
         self.block_in_phedex = self.phedex_svc.block_exists(block=self.block_name)
+        self.block_known = self.phedex_svc.block_known(block=self.block_name)
 
         if self.is_at_pnn:
             self.replicas = self.phedex_svc.fileblock_files_phedex(pnn=pnn, pfb=block_name)
@@ -105,7 +106,7 @@ class BlockSyncer(object):
     def remove_from_rucio(self):
         """"""
 
-        if not self.block_in_phedex:
+        if not self.block_known:
             logging.info('Declining to remove %s since it is not in PhEDEx', self.block_name)
             return
 
@@ -214,11 +215,21 @@ class BlockSyncer(object):
                              self.rse, self.block_name, len(phedex_replicas), len(missing))
 
             if missing:
+                logging.info('All replicas for %s at %s missing', self.rse, self.block_name)
                 lfns_added = self.add_missing_replicas(missing)
                 monitor.record_counter('cms_sync.files_added', delta=lfns_added)
             if to_remove:
+                logging.info('Removing replicas for %s at %s', self.rse, self.block_name)
+
                 lfns_removed = self.remove_extra_replicas(to_remove)
                 monitor.record_counter('cms_sync.files_removed', delta=lfns_removed)
+
+            if not missing and not to_remove:
+                logging.warn('Something very off for %s at %s', self.rse, self.block_name)
+                logging.warn('Phedex: %s', phedex_replicas)
+                logging.warn('Rucio: %s', rucio_replicas)
+                logging.warn('Missing: %s', missing)
+                logging.warn('To remove: %s', to_remove)
 
         return
 
