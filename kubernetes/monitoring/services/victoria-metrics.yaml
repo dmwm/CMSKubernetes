@@ -38,6 +38,7 @@ spec:
           - -opentsdbHTTPListenAddr=:4242 
           - -retentionPeriod=1
           - -storageDataPath=/tsdb
+          - -search.maxConcurrentRequests=32
           name: victoria-metrics
           image: victoriametrics/victoria-metrics
           ports:
