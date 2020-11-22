@@ -1,0 +1,51 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: promxy
+spec:
+  selector:
+    app: promxy
+  type: NodePort
+  ports:
+  - port: 8082
+    nodePort: 30082
+    targetPort: 8082
+    name: promxy
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: promxy
+  labels:
+     app: promxy
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: promxy
+   template:
+      metadata:
+         labels:
+           app: promxy
+      spec:
+        securityContext:
+          fsGroup: 1000
+        containers:
+        - args:
+          - /data/promxy
+          - --config=/etc/promxy/config.yaml
+          name: promxy
+          image: veknet/promxy
+          ports:
+          - containerPort: 8082
+            protocol: TCP
+            name: promxy
+          volumeMounts:
+          - name: promxy-secrets
+            mountPath: /etc/promxy
+            readOnly: true
+        volumes:
+        - name: promxy-secrets
+          secret:
+            secretName: promxy-secrets
