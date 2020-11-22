@@ -7,6 +7,19 @@ groups:
     expr: rate(apache_sent_kilobytes_total{job="frontend-prod"}[5m])
 
   - alert: Frontend service is down
+    expr: apache_cpuload == 0
+    for: 5m
+    labels:
+      severity: high
+      tag: cmsweb
+      service: apache
+      host: "{{ $labels.host }}"
+      action: Please restart frontend on {{ $labels.instance }}
+    annotations:
+      summary: "Frontend {{ $labels.env }} is down"
+      description: "Frontend {{ $labels.env }} has been down for more than 5m"
+
+  - alert: Frontend service is down
     expr: avg_over_time(apache_up[5m]) < .9
     for: 5m
     labels:

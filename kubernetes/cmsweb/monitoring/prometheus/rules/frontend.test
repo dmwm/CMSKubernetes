@@ -10,6 +10,25 @@ tests:
     values: '0+0x7' # '0 0 0 0 0 0 0 0'
   alert_rule_test:
       - eval_time: 10m
+        alertname: Frontend apache service is down
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: apache
+                 host: k8s-test
+                 action: Please restart frontend localhost:80
+                 instance: localhost:80
+              exp_annotations:
+                 summary: "Frontend localhost:80 down"
+                 description: "Frontend localhost:80 has been down for more than 5m"
+
+- interval: 1m
+  input_series:
+  - series: 'apache_cpuload{instance="localhost:80",host="k8s-test"}'
+    values: '0+0x7' # '0 0 0 0 0 0 0 0'
+  alert_rule_test:
+      - eval_time: 10m
         alertname: Frontend service is down
         exp_alerts:
             - exp_labels:
