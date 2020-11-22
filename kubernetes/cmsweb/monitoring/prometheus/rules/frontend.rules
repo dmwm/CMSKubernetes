@@ -2,9 +2,9 @@ groups:
 - name: frontend
   rules:
   - record: rate_accesses_total
-    expr: rate(apache_accesses_total{job="frontend-prod"}[5m])
+    expr: rate(apache_accesses_total[5m])
   - record: rage_size_total
-    expr: rate(apache_sent_kilobytes_total{job="frontend-prod"}[5m])
+    expr: rate(apache_sent_kilobytes_total[5m])
 
   - alert: Frontend service is down
     expr: apache_cpuload == 0

@@ -44,7 +44,7 @@ tests:
 
 - interval: 1m
   input_series:
-  - series: 'rate_accesses_total{job="frontend-prod",instance="localhost:80",host="k8s-test"}'
+  - series: 'rate_accesses_total{instance="localhost:80",host="k8s-test"}'
     values: '251+251x100'
   alert_rule_test:
       - eval_time: 10m
@@ -56,14 +56,13 @@ tests:
                  service: apache
                  host: k8s-test
                  instance: localhost:80
-                 job: frontend-prod
               exp_annotations:
                  summary: "Instance localhost:80 under high load"
                  description: "localhost:80 is under high load, rate_access_total > 250"
 
 - interval: 1m
   input_series:
-  - series: 'rate_size_total{job="frontend-prod",instance="localhost:80",host="k8s-test"}'
+  - series: 'rate_size_total{instance="localhost:80",host="k8s-test"}'
     values: '11111+11111x100'
   alert_rule_test:
       - eval_time: 10m
@@ -75,7 +74,6 @@ tests:
                  service: apache
                  host: k8s-test
                  instance: localhost:80
-                 job: frontend-prod
               exp_annotations:
                  summary: "Instance localhost:80 under high load"
                  description: "localhost:80 is under high load, sent request is above 5KB for 5m"
