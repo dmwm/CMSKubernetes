@@ -1,0 +1,4 @@
+# Grep running nohup logs and if spark contex is down, run daemon.sh
+* * * * * cd /data/; cat /data/server.log | /usr/bin/awk '/Exception in thread/ { system("/bin/bash /data/daemon.sh");}'
+# Run rumble server if it is not running
+* * * * * if ! ps aux | grep "spark-rumble" | grep -v grep > /dev/null; then /bin/bash /data/daemon.sh; fi
