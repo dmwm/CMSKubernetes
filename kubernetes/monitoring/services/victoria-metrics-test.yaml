@@ -13,7 +13,7 @@ spec:
     targetPort: 8428
     name: http
   - port: 4242
-    nodePort: 30423
+    nodePort: 31422
     targetPort: 4242
     name: opentsdb
 ---
