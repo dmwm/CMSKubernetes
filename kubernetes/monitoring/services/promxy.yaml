@@ -36,7 +36,7 @@ spec:
           - /data/promxy
           - --config=/etc/promxy/config.yaml
           name: promxy
-          image: veknet/promxy
+          image: cmssw/promxy
           ports:
           - containerPort: 8082
             protocol: TCP
