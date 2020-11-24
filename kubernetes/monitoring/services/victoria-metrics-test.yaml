@@ -9,7 +9,7 @@ spec:
   type: NodePort
   ports:
   - port: 8428
-    nodePort: 30429
+    nodePort: 31428
     targetPort: 8428
     name: http
   - port: 4242
