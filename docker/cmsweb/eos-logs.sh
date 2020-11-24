@@ -1,6 +1,6 @@
 #!/bin/bash
 
-usage="cmsweb-logs.sh <keytab> </path/local-log-area> </eos/path>"
+usage="eos-logs.sh <keytab> </path/local-log-area> </eos/path>"
 if [ $# -ne 3 ]; then
     echo "Usage: $usage"
     exit 1
