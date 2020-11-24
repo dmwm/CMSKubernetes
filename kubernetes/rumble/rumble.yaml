@@ -1,0 +1,68 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: rumble
+  namespace: rumble
+spec:
+  selector:
+    app: rumble
+  type: NodePort
+  ports:
+  - name: port-0
+    nodePort: 32000
+    port: 32000
+    protocol: TCP
+    targetPort: 32000
+  - name: port-1
+    nodePort: 32001
+    port: 32001
+    protocol: TCP
+    targetPort: 32001
+  - name: port-2
+    nodePort: 32002
+    port: 8001
+    protocol: TCP
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: rumble
+  namespace: rumble
+  labels:
+    app: rumble
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rumble
+  template:
+    metadata:
+      labels:
+        app: rumble
+    spec:
+      hostname: rumble
+      containers:
+      - name: rumble-image
+        image: mrceyhun/rumble-image:latest #imagetag
+        tty: true
+        stdin: true
+        env:
+          - name: MY_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+        ports:
+        - containerPort: 32000
+          name: port-0
+        - containerPort: 32001
+          name: port-1
+        - containerPort: 8001
+          name: port-2
+        volumeMounts:
+        - name: rumble-secrets
+          mountPath: /etc/rumble
+          readOnly: true
+      volumes:
+      - name: rumble-secrets
+        secret:
+          secretName: rumble-secrets
