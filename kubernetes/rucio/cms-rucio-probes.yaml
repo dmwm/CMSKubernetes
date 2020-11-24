@@ -40,6 +40,8 @@ probes:
     interval: 1
   check_obsolete_replicas:
     interval: 10
+  check_deletable_replicas:
+    interval: 10
   check_report_free_space:
     interval: 120
   check_report_used_space:
