@@ -7,6 +7,8 @@ if [ -f /etc/secrets/robotkey.pem ]; then
     sudo cp /etc/secrets/robotcert.pem /data/srv/current/auth/$srv/dmwm-service-cert.pem
     sudo chown $USER.$USER /data/srv/current/auth/$srv/dmwm-service-key.pem
     sudo chown $USER.$USER /data/srv/current/auth/$srv/dmwm-service-cert.pem
+    sudo chmod 400  /data/srv/current/auth/$srv/dmwm-service-key.pem
+    sudo chmod 440  /data/srv/current/auth/$srv/dmwm-service-cert.pem
 fi
 
 if [ -f /etc/robots/robotkey.pem ]; then
@@ -14,6 +16,8 @@ if [ -f /etc/robots/robotkey.pem ]; then
     sudo cp /etc/robots/robotcert.pem /data/srv/current/auth/$srv/dmwm-service-cert.pem
     sudo chown $USER.$USER /data/srv/current/auth/$srv/dmwm-service-key.pem
     sudo chown $USER.$USER /data/srv/current/auth/$srv/dmwm-service-cert.pem
+    sudo chmod 400  /data/srv/current/auth/$srv/dmwm-service-key.pem
+    sudo chmod 440  /data/srv/current/auth/$srv/dmwm-service-cert.pem
 fi
 
 # overwrite proxy if it is present in /etc/proxy
@@ -39,12 +43,15 @@ if [ -f /etc/secrets/hmac ]; then
     fi
     sudo cp /etc/secrets/hmac /data/srv/current/auth/wmcore-auth/header-auth-key
     sudo chown $USER.$USER /data/srv/current/auth/wmcore-auth/header-auth-key
+    sudo chmod 440 /data/srv/current/auth/wmcore-auth/header-auth-key
+
     mkdir -p /data/srv/current/auth/$srv
     if [ -f /data/srv/current/auth/$srv/header-auth-key ]; then
         sudo rm /data/srv/current/auth/$srv/header-auth-key
     fi
     sudo cp /etc/secrets/hmac /data/srv/current/auth/$srv/header-auth-key
     sudo chown $USER.$USER /data/srv/current/auth/$srv/header-auth-key
+    sudo chmod 440 /data/srv/current/auth/$srv/header-auth-key
 fi
 
 if [ -f /etc/hmac/hmac ]; then
@@ -54,12 +61,16 @@ if [ -f /etc/hmac/hmac ]; then
     fi
     sudo cp /etc/hmac/hmac /data/srv/current/auth/wmcore-auth/header-auth-key
     sudo chown $USER.$USER /data/srv/current/auth/wmcore-auth/header-auth-key
+    sudo chmod 440 /data/srv/current/auth/wmcore-auth/header-auth-key
+
     mkdir -p /data/srv/current/auth/$srv
     if [ -f /data/srv/current/auth/$srv/header-auth-key ]; then
         sudo rm /data/srv/current/auth/$srv/header-auth-key
     fi
     sudo cp /etc/hmac/hmac /data/srv/current/auth/$srv/header-auth-key
     sudo chown $USER.$USER /data/srv/current/auth/$srv/header-auth-key
+    sudo chmod 440 /data/srv/current/auth/$srv/header-auth-key
+
 fi
 
 # use service configuration files from /etc/secrets if they are present
