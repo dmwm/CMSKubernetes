@@ -34,7 +34,11 @@ fetchmaps
 
 # start mongo
 mkdir -p /data/mongodb/{wtdb,logs}
-mongod --config /data/mongodb.conf
+if [ -f /etc/secrets/mongodb.conf ]; then
+    mongod --config /etc/secrets/mongodb.conf
+else
+    mongod --config /data/mongodb.conf
+fi
 
 # import das maps
 if [ -f /etc/secrets/frontend ]; then
