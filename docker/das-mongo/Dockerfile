@@ -4,10 +4,11 @@ ENV WDIR=/data
 WORKDIR $WDIR
 
 # fetch mongo DB
-RUN curl -ksLO https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-debian10-4.2.8.tgz
-RUN tar xfz mongodb-linux-x86_64-debian10-4.2.8.tgz
-RUN cp mongodb-linux-x86_64-debian10-4.2.8/bin/* /data
-RUN rm -rf mongodb-linux-x86_64-debian10-4.2.8*
+ENV MONGODBVER=4.4.2
+ENV MONGOTOOLS=100.2.1
+RUN curl -ksLO https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-debian10-${MONGODBVER}.tgz && curl -ksLO https://fastdl.mongodb.org/tools/db/mongodb-database-tools-debian10-x86_64-${MONGOTOOLS}.tgz
+RUN tar xfz mongodb-linux-x86_64-debian10-${MONGODBVER}.tgz && cp mongodb-linux-x86_64-debian10-${MONGODBVER}/bin/[a-z]* /data && rm -rf mongodb-linux-x86_64-debian10-${MONGODBVER}*
+RUN tar xfz mongodb-database-tools-debian10-x86_64-${MONGOTOOLS}.tgz && cp mongodb-database-tools-debian10-x86_64-${MONGOTOOLS}/bin/[a-z]* /data && rm -rf mongodb-database-tools-debian10-x86_64-${MONGOTOOLS}*
 
 # build DAS maps tools
 RUN go get gopkg.in/yaml.v2
