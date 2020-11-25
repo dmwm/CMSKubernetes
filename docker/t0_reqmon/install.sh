@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG2012d
+VER=HG2012e
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend t0_reqmon"
