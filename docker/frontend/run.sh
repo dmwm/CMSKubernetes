@@ -22,17 +22,8 @@ elif [ -f /etc/grid-security/hostkey.pem ]; then
     sudo cp /etc/grid-security/hostkey.pem /data/certs/
     sudo cp /etc/grid-security/hostcert.pem /data/certs/
 fi
+
 # overwrite header-auth key file with one from secrets
-if [ -f /etc/secrets/hmac ]; then
-    cp /data/srv/current/auth/wmcore-auth/header-auth-key /data/srv/current/auth/wmcore-auth/header-auth-key.orig
-    sudo rm /data/srv/current/auth/wmcore-auth/header-auth-key
-    cp /data/srv/state/frontend/etc/keys/authz-headers /data/srv/state/frontend/etc/keys/authz-headers.orig
-    sudo rm /data/srv/state/frontend/etc/keys/authz-headers
-    cp /etc/secrets/hmac /data/srv/current/auth/wmcore-auth/header-auth-key
-    cp /etc/secrets/hmac /data/srv/state/frontend/etc/keys/authz-headers
-fi
-
-
 if [ -f /etc/hmac/hmac ]; then
     cp /data/srv/current/auth/wmcore-auth/header-auth-key /data/srv/current/auth/wmcore-auth/header-auth-key.orig
     sudo rm /data/srv/current/auth/wmcore-auth/header-auth-key
