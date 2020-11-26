@@ -2,12 +2,6 @@
 srv=`echo $USER | sed -e "s,_,,"` # remove only first underscore
 
 # overwrite host PEM files in /data/srv area
-if [ -f /etc/secrets/robotkey.pem ]; then
-    sudo cp /etc/secrets/robotkey.pem /data/srv/current/auth/$srv/dmwm-service-key.pem
-    sudo cp /etc/secrets/robotcert.pem /data/srv/current/auth/$srv/dmwm-service-cert.pem
-    sudo chown $USER.$USER /data/srv/current/auth/$srv/dmwm-service-key.pem
-    sudo chown $USER.$USER /data/srv/current/auth/$srv/dmwm-service-cert.pem
-fi
 
 if [ -f /etc/robots/robotkey.pem ]; then
     sudo cp /etc/robots/robotkey.pem /data/srv/current/auth/$srv/dmwm-service-key.pem
@@ -32,20 +26,6 @@ if [ -f /etc/proxy/proxy ]; then
 fi
 
 # overwrite header-auth key file with one from secrets
-if [ -f /etc/secrets/hmac ]; then
-    mkdir -p /data/srv/current/auth/wmcore-auth
-    if [ -f /data/srv/current/auth/wmcore-auth/header-auth-key ]; then
-        sudo rm /data/srv/current/auth/wmcore-auth/header-auth-key
-    fi
-    sudo cp /etc/secrets/hmac /data/srv/current/auth/wmcore-auth/header-auth-key
-    sudo chown $USER.$USER /data/srv/current/auth/wmcore-auth/header-auth-key
-    mkdir -p /data/srv/current/auth/$srv
-    if [ -f /data/srv/current/auth/$srv/header-auth-key ]; then
-        sudo rm /data/srv/current/auth/$srv/header-auth-key
-    fi
-    sudo cp /etc/secrets/hmac /data/srv/current/auth/$srv/header-auth-key
-    sudo chown $USER.$USER /data/srv/current/auth/$srv/header-auth-key
-fi
 
 if [ -f /etc/hmac/hmac ]; then
     mkdir -p /data/srv/current/auth/wmcore-auth
