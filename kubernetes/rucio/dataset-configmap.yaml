@@ -13,7 +13,7 @@ data:
           "for:13000"   # True YAML does not work
     default:
         pool: 1
-        chunck: 5000
+        chunck: 100000
         #select: /AOD
     T0_CH_CERN_Tape:
         pool: 5
@@ -48,12 +48,6 @@ data:
     T1_FR_CCIN2P3_Disk:
         pool: 5
         multi_das_calls: True
-    T1_IT_CNAF_Disk:
-        pool: 5
-        multi_das_calls: True
-    T1_RU_JINR_Disk:
-        pool: 5
-        multi_das_calls: True
     T1_UK_RAL_Disk:
         pool: 5
         multi_das_calls: True
@@ -74,10 +68,6 @@ data:
         select:
           - '\S+NANOAOD\S+'
     T2_BR_UERJ:
-        select:
-          - '\S+NANOAOD\S+'
-    T2_CH_CERN:
-        multi_das_calls: True
         select:
           - '\S+NANOAOD\S+'
     T2_CH_CSCS:
