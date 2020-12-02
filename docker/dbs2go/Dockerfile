@@ -1,4 +1,4 @@
-FROM cmssw/cmsweb:20201113
+FROM cern/cc7-base:20201101-1.x86_64 as builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
@@ -6,10 +6,12 @@ ENV USER=_dbs
 ADD oci8.pc $WDIR/oci8.pc
 ENV PKG_CONFIG_PATH=$WDIR
 ADD cernonly2.repo /etc/yum.repos.d/cernonlyw.repo
+ADD slc7-cernonly.repo /etc/yum.repos.d/slc7-cernonly.repo
+ADD epel.repo /etc/yum.repos.d/epel.repo
 
-RUN yum install -y git-core make gcc \
-            oracle-instantclient-devel oracle-instantclient-basic
-RUN yum clean all
+RUN yum install -y git-core make gcc golang sudo oracle-instantclient-tnsnames.ora \
+            oracle-instantclient-devel oracle-instantclient-basic \
+            && yum clean all && rm -rf /var/cache/yum
 
 # Create new user account
 RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
@@ -26,26 +28,41 @@ WORKDIR ${WDIR}
 ENV GOPATH=$WDIR/gopath
 RUN mkdir -p $GOPATH
 ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
-RUN go get github.com/dmwm/cmsauth
-RUN go get github.com/vkuznet/x509proxy
-RUN go get github.com/mattn/go-oci8
-RUN go get github.com/sirupsen/logrus
-RUN go get github.com/vkuznet/dbs2go
-RUN go get github.com/shirou/gopsutil
+RUN go get github.com/dmwm/cmsauth && \
+    go get github.com/vkuznet/x509proxy && \
+    go get github.com/mattn/go-oci8 && \
+    go get github.com/gorilla/csrf && \
+    go get github.com/gorilla/mux && \
+    go get github.com/lestrrat-go/file-rotatelogs && \
+    go get github.com/shirou/gopsutil
 
-# build dbs2go
-ADD config.json $WDIR/config.json
+# build dbs2go with specific tag
+WORKDIR $GOPATH/src/github.com/vkuznet
+RUN git clone https://github.com/vkuznet/dbs2go
 WORKDIR $GOPATH/src/github.com/vkuznet/dbs2go
-RUN sed -i -e "s,_ \"gopkg.in/rana/ora.v4\",,g" web/server.go
-RUN sed -i -e "s,_ \"github.com/mattn/go-sqlite3\",,g" web/server.go
-RUN sed -i -e "s,_ \"github.com/go-sql-driver/mysql\",,g" web/server.go
-RUN make
+ENV TAG=v00.00.12
+RUN git checkout tags/$TAG -b build && \
+    sed -i -e "s,_ \"gopkg.in/rana/ora.v4\",,g" web/server.go && \
+    sed -i -e "s,_ \"github.com/mattn/go-sqlite3\",,g" web/server.go && \
+    sed -i -e "s,_ \"github.com/go-sql-driver/mysql\",,g" web/server.go && \
+    make
+ADD config.json $WDIR/config.json
 RUN cat $WDIR/config.json | sed -e "s,GOPATH,$GOPATH,g" > dbsconfig.json
 ENV PATH="${GOPATH}/src/github.com/vkuznet/dbs2go:${GOPATH}/src/github.com/vkuznet/dbs2go/bin:${PATH}"
 
 ENV X509_USER_PROXY=/data/srv/current/auth/proxy/proxy
 
+FROM cern/cc7-base:20201101-1.x86_64
+RUN yum install -y libaio && yum clean all && rm -rf /var/cache/yum
+RUN mkdir -p /data
+COPY --from=builder /data/gopath/src/github.com/vkuznet/dbs2go/dbs2go /data/
+COPY --from=builder /data/gopath /data/gopath
+COPY --from=builder /usr/lib/oracle /usr/lib/oracle
+COPY --from=builder /etc/tnsnames.ora /etc
+
 # run the service
-ADD run.sh $WDIR/run.sh
-WORKDIR ${WDIR}
+ENV PATH="/data/gopath/bin:/data:${PATH}"
+RUN cp /data/gopath/src/github.com/vkuznet/dbs2go/dbsconfig.json /data/config.json
+ADD run.sh /data/run.sh
+WORKDIR /data
 CMD ["run.sh"]
