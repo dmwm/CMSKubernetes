@@ -10,7 +10,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "900"
 spec:
   rules:
-  - host: "test-cluster-jnbxujghdusq-node-0.cern.ch"
+  - host: "cms-monitoring.cern.ch"
     http:
       paths:
       - path: /jsoniq
