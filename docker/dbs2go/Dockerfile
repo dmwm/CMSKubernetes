@@ -35,7 +35,12 @@ RUN go get github.com/dmwm/cmsauth && \
     go get github.com/gorilla/mux && \
     go get github.com/lestrrat-go/file-rotatelogs && \
     go get golang.org/x/sys/unix && \
-    go get github.com/shirou/gopsutil
+    go get github.com/shirou/gopsutil && \
+    go get -d github.com/vkuznet/cmsweb-exporters
+
+# build process_monitor
+WORKDIR $GOPATH/src/github.com/vkuznet/cmsweb-exporters
+RUN go build process_exporter.go && cp process_exporter $WDIR && cp process_monitor.sh $WDIR
 
 # get filebeat
 RUN curl -ksLO https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.10.0-linux-x86_64.tar.gz && \
@@ -43,7 +48,7 @@ RUN curl -ksLO https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.
     cp filebeat-7.10.0-linux-x86_64/filebeat /data
 
 # build dbs2go with specific tag
-ENV TAG=v00.00.21
+ENV TAG=v00.00.22
 WORKDIR $GOPATH/src/github.com/vkuznet
 RUN git clone https://github.com/vkuznet/dbs2go
 WORKDIR $GOPATH/src/github.com/vkuznet/dbs2go
@@ -66,6 +71,8 @@ COPY --from=builder /data/gopath /data/gopath
 COPY --from=builder /usr/lib/oracle /usr/lib/oracle
 COPY --from=builder /etc/tnsnames.ora /etc
 COPY --from=builder /data/filebeat /usr/bin/filebeat
+COPY --from=builder /data/process_exporter /data
+COPY --from=builder /data/process_monitor.sh /data
 
 # run the service
 ENV PATH="/data/gopath/bin:/data:${PATH}"
