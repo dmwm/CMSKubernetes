@@ -8,6 +8,11 @@ if [ -f /etc/proxy/proxy ]; then
     ln -s /etc/proxy/proxy /data/srv/current/auth/proxy/proxy
 fi
 
+# run monitoring script
+if [ -f /data/monitor.sh ]; then
+    /data/monitor.sh
+fi
+
 export LD_LIBRARY_PATH=`find /usr/lib/oracle -name libocci.so | sed -e "s,/libocci.so,,g"`
 # start dbs2go server
 if [ -f /etc/secrets/dbsconfig.json ]; then
