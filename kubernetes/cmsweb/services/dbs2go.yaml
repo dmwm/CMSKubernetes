@@ -33,7 +33,7 @@ spec:
         env: k8s #k8s#
       annotations:
         prometheus.io/scrape: 'true'
-        prometheus.io/port: "18217"
+        prometheus.io/port: "18258"
     spec:
       containers:
       - image: cmssw/dbs2go #imagetag
