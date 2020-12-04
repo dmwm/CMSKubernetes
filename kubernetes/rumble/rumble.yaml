@@ -62,6 +62,10 @@ spec:
         - name: rumble-secrets
           mountPath: /etc/rumble
           readOnly: true
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "export > /etc/environment"]
       volumes:
       - name: rumble-secrets
         secret:
