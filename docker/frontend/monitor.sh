@@ -16,12 +16,21 @@ filebeat.inputs:
   backoff: 5s
   max_backoff: 10s
   tags: ["frontend"]
+# disable internal monitoring, uncomment line below, default is true
+# logging.metrics.enabled: false
+# change loggin metrics interval, when logging.metrics is enabled
+# logging.metrics.period: 30s
 output.logstash:
   hosts: ["logstash.monitoring:5044"]
   compression_level: 3
   worker: 4
   bulk_max_size: 4096
   pipelining: 2
+#output.file:
+#  path: "/tmp/filebeat"
+#  filename: filebeat
+#output.console:
+#  pretty: true
 queue.mem:
   events: 65536
 EOF
