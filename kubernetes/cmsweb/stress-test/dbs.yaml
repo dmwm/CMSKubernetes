@@ -1,0 +1,163 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: client-script
+  namespace: default
+data:
+  client.sh: |
+    #!/bin/sh
+    set -e
+
+    for i in $(seq 0 9) ; do
+      _base_url="https://cmsweb-testbed.cern.ch/dbs/int/global/DBSReader/datasets?detail=False"
+          curl \
+              -s \
+              --cert /certs/cms-proxy.pem \
+              --cacert /certs/cms-proxy.pem \
+              --cacert /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem \
+              -w "${_base_url} %{http_code} %{remote_ip} %{time_total}\n" \
+              -o /dev/null \
+              "${_base_url}" | tee --append --ignore-interrupts /tmp/curl-client.log
+    done
+    echo "Finished. sleeping 100d"
+    sleep 100d
+  grok-config.yml: |
+    global:
+      config_version: 3
+    input:
+      type: file
+      path: /tmp/curl-client.log
+      fail_on_missing_logfile: false
+    imports:
+    - type: grok_patterns
+      dir: ./patterns
+    metrics:
+    - type: histogram
+      name: curl_client_request
+      help: Curl client request response times
+      match: '%{DATA:rawrequest} %{NUMBER:http_code} %{IP:remoteip} %{NUMBER:time_total}'
+      value: '{{.time_total}}'
+      labels:
+        http_code: '{{.http_code}}'
+        rawrequest: '{{.rawrequest}}'
+        remoteip: '{{.remoteip}}'
+    - type: counter
+      name: curl_client_request_counter
+      help: Curl client request response counter
+      match: '%{DATA:rawrequest} %{NUMBER:http_code} %{IP:remoteip} %{NUMBER:time_total}'
+      labels:
+        http_code: '{{.http_code}}'
+        rawrequest: '{{.rawrequest}}'
+        remoteip: '{{.remoteip}}'
+    server:
+      protocol: http
+      port: 9144
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client
+  namespace: default
+  labels:
+    k8s-app: curl-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: curl-client
+  template:
+    metadata:
+      labels:
+        k8s-app: curl-client
+    spec:
+      containers:
+      - name: curl-client
+        image: registry.fedoraproject.org/fedora:33
+        imagePullPolicy: "IfNotPresent"
+        command: ['/bin/bash', '-c']
+        args: ['/client.sh']
+        volumeMounts:
+          - name: workspace
+            mountPath: /tmp
+          - name: client-cm
+            mountPath: /client.sh
+            subPath: client.sh
+          - mountPath: /etc/
+            name: etc-grid-security
+          - name: cms-proxy
+            mountPath: /certs
+#          - name: urls
+#            mountPath: /data
+      - name: grok
+        image: gitlab-registry.cern.ch/strigazi/containers/grok_exporter
+        imagePullPolicy: "IfNotPresent"
+        command:
+        - grok_exporter
+        - -config
+        - /grok-config.yml
+        ports:
+        - containerPort: 9144
+        volumeMounts:
+          - name: workspace
+            mountPath: /tmp
+          - name: client-cm
+            mountPath: /grok-config.yml
+            subPath: grok-config.yml
+      securityContext:
+        seLinuxOptions:
+          type: "spc_t"
+      volumes:
+      - name: workspace
+        emptyDir:
+      - name: client-cm
+        configMap:
+          name: client-script
+          defaultMode: 0755
+#      - name: urls
+#        configMap:
+#          name: urls
+#          defaultMode: 0755
+      - name: etc-grid-security
+        hostPath:
+          path: /etc/
+      - name: cms-proxy
+        secret:
+          secretName: cms-proxy
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: curl-client
+  namespace: default
+  labels: 
+    k8s-app: curl-client
+spec: 
+  ports: 
+    - port: 9144
+      protocol: TCP
+      name: metrics
+  selector: 
+    k8s-app: curl-client
+
+---
+#apiVersion: monitoring.coreos.com/v1
+#kind: ServiceMonitor
+#metadata: 
+#  name: curl-client
+#  namespace: default
+#  labels: 
+#    release: prometheus-operator
+#    k8s-app: curl-client
+#spec: 
+#  endpoints: 
+#  - path: /metrics
+#    port: metrics
+#    interval: 5s
+#  jobLabel: "app.kubernetes.io/name"
+#  namespaceSelector: 
+#    matchNames: 
+#    - default
+#  selector: 
+#    matchLabels: 
+#      k8s-app: curl-client
