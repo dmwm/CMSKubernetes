@@ -24,8 +24,8 @@ config:
         brokers: "localhost"
         voname: "cms"    
     conveyor:
-        ftshosts: "https://cmsfts3.fnal.gov:8446,https://fts3.cern.ch:8446,https://lcgfts3.gridpp.rl.ac.uk:8446"
-        ftsmonhosts: "https://cmsfts3.fnal.gov:8449,https://fts3.cern.ch:8449,https://lcgfts3.gridpp.rl.ac.uk:8449"
+        ftshosts: "https://cmsfts3.fnal.gov:8446,https://fts3-cms.cern.ch:8446,https://lcgfts3.gridpp.rl.ac.uk:8446"
+        ftsmonhosts: "https://cmsfts3.fnal.gov:8449,https://fts3-cms.cern.ch:8449,https://lcgfts3.gridpp.rl.ac.uk:8449"
         bring_online: "605000"
     monitor:
         carbon_server: statsd-exporter-rucio-statsd-exporter
