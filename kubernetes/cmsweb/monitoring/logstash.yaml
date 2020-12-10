@@ -42,12 +42,12 @@ spec:
         - -f
         - /usr/share/logstash/pipeline/logstash.conf
         resources:
-          limits:
-            memory: 4Gi
-            cpu: "400m"
           requests:
             memory: 4Gi
             cpu: "400m"
+          limits:
+            memory: 8Gi
+            cpu: "4000m"
       volumes:
       - name: pipeline
         configMap:
