@@ -21,12 +21,18 @@ filebeat.inputs:
 # change loggin metrics interval, when logging.metrics is enabled
 # logging.metrics.period: 30s
 output.logstash:
-    hosts: ["logstash.monitoring:5044"]
+  hosts: ["logstash.monitoring:5044"]
+  compression_level: 3
+  worker: 4
+  bulk_max_size: 4096
+  pipelining: 2
 #output.file:
 #  path: "/tmp/filebeat"
 #  filename: filebeat
 #output.console:
 #  pretty: true
+queue.mem:
+  events: 65536
 EOF
 
 # run filebeat
