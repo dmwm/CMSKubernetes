@@ -18,27 +18,27 @@ openstack \
 	--labels autoscaler_tag="v1.19.0-cern.0" \
 	--labels calico_ipv4pool="10.100.0.0/16" \
 	--labels calico_ipv4pool_ipip="CrossSubnet" \
-        --labels calico_tag="v3.13.2" \
+	--labels calico_tag="v3.13.2" \
 	--labels cephfs_csi_enabled="true" \
 	--labels cephfs_csi_version="cern-csi-1.0-3" \
 	--labels cern_enabled="true" \
-        --labels cern_chart_version="0.6.1" \
-        --labels cern_chart_enabled="true" \
+	--labels cern_chart_version="0.6.1" \
+	--labels cern_chart_enabled="true" \
 	--labels cern_tag="v0.5.0" \
 	--labels cgroup_driver="cgroupfs" \
 	--labels cloud_provider_tag="v1.19.0-1" \
-        --labels coredns_tag="1.6.6" \
+	--labels coredns_tag="1.6.6" \
 	--labels container_infra_prefix="gitlab-registry.cern.ch/cloud/atomic-system-containers/" \
-        --labels container_runtime="containerd" \
-        --labels containerd_tarball_sha256="2697a342e3477c211ab48313e259fd7e32ad1f5ded19320e6a559f50a82bff3d" \
-        --labels containerd_tarball_url="https://s3.cern.ch/cri-containerd-release/cri-containerd-cni-1.4.3-linux-amd64.tar.gz" \
+	--labels container_runtime="containerd" \
+	--labels containerd_tarball_sha256="2697a342e3477c211ab48313e259fd7e32ad1f5ded19320e6a559f50a82bff3d" \
+	--labels containerd_tarball_url="https://s3.cern.ch/cri-containerd-release/cri-containerd-cni-1.4.3-linux-amd64.tar.gz" \
 	--labels cvmfs_csi_enabled="true" \
 	--labels cvmfs_csi_version="v1.0.0" \
 	--labels etcd_tag="v3.4.13" \
-        --labels eos_enabled="true" \
+	--labels eos_enabled="true" \
 	--labels heapster_enabled="false" \
 	--labels heat_container_agent_tag="train-stable-2" \
-        --labels helm_client_tag="v2.16.6" \
+	--labels helm_client_tag="v2.16.6" \
 	--labels influx_grafana_dashboard_enabled="false" \
 	--labels ingress_controller="nginx" \
 	--labels keystone_auth_enabled="true" \
@@ -55,12 +55,12 @@ openstack \
 	--labels manila_enabled="true" \
 	--labels manila_version="v0.3.0" \
 	--labels metrics_server_enabled="true" \
-        --labels nvidia_gpu_enabled="false" \
+	--labels nvidia_gpu_enabled="false" \
 	--labels nvidia_gpu_tag="31-5.4.8-200.fc31.x86_64-455.28" \
 	--labels tiller_enabled="true" \
-        --labels tiller_tag="v2.16.6" \
+	--labels tiller_tag="v2.16.6" \
 	--labels use_podman="true" \
-        --labels cinder_csi_enabled="true" \
+	--labels cinder_csi_enabled="true" \
 	--coe kubernetes \
 	--image 5b338766-0fbf-47fa-9d9a-8f9543be9729 \
 	--external-network CERN_NETWORK \
