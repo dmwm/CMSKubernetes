@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # start process exporter
-for p in "config-monitor" "config-output" "config-transferor"; do
+for p in "config-monitor" "config-output" "config-transferor" "config-ruleCleaner"; do
     pat="wmc-httpd.*$p"
     pid=`ps axjfwww | grep "$pat" | grep -v grep | grep -v process_monitor | grep -v " 1 " | awk '{print $1}'`
     if [ -n "$pid" ]; then
@@ -15,6 +15,9 @@ for p in "config-monitor" "config-output" "config-transferor"; do
         fi
         if [ "$p" == "config-transferor" ]; then
             address=":18247"
+        fi
+        if [ "$p" == "config-ruleCleaner" ]; then
+            address=":18244"
         fi
         nohup process_exporter -pid $pid -prefix $prefix -address "$address" 2>&1 1>& ${prefix}.log < /dev/null &
     fi
