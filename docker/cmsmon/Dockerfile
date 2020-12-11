@@ -1,4 +1,4 @@
-FROM cmssw/cmsweb:20201113
+FROM cmssw/cmsweb:20201211
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 # add environment
