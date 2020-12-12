@@ -47,8 +47,8 @@ spec:
             memory: "100Mi"
             cpu: "200m"
           limits:
-            memory: "3Gi"
-            cpu: "4000m"
+            memory: "500Mi"
+            cpu: "8000m"
         livenessProbe:
           httpGet:
             path: /dbs2go/status
