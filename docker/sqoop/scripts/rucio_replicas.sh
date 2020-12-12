@@ -14,7 +14,7 @@ TZ=UTC
 
 /usr/hdp/sqoop/bin/sqoop import -Dmapreduce.job.user.classpath.first=true \
     -Doraoop.timestamp.string=false \
-    -D mapred.chil d.java.opts="-Djava.security.egd=file:/dev/../dev/urandom" \
+    -Dmapred.child.java.opts="-Djava.security.egd=file:/dev/../dev/urandom" \
     --connect $JDBC_URL --username $USERNAME --password $PASSWORD  \
     --num-mappers 100 --fetch-size 10000 --table $TABLE --as-avrodatafile \
     -z --direct --target-dir $BASE_PATH`date +%Y-%m-%d`/replicas \
