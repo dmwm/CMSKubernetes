@@ -48,7 +48,7 @@ RUN curl -ksLO https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.
     cp filebeat-7.10.0-linux-x86_64/filebeat /data
 
 # build dbs2go with specific tag
-ENV TAG=v00.00.34
+ENV TAG=v00.00.37
 WORKDIR $GOPATH/src/github.com/vkuznet
 RUN git clone https://github.com/vkuznet/dbs2go
 WORKDIR $GOPATH/src/github.com/vkuznet/dbs2go
