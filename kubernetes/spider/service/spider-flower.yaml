@@ -1,0 +1,15 @@
+# FLOWER
+apiVersion: v1
+kind: Service
+metadata:
+  name: spider-flower
+  namespace: spider
+spec:
+  type: NodePort
+  selector:
+    app: spider-flower
+  ports:
+  - name: port-5555
+    nodePort: 31111
+    port: 5555
+    protocol: TCP

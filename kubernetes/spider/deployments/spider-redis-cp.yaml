@@ -1,0 +1,55 @@
+## DEPLOYMENTS
+# REDIS-CHECKPOINT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: redis-checkpoint
+  name: redis-checkpoint
+  namespace: spider
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-checkpoint
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: redis-checkpoint
+    spec:
+      containers:
+      - name: redis-checkpoint
+        image: redis:alpine
+        command:
+        - redis-server
+        - --appendonly
+        - "yes"
+        ports:
+        - containerPort: 6379
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        volumeMounts:
+        - mountPath: /data
+          name: redis-checkpoint-claim0
+      initContainers: # fixes warning related with net.core.somaxconn
+      - name: init-sysctl-checkpoint
+        image: redis:alpine
+        command:
+        - /bin/sh
+        - -c
+        - |
+          sysctl -w net.core.somaxconn=10000
+        securityContext:
+          privileged: true
+          runAsUser: 0
+      restartPolicy: Always
+      volumes:
+      - name: redis-checkpoint-claim0
+        emptyDir: {}

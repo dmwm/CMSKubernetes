@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: spider-flower
+  name: spider-flower
+  namespace: spider
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spider-flower
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: spider-flower
+    spec:
+      containers:
+      - args:
+        - flower
+        - --broker=redis://$(REDIS_SERVICE_HOST):$(REDIS_SERVICE_PORT_6379)/0
+        - --port=5555
+        - -A=htcondor_es.celery.celery
+        - -l=DEBUG
+        - --persistent=True
+        - --max_tasks=1000000000
+        - --db=/cms_shared/flower.db
+        image: mrceyhun/cms_htcondor_es:latest
+        name: spider-flower
+        ports:
+        - containerPort: 5555
+          name: port-5555
+        resources:
+          limits:
+            cpu: 300m
+            memory: 1Gi
+          requests:
+             cpu: 100m
+             memory: 100Mi
+        volumeMounts:
+          - mountPath: /cms_shared
+            name: shared-spider
+      volumes:
+        - name: shared-spider
+          emptyDir: {}
+        #cinder:
+        #   volumeID: eab4da25-4d74-4c03-b516-c9517ac73b3f
+        #    fsType: ext4
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 60
+status: {}
