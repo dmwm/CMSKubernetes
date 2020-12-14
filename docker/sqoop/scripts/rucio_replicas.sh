@@ -19,3 +19,6 @@ TZ=UTC
     --num-mappers 100 --fetch-size 10000 --table $TABLE --as-avrodatafile \
     -z --direct --target-dir $BASE_PATH`date +%Y-%m-%d`/replicas \
 1>$LOG_FILE.stdout 2>$LOG_FILE.stderr
+
+# change permossion of HDFS area
+hadoop fs -chmod -R o+rx $BASE_PATH`date +%Y-%m-%d`
