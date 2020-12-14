@@ -1,0 +1,30 @@
+# <Cinder>
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+    volume.beta.kubernetes.io/storage-class: standard
+  name: affilations-cinder-claim
+  namespace: spider
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+# <CephFS>
+#apiVersion: v1
+#kind: PersistentVolumeClaim
+#metadata:
+#  name: affilations-cephfs-claim
+#  namespace: spider
+#spec:
+#  accessModes:
+#  - ReadWriteMany
+#  resources:
+#    requests:
+#      storage: 1G
+#  storageClassName: geneva-cephfs-testing
+#PROD#storageClassName: meyrin-cephfs
+

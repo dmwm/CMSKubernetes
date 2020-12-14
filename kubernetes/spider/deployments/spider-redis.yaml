@@ -1,0 +1,59 @@
+## DEPLOYMENTS
+# REDIS
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: redis
+  name: redis
+  namespace: spider
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - image: redis:alpine
+        name: redis
+        ports:
+        - containerPort: 6379
+        resources:
+          limits:
+            cpu: 500m
+            memory: 4Gi
+          requests:
+            cpu: 150m
+            memory: 2Gi
+        volumeMounts:
+        - mountPath: /data
+          name: redis-claim0
+      initContainers: # fixes warning related with net.core.somaxconn
+      - name: init-sysctl
+        image: redis:alpine
+        command:
+        - /bin/sh
+        - -c
+        - |
+          sysctl -w net.core.somaxconn=10000
+        securityContext:
+          privileged: true
+          runAsUser: 0
+      restartPolicy: Always
+      volumes:
+      - name: redis-claim0
+        emptyDir: {}
+        #cinder:
+        #  volumeID: bc016e0d-9133-4cf1-b516-8ea874d77785
+        #  fsType: ext4
+        #persistentVolumeClaim:
+        #  claimName: redis-cinder-claim
+        #  readOnly: false
+        #  #CephFS#  claimName: redis-cephfs-claim
+status: {}
