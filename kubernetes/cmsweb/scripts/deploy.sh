@@ -67,7 +67,7 @@ cmsweb_ds="frontend-ds"
 
 #cmsweb_srvs="httpgo httpsgo frontend acdcserver couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
 
-cmsweb_srvs="httpgo httpsgo frontend crabcache crabserver das-server das-mongo das-mongo-exporter dbs dbsmigration reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes wmarchive"
+cmsweb_srvs="httpgo httpsgo frontend crabcache crabserver das-server das-mongo das-mongo-exporter dbs dbsmigration reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmgr2ms-ruleCleaner reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes wmarchive"
 
 # list of DBS instances
 dbs_instances="migrate  global-r global-w phys03-r phys03-w"
@@ -117,7 +117,7 @@ if [ "$deployment" == "services" ]; then
     cmsweb_ing="ing-crab ing-dbs ing-das ing-dmwm ing-http ing-tzero ing-exitcodes ing-wma"
 
     #cmsweb_srvs="httpgo httpsgo acdcserver couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
-cmsweb_srvs="httpgo httpsgo crabcache crabserver das-server das-mongo das-mongo-exporter dbs dbsmigration reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor  reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes wmarchive"
+cmsweb_srvs="httpgo httpsgo crabcache crabserver das-server das-mongo das-mongo-exporter dbs dbsmigration reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmgr2ms-ruleCleaner reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes wmarchive"
 
     echo "+++ deploy services: $cmsweb_srvs"
     echo "+++ deploy ingress : $cmsweb_ing"

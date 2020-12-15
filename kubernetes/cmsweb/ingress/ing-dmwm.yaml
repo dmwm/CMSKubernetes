@@ -37,3 +37,7 @@ spec:
         backend:
           serviceName: ms-output
           servicePort: 8245
+      - path: /ms-rulecleaner
+        backend:
+          serviceName: ms-output
+          servicePort: 8244
