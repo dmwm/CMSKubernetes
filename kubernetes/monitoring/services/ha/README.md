@@ -2,7 +2,7 @@
 This documentation provides all details for High-Availability (HA) mode 
 of CMS monitoring infrastructure. The architecture of this mode
 is represented below:
-![HA architecture](images/CMSMonitoringHA.png)
+![HA architecture](../../images/CMSMonitoringHA.png)
 
 To achieve HA mode of operation we use the
 following infrastructure setup:
