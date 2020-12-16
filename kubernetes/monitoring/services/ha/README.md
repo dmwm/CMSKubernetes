@@ -1,6 +1,10 @@
 ### CMS Monitoring HA documentation
 This documentation provides all details for High-Availability (HA) mode 
-of CMS monitoring infrastructure. To achieve HA mode of operation we use the
+of CMS monitoring infrastructure. The architecture of this mode
+is represented below:
+![HA architecture](images/CMSMonitoringHA.png)
+
+To achieve HA mode of operation we use the
 following infrastructure setup:
 - two kubernetes clusters (ultimately running in different CERN zones)
 - [promxy](https://github.com/jacksontj/promxy) a prometheus proxy to unify
