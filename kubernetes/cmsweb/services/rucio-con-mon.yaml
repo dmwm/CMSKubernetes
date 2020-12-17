@@ -1,0 +1,61 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: rucio_consistency_monitor
+  name: rucio-con-mon
+  namespace: http
+spec:
+  selector:
+    matchLabels:
+      app: rucio_consistency_monitor
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: rucio_consistency_monitor
+    spec:
+      containers:
+      - image: ivmfnal/rucio_consistency_monitor
+        name: ruc-con-mon
+        livenessProbe:
+          httpGet:
+            path: /probe
+            port: 8400
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        command: ["/root/start.sh"]
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 8400
+        #volumeMounts:
+        #    - mountPath: /samples
+        #      name: consistency-dump
+      #volumes:
+      #  - name: consistency-dump
+      #    persistentVolumeClaim:
+      #          claimName: consistency-report-pvc
+      #
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: rucio-con-mon
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8400
+    protocol: TCP
+    name: http
+  selector:
+    app: rucio_consistency_monitor
+  
