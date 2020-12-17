@@ -4,7 +4,7 @@ metadata:
   labels:
     app: monitor
   name: monitor
-  namespace: rucio-cm
+  namespace: ruciocm
 spec:
   selector:
     matchLabels:
@@ -49,7 +49,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: monitor
-  namespace: rucio-cm
+  namespace: ruciocm
 spec:
   type: ClusterIP
   ports:
