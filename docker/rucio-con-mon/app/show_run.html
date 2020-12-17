@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block headline %}RSE:{{rse}} Run:{{run}}{% endblock %}
+
+{% block link_menu %}<a href="./index">home</a>&nbsp;&nbsp;<a href="./show_rse?rse={{rse}}">{{rse}}</a>{% endblock %}
+
+{% block content %}
+
+    {% if errors %}
+    
+        <h3>Run errors</h3>
+        <p class=error>
+        {% for e in errors %}
+            {{e}}<br/>
+        {% endfor %}
+        </p>
+
+    {% else %}
+            <h3>Run statistics</h3>
+            
+            <p style="color:gray">Start/end times in UTC</p>
+            
+            <table class="data">
+                <tr>
+                    <td></td><th>DB dump before site scan</th><th>Site scan</th><th>DB dump after site scan</th><th>Comparison</th>
+                </tr>
+                <tr>
+                    <th>Start time</th>
+                    <td>{{dbdump_before["start_time"]|as_dt}}</td>
+                    <td>{{scanner["start_time"]|as_dt}}
+                    <td>{{dbdump_after["start_time"]|as_dt}}</td>
+                    <td>{{cmp3["start_time"]|as_dt}}
+                </tr>
+                <tr>
+                    <th>End time</th>
+                    <td>{{dbdump_before["end_time"]|as_dt}}</td>
+                    <td>{{scanner["end_time"]|as_dt}}
+                    <td>{{dbdump_after["end_time"]|as_dt}}</td>
+                    <td>{{cmp3["end_time"]|as_dt}}
+                </tr>
+                <tr>
+                    <th>Elapsed time</th>
+                    <td>{{dbdump_before["elapsed"]|hms}}</td>
+                    <td>{{(scanner["end_time"]-scanner["start_time"])|hms}}</td>
+                    <td>{{dbdump_after["elapsed"]|hms}}</td>
+                    <td>{{cmp3["elapsed"]|hms}}</td>
+                </tr>
+                <tr>
+                    <th>Files</th>
+                    <td>{{dbdump_before["files"]}}</td>
+                    <td>{{scanner["total_files"]}}</td>
+                    <td>{{dbdump_after["files"]}}</td>
+                    <td>{% if nmissing %}missing:{{nmissing}}{% endif %} 
+                        {% if ndark %}dark:{{ndark}}{% endif %} </td>
+                </tr>
+                <tr>
+                    <th>Directories</th>
+                    <td>{{dbdump_before["directories"]}}</td>
+                    <td>{{scanner["total_directories"]}}</td>
+                    <td>{{dbdump_after["directories"]}}</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <th>Version</th>
+                    <td>{{dbdump_before["version"]}}</td>
+                    <td>{{scanner["scanner"]["type"]}} {{scanner["scanner"]["version"]}}</td>
+                    <td>{{dbdump_after["version"]}}</td>
+                    <td>{{cmp3["version"]}}</td>
+                </tr>
+            </table>
+            
+            <h3>Site scan details</h3>
+            <table class="data">
+                <tr><th>Server address</th><td>{{scanner["server"]}}</td></tr>
+                <tr><th>Server root</th><td>{{scanner["server_root"]}}</td></tr>
+            </table>
+
+            <p></p>
+
+            <table class="data">
+                <tr>
+                    <th>Location</th><th>Files</th><th>Directories</th><th>Empty directories</th><th>Elapsed time</th>
+                        <th>Error</th>
+                </tr>
+                {% for d in scanner_roots %}
+                    <tr>
+                        <td>{{d["root"]}}</td><td>{{d["files"]}}</td><td>{{d["directories"]}}</td><td>{{d["empty_directories"]}}</td>
+                            <td>{{d["elapsed_time"]|hms}}</td>
+                            <td>{{d["error"] or ""}}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+            
+            <h3>Results</h3>
+            
+            <h4>Missing files ({{nmissing}}
+            {%- if nmissing > missing|length %}, showing first {{missing|length}} files{% endif -%}
+            )
+            </h4>
+            
+            {% if not missing %}(none)
+            {% else %}
+                <div id="missing_list">
+                    {% for f in missing %}
+                            <span class="lfn">{{f}}</span><br/>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <h4>Dark files ({{ndark}}
+            {%- if ndark > dark|length %}, showing first {{dark|length}} files{% endif -%}
+            )</h4>
+
+            {% if ndark > dark|length %}<p color=gray>showing first {{dark|length}} files</p>{% endif %}
+
+            {% if not dark %}(none)
+            {% else %}
+                <div id="dark_list">
+                    {% for f in dark %}
+                        <span class="lfn">{{f}}</span><br/>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+    {% endif %} {# errors #}
+
+    <h3>Raw JSON statistics</h3>
+    
+        <pre class="code">
+        {{stats|as_json}}
+        </pre>
+
+
+{% endblock %}

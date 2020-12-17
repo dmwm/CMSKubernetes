@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+
+
+{% block headline %}RSE {{rse}}{% endblock %}
+
+
+{% block link_menu %}<a href="./index">home</a>{% endblock %}
+
+
+
+{% block content %}
+
+<table class="data">
+    
+    
+    <tr>
+        <th></th><th>Start time</th><th>Missing</th><th>Dark</th><th>Errors</th>
+    </tr>
+    {% for t, info in runs %}
+        <tr>
+            <td><a href="./show_run?rse={{rse}}&run={{t}}" class="run">{{t}}</a></td>
+            <td>{{info["start_time"]|as_dt}}</td>
+            <td>{{info["nmissing"]|default("")}}</td>
+            <td>{{info["ndark"]|default("")}}</td>
+            <td>{{info["errors"] or ""}}</td>
+        </tr>
+    {% endfor %}
+    
+</table>
+
+{% endblock %}
