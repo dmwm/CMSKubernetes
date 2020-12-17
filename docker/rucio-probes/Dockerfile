@@ -27,6 +27,7 @@ ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/comm
 # Until Fernando ports to SQLAlchemy and/or merged
 
 ADD https://raw.githubusercontent.com/ericvaandering/probes/hack_obsolete_replicas/common/check_obsolete_replicas /probes/common
+ADD https://raw.githubusercontent.com/nsmith-/probes/hack_replicas/common/check_deletable_replicas /probes/common
 
 
 # TODO: Merge Donata's probes somewhere
