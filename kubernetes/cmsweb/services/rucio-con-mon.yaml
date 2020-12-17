@@ -2,22 +2,22 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   labels:
-    app: rucio_consistency_monitor
-  name: rucio-con-mon
-  namespace: http
+    app: monitor
+  name: monitor
+  namespace: rucio-cm
 spec:
   selector:
     matchLabels:
-      app: rucio_consistency_monitor
+      app: monitor
   replicas: 1
   template:
     metadata:
       labels:
-        app: rucio_consistency_monitor
+        app: monitor
     spec:
       containers:
       - image: ivmfnal/rucio_consistency_monitor
-        name: ruc-con-mon
+        name: monitor
         livenessProbe:
           httpGet:
             path: /probe
@@ -48,8 +48,8 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: rucio-con-mon
-  namespace: http
+  name: monitor
+  namespace: rucio-cm
 spec:
   type: ClusterIP
   ports:
@@ -57,5 +57,5 @@ spec:
     protocol: TCP
     name: http
   selector:
-    app: rucio_consistency_monitor
+    app: monitor
   
