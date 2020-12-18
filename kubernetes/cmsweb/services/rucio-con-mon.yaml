@@ -24,7 +24,7 @@ spec:
             port: 8400
           initialDelaySeconds: 3
           periodSeconds: 3
-        command: ["/root/start.sh"]
+        command: ["/root/start.sh", "-r", "/rucioconmon"]
         resources:
           requests:
             memory: "256Mi"
