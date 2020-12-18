@@ -9,7 +9,6 @@ RUN curl -ksLO https://storage.googleapis.com/kubernetes-release/release/$(curl 
 RUN chmod +x kubectl
 
 # RUN go get github.com/vkuznet/imagebot
-RUN go get github.com/lestrrat-go/file-rotatelogs
 ARG CGO_ENABLED=0
 RUN git clone https://github.com/vkuznet/imagebot.git && cd imagebot && make
 
@@ -17,4 +16,4 @@ RUN git clone https://github.com/vkuznet/imagebot.git && cd imagebot && make
 FROM alpine
 RUN mkdir -p /data
 COPY --from=builder /data/imagebot/imagebot /data/
-COPY --from=builder /data/kubectl /data/
+COPY --from=builder /data/kubectl /usr/bin/
