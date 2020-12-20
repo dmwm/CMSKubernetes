@@ -21,14 +21,20 @@ spec:
           - /data/sqoop/log
           - "7"
           - "7200"
-          image: cmssw/sqoop:20200909
-          #image: cmssw/sqoop:20200824
+          image: cmssw/sqoop:20201214
+          #image: cmssw/sqoop:20200909
           name: sqoop
           volumeMounts:
           - name: sqoop-secrets
             mountPath: /etc/cmsdb
             readOnly: true
+          - name: rucio-secrets
+            mountPath: /etc/secrets
+            readOnly: true
         volumes:
         - name: sqoop-secrets
           secret:
             secretName: sqoop-secrets
+        - name: rucio-secrets
+          secret:
+            secretName: rucio-secrets
