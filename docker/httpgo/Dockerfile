@@ -1,35 +1,18 @@
-FROM cern/cc7-base
+FROM golang:latest as go-builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
+# DAS tag to use
+ENV TAG=00.00.01
+
+# build procedure
 ENV WDIR=/data
-ENV USER=http
-EXPOSE 8888
-ADD httpgo.go $WDIR/httpgo.go
+WORKDIR $WDIR
+ARG CGO_ENABLED=0
+RUN git clone https://github.com/vkuznet/httpgo
+WORKDIR $WDIR/httpgo
+RUN git checkout tags/$TAG -b build && make
+# RUN make
 
-#RUN yum update -y && yum clean all
-#RUN yum install -y git-core krb5-devel readline-devel openssl
-#RUN yum clean all
-
-# We need to run under a user different from root, since our software will not install using the root account
-RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
-USER ${USER}
-
-# start the setup
-RUN mkdir -p $WDIR
-WORKDIR ${WDIR}
-
-# download golang and install it
-RUN curl -k -L -O https://dl.google.com/go/go1.13.8.linux-amd64.tar.gz
-RUN tar xfz go1.13.8.linux-amd64.tar.gz
-RUN mkdir $WDIR/gopath
-RUN rm go1.13.8.linux-amd64.tar.gz
-ENV GOROOT=$WDIR/go
-ENV GOPATH=$WDIR/gopath
-ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
-
-# build httpgo server
-RUN go build httpgo.go
-
-# run the service
-WORKDIR ${WDIR}
-CMD ["httpgo"]
+FROM alpine
+RUN mkdir -p /data
+COPY --from=go-builder /data/httpgo/httpgo /data/
