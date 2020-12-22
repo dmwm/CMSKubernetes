@@ -58,6 +58,11 @@ cat > $WDIR/cfg/frontend/app_httpgo_ssl.conf << EOF_ssl
 RewriteRule ^(/httpgo(/.*)?)$ /auth/verify\${escape:\$1} [QSA,PT,E=AUTH_SPEC:cert]
 RewriteRule ^/auth/complete(/httpgo(/.*)?)$ http://%{ENV:BACKEND}:8888\${escape:\$1} [QSA,P,L,NE]
 EOF_ssl
+# add imagebot rule
+cat > $WDIR/cfg/frontend/app_imagebot_ssl.conf << EOF_ibot
+RewriteRule ^(/imagebot(/.*)?)$ http://imagebot.http.svc.cluster.local:8111\${escape:\$1} [QSA,P,L,NE]
+EOF_ibot
+
 
 # overwrite dev/preprod backends with production one for k8s
 files="backends-prod.txt backends-preprod.txt backends-dev.txt backends-k8s.txt backends-k8s-prod.txt backends-k8s-preprod.txt"
