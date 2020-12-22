@@ -50,17 +50,6 @@ spec:
   selector:
     app: imagebot
 ---
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: imagebot
-  labels:
-    app: imagebot
-  namespace: http
-data:
-  config.json: |
-      {"port":8111, "base":"", "namespaces":["das", "http"]}
----
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -85,7 +74,7 @@ spec:
     spec:
       serviceAccountName: imagebot-account
       containers:
-      - image: veknet/imagebot #imagetag
+      - image: cmssw/imagebot:00.00.17 #imagetag
         args:
         - /data/imagebot
         - -config
@@ -94,10 +83,10 @@ spec:
         imagePullPolicy: Always
         livenessProbe:
           httpGet:
-            path: /status
+            path: /imagebot/status
             port: 8111
           initialDelaySeconds: 120
-          periodSeconds: 10
+          periodSeconds: 60
         resources:
           requests:
             memory: "64Mi"
@@ -108,9 +97,9 @@ spec:
         ports:
         - containerPort: 8111
         volumeMounts:
-        - name: config
+        - name: secrets
           mountPath: /etc/secrets
       volumes:
-      - name: config
-        configMap:
-          name: imagebot
+      - name: secrets
+        secret:
+          secretName: imagebot-secrets
