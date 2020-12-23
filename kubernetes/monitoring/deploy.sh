@@ -39,9 +39,9 @@ project=${OS_PROJECT_NAME:-"CMS Web"}
 cluster=${CLUSTER:-"monitoring-cluster"}
 template=${TEMPLATE:-"kubernetes-1.15.3-3"}
 keypair=${KEY:-"cloud"}
-secrets="prometheus-secrets nats-secrets spider-specrets sqoop-secrets alerts-secrets intelligence-secrets"
+secrets="prometheus-secrets nats-secrets sqoop-secrets alerts-secrets intelligence-secrets"
 services="prometheus pushgateway victoria-metrics victoria-metrics-test nats-sub-exitcode nats-sub-stats nats-sub-t1 nats-sub-t2 karma ggus-alerts ssb-alerts cmsmon-intelligence auth-proxy-server"
-namespaces="nats spider sqoop http hdfs alerts"
+namespaces="nats sqoop http hdfs alerts"
 
 # prometheus operator deployment (so far we don't use it)
 deploy_prometheus_operator()
@@ -177,17 +177,6 @@ deploy_secrets()
         --from-file=secrets/nats/cms-auth \
         --from-file=secrets/nats/CERN_CA.crt \
         --from-file=secrets/nats/CERN_CA1.crt
-
-    # add spider secrets
-    if [ -n "`kubectl -n spider get secrets | grep spider-secrets`" ]; then
-        echo "delete spider-secrets"
-        kubectl -n spider delete secret spider-secrets
-    fi
-    if [ ! -d secrets/cms-htcondor-es ]; then
-        echo "Please provide secrets/cms-htcondor-es area with collectors.json file"
-        exit 1
-    fi
-    kubectl -n spider create secret generic spider-secrets --from-file=secrets/cms-htcondor-es/collectors.json
 
     # add sqoop secrets
     if [ -n "`kubectl -n sqoop get secrets | grep sqoop-secrets`" ]; then
