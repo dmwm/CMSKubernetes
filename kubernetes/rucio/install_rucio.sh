@@ -20,6 +20,7 @@ helm3 install $PROBE_NAME --values cms-rucio-common.yaml,cms-rucio-probes.yaml,$
 # CMS Rucio stuff
 # helm3 install cms-consistency-${INSTANCE} --values cms-consistency.yaml,${INSTANCE}-consistency.yaml,${INSTANCE}-consistency-jobs.yaml ~/CMSKubernetes/helm/rucio-consistency 
 helm3 install cms-cron-${INSTANCE} --values ${INSTANCE}-cronjob.yaml cms-kubernetes/rucio-cron-jobs
+helm3 install loadtest-${INSTANCE} --values ${INSTANCE}-loadtest.yaml ~/CMSKubernetes/helm/rucio-loadtest
 
 # statsd exporter to prometheus and kube-eagle monitoring
 helm3 install statsd-exporter --values statsd-prometheus-mapping.yaml,${INSTANCE}-statsd-exporter.yaml cms-kubernetes/rucio-statsd-exporter
