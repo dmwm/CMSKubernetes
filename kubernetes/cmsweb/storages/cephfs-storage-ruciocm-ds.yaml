@@ -1,0 +1,30 @@
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: ruciocm-share
+  namespace: ruciocm
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: f704fcbe-a909-4467-95b9-19661c1d4e66
+  osShareAccessID: 38a148e3-5377-4878-9ac0-e3a95c816684
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: consistency-report-pvc
+  namespace: ruciocm
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 11G
+  storageClassName: ruciocm-share
+---
