@@ -32,7 +32,9 @@ We use the following port convention:
   infrastructure
 - 30093 points to 9093 port of AM, it is default AM port
 - 30094 points to 9094 port of AM, it is cluster's AM port for gossip protocol
-- 30428 points to 8248 port of VM, it is VM HTTP port
+- 30428 points to 8248 port of VM, it is VM HTTP port and it is used by
+  Prometheus for `remote_write` section of its configuration to specify where
+  to store its metrics (in our setup Prometheus metrics go to VM)
 - 30242 points to 4242 port of VM, it is Open TSDB VM port
 Please note, the 30XXX-32XXX port range is allowed by k8s to be used as
 NodePorts and be accessible outside of k8s cluster. Therefore we use convension
