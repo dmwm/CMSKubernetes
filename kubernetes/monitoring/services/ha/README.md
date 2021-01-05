@@ -36,3 +36,63 @@ We use the following port convention:
 Please note, the 30XXX-32XXX port range is allowed by k8s to be used as
 NodePorts and be accessible outside of k8s cluster. Therefore we use convension
 30000+last three digit of service's port number.
+
+### configuration
+To properly configure HA mesh we need the following steps:
+- setup proper environment
+```
+# setup for HA1 cluster
+export KUBECONFIG=/afs/cern.ch/user/v/valya/private/cmsweb/k8s_admin_config/config.monit/config.monitoring-vm-ha1
+# setup for HA2 cluster
+export KUBECONFIG=/afs/cern.ch/user/v/valya/private/cmsweb/k8s_admin_config/config.monit/config.monitoring-vm-ha2
+```
+- deploy VM in both clusters
+```
+kubectl apply -f services/ha/victoria-metrics.yaml
+```
+- deploy AM in both clusters with cluster peer mode (it is defined as an
+  additional flag in AM yaml manifest)
+```
+# in HA1 cluster use alertmanager-ha1.yaml config
+kubectl apply -f services/ha/alertmanager-ha1.yaml
+# in HA2 cluster use alertmanager-ha2.yaml config
+kubectl apply -f services/ha/alertmanager-ha2.yaml
+```
+- deploy Prometheus in both clusters with proper rules
+```
+# get list of prometheus rules create appropriate secret
+files=`ls secrets/prometheus/*.json secrets/prometheus/*.rules secrets/prometheus/ha/prometheus.yaml | awk '{ORS=" "; print "--from-file="$1""}'`
+ns=default
+secret=prometheus-secrets
+kubectl -n $ns delete secret $secret
+kubectl create secret generic $secret $files --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
+
+# deploy prometheus service
+kubectl apply -f services/ha/prometheus.yaml
+```
+- deploy `services/ha/kube-eagle.yaml` to monitor our HA cluster
+- deploy `services/ha/httpgo.yaml` to consume logs from Prometheus
+
+At the end each HA cluster will have the following set of services:
+```
+# example of HA1 cluster pods
+NAME                                READY   STATUS    RESTARTS   AGE
+alertmanager-8464c9bb5f-665nc       1/1     Running   0          17m
+httpgo-688cc578-fghhc               1/1     Running   0          20d
+kube-eagle-79c84f6b6d-94zvl         1/1     Running   0          20d
+prometheus-54c6b9545d-gknls         1/1     Running   0          8m28s
+victoria-metrics-6cbbb74bbb-494h5   1/1     Running   0          20d
+
+# example of HA1 cluster services
+NAME               TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                         AGE
+alertmanager       NodePort    10.254.44.243    <none>        9093:30093/TCP,9094:30094/TCP   19m
+httpgo             NodePort    10.254.184.66    <none>        8888:30888/TCP                  20d
+kube-eagle         ClusterIP   10.254.115.233   <none>        8080/TCP                        20d
+kubernetes         ClusterIP   10.254.0.1       <none>        443/TCP                         20d
+prometheus         NodePort    10.254.185.99    <none>        9090:30090/TCP                  20d
+victoria-metrics   NodePort    10.254.182.246   <none>        8428:30428/TCP,4242:30242/TCP   20d
+```
+
+
+### References
+[HA Prometheus+AM](https://www.robustperception.io/high-availability-prometheus-alerting-and-notification)
