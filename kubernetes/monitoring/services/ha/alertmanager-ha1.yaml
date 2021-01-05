@@ -1,0 +1,68 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: alertmanager
+spec:
+  selector:
+    app: alertmanager
+  type: NodePort
+  ports:
+  - port: 9093
+    nodePort: 30093
+    targetPort: 9093
+    name: alertmanager
+  - port: 9094
+    nodePort: 30094
+    targetPort: 9094
+    name: am-cluster
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertmanager
+  labels:
+     app: alertmanager
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: alertmanager
+   template:
+      metadata:
+         labels:
+           app: alertmanager
+      spec:
+        securityContext:
+          fsGroup: 1000
+        containers:
+        - args:
+          - --log.level=info
+          - --config.file=/etc/alertmanager/alertmanager.yaml
+          - --storage.path=/tmp/alertmanager
+          - --web.external-url=https://cms-monitoring.cern.ch/alertmanager
+          - --web.route-prefix=/
+          - --cluster.peer=cms-monitoring-ha2:30094 # to mesh with AM on HA2
+          name: alertmanager
+          image: prom/alertmanager
+          ports:
+          - containerPort: 9093
+            protocol: TCP
+            name: alertmanager
+          - containerPort: 9094
+            protocol: TCP
+            name: am-cluster
+          volumeMounts:
+          - name: alertmanager-secrets
+            mountPath: /etc/alertmanager
+            readOnly: true
+          - name: cinder-volume
+            mountPath: /tmp/alertmanager
+            readOnly: false
+        volumes:
+        - name: alertmanager-secrets
+          secret:
+            secretName: alertmanager-secrets
+        - name: cinder-volume
+          persistentVolumeClaim:
+            claimName: alertmanager-volume-claim
