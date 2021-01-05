@@ -30,9 +30,10 @@ Grafana to represent a data-source to our HA cluster.
 We use the following port convention:
 - 30090 points to 9090 port of Prometheus and exposed as NodePort on k8s
   infrastructure
-- 30093 points to 9093 port of AM
-- 30428 points to 8248 port of VM
-- 30242 points to 4242 port of VM
+- 30093 points to 9093 port of AM, it is default AM port
+- 30094 points to 9094 port of AM, it is cluster's AM port for gossip protocol
+- 30428 points to 8248 port of VM, it is VM HTTP port
+- 30242 points to 4242 port of VM, it is Open TSDB VM port
 Please note, the 30XXX-32XXX port range is allowed by k8s to be used as
 NodePorts and be accessible outside of k8s cluster. Therefore we use convension
 30000+last three digit of service's port number.
