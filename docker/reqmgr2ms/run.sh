@@ -86,10 +86,6 @@ for fname in $files; do
 done
 
 # start the service
-# if it is ms-output, then we also need to start mongodb
-if [ -f $cdir/config-output.py ]; then
-    /data/srv/current/config/mongodb/manage start 'I did read documentation'
-fi
 /data/srv/current/config/$srv/manage start 'I did read documentation'
 
 # run monitoring script
