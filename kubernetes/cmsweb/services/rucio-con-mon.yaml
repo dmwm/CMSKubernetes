@@ -16,11 +16,11 @@ spec:
         app: monitor
     spec:
       containers:
-      - image: ivmfnal/rucio_consistency_monitor
+      - image: ivmfnal/rucio_consistency_monitor:1
         name: monitor
         livenessProbe:
           httpGet:
-            path: /probe
+            path: /rucioconmon/probe
             port: 8400
           initialDelaySeconds: 3
           periodSeconds: 3
@@ -34,14 +34,14 @@ spec:
             cpu: "1000m"
         ports:
         - containerPort: 8400
-        #volumeMounts:
-        #    - mountPath: /samples
-        #      name: consistency-dump
-      #volumes:
-      #  - name: consistency-dump
-      #    persistentVolumeClaim:
-      #          claimName: consistency-report-pvc
-      #
+        volumeMounts:
+            - mountPath: /reports
+              name: consistency-reports
+      volumes:
+        - name: consistency-reports
+          persistentVolumeClaim:
+                claimName: consistency-report-pvc
+      
 
 ---
 
