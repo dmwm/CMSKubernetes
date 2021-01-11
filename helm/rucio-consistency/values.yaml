@@ -15,8 +15,9 @@ consistency:
   reportSize: 10Gi
   defaultRoot: "/path/to/nowhere"
   instance: "dev-int"
+  filter: ""
   sites: {}
-    # Specificy the names of the sites to check and an interval. Recommended intervals are 1, 7, 14, 31 (days)
+    # Specify the names of the sites to check and an interval. Recommended intervals are 1, 7, 14, 31 (days)
     # in which case they are run at random days. Any other integer will be run on days of the month divisible
     # (14 day intervals will run in the first and third week of the month)
     # Some_Site:
