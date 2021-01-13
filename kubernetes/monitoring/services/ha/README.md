@@ -131,14 +131,15 @@ prometheus         NodePort    10.254.185.99    <none>        9090:30090/TCP    
 victoria-metrics   NodePort    10.254.182.246   <none>        8428:30428/TCP,4242:30242/TCP   20d
 ```
 
-### Availability nodes
+### Availability zones
 [CERN Availability Zone](https://clouddocs.web.cern.ch/containers/tutorials/nodegroups.html#availability-zone)
-provides node allocation in three different CERN zones, zone-a, zone-b and zone-c.
-By default cluster is created randomly in a zone since
+provides nodes allocation in three different CERN zones, zone-a, zone-b and zone-c.
+By default cluster is created randomly in specific zone since
 openstack will pick a zone oportunistically.
 The following rules applies:
 
-1. when a cluster created without AZ, openstack will pick a zone oportunistically. Could be any zone.
+1. when a cluster created without Availability Zone (AZ),
+openstack will pick a zone oportunistically. Could be any zone.
 
 2. when you create a cluster with `--labels availability_zone=foo`,
 all nodes of default master and default worker will be in foo
@@ -151,7 +152,8 @@ NG resize will create node to the specified zone, (eg zoneA)
 
 5. when creating a NG without an AZ, same as 1.
 
-Finding which zone you use (this is very basic knowledge):
+Here is examples of few commands operator can use either to find
+AZ of k8s nodes, or create nodegroup (NG) for k8s nodes in specific zone:
 
 ```
 # find AZ for a given VM
