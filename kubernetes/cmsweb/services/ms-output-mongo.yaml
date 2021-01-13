@@ -12,7 +12,7 @@ spec:
       name: ms-output-mongo
     - port: 18230
       targetPort: 18230
-      name: ms-output-mongo-mon
+      name: ms-output-mon
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -57,7 +57,7 @@ spec:
           name: ms-output-mongo
         - containerPort: 18230
           protocol: TCP
-          name: ms-output-mongo-mon
+          name: ms-output-mon
         volumeMounts:
         - name: secrets
           mountPath: /etc/secrets
@@ -69,5 +69,5 @@ spec:
         secret:
           secretName: ms-output-mongo-secrets
 #PROD#- name: ms-output-mongo-data
-#PROD#  persistenVolumeClaim:
+#PROD#  persistentVolumeClaim:
 #PROD#      claimName: ms-output-claim
