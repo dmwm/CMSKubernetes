@@ -1,6 +1,6 @@
 #!/bin/bash
 namespace=${OS_PROJECT_NAME:-"CMS Web"}
-tmpl=cmsweb-template-v-1.19.3-`date +%Y%m%d`
+tmpl=cmsweb-template-v-1.19.6-`date +%Y%m%d`
 usage="create_templates.sh <tmpl_name, if not provided will use $tmpl>"
 if [ "$1" != "" ]; then
     if [ "$1" == "-help" ] || [ "$1" == "-h" ]; then
@@ -22,7 +22,7 @@ openstack \
 	--labels cephfs_csi_enabled="true" \
 	--labels cephfs_csi_version="cern-csi-1.0-3" \
 	--labels cern_enabled="true" \
-	--labels cern_chart_version="0.6.1" \
+	--labels cern_chart_version="0.6.2" \
 	--labels cern_chart_enabled="true" \
 	--labels cern_tag="v0.5.0" \
 	--labels cgroup_driver="cgroupfs" \
@@ -44,7 +44,7 @@ openstack \
 	--labels keystone_auth_enabled="true" \
 	--labels kube_csi_enabled="true" \
 	--labels kube_csi_version="cern-csi-1.0-2" \
-	--labels kube_tag="v1.19.3-cern.0" \
+	--labels kube_tag="v1.19.6-cern.0" \
 	--labels kubeapi_options="--feature-gates=CSINodeInfo=true,CSIDriverRegistry=true" \
 	--labels kubecontroller_options="--feature-gates=CSINodeInfo=true,CSIDriverRegistry=true" \
 	--labels kubelet_options="--feature-gates=CSINodeInfo=true,CSIDriverRegistry=true" \
@@ -67,7 +67,7 @@ openstack \
 	--fixed-network CERN_NETWORK \
 	--network-driver calico \
 	--dns-nameserver 137.138.16.5,137.138.17.5 \
-	--flavor m2.large \
+	--flavor m2.xlarge \
 	--master-flavor m2.large \
 	--docker-storage-driver overlay2 \
 	--server-type vm
