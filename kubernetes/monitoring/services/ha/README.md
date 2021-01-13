@@ -63,8 +63,12 @@ kubectl apply -f services/ha/alertmanager-ha2.yaml
 ```
 - deploy Prometheus in both clusters with proper rules
 ```
-# get list of prometheus rules create appropriate secret
-files=`ls secrets/prometheus/*.json secrets/prometheus/*.rules secrets/prometheus/ha/prometheus.yaml | awk '{ORS=" "; print "--from-file="$1""}'`
+# get list of prometheus rules create appropriate secret for HA1
+files=`ls secrets/prometheus/*.json secrets/prometheus/*.rules secrets/prometheus/ha/ha1/prometheus.yaml | awk '{ORS=" "; print "--from-file="$1""}'`
+# get list of prometheus rules create appropriate secret for HA2
+files=`ls secrets/prometheus/*.json secrets/prometheus/*.rules secrets/prometheus/ha/ha2/prometheus.yaml | awk '{ORS=" "; print "--from-file="$1""}'`
+
+# then recreate prometheus-secrets in each cluster
 ns=default
 secret=prometheus-secrets
 kubectl -n $ns delete secret $secret
@@ -96,6 +100,38 @@ prometheus         NodePort    10.254.185.99    <none>        9090:30090/TCP    
 victoria-metrics   NodePort    10.254.182.246   <none>        8428:30428/TCP,4242:30242/TCP   20d
 ```
 
+### Availability nodes
+[CERN Availability Zone](https://clouddocs.web.cern.ch/containers/tutorials/nodegroups.html#availability-zone)
+provides node allocation in three different CERN zones, zone-a, zone-b and zone-c.
+By default cluster is created randomly in a zone since
+openstack will pick a zone oportunistically.
+The following rules applies:
+1. when a cluster created without AZ, openstack will pick a zone oportunistically. Could be any zone.
+2. when you create a cluster with `--labels availability_zone=foo`,
+all nodes of default master and default worker will be in foo
+3. when you create a NG (nodegroups) with AZ (eg zone-a), 
+all NG nodes will be in the specific az, new NG nodes too.
+4. combine 1 and 3. cluster resize will create a node in any AZ.
+NG resize will create node to the specified zone, (eg zoneA)
+5. when creating a NG without an AZ, same as 1.
+
+Finding which zone you use (this is very basic knowledge):
+
+```
+# to fine AZ for a given VM
+openstack server show "<vm name or id>"
+
+# to find AZ for a given k8s node
+kubectl describe node
+
+# for example
+kubectl describe node monitoring-vm-ha1-3k4ljllzgy5x-node-0 | grep zone
+                    failure-domain.beta.kubernetes.io/zone=cern-geneva-c
+                    topology.cinder.csi.openstack.org/zone=cern-geneva-c
+                    topology.kubernetes.io/zone=cern-geneva-c
+```
+
 
 ### References
 [HA Prometheus+AM](https://www.robustperception.io/high-availability-prometheus-alerting-and-notification)
+[CERN AZ](https://clouddocs.web.cern.ch/containers/tutorials/nodegroups.html#availability-zone)
