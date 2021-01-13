@@ -11,7 +11,7 @@ kubectl -n magnum-tiller get secret helm-client-secret -o jsonpath='{.data.key\.
 kubectl -n magnum-tiller get secret helm-client-secret -o jsonpath='{.data.cert\.pem}' | base64 --decode > "$HELM_HOME/cert.pem"
 
 helm ls
-helm init -c
+helm init -c --stable-repo-url=https://charts.helm.sh/stable
 helm get values nginx-ingress > ing-values.yaml
 echo
 echo "Now you can edit ing-values.yaml"
