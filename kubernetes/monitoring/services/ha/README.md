@@ -42,7 +42,38 @@ NodePorts and be accessible outside of k8s cluster. Therefore we use convension
 
 ### configuration
 To properly configure HA mesh we need the following steps:
-- setup proper environment
+- configure promxy service on CMS Monitoring cluster
+- configure Prometheus, VM and AM services on HA clusters
+
+#### Configure promxy on CMS Monitoring cluster
+The promxy service is quite straightforward. Its configuration file
+resides in `secrets/promxy/config.yaml` and contains the following bits:
+
+```
+promxy:
+  server_groups:
+    # VM HA1 server
+    - static_configs:
+        - targets:
+          - cms-monitoring-ha1:30428
+      labels:
+        sg: vm_ha1
+      ignore_error: true
+    # VM HA2 server
+    - static_configs:
+        - targets:
+          - cms-monitoring-ha2:30428
+      labels:
+        sg: vm_ha2
+```
+Here we use two different server group labels `sg: vm_ha1` and `sg: vm_ha2`.
+Also, we refer promxy which targets it should use (the service which will
+provide the metrics). In our case it is two different VM services located in
+our HA clusters.
+
+#### Configuration of services on HA clusters
+For HA clusters we should perform the following steps:
+- setup proper environment on lxplus-cloud
 ```
 # setup for HA1 cluster
 export KUBECONFIG=/afs/cern.ch/user/v/valya/private/cmsweb/k8s_admin_config/config.monit/config.monitoring-vm-ha1
@@ -106,22 +137,27 @@ provides node allocation in three different CERN zones, zone-a, zone-b and zone-
 By default cluster is created randomly in a zone since
 openstack will pick a zone oportunistically.
 The following rules applies:
+
 1. when a cluster created without AZ, openstack will pick a zone oportunistically. Could be any zone.
+
 2. when you create a cluster with `--labels availability_zone=foo`,
 all nodes of default master and default worker will be in foo
+
 3. when you create a NG (nodegroups) with AZ (eg zone-a), 
 all NG nodes will be in the specific az, new NG nodes too.
+
 4. combine 1 and 3. cluster resize will create a node in any AZ.
 NG resize will create node to the specified zone, (eg zoneA)
+
 5. when creating a NG without an AZ, same as 1.
 
 Finding which zone you use (this is very basic knowledge):
 
 ```
-# to fine AZ for a given VM
+# find AZ for a given VM
 openstack server show "<vm name or id>"
 
-# to find AZ for a given k8s node
+# tfind AZ for a given k8s node
 kubectl describe node
 
 # for example
@@ -129,9 +165,15 @@ kubectl describe node monitoring-vm-ha1-3k4ljllzgy5x-node-0 | grep zone
                     failure-domain.beta.kubernetes.io/zone=cern-geneva-c
                     topology.cinder.csi.openstack.org/zone=cern-geneva-c
                     topology.kubernetes.io/zone=cern-geneva-c
+# the first entry comes from master, while another from minion nodes
+
+# create a node group in specific zone, here we put ha1 cluster
+# in zone-a and ha2 cluster in zone-b
+openstack coe nodegroup create monitoring-vm-ha1 zone-a --labels availability_zone=cern-geneva-a
+openstack coe nodegroup create monitoring-vm-ha2 zone-b --labels availability_zone=cern-geneva-b
 ```
 
-
 ### References
-[HA Prometheus+AM](https://www.robustperception.io/high-availability-prometheus-alerting-and-notification)
-[CERN AZ](https://clouddocs.web.cern.ch/containers/tutorials/nodegroups.html#availability-zone)
+
+- [High-Availability for Prometheus and AlertManager](https://www.robustperception.io/high-availability-prometheus-alerting-and-notification)
+- [CERN Availability Zones](https://clouddocs.web.cern.ch/containers/tutorials/nodegroups.html#availability-zone)
