@@ -61,7 +61,7 @@ for fname in $cfiles; do
 done
 for fname in $cfiles; do
     if [ -f /etc/secrets/$fname ]; then
-        sudo cp -p /etc/secrets/$fname $cdir/$fname
+        sudo cp /etc/secrets/$fname $cdir/$fname
         sudo chown $USER.$USER $cdir/$fname
     fi
 done
