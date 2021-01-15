@@ -61,7 +61,7 @@ for fname in $cfiles; do
 done
 for fname in $cfiles; do
     if [ -f /etc/secrets/$fname ]; then
-        sudo cp /etc/secrets/$fname $cdir/$fname
+        sudo cp -p /etc/secrets/$fname $cdir/$fname
         sudo chown $USER.$USER $cdir/$fname
     fi
 done
@@ -86,6 +86,7 @@ for fname in $files; do
 done
 
 # start the service
+sudo chmod 755 /data/srv/current/config/$srv/manage
 /data/srv/current/config/$srv/manage start 'I did read documentation'
 
 # run monitoring script
