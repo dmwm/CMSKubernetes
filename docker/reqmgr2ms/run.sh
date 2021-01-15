@@ -86,6 +86,7 @@ for fname in $files; do
 done
 
 # start the service
+sudo chmod 755 /data/srv/current/config/$srv/manage
 /data/srv/current/config/$srv/manage start 'I did read documentation'
 
 # run monitoring script
