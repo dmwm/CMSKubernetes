@@ -40,7 +40,7 @@ podLabels:
   rucioInstance: "prod"
 
 transmogrifier:
-  threads: 5
+  threads: 4
   sleepTime: 30
 
 

@@ -112,7 +112,10 @@ config:
         chunksize: "50"
         prefetch_size: "50"
 
-transmogrifierResources:
+transmogrifier:
+  threads: 4
+  bulk: 100
+  resources:
     requests:
       memory: 200Mi
     limits:
