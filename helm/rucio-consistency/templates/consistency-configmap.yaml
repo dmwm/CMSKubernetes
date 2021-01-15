@@ -11,7 +11,9 @@ data:
           recursion:      1
           nworkers:        8
           timeout:        180
-          filter: NANOAOD
+{{- if  (.Values.consistency.filter) }}
+          filter: {{ .Values.consistency.filter }}
+{{- end }}
           server_root: {{.Values.consistency.defaultRoot }}
           remove_prefix: /
           add_prefix: /store/
@@ -23,7 +25,9 @@ data:
           - path: hidata
           - path: himc
         dbdump:
-          filter: NANOAOD
+{{- if  (.Values.consistency.filter) }}
+          filter: {{ .Values.consistency.filter }}
+{{- end }}
           path_root:   /
         #  lfn_to_path:
         #  - path: "^/+store/(.*)"
