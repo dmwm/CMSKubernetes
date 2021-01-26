@@ -31,10 +31,10 @@ remote_write:
     queue_config:
       max_samples_per_send: 10000
       max_shards: 30
-#   - url: http://cms-monitoring-ha2.cern.ch:30428/api/v1/write
-#     queue_config:
-#       max_samples_per_send: 10000
-#       max_shards: 30
+  - url: http://cms-monitoring-ha2.cern.ch:30428/api/v1/write
+    queue_config:
+      max_samples_per_send: 10000
+      max_shards: 30
 scrape_configs:
 #  - job_name: "kube-eagle"
 #    static_configs:
