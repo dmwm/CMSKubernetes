@@ -36,6 +36,8 @@ RUN go get github.com/dmwm/cmsauth && \
     go get github.com/lestrrat-go/file-rotatelogs && \
     go get golang.org/x/sys/unix && \
     go get github.com/shirou/gopsutil && \
+    go get github.com/mattn/go-sqlite3 && \
+    go get golang.org/x/exp/errors && \
     go get -u -d github.com/vkuznet/cmsweb-exporters
 
 # build process_monitor
@@ -47,8 +49,12 @@ RUN curl -ksLO https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.
     tar xfz filebeat-7.10.0-linux-x86_64.tar.gz && \
     cp filebeat-7.10.0-linux-x86_64/filebeat /data
 
+ADD config.json $WDIR/config.json
+ENV PATH="${GOPATH}/src/github.com/vkuznet/dbs2go:${GOPATH}/src/github.com/vkuznet/dbs2go/bin:${PATH}"
+ENV X509_USER_PROXY=/data/srv/current/auth/proxy/proxy
+
 # build dbs2go with specific tag
-ENV TAG=v00.00.38
+ENV TAG=v00.00.76
 WORKDIR $GOPATH/src/github.com/vkuznet
 RUN git clone https://github.com/vkuznet/dbs2go
 WORKDIR $GOPATH/src/github.com/vkuznet/dbs2go
@@ -57,11 +63,7 @@ RUN git checkout tags/$TAG -b build && \
     sed -i -e "s,_ \"github.com/mattn/go-sqlite3\",,g" web/server.go && \
     sed -i -e "s,_ \"github.com/go-sql-driver/mysql\",,g" web/server.go && \
     make
-ADD config.json $WDIR/config.json
 RUN cat $WDIR/config.json | sed -e "s,GOPATH,$GOPATH,g" > dbsconfig.json
-ENV PATH="${GOPATH}/src/github.com/vkuznet/dbs2go:${GOPATH}/src/github.com/vkuznet/dbs2go/bin:${PATH}"
-
-ENV X509_USER_PROXY=/data/srv/current/auth/proxy/proxy
 
 FROM cern/cc7-base:20201101-1.x86_64
 RUN yum install -y libaio && yum clean all && rm -rf /var/cache/yum
