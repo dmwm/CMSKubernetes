@@ -111,8 +111,43 @@ kubectl apply -f services/ha/prometheus.yaml
 - deploy `services/ha/kube-eagle.yaml` to monitor our HA cluster
 - deploy `services/ha/httpgo.yaml` to consume logs from Prometheus
 
-At the end each HA cluster will have the following set of services:
+Next, we can deploy CMS specific services, like `cmsmon-int`. To do that we
+need the following pieces in place:
 ```
+# create http and alerts namespaces
+kubectl create ns http
+kubectl create ns alerts
+
+# create robot-secrets
+kubectl create secret generic robot-secrets \
+    --from-file=/path/certificates/robotcert-cmsmon.pem \
+    --from-file=/path/certificates/robotkey-cmsmon.pem \
+    --dry-run=client -o yaml | kubectl apply --namespace=alerts -f -
+
+# deploy proxies
+./deploy.sh create proxies
+
+# deploy crons
+kubectl apply -f crons/proxy-account.yaml
+kubectl apply -f crons/cron-proxy.yaml -n alerts
+
+# create alerts secrets
+kubectl create secret generic alerts-secrets \
+    --from-file=secrets/alerts/token \
+    --dry-run=client -o yaml | kubectl apply --namespace=alerts -f -
+
+# deploy ggus/ssub alert services, use ha1 or ha2 accordingly to your cluster choice
+kubectl apply -f services/ha/ggus-alerts-ha1.yaml
+kubectl apply -f services/ha/ssb-alerts-ha1.yaml
+
+# deploy cmsmon int service
+kubectl apply -f services/ha/cmsmon-intelligence.yaml
+```
+
+At the end each HA cluster will have the following set of services
+in default namespace:
+```
+kubectl get pods
 # example of HA1 cluster pods
 NAME                                READY   STATUS    RESTARTS   AGE
 alertmanager-8464c9bb5f-665nc       1/1     Running   0          17m
@@ -122,6 +157,7 @@ prometheus-54c6b9545d-gknls         1/1     Running   0          8m28s
 victoria-metrics-6cbbb74bbb-494h5   1/1     Running   0          20d
 
 # example of HA1 cluster services
+kubectl get svc
 NAME               TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                         AGE
 alertmanager       NodePort    10.254.44.243    <none>        9093:30093/TCP,9094:30094/TCP   19m
 httpgo             NodePort    10.254.184.66    <none>        8888:30888/TCP                  20d
@@ -129,6 +165,19 @@ kube-eagle         ClusterIP   10.254.115.233   <none>        8080/TCP          
 kubernetes         ClusterIP   10.254.0.1       <none>        443/TCP                         20d
 prometheus         NodePort    10.254.185.99    <none>        9090:30090/TCP                  20d
 victoria-metrics   NodePort    10.254.182.246   <none>        8428:30428/TCP,4242:30242/TCP   20d
+```
+and the following services in alerts namespace:
+```
+# list of services in alerts namespace
+kubeclt get pods -n alerts
+NAME                           READY   STATUS    RESTARTS   AGE
+ggus-alerts-648f487547-jrfvg   1/1     Running   0          55m
+ssb-alerts-848b5f5cdb-8qq8c    1/1     Running   0          55m
+
+# list of all crons
+kubectl get cronjobs -A
+NAMESPACE   NAME         SCHEDULE    SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+alerts      cron-proxy   0 0 * * *   False     0        <none>          62m
 ```
 
 ### Availability zones
