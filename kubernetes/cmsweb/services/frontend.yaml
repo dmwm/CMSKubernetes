@@ -66,8 +66,8 @@ spec:
             memory: "2Gi"
             cpu: "500m"
           limits:
-            memory: "5Gi"
-            cpu: "1500m"
+            memory: "13Gi"
+            cpu: "4000m"
         ports:
         - containerPort: 80
           protocol: TCP
