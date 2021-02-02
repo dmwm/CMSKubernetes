@@ -31,8 +31,8 @@ spec:
             memory: "50Mi"
             cpu: "30m"
           limits:
-            memory: "5Gi"
-            cpu: "2000m" # we can add higher limit here
+            memory: "13Gi"
+            cpu: "4000m" # we can add higher limit here
         ports:
         - containerPort: 80
           name: http
