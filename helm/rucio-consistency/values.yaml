@@ -30,6 +30,10 @@ fullnameOverride: ""
 scratchStorageClass:
   create: false
 
+reportStorageClass:
+  #osShareID: fill in hash here
+  #osShareAccessID: fill in hash here
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: false
