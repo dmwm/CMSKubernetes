@@ -31,7 +31,7 @@ spec:
             memory: "50Mi"
             cpu: "30m"
           limits:
-            memory: "13Gi"
+            memory: "12Gi"
             cpu: "4000m" # we can add higher limit here
         ports:
         - containerPort: 80
