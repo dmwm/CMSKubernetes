@@ -35,6 +35,11 @@ judgeEvaluator:
 
 conveyorFinisher: 
   threads: 5
+  resources:
+    limits:
+      memory: 1000Mi
+    requests:
+      memory: 400Mi
 
 podLabels:
   rucioInstance: "prod"
