@@ -97,7 +97,7 @@ spec:
           secretName: proxy-secrets
       - name: secrets
         secret:
-          secretName: t0reqmon-secrets
+          secretName: t0reqmon-tasks-secrets
       - name: robot-secrets
         secret:
           secretName: robot-secrets
