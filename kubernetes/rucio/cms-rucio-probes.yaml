@@ -56,3 +56,5 @@ probes:
     interval: 1
   check_space_uniquely_used_by_rucio:
     interval: 30
+  check_expired_locked_rules:
+    interval: 1

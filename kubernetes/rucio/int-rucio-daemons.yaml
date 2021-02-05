@@ -1,10 +1,13 @@
 conveyorTransferSubmitterCount: 1
 conveyorPollerCount: 1
 conveyorFinisherCount: 1
-
+darkReaperCount: 1
 
 reaper2:
   includeRses: "cms_type=test|rse=T3_US_NERSC"
+darkReaper:
+#  rses: "T2_US_Purdue_Test"
+  includeRses: "cms_type=test"
 
 conveyorTransferSubmitter:
   threads: 5

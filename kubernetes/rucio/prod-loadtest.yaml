@@ -1,3 +1,6 @@
 loadtest:
   rucioHome: "/opt/rucio-prod/"
   proxySecret: "cms-ruciod-prod-rucio-x509up"
+  sourceExpression:   "cms_type=real&tier<3&tier>0"
+  destinationExpression:   "cms_type=real&tier<3&tier>0"
+
