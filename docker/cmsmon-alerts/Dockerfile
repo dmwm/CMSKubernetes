@@ -8,9 +8,11 @@ RUN mkdir gopath
 ENV GOPATH $WDIR/gopath
 RUN go get github.com/go-stomp/stomp
 RUN go get github.com/vkuznet/x509proxy
+RUN go get github.com/prometheus/client_golang/prometheus
+RUN go get github.com/prometheus/client_golang/prometheus/promhttp
 
 # tag to use
-ENV TAG=0.5.16
+ENV TAG=0.5.17
 
 RUN git clone https://github.com/dmwm/CMSMonitoring.git
 WORKDIR $WDIR/CMSMonitoring
