@@ -16,7 +16,7 @@ spec:
         app: monitor
     spec:
       containers:
-      - image: ivmfnal/rucio_consistency_monitor:1
+      - image: ivmfnal/rucio_consistency_monitor:2.2
         name: monitor
         livenessProbe:
           httpGet:
