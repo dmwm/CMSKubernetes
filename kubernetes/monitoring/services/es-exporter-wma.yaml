@@ -1,0 +1,54 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: es-exporter-wma
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 18000
+    protocol: TCP
+    name: http
+  selector:
+    app: es-exporter-wma
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: es-exporter-wma
+  namespace: http
+  labels:
+     app: es-exporter-wma
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: es-exporter-wma
+   template:
+      metadata:
+         labels:
+           app: es-exporter-wma
+      spec:
+        containers:
+        - args:
+          - /data/es_exporter
+          - -dbname
+          - WMArchive
+          - -token
+          - /etc/secrets/token
+          - -namespace
+          - "http"
+          - -port
+          - ":18000"
+          name: es-exporter-wma
+          image: cmssw/cmsmon-alerts:0.5.17
+          ports:
+          - containerPort: 18000
+          volumeMounts:
+          - name: es-wma-secrets
+            mountPath: /etc/secrets
+            readOnly: true
+        volumes:
+        - name: es-wma-secrets
+          secret:
+            secretName: es-wma-secrets
