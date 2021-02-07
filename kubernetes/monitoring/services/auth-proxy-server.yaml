@@ -24,7 +24,7 @@ spec:
   selector:
     matchLabels:
       app: auth-proxy-server
-  replicas: 1
+  replicas: 2
   template:
     metadata:
       labels:
@@ -35,8 +35,8 @@ spec:
         prometheus.io/port: "9091"
     spec:
       containers:
-      #- image: cmssw/auth-proxy-server:20200908
-      - image: cmssw/auth-proxy-server:20201026-0.1.47
+      #- image: cmssw/auth-proxy-server:20201026-0.1.47
+      - image: cmssw/auth-proxy-server:0.1.65
         name: auth-proxy-server
         imagePullPolicy: Always
         args:
