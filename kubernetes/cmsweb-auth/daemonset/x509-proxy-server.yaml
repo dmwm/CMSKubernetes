@@ -37,7 +37,7 @@ spec:
 
       containers:
 #       - image: cmssw/auth-proxy-server:20201103-0.1.49
-      - image: cmssw/auth-proxy-server:0.1.51
+      - image: cmssw/auth-proxy-server:0.1.66
         name: x509-proxy-server
 #         imagePullPolicy: Always
         args:
