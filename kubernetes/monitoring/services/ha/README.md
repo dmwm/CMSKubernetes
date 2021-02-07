@@ -142,6 +142,9 @@ kubectl apply -f services/ha/ssb-alerts-ha1.yaml
 
 # deploy cmsmon int service
 kubectl apply -f services/ha/cmsmon-intelligence.yaml
+
+# deploy http exporters
+ls services/http-exporter*.yaml | awk '{print "kubectl apply -f "$1""}' | /bin/sh
 ```
 
 At the end each HA cluster will have the following set of services
@@ -166,8 +169,39 @@ kubernetes         ClusterIP   10.254.0.1       <none>        443/TCP           
 prometheus         NodePort    10.254.185.99    <none>        9090:30090/TCP                  20d
 victoria-metrics   NodePort    10.254.182.246   <none>        8428:30428/TCP,4242:30242/TCP   20d
 ```
-and the following services in alerts namespace:
+and the following services in http and alerts namespace:
 ```
+# list of services in alerts namespace
+kubeclt get pods -n http
+NAME                                     READY   STATUS    RESTARTS   AGE
+http-exp-wmstatssrv-7dc9fdb954-kv4gw     1/1     Running   1          5d
+http-exporter-6b75b458c-nkqs4            1/1     Running   1          5d
+http-exporter-arucio-7f4f995766-6qgnj    1/1     Running   1          5d
+http-exporter-cric-5d6846cfb9-wlgx6      1/1     Running   1          5d
+http-exporter-detox-56d5df9dd6-p8kkf     1/1     Running   1          5d
+http-exporter-dmytro-6fdd6475f7-fcv6c    1/1     Running   1          5d
+http-exporter-mcm-84d56d8c94-8hfwk       1/1     Running   1          5d
+http-exporter-mss-85f5dd7d87-flkbj       1/1     Running   1          5d
+http-exporter-phedex-6b8d5895c9-h5w47    1/1     Running   1          5d
+http-exporter-rucio-78dccc4b8b-f4qqw     1/1     Running   1          5d
+http-exporter-unified-5c5574d7b8-h8tkp   1/1     Running   1          5d
+http-exporter-wmstats-74ddf89645-5xpt6   1/1     Running   1          5d
+
+# list of services in alerts namespace
+NAME                    TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)     AGE
+http-exp-wmstatssrv     ClusterIP   10.254.174.157   <none>        18009/TCP   5d
+http-exporter           ClusterIP   10.254.132.126   <none>        18000/TCP   5d
+http-exporter-arucio    ClusterIP   10.254.209.199   <none>        18012/TCP   5d
+http-exporter-cric      ClusterIP   10.254.14.64     <none>        18004/TCP   5d
+http-exporter-detox     ClusterIP   10.254.242.10    <none>        18002/TCP   5d
+http-exporter-dmytro    ClusterIP   10.254.41.214    <none>        18010/TCP   5d
+http-exporter-mcm       ClusterIP   10.254.73.89     <none>        18006/TCP   5d
+http-exporter-mss       ClusterIP   10.254.243.199   <none>        18003/TCP   5d
+http-exporter-phedex    ClusterIP   10.254.64.54     <none>        18007/TCP   5d
+http-exporter-rucio     ClusterIP   10.254.187.98    <none>        18011/TCP   5d
+http-exporter-unified   ClusterIP   10.254.16.203    <none>        18005/TCP   5d
+http-exporter-wmstats   ClusterIP   10.254.39.212    <none>        18008/TCP   5d
+
 # list of services in alerts namespace
 kubeclt get pods -n alerts
 NAME                           READY   STATUS    RESTARTS   AGE
