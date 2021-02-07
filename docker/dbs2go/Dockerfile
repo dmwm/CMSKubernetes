@@ -54,7 +54,7 @@ ENV PATH="${GOPATH}/src/github.com/vkuznet/dbs2go:${GOPATH}/src/github.com/vkuzn
 ENV X509_USER_PROXY=/data/srv/current/auth/proxy/proxy
 
 # build dbs2go with specific tag
-ENV TAG=v00.00.76
+ENV TAG=v00.00.77
 WORKDIR $GOPATH/src/github.com/vkuznet
 RUN git clone https://github.com/vkuznet/dbs2go
 WORKDIR $GOPATH/src/github.com/vkuznet/dbs2go
