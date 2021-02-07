@@ -1,0 +1,48 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: rumble
+  namespace: rumble
+spec:
+  selector:
+    app: rumble
+  type: NodePort
+  ports:
+  - port: 8429
+    nodePort: 30429
+    targetPort: 8429
+    name: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rumble
+  namespace: rumble
+  labels:
+     app: rumble
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: rumble
+   template:
+      metadata:
+         labels:
+           app: rumble
+      spec:
+        containers:
+        - name: rumble
+          image: cmssw/rumble
+          ports:
+          - containerPort: 8001
+            protocol: TCP
+            name: http
+          volumeMounts:
+          - name: rumble-secrets
+            mountPath: /etc/rumble
+            readOnly: true
+        volumes:
+        - name: rumble-secrets
+          secret:
+            secretName: rumble-secrets
