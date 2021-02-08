@@ -260,6 +260,26 @@ openstack coe nodegroup create monitoring-vm-ha1 zone-a --labels availability_zo
 openstack coe nodegroup create monitoring-vm-ha2 zone-b --labels availability_zone=cern-geneva-b
 ```
 
+### Targets
+Sometimes we need to compare Prometheus targets in different clusters.
+Here we present an easy way to do that:
+```
+# first we extract targets from our monitoring cluster
+# and pass it to jq tool (https://stedolan.github.io/jq/manual/)
+# We'll apply jq query to extract __address__ of the target
+curl http://cms-monitoring.cern.ch:30900/api/v1/targets | \
+jq '.data.activeTargets | .[] | .discoveredLabels.__address__' | \
+sort | uniq > mon.targets
+
+# then we do the same for another cluster, e.g. ha2
+curl http://cms-monitoring-ha2.cern.ch:30090/api/v1/targets | \
+jq '.data.activeTargets | .[] | .discoveredLabels.__address__' | \
+sort | uniq > ha2.targets
+
+# finally we can simply do a diff among the two
+diff mon.targets ha2.targets
+```
+
 ### References
 
 - [High-Availability for Prometheus and AlertManager](https://www.robustperception.io/high-availability-prometheus-alerting-and-notification)
