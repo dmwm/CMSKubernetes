@@ -144,7 +144,7 @@ kubectl apply -f services/ha/ssb-alerts-ha1.yaml
 kubectl apply -f services/ha/cmsmon-intelligence.yaml
 
 # deploy http exporters
-ls services/http-exporter*.yaml | awk '{print "kubectl apply -f "$1""}' | /bin/sh
+ls services/*-exporter*.yaml | awk '{print "kubectl apply -f "$1""}' | /bin/sh
 ```
 
 At the end each HA cluster will have the following set of services
@@ -174,6 +174,7 @@ and the following services in http and alerts namespace:
 # list of services in alerts namespace
 kubeclt get pods -n http
 NAME                                     READY   STATUS    RESTARTS   AGE
+es-exporter-wma-6ccd857477-ljkbl         1/1     Running   0          5s
 http-exp-wmstatssrv-7dc9fdb954-kv4gw     1/1     Running   1          5d
 http-exporter-6b75b458c-nkqs4            1/1     Running   1          5d
 http-exporter-arucio-7f4f995766-6qgnj    1/1     Running   1          5d
@@ -189,6 +190,7 @@ http-exporter-wmstats-74ddf89645-5xpt6   1/1     Running   1          5d
 
 # list of services in alerts namespace
 NAME                    TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)     AGE
+es-exporter-wma         ClusterIP   10.254.180.87    <none>        18000/TCP   25s
 http-exp-wmstatssrv     ClusterIP   10.254.174.157   <none>        18009/TCP   5d
 http-exporter           ClusterIP   10.254.132.126   <none>        18000/TCP   5d
 http-exporter-arucio    ClusterIP   10.254.209.199   <none>        18012/TCP   5d
