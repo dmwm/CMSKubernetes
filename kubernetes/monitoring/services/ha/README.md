@@ -280,6 +280,21 @@ sort | uniq > ha2.targets
 diff mon.targets ha2.targets
 ```
 
+### Alerts
+```
+# get alerts from mon cluster
+curl http://cms-monitoring.cern.ch:30093/api/v1/alerts | jq '.data| .[] | .labels.alertname' | sort | uniq > mon.alerts
+# get alerts from ha1/ha2 clusters
+curl http://cms-monitoring-ha1.cern.ch:30093/api/v1/alerts | jq '.data| .[] | .labels.alertname' | sort | uniq > ha1.alerts
+curl http://cms-monitoring-ha2.cern.ch:30093/api/v1/alerts | jq '.data| .[] | .labels.alertname' | sort | uniq > ha2.alerts
+
+# combine alerts from ha1/ha2 clusters
+cat ha1.alerts ha2.alerts | sort | uniq > ha.alerts
+
+# compare alerts between mon and ha clusters
+diff mon.alerts ha.alerts
+```
+
 ### References
 
 - [High-Availability for Prometheus and AlertManager](https://www.robustperception.io/high-availability-prometheus-alerting-and-notification)
