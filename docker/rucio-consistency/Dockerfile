@@ -64,7 +64,7 @@ RUN pip3 --no-cache-dir install SQLAlchemy pyyaml pythreader cx_Oracle j2cli
 
 RUN mkdir -p /consistency
 COPY vomses /etc
-COPY run.sh site.sh /consistency/
+COPY run.sh site.sh unmerged_site.sh /consistency/
 
 ADD rucio.cfg.j2 /tmp
 
