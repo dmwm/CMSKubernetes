@@ -79,5 +79,19 @@ data:
 {{ else }}
         time: 'R R R */{{ $config.interval }} * *'
 {{- end }}
+      {{ $site }}_unmerged:
+        cmd: /consistency/unmerged_site.sh {{ $site }}
+        onError: {{ $config.onError | default "Continue" }}
+{{ if eq $config.interval 1.0 }}
+        time: 'R R R * * *'
+{{ else if eq $config.interval 7.0 }}
+        time: 'R R R * * R'
+{{ else if eq $config.interval 14.0 }}
+        time: 'R R R R1-7,R15-21 * *'
+{{ else if eq $config.interval 31.0 }}
+        time: 'R R R R * *'
+{{ else }}
+        time: 'R R R */{{ $config.interval }} * *'
+{{- end }}
 {{- end }}
 {{- end }}

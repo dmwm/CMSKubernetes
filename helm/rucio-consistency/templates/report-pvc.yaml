@@ -8,5 +8,8 @@ spec:
   resources:
     requests:
       storage: {{ .Values.consistency.reportSize }}
+{{- if .Values.reportStorageClass.osShareID }}
+  storageClassName: rucio-consistency-sc
+{{- else -}}  
   storageClassName: meyrin-cephfs 
-
+{{- end }}

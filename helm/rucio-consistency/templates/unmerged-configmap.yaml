@@ -1,16 +1,15 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "rucio-consistency.fullname" . }}-consistency-config
+  name: {{ include "rucio-consistency.fullname" . }}-unmerged-config
 data:
   config.yaml: |+
     rses:
       "*": # default
-        partitions:     5
         scanner:
           recursion:      1
           nworkers:        8
-          timeout:        300
+          timeout:        180
 {{- if  (.Values.consistency.filter) }}
           filter: {{ .Values.consistency.filter }}
 {{- end }}
@@ -18,29 +17,7 @@ data:
           remove_prefix: /
           add_prefix: /store/
           roots: 
-          - path: mc
-          - path: data
-          - path: generator
-          - path: results
-          - path: hidata
-          - path: himc
-          - path: relval
-        dbdump:
-{{- if  (.Values.consistency.filter) }}
-          filter: {{ .Values.consistency.filter }}
-{{- end }}
-          path_root:   /
-        #  lfn_to_path:
-        #  - path: "^/+store/(.*)"
-        #    out: "/$1"
-
-
-      # Individual sites are configure thus where values differ (scanner is omitted in the helm values)
-      # T2_BR_UERJ_Test:
-      #   scanner:
-      #     server: xrootd.hepgrid.uerj.br
-      #     server_root: /store/test/rucio/int/cms/store
-      #     timeout: 120
+          - path: unmerged
 
 {{ range $site, $config := .Values.consistency.sites }}
       {{ $site }}:

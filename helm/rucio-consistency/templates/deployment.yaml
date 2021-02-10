@@ -77,41 +77,6 @@ spec:
                 secretKeyRef:
                   key: database_pool_timeout
                   name: cms-ruciod-{{ .Values.consistency.instance }}-rucio-daemons.cfg
-#            - name: RUCIO_CFG_MONITOR_CARBON_SERVER
-#              valueFrom:
-#                secretKeyRef:
-#                  key: monitor_carbon_server
-#                  name: cms-ruciod-{{ .Values.consistency.instance }}-rucio-daemons.cfg
-#            - name: RUCIO_CFG_MONITOR_USER_SCOPE
-#              valueFrom:
-#                secretKeyRef:
-#                  key: monitor_user_scope
-#                  name: cms-ruciod-{{ .Values.consistency.instance }}-rucio-daemons.cfg
-#            - name: RUCIO_CFG_POLICY_LFN2PFN_ALGORITHM_DEFAULT
-#              valueFrom:
-#                secretKeyRef:
-#                  key: policy_lfn2pfn_algorithm_default
-#                  name: cms-ruciod-{{ .Values.consistency.instance }}-rucio-daemons.cfg
-#            - name: RUCIO_CFG_POLICY_LFN2PFN_MODULE
-#              valueFrom:
-#                secretKeyRef:
-#                  key: policy_lfn2pfn_module
-#                  name: cms-ruciod-{{ .Values.consistency.instance }}-rucio-daemons.cfg
-#            - name: RUCIO_CFG_POLICY_PERMISSION
-#              valueFrom:
-#                secretKeyRef:
-#                  key: policy_permission
-#                  name: cms-ruciod-{{ .Values.consistency.instance }}-rucio-daemons.cfg
-#            - name: RUCIO_CFG_POLICY_SCHEMA
-#              valueFrom:
-#                secretKeyRef:
-#                  key: policy_schema
-#                  name: cms-ruciod-{{ .Values.consistency.instance }}-rucio-daemons.cfg
-#            - name: RUCIO_CFG_POLICY_SUPPORT
-#              valueFrom:
-#                secretKeyRef:
-#                  key: policy_support
-#                  name: cms-ruciod-{{ .Values.consistency.instance }}-rucio-daemons.cfg
           command: ["/consistency/run.sh"]
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
@@ -132,6 +97,8 @@ spec:
           volumeMounts:
             - mountPath: /config/
               name: consistency-config
+            - mountPath: /unmerged-config/
+              name: unmerged-config
             - mountPath: /etc/jobber-config/
               name: jobber-config
             - mountPath: /opt/proxy
@@ -171,6 +138,10 @@ spec:
         configMap:
           defaultMode: 0644
           name: {{ include "rucio-consistency.fullname" . }}-consistency-config
+      - name: unmerged-config
+        configMap:
+          defaultMode: 0644
+          name: {{ include "rucio-consistency.fullname" . }}-unmerged-config
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
