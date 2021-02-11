@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG2103a
+VER=HG2103c
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend frontend"
@@ -12,7 +12,7 @@ git clone git://github.com/dmwm/deployment.git cfg
 mkdir $WDIR/srv
 
 cd $WDIR/cfg
-git reset --hard $VER
+#git reset --hard $VER
 
 # adjust deploy script to use k8s host name
 cmsk8s_srv=${CMSK8S_SRV:-https://cmsweb-srv.cern.ch}
