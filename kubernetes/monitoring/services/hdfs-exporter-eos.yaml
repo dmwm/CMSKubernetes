@@ -45,7 +45,7 @@ spec:
       spec:
         containers:
         - name: hdfs-exporter-eos
-          image: cmssw/sqoop:20210210
+          image: cmssw/sqoop:20210211
           command:
           - /bin/sh
           - /data/setup-and-run/setup-and-run.sh
