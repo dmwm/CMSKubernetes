@@ -1,0 +1,32 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cron-kerberos
+spec:
+  # run crontab job every hour
+  schedule: "30 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: kerberos-account
+          containers:
+          - name: kerberos
+            image: cmssw/kerberos
+            args:
+            - /bin/sh
+            - -c
+            - echo "run kerberos.sh"; ls -al ; echo "### /etc/secrets"; ls -la /etc/secrets; echo "### /etc/keytab"; ls -al /etc/keytab; /data/kerberos.sh /etc/keytab/keytab; echo "### /tmp"; ls -al /tmp;
+            volumeMounts:
+            - name: keytab-secrets
+              mountPath: /etc/keytab
+            - name: krb5cc-secrets
+              mountPath: /etc/secrets
+          restartPolicy: Never
+          volumes:
+          - name: keytab-secrets
+            secret:
+              secretName: keytab-secrets
+          - name: krb5cc-secrets
+            secret:
+              secretName: krb5cc-secrets
