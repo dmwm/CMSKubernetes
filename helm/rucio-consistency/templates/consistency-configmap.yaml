@@ -7,6 +7,9 @@ data:
     rses:
       "*": # default
         partitions:     5
+        ignore_list:
+        - "/store/backfill"
+        - "/store/test"
         scanner:
           recursion:      1
           nworkers:        8
