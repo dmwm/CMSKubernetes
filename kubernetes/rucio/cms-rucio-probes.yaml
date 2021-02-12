@@ -58,3 +58,10 @@ probes:
     interval: 30
   check_expired_locked_rules:
     interval: 1
+
+voProbes: 
+  check_rule_counts:
+    interval: 30
+    voName: cms
+
+
