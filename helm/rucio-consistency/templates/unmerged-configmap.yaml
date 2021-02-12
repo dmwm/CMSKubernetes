@@ -6,6 +6,8 @@ data:
   config.yaml: |+
     rses:
       "*": # default
+        ignore_list:
+        - "/store/unmerged/logs"
         scanner:
           recursion:      1
           nworkers:        8
