@@ -18,25 +18,4 @@ data:
     T0_CH_CERN_Tape:
         pool: 5
         multi_das_calls: True
-    T1_DE_KIT_Tape:
-        pool: 5
-        multi_das_calls: True
-    T1_ES_PIC_Tape:
-        pool: 5
-        multi_das_calls: True
-    T1_FR_CCIN2P3_Tape:
-        pool: 5
-        multi_das_calls: True
-    T1_IT_CNAF_Tape:
-        pool: 5
-        multi_das_calls: True
-    T1_RU_JINR_Tape:
-        pool: 5
-        multi_das_calls: True
-    T1_UK_RAL_Tape:
-        pool: 5
-        multi_das_calls: True
-    T1_US_FNAL_Tape:
-        pool: 5
-        multi_das_calls: True
 
