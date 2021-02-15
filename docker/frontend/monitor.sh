@@ -37,7 +37,10 @@ EOF
 
 # run filebeat
 if [ -f /data/filebeat.yaml ] && [ -f /usr/bin/filebeat ]; then
-    ldir=/tmp/filebeat
+    if [ -d /data/filebeat/`hostname` ] && [ -f /data/filebeat/`hostname`/data/filebeat.lock ]; then
+       rm /data/filebeat/`hostname`/data/filebeat.lock
+    fi
+    ldir=/data/filebeat/`hostname`
     mkdir -p $ldir/data
     nohup /usr/bin/filebeat \
         -c /data/filebeat.yaml \
