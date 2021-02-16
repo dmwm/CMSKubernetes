@@ -62,6 +62,7 @@ for fname in $files; do
         sudo chown $USER.$USER /data/srv/current/auth/$srv/$fname
     fi
 done
+sleep 5
 
 # start the service
 /data/srv/current/config/$srv/manage start 'I did read documentation'
