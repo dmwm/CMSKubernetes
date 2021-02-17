@@ -68,6 +68,12 @@ spec:
           limits:
             memory: "6Gi"
             cpu: "4000m"
+        env:
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
         ports:
         - containerPort: 80
           protocol: TCP

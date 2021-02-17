@@ -33,6 +33,12 @@ spec:
           limits:
             memory: "12Gi"
             cpu: "4000m" # we can add higher limit here
+        env:
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
         ports:
         - containerPort: 80
           name: http
