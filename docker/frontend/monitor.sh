@@ -6,12 +6,18 @@ suri="http://localhost:$aport/server-status/?auto"
 echo "Start apache_exporter with $suri"
 nohup apache_exporter --scrape_uri $suri --telemetry.address ":18443" 2>&1 1>& apache_exporter.log < /dev/null &
 
+NAME=`hostname -s`
+if [ -n $MY_POD_NAME ]; then
+    NAME=$MY_POD_NAME
+fi
+
+
 cat > /data/filebeat.yaml << EOF
 filebeat.inputs:
 - type: log
   enabled: true
   paths:
-    - /data/srv/logs/frontend/access_log_`hostname -s`*.txt
+    - /data/srv/logs/frontend/access_log_${NAME}*.txt
   scan_frequency: 10s
   backoff: 5s
   max_backoff: 10s
@@ -37,10 +43,10 @@ EOF
 
 # run filebeat
 if [ -f /data/filebeat.yaml ] && [ -f /usr/bin/filebeat ]; then
-    if [ -d /data/filebeat/`hostname` ] && [ -f /data/filebeat/`hostname`/data/filebeat.lock ]; then
-       rm /data/filebeat/`hostname`/data/filebeat.lock
+    if [ -d /data/filebeat/${NAME} ] && [ -f /data/filebeat/${NAME}/data/filebeat.lock ]; then
+       rm /data/filebeat/${NAME}/data/filebeat.lock
     fi
-    ldir=/data/filebeat/`hostname`
+    ldir=/data/filebeat/${NAME}
     mkdir -p $ldir/data
     nohup /usr/bin/filebeat \
         -c /data/filebeat.yaml \
