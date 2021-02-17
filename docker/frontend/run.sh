@@ -117,7 +117,7 @@ if [ -f $cdir/backends.txt ]; then
 fi
 
 # adjust frontend log file name since we need distingushed name in k8s with CephFS
-hname=`hostname -s`
+hname=`printenv MY_POD_NAME`
 sed -i -e "s,access_log,access_log_${hname},g" \
     -e "s,error_log,error_log_${hname},g" \
     /data/srv/state/frontend/server.conf
