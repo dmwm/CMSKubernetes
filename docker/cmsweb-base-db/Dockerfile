@@ -15,4 +15,5 @@ FROM cern/cc7-base:20201101-1.x86_64
 RUN yum install -y libaio && yum clean all && rm -rf /var/cache/yum
 RUN mkdir -p /data
 COPY --from=builder /usr/lib/oracle /usr/lib/oracle
+COPY --from=builder /usr/include/oracle /usr/include/oracle
 COPY --from=builder /etc/tnsnames.ora /etc
