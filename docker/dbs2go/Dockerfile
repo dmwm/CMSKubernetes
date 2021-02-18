@@ -1,16 +1,12 @@
-FROM cern/cc7-base:20201101-1.x86_64 as builder
+FROM cmssw/cmsweb-base-db as builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
 ENV USER=_dbs
 ADD oci8.pc $WDIR/oci8.pc
 ENV PKG_CONFIG_PATH=$WDIR
-ADD cernonly2.repo /etc/yum.repos.d/cernonlyw.repo
-ADD slc7-cernonly.repo /etc/yum.repos.d/slc7-cernonly.repo
-ADD epel.repo /etc/yum.repos.d/epel.repo
 
-RUN yum install -y git-core make gcc golang sudo oracle-instantclient-tnsnames.ora \
-            oracle-instantclient-devel oracle-instantclient-basic \
+RUN yum install -y git-core make golang gcc \
             && yum clean all && rm -rf /var/cache/yum
 
 # Create new user account
@@ -30,7 +26,6 @@ RUN mkdir -p $GOPATH
 ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
 RUN go get github.com/dmwm/cmsauth && \
     go get github.com/vkuznet/x509proxy && \
-    go get github.com/mattn/go-oci8 && \
     go get github.com/gorilla/csrf && \
     go get github.com/gorilla/mux && \
     go get github.com/lestrrat-go/file-rotatelogs && \
@@ -39,6 +34,8 @@ RUN go get github.com/dmwm/cmsauth && \
     go get github.com/mattn/go-sqlite3 && \
     go get golang.org/x/exp/errors && \
     go get -u -d github.com/vkuznet/cmsweb-exporters
+ENV LD_LIBRARY_PATH=/usr/lib/oracle/19.3/client64/lib
+RUN go get github.com/mattn/go-oci8
 
 # build process_monitor
 WORKDIR $GOPATH/src/github.com/vkuznet/cmsweb-exporters
@@ -54,7 +51,7 @@ ENV PATH="${GOPATH}/src/github.com/vkuznet/dbs2go:${GOPATH}/src/github.com/vkuzn
 ENV X509_USER_PROXY=/data/srv/current/auth/proxy/proxy
 
 # build dbs2go with specific tag
-ENV TAG=v00.00.77
+ENV TAG=v00.00.78
 WORKDIR $GOPATH/src/github.com/vkuznet
 RUN git clone https://github.com/vkuznet/dbs2go
 WORKDIR $GOPATH/src/github.com/vkuznet/dbs2go
@@ -65,13 +62,11 @@ RUN git checkout tags/$TAG -b build && \
     make
 RUN cat $WDIR/config.json | sed -e "s,GOPATH,$GOPATH,g" > dbsconfig.json
 
-FROM cern/cc7-base:20201101-1.x86_64
-RUN yum install -y libaio && yum clean all && rm -rf /var/cache/yum
+FROM cmssw/cmsweb-base-db
+RUN yum install -y sudo && yum clean all && rm -rf /var/cache/yum
 RUN mkdir -p /data
 COPY --from=builder /data/gopath/src/github.com/vkuznet/dbs2go/dbs2go /data/
-COPY --from=builder /data/gopath /data/gopath
-COPY --from=builder /usr/lib/oracle /usr/lib/oracle
-COPY --from=builder /etc/tnsnames.ora /etc
+COPY --from=builder /data/gopath/src/github.com/vkuznet/dbs2go /data/gopath/src/github.com/vkuznet/dbs2go
 COPY --from=builder /data/filebeat /usr/bin/filebeat
 COPY --from=builder /data/process_exporter /data
 COPY --from=builder /data/process_monitor.sh /data
