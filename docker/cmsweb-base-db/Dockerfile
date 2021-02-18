@@ -2,7 +2,6 @@ FROM cern/cc7-base:20201101-1.x86_64 as builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
-ENV USER=_dbs
 ADD cernonly2.repo /etc/yum.repos.d/cernonlyw.repo
 ADD slc7-cernonly.repo /etc/yum.repos.d/slc7-cernonly.repo
 ADD epel.repo /etc/yum.repos.d/epel.repo
