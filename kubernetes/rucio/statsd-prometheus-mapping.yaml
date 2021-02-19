@@ -27,6 +27,14 @@ mappings:
       request_state: "$1"
       activity: "$2"
       fts_server: "$3"
+  - match: "rucio.judge.used_space_rucio.*.*.*.*"
+    help: "Rucio report used space"
+    name: "rucio_report_used_space"
+    labels:
+      rse: "$1"
+      country: "$2"
+      rse_type: "$3"
+      source: "$4"
   - match: "rucio.transfertool.fts3.*.*.*"
     help: "Rucio FTS3 interface counters"
     name: "rucio_transfertool_fts3_counters"
@@ -101,16 +109,6 @@ mappings:
     name: "rucio_judge_number_of_replicating_files"
     labels:
       dst_rse: "$1"
-#  - match: "rucio_judge_Total_deletable_files_*"
-#    help: "Rucio number of deletable files per RSE"
-#    name: "rucio_judge_number_of_deletable_files"
-#    labels:
-#        dst_rse: "$1"
-#  - match: "rucio_judge_Total_deletable_space_*"
-#    help: "Rucio number of deletable space per RSE"
-#    name: "rucio_judge_deletable_space_per_RSE"
-#    labels:
-#      dst_rse: "$1" 
   - match: "rucio.judge.datasets_with_locked_rules.*"
     help: "Rucio datasets with locked rules"
     name: "rucio_judge_datasets_with_locked_rules"
@@ -126,3 +124,4 @@ mappings:
     name: "rucio_used_space_uniquely_by_rucio"
     labels:
       dst_rse: "$1"
+
