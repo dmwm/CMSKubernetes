@@ -1,0 +1,66 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: hdfs-exporter-eos
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 18000
+    protocol: TCP
+    name: http
+  selector:
+    app: hdfs-exporter-eos
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: hdfs-exporter-eos
+  labels:
+    app: hdfs-exporter-eos
+  namespace: http
+data:
+  setup-and-run.sh: |
+    #!/bin/sh
+    export PATH="/usr/hdp/hadoop/bin:/usr/bin:/bin"
+    export KRB5CCNAME=/etc/secrets/krb5cc
+    /data/hdfs_exporter -path /project/monitoring/archive/eos-report/logs/cms -pattern json -timeoffset 86400
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hdfs-exporter-eos
+  namespace: http
+  labels:
+     app: hdfs-exporter-eos
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: hdfs-exporter-eos
+   template:
+      metadata:
+         labels:
+           app: hdfs-exporter-eos
+      spec:
+        containers:
+        - name: hdfs-exporter-eos
+          image: cmssw/sqoop:20210212-v2
+          command:
+          - /bin/sh
+          - /data/setup-and-run/setup-and-run.sh
+          ports:
+          - containerPort: 18000
+          volumeMounts:
+          - name: krb5cc-secrets
+            mountPath: /etc/secrets
+            readOnly: true
+          - name: setup-and-run
+            mountPath: /data/setup-and-run
+        volumes:
+        - name: krb5cc-secrets
+          secret:
+            secretName: krb5cc-secrets
+        - name: setup-and-run
+          configMap:
+            name: hdfs-exporter-eos

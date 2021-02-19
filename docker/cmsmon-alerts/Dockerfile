@@ -12,7 +12,7 @@ RUN go get github.com/prometheus/client_golang/prometheus
 RUN go get github.com/prometheus/client_golang/prometheus/promhttp
 
 # tag to use
-ENV TAG=0.5.17
+ENV TAG=0.5.19
 
 RUN git clone https://github.com/dmwm/CMSMonitoring.git
 WORKDIR $WDIR/CMSMonitoring
@@ -23,6 +23,7 @@ RUN go build -ldflags="-s -w -extldflags -static" src/go/MONIT/ssb_alerting.go
 RUN go build -ldflags="-s -w -extldflags -static" src/go/MONIT/ggus_parser.go
 RUN go build -ldflags="-s -w -extldflags -static" src/go/MONIT/ggus_alerting.go
 RUN go build -ldflags="-s -w -extldflags -static" src/go/MONIT/es_exporter.go
+RUN go build -ldflags="-s -w -extldflags -static" src/go/MONIT/hdfs_exporter.go
 
 FROM alpine
 RUN mkdir /data
@@ -31,5 +32,6 @@ COPY --from=go-builder /data/CMSMonitoring/ssb_alerting /data
 COPY --from=go-builder /data/CMSMonitoring/ggus_parser /data
 COPY --from=go-builder /data/CMSMonitoring/ggus_alerting /data
 COPY --from=go-builder /data/CMSMonitoring/es_exporter /data
+COPY --from=go-builder /data/CMSMonitoring/hdfs_exporter /data
 COPY --from=go-builder /data/CMSMonitoring/scripts /data
 ENV PATH $PATH:/data

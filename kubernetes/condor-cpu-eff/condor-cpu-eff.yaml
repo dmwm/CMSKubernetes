@@ -1,0 +1,74 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: condor-cpu-eff
+  namespace: hdfs
+spec:
+  selector:
+    app: condor-cpu-eff
+  type: NodePort
+  ports:
+  - name: port-0 # spark.driver.port
+    nodePort: 31234
+    port: 31234
+    protocol: TCP
+    targetPort: 31234
+  - name: port-1 # spark.driver.blockManager.port
+    nodePort: 31235
+    port: 31235
+    protocol: TCP
+    targetPort: 31235
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: condor-cpu-eff
+  namespace: hdfs
+  labels:
+    app: condor-cpu-eff
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: condor-cpu-eff
+  template:
+    metadata:
+      labels:
+        app: condor-cpu-eff
+    spec:
+      hostname: condor-cpu-eff
+      containers:
+      - name: condor-cpu-eff
+        image: mrceyhun/condor_cpu_eff:latest
+        tty: true
+        stdin: true
+        env:
+          - name: MY_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: CPU_EFF_OUTPUT # Define output path here
+            value: /eos/user/c/cuzunogl/www/test
+        ports:
+        - containerPort: 31234 # spark.driver.port
+          name: port-0
+        - containerPort: 31235 # spark.driver.blockManager.port
+          name: port-1
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "export > /etc/environment"]
+        volumeMounts:
+        - name: condor-cpu-eff-secrets
+          mountPath: /etc/condor-cpu-eff
+          readOnly: true
+        - name: eos # EOS access
+          mountPath: /eos
+          mountPropagation: HostToContainer
+      volumes:
+      - name: condor-cpu-eff-secrets
+        secret:
+          secretName: condor-cpu-eff-secrets
+      - name: eos
+        hostPath:
+          path: /var/eos

@@ -27,9 +27,10 @@ ENV PATH="${PATH}:${GOROOT}/bin:${WDIR}"
 ENV PYTHONPATH="${WDIR}/CMSMonitoring/src/python"
 RUN git clone https://github.com/dmwm/CMSMonitoring.git
 RUN go get github.com/go-stomp/stomp
+RUN go get github.com/prometheus/client_golang/prometheus
+RUN go get github.com/prometheus/client_golang/prometheus/promhttp
 WORKDIR $WDIR/CMSMonitoring/src/go/MONIT
-RUN go build monit.go
-RUN cp monit $WDIR
+RUN go build monit.go && go build hdfs_exporter.go && cp monit hdfs_exporter $WDIR
 WORKDIR $WDIR
 
 # get amtool
