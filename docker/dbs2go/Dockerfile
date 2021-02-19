@@ -1,20 +1,14 @@
+FROM cmssw/cmsweb-monit as monit
 FROM cmssw/cmsweb-base-db as builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
-ENV USER=_dbs
 ADD oci8.pc $WDIR/oci8.pc
+ADD config.json $WDIR/config.json
 ENV PKG_CONFIG_PATH=$WDIR
 
 RUN yum install -y git-core make golang gcc \
             && yum clean all && rm -rf /var/cache/yum
-
-# Create new user account
-RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
-# add user to sudoers file
-RUN echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-# switch to user
-USER ${USER}
 
 # start the setup
 RUN mkdir -p $WDIR
@@ -37,19 +31,6 @@ RUN go get github.com/dmwm/cmsauth && \
 ENV LD_LIBRARY_PATH=/usr/lib/oracle/19.3/client64/lib
 RUN go get github.com/mattn/go-oci8
 
-# build process_monitor
-WORKDIR $GOPATH/src/github.com/vkuznet/cmsweb-exporters
-RUN go build process_exporter.go && cp process_exporter $WDIR && cp process_monitor.sh $WDIR
-
-# get filebeat
-RUN curl -ksLO https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.10.0-linux-x86_64.tar.gz && \
-    tar xfz filebeat-7.10.0-linux-x86_64.tar.gz && \
-    cp filebeat-7.10.0-linux-x86_64/filebeat /data
-
-ADD config.json $WDIR/config.json
-ENV PATH="${GOPATH}/src/github.com/vkuznet/dbs2go:${GOPATH}/src/github.com/vkuznet/dbs2go/bin:${PATH}"
-ENV X509_USER_PROXY=/data/srv/current/auth/proxy/proxy
-
 # build dbs2go with specific tag
 ENV TAG=v00.00.78
 WORKDIR $GOPATH/src/github.com/vkuznet
@@ -67,12 +48,13 @@ RUN yum install -y sudo && yum clean all && rm -rf /var/cache/yum
 RUN mkdir -p /data
 COPY --from=builder /data/gopath/src/github.com/vkuznet/dbs2go/dbs2go /data/
 COPY --from=builder /data/gopath/src/github.com/vkuznet/dbs2go /data/gopath/src/github.com/vkuznet/dbs2go
-COPY --from=builder /data/filebeat /usr/bin/filebeat
-COPY --from=builder /data/process_exporter /data
-COPY --from=builder /data/process_monitor.sh /data
+COPY --from=monit /data/filebeat /usr/bin/filebeat
+COPY --from=monit /data/process_exporter /data
+COPY --from=monit /data/process_monitor.sh /data
 
 # run the service
 ENV PATH="/data/gopath/bin:/data:${PATH}"
+ENV X509_USER_PROXY=/data/srv/current/auth/proxy/proxy
 RUN cp /data/gopath/src/github.com/vkuznet/dbs2go/dbsconfig.json /data/config.json
 ADD monitor.sh /data/monitor.sh
 ADD run.sh /data/run.sh
