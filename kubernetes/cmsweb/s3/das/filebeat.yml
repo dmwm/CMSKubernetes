@@ -1,0 +1,11 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /data/logs/*.log
+  scan_frequency: 10s
+  backoff: 5s
+  max_backoff: 10s
+  tags: ["das"]
+output.console:
+ pretty: false

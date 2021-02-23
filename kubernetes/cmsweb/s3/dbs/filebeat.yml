@@ -1,0 +1,11 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /data/srv/logs/dbs/*.log
+  scan_frequency: 10s
+  backoff: 5s
+  max_backoff: 10s
+  tags: ["dbs"]
+output.console:
+ pretty: false
