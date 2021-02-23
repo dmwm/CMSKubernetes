@@ -9,12 +9,21 @@ data:
         "apiVersion": 1,
         "datasources": [
             {
-               "access":"proxy",
+                "access":"proxy",
                 "editable": true,
                 "name": "prometheus",
                 "orgId": 1,
                 "type": "prometheus",
                 "url": "http://prometheus.default.svc:9090",
+                "version": 1
+            },
+            {
+                "access":"proxy",
+                "editable": true,
+                "name": "victoria-metrics",
+                "orgId": 1,
+                "type": "prometheus",
+                "url": "http://victoria-metrics.default.svc:8428",
                 "version": 1
             }
         ]
