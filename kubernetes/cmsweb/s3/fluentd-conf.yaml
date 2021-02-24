@@ -65,7 +65,7 @@ data:
       s3_rerion cern
       s3_endpoint https://s3.cern.ch
       s3_endpoint_url https://s3.cern.ch
-      path frontend-logs/%Y-%m-%d/
+      path frontend-logs/%Y/%m/%d/
       # if you want to use ${tag} or %Y/%m/%d/ like syntax in path / s3_object_key_format,
       # need to specify tag for ${tag} and time for %Y/%m/%d in <buffer> argument.
       #<buffer tag,time>
@@ -87,7 +87,7 @@ data:
       s3_rerion cern
       s3_endpoint https://s3.cern.ch
       s3_endpoint_url https://s3.cern.ch
-      path dbs-logs/%Y-%m-%d/
+      path dbs-logs/%Y/%m/%d/
       <buffer tag,time>
         @type memory
         timekey 10m 
@@ -104,7 +104,7 @@ data:
       s3_rerion cern
       s3_endpoint https://s3.cern.ch
       s3_endpoint_url https://s3.cern.ch
-      path das-logs/%Y-%m-%d/
+      path das-logs/%Y/%m/%d/
       <buffer tag,time>
         @type memory
         timekey 10m
@@ -121,7 +121,7 @@ data:
       s3_rerion cern
       s3_endpoint https://s3.cern.ch
       s3_endpoint_url https://s3.cern.ch
-      path crab-logs/%Y-%m-%d/
+      path crab-logs/%Y/%m/%d/
       <buffer tag,time>
         @type memory
         timekey 10m
@@ -138,7 +138,7 @@ data:
       s3_rerion cern
       s3_endpoint https://s3.cern.ch
       s3_endpoint_url https://s3.cern.ch
-      path dmwm-logs/%Y-%m-%d/
+      path dmwm-logs/%Y/%m/%d/
       <buffer tag,time>
         @type memory
         timekey 10m
