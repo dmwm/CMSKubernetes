@@ -196,4 +196,54 @@ consistency:
     T3_US_Rutgers:
       server: ruhex-osgce.rutgers.edu
       interval: 7
-
+    T1_IT_CNAF_Disk:
+      server: xrootd-cms.infn.it:1194
+      interval: 7
+    T2_BR_SPRACE:
+      server: spstrg08.sprace.org.br:1094
+      interval: 7
+    T2_CN_Beijing:
+      server: seadmin.ihep.ac.cn:1094
+      interval: 7
+    T2_DE_DESY:
+      server: t2-cms-xrootd01.desy.de:1094
+      interval: 7
+    T2_EE_Estonia:
+      server: xrootd2:1094
+      interval: 7
+    T2_GR_Ioannina:
+      server: grid02.physics.uoi:11001
+      interval: 7
+    T2_HU_Budapest:
+      server: grid143.kfki.hu:11000
+      interval: 7
+    T2_PT_NCG_Lisbon:
+      server: xroot-data01.ncg.ingrid.pt:1094
+      interval: 7
+    T2_TR_METU:
+      server: eymir.grid.metu.edu.tr:11001
+      interval: 7
+    T2_UA_KIPT:
+      server: cms-se0.kipt.kharkov.ua:11001
+      interval: 7
+    T2_UK_London_Brunel:
+      server: dc2-grid-64.brunel.ac.uk:1094
+      interval: 7
+    T2_US_Caltech:
+      server: transfer-1.ultralight.org
+      interval: 7
+    T2_US_Florida:
+      server: cmsio6.rc.ufl.edu:1094
+      interval: 7
+    T2_US_MIT:
+      server: xrootd15.cmsaf.mit.edu:1094
+      interval: 7
+    T2_US_Nebraska:
+      server: red-gridftp2.unl.edu:1094
+      interval: 7
+    T2_US_UCSD:
+      server: gftp-1.t2.ucsd.edu:1094
+      interval: 7
+    T2_US_Vanderbilt:
+      server: xrootd.accre.vanderbilt.edu
+      interval: 7
