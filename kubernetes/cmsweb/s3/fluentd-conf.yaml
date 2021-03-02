@@ -62,7 +62,7 @@ data:
       aws_key_id <aws_key_id>
       aws_sec_key <aws_sec_key>
       s3_bucket cmsweb-testbed
-      s3_rerion cern
+      s3_region cern
       s3_endpoint https://s3.cern.ch
       s3_endpoint_url https://s3.cern.ch
       path frontend-logs/%Y/%m/%d/
@@ -84,7 +84,7 @@ data:
       aws_key_id <aws_key_id>
       aws_sec_key <aws_sec_key>
       s3_bucket cmsweb-testbed
-      s3_rerion cern
+      s3_region cern
       s3_endpoint https://s3.cern.ch
       s3_endpoint_url https://s3.cern.ch
       path dbs-logs/%Y/%m/%d/
@@ -101,7 +101,7 @@ data:
       aws_key_id <aws_key_id>
       aws_sec_key <aws_sec_key>
       s3_bucket cmsweb-testbed
-      s3_rerion cern
+      s3_region cern
       s3_endpoint https://s3.cern.ch
       s3_endpoint_url https://s3.cern.ch
       path das-logs/%Y/%m/%d/
@@ -118,7 +118,7 @@ data:
       aws_key_id <aws_key_id>
       aws_sec_key <aws_sec_key>
       s3_bucket cmsweb-testbed
-      s3_rerion cern
+      s3_region cern
       s3_endpoint https://s3.cern.ch
       s3_endpoint_url https://s3.cern.ch
       path crab-logs/%Y/%m/%d/
@@ -135,7 +135,7 @@ data:
       aws_key_id <aws_key_id>
       aws_sec_key <aws_sec_key>
       s3_bucket cmsweb-testbed
-      s3_rerion cern
+      s3_region cern
       s3_endpoint https://s3.cern.ch
       s3_endpoint_url https://s3.cern.ch
       path dmwm-logs/%Y/%m/%d/
@@ -152,7 +152,7 @@ data:
       aws_key_id <aws_key_id>
       aws_sec_key <aws_sec_key>
       s3_bucket cmsweb-testbed
-      s3_rerion cern
+      s3_region cern
       s3_endpoint https://s3.cern.ch
       s3_endpoint_url https://s3.cern.ch
       path tzero-logs/%Y/%m/%d/
@@ -169,7 +169,7 @@ data:
       aws_key_id <aws_key_id>
       aws_sec_key <aws_sec_key>
       s3_bucket cmsweb-testbed
-      s3_rerion cern
+      s3_region cern
       s3_endpoint https://s3.cern.ch
       s3_endpoint_url https://s3.cern.ch
       path wma-logs/%Y/%m/%d/
