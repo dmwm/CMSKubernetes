@@ -23,9 +23,10 @@ ENV CMSK8S=$CMSK8S
 # install
 RUN $WDIR/install.sh
 
+COPY addGH.sh monitor.sh run.sh start.sh stop.sh $WDIR/
+RUN ./addGH.sh
+
 # run the service
-ADD run.sh $WDIR/run.sh
-ADD monitor.sh $WDIR/monitor.sh
 USER $USER
 WORKDIR $WDIR
 CMD ["./run.sh"]
