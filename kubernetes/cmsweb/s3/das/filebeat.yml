@@ -9,3 +9,5 @@ filebeat.inputs:
   tags: ["das"]
 output.console:
  pretty: false
+ codec.format:
+   string: '%{[message]}'
