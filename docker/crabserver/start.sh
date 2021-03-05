@@ -29,7 +29,7 @@ fi
 if [ "$debug" = true ]; then
   # this will direct WMCore/REST/Main.py to run in the foreground rather than as a demon
   # allowing among other things to insert pdb calls in the crabserver code and debug interactively
-  export DONT_DEMONIZE_REST=True
+  export DONT_DAEMONIZE_REST=True
 fi
 
 if [ "$MODE" = fromGH ]; then
