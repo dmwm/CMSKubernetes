@@ -62,10 +62,10 @@ data:
       aws_key_id <aws_key_id>
       aws_sec_key <aws_sec_key>
       s3_bucket cmsweb-testbed
-      s3_rerion cern
+      s3_region cern
       s3_endpoint https://s3.cern.ch
       s3_endpoint_url https://s3.cern.ch
-      path frontend-logs/
+      path frontend-logs/%Y/%m/%d/
       # if you want to use ${tag} or %Y/%m/%d/ like syntax in path / s3_object_key_format,
       # need to specify tag for ${tag} and time for %Y/%m/%d in <buffer> argument.
       #<buffer tag,time>
@@ -84,10 +84,10 @@ data:
       aws_key_id <aws_key_id>
       aws_sec_key <aws_sec_key>
       s3_bucket cmsweb-testbed
-      s3_rerion cern
+      s3_region cern
       s3_endpoint https://s3.cern.ch
       s3_endpoint_url https://s3.cern.ch
-      path dbs-logs/
+      path dbs-logs/%Y/%m/%d/
       <buffer tag,time>
         @type memory
         timekey 10m 
@@ -101,10 +101,10 @@ data:
       aws_key_id <aws_key_id>
       aws_sec_key <aws_sec_key>
       s3_bucket cmsweb-testbed
-      s3_rerion cern
+      s3_region cern
       s3_endpoint https://s3.cern.ch
       s3_endpoint_url https://s3.cern.ch
-      path das-logs/
+      path das-logs/%Y/%m/%d/
       <buffer tag,time>
         @type memory
         timekey 10m
@@ -118,10 +118,10 @@ data:
       aws_key_id <aws_key_id>
       aws_sec_key <aws_sec_key>
       s3_bucket cmsweb-testbed
-      s3_rerion cern
+      s3_region cern
       s3_endpoint https://s3.cern.ch
       s3_endpoint_url https://s3.cern.ch
-      path crab-logs/
+      path crab-logs/%Y/%m/%d/
       <buffer tag,time>
         @type memory
         timekey 10m
@@ -135,10 +135,10 @@ data:
       aws_key_id <aws_key_id>
       aws_sec_key <aws_sec_key>
       s3_bucket cmsweb-testbed
-      s3_rerion cern
+      s3_region cern
       s3_endpoint https://s3.cern.ch
       s3_endpoint_url https://s3.cern.ch
-      path dmwm-logs/
+      path dmwm-logs/%Y/%m/%d/
       <buffer tag,time>
         @type memory
         timekey 10m
@@ -147,22 +147,40 @@ data:
         chunk_limit_size 64m
       </buffer>
     </match>
-#      aws_key_id 34993a4868b947e490addb1d064328b5
-#      aws_sec_key fe3f6ca0f7c7412a9dc4e1707edca31f
-#      s3_bucket cmsweb-testbed
-#      s3_rerion cern
-#      s3_endpoint https://s3.cern.ch
-#      s3_endpoint_url https://s3.cern.ch
-#      path cms-logs/
-#      <buffer tag,time>
-#        @type file
-#        path /var/log/fluent/s3
-#        timekey 6m # 1 minute should be something higher
-#        timekey_wait 1m
-#        timekey_use_utc true # use utc
-#        chunk_limit_size 64m
-#      </buffer>
-#    </match>
+    <match kubernetes.**s3tzero**>
+      @type s3
+      aws_key_id <aws_key_id>
+      aws_sec_key <aws_sec_key>
+      s3_bucket cmsweb-testbed
+      s3_region cern
+      s3_endpoint https://s3.cern.ch
+      s3_endpoint_url https://s3.cern.ch
+      path tzero-logs/%Y/%m/%d/
+      <buffer tag,time>
+        @type memory
+        timekey 10m
+        timekey_wait 2m
+        timekey_use_utc true # use utc
+        chunk_limit_size 64m
+      </buffer>
+    </match>
+    <match kubernetes.**s3wma**>
+      @type s3
+      aws_key_id <aws_key_id>
+      aws_sec_key <aws_sec_key>
+      s3_bucket cmsweb-testbed
+      s3_region cern
+      s3_endpoint https://s3.cern.ch
+      s3_endpoint_url https://s3.cern.ch
+      path wma-logs/%Y/%m/%d/
+      <buffer tag,time>
+        @type memory
+        timekey 10m
+        timekey_wait 2m
+        timekey_use_utc true # use utc
+        chunk_limit_size 64m
+      </buffer>
+    </match>
 
     
   install-plugins.sh: |-
