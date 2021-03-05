@@ -11,24 +11,34 @@ ARG RUCIO_VERSION
 
 FROM rucio/probes:latest 
 
-ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/cmstfc.py  /usr/lib/python2.7/site-packages/cmstfc.py
-RUN chmod 755 /usr/lib/python2.7/site-packages/cmstfc.py
+ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/cmstfc.py  /usr/local/lib/python3.6/site-packages/cmstfc.py
+RUN chmod 755 /usr/local/lib/python3.6/site-packages/cmstfc.py
 
-# SOME of Donata's stuff
-# Remove from running ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_not_OK_rules /probes/common
-ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_rule_counts /probes/common
-ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_expired_locked_rules /probes/common
-ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_expired_rules /probes/common
-ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_injecting_rules /probes/common
-ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/probe_utils.py /probes/common
-ADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/__init__.py /probes/common
-# Remove from running AADD https://raw.githubusercontent.com/ericvaandering/probes/more_sqlalchemy/common/check_report_expired_locked_rules /probes/common
+# Temporary
+
+RUN mkdir /probes/cms
+
+# PR 48 (probably in 1.24.4)
+ADD https://raw.githubusercontent.com/rucio/probes/master/cms/check_rule_counts /probes/cms
+
+# PR 49
+ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_check_expired_locked/common/check_expired_locked_rules /probes/common
+
+# PR 50
+ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_check_expired_rules/common/check_expired_rules /probes/common
+ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_check_expired_rules/common/probe_utils.py /probes/common
+ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_check_expired_rules/common/__init__.py /probes/common
+
+# PR 51  (probably in 1.24.4)
+ADD https://raw.githubusercontent.com/rucio/probes/master/common/check_injecting_rules /probes/common
+
+# PR 52  (probably in 1.24.6)
+ADD https://raw.githubusercontent.com/rucio/probes/master/cms/check_report_used_space /probes/cms
 
 # Until Fernando ports to SQLAlchemy and/or merged
 
 ADD https://raw.githubusercontent.com/ericvaandering/probes/hack_obsolete_replicas/common/check_obsolete_replicas /probes/common
 ADD https://raw.githubusercontent.com/nsmith-/probes/hack_replicas/common/check_deletable_replicas /probes/common
-
 
 # TODO: Merge Donata's probes somewhere
 
@@ -40,7 +50,6 @@ ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common
 ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_not_OK_rules_per_rse /probes/common
 ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_number_of_missing_files_per_rse /probes/common
 ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_report_free_space /probes/common
-ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_report_used_space /probes/common
 ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_rules_with_0_completion_volume /probes/common
 ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_used_space /probes/common
 
@@ -49,6 +58,7 @@ ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common
 ADD https://raw.githubusercontent.com/FernandoGarzon/CMSRucio/cms-only-probes/probes/common/check_space_uniquely_used_by_rucio /probes/common
 
 RUN chmod +x /probes/common/check_*
+RUN chmod +x /probes/cms/check_*
 
 # Temporary while we are adding variables to the config. Push to rucio-containers
 ADD https://raw.githubusercontent.com/ericvaandering/containers/probes_prom/probes/rucio.cfg.j2 /tmp/
