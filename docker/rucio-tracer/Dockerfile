@@ -7,9 +7,9 @@ WORKDIR $WDIR
 RUN mkdir -p /data/gopath && mkdir /build
 ENV GOPATH=/data/gopath
 ARG CGO_ENABLED=0
-RUN curl -ksLO https://raw.githubusercontent.com/yuyiguo/CMSRucio/FWJRGo/docker/CMSRucioClient/traces/src/go/stompserver.go
-RUN go mod init github.com/dmwm/rucio-trafer && go mod tidy && \
-    go build -o /build/rucio-tracer -ldflags="-s -w -extldflags -static" /data/stompserver.go
+RUN curl -ksLO https://raw.githubusercontent.com/vkuznet/RucioTraces/main/server/main.go
+RUN go mod init github.com/vkuznet/RucioTraces/server && go mod tidy && \
+    go build -o /build/rucio-tracer -ldflags="-s -w -extldflags -static" /data/main.go
 
 FROM alpine
 RUN mkdir -p /data
