@@ -8,6 +8,6 @@ filebeat.inputs:
   max_backoff: 10s
   tags: ["frontend"]
 output.console:
- pretty: false
  codec.format:
    string: '%{[message]}'
+   pretty: false
