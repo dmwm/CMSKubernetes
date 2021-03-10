@@ -22,6 +22,13 @@ necromancerCount: 1
 
 abacusRse:
   threads: 2
+  resources:
+    limits:
+      cpu: 700m
+      memory: 4000Mi
+    requests:
+      cpu: 700m
+      memory: 900Mi
 
 reaper2:
   greedy: 0
@@ -31,11 +38,27 @@ reaper2:
       memory: 750Mi
     limits:
       memory: 2Gi
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
 
 conveyorTransferSubmitter:
-    activities: "'Recovery' 'Data Brokering' 'Data rebalancing' 'Debug' 'Express' 'Functional Test' 'Group Subscriptions' 'Production Input' 'Production Output' 'Analysis Input' 'Analysis Output' 'Staging' 'T0 Export' 'T0 Tape' 'Upload/Download (Job)' 'Upload/Download (User)' 'User Subscriptions'"
+  activities: "'Recovery' 'Data Brokering' 'Data rebalancing' 'Debug' 'Express' 'Functional Test' 'Group Subscriptions' 'Production Input' 'Production Output' 'Analysis Input' 'Analysis Output' 'Staging' 'T0 Export' 'T0 Tape' 'Upload/Download (Job)' 'Upload/Download (User)' 'User Subscriptions'"
     # Same size or smaller than bulk which is 100
-    groupBulk: 50
+  groupBulk: 50
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+
+conveyorFinisher:
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+
+conveyorPoller:
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
 
 # Settings to renew FTS	proxy
 ftsRenewal:
@@ -47,15 +70,18 @@ ftsRenewal:
   servers: "https://fts3-devel.cern.ch:8446,https://cmsfts3.fnal.gov:8446,https://fts3-cms.cern.ch:8446,https://lcgfts3.gridpp.rl.ac.uk:8446,https://fts3-pilot.cern.ch:8446"
 
 hermes:
-    useSSL: 1
-    threads: 5
-    bulk: 500
-    brokerTimeout: 120
-    resources:
-      requests:
-        memory: 400Mi
-      limits:
-        memory: 600Mi
+  useSSL: 1
+  threads: 5
+  bulk: 500
+  brokerTimeout: 120
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+  resources:
+    requests:
+      memory: 400Mi
+    limits:
+      memory: 600Mi
 
 judgeEvaluator: 
   resources:
@@ -63,6 +89,9 @@ judgeEvaluator:
       cpu: 3750m 
     requests:
       cpu: 750m 
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
 
 judgeCleaner:
   threads: 2
@@ -73,6 +102,9 @@ judgeCleaner:
     requests:
       cpu: 750m 
       memory: 400Mi
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
 
 judgeInjector:
   threads: 2
@@ -83,6 +115,9 @@ judgeInjector:
     requests:
       cpu: 750m 
       memory: 400Mi
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
 
 judgeRepairer:
   resources:
@@ -91,6 +126,9 @@ judgeRepairer:
       memory: 4000Mi
     requests:
       cpu: 750m 
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
 
 monitoring:
   enabled: true
@@ -125,6 +163,9 @@ transmogrifier:
       memory: 200Mi
     limits:
       memory: 1450Mi
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
 
 tracerKronos:
   threads: 5
@@ -133,7 +174,10 @@ tracerKronos:
       cpu: 3000m 
     requests:
       cpu: 1000m 
-  
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+
 abacusAccount:
     resources:
       limits:
@@ -143,12 +187,34 @@ abacusAccount:
         cpu: 700m
         memory: 250Mi
 
-abacusRse:
-    resources:
-      limits:
-        cpu: 700m
-        memory: 4000Mi
-      requests:
-        cpu: 700m
-        memory: 900Mi
+# Unused daemons which supply prometheus
+automatix:
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+
+conveyorReceiver:
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+
+conveyorThrottler:
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+
+minos:
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+
+necromancer:
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+
+undertaker:
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
 
