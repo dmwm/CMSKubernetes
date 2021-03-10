@@ -1,0 +1,13 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /data/srv/logs/frontend/*.txt
+  scan_frequency: 10s
+  backoff: 5s
+  max_backoff: 10s
+  tags: ["frontend"]
+output.console:
+ codec.format:
+   string: '%{[message]}'
+   pretty: false

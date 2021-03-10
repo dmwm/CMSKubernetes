@@ -168,6 +168,14 @@ openstack coe cluster update cmsweb-services replace node_count=3
 Please see [cluster maintenance](http://clouddocs.web.cern.ch/clouddocs/containers/maintenance.html)
 documention for more options.
 
+### admin tasks
+If k8s node can get stuck for whatever reason, e.g. hardware issue, we can
+safely reboot it using the following command:
+```
+openstack server reboot --hard <node-name>
+```
+
+
 ### Cluster deployment
 
 To proceed, get latest [CMSKubernetes](https://github.com/dmwm/CMSKubernetes) codebase

@@ -43,7 +43,7 @@ kubernetes/monitoring/prometheus_secrets
 kubernetes/monitoring/prometheus-config.yaml
 kubernetes/redash/config.*
 kubernetes/redash/secrets
-
+kubernetes/tools/k8s_into
 
 # Files containing DB passwords
 

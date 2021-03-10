@@ -7,10 +7,13 @@ data:
     rses:
       "*": # default
         partitions:     5
+        ignore_list:
+        - "/store/backfill"
+        - "/store/test"
         scanner:
           recursion:      1
           nworkers:        8
-          timeout:        180
+          timeout:        300
 {{- if  (.Values.consistency.filter) }}
           filter: {{ .Values.consistency.filter }}
 {{- end }}
@@ -24,6 +27,7 @@ data:
           - path: results
           - path: hidata
           - path: himc
+          - path: relval
         dbdump:
 {{- if  (.Values.consistency.filter) }}
           filter: {{ .Values.consistency.filter }}

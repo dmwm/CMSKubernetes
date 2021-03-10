@@ -37,11 +37,10 @@ reaper2:
     requests:
       memory: 750Mi
     limits:
-      memory: 1000Gi
+      memory: 2Gi
   podAnnotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "8080"
-
 
 conveyorTransferSubmitter:
   activities: "'Recovery' 'Data Brokering' 'Data rebalancing' 'Debug' 'Express' 'Functional Test' 'Group Subscriptions' 'Production Input' 'Production Output' 'Analysis Input' 'Analysis Output' 'Staging' 'T0 Export' 'T0 Tape' 'Upload/Download (Job)' 'Upload/Download (User)' 'User Subscriptions'"
@@ -78,6 +77,11 @@ hermes:
   podAnnotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "8080"
+  resources:
+    requests:
+      memory: 400Mi
+    limits:
+      memory: 600Mi
 
 judgeEvaluator: 
   resources:

@@ -1,0 +1,13 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /data/srv/logs/t0_reqmon/*.log
+  scan_frequency: 10s
+  backoff: 5s
+  max_backoff: 10s
+  tags: ["tzero"]
+output.console:
+ pretty: false
+ codec.format:
+   string: '%{[message]}'

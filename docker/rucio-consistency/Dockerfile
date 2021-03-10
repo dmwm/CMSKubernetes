@@ -63,12 +63,14 @@ RUN yum install -y python3 python3-pip\
 RUN pip3 --no-cache-dir install SQLAlchemy pyyaml pythreader cx_Oracle j2cli
 
 RUN mkdir -p /consistency
+RUN mkdir /root/RAL
 COPY vomses /etc
-COPY run.sh site.sh /consistency/
+COPY run.sh site.sh unmerged_site.sh RAL_Disk_pre.sh RAL_Disk_post.sh  RAL_Tape_pre.sh RAL_Tape_post.sh /consistency/
 
 ADD rucio.cfg.j2 /tmp
 
 WORKDIR /consistency
+RUN chmod +x *.sh
 
 RUN git clone https://github.com/ivmfnal/cms_consistency.git
 

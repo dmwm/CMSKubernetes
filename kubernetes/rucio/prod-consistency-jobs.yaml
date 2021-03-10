@@ -1,5 +1,9 @@
 consistency:
   sites:
+    T1_DE_KIT_Disk:
+      interval: 7
+      server: cmsxrootd-kit.gridka.de:1094 
+    #  server: cmsxrootd-redirectors.gridka.de:1094
     T2_US_Purdue:      
       interval: 7
       server: xrootd.rcac.purdue.edu
@@ -27,13 +31,14 @@ consistency:
     #  server: xroot-data02.ncg.ingrid.pt:1094
     #  interval: 1
     T2_UK_SGrid_Bristol:
-      server: heplnx228.pp.rl.ac.uk:1094
+      server: lcgse01.phy.bris.ac.uk:11001
+      #server: heplnx228.pp.rl.ac.uk:1094
       interval: 7
     T2_FR_CCIN2P3:
       server: ccxrpli003.in2p3.fr:1094
       interval: 7
     T2_DE_RWTH:
-      server: grid-vo-cms.physik.rwth-aachen.de:1094
+      server: grid-cms-xrootd.physik.rwth-aachen.de:1094
       interval: 7
     T2_FR_GRIF_IRFU:
       server: node12.datagrid.cea.fr:11001
@@ -141,11 +146,11 @@ consistency:
       server: cms02.lcg.cscs.ch:1094
       interval: 7
     T2_FR_IPHC:
-      server: sbgse1.in2p3.fr
-      #server: sbgse1.in2p3.fr:11001
+      #server: sbgse1.in2p3.fr
+      server: sbgse1.in2p3.fr:11001
       interval: 7
     T2_AT_Vienna:
-      server: hephyse.oeaw.ac.at:11001
+      server: eos.grid.vbc.ac.at:1094
       interval: 7
     #T2_ES_IFCA_Test:
     #  server: pool04.ifca.es:1094
@@ -191,4 +196,54 @@ consistency:
     T3_US_Rutgers:
       server: ruhex-osgce.rutgers.edu
       interval: 7
-
+    T1_IT_CNAF_Disk:
+      server: xrootd-cms.infn.it:1194
+      interval: 7
+    T2_BR_SPRACE:
+      server: spstrg08.sprace.org.br:1094
+      interval: 7
+    T2_CN_Beijing:
+      server: seadmin.ihep.ac.cn:1094
+      interval: 7
+    T2_DE_DESY:
+      server: t2-cms-xrootd01.desy.de:1094
+      interval: 7
+    T2_EE_Estonia:
+      server: xrootd2:1094
+      interval: 7
+    T2_GR_Ioannina:
+      server: grid02.physics.uoi:11001
+      interval: 7
+    T2_HU_Budapest:
+      server: grid143.kfki.hu:11000
+      interval: 7
+    T2_PT_NCG_Lisbon:
+      server: xroot-data01.ncg.ingrid.pt:1094
+      interval: 7
+    T2_TR_METU:
+      server: eymir.grid.metu.edu.tr:11001
+      interval: 7
+    T2_UA_KIPT:
+      server: cms-se0.kipt.kharkov.ua:11001
+      interval: 7
+    T2_UK_London_Brunel:
+      server: dc2-grid-64.brunel.ac.uk:1094
+      interval: 7
+    T2_US_Caltech:
+      server: transfer-1.ultralight.org
+      interval: 7
+    T2_US_Florida:
+      server: cmsio6.rc.ufl.edu:1094
+      interval: 7
+    T2_US_MIT:
+      server: xrootd15.cmsaf.mit.edu:1094
+      interval: 7
+    T2_US_Nebraska:
+      server: red-gridftp2.unl.edu:1094
+      interval: 7
+    T2_US_UCSD:
+      server: gftp-1.t2.ucsd.edu:1094
+      interval: 7
+    T2_US_Vanderbilt:
+      server: xrootd.accre.vanderbilt.edu
+      interval: 7

@@ -2,7 +2,7 @@ FROM golang:latest as go-builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 # DAS tag to use
-ENV TAG=04.06.52
+ENV TAG=04.06.74
 
 # build procedure
 ENV WDIR=/data
@@ -22,7 +22,8 @@ RUN curl -ksLO https://raw.githubusercontent.com/dmwm/cmsweb-exporters/master/da
 RUN go get github.com/vkuznet/x509proxy && \
     go get github.com/prometheus/common/log && \
     go get github.com/prometheus/client_golang/prometheus
-RUN go build -o /build/das2go_exporter -ldflags="-s -w -extldflags -static" /data/das2go_exporter.go
+RUN go mod init github.com/dmwm/cmsweb-exporters && go mod tidy && \
+    go build -o /build/das2go_exporter -ldflags="-s -w -extldflags -static" /data/das2go_exporter.go
 
 FROM alpine
 RUN mkdir -p /data
