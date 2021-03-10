@@ -36,8 +36,7 @@ spec:
       securityContext: {}
 
       containers:
-      #- image: cmssw/auth-proxy-server:0.1.66
-      - image: cmssw/auth-proxy-server:0.1.75
+      - image: cmssw/auth-proxy-server:0.1.81
         name: scitokens-proxy-server
 #         imagePullPolicy: Always
         args:
