@@ -51,11 +51,11 @@ spec:
             cpu: "4000m"
         livenessProbe:
           httpGet:
-            path: /das/status
+            path: /das
             port: 8217
-            httpHeaders:
-            - name: Accept
-              value: application/json
+#             httpHeaders:
+#             - name: Accept
+#               value: application/json
           initialDelaySeconds: 120
           periodSeconds: 10
         ports:
