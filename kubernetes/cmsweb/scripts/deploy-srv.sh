@@ -11,7 +11,7 @@ if [ $# -ne 3 ]; then
 	if [[ "$cluster_name" == *"prod"* ]] ; then
                 env="prod"
         fi
-	if [[ "$cluster_name" == *"cmsweb-test"* ]] ; then
+	if [[ "$cluster_name" == *"cmsweb-test"[1-6]* ]] ; then
                 env="test"
         fi
 fi
@@ -40,7 +40,7 @@ if [[ "$cluster_name" == *"prod"* ]] ; then
         check=false
         fi
 fi
-if [[ "$cluster_name"  == *"cmsweb-test"* ]] ; then
+if [[ "$cluster_name"  == *"cmsweb-test"[1-6]* ]] ; then
         if [[ "$env" != "test" ]] ; then
         check=false
         fi
