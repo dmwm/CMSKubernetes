@@ -7,6 +7,7 @@ abacusRseCount: 1
 conveyorTransferSubmitterCount: 3
 conveyorPollerCount: 2
 conveyorFinisherCount: 2
+conveyorStagerCount: 0
 hermesCount: 1
 judgeCleanerCount: 1
 judgeEvaluatorCount: 1
