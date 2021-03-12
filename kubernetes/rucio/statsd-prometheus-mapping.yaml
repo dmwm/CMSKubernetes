@@ -35,6 +35,21 @@ mappings:
       country: "$2"
       rse_type: "$3"
       source: "$4"
+  - match: "rucio.judge.stuck_rules_from_.*"
+    help: "Rucio stuck rules by account"
+    name: "rucio_report_stuck_rules_by_account"
+    labels:
+      account: "$1"
+  - match: "rucio.judge.replicating_rules_from_.*"
+    help: "Rucio replicating rules by account"
+    name: "rucio_report_replicating_rules_by_account"
+    labels:
+      account: "$1"
+  - match: "rucio.judge.wfa_rules_from_.*"
+    help: "Rucio waiting for approval rules by account"
+    name: "rucio_report_wfa_rules_by_account"
+    labels:
+      account: "$1"
   - match: "rucio.transfertool.fts3.*.*.*"
     help: "Rucio FTS3 interface counters"
     name: "rucio_transfertool_fts3_counters"
