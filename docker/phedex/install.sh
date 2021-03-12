@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG2103f
+VER=HG2104a
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend phedex"
