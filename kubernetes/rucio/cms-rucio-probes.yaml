@@ -57,10 +57,15 @@ probes:
   check_expired_locked_rules:
     interval: 1
 voProbes: 
+  check_rules_states_by_account:
+    interval: 10
+    voName: cms
+  check_free_space:
+    interval: 15
+    voName: cms
   check_rule_counts:
-    interval: 30
+    interval: 20
     voName: cms
   check_report_used_space:
-    interval: 120
+    interval: 25
     voName: cms
-
