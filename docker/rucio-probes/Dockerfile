@@ -35,6 +35,12 @@ ADD https://raw.githubusercontent.com/rucio/probes/master/common/check_injecting
 # PR 52  (probably in 1.24.6)
 ADD https://raw.githubusercontent.com/rucio/probes/master/cms/check_report_used_space /probes/cms
 
+# PR 55
+ADD https://raw.githubusercontent.com/FernandoGarzon/probes/free_space_probe_Fix/common/check_free_space /probes/common
+
+# PR 56
+ADD https://raw.githubusercontent.com/FernandoGarzon/probes/check_rules_state_PROBE_2/cms/check_rules_states_by_account /probes/cms
+
 # Until Fernando ports to SQLAlchemy and/or merged
 
 ADD https://raw.githubusercontent.com/ericvaandering/probes/hack_obsolete_replicas/common/check_obsolete_replicas /probes/common
