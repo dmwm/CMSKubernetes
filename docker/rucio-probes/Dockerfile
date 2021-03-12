@@ -36,9 +36,9 @@ ADD https://raw.githubusercontent.com/rucio/probes/master/common/check_injecting
 ADD https://raw.githubusercontent.com/rucio/probes/master/cms/check_report_used_space /probes/cms
 
 # PR 55
-ADD https://raw.githubusercontent.com/FernandoGarzon/probes/free_space_probe_Fix/common/check_free_space /probes/common
+ADD https://raw.githubusercontent.com/FernandoGarzon/probes/cms_free_space_probe_2/cms/check_free_space /probes/cms 
 
-# PR 56
+# PR 57
 ADD https://raw.githubusercontent.com/FernandoGarzon/probes/check_rules_state_PROBE_2/cms/check_rules_states_by_account /probes/cms
 
 # Until Fernando ports to SQLAlchemy and/or merged
