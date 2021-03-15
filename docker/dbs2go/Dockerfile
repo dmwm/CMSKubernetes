@@ -50,10 +50,9 @@ RUN go mod init github.com/vkuznet/cmsweb-exporters && go mod tidy && \
 
 # for gibc library we will use debian:stretch
 FROM debian:stretch
-RUN apt-get update && apt-get -y install libaio1 && mkdir -p /data
+RUN apt-get update && apt-get -y install libaio1 procps && mkdir -p /data
 COPY --from=builder /data /data
 COPY --from=builder /usr/bin/filebeat /usr/bin/filebeat
-COPY --from=builder /usr/lib/oracle/instantclient_21_1 /usr/lib/oracle/
 COPY --from=builder /usr/lib/oracle/instantclient_21_1 /usr/lib/oracle/
 
 # run the service
