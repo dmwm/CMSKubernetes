@@ -36,7 +36,7 @@ spec:
         prometheus.io/port: "18258"
     spec:
       containers:
-      - image: cmssw/dbs2go:v00.00.85 #imagetag
+      - image: cmssw/dbs2go #imagetag
         name: dbs2go
         imagePullPolicy: Always
         env:
