@@ -13,6 +13,11 @@ if [ -f /data/monitor.sh ]; then
     /data/monitor.sh
 fi
 
+# check for tnsnames.ora
+if [ -f /etc/secrets/tnsnames.ora ]; then
+    export TNS_ADMIN=/etc/secrets/tnsnames.ora
+fi
+
 export LD_LIBRARY_PATH=`find /usr/lib/oracle -name libocci.so | sed -e "s,/libocci.so,,g"`
 # start dbs2go server
 if [ -f /etc/secrets/dbsconfig.json ]; then
