@@ -1,4 +1,3 @@
-FROM cmssw/cmsweb-base-db as cmsweb
 FROM golang:latest as builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
@@ -56,7 +55,6 @@ COPY --from=builder /data /data
 COPY --from=builder /usr/bin/filebeat /usr/bin/filebeat
 COPY --from=builder /usr/lib/oracle/instantclient_21_1 /usr/lib/oracle/
 COPY --from=builder /usr/lib/oracle/instantclient_21_1 /usr/lib/oracle/
-COPY --from=cmsweb /etc/tnsnames.ora /etc/tnsnames.ora
 
 # run the service
 ENV PATH="/data/gopath/bin:/data:${PATH}"
