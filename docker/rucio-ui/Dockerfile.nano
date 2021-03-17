@@ -30,19 +30,22 @@ RUN yum -y install ca-certificates.noarch   \
     && yum clean all \
     && rm -rf /var/cache/yum
 
-ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/cmstfc.py  /usr/lib/python2.7/site-packages/cmstfc.py
+ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/cmstfc.py  /usr/local/lib/python3.6/site-packages/cmstfc.py
 
-RUN chmod 755 /usr/lib/python2.7/site-packages/cmstfc.py
+RUN chmod 755 /usr/local/lib/python3.6/site-packages/cmstfc.py
 
 # Might get recreated if apache was upgraded
 RUN rm -f /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/userdir.conf /etc/httpd/conf.d/ssl.conf
 
-# Patch for NanoAOD restrictions
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/core/permission/cms.py /usr/lib/python2.7/site-packages/rucio/core/permission/cms.py
-RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/core/permission
+# Our permissions
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/core/permission/cms.py /usr/local/lib/python3.6/site-packages/rucio/core/permission/cms.py
+RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/core/permission
 
 # Our schema
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/common/schema/cms.py /usr/lib/python2.7/site-packages/rucio/common/schema/cms.py
-RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/common/schema
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/common/schema/cms.py /usr/local/lib/python3.6/site-packages/rucio/common/schema/cms.py
+RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/common/schema
+
+RUN chmod 644 /usr/local/lib/python3.6/site-packages/rucio/common/schema/cms.py
+RUN chmod 644 /usr/local/lib/python3.6/site-packages/rucio/core/permission/cms.py
 
 ENV RUCIO_CA_PATH="/etc/grid-security/certificates"

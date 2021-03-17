@@ -2,8 +2,8 @@
 
 set -e
 
-export CMS_VERSION=1.24.5.nano1
-export RUCIO_VERSION=1.24.5
+export CMS_VERSION=1.24.5.nano2
+export RUCIO_VERSION=1.24.5.post1
 export CMS_TAG=cms_nano13
 
 
