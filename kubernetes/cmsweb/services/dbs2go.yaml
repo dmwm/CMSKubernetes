@@ -88,15 +88,18 @@ spec:
       - name: proxy-secrets
         secret:
           secretName: proxy-secrets
-      - name: secrets
-        secret:
-          secretName: dbs2go-secrets
+#       - name: secrets
+#         secret:
+#           secretName: dbs2go-secrets
       - name: robot-secrets
         secret:
           secretName: robot-secrets
       - name: hmac-secrets
         secret:
           secretName: hmac-secrets
+      - name: secrets
+        configMap:
+          name: dbs2go-config
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-dbs
