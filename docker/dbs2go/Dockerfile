@@ -61,5 +61,6 @@ ENV LD_LIBRARY_PATH=/usr/lib/oracle
 ADD monitor.sh /data/monitor.sh
 ADD run.sh /data/run.sh
 ADD config.json /data/config.json
+RUN chmod +x /data/*.sh
 WORKDIR /data
 # CMD ["run.sh"]
