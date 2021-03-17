@@ -15,21 +15,24 @@ ARG CMS_TAG
 ADD install_mail_templates.sh /tmp/
 RUN /tmp/install_mail_templates.sh
 
-ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/cmstfc.py /usr/lib/python2.7/site-packages/cmstfc.py
-RUN chmod 755 /usr/lib/python2.7/site-packages/cmstfc.py
+ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/cmstfc.py /usr/local/lib/python3.6/site-packages/cmstfc.py
+RUN chmod 755 /usr/local/lib/python3.6/site-packages/cmstfc.py
 
 # And rule creation
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/core/permission/cms.py /usr/lib/python2.7/site-packages/rucio/core/permission/cms.py
-RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/core/permission
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/core/permission/cms.py /usr/local/lib/python3.6/site-packages/rucio/core/permission/cms.py
+RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/core/permission
 
 # Delete checks that it exists
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/rse/protocols/gfal.py /usr/lib/python2.7/site-packages/rucio/rse/protocols/gfal.py
-RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/rse/protocols
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/rse/protocols/gfal.py /usr/local/lib/python3.6/site-packages/rucio/rse/protocols/gfal.py
+RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/rse/protocols
 
 # Our schema
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/common/schema/cms.py /usr/lib/python2.7/site-packages/rucio/common/schema/cms.py
-RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/common/schema
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/common/schema/cms.py /usr/local/lib/python3.6/site-packages/rucio/common/schema/cms.py
+RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/common/schema
 
 ADD cms-entrypoint.sh /
-ENTRYPOINT ["/cms-entrypoint.sh"]
 
+RUN chmod 644 /usr/local/lib/python3.6/site-packages/rucio/common/schema/cms.py
+RUN chmod 644 /usr/local/lib/python3.6/site-packages/rucio/core/permission/cms.py
+
+ENTRYPOINT ["/cms-entrypoint.sh"]
