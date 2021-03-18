@@ -38,7 +38,7 @@ ADD https://raw.githubusercontent.com/rucio/probes/master/cms/check_report_used_
 # PR 55
 ADD https://raw.githubusercontent.com/FernandoGarzon/probes/cms_free_space_probe_2/cms/check_free_space /probes/cms 
 
-# PR 57
+# PR 56
 ADD https://raw.githubusercontent.com/FernandoGarzon/probes/check_rules_state_PROBE_2/cms/check_rules_states_by_account /probes/cms
 
 # Until Fernando ports to SQLAlchemy and/or merged
