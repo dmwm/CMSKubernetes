@@ -17,8 +17,7 @@ RUN yum install -y git \
     && rm -rf /var/cache/yum
 
 WORKDIR /root
-
-RUN pip --no-cache-dir install pyyaml
+RUN pip3 --no-cache-dir install pyyaml
 
 COPY scripts /root/scripts
 

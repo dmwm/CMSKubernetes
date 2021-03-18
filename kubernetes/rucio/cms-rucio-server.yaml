@@ -70,11 +70,23 @@ traceIngress:
   path: /
 
 
-resources:
+serverResources:
   requests:
     memory: 500Mi
   limits:
     memory: 1500Mi
+
+authServerResources:
+  requests:
+    memory: 500Mi
+  limits:
+    memory: 800Mi
+
+traceServerResources:
+  requests:
+    memory: 400Mi
+  limits:
+    memory: 600Mi
 
 config:
   common:

@@ -7,9 +7,9 @@ echo "Start apache_exporter with $suri"
 nohup apache_exporter --scrape_uri $suri --telemetry.address ":18443" 2>&1 1>& apache_exporter.log < /dev/null &
 
 NAME=`hostname -s`
-if [ -n $MY_POD_NAME ]; then
-    NAME=$MY_POD_NAME
-fi
+#if [ -n $MY_POD_NAME ]; then
+#    NAME=$MY_POD_NAME
+#fi
 
 
 cat > /data/filebeat.yaml << EOF
@@ -18,6 +18,7 @@ filebeat.inputs:
   enabled: true
   paths:
     - /data/srv/logs/frontend/access_log_${NAME}*.txt
+  file_identity.path:
   scan_frequency: 10s
   backoff: 5s
   max_backoff: 10s

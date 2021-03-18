@@ -117,7 +117,7 @@ if [ "$deployment" == "services" ]; then
     cmsweb_ing="ing-crab ing-dbs ing-das ing-dmwm ing-http ing-tzero ing-exitcodes ing-wma"
 
     #cmsweb_srvs="httpgo httpsgo acdcserver couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
-cmsweb_srvs="httpgo httpsgo crabcache crabserver das-server das-mongo das-mongo-exporter dbs dbsmigration reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmgr2ms-rulecleaner reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes wmarchive imagebot"
+    cmsweb_srvs="httpgo httpsgo crabcache crabserver das-server das-mongo das-mongo-exporter dbs dbsmigration reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmgr2ms-rulecleaner reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes wmarchive imagebot"
 
     echo "+++ deploy services: $cmsweb_srvs"
     echo "+++ deploy ingress : $cmsweb_ing"
@@ -382,13 +382,13 @@ deploy_secrets()
             fi
             # special case for DBS instances
             if [ "$srv" == "dbs" ]; then
-         	if [ -f $conf/dbs/DBSSecrets.py ]; then
-			files="--from-file=$conf/dbs/DBSSecrets.py"
+                if [ -f $conf/dbs/DBSSecrets.py ]; then
+		        files="--from-file=$conf/dbs/DBSSecrets.py"
                 fi
-		if [ -f $conf/dbs/NATSSecrets.py ]; then
-			files="$files --from-file=$conf/dbs/NATSSecrets.py"
-		fi
-		 for inst in $dbs_instances; do
+                if [ -f $conf/dbs/NATSSecrets.py ]; then
+                        files="$files --from-file=$conf/dbs/NATSSecrets.py"
+                fi
+                for inst in $dbs_instances; do
                     local dbsfiles=""
                     if [ -d "$secretdir-$inst" ] && [ -n "`ls $secretdir-$inst`" ]; then
                         for fconf in $secretdir-$inst/*; do
@@ -595,12 +595,12 @@ deploy_daemonset()
     
     for ds in $cmsweb_ds; do
 
-	 cat daemonset/${ds}.yaml | \
-                            sed -e "s,#PROD#,$prod_prefix,g" | \
-                            sed -e "s,k8s #k8s#,$env_prefix,g" | \
-                            sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
-                            sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
-                        	kubectl apply -f -
+           cat daemonset/${ds}.yaml | \
+           sed -e "s,#PROD#,$prod_prefix,g" | \
+           sed -e "s,k8s #k8s#,$env_prefix,g" | \
+           sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
+           sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
+           kubectl apply -f -
 
     done
     
@@ -608,13 +608,11 @@ deploy_daemonset()
 
    for ds in $cmsweb_ds; do
 
-         cat daemonset/${ds}.yaml | \
-                            sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
-                                kubectl apply -f -
-
+           cat daemonset/${ds}.yaml | \
+           sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
+           kubectl apply -f -
     done
     fi
-
 }
 
 # deploy appripriate ingress controller for our cluster
@@ -641,12 +639,12 @@ deploy_ingress()
     for ing in $cmsweb_ing; do
         cp ingress/${ing}.yaml $tmpDir
         if [[ "$CMSWEB_ENV" == "production" || "$CMSWEB_ENV" == "prod" ]] && [[ "$ing" == "ing-dbs"  ]] ; then
-		cat ingress/${ing}.yaml | \
-    		awk '{if($1=="nginx.ingress.kubernetes.io/whitelist-source-range:") {print "    nginx.ingress.kubernetes.io/whitelist-source-range: "ips""} else print $0}' ips=$ips | \
-    		awk '{if($2=="host:") {print "  - host : "hostname""} else print $0}' hostname=$cmsweb_hostname | \
-        	awk '{if($2=="cmsweb-test.cern.ch") {print "    - "hostname""} else print $0}' hostname=$cmsweb_hostname | \
-        	sed -e "s,dbs/int,dbs/prod,g"  \
-    		> $tmpDir/${ing}.yaml
+                cat ingress/${ing}.yaml | \
+                awk '{if($1=="nginx.ingress.kubernetes.io/whitelist-source-range:") {print "    nginx.ingress.kubernetes.io/whitelist-source-range: "ips""} else print $0}' ips=$ips | \
+                awk '{if($2=="host:") {print "  - host : "hostname""} else print $0}' hostname=$cmsweb_hostname | \
+                awk '{if($2=="cmsweb-test.cern.ch") {print "    - "hostname""} else print $0}' hostname=$cmsweb_hostname | \
+                sed -e "s,dbs/int,dbs/prod,g"  \
+                > $tmpDir/${ing}.yaml
         else
                 cat ingress/${ing}.yaml | \
                 awk '{if($1=="nginx.ingress.kubernetes.io/whitelist-source-range:") {print "    nginx.ingress.kubernetes.io/whitelist-source-range: "ips""} else print $0}' ips=$ips | \
@@ -654,7 +652,7 @@ deploy_ingress()
                 awk '{if($2=="cmsweb-test.cern.ch") {print "    - "hostname""} else print $0}' hostname=$cmsweb_hostname \
                 > $tmpDir/${ing}.yaml
         fi
-	echo "deploy ingress: $tmpDir/${ing}.yaml"
+        echo "deploy ingress: $tmpDir/${ing}.yaml"
         cat $tmpDir/${ing}.yaml
         kubectl apply -f $tmpDir/${ing}.yaml
         #kubectl apply -f ingress/${ing}.yaml
@@ -683,35 +681,34 @@ deploy_services()
             for inst in $dbs_instances; do
                 if [ -f "$sdir/${srv}-${inst}.yaml" ]; then
                     #kubectl apply -f "$sdir/${srv}-${inst}.yaml"
-	                if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]] ; then
-                	    cat $sdir/${srv}-${inst}.yaml | \
+                      if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]] ; then
+                            cat $sdir/${srv}-${inst}.yaml | \
                             sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
                             sed -e "s,#PROD#,$prod_prefix,g" | \
                             sed -e "s,k8s #k8s#,$env_prefix,g" | \
                             sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
                             sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
-                        	kubectl apply -f -
-			else
-	                        kubectl apply -f $sdir/${srv}-${inst}.yaml
-			fi
+                            kubectl apply -f -
+                      else
+	                    kubectl apply -f $sdir/${srv}-${inst}.yaml
+                      fi
                 fi
             done
         else
             if [ -f $sdir/${srv}.yaml ]; then
                 #kubectl apply -f $sdir/${srv}.yaml 
                 if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]] ; then
-			cat $sdir/${srv}.yaml | \
+                        cat $sdir/${srv}.yaml | \
                         sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
                         sed -e "s,replicas: 2 #PROD#,replicas: ,g" | \
                         sed -e "s,#PROD#,$prod_prefix,g" | \
                         sed -e "s,k8s #k8s#,$env_prefix,g" | \
                         sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
                         sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
-        	            kubectl apply -f -
-		else
-			kubectl apply -f $sdir/${srv}.yaml
-		fi
-
+                        kubectl apply -f -
+                else
+                        kubectl apply -f $sdir/${srv}.yaml
+                fi
             fi
         fi
     done
@@ -744,15 +741,13 @@ create()
     else
         deploy_ns
         deploy_secrets
-	if [[ ("$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod")  && ("$deployment" == "services") ]]; then
-     		deploy_storages
-	fi
-
-
+        if [[ ("$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod")  && ("$deployment" == "services") ]]; then
+             deploy_storages
+        fi
         deploy_services
         deploy_roles
         if [ "$SERVICES_INGRESS" == "yes" ]; then
-           deploy_ingress
+             deploy_ingress
         fi
         deploy_crons
         deploy_monitoring
