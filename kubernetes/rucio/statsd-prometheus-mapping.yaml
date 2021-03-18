@@ -87,7 +87,7 @@ mappings:
     name: "rucio_judge_used_space"
     labels:
       dst_rse: "$1"
-  - match: "rucio.judge.free_space_per_RSE.*"
+  - match: "rucio.judge.free_space.*"
     help: "Rucio free space"
     name: "rucio_judge_free_space"
     labels:
