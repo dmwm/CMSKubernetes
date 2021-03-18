@@ -26,8 +26,11 @@ ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_check_expired_ru
 ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_check_expired_rules/common/probe_utils.py /probes/common
 ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_check_expired_rules/common/__init__.py /probes/common
 
-# PR 57
+# PR 56
 ADD https://raw.githubusercontent.com/FernandoGarzon/probes/check_rules_state_PROBE_2/cms/check_rules_states_by_account /probes/cms
+
+# PR 57
+ADD https://raw.githubusercontent.com/FernandoGarzon/probes/cms_free_space_probe_2/cms/check_free_space /probes/cms
 
 # Until Fernando ports to SQLAlchemy and/or merged
 

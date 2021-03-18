@@ -35,17 +35,17 @@ mappings:
       country: "$2"
       rse_type: "$3"
       source: "$4"
-  - match: "rucio.judge.stuck_rules_from_.*"
+  - match: "rucio.judge.stuck_rules_from.*"
     help: "Rucio stuck rules by account"
     name: "rucio_report_stuck_rules_by_account"
     labels:
       account: "$1"
-  - match: "rucio.judge.replicating_rules_from_.*"
+  - match: "rucio.judge.replicating_rules_from.*"
     help: "Rucio replicating rules by account"
     name: "rucio_report_replicating_rules_by_account"
     labels:
       account: "$1"
-  - match: "rucio.judge.wfa_rules_from_.*"
+  - match: "rucio.judge.wfa_rules_from.*"
     help: "Rucio waiting for approval rules by account"
     name: "rucio_report_wfa_rules_by_account"
     labels:
@@ -87,7 +87,7 @@ mappings:
     name: "rucio_judge_used_space"
     labels:
       dst_rse: "$1"
-  - match: "rucio.judge.free_space.*"
+  - match: "rucio.judge.free_space_per_RSE.*"
     help: "Rucio free space"
     name: "rucio_judge_free_space"
     labels:
