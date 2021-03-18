@@ -11,16 +11,16 @@ RUN apt-get update && apt-get -y install unzip libaio1 wget && \
 
 # download ORACLE
 RUN \
-curl -ksLO https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-basic-linux.x64-21.1.0.0.0.zip && \
-curl -ksLO https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-sqlplus-linux.x64-21.1.0.0.0.zip && \
-curl -ksLO https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-sdk-linux.x64-21.1.0.0.0.zip && \
-unzip instantclient-basic-linux.x64-21.1.0.0.0.zip && \
-unzip instantclient-sqlplus-linux.x64-21.1.0.0.0.zip && \
-unzip instantclient-sdk-linux.x64-21.1.0.0.0.zip && \
+curl -ksLO https://download.oracle.com/otn_software/linux/instantclient/191000/instantclient-basic-linux.x64-19.10.0.0.0dbru.zip && \
+curl -ksLO https://download.oracle.com/otn_software/linux/instantclient/191000/instantclient-sqlplus-linux.x64-19.10.0.0.0dbru.zip && \
+curl -ksLO https://download.oracle.com/otn_software/linux/instantclient/191000/instantclient-sdk-linux.x64-19.10.0.0.0dbru.zip && \
+unzip instantclient-basic-linux.x64-19.10.0.0.0dbru.zip && \
+unzip instantclient-sqlplus-linux.x64-19.10.0.0.0dbru.zip && \
+unzip instantclient-sdk-linux.x64-19.10.0.0.0dbru.zip && \
 mkdir -p /usr/lib/oracle && \
-mv instantclient_21_1 /usr/lib/oracle
-ENV LD_LIBRARY_PATH=/usr/lib/oracle/instantclient_21_1
-ENV PATH=$PATH:/usr/lib/oracle/instantclient_21_1
+mv instantclient_19_10 /usr/lib/oracle
+ENV LD_LIBRARY_PATH=/usr/lib/oracle/instantclient_19_10
+ENV PATH=$PATH:/usr/lib/oracle/instantclient_19_10
 
 # start the setup
 ENV WDIR=/data
@@ -31,7 +31,7 @@ RUN mkdir -p $WDIR
 WORKDIR ${WDIR}
 
 # build dbs2go with specific tag
-ENV TAG=v00.00.85
+ENV TAG=v00.01.05
 WORKDIR $GOPATH/src/github.com/vkuznet
 RUN git clone https://github.com/vkuznet/dbs2go && \
     git clone https://github.com/vkuznet/cmsweb-exporters
@@ -53,7 +53,7 @@ FROM debian:stretch
 RUN apt-get update && apt-get -y install libaio1 procps && mkdir -p /data
 COPY --from=builder /data /data
 COPY --from=builder /usr/bin/filebeat /usr/bin/filebeat
-COPY --from=builder /usr/lib/oracle/instantclient_21_1 /usr/lib/oracle/
+COPY --from=builder /usr/lib/oracle/instantclient_19_10 /usr/lib/oracle/
 
 # run the service
 ENV PATH="/data/gopath/bin:/data:${PATH}"

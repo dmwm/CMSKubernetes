@@ -1,8 +1,8 @@
-libdir=/usr/lib/oracle/instantclient_21_1
-includedir=/usr/lib/oracle/instantclient_21_1/sdk/include
+libdir=/usr/lib/oracle/instantclient_19_10
+includedir=/usr/lib/oracle/instantclient_19_10/sdk/include
 
 Name: oci8
 Description: oci8 library
-Version: 21.1
+Version: 19.10
 Cflags: -I${includedir}
 Libs: -L${libdir} -lclntsh
