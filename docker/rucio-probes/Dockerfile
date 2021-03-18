@@ -18,9 +18,6 @@ RUN chmod 755 /usr/local/lib/python3.6/site-packages/cmstfc.py
 
 # Temporary additions
 
-# PR 48
-ADD https://raw.githubusercontent.com/rucio/probes/master/cms/check_rule_counts /probes/cms
-
 # PR 49
 ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_check_expired_locked/common/check_expired_locked_rules /probes/common
 
@@ -29,17 +26,11 @@ ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_check_expired_ru
 ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_check_expired_rules/common/probe_utils.py /probes/common
 ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_check_expired_rules/common/__init__.py /probes/common
 
-# PR 51
-ADD https://raw.githubusercontent.com/rucio/probes/master/common/check_injecting_rules /probes/common
-
-# PR 52
-ADD https://raw.githubusercontent.com/rucio/probes/master/cms/check_report_used_space /probes/cms
-
-# PR 55
-ADD https://raw.githubusercontent.com/FernandoGarzon/probes/cms_free_space_probe_2/cms/check_free_space /probes/cms 
-
 # PR 56
 ADD https://raw.githubusercontent.com/FernandoGarzon/probes/check_rules_state_PROBE_2/cms/check_rules_states_by_account /probes/cms
+
+# PR 57
+ADD https://raw.githubusercontent.com/FernandoGarzon/probes/cms_free_space_probe_2/cms/check_free_space /probes/cms
 
 # Until Fernando ports to SQLAlchemy and/or merged
 
