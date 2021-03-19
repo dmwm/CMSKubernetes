@@ -3,5 +3,5 @@ path.config: /usr/share/logstash/pipeline
 # disable connection to ES
 xpack.monitoring.enabled: false
 pipeline.workers: 16
-pipeline.batch.size: 512
+pipeline.batch.size: 256
 pipeline.batch.delay: 200
