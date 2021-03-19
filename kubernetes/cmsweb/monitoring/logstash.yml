@@ -2,5 +2,6 @@ http.host: "0.0.0.0"
 path.config: /usr/share/logstash/pipeline
 # disable connection to ES
 xpack.monitoring.enabled: false
-pipeline.workers: 8
-pipeline.batch.size: 8192
+pipeline.workers: 16
+pipeline.batch.size: 512
+pipeline.batch.delay: 200
