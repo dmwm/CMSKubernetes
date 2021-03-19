@@ -26,6 +26,8 @@ spec:
           value: dev # cluster
         - name: CMSWEB_ENV
           value: dev # cmsweb_env
+        - name: LS_JAVA_OPTS
+          value: "-Xms4g -Xmx4g"
         ports:
         - name: logstash
           containerPort: 5044
