@@ -1,5 +1,5 @@
 #!/bin/sh
-amtool=/afs/cern.ch/user/v/valya/alert
+amtool=/cvmfs/cms.cern.ch/cmsmon/alert
 services="SSB GGUS"
 date="2021-03-20T20:52:00Z"
 hosts="http://cms-monitoring-ha1.cern.ch:30093 http://cms-monitoring-ha2.cern.ch:30093 http://cms-monitoring.cern.ch:30093"
