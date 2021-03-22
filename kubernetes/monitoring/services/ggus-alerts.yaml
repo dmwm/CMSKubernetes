@@ -25,7 +25,8 @@ spec:
           - "cms"
           - "10"
           - "1"
-          image: cmssw/cmsmon-alerts:20201103-v2
+#           image: cmssw/cmsmon-alerts:20201103-v2
+          image: cmssw/cmsmon-alerts:0.5.30
           name: alerts
           env:
             - name: X509_USER_PROXY

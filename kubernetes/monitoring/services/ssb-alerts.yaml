@@ -24,7 +24,8 @@ spec:
           - "http://cms-monitoring.cern.ch:30093"
           - "60"
           - "1"
-          image: cmssw/cmsmon-alerts:20201103-v2
+#           image: cmssw/cmsmon-alerts:20201103-v2
+          image: cmssw/cmsmon-alerts:0.5.30
           name: alerts
           volumeMounts:
           - name: alerts-secrets
