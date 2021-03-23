@@ -51,10 +51,10 @@ else if [ "$secret" == "karma-secrets" ]; then
     fi
     kubectl create secret generic $secret "$files" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
 else if [ "$secret" == "promxy-secrets" ]; then
-    files="--from-file=$configDir/promxy/config.yaml"
+    files=`ls $configDir/promxy/ | awk '{ORS=" " ; print "--from-file="$1""}'`
     kubectl create secret generic $secret $files --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
 else if [ "$secret" == "robot-secrets" ]; then
-    files="--from-file=$secretDir/robot/robotkey.pem --from-file=$secretDir/robot/robotcert.pem"
+    files=`ls $secretDir/promxy/ | awk '{ORS=" " ; print "--from-file="$1""}'`
     kubectl create secret generic $secret "$files" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
 else if [ "$secret" == "auth-secrets" ]; then
     files=`ls $secretDir/cmsmon-auth/ | awk '{ORS=" " ; print "--from-file="$1""}'`
