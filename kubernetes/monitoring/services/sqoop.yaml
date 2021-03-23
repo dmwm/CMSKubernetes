@@ -21,7 +21,8 @@ spec:
           - /data/sqoop/log
           - "7"
           - "7200"
-          image: cmssw/sqoop:20210212
+          image: cmssw/sqoop:20210323-v2
+          #image: cmssw/sqoop:20210212
           #image: cmssw/sqoop:20210208
           #image: cmssw/sqoop:20201214
           name: sqoop
