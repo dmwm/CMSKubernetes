@@ -57,7 +57,7 @@ if [ "$secret" == "prometheus-secrets" ]; then
     if [ $ha -ne "" ]; then
         prom="$cdir/prometheus/ha/prometheus.yaml"
     fi
-    files=`ls $cdir/prometheus/*.rules $cdir/prometheus/*.json $prom | awk '{ORS=" " ; print "--from-file="$1""}'`
+    files=`ls $cdir/prometheus/*.rules $cdir/prometheus/*.json $prom | awk '{ORS=" " ; print "--from-file="$1""}' | sed "s, $,,g"`
 elif [ "$secret" == "alertmanager-secrets" ]; then
     username=`cat $sdir/alertmanager/secrets | grep USERNAME | awk '{print $2}'`
     password=`cat $sdir/alertmanager/secrets | grep PASSWORD | awk '{print $2}'`
@@ -116,5 +116,9 @@ echo "files: \"$files\""
 if [ -n "`kubectl get secrets -n $ns | grep $secret`" ]; then
     kubectl -n $ns delete secret $secret
 fi
-kubectl create secret generic $secret $files "$literals" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
+if [ -n "$literals" ]; then
+    kubectl create secret generic $secret $files "$literals" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
+else
+    kubectl create secret generic $secret $files --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
+fi
 kubectl describe secrets $secret -n $ns
