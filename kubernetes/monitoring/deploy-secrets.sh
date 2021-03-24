@@ -1,10 +1,29 @@
 #!/bin/bash
 ##H Usage: deploy-secrets.sh NAMESPACE SECRET-NAME <HA>
 ##H
+##H Available secrets:
+##H        alerts-secrets
+##H        alertmanager-secrets
+##H        auth-secrets
+##H        cern-certificates
+##H        es-wma-secrets
+##H        hdfs-secrets
+##H        intelligence-secrets
+##H        karma-secrets
+##H        keytab-secrets
+##H        krb5cc-secrets
+##H        log-clustering-secrets
+##H        nats-secrets
+##H        prometheus-secrets
+##H        promxy-secrets
+##H        proxy-secrets
+##H        redash-secrets
+##H        robot-secrets
+##H        rumble-secrets
+##H        rucio-secrets
+##H        sqoop-secrets
 ##H Examples:
-##H        deploy-secrets.sh default alertmanager-secrets
 ##H        deploy-secrets.sh default prometheus-secrets ha
-##H        deploy-secrets.sh default karma-secrets ha1
 set -e # exit script if error occurs
 
 # help definition
@@ -14,90 +33,79 @@ if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == 
 fi
 
 # define configuration and secrets areas
-configDir=cmsmon-configs
-secretDir=secrets
+cdir=cmsmon-configs
+sdir=secrets
 
 # --- DO NOT CHANGE BELOW THIS LINE --- #
 ns=$1
 secret=$2
 ha=""
-if [ $@ -eq 3 ]; then
+if [ $# == 3 ]; then
     ha=$3
 fi
+echo "config dir: $cdir"
+echo "secret dir: $sdir"
+echo "Deploying $secret into $ns namespace, ha=\"$ha\""
 
-kubectl -n $ns delete secret $secret
 if [ "$secret" == "prometheus-secrets" ]; then
-    prom="$configDir/prometheus/prometheus.yaml"
+    prom="$cdir/prometheus/prometheus.yaml"
     if [ $ha -ne "" ]; then
-        prom="$configDir/prometheus/ha/prometheus.yaml"
+        prom="$cdir/prometheus/ha/prometheus.yaml"
     fi
-    files=`ls $configDir/prometheus/*.rules $configDir/prometheus/*.json $prom | awk '{ORS=" " ; print "--from-file="$1""}'`
-    kubectl create secret generic $secret "$files" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
-else if [ "$secret" == "alertmanager-secrets" ]; then
-    username=`cat $secretDir/alertmanager/secrets | grep USERNAME`
-    password=`cat $secretDir/alertmanager/secrets | grep PASSWORD`
-    content=`cat $configDir/alertmanager/alertmanager.yaml | sed -e "s,__USERNAME__,$username,g" -e "s,__PASSWORD__,$password,g"`
-    kubectl create secret generic $secret --from-literal=alertmanager.yaml=$content --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
-else if [ "$secret" == "intelligence-secrets" ]; then
-    token=`cat $secretDir/cmsmon-intelligence/secrets | grep TOKEN`
-    content=`cat $configDir/cmsmon-intelligence/config.json | sed -e "s,__TOKEN__,$token,g"`
-    kubectl create secret generic $secret --from-literal=config.json=$content --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
-else if [ "$secret" == "karma-secrets" ]; then
-    files="--from-file=$configDir/karma/karma.yaml"
+    files=`ls $cdir/prometheus/*.rules $cdir/prometheus/*.json $prom | awk '{ORS=" " ; print "--from-file="$1""}'`
+elif [ "$secret" == "alertmanager-secrets" ]; then
+    username=`cat $sdir/alertmanager/secrets | grep USERNAME | awk '{print $2}'`
+    password=`cat $sdir/alertmanager/secrets | grep PASSWORD | awk '{print $2}'`
+    content=`cat $cdir/alertmanager/alertmanager.yaml | sed -e "s,__USERNAME__,$username,g" -e "s,__PASSWORD__,$password,g"`
+    files="--from-literal=alertmanager.yaml=$content"
+elif [ "$secret" == "intelligence-secrets" ]; then
+    token=`cat $sdir/cmsmon-intelligence/secrets | grep TOKEN`
+    content=`cat $cdir/cmsmon-intelligence/config.json | sed -e "s,__TOKEN__,$token,g"`
+    files="--from-literal=config.json=$content"
+elif [ "$secret" == "karma-secrets" ]; then
+    files="--from-file=$cdir/karma/karma.yaml"
     if [ "$ha" == "ha1" ]; then
-        files="--from-file=$configDir/karma/ha1/karma.yaml"
-    else if [ "$ha" == "ha2" ]; then
-        files="--from-file=$configDir/karma/ha2/karma.yaml"
+        files="--from-file=$cdir/karma/ha1/karma.yaml"
+    elif [ "$ha" == "ha2" ]; then
+        files="--from-file=$cdir/karma/ha2/karma.yaml"
     fi
-    kubectl create secret generic $secret "$files" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
-else if [ "$secret" == "promxy-secrets" ]; then
-    files=`ls $configDir/promxy/ | awk '{ORS=" " ; print "--from-file="$1""}'`
-    kubectl create secret generic $secret $files --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
-else if [ "$secret" == "robot-secrets" ]; then
-    files=`ls $secretDir/promxy/ | awk '{ORS=" " ; print "--from-file="$1""}'`
-    kubectl create secret generic $secret "$files" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
-else if [ "$secret" == "auth-secrets" ]; then
-    files=`ls $secretDir/cmsmon-auth/ | awk '{ORS=" " ; print "--from-file="$1""}'`
-    kubectl create secret generic $secret "$files" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
-else if [ "$secret" == "cern-certificates" ]; then
-    files=`ls $secretDir/CERN_CAs/ | awk '{ORS=" " ; print "--from-file="$1""}'`
-    kubectl create secret generic $secret "$files" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
-else if [ "$secret" == "alerts-secrets" ]; then
-    files=`ls $secretDir/alerts/ | awk '{ORS=" " ; print "--from-file="$1""}'`
-    kubectl create secret generic $secret "$files" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
-else if [ "$secret" == "proxy-secrets" ]; then
+elif [ "$secret" == "promxy-secrets" ]; then
+    files=`ls $cdir/promxy/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$cdir/promxy | sed "s, $,,g"`
+elif [ "$secret" == "robot-secrets" ]; then
+    files=`ls $sdir/robot/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/robot | sed "s, $,,g"`
+elif [ "$secret" == "auth-secrets" ]; then
+    files=`ls $sdir/cmsmon-auth/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmon-auth | sed "s, $,,g"`
+elif [ "$secret" == "cern-certificates" ]; then
+    files=`ls $sdir/CERN_CAs/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/CERN_CAs | sed "s, $,,g"`
+elif [ "$secret" == "alerts-secrets" ]; then
+    files=`ls $sdir/alerts/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/alerts | sed "s, $,,g"`
+elif [ "$secret" == "proxy-secrets" ]; then
     voms-proxy-init -voms cms -rfc -out /tmp/proxy
     files="--from-file=/tmp/proxy"
-    kubectl create secret generic $secret "$files" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
-else if [ "$secret" == "log-clustering-secrets" ]; then
-    files=`ls $secretDir/log-clustering/ | awk '{ORS=" " ; print "--from-file="$1""}'`
-    kubectl create secret generic $secret "$files" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
-else if [ "$secret" == "es-wma-secrets" ]; then
-    files=`ls $secretDir/es-exporter/ | awk '{ORS=" " ; print "--from-file="$1""}'`
-    kubectl create secret generic $secret "$files" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
-else if [ "$secret" == "hdfs-secrets" ]; then
-    files=`ls $secretDir/kerberos/ | awk '{ORS=" " ; print "--from-file="$1""}'`
-    kubectl create secret generic $secret "$files" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
-    files=`ls $secretDir/kerberos/ | awk '{ORS=" " ; print "--from-file="$1""}'`
-else if [ "$secret" == "keytab-secrets" ]; then
-    kubectl create secret generic $secret "$files" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
-else if [ "$secret" == "krb5cc-secrets" ]; then
-    files=`ls $secretDir/kerberos/ | awk '{ORS=" " ; print "--from-file="$1""}'`
-    kubectl create secret generic $secret "$files" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
-else if [ "$secret" == "nats-secrets" ]; then
-    files=`ls $secretDir/nats/ | awk '{ORS=" " ; print "--from-file="$1""}'`
-    kubectl create secret generic $secret "$files" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
-else if [ "$secret" == "redash-secrets" ]; then
-    files=`ls $secretDir/redash/ | awk '{ORS=" " ; print "--from-file="$1""}'`
-    kubectl create secret generic $secret "$files" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
-else if [ "$secret" == "rumble-secrets" ]; then
-    files=`ls $secretDir/rumble/ | awk '{ORS=" " ; print "--from-file="$1""}'`
-    kubectl create secret generic $secret "$files" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
-else if [ "$secret" == "rucio-secrets" ]; then
-    files=`ls $secretDir/rucio/ | awk '{ORS=" " ; print "--from-file="$1""}'`
-    kubectl create secret generic $secret "$files" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
-else if [ "$secret" == "sqoop-secrets" ]; then
-    files=`ls $secretDir/sqoop/ | awk '{ORS=" " ; print "--from-file="$1""}'`
-    kubectl create secret generic $secret "$files" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
+elif [ "$secret" == "log-clustering-secrets" ]; then
+    files=`ls $sdir/log-clustering/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/log-clustering | sed "s, $,,g"`
+elif [ "$secret" == "es-wma-secrets" ]; then
+    files=`ls $sdir/es-exporter/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/es-exporter | sed "s, $,,g"`
+elif [ "$secret" == "hdfs-secrets" ]; then
+    files=`ls $sdir/kerberos/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/kerberos | sed "s, $,,g"`
+elif [ "$secret" == "keytab-secrets" ]; then
+    files=`ls $sdir/kerberos/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/kerberos | sed "s, $,,g"`
+elif [ "$secret" == "krb5cc-secrets" ]; then
+    files=`ls $sdir/kerberos/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/kerberos | sed "s, $,,g"`
+elif [ "$secret" == "nats-secrets" ]; then
+    files=`ls $sdir/nats/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/nats | sed "s, $,,g"`
+elif [ "$secret" == "redash-secrets" ]; then
+    files=`ls $sdir/redash/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/redash | sed "s, $,,g"`
+elif [ "$secret" == "rumble-secrets" ]; then
+    files=`ls $sdir/rumble/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/rumble | sed "s, $,,g"`
+elif [ "$secret" == "rucio-secrets" ]; then
+    files=`ls $sdir/rucio/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/rucio | sed "s, $,,g"`
+elif [ "$secret" == "sqoop-secrets" ]; then
+    files=`ls $sdir/sqoop/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/sqoop | sed "s, $,,g"`
 fi
+echo "files: \"$files\""
+if [ -n "`kubectl get secrets -n $ns | grep $secret`" ]; then
+    kubectl -n $ns delete secret $secret
+fi
+kubectl create secret generic $secret "$files" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
 kubectl describe secrets $secret -n $ns
