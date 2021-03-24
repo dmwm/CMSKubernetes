@@ -64,8 +64,11 @@ elif [ "$secret" == "alertmanager-secrets" ]; then
     content=`cat $cdir/alertmanager/alertmanager.yaml | sed -e "s,__USERNAME__,$username,g" -e "s,__PASSWORD__,$password,g"`
     literals="--from-literal=alertmanager.yaml=$content"
 elif [ "$secret" == "intelligence-secrets" ]; then
-    token=`cat $sdir/cmsmon-intelligence/secrets | grep TOKEN`
+    token=`cat $sdir/cmsmon-intelligence/secrets | grep TOKEN | awk '{print $2}'`
     content=`cat $cdir/cmsmon-intelligence/config.json | sed -e "s,__TOKEN__,$token,g"`
+    if [ -n "$ha" ]; then
+        content=`cat $cdir/cmsmon-intelligence/ha/${ha}/config.json | sed -e "s,__TOKEN__,$token,g"`
+    fi
     literals="--from-literal=config.json=$content"
 elif [ "$secret" == "karma-secrets" ]; then
     files="--from-file=$cdir/karma/karma.yaml"
@@ -113,6 +116,7 @@ elif [ "$secret" == "sqoop-secrets" ]; then
     files=`ls $sdir/sqoop/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/sqoop | sed "s, $,,g"`
 fi
 echo "files: \"$files\""
+#echo "literals: $literals"
 if [ -n "`kubectl get secrets -n $ns | grep $secret`" ]; then
     kubectl -n $ns delete secret $secret
 fi
