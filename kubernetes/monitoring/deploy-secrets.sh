@@ -46,6 +46,11 @@ fi
 echo "config dir: $cdir"
 echo "secret dir: $sdir"
 echo "Deploying $secret into $ns namespace, ha=\"$ha\""
+# there are two parameters we define for each secret
+# files should contain list of files in a form --from-file=file1 --from-file=file2
+files=""
+# literals can contain key=value pair, e.g. --from-literal=hmac=val
+literals=""
 
 if [ "$secret" == "prometheus-secrets" ]; then
     prom="$cdir/prometheus/prometheus.yaml"
@@ -57,11 +62,11 @@ elif [ "$secret" == "alertmanager-secrets" ]; then
     username=`cat $sdir/alertmanager/secrets | grep USERNAME | awk '{print $2}'`
     password=`cat $sdir/alertmanager/secrets | grep PASSWORD | awk '{print $2}'`
     content=`cat $cdir/alertmanager/alertmanager.yaml | sed -e "s,__USERNAME__,$username,g" -e "s,__PASSWORD__,$password,g"`
-    files="--from-literal=alertmanager.yaml=$content"
+    literals="--from-literal=alertmanager.yaml=$content"
 elif [ "$secret" == "intelligence-secrets" ]; then
     token=`cat $sdir/cmsmon-intelligence/secrets | grep TOKEN`
     content=`cat $cdir/cmsmon-intelligence/config.json | sed -e "s,__TOKEN__,$token,g"`
-    files="--from-literal=config.json=$content"
+    literals="--from-literal=config.json=$content"
 elif [ "$secret" == "karma-secrets" ]; then
     files="--from-file=$cdir/karma/karma.yaml"
     if [ "$ha" == "ha1" ]; then
@@ -74,7 +79,11 @@ elif [ "$secret" == "promxy-secrets" ]; then
 elif [ "$secret" == "robot-secrets" ]; then
     files=`ls $sdir/robot/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/robot | sed "s, $,,g"`
 elif [ "$secret" == "auth-secrets" ]; then
-    files=`ls $sdir/cmsmon-auth/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmon-auth | sed "s, $,,g"`
+    files=`ls $sdir/cmsmon-auth/ | egrep -v "config.json|secrets$" | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmon-auth | sed "s, $,,g"`
+    clientID=`cat $sdir/cmsmon-auth/secrets | grep CLIENT_ID | awk '{print $2}'`
+    clientSECRET=`cat $sdir/cmsmon-auth/secrets | grep CLIENT_SECRET | awk '{print $2}'`
+    content=`cat $cdir/cmsmon-auth/config.json | sed -e "s,__CLIENT_ID__,$clientID,g" -e "s,__CLIENT_SECRET__,$clientSECRET,g"`
+    literals="--from-literal=config.json=$content"
 elif [ "$secret" == "cern-certificates" ]; then
     files=`ls $sdir/CERN_CAs/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/CERN_CAs | sed "s, $,,g"`
 elif [ "$secret" == "alerts-secrets" ]; then
@@ -107,5 +116,5 @@ echo "files: \"$files\""
 if [ -n "`kubectl get secrets -n $ns | grep $secret`" ]; then
     kubectl -n $ns delete secret $secret
 fi
-kubectl create secret generic $secret "$files" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
+kubectl create secret generic $secret $files "$literals" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
 kubectl describe secrets $secret -n $ns
