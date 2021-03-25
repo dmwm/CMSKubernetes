@@ -1,0 +1,50 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: loki
+  namespace: http
+spec:
+#   type: ClusterIP
+  type: NodePort
+  ports:
+  - port: 3100 # the port here is matching port used in cmssw/loki cotainer
+    protocol: TCP
+    name: http
+    nodePort: 31000
+    targetPort: 3100
+  selector:
+    app: loki
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: loki
+  name: loki
+  namespace: http
+spec:
+  selector:
+    matchLabels:
+      app: loki
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: loki
+    spec:
+      containers:
+      - image: veknet/loki #imagetag
+        name: loki
+        args:
+        - /data/loki
+        - -config.file
+        - /etc/secrets/loki-config.yaml
+        ports:
+        - containerPort: 3100
+        volumeMounts:
+        - name: secrets
+          mountPath: /etc/secrets
+      volumes:
+      - name: secrets
+        secret:
+          secretName: loki-secrets
