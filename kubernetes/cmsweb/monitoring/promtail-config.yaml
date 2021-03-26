@@ -1,0 +1,38 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
+
+scrape_configs:
+- job_name: system
+  static_configs:
+  - targets:
+      - localhost
+    labels:
+      job: varlogs
+      __path__: /var/log/*log
+- job_name: das-server
+  pipeline_stages:
+    - regex:
+        expression: ".* DASQuery=\"(?P<query>[a-zA-Z/0-9 ]+)\" inst=(?P<inst>[a-zA-Z/]+) .* process time (?P<process_time>[+-]?([0-9]*[.])?[0-9]+)$"
+    - labels:
+        inst:
+        query:
+    - metrics:
+        processing_time:
+            type: Gauge
+            description: "query processing time"
+            source: process_time
+            config:
+                action: add
+  static_configs:
+  - targets:
+      - das-logs
+    labels:
+      job: das-logs
+      __path__: /data/logs/das.log*
