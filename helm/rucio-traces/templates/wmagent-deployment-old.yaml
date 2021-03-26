@@ -1,0 +1,42 @@
+{{- if false -}}
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: rucio-tracer
+  name: rucio-tracer
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: rucio-tracer
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: rucio-tracer
+        env: k8s
+    spec:
+      containers:
+      - image: cmssw/rucio-tracers:0.4 #imagetag
+        name: rucio-tracer
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "200m"
+          limits:
+            memory: "3Gi"
+            cpu: "4000m"
+        command:
+        - /bin/sh
+        - /data/run/run.sh
+        volumeMounts:
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+      volumes:
+      - name: secrets
+        secret:
+          secretName: wmagent-trace-secrets
+{{- end }}
