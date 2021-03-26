@@ -14,6 +14,34 @@ spec:
       targetPort: 18217
       name: das-mon
 ---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: das-server-promtail
+  labels:
+    app: das-server-promtail
+  namespace: das
+data:
+  promtail-config.yaml: |
+    server:
+      http_listen_port: 9080
+      grpc_listen_port: 0
+
+    positions:
+      filename: /tmp/positions.yaml
+
+    clients:
+      - url: http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
+
+    scrape_configs:
+    - job_name: das-server
+      static_configs:
+      - targets:
+          - das-logs
+        labels:
+          job: das-logs
+          __path__: /data/logs/das.log*
+---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -53,9 +81,6 @@ spec:
           httpGet:
             path: /das
             port: 8217
-#             httpHeaders:
-#             - name: Accept
-#               value: application/json
           initialDelaySeconds: 120
           periodSeconds: 10
         ports:
@@ -67,9 +92,6 @@ spec:
           name: das-mon
         command:
         - /data/run.sh
-#         - /data/das2go
-#         - -config
-#         - /etc/secrets/dasconfig.json
         volumeMounts:
         - name: proxy-secrets
           mountPath: /etc/proxy
@@ -83,6 +105,17 @@ spec:
         - name: hmac-secrets
           mountPath: /etc/hmac
           readOnly: true
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/logs
+#PROD#- image: cmssw/promtail
+#PROD#  name: promtail
+#PROD#  args:
+#PROD#  - /data/promtail
+#PROD#  - -config.file
+#PROD#  - /etc/secrets/promtail-config.yaml
+#PROD#  volumeMounts:
+#PROD#  - name: promtail-secrets
+#PROD#    mountPath: /etc/secrets
 #PROD#  - name: logs-cephfs
 #PROD#    mountPath: /data/logs
       initContainers:
@@ -102,6 +135,12 @@ spec:
       - name: hmac-secrets
         secret:
           secretName: hmac-secrets
+      - name: logs-cephfs
+        persistentVolumeClaim:
+          claimName: logs-cephfs-claim-preprod-das
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-das
+#PROD#- name: promtail-secrets
+#PROD#  configMap:
+#PROD#    name: das-server-promtail
