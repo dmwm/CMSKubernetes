@@ -2,14 +2,14 @@ kind: Service
 apiVersion: v1
 metadata:
   name: loki
-  namespace: http
+  namespace: monitoring
 spec:
 #   type: ClusterIP
   type: NodePort
   ports:
   - port: 3100 # the port here is matching port used in cmssw/loki cotainer
     protocol: TCP
-    name: http
+    name: monitoring
     nodePort: 31000
     targetPort: 3100
   selector:
@@ -21,7 +21,7 @@ metadata:
   labels:
     app: loki
   name: loki
-  namespace: http
+  namespace: monitoring
 spec:
   selector:
     matchLabels:
