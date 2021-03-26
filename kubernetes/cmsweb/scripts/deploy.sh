@@ -556,6 +556,15 @@ deploy_monitoring()
     kubectl create configmap logstash \
         --from-file=monitoring/logstash.conf --from-file=monitoring/logstash.yml -n monitoring
 
+    # add secrets for loki service
+    if [ -n "`kubectl get secrets -n monitoring | grep loki-secrets`" ]; then
+        kubectl delete configmap logstash -n monitoring
+    fi
+    kubectl create secret generic loki-secrets \
+        --from-file=monitoring/loki-config.yaml --dry-run=client -o yaml | \
+        kubectl apply --namespace=monitoring -f -
+    kubectl apply --namespace=monitoring -f monitoring/loki.yaml
+
     kubectl -n monitoring apply -f monitoring/prometheus.yaml
     kubectl -n monitoring apply -f monitoring/prometheus-adapter.yaml
     kubectl -n monitoring get deployments
