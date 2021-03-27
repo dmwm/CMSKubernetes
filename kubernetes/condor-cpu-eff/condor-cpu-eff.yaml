@@ -43,12 +43,19 @@ spec:
         tty: true
         stdin: true
         env:
-          - name: MY_NODE_NAME
-            valueFrom:
-              fieldRef:
-                fieldPath: spec.nodeName
-          - name: CPU_EFF_OUTPUT # Define output path here
-            value: /eos/user/c/cmsmonit/www/cpu_eff
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: CPU_EFF_OUTPUT # Define output path here
+          value: /eos/user/c/cmsmonit/www/cpu_eff
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 2Gi
+          requests:
+            cpu: 1000m
+            memory: 750Mi
         ports:
         - containerPort: 31234 # spark.driver.port
           name: port-0
