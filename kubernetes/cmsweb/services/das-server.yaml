@@ -137,7 +137,7 @@ spec:
           secretName: hmac-secrets
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
-#PROD#      claimName: logs-cephfs-claim-das
+#PROD#    claimName: logs-cephfs-claim-das
 #PROD#- name: promtail-secrets
 #PROD#  configMap:
 #PROD#    name: das-server-promtail
