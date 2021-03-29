@@ -72,9 +72,12 @@ if [ -z "`grep imagetag $srv.yaml`" ]; then
     exit 1
 fi
 
+echo "Using: $cmsweb_env"
+
 # replace imagetag with real value and deploy new service
 if [ "$cmsweb_env" == "k8s-prod" ] ; then
 
+	cat $srv.yaml | sed -e "s,1 #PROD#,,g" | sed -e "s,#PROD#,      ,g" |  sed -e "s,logs-cephfs-claim,$cmsweb_log,g" | sed -e "s, #imagetag,$cmsweb_image_tag,g" | sed -e "s,k8s #k8s#,$cmsweb_env,g" > $srv.yaml.new
 	cat $srv.yaml | sed -e "s,1 #PROD#,,g" | sed -e "s,#PROD#,      ,g" |  sed -e "s,logs-cephfs-claim,$cmsweb_log,g" | sed -e "s, #imagetag,$cmsweb_image_tag,g" | sed -e "s,k8s #k8s#,$cmsweb_env,g" | kubectl apply -f -
 
 elif  [ "$cmsweb_env" == "k8s-preprod" ] ; then
