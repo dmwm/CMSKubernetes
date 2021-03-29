@@ -1,0 +1,169 @@
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: frontend
+  name: frontend
+  namespace: auth
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18443"
+    spec:
+      serviceAccountName: frontend
+      terminationGracePeriodSeconds: 60
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: cmssw/frontend #imagetag
+        name: frontend
+#         imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "30m"
+          limits:
+            memory: "20Gi"
+            cpu: "4000m" # we can add higher limit here
+        env:
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        ports:
+        - containerPort: 80
+          name: http
+        - containerPort: 443
+          name: https
+        - containerPort: 8443
+          name: services
+        - containerPort: 18443
+          name: monitoring
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+#PROD#  - name: filebeat-cephfs
+#PROD#    mountPath: /data/filebeat
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/srv/logs/frontend
+      - name: fluentd-frontend
+        image: gitlab-registry.cern.ch/cloud/atomic-system-containers/fluentd-elasticsearch:v2.4.0
+        command: ["/bin/sh", "-c", "/etc/fluent/config.d/install-plugins.sh"]
+        env:
+        - name: FLUENTD_ARGS
+          value: --no-supervisor
+        - name: OUTPUT_PRODUCER
+          value: magnum
+        - name: OUTPUT_ENDPOINT
+          value: http://monit-logs.cern.ch:10012/
+        volumeMounts:
+        - name: frontendlogs
+          mountPath: /data/srv/logs/frontend
+        - name: s3-data
+          mountPath: /var/log/fluent/s3
+        - name: varlog
+          mountPath: /var/log
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+        - name: etcfluentd
+          mountPath: /etc/fluent/config.d/
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: frontend-ds-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+      - name: frontendlogs
+        emptyDir: {}
+      - name: config-volume
+        configMap:
+          name: fluentd-config
+      - name: s3-data
+        emptyDir:
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: etcfluentd
+        configMap:
+          name: fluentd
+          defaultMode: 0777
+#PROD#- name: filebeat-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: filebeat-cephfs-claim-default
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim-default
+      nodeSelector:
+        role: auth
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: frontend
+subjects:
+- kind: ServiceAccount
+  name: frontend
+  namespace: auth
+roleRef:
+  kind: ClusterRole
+  name: frontend
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: frontend
+  labels:
+    k8s-app: frontend
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources:
+  - namespaces
+  - pods
+  verbs:
+  - get
+  - watch
+  - list
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: frontend
+  namespace: auth
+  labels:
+    k8s-app: frontend
+---
