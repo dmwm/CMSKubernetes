@@ -135,9 +135,6 @@ spec:
       - name: hmac-secrets
         secret:
           secretName: hmac-secrets
-      - name: logs-cephfs
-        persistentVolumeClaim:
-          claimName: logs-cephfs-claim-preprod-das
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-das
