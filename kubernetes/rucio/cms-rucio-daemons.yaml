@@ -44,7 +44,7 @@ reaper2:
     prometheus.io/port: "8080"
 
 conveyorTransferSubmitter:
-  activities: "'Recovery' 'Data Brokering' 'Data rebalancing' 'Debug' 'Express' 'Functional Test' 'Group Subscriptions' 'Production Input' 'Production Output' 'Analysis Input' 'Analysis Output' 'Staging' 'T0 Export' 'T0 Tape' 'Upload/Download (Job)' 'Upload/Download (User)' 'User Subscriptions'"
+  activities: "'Data Consolidation' 'Recovery' 'Data Brokering' 'Data rebalancing' 'Debug' 'Express' 'Functional Test' 'Group Subscriptions' 'Production Input' 'Production Output' 'Analysis Input' 'Analysis Output' 'Staging' 'T0 Export' 'T0 Tape' 'Upload/Download (Job)' 'Upload/Download (User)' 'User Subscriptions'"
     # Same size or smaller than bulk which is 100
   groupBulk: 50
   podAnnotations:
@@ -153,8 +153,9 @@ config:
         port: "61313"
         brokers: "cms-mb.cern.ch"
         queue: "/queue/Consumer.kronos.cms.rucio.tracer"
-        chunksize: "50"
-        prefetch_size: "50"
+        # FIXME: Both used to be 50 before 1.24 problems with Kronos
+        chunksize: "1"
+        prefetch_size: "10"
 
 transmogrifier:
   threads: 4
@@ -169,12 +170,15 @@ transmogrifier:
     prometheus.io/port: "8080"
 
 tracerKronos:
-  threads: 5
+  # FIXME: Was 5 before 1.24 problems with Kronos
+  threads: 1
   resources:
     limits:
       cpu: 3000m 
+      memory: 1Gi
     requests:
       cpu: 1000m 
+      memory: 800Mi
   podAnnotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "8080"
