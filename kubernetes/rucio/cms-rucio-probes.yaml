@@ -33,7 +33,7 @@ probes:
   check_updated_dids:
     interval: 1
   check_expected_total_number_of_files_per_rse:
-    interval: 1
+    interval: 60
   check_not_OK_rules_per_rse:
     interval: 1
   check_number_of_missing_files_per_rse:

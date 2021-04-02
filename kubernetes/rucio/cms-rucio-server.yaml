@@ -96,6 +96,6 @@ config:
       brokers: "cms-mb.cern.ch"
       topic: "/topic/cms.rucio.tracer"
       username: "cmsrucio"
-    ## config.trace.tracedir: directory where traces are written to (default "/var/log/rucio/trace")
-    # tracedir: "/var/log/rucio/trace"
+      #config.trace.tracedir: directory where traces are written to (default "/var/log/rucio/trace")
+      tracedir: "/var/log/rucio/trace"
 
