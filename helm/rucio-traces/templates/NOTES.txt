@@ -1,0 +1,2 @@
+These are the deployments for the the rucio-trace adapters which consume AMQ messages and 
+produce trace messages in Rucio
