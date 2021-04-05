@@ -1,0 +1,17 @@
+# Values for rucio-traces.
+wmagentReplicaCount: 1
+
+image:
+  repository: cmssw/rucio-tracer
+  tag: "0.8"
+wmagentBroker:
+    stompURI: "cms-mb.cern.ch:61313"
+resources:
+  requests:
+    memory: "100Mi"
+    cpu: "200m"
+  limits:
+    memory: "3Gi"
+    cpu: "4000m"
+
+

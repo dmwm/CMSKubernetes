@@ -15,10 +15,11 @@ helm3 upgrade --values cms-rucio-common.yaml,cms-rucio-webui.yaml,${INSTANCE}-ru
 helm3 upgrade --values cms-rucio-common.yaml,cms-rucio-probes.yaml,${INSTANCE}-rucio-probes.yaml,${INSTANCE}-db.yaml,${INSTANCE}-release.yaml $PROBE_NAME $REPO/rucio-probes
 
 # CMS Stuff
-# helm3 upgrade --values cms-consistency.yaml,${INSTANCE}-consistency.yaml,${INSTANCE}-consistency-jobs.yaml cms-consistency-${INSTANCE} ~/CMSKubernetes/helm/rucio-consistency
+helm3 upgrade --values cms-consistency.yaml,${INSTANCE}-consistency.yaml,${INSTANCE}-consistency-jobs.yaml cms-consistency-${INSTANCE} ~/CMSKubernetes/helm/rucio-consistency
 helm3 upgrade --values ${INSTANCE}-cronjob.yaml cms-cron-${INSTANCE} cms-kubernetes/rucio-cron-jobs
 helm3 upgrade --values ${INSTANCE}-loadtest.yaml loadtest-${INSTANCE} ~/CMSKubernetes/helm/rucio-loadtest
-
+helm3 upgrade --values ${INSTANCE}-loadtest.yaml,webdav-loadtest.yaml webdav-loadtest-${INSTANCE} ~/CMSKubernetes/helm/rucio-loadtest
+helm3 upgrade  --values cms-traces.yaml,${INSTANCE}-db.yaml rucio-traces-${INSTANCE} ~/CMSKubernetes/helm/rucio-traces
 
 # statsd exporter to prometheus, and Eagle reporting MONIT
 helm3 upgrade --values statsd-prometheus-mapping.yaml,${INSTANCE}-statsd-exporter.yaml statsd-exporter cms-kubernetes/rucio-statsd-exporter
