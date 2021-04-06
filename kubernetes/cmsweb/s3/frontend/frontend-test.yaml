@@ -102,7 +102,7 @@ spec:
       - name: hostkey
         hostPath:
             path: /etc/grid-security/hostkey.pem
-      - name: frontendlogs
+      - name: logs
         emptyDir: {}
       - name: config-volume
         configMap:
@@ -119,8 +119,6 @@ spec:
         configMap:
           name: fluentd
           defaultMode: 0777
-      - name: logs-cephfs
-        emptyDir: {}
       nodeSelector:
         role: auth
 ---
