@@ -48,10 +48,10 @@ data:
         @type memory
         #@type file
         #path /var/log/fluent/s3
-        timekey 5m # 1 minute should be something higher
+        timekey 10m # 1 minute should be something higher
         timekey_wait 2m
         timekey_use_utc true # use utc
-        chunk_limit_size 64m
+        chunk_limit_size 256m
       </buffer>
     </match>
   install-plugins.sh: |-
