@@ -23,12 +23,19 @@ pushd /data/repos
 git clone https://github.com/dmwm/CRABServer.git
 git clone https://github.com/dmwm/WMCore.git
 
-# 3. checkout the installed tags
+# 3. checkout the installed tags and add ptrs to developers repos
 cd CRABServer
 git checkout $CRABServerGHTag
+git remote add stefano https://github.com/belforte/CRABServer.git
+git remote add daina https://github.com/ddaina/CRABServer.git
 cd ..
 cd WMCore
 git checkout $WMCoreGHTag
+git remote add stefano https://github.com/belforte/WMCore.git
+
+# add dummy global names to git for git stash to work
+git config --global user.email dummy@nowhere
+git config --global user.name dummy
 
 # 4. hack init.sh to point PYTHONPATH to the GH repos when $RUN_FROM_GH is True
 CRABServerInitDir=${CRABServerDir}/etc/profile.d/
