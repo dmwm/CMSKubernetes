@@ -1,0 +1,75 @@
+# Source: fluentd/templates/fluentd-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd
+  namespace: auth
+data:
+  fluentdDeamon.conf: |-
+    # do not collect fluentd logs to avoid infinite loops.
+    <match kubernetes.var.log.containers.fluentd**>
+      @type null
+    </match>
+    <match kubernetes.var.log.containers.**_kube-system_**>
+        @type null
+    </match>
+    <match kubernetes.var.log.containers.**fluentd**>
+        @type null
+    </match>
+    # read from container logs
+    <source>
+      @type tail
+      path /data/srv/logs/frontend/access_log_*%Y%m%d.txt
+      pos_file /data/srv/logs/frontend/access_log.txt.pos 
+      tag access_logs
+      read_from_head true
+      <parse>
+        @type none
+      </parse>
+    </source>
+
+    <source>
+      @type tail
+      path /data/srv/logs/frontend/error_log_*%Y%m%d.txt
+      pos_file /data/srv/logs/frontend/error_log.txt.pos
+      tag error_logs
+      read_from_head true
+      <parse>
+        @type none
+      </parse>
+    </source>
+
+    <match **>
+      @type s3
+      aws_key_id <>
+      aws_sec_key <>
+      s3_bucket cmswebtest
+      s3_region cern
+      s3_endpoint https://s3.cern.ch
+      s3_endpoint_url https://s3.cern.ch
+      path frontend-logs/%Y/%m/%d/${tag}
+      time_slice_format %H:%M
+      s3_object_key_format %{path}-%{hostname}-time=%{time_slice}_%{index}.%{file_extension}
+      <format>
+        @type single_value
+      </format>
+      <buffer tag,time>
+        #@type memory
+        @type file
+        path /var/log/fluent/s3
+        timekey 15m # 1 minute should be something higher
+        timekey_wait 2m
+        timekey_use_utc true # use utc
+        chunk_limit_size 256m
+      </buffer>
+    </match>
+  install-plugins.sh: |-
+    #!/bin/sh
+    #fluent-gem install fluent-plugin-rewrite-tag-filter
+    #fluent-gem install fluent-plugin-out-http
+    #fluent-gem install fluent-plugin-grok-parser
+    fluent-gem install fluent-plugin-s3
+    #exec /run.sh
+    mkdir -p /var/log/journal
+    exec /usr/local/bin/fluentd -v $FLUENTD_ARGS
+---
