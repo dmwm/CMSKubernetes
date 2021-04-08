@@ -59,7 +59,7 @@ data:
         path /var/log/fluent/s3
         timekey 15m # 1 minute should be something higher
         timekey_wait 2m
-        timekey_use_utc false # use utc
+        timekey_use_utc true # use utc
         chunk_limit_size 256m
       </buffer>
     </match>
