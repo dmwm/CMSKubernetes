@@ -70,10 +70,6 @@ spec:
         env:
         - name: FLUENTD_ARGS
           value: --no-supervisor
-        - name: OUTPUT_PRODUCER
-          value: magnum
-        - name: OUTPUT_ENDPOINT
-          value: http://monit-logs.cern.ch:10012/
         volumeMounts:
         - name: logs
           mountPath: /data/srv/logs/frontend
