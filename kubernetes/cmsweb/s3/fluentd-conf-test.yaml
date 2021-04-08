@@ -49,7 +49,7 @@ data:
       s3_endpoint_url https://s3.cern.ch
       path frontend-logs/%Y/%m/%d/${tag}
       time_slice_format %H:%M
-      s3_object_key_format %{path}-%{hostname}-time=%{time_slice}.%{file_extension}
+      s3_object_key_format %{path}-%{hostname}-time=%{time_slice}_%{index}.%{file_extension}
       <format>
         @type single_value
       </format>
