@@ -23,7 +23,9 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-podAnnotations: {}
+podAnnotations: 
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8888"
 
 podSecurityContext: {}
   # fsGroup: 2000
@@ -73,6 +75,9 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+monitoring:
+  promPort: 8888
 
 wmagentBroker:
   stompPassword: ""
