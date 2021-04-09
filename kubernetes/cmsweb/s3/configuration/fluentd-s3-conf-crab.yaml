@@ -38,6 +38,17 @@ data:
         @type none
       </parse>
     </source>
+    <source>
+      @type tail
+      path /data/srv/logs/crabcache/crabcache-%Y%m%d*.log
+      pos_file /data/srv/logs/crabcache/crabcache.pos
+      tag crabcache
+      read_from_head true
+      <parse>
+        @type none
+      </parse>
+    </source>
+
 
     <match **>
       @type s3
