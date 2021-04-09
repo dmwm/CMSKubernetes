@@ -48,7 +48,7 @@ spec:
     metadata:
       labels:
         app: dbsmigration
-        env: k8s-test #k8s#
+        env: k8s #k8s#
         job: dbsmigration
       annotations:
         prometheus.io/scrape: 'true'

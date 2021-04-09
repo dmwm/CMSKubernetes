@@ -47,7 +47,7 @@ spec:
     metadata:
       labels:
         app: wmarchive
-        env: k8s-test #k8s#
+        env: k8s #k8s#
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/port: "18200"

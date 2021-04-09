@@ -52,7 +52,7 @@ spec:
     metadata:
       labels:
         app: dqmgui
-        env: k8s-test #k8s#
+        env: k8s #k8s#
       annotations:
         prometheus.io/scrape: 'true'
     spec:

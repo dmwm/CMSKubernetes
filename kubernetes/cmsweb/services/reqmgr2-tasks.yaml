@@ -29,7 +29,7 @@ spec:
     metadata:
       labels:
         app: reqmgr2-tasks
-        env: k8s-test #k8s#
+        env: k8s #k8s#
 # should be enabled once we'll have exporter running with this sercice
 # we should also add prometheus.io/port in that case
 #       annotations:

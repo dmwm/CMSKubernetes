@@ -46,7 +46,7 @@ spec:
     metadata:
       labels:
         app: reqmgr2
-        env: k8s-test #k8s#
+        env: k8s #k8s#
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/port: "18240"
