@@ -42,12 +42,12 @@ logs_prefix=""
 if [ "$CMSWEB_ENV" == "production" ] || [ "$CMSWEB_ENV" == "prod" ]; then
     prod_prefix="      " # will replace '#PROD#' prefix
     logs_prefix="-prod" # will append this prefix to logs-cephfs-claim
-    env_prefix="k8s-prod" # will replace k8s #k8s# part
+    env_prefix="k8s-prod" # will replace k8s-test #k8s# part
 fi
 if [ "$CMSWEB_ENV" == "preproduction" ] || [ "$CMSWEB_ENV" == "preprod" ]; then
     prod_prefix="      " # will replace '#PROD#' prefix
     logs_prefix="-preprod" # will append this prefix to logs-cephfs-claim
-    env_prefix="k8s-preprod" # will replace k8s #k8s# part
+    env_prefix="k8s-preprod" # will replace k8s-test #k8s# part
 fi
 sdir=services
 mdir=monitoring
@@ -606,7 +606,7 @@ deploy_daemonset()
 
            cat daemonset/${ds}.yaml | \
            sed -e "s,#PROD#,$prod_prefix,g" | \
-           sed -e "s,k8s #k8s#,$env_prefix,g" | \
+           sed -e "s,k8s-test #k8s#,$env_prefix,g" | \
            sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
            sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
            kubectl apply -f -
@@ -694,7 +694,7 @@ deploy_services()
                             cat $sdir/${srv}-${inst}.yaml | \
                             sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
                             sed -e "s,#PROD#,$prod_prefix,g" | \
-                            sed -e "s,k8s #k8s#,$env_prefix,g" | \
+                            sed -e "s,k8s-test #k8s#,$env_prefix,g" | \
                             sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
                             sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
                             kubectl apply -f -
@@ -711,7 +711,7 @@ deploy_services()
                         sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
                         sed -e "s,replicas: 2 #PROD#,replicas: ,g" | \
                         sed -e "s,#PROD#,$prod_prefix,g" | \
-                        sed -e "s,k8s #k8s#,$env_prefix,g" | \
+                        sed -e "s,k8s-test #k8s#,$env_prefix,g" | \
                         sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
                         sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
                         kubectl apply -f -

@@ -30,7 +30,7 @@ spec:
     metadata:
       labels:
         app: httpgo-exporter
-        env: k8s #k8s#
+        env: k8s-test #k8s#
         # must specify for hpa, otherwise it will be job="kubernetes-pods"
         # assigned automatically by prometheus
         job: httpgo-exporter
