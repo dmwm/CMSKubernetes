@@ -11,8 +11,23 @@ if [ $# -ne 3 ]; then
 	if [[ "$cluster_name" == *"prod"* ]] ; then
                 env="prod"
         fi
-	if [[ "$cluster_name" == *"cmsweb-test"[1-6]* ]] ; then
-                env="test"
+	if [[ "$cluster_name" == *"cmsweb-test1"* ]] ; then
+                env="test1"
+        fi
+        if [[ "$cluster_name" == *"cmsweb-test2"* ]] ; then
+                env="test2"
+        fi
+        if [[ "$cluster_name" == *"cmsweb-test3"* ]] ; then
+                env="test3"
+        fi
+        if [[ "$cluster_name" == *"cmsweb-test4"* ]] ; then
+                env="test4"
+        fi
+        if [[ "$cluster_name" == *"cmsweb-test5"* ]] ; then
+                env="test5"
+        fi
+        if [[ "$cluster_name" == *"cmsweb-test6"* ]] ; then
+                env="test6"
         fi
 fi
 
@@ -40,11 +55,39 @@ if [[ "$cluster_name" == *"prod"* ]] ; then
         check=false
         fi
 fi
-if [[ "$cluster_name"  == *"cmsweb-test"[1-6]* ]] ; then
-        if [[ "$env" != "test" ]] ; then
+if [[ "$cluster_name"  == *"cmsweb-test1"* ]] ; then
+        if [[ "$env" != "test1" ]] ; then
         check=false
         fi
 fi
+
+if [[ "$cluster_name"  == *"cmsweb-test2"* ]] ; then
+        if [[ "$env" != "test2" ]] ; then
+        check=false
+        fi
+fi
+if [[ "$cluster_name"  == *"cmsweb-test3"* ]] ; then
+        if [[ "$env" != "test3" ]] ; then
+        check=false
+        fi
+fi
+if [[ "$cluster_name"  == *"cmsweb-test4"* ]] ; then
+        if [[ "$env" != "test4" ]] ; then
+        check=false
+        fi
+fi
+if [[ "$cluster_name"  == *"cmsweb-test5"* ]] ; then
+        if [[ "$env" != "test5" ]] ; then
+        check=false
+        fi
+fi
+if [[ "$cluster_name"  == *"cmsweb-test6"* ]] ; then
+        if [[ "$env" != "test6" ]] ; then
+        check=false
+        fi
+fi
+
+
 if [[ $check == false ]] ; then
 
         echo "The environment and config did not match. Please check."
@@ -100,15 +143,15 @@ elif  [ "$cmsweb_env" == "k8s-preprod" ] ; then
 	fi
 
 elif [ "$srv" == "crabserver" ]; then
-            cat $srv.yaml | sed -e "s, #imagetag,$cmsweb_image_tag,g" |  sed -e 's+crabserver/prod+crabserver/preprod+g' >  $srv.yaml.new
-            cat $srv.yaml | sed -e "s, #imagetag,$cmsweb_image_tag,g" |  sed -e 's+crabserver/prod+crabserver/preprod+g' | kubectl apply -f -
+            cat $srv.yaml | sed -e "s, #imagetag,$cmsweb_image_tag,g" |  sed -e 's+crabserver/prod+crabserver/preprod+g' | sed -e "s,k8s #k8s#,$cmsweb_env,g"  >  $srv.yaml.new
+            cat $srv.yaml | sed -e "s, #imagetag,$cmsweb_image_tag,g" |  sed -e 's+crabserver/prod+crabserver/preprod+g' | sed -e "s,k8s #k8s#,$cmsweb_env,g" | kubectl apply -f -
 
 elif [[ "$srv" == "dbs-global-r"  || "$srv" == "dbs-global-w"  ||  "$srv" == "dbs-migrate"  ||  "$srv" == "dbs-phys03-r" || "$srv" == "dbs-phys03-w" ]] ; then
-        cat $srv.yaml | sed -e "s, #imagetag,$cmsweb_image_tag,g" |  sed -e 's+dbs/prod+dbs/dev+g'  >  $srv.yaml.new
-        cat $srv.yaml | sed -e "s, #imagetag,$cmsweb_image_tag,g" |  sed -e 's+dbs/prod+dbs/dev+g' | kubectl apply -f -
+        cat $srv.yaml | sed -e "s, #imagetag,$cmsweb_image_tag,g" |  sed -e 's+dbs/prod+dbs/dev+g' | sed -e "s,k8s #k8s#,$cmsweb_env,g"  >  $srv.yaml.new
+        cat $srv.yaml | sed -e "s, #imagetag,$cmsweb_image_tag,g" |  sed -e 's+dbs/prod+dbs/dev+g' | sed -e "s,k8s #k8s#,$cmsweb_env,g"  | kubectl apply -f -
 else 
-        cat $srv.yaml | sed -e "s, #imagetag,$cmsweb_image_tag,g" > $srv.yaml.new
-        cat $srv.yaml | sed -e "s, #imagetag,$cmsweb_image_tag,g" | kubectl apply -f -
+        cat $srv.yaml | sed -e "s, #imagetag,$cmsweb_image_tag,g" | sed -e "s,k8s #k8s#,$cmsweb_env,g"  > $srv.yaml.new
+        cat $srv.yaml | sed -e "s, #imagetag,$cmsweb_image_tag,g" | sed -e "s,k8s #k8s#,$cmsweb_env,g"  | kubectl apply -f -
 fi
 
 # return to original directory
