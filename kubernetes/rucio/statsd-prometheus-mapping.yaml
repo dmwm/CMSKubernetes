@@ -27,13 +27,13 @@ mappings:
       request_state: "$1"
       activity: "$2"
       fts_server: "$3"
-  - match: "rucio.judge.used_space_rucio.*.*.*.*"
+  - match: "rucio.judge.space_used_in.*.*.*.*"
     help: "Rucio report used space"
     name: "rucio_report_used_space"
     labels:
       rse: "$1"
       country: "$2"
-      rse_type: "$3"
+      rseType: "$3"
       source: "$4"
   - match: "rucio.judge.stuck_rules_from.*"
     help: "Rucio stuck rules by account"
@@ -139,4 +139,3 @@ mappings:
     name: "rucio_used_space_uniquely_by_rucio"
     labels:
       dst_rse: "$1"
-
