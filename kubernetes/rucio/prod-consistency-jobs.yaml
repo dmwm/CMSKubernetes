@@ -6,7 +6,7 @@ consistency:
     #  server: cmsxrootd-redirectors.gridka.de:1094
     T2_US_Purdue:      
       interval: 7
-      server: xrootd.rcac.purdue.edu
+      server: cms-m001.rcac.purdue.edu 
     T2_BR_UERJ:      
       interval: 7
       server: xrootd.hepgrid.uerj.br
@@ -230,16 +230,16 @@ consistency:
       server: dc2-grid-64.brunel.ac.uk:1094
       interval: 7
     T2_US_Caltech:
-      server: transfer-1.ultralight.org
+      server: xrootd.ultralight.org
       interval: 7
     T2_US_Florida:
-      server: cmsio6.rc.ufl.edu:1094
+      server: cmsio5.rc.ufl.edu:1094
       interval: 7
     T2_US_MIT:
       server: xrootd15.cmsaf.mit.edu:1094
       interval: 7
     T2_US_Nebraska:
-      server: red-gridftp2.unl.edu:1094
+      server: red-gridftp1.unl.edu:1094
       interval: 7
     T2_US_UCSD:
       server: gftp-1.t2.ucsd.edu:1094
