@@ -1,6 +1,11 @@
 #!/bin/bash
 # helper script to deploy given service with given tag to k8s infrastructure
 
+if [ $# -lt 2 ]; then
+     echo "The required parameters for service and tag are missing. Please use deploy-srv.sh <service> <tag> <env> "
+     exit 1;
+fi
+
 cluster_name=`kubectl config get-clusters | grep -v NAME`
 check=true
 
