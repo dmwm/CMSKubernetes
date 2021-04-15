@@ -109,6 +109,10 @@ spec:
 #PROD#    mountPath: /data/logs
 #PROD#- image: cmssw/promtail
 #PROD#  name: promtail
+#PROD#  resources:
+#PROD#    requests:
+#PROD#      memory: "50Mi"
+#PROD#      cpu: "50m"
 #PROD#  args:
 #PROD#  - /data/promtail
 #PROD#  - -config.file
