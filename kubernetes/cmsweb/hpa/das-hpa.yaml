@@ -4,8 +4,8 @@ metadata:
   name: das-server-hpa
   namespace: das
 spec:
-  maxReplicas: 5 #PROD# 12
-  minReplicas: 3 #PROD# 8
+  maxReplicas: 5
+  minReplicas: 3
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
@@ -16,10 +16,10 @@ spec:
       name: cpu
       target:
         type: Utilization
-        averageUtilization: 200
+        averageUtilization: 1000
   - type: Resource
     resource:
       name: memory
       target:
         type: Utilization
-        averageUtilization: 200
+        averageUtilization: 1200

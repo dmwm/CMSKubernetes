@@ -109,6 +109,10 @@ spec:
           mountPath: /data/logs
 #PROD#- image: cmssw/promtail
 #PROD#  name: promtail
+#PROD#  resources:
+#PROD#    requests:
+#PROD#      memory: "50Mi"
+#PROD#      cpu: "50m"
 #PROD#  args:
 #PROD#  - /data/promtail
 #PROD#  - -config.file
@@ -122,6 +126,10 @@ spec:
         env:
         - name: FLUENTD_ARGS
           value: --no-supervisor
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "50m"
         volumeMounts:
         - name: logs
           mountPath: /data/logs
