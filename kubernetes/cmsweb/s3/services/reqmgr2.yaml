@@ -120,6 +120,10 @@ spec:
         env:
         - name: FLUENTD_ARGS
           value: --no-supervisor
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "50m"
         volumeMounts:
         - name: logs
           mountPath: /data/srv/logs/reqmgr2
