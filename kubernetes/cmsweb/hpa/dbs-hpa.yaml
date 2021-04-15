@@ -8,8 +8,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: dbs-global-r # should match deployment target
-  minReplicas: 8
-  maxReplicas: 10
+  minReplicas: 5
+  maxReplicas: 8
   metrics:
   - type: Object
     object:
@@ -45,8 +45,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: dbs-global-w # should match deployment target
-  minReplicas: 8
-  maxReplicas: 10
+  minReplicas: 5
+  maxReplicas: 8
   metrics:
   - type: Object
     object:
