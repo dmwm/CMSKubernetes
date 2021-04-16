@@ -16,10 +16,9 @@ data:
       scan_frequency: 10s
       backoff: 5s
       max_backoff: 10s
-      tags: ["frontend"]
     output.console:
       codec.format:
-        string: 'Podname=${MY_POD_NAME} - %{[message]}'
+        string: 'Podname=${MY_POD_NAME} - %{[message]} - logfile=%{[log.file.path]}'
         pretty: false
     queue.mem:
       events: 65536
