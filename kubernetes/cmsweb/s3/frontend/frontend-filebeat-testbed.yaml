@@ -1,56 +1,200 @@
-kind: Deployment
-apiVersion: apps/v1
+---
+apiVersion: v1
+kind: ConfigMap
 metadata:
-  name: s3frontend-filebeat
+  name: filebeat-config
   namespace: auth
   labels:
-    app: filebeat
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/frontend/*.txt
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+      tags: ["frontend"]
+    output.console:
+      codec.format:
+        string: 'Podname=${MY_POD_NAME} - %{[message]}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+---
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: frontend
+  name: frontend
+  namespace: auth
 spec:
   selector:
     matchLabels:
-      app: filebeat
-  replicas: 1
+      app: frontend
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
   template:
     metadata:
       labels:
-        app: filebeat
+        app: frontend
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18443"
     spec:
+      serviceAccountName: frontend
+      terminationGracePeriodSeconds: 60
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - name: filebeat
-        image: store/elastic/filebeat:7.10.2
-        args: [
-          "-c", "/etc/secrets/filebeat.yml",
-          "-e",
-        ]
-#         securityContext:
-#           runAsUser: 0
+      - image: cmssw/frontend #imagetag
+        name: frontend
+#         imagePullPolicy: Always
         resources:
-          limits:
-            memory: 200Mi
           requests:
-            cpu: 100m
-            memory: 100Mi
+            memory: "50Mi"
+            cpu: "30m"
+          limits:
+            memory: "20Gi"
+            cpu: "4000m" # we can add higher limit here
+        env:
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        ports:
+        - containerPort: 80
+          name: http
+        - containerPort: 443
+          name: https
+        - containerPort: 8443
+          name: services
+        - containerPort: 18443
+          name: monitoring
         volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
         - name: secrets
           mountPath: /etc/secrets
           readOnly: true
-        # we need persistent volume here to store filebeat data
-        #- name: filebeat-data-cephfs
-        #  mountPath: /usr/share/filebeat/data
-        # define which logs we'll scrape, in this case our FE logs
-        - name: logs-cephfs
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+        - name: logs
           mountPath: /data/srv/logs/frontend
+      - name: frontend-filebeat
+        image: docker.elastic.co/beats/filebeat:7.12.0
+        args: [
+          "-c", "/etc/filebeat.yml",
+          "-e",
+        ]
+        #command: ["/bin/sh", "-c", "/etc/fluent/config.d/install-plugins.sh"]
+        env:
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        #- name: FLUENTD_ARGS
+        #  value: --no-supervisor
+        volumeMounts:
+        - name: logs
+          mountPath: /data/srv/logs/frontend
+        - name: config
+          mountPath: /etc/filebeat.yml
+          readOnly: true
+          subPath: filebeat.yml
+        - name: data
+          mountPath: /usr/share/filebeat/data
+        - name: varlog
+          mountPath: /var/log
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
       volumes:
-      # data folder stores a registry of read status for all files
-      #       # so we don't send everything again on a Filebeat pod restart
-      - name: data
-        # When filebeat runs as non-root user, this directory needs to be writable by group (g+w).
-        hostPath:
-          path: /var/lib/filebeat-data
-          type: DirectoryOrCreate
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
       - name: secrets
         secret:
-          secretName: filebeat-secrets
-      - name: logs-cephfs
-        persistentVolumeClaim:
-            claimName: logs-cephfs-claim-preprod-default
+          secretName: frontend-ds-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+      - name: logs
+        emptyDir: {}
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: config
+        configMap:
+          defaultMode: 0640
+          name: filebeat-config
+      - name: data
+        emptyDir: {}
+        #hostPath:
+          # When filebeat runs as non-root user, this directory needs to be writable by group (g+w).
+          #path: /var/lib/filebeat-data
+          #type: DirectoryOrCreate
+      nodeSelector:
+        role: auth
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: frontend
+subjects:
+- kind: ServiceAccount
+  name: frontend
+  namespace: auth
+roleRef:
+  kind: ClusterRole
+  name: frontend
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: frontend
+  labels:
+    k8s-app: frontend
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources:
+  - namespaces
+  - pods
+  verbs:
+  - get
+  - watch
+  - list
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: frontend
+  namespace: auth
+  labels:
+    k8s-app: frontend
+---
