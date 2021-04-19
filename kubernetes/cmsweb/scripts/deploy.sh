@@ -492,7 +492,14 @@ deploy_monitoring()
     echo
     echo "+++ deploy monitoring services"
     # add kube-eagle
-    kubectl apply -f monitoring/kube-eagle.yaml
+    if [ "$CMSWEB_ENV" == "production" ] || [ "$CMSWEB_ENV" == "prod" ]; then
+        cat monitoring/kube-eagle.yaml | sed -e 's,k8s #k8s#,"k8s-prod",g' | kubectl apply -f -
+    elif [ "$CMSWEB_ENV" == "preproduction" ] || [ "$CMSWEB_ENV" == "preprod" ]; then
+        cat monitoring/kube-eagle.yaml | sed -e 's,k8s #k8s#,"k8s-preprod",g' | kubectl apply -f -
+    else
+        kubectl apply -f monitoring/kube-eagle.yaml
+    fi
+
     # use common logstash yaml for ALL services
     #kubectl -n monitoring apply -f monitoring/logstash.yaml
     cat monitoring/logstash.yaml | \
