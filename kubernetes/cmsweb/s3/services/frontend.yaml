@@ -9,6 +9,10 @@ spec:
   selector:
     matchLabels:
       app: frontend
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
   template:
     metadata:
       labels:
@@ -64,6 +68,8 @@ spec:
           mountPath: /etc/grid-security/hostkey.pem
         - name: logs
           mountPath: /data/srv/logs/frontend
+#PROD#  - name: filebeat-cephfs
+#PROD#    mountPath: /data/filebeat
       - name: fluentd-frontend
         image: gitlab-registry.cern.ch/cloud/atomic-system-containers/fluentd-elasticsearch:v2.4.0
         command: ["/bin/sh", "-c", "/etc/fluent/config.d/install-plugins.sh"]
@@ -115,6 +121,9 @@ spec:
         configMap:
           name: fluentd
           defaultMode: 0777
+#PROD#- name: filebeat-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: filebeat-cephfs-claim-default
       nodeSelector:
         role: auth
 ---
