@@ -68,7 +68,8 @@ spec:
       name: http
   selector:
     app: kube-eagle
-    release: release-name
+    #release: release-name
+    env: k8s #k8s#
 ---
 # Source: kube-eagle/templates/deployment.yaml
 apiVersion: apps/v1
@@ -83,7 +84,8 @@ spec:
   selector:
     matchLabels:
       app: kube-eagle
-      release: release-name
+      #release: release-name
+      env: k8s #k8s#
   template:
     metadata:
       annotations:
@@ -92,7 +94,8 @@ spec:
         prometheus.io/path: "/metrics"
       labels:
         app: kube-eagle
-        release: release-name
+        #release: release-name
+        env: k8s #k8s#
     spec:
       serviceAccountName: sa-kube-eagle
       containers:
