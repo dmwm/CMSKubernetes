@@ -43,6 +43,11 @@ cmsweb_image_tag=:$2
 if [ $# == 3 ]; then
 	env=$3
 fi
+s3_logs="fluentd"
+
+if [ $# == 4 ]; then
+	s3_logs=$4
+fi
 
 
 cmsweb_env=k8s-$env
@@ -112,7 +117,12 @@ if [ -d $tmpDir ]; then
 fi
 mkdir -p $tmpDir
 cd $tmpDir
-curl -ksLO https://raw.githubusercontent.com/dmwm/CMSKubernetes/master/kubernetes/cmsweb/s3/services/$srv.yaml
+
+       if [[ "$s3_logs" == "filebeat" ]] ; then
+            curl -ksLO https://raw.githubusercontent.com/dmwm/CMSKubernetes/master/kubernetes/cmsweb/s3/services-filebeat/$srv.yaml
+       else
+            curl -ksLO https://raw.githubusercontent.com/dmwm/CMSKubernetes/master/kubernetes/cmsweb/s3/services/$srv.yaml
+       fi
 
 # check that service file has imagetag
 if [ -z "`grep imagetag $srv.yaml`" ]; then
