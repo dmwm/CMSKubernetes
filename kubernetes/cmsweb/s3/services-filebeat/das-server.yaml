@@ -1,0 +1,212 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: das-server-filebeat-config
+  namespace: das
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/logs/das.log*
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: 'Podname=${MY_POD_NAME} - %{[message]} - logfile=%{[log.file.path]}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: das-server
+  namespace: das
+spec:
+  selector:
+    app: das-server
+  ports:
+    - port: 8217
+      targetPort: 8217
+      name: das
+    - port: 18217
+      targetPort: 18217
+      name: das-mon
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: das-server-promtail
+  labels:
+    app: das-server-promtail
+  namespace: das
+data:
+  promtail-config.yaml: |
+    server:
+      http_listen_port: 9080
+      grpc_listen_port: 0
+
+    positions:
+      filename: /tmp/positions.yaml
+
+    clients:
+      - url: http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
+
+    scrape_configs:
+    - job_name: das-server
+      static_configs:
+      - targets:
+          - das-logs
+        labels:
+          job: das-logs
+          __path__: /data/logs/das.log*
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: das-server
+  name: das-server
+  namespace: das
+spec:
+  selector:
+    matchLabels:
+      app: das-server
+  replicas: 1 #PROD# 3
+  template:
+    metadata:
+      labels:
+        app: das-server
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18217"
+    spec:
+      containers:
+      - image: cmssw/das-server #imagetag
+        name: das-server
+        imagePullPolicy: Always
+        env:
+        - name: X509_USER_PROXY
+          value: /etc/proxy/proxy
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "200m"
+          limits:
+            memory: "3Gi"
+            cpu: "4000m"
+        livenessProbe:
+          httpGet:
+            path: /das
+            port: 8217
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        ports:
+        - containerPort: 8217
+          protocol: TCP
+          name: das
+        - containerPort: 18217
+          protocol: TCP
+          name: das-mon
+        command:
+        - /data/run.sh
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
+        - name: logs
+          mountPath: /data/logs
+#PROD#- image: cmssw/promtail
+#PROD#  name: promtail
+#PROD#  resources:
+#PROD#    requests:
+#PROD#      memory: "50Mi"
+#PROD#      cpu: "50m"
+#PROD#  args:
+#PROD#  - /data/promtail
+#PROD#  - -config.file
+#PROD#  - /etc/secrets/promtail-config.yaml
+#PROD#  volumeMounts:
+#PROD#  - name: promtail-secrets
+#PROD#    mountPath: /etc/secrets
+      - name: das-server-filebeat
+        image: docker.elastic.co/beats/filebeat:7.12.0
+        args: [
+          "-c", "/etc/filebeat.yml",
+          "-e",
+        ]
+        env:
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "50m"
+        volumeMounts:
+        - name: logs
+          mountPath: /data/logs
+        - name: config
+          mountPath: /etc/filebeat.yml
+          readOnly: true
+          subPath: filebeat.yml
+        - name: data
+          mountPath: /usr/share/filebeat/data
+        - name: varlog
+          mountPath: /var/log
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+      initContainers:
+      - name: checkcouchdb
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nslookup das-mongo.das; do echo "Waiting for das-mongo"; sleep 10; done;']
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: das-server-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: logs
+        emptyDir: {}
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: config
+        configMap:
+          defaultMode: 0640
+          name: das-server-filebeat-config
+      - name: data
+        emptyDir: {}
+#PROD#- name: promtail-secrets
+#PROD#  configMap:
+#PROD#    name: das-server-promtail
