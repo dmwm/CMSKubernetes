@@ -1,4 +1,4 @@
-FROM cmssw/cmsweb:20210315
+FROM cmssw/cmsweb:20210421
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
