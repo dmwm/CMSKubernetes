@@ -565,7 +565,7 @@ deploy_monitoring()
 
     # add secrets for loki service
     if [ -n "`kubectl get secrets -n monitoring | grep loki-secrets`" ]; then
-        kubectl delete configmap logstash -n monitoring
+        kubectl delete secrets loki-secrets -n monitoring
     fi
     kubectl create secret generic loki-secrets \
         --from-file=monitoring/loki-config.yaml --dry-run=client -o yaml | \
