@@ -46,8 +46,8 @@ spec:
         stdin: true
         resources:
           requests:
-            memory: "500Mi"
-            cpu: "2000m"
+            memory: "256Mi"
+            cpu: "200m"
           limits:
             memory: "5Gi"
             cpu: "4000m"

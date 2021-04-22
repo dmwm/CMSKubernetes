@@ -46,10 +46,10 @@ spec:
         stdin: true
         resources:
           requests:
-            memory: "500Mi"
+            memory: "3000Mi"
             cpu: "2000m"
           limits:
-            memory: "5Gi"
+            memory: "6Gi"
             cpu: "4000m"
         ports:
         - containerPort: 8230
