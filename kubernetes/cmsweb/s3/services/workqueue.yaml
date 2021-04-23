@@ -149,7 +149,7 @@ spec:
           name: fluentd-config
       - name: s3-data
         hostPath:
-          path: /var/log/fluentd/s3
+          path: /var/log/fluent/s3
       - name: varlog
         hostPath:
           path: /var/log
