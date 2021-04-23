@@ -64,7 +64,7 @@ spec:
         prometheus.io/port: "18217"
     spec:
       containers:
-      - image: cmssw/das-server #imagetag
+      - image: cmssw/das-server:04.06.98 #imagetag
         name: das-server
         imagePullPolicy: Always
         env:
@@ -142,6 +142,8 @@ spec:
           readOnly: true
         - name: etcfluentd
           mountPath: /etc/fluent/config.d/
+        securityContext:
+          privileged: true
       initContainers:
       - name: checkcouchdb
         image: busybox:1.28
@@ -165,7 +167,8 @@ spec:
         configMap:
           name: fluentd-config
       - name: s3-data
-        emptyDir:
+        hostPath:
+          path: /var/log/fluentd/s3
       - name: varlog
         hostPath:
           path: /var/log
