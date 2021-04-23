@@ -64,7 +64,7 @@ spec:
         prometheus.io/port: "18217"
     spec:
       containers:
-      - image: cmssw/das-server:04.06.98 #imagetag
+      - image: cmssw/das-server #imagetag
         name: das-server
         imagePullPolicy: Always
         env:
