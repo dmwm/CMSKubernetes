@@ -36,7 +36,7 @@ spec:
       securityContext: {}
 
       containers:
-      - image: cmssw/auth-proxy-server:0.1.81
+      - image: cmssw/auth-proxy-server:0.1.88
         name: scitokens-proxy-server
 #         imagePullPolicy: Always
         args:
@@ -56,9 +56,10 @@ spec:
         - containerPort: 9093
           name: metrics
         volumeMounts:
-        - name: sps-secrets
+        - name: scitokens-proxy-server-secrets
           mountPath: /etc/secrets
-          defaultMode: 256
+          #defaultMode: 256
+          readOnly: true
         - name: www-htdocs
           mountPath: /www
         - name: hostcert
@@ -72,12 +73,12 @@ spec:
         volumeMounts:
         - name: www-htdocs
           mountPath: /tmp/htdocs
-#         - name: logs-cephfs
-#           mountPath: /data/srv/logs/frontend
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/srv/logs/frontend
       volumes:
-      - name: sps-secrets
+      - name: scitokens-proxy-server-secrets
         secret:
-          secretName: sps-secrets
+          secretName: scitokens-proxy-server-secrets
       - name: www-htdocs
         emptyDir: {}
       - name: hostcert
@@ -86,9 +87,9 @@ spec:
       - name: hostkey
         hostPath:
             path: /etc/grid-security/hostkey.pem
-#       - name: logs-cephfs
-#         persistentVolumeClaim:
-#           claimName: logs-cephfs-claim-auth
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim-default
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
