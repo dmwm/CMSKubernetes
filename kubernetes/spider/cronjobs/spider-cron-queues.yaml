@@ -4,7 +4,7 @@ metadata:
   namespace: spider
   name: cron-spider-queues
 spec:
-  schedule: "*/12 * * * *"
+  schedule: "*/5 * * * *"
   jobTemplate:
     spec:
       template:
@@ -31,7 +31,7 @@ spec:
               - name: CELERY_RESULT_BACKEND
                 value: redis://$(REDIS_SERVICE_HOST):$(REDIS_SERVICE_PORT_6379)/1
               - name: CELERY_TEST
-                value: '"true"'
+                value: '"false"'
               - name: CMS_AMQ_PASSWORD_FILE
                 value: /cms_secrets/amq-password/amq-password
               - name: CMS_AMQ_USERNAME_FILE
@@ -63,9 +63,11 @@ spec:
                 mountPath: /cms_secrets/es-conf
               - name: collectors
                 mountPath: /cms_secrets/collectors
+              - name: shared-spider
+                mountPath: /cms_shared
           restartPolicy: Never
           securityContext:
-              fsGroup: 1414
+            fsGroup: 1414
           volumes:  &spider_volumes
             - name: amq-username
               secret:
@@ -91,11 +93,7 @@ spec:
                 - key: collectors
                   path: collectors
                 secretName: collectors
-            #- name: shared-spider
-            #  cinder:
-            #    volumeID: eab4da25-4d74-4c03-b516-c9517ac73b3f
-            #    fsType: ext4
-              #persistentVolumeClaim:
-              #  claimName: affilations-cinder-claim
-              #  readOnly: false
-              #  #CephFS#  claimName: affilations-cephfs-claim
+            - name: shared-spider
+              persistentVolumeClaim:
+                claimName: affilations-cephfs-claim
+                readOnly: false

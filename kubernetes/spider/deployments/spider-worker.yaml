@@ -29,7 +29,8 @@ spec:
         - -Q
         - "celery,es_post,convert"
         - -l
-        - "WARNING"
+        - "DEBUG"
+        - -Ofair
         env: &spider_env
         - name: AFFILIATION_DIR_LOCATION
           value: /cms_shared/affiliation_dir.json
@@ -38,7 +39,9 @@ spec:
         - name: CELERY_RESULT_BACKEND
           value: redis://$(REDIS_SERVICE_HOST):$(REDIS_SERVICE_PORT_6379)/1
         - name: CELERY_TEST
-          value: '"true"'
+          value: '"false"'
+        - name: CELERY_TRACE_APP # raise exception when app chain breaks
+          value: 1
         - name: CMS_AMQ_PASSWORD_FILE
           value: /cms_secrets/amq-password/amq-password
         - name: CMS_AMQ_USERNAME_FILE
@@ -66,8 +69,8 @@ spec:
             cpu: 1000m
             memory: 1Gi
           requests:
-             cpu: 300m
-             memory: 500Mi
+             cpu: 500m
+             memory: 750Mi
         volumeMounts:  &spider_mounts
         - name: amq-username
           mountPath: /cms_secrets/amq-username
@@ -107,11 +110,6 @@ spec:
             path: collectors
           secretName: collectors
       - name: shared-spider
-        emptyDir: {}
-        #cinder:
-        #  volumeID: eab4da25-4d74-4c03-b516-c9517ac73b3f
-        #  fsType: ext4
-        #persistentVolumeClaim:
-        #  claimName: affilations-cinder-claim
-        #  #readOnly: false
-        #  #CephFS#  claimName: affilations-cephfs-claim
+        persistentVolumeClaim:
+          claimName: affilations-cephfs-claim
+          readOnly: false
