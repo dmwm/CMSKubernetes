@@ -9,16 +9,19 @@ data:
     #!/bin/sh
     set -e
 
-    for i in $(seq 0 9) ; do
-      _base_url="https://cmsweb-testbed.cern.ch/dbs/int/global/DBSReader/datasets?detail=False"
-          curl \
+    for i in $(seq 0 100) ; do
+    #_base_url="https://cmsweb-testbed.cern.ch/dbs/int/global/DBSReader/datasets?detail=False"
+      file="/data/urls.txt"
+      while IFS= read -r line; do  _base_url="$line" ;
+         curl \
               -s \
               --cert /certs/cms-proxy.pem \
               --cacert /certs/cms-proxy.pem \
               --cacert /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem \
               -w "${_base_url} %{http_code} %{remote_ip} %{time_total}\n" \
               -o /dev/null \
-              "${_base_url}" | tee --append --ignore-interrupts /tmp/curl-client.log
+              "${_base_url}" | tee --append --ignore-interrupts /tmp/curl-client.log ;
+      done < "$file"
     done
     echo "Finished. sleeping 100d"
     sleep 100d
@@ -87,8 +90,8 @@ spec:
             name: etc-grid-security
           - name: cms-proxy
             mountPath: /certs
-#          - name: urls
-#            mountPath: /data
+          - name: urls-secrets
+            mountPath: /data
       - name: grok
         image: gitlab-registry.cern.ch/strigazi/containers/grok_exporter
         imagePullPolicy: "IfNotPresent"
@@ -114,10 +117,9 @@ spec:
         configMap:
           name: client-script
           defaultMode: 0755
-#      - name: urls
-#        configMap:
-#          name: urls
-#          defaultMode: 0755
+      - name: urls-secrets
+        secret:
+          secretName: urls-secrets
       - name: etc-grid-security
         hostPath:
           path: /etc/
