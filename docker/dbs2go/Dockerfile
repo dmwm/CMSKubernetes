@@ -31,7 +31,7 @@ RUN mkdir -p $WDIR
 WORKDIR ${WDIR}
 
 # build dbs2go with specific tag
-ENV TAG=v00.01.05
+ENV TAG=v00.01.07
 WORKDIR $GOPATH/src/github.com/vkuznet
 RUN git clone https://github.com/vkuznet/dbs2go && \
     git clone https://github.com/vkuznet/cmsweb-exporters
