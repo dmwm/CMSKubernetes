@@ -167,7 +167,8 @@ spec:
         configMap:
           name: fluentd-config
       - name: s3-data
-        emptyDir:
+        hostPath:
+          path: /var/log/fluent/s3
       - name: varlog
         hostPath:
           path: /var/log

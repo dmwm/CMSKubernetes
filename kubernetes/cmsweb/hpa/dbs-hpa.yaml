@@ -181,7 +181,7 @@ spec:
       name: memory
       target:
         type: Utilization
-        averageUtilization: 3200
+        averageUtilization: 600
 ---
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
@@ -218,4 +218,4 @@ spec:
       name: memory
       target:
         type: Utilization
-        averageUtilization: 3200
+        averageUtilization: 600

@@ -65,6 +65,9 @@ cmsweb_ns="auth default crab das dbs dmwm http tzero wma"
 cmsweb_ing="ing-crab ing-dbs ing-das ing-dmwm ing-http ing-tzero ing-exitcodes ing-wma"
 cmsweb_ds="frontend-ds"
 
+cmsweb_aps="auth-proxy-server scitokens-proxy-server x509-proxy-server"
+
+
 #cmsweb_srvs="httpgo httpsgo frontend acdcserver couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
 
 cmsweb_srvs="httpgo httpsgo frontend crabcache crabserver das-server das-mongo das-mongo-exporter dbs dbsmigration reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmgr2ms-rulecleaner reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes wmarchive imagebot"
@@ -131,6 +134,8 @@ elif [ "$deployment" == "frontend" ]; then
 elif [ "$deployment" == "daemonset" ]; then
     cmsweb_ds="frontend-ds"
     echo "+++ deploy daemonset: $cmsweb_ds"
+elif [ "$deployment" == "aps" ]; then
+    echo "+++ deploy cmsweb auth proxy servers: $cmsweb_aps"
 elif [ "$deployment" == "ingress" ]; then
     echo "+++ deploy ingress: $cmsweb_ing"
 else
@@ -245,6 +250,10 @@ cleanup()
     for ds in $cmsweb_ds; do
         kubectl delete -f daemonset/${ds}.yaml
     done
+    for ds in $cmsweb_aps; do
+        kubectl delete -f daemonset/${ds}.yaml
+    done
+
     kubectl get nodes | grep node | awk '{print $1}' | awk '{print "kubectl label node "$1" role=ingress --overwrite"}'
 
     # delete secrets
@@ -317,6 +326,29 @@ deploy_secrets()
     if [ ! -f $conf/frontend-ds/hostcert.pem ]; then
         cp $cmsweb_crt $conf/frontend-ds/hostcert.pem
     fi
+
+    if [ ! -f $conf/auth-proxy-server/tls.key ]; then
+        cp $cmsweb_key $conf/auth-proxy-server/tls.key
+    fi
+    if [ ! -f $conf/auth-proxy-server/tls.crt ]; then
+        cp $cmsweb_crt $conf/auth-proxy-server/tls.crt
+    fi
+
+    if [ ! -f $conf/x509-proxy-server/tls.key ]; then
+        cp $cmsweb_key $conf/x509-proxy-server/tls.key
+    fi
+    if [ ! -f $conf/x509-proxy-server/tls.crt ]; then
+        cp $cmsweb_crt $conf/x509-proxy-server/tls.crt
+    fi
+    if [ ! -f $conf/scitokens-proxy-server/tls.key ]; then
+        cp $cmsweb_key $conf/scitokens-proxy-server/tls.key
+    fi
+    if [ ! -f $conf/scitokens-proxy-server/tls.crt ]; then
+        cp $cmsweb_crt $conf/scitokens-proxy-server/tls.crt
+    fi
+
+
+
 
     tls_key=/tmp/$USER/tls.key
     tls_crt=/tmp/$USER/tls.crt
@@ -435,7 +467,25 @@ deploy_secrets()
                     $files --dry-run -o yaml | \
                     kubectl apply --namespace=$ns -f -
         done
-
+        for srv in $cmsweb_aps; do
+            local secretdir=$conf/$srv
+            # the underscrore is not allowed in secret names
+            local osrv=$srv
+            srv=`echo $srv | sed -e "s,_,,g"`
+            local files=""
+            if [ -d $secretdir ] && [ -n "`ls $secretdir`" ]; then
+                for fname in $secretdir/*; do
+                    files="$files --from-file=$fname"
+                done
+            fi
+            local srv_ns=`grep namespace $ddir/${osrv}.yaml | grep $ns`
+                if [ -z "$srv_ns" ] ; then
+                    continue
+                fi
+                kubectl create secret generic ${srv}-secrets \
+                    $files --dry-run -o yaml | \
+                    kubectl apply --namespace=$ns -f -
+        done
     done
 
     # create ingress secrets file, it requires tls.key/tls.crt files
@@ -565,7 +615,7 @@ deploy_monitoring()
 
     # add secrets for loki service
     if [ -n "`kubectl get secrets -n monitoring | grep loki-secrets`" ]; then
-        kubectl delete configmap logstash -n monitoring
+        kubectl delete secrets loki-secrets -n monitoring
     fi
     kubectl create secret generic loki-secrets \
         --from-file=monitoring/loki-config.yaml --dry-run=client -o yaml | \
@@ -623,6 +673,36 @@ deploy_daemonset()
     else
 
    for ds in $cmsweb_ds; do
+
+           cat daemonset/${ds}.yaml | \
+           sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
+           kubectl apply -f -
+    done
+    fi
+}
+
+deploy_aps()
+{
+    for n in `kubectl get nodes | grep -v master | grep -v NAME | awk '{print $1}'`; do
+        kubectl label node $n role=auth --overwrite
+        kubectl get node -l role=auth
+    done
+    if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]] ; then
+
+    for ds in $cmsweb_aps; do
+
+           cat daemonset/${ds}.yaml | \
+           sed -e "s,#PROD#,$prod_prefix,g" | \
+           sed -e "s,k8s #k8s#,$env_prefix,g" | \
+           sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
+           sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
+           kubectl apply -f -
+
+    done
+
+    else
+
+   for ds in $cmsweb_aps; do
 
            cat daemonset/${ds}.yaml | \
            sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
@@ -748,6 +828,8 @@ create()
         deploy_ingress
     elif [ "$deployment" == "daemonset" ]; then
         deploy_daemonset
+    elif [ "$deployment" == "aps" ]; then
+        deploy_aps
     elif [ "$deployment" == "monitoring_backend" ]; then
         deployment=services
         deploy_monitoring
