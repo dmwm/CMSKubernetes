@@ -23,16 +23,12 @@ RUN go env -w GONOSUMDB="github.com/galeone/tensorflow" && \
     go get github.com/sirupsen/logrus && \
     go get github.com/shirou/gopsutil
 
+# DAS tag to use
+ENV TAG=v01.01.06
 RUN git clone https://github.com/vkuznet/TFaaS.git && \
-    cd TFaaS/src/Go && \
-    sed -i -e "s,tensorflow/tensorflow,galeone/tensorflow,g" handlers.go && \
-    sed -i -e "s,tensorflow/tensorflow,galeone/tensorflow,g" tfaas.go && \
-    go mod init github.com/vkuznet/TFaaS && \
-    go env -w GONOSUMDB="github.com/galeone/tensorflow" && \
-    go get github.com/galeone/tfgo && \
-    go mod tidy && \
-    make prepare && \
-    cp -r tfaaspb /usr/local/go/src && \
+    cd TFaaS && \
+    git checkout tags/$TAG -b build && \
+    cd src/Go && \
     make
 
 # final image
