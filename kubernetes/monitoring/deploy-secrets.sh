@@ -6,6 +6,7 @@
 ##H        alertmanager-secrets
 ##H        auth-secrets
 ##H        cern-certificates
+##H        condor-cpu-eff-secrets
 ##H        es-wma-secrets
 ##H        hdfs-secrets
 ##H        intelligence-secrets
@@ -96,6 +97,8 @@ elif [ "$secret" == "proxy-secrets" ]; then
     files="--from-file=/tmp/proxy"
 elif [ "$secret" == "log-clustering-secrets" ]; then
     files=`ls $sdir/log-clustering/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/log-clustering | sed "s, $,,g"`
+elif [ "$secret" == "condor-cpu-eff-secrets" ]; then
+    files=`ls $sdir/condor-cpu-eff/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/condor-cpu-eff | sed "s, $,,g"`
 elif [ "$secret" == "es-wma-secrets" ]; then
     files=`ls $sdir/es-exporter/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/es-exporter | sed "s, $,,g"`
 elif [ "$secret" == "hdfs-secrets" ]; then
