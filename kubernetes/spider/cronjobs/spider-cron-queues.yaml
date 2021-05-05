@@ -4,7 +4,7 @@ metadata:
   namespace: spider
   name: cron-spider-queues
 spec:
-  schedule: "*/5 * * * *"
+  schedule: "*/12 * * * *"
   jobTemplate:
     spec:
       template:

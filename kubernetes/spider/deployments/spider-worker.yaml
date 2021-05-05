@@ -29,7 +29,7 @@ spec:
         - -Q
         - "celery,es_post,convert"
         - -l
-        - "DEBUG"
+        - "WARNING"
         - -Ofair
         env: &spider_env
         - name: AFFILIATION_DIR_LOCATION
@@ -40,8 +40,6 @@ spec:
           value: redis://$(REDIS_SERVICE_HOST):$(REDIS_SERVICE_PORT_6379)/1
         - name: CELERY_TEST
           value: '"false"'
-        - name: CELERY_TRACE_APP # raise exception when app chain breaks
-          value: 1
         - name: CMS_AMQ_PASSWORD_FILE
           value: /cms_secrets/amq-password/amq-password
         - name: CMS_AMQ_USERNAME_FILE

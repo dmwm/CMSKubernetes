@@ -22,7 +22,7 @@ spec:
         - --broker=redis://$(REDIS_SERVICE_HOST):$(REDIS_SERVICE_PORT_6379)/0
         - --port=5555
         - -A=htcondor_es.celery.celery
-        - -l=DEBUG
+        - -l=WARNING
         - --persistent=True
         - --max_tasks=1000000000
         - --db=/cms_shared/flower.db

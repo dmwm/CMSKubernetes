@@ -11,7 +11,7 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   rules:
-  - host: "test-cluster-jnbxujghdusq-node-0.cern.ch"
+  - host: "htcondor-spider-wn62sg32fmxi-node-1"
     http:
       paths:
       - path: /

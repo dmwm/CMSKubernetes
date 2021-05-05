@@ -7,9 +7,10 @@ kubectl create namespace spider
 kubectl apply -f accounts/spider-accounts.yaml
 
 # pvc storages
-kubectl apply -f storages/cephfs-storage.yaml
+#kubectl apply -f storages/cephfs-storage.yaml
 
 # secrets, "$secrets" points to secrets repo
+secrets=/afs/cern.ch/user/c/cuzunogl/private/projects/secrets
 kubectl create secret generic amq-username -n spider --from-file=$secrets/cms-htcondor-es/amq-username
 kubectl create secret generic amq-password -n spider --from-file=$secrets/cms-htcondor-es/amq-password
 kubectl create secret generic es-conf -n spider --from-file=$secrets/cms-htcondor-es/es-conf
