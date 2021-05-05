@@ -39,8 +39,8 @@ project=${OS_PROJECT_NAME:-"CMS Web"}
 cluster=${CLUSTER:-"monitoring-cluster"}
 template=${TEMPLATE:-"kubernetes-1.15.3-3"}
 keypair=${KEY:-"cloud"}
-secrets="prometheus-secrets nats-secrets sqoop-secrets alerts-secrets intelligence-secrets"
-services="prometheus pushgateway victoria-metrics victoria-metrics-test nats-sub-exitcode nats-sub-stats nats-sub-t1 nats-sub-t2 karma ggus-alerts ssb-alerts cmsmon-intelligence auth-proxy-server"
+secrets="prometheus-secrets nats-secrets sqoop-secrets alerts-secrets intelligence-secrets condor-cpu-eff-secrets"
+services="prometheus pushgateway victoria-metrics victoria-metrics-test nats-sub-exitcode nats-sub-stats nats-sub-t1 nats-sub-t2 karma ggus-alerts ssb-alerts cmsmon-intelligence auth-proxy-server condor-cpu-eff"
 namespaces="nats sqoop http hdfs alerts"
 
 # prometheus operator deployment (so far we don't use it)
@@ -191,6 +191,13 @@ deploy_secrets()
         kubectl -n hdfs delete secret log-clustering-secrets
     fi
     kubectl create secret generic log-clustering-secrets --from-file=secrets/log-clustering/keytab --from-file=secrets/log-clustering/creds.json --dry-run=client -o yaml | kubectl apply --namespace=hdfs -f -
+
+    # add condor-cpu-eff secrets
+    if [ -n "`kubectl -n hdfs get secrets | grep condor-cpu-eff-secrets`" ]; then
+        echo "delete condor-cpu-eff-secrets"
+        kubectl -n hdfs delete secret condor-cpu-eff-secrets
+    fi
+    kubectl create secret generic condor-cpu-eff-secrets --from-file=secrets/condor-cpu-eff/keytab --dry-run=client -o yaml | kubectl apply --namespace=hdfs -f -
 
     # add alerts secrets
     if [ -n "`kubectl -n alerts get secrets | grep alerts-secrets`" ]; then
