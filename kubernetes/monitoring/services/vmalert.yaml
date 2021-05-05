@@ -17,9 +17,9 @@ spec:
       spec:
         containers:
         - args:
-          - -datasource.url=http://cms-monitoring-ha1:8428
+          - -datasource.url=http://cms-monitoring:30082
           - -remoteWrite.url=http://cms-monitoring-agg:31428
-          - -rule=/etc/vmalert/rucio-agg.rules \
+          - -rule=/etc/vmalert/rucio-agg.rules
           - -notifier.url=http://cms-monitoring:9093
           name: vmalert
           image: victoriametrics/vmalert
