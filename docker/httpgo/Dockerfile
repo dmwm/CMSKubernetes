@@ -2,7 +2,7 @@ FROM golang:latest as go-builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 # DAS tag to use
-ENV TAG=00.00.01
+ENV TAG=00.00.17
 
 # build procedure
 ENV WDIR=/data
@@ -16,3 +16,4 @@ RUN git checkout tags/$TAG -b build && make
 FROM alpine
 RUN mkdir -p /data
 COPY --from=go-builder /data/httpgo/httpgo /data/
+CMD ["/data/httpgo"]
