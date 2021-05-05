@@ -28,7 +28,7 @@ spec:
                 echo "$i: $(date)" >> /var/log/1.log;
                 echo "$(date) INFO $i" >> /var/log/2.log;
                 i=$((i+1));
-                sleep 1;
+                sleep 60;
             done
         volumeMounts:
         - name: varlog
