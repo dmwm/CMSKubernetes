@@ -16,6 +16,10 @@ func RequestHandler(w http.ResponseWriter, r *http.Request) {
 		// print out all request headers
 		fmt.Fprintf(w, "%s %s %s \n", r.Method, r.URL, r.Proto)
 		for k, v := range r.Header {
+			h := strings.ToLower(k)
+			if strings.Contains(h, "hmac") || strings.Contains(h, "cookie") {
+				continue
+			}
 			fmt.Fprintf(w, "Header field %q, Value %q\n", k, v)
 		}
 		fmt.Fprintf(w, "Host = %q\n", r.Host)
