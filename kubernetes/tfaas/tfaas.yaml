@@ -27,7 +27,8 @@ spec:
         app: tfaas
     spec:
       containers:
-      - image: cmssw/tfaas
+      #- image: cmssw/tfaas:v01.01.05
+      - image: cmssw/tfaas:v01.01.06
         name: tfaas
         ports:
         - containerPort: 8083
@@ -37,7 +38,12 @@ spec:
         - name: secrets
           mountPath: /etc/secrets
           readOnly: true
+        - name: models
+          mountPath: /data/models
       volumes:
       - name: secrets
         secret:
           secretName: tfaas-secrets
+      - name: models
+        persistentVolumeClaim:
+          claimName: models-claim
