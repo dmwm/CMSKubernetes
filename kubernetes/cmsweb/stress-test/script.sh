@@ -9,7 +9,5 @@ failure=$(cat /cephfs/product/dbs-logs/clients/curl-client-* | awk  '{print $2}'
 echo "Total Requests: $total"
 echo "Requests Failed: $failure"
 
-z=$((failure / total))
-
-echo "Failure Rate:  $z"
+echo $(bc -l <<<"${failure}/${total}")
 
