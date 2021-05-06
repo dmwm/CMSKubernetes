@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cat /cephfs/product/dbs-logs/clients/curl-client-6* | awk  '{sum+=$4} END {print "Avg time=",sum/NR}'
+cat /cephfs/product/dbs-logs/clients/curl-client-* | awk  '{sum+=$4} END {print "Avg time=",sum/NR}'
 
 total=$(cat /cephfs/product/dbs-logs/clients/curl-client-6* | awk  '{print $2}' | wc -l)
 
