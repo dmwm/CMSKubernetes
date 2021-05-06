@@ -3,16 +3,17 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: client-script
-  namespace: default
+  namespace: dbs
 data:
   client.sh: |
     #!/bin/sh
     set -e
-
-    for i in $(seq 0 100) ; do
+    mkdir -p /tmp/clients
+    for i in $(seq 0 99) ; do
     #_base_url="https://cmsweb-testbed.cern.ch/dbs/int/global/DBSReader/datasets?detail=False"
-      file="/data/urls.txt"
-      while IFS= read -r line; do  _base_url="$line" ;
+    _base_url="https://cmsweb-testbed.cern.ch/dbs2go/datasets?detail=False"
+      file="/etc/secrets/urls.txt"
+      #while IFS= read -r line; do  _base_url="$line" ;
          curl \
               -s \
               --cert /certs/cms-proxy.pem \
@@ -20,8 +21,8 @@ data:
               --cacert /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem \
               -w "${_base_url} %{http_code} %{remote_ip} %{time_total}\n" \
               -o /dev/null \
-              "${_base_url}" | tee --append --ignore-interrupts /tmp/curl-client.log ;
-      done < "$file"
+              "${_base_url}" | tee --append --ignore-interrupts /tmp/clients/curl-$HOSTNAME.log ;
+     #done < "$file"
     done
     echo "Finished. sleeping 100d"
     sleep 100d
@@ -30,7 +31,7 @@ data:
       config_version: 3
     input:
       type: file
-      path: /tmp/curl-client.log
+      path: /tmp/clients/curl-$HOSTNAME.log
       fail_on_missing_logfile: false
     imports:
     - type: grok_patterns
@@ -61,7 +62,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: client
-  namespace: default
+  namespace: dbs
   labels:
     k8s-app: curl-client
 spec:
@@ -91,7 +92,7 @@ spec:
           - name: cms-proxy
             mountPath: /certs
           - name: urls-secrets
-            mountPath: /data
+            mountPath: /etc/secrets
       - name: grok
         image: gitlab-registry.cern.ch/strigazi/containers/grok_exporter
         imagePullPolicy: "IfNotPresent"
@@ -112,7 +113,8 @@ spec:
           type: "spc_t"
       volumes:
       - name: workspace
-        emptyDir:
+        persistentVolumeClaim:
+            claimName: logs-cephfs-claim-prod-dbs
       - name: client-cm
         configMap:
           name: client-script
@@ -131,7 +133,7 @@ apiVersion: v1
 kind: Service
 metadata: 
   name: curl-client
-  namespace: default
+  namespace: dbs
   labels: 
     k8s-app: curl-client
 spec: 
@@ -141,7 +143,6 @@ spec:
       name: metrics
   selector: 
     k8s-app: curl-client
-
 ---
 #apiVersion: monitoring.coreos.com/v1
 #kind: ServiceMonitor
