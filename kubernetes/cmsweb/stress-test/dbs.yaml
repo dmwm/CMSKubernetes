@@ -15,8 +15,9 @@ data:
     #_base_url="https://cmsweb-testbed.cern.ch/dbs/int/global/DBSReader/datasets?detail=False"
     #_base_url="https://cmsweb-testbed.cern.ch/dbs2go/datasets?detail=False"
     ### Following two lines can be used to access urls from files. Files should be in cephfs area. i.e. /cephfs/product/dbs-logs in vocms0750.
-    #file="/tmp/dbs2go_queries.txt"
-    file="/tmp/dbs_queries.txt"
+    #cp /tmp/dbs2go_queries.txt /urls.txt
+    cp /tmp/dbs_queries.txt /urls.txt
+    file="/urls.txt"
     while IFS= read -r line; do  _base_url="$line" ;
          curl \
               -s \
