@@ -23,6 +23,7 @@
 ##H        rumble-secrets
 ##H        rucio-secrets
 ##H        sqoop-secrets
+##H        vmalert-secrets
 ##H Examples:
 ##H        deploy-secrets.sh default prometheus-secrets ha
 set -e # exit script if error occurs
@@ -80,6 +81,8 @@ elif [ "$secret" == "karma-secrets" ]; then
     fi
 elif [ "$secret" == "promxy-secrets" ]; then
     files=`ls $cdir/promxy/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$cdir/promxy | sed "s, $,,g"`
+elif [ "$secret" == "vmalert-secrets" ]; then
+    files=`ls $cdir/vmalert/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$cdir/vmalert | sed "s, $,,g"`
 elif [ "$secret" == "robot-secrets" ]; then
     files=`ls $sdir/robot/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/robot | sed "s, $,,g"`
 elif [ "$secret" == "auth-secrets" ]; then
