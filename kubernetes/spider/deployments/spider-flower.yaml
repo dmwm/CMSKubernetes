@@ -18,15 +18,16 @@ spec:
     spec:
       containers:
       - args:
+        - celery
         - flower
         - --broker=redis://$(REDIS_SERVICE_HOST):$(REDIS_SERVICE_PORT_6379)/0
         - --port=5555
         - -A=htcondor_es.celery.celery
-        - -l=WARNING
+        - -l=DEBUG
         - --persistent=True
         - --max_tasks=1000000000
         - --db=/cms_shared/flower.db
-        image: mrceyhun/cms_htcondor_es:latest
+        image: mrceyhun/cms_htcondor_es_test:latest
         name: spider-flower
         ports:
         - containerPort: 5555
@@ -43,10 +44,9 @@ spec:
             name: shared-spider
       volumes:
         - name: shared-spider
-          emptyDir: {}
-        #cinder:
-        #   volumeID: eab4da25-4d74-4c03-b516-c9517ac73b3f
-        #    fsType: ext4
+          persistentVolumeClaim:
+            claimName: spider-shared-cephfs-claim
+            readOnly: false
       restartPolicy: Always
       terminationGracePeriodSeconds: 60
 status: {}

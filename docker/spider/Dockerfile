@@ -1,12 +1,18 @@
 # This Dockerfile uses "spider" branch of "cms-htcondor-es" repository
-FROM cern/cc7-base:20190724 as builder
-RUN yum install -y git python36 python36-virtualenv python36-pip && \
-ln -fs /usr/bin/python3 /usr/bin/python && \
-ln -fs /usr/bin/pip3.6 /usr/bin/pip
+FROM cern/cc7-base:20210501-2.x86_64
 
-RUN git clone https://github.com/mrceyhun/cms-htcondor-es.git
-RUN cd cms-htcondor-es && git checkout spider
-RUN pip install -r /cms-htcondor-es/requirements.txt
+# Build python3.8
+RUN yum install -y git gcc openssl-devel bzip2-devel libffi-devel make wget
+RUN cd /opt && \
+wget https://www.python.org/ftp/python/3.8.7/Python-3.8.7.tgz && \
+tar xzf Python-3.8.7.tgz
+RUN cd /opt/Python-3.8.7 && ./configure --enable-optimizations && make altinstall
+RUN ln -fs /usr/local/bin/python3.8 /usr/bin/python
+RUN ln -fs /usr/local/bin/pip3.8 /usr/bin/pip
+RUN rm -rf /opt/Python-3.8.7
+
+ENV PATH "${PATH}:/usr/bin/"
+RUN git clone https://github.com/mrceyhun/cms-htcondor-es.git && cd cms-htcondor-es && git checkout spider && pip install -r /cms-htcondor-es/requirements.txt
 ENV PYTHONPATH "${PYTHONPATH}:/cms-htcondor-es/src"
 ENV REQUESTS_CA_BUNDLE "/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt"
 

@@ -3,34 +3,29 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: spider-worker
-  name: spider-worker
+    app: spider-test
+  name: spider-test
   namespace: spider
 spec:
-  replicas: 6
+  replicas: 1
   selector:
     matchLabels:
-      app: spider-worker
+      app: spider-test
   strategy: {}
   template:
     metadata:
       labels:
-        app: spider-worker
+        app: spider-test
     spec:
       containers:
-      - name: spider-worker
+      - name: spider-test
         image: mrceyhun/cms_htcondor_es:latest
         imagePullPolicy: Always
-        args:
-        - celery
-        - -A
-        - htcondor_es.celery.celery
-        - worker
-        - -Q
-        - "celery,es_post,convert"
-        - -l
-        - "INFO"
-        - -Ofair
+        tty: true
+        stdin: true
+        ports:
+        - containerPort: 5555
+          name: port-5555
         env: &spider_env
         - name: AFFILIATION_DIR_LOCATION
           value: /cms_shared/affiliation_dir.json

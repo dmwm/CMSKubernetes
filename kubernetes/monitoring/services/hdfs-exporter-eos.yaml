@@ -24,7 +24,7 @@ data:
     #!/bin/sh
     export PATH="/usr/hdp/hadoop/bin:/usr/bin:/bin"
     export KRB5CCNAME=/etc/secrets/krb5cc
-    /data/hdfs_exporter -path /project/monitoring/archive/eos-report/logs/cms -pattern json -timeoffset 172800
+    /data/hdfs_exporter -path /project/monitoring/archive/eos-report/logs/cms -pattern json -timeoffset 172800 -verbose 1
 ---
 apiVersion: apps/v1
 kind: Deployment

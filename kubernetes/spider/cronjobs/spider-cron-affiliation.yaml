@@ -51,6 +51,6 @@
             volumes:
               - name: shared-spider
                 persistentVolumeClaim:
-                  claimName: affilations-cephfs-claim
+                  claimName: spider-shared-cephfs-claim
                   readOnly: false
 

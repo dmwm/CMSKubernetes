@@ -1,20 +1,22 @@
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress
+  name: simple-fanout-example
   namespace: spider
   annotations:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "900"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "900"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "900"
-    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   rules:
-  - host: "htcondor-spider-wn62sg32fmxi-node-1"
+  - host: "htcondor-spider-wn62sg32fmxi-node-0"
     http:
       paths:
-      - path: /
+      - path: /flower
+        pathType: ImplementationSpecific
         backend:
-          serviceName: spider-flower
-          servicePort: 5555
+          service:
+            name: spider-flower
+            port:
+              number: 5555

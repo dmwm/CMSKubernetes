@@ -17,19 +17,19 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 1G
-  storageClassName: geneva-cephfs-testing
+      storage: 6G
+  storageClassName: meyrin-cephfs
 ---
-# Affiliations
+# Shared including affiliations
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: affilations-cephfs-claim
+  name: spider-shared-cephfs-claim
   namespace: spider
 spec:
   accessModes:
   - ReadWriteMany
   resources:
     requests:
-      storage: 1G
-  storageClassName: geneva-cephfs-testing
+      storage: 4G
+  storageClassName: meyrin-cephfs
