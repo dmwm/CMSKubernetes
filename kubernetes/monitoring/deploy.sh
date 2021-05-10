@@ -71,6 +71,8 @@ deploy_cronjobs()
         kubectl apply -f crons/proxy-account.yaml -n $ns
         kubectl apply -f crons/cron-proxy.yaml -n $ns
     done
+    kubectl apply -f crons/kerberos-account.yaml -n http
+    kubectl apply -f crons/cron-kerberos.yaml -n http
 }
 
 # cluster proxies deployment
