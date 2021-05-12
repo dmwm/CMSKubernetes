@@ -1,5 +1,5 @@
 {
     "base": "",
-    "port": 8212,
+    "port": 9212,
     "db": "/tmp/badger.db"
 }
