@@ -16,7 +16,7 @@ spec:
         app: monitor
     spec:
       containers:
-      - image: ivmfnal/rucio_consistency_monitor:2.2
+      - image: ivmfnal/rucio_consistency_monitor #imagetag
         name: monitor
         livenessProbe:
           httpGet:
@@ -41,10 +41,7 @@ spec:
 #PROD#  - name: consistency-reports
 #PROD#    persistentVolumeClaim:
 #PROD#          claimName: consistency-report-pvc
-      
-
 ---
-
 kind: Service
 apiVersion: v1
 metadata:
@@ -57,5 +54,4 @@ spec:
     protocol: TCP
     name: http
   selector:
-    app: monitor
-  
+    app: monitor  
