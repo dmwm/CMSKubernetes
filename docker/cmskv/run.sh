@@ -9,5 +9,5 @@ if [ -f /etc/secrets/config.json ]; then
 fi
 
 # start wmarchive process exporter
-nohup /data/process_monitor.sh ".*config.json" cmskv_exporter ":18200" 15 2>&1 1>& $logDir/cmskv_exporter.log < /dev/null &
+nohup /data/process_monitor.sh ".*config.json" cmskv_exporter ":19212" 15 2>&1 1>& $logDir/cmskv_exporter.log < /dev/null &
 /data/cmskv -config=$config
