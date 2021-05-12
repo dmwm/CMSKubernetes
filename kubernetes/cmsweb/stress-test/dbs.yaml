@@ -20,7 +20,7 @@ data:
     file="/urls.txt"
     while IFS= read -r line; do  _base_url="$line" ;
          curl \
-              -s \
+              -s -L \
               --cert /certs/cms-proxy.pem \
               --cacert /certs/cms-proxy.pem \
               --cacert /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem \
