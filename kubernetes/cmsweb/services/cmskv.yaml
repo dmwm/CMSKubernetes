@@ -36,7 +36,7 @@ spec:
         prometheus.io/port: "19212"
     spec:
       containers:
-      - image: veknet/cmskv #imagetag
+      - image: cmssw/cmskv #imagetag
         name: cmskv
         imagePullPolicy: Always
         resources:
@@ -48,7 +48,7 @@ spec:
             cpu: "4000m"
         livenessProbe:
           httpGet:
-            path: /info
+            path: /cmskv/info
             port: 9212
           initialDelaySeconds: 120
           periodSeconds: 10
