@@ -69,8 +69,11 @@ spec:
         - name: secrets
           mountPath: /etc/secrets
 #PROD#  - name: logs-cephfs
-#PROD#    mountPath: /data/logs
+#PROD#    mountPath: /data/db
       volumes:
       - name: secrets
         secret:
           secretName: cmskv-secrets
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#    claimName: logs-cephfs-claim-cmskv
