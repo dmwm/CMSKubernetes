@@ -1,4 +1,4 @@
-FROM cern/cc7-base:20200504-1.x86_64
+FROM cern/cc7-base:20210501-2.x86_64
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 # setup necessary environment

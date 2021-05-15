@@ -11,3 +11,5 @@ echo "Requests Failed: $failure"
 
 echo $(bc -l <<<"${failure}/${total}")
 
+cat /cephfs/product/dbs-logs/clients/curl-client-* | awk  '{print "requests with return code: " $2}' | sort | uniq -c
+
