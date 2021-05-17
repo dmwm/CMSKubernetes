@@ -297,3 +297,34 @@ spec:
     requests:
       storage: 500G
   storageClassName: crabcache-share
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: cmskv-share
+  namespace: http
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: 171a6647-498f-42b4-9467-0ce8c7f3eabd
+  osShareAccessID: 50bf0536-5724-494b-bd90-8be5a3debb41
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-prod-cmskv
+  namespace: http
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 20G
+  storageClassName: cmskv-share
+---
