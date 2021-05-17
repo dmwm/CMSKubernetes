@@ -53,4 +53,3 @@
                 persistentVolumeClaim:
                   claimName: spider-shared-cephfs-claim
                   readOnly: false
-

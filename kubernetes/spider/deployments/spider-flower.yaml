@@ -21,7 +21,7 @@ spec:
         - celery
         - flower
         - --broker=redis://$(REDIS_SERVICE_HOST):$(REDIS_SERVICE_PORT_6379)/0
-        - --port=5555
+        - --port=8888
         - -A=htcondor_es.celery.celery
         - -l=DEBUG
         - --persistent=True
@@ -30,8 +30,8 @@ spec:
         image: mrceyhun/cms_htcondor_es_test:latest
         name: spider-flower
         ports:
-        - containerPort: 5555
-          name: port-5555
+        - containerPort: 8888
+          name: port-8888
         resources:
           limits:
             cpu: 300m

@@ -4,12 +4,15 @@ kind: Service
 metadata:
   name: redis-checkpoint
   namespace: spider
+
 spec:
+  type: NodePort
   selector:
     app: redis-checkpoint
   ports:
   - name: "6379"
+    nodePort: 30638
     port: 6379
-    targetPort: 6379
+    protocol: TCP
 status:
   loadBalancer: {}

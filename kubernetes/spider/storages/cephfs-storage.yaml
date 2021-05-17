@@ -10,7 +10,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: redis-cephfs-claim
+  name: spider-redis-cephfs-claim
   namespace: spider
 spec:
   accessModes:
