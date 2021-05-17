@@ -29,3 +29,7 @@ spec:
         backend:
           serviceName: httpsgo
           servicePort: 443
+      - path: /cmskv
+        backend:
+          serviceName: cmskv
+          servicePort: 9212
