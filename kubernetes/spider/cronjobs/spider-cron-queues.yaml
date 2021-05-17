@@ -1,3 +1,7 @@
+# When the node of running CronJob is down, Job recreated new CronJob pod. This caused duplicates.
+# To not retry a failed CronJob and to not recreate new CronJob pod
+# following specs are applied as a whole: concurrencyPolicy, failedJobsHistoryLimit, backoffLimit, restartPolicy
+# Ref: https://stackoverflow.com/a/51687712/6123088 
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
@@ -5,8 +9,11 @@ metadata:
   name: cron-spider-queues
 spec:
   schedule: "*/12 * * * *"
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
+      backoffLimit: 0
       template:
         spec:
           serviceAccountName: spider-account
