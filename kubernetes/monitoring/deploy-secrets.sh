@@ -56,7 +56,7 @@ literals=""
 
 if [ "$secret" == "prometheus-secrets" ]; then
     prom="$cdir/prometheus/prometheus.yaml"
-    if [ $ha -ne "" ]; then
+    if [ $ha != "" ]; then
         prom="$cdir/prometheus/ha/prometheus.yaml"
     fi
     files=`ls $cdir/prometheus/*.rules $cdir/prometheus/*.json $prom | awk '{ORS=" " ; print "--from-file="$1""}' | sed "s, $,,g"`
