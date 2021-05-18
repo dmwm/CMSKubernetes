@@ -30,7 +30,8 @@ spec:
         - "celery,es_post,convert"
         - -l
         - "INFO"
-        - -Ofair
+        - -Ofair # ref: https://www.lorenzogil.com/blog/2020/03/01/celery-tasks/
+        - -E # required for monitoring: worker_send_task_events
         env: &spider_env
         - name: AFFILIATION_DIR_LOCATION
           value: /cms_shared/affiliation_dir.json

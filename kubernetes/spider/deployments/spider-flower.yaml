@@ -1,3 +1,5 @@
+# In future more lightweight image can be used, which must include cms-htcondor-es repo
+# Ref: https://github.com/mher/flower/blob/master/Dockerfile
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -21,17 +23,17 @@ spec:
         - celery
         - flower
         - --broker=redis://$(REDIS_SERVICE_HOST):$(REDIS_SERVICE_PORT_6379)/0
-        - --port=8888
+        - --port=5555
         - -A=htcondor_es.celery.celery
         - -l=DEBUG
         - --persistent=True
         - --max_tasks=1000000000
         - --db=/cms_shared/flower.db
-        image: mrceyhun/cms_htcondor_es_test:latest
+        image: mrceyhun/cms_htcondor_es:latest
         name: spider-flower
         ports:
-        - containerPort: 8888
-          name: port-8888
+        - containerPort: 5555
+          name: port-5555
         resources:
           limits:
             cpu: 300m

@@ -9,7 +9,7 @@ spec:
   selector:
     app: spider-flower
   ports:
-  - name: port-8888
-    nodePort: 31111
-    port: 8888
+  - name: port-5555
+    nodePort: 30555
+    port: 5555
     protocol: TCP
