@@ -20,7 +20,7 @@ metadata:
   labels:
      app: promxy
 spec:
-   replicas: 1
+   replicas: 2
    selector:
      matchLabels:
        app: promxy
@@ -36,7 +36,8 @@ spec:
           - /data/promxy
           - --config=/etc/promxy/config.yaml
           name: promxy
-          image: cmssw/promxy
+          image: cmssw/promxy:v0.0.70
+#           image: cmssw/promxy
           ports:
           - containerPort: 8082
             protocol: TCP
