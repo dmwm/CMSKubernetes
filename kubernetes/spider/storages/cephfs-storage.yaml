@@ -1,0 +1,35 @@
+# CephFS volume claims:
+# for production storage use
+#   storageClassName: meyrin-cephfs
+# for test storage use
+#   storageClassName: geneva-cephfs-testing
+# Cephfs storage must >= 1G
+# ---
+#
+# Redis
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: spider-redis-cephfs-claim
+  namespace: spider
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 6G
+  storageClassName: meyrin-cephfs
+---
+# Shared including affiliations
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: spider-shared-cephfs-claim
+  namespace: spider
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 4G
+  storageClassName: meyrin-cephfs

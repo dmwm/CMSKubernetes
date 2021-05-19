@@ -4,11 +4,13 @@ metadata:
   name: redis
   namespace: spider
 spec:
+  type: NodePort
   selector:
     app: redis
   ports:
   - name: "6379"
+    nodePort: 30637
     port: 6379
-    targetPort: 6379
+    protocol: TCP
 status:
   loadBalancer: {}

@@ -10,6 +10,6 @@ spec:
     app: spider-flower
   ports:
   - name: port-5555
-    nodePort: 31111
+    nodePort: 30555
     port: 5555
     protocol: TCP

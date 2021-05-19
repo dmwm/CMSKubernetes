@@ -20,6 +20,7 @@ kubectl delete secrets es-conf -n spider
 kubectl delete secrets collectors -n spider
 
 # Delete PVC storages
-kubectl delete -f storages/shared_redis.yaml
-kubectl delete -f storages/shared_spider.yaml
-kubectl delete -f storages/storage_class.yaml
+#kubectl delete -f storages/cephfs-storage.yaml
+
+# Delete ns
+#kubectl delete namespace spider

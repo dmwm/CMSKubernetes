@@ -4,6 +4,7 @@
     name: cron-spider-affiliation
     namespace: spider
   spec:
+    # ! [TEST]
     schedule: "00 3 * * *"
     jobTemplate:
       spec:
@@ -16,7 +17,7 @@
               args:
               - /bin/sh
               - -c
-              - echo "run k8s_affiliation_cache.sh"; /cms-htcondor-es/k8s_affiliation_cache.sh $AFFILIATION_DIR_LOCATION; echo "ls -al /etc/affiliations"; ls -al AFFILIATION_DIR_LOCATION
+              - echo "run k8s_affiliation_cache.sh"; /cms-htcondor-es/k8s_affiliation_cache.sh $AFFILIATION_DIR_LOCATION; echo "ls -al /etc/affiliations"; ls -al $AFFILIATION_DIR_LOCATION
               env:
                 - name: AFFILIATION_DIR_LOCATION
                   value: /cms_shared/affiliation_dir.json
@@ -25,7 +26,7 @@
                 - name: CELERY_RESULT_BACKEND
                   value: redis://$(REDIS_SERVICE_HOST):$(REDIS_SERVICE_PORT_6379)/1
                 - name: CELERY_TEST
-                  value: '"true"'
+                  value: '"false"'
                 - name: C_FORCE_ROOT
                   value: '"true"'
                 - name: PYTHONPATH
@@ -42,18 +43,13 @@
               stdin: true
               tty: true
               volumeMounts:
-                - mountPath: /cms_shared
-                  name: shared-spider
-            volumes:
-              - name: shared-spider
-                emptyDir: {}
-                #cinder:
-                #  volumeID: eab4da25-4d74-4c03-b516-c9517ac73b3f
-                #  fsType: ext4
-              #persistentVolumeClaim:
-              #    claimName: affilations-cinder-claim
-              #    readOnly: false
-              #    #CephFS#  claimName: affilations-cephfs-claim
+                - name: shared-spider
+                  mountPath: /cms_shared
             restartPolicy: Never
             securityContext:
               fsGroup: 1414
+            volumes:
+              - name: shared-spider
+                persistentVolumeClaim:
+                  claimName: spider-shared-cephfs-claim
+                  readOnly: false

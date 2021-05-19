@@ -1,3 +1,5 @@
+# In future more lightweight image can be used, which must include cms-htcondor-es repo
+# Ref: https://github.com/mher/flower/blob/master/Dockerfile
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -18,6 +20,7 @@ spec:
     spec:
       containers:
       - args:
+        - celery
         - flower
         - --broker=redis://$(REDIS_SERVICE_HOST):$(REDIS_SERVICE_PORT_6379)/0
         - --port=5555
@@ -43,10 +46,9 @@ spec:
             name: shared-spider
       volumes:
         - name: shared-spider
-          emptyDir: {}
-        #cinder:
-        #   volumeID: eab4da25-4d74-4c03-b516-c9517ac73b3f
-        #    fsType: ext4
+          persistentVolumeClaim:
+            claimName: spider-shared-cephfs-claim
+            readOnly: false
       restartPolicy: Always
       terminationGracePeriodSeconds: 60
 status: {}
