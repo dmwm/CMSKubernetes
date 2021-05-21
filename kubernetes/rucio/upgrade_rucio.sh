@@ -16,7 +16,7 @@ helm3 upgrade --values cms-rucio-common.yaml,cms-rucio-probes.yaml,${INSTANCE}-r
 
 # CMS Stuff
 helm3 upgrade --values cms-consistency.yaml,${INSTANCE}-consistency.yaml,${INSTANCE}-consistency-jobs.yaml cms-consistency-${INSTANCE} ~/CMSKubernetes/helm/rucio-consistency
-helm3 upgrade --values ${INSTANCE}-cronjob.yaml cms-cron-${INSTANCE} cms-kubernetes/rucio-cron-jobs
+helm3 upgrade --values ${INSTANCE}-cronjob.yaml cms-cron-${INSTANCE} ~/CMSKubernetes/helm/rucio-cron-jobs
 helm3 upgrade --values ${INSTANCE}-loadtest.yaml loadtest-${INSTANCE} ~/CMSKubernetes/helm/rucio-loadtest
 helm3 upgrade --values ${INSTANCE}-loadtest.yaml,webdav-loadtest.yaml webdav-loadtest-${INSTANCE} ~/CMSKubernetes/helm/rucio-loadtest
 helm3 upgrade  --values cms-traces.yaml,${INSTANCE}-db.yaml rucio-traces-${INSTANCE} ~/CMSKubernetes/helm/rucio-traces
