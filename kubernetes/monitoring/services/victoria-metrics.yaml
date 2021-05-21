@@ -51,11 +51,6 @@ spec:
           volumeMounts:
           - name: cinder-volume
             mountPath: /tsdb
-        - name: vmbackup
-          image: victoriametrics/vmbackup
-          volumeMounts:
-          - name: cinder-volume
-            mountPath: /tsdb
           - name: secrets
             mountPath: /etc/secrets
         volumes:
