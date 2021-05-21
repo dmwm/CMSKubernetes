@@ -7,10 +7,10 @@ reaper2:
   includeRses: "cms_type=test|rse=T3_US_NERSC"
 darkReaper:
 #  rses: "T2_US_Purdue_Test"
-  includeRses: "cms_type=test"
+  includeRses: "T2_US_Purdue"
 
 conveyorTransferSubmitter:
-  threads: 5
+  threads: 1
 
 podLabels:
   rucioInstance: "int"
