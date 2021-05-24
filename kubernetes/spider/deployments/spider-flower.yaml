@@ -1,5 +1,3 @@
-# In future more lightweight image can be used, which must include cms-htcondor-es repo
-# Ref: https://github.com/mher/flower/blob/master/Dockerfile
 apiVersion: apps/v1
 kind: Deployment
 metadata:

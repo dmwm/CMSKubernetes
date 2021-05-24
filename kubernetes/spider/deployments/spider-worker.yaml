@@ -83,6 +83,7 @@ spec:
           mountPath: /cms_shared
       securityContext:
         fsGroup: 1414
+      terminationGracePeriodSeconds: 60
       volumes:  &spider_volumes
       - name: amq-username
         secret:
