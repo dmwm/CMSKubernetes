@@ -65,6 +65,10 @@ data:
       #    notifyOnSuccess: [*filesystemSink]  # what to do with result when the job succeeds
       #
       # Special checker for RAL disk
+      cleanup:
+        cmd: /consistency/cleanup.sh
+        onError: Continue
+        time: 'R R R * * *'
       RAL_Disk_pre:
         cmd: /consistency/RAL_Disk_pre.sh
         onError: Continue
