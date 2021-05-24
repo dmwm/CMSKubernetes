@@ -51,7 +51,17 @@ spec:
           volumeMounts:
           - name: cinder-volume
             mountPath: /tsdb
+        - name: vmbackup
+          image: muhammadimranfarooqi/vmbackup-utility:v00.00.02
+          volumeMounts:
+          - name: cinder-volume
+            mountPath: /tsdb
+          - name: secrets
+            mountPath: /etc/secrets
         volumes:
         - name: cinder-volume
           persistentVolumeClaim:
             claimName: vm-volume-claim
+        - name: secrets
+          secret:
+            secretName: s3-keys
