@@ -4,8 +4,7 @@
     name: cron-spider-affiliation
     namespace: spider
   spec:
-    # ! [TEST]
-    schedule: "00 3 * * *"
+    schedule: "07 * * * *"
     jobTemplate:
       spec:
         template:
@@ -31,7 +30,7 @@
                   value: '"true"'
                 - name: PYTHONPATH
                   value: /cms-htcondor-es/src:$PYTHONPATH
-                - name: REQUESTS_CA_BUNDLE
+                - name: REQUESTS_CA_BUNDLE # provided in Dockerfile too. Certs path for ES and AMQ connections
                   value: /etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt
               lifecycle:
                 postStart:
