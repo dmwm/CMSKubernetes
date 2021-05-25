@@ -36,7 +36,7 @@ spec:
         containers:
         - args:
           - -opentsdbHTTPListenAddr=:4242 
-          - -retentionPeriod=1
+          - -retentionPeriod=12
           - -storageDataPath=/tsdb
           - -search.maxConcurrentRequests=32
           name: victoria-metrics
