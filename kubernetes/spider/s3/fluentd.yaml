@@ -4,7 +4,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: fluentd
-  namespace: default
+  namespace: spider
 ---
 # Source: fluentd/templates/fluentd-rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1beta1
@@ -34,14 +34,14 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: fluentd
-  namespace: default
+  namespace: spider
 ---
 # Source: fluentd/templates/fluentd-daemon.yaml
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: fluentd-spider
-  namespace: default
+  namespace: spider
   labels:
     k8s-app: fluentd-logging
     version: v1
