@@ -13,7 +13,7 @@ spec:
     targetPort: 8428
     name: http
   - port: 4242
-    nodePort: 30242
+    nodePort: 30422
     targetPort: 4242
     name: opentsdb
 ---
@@ -36,7 +36,7 @@ spec:
         containers:
         - args:
           - -opentsdbHTTPListenAddr=:4242 
-          - -retentionPeriod=12
+          - -retentionPeriod=1
           - -storageDataPath=/tsdb
           - -search.maxConcurrentRequests=32
           name: victoria-metrics
@@ -49,9 +49,19 @@ spec:
             protocol: TCP
             name: http
           volumeMounts:
-          - name: vm-volume
+          - name: cinder-volume
             mountPath: /tsdb
+        - name: vmbackup
+          image: cmssw/vmbackup-utility
+          volumeMounts:
+          - name: cinder-volume
+            mountPath: /tsdb
+          - name: secrets
+            mountPath: /etc/secrets
         volumes:
-        - name: vm-volume
+        - name: cinder-volume
           persistentVolumeClaim:
             claimName: vm-volume-claim
+        - name: secrets
+          secret:
+            secretName: s3-keys
