@@ -51,7 +51,17 @@ spec:
           volumeMounts:
           - name: vm-volume
             mountPath: /tsdb
+        - name: vmbackup
+          image: cmssw/vmbackup-utility
+          volumeMounts:
+          - name: vm-volume
+            mountPath: /tsdb
+          - name: secrets
+            mountPath: /etc/secrets
         volumes:
         - name: vm-volume
           persistentVolumeClaim:
             claimName: vm-volume-claim
+        - name: secrets
+          secret:
+            secretName: s3-keys
