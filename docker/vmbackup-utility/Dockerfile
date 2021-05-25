@@ -3,7 +3,7 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 RUN mkdir -p /data/
 ENV PATH $PATH:/data
-ENV TAG=v00.00.02
+ENV TAG=v00.00.04
 ENV WDIR=/data
 ENV USER=vmbackup
 RUN yum install -y jq git make go
