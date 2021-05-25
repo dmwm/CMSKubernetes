@@ -11,9 +11,9 @@ RUN yum install -y jq git make go
 WORKDIR $WDIR
 
 RUN git clone https://github.com/VictoriaMetrics/VictoriaMetrics.git && cd VictoriaMetrics && make vmbackup && cd ..
-RUN echo "* */1 * * * /data/run.sh" >> /tmp/mycron
+RUN echo "0 * * * * /data/run.sh" >> /tmp/mycron
 RUN crontab /tmp/mycron
 RUN ls -lrt /data
 ADD run.sh $WDIR/run.sh
 
-CMD tail -f /dev/null
+CMD ["./run.sh"]
