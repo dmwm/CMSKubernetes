@@ -52,7 +52,7 @@ spec:
           - name: cinder-volume
             mountPath: /tsdb
         - name: vmbackup
-          image: muhammadimranfarooqi/vmbackup-utility:v00.00.02
+          image: cmssw/vmbackup-utility
           volumeMounts:
           - name: cinder-volume
             mountPath: /tsdb
