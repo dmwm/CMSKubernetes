@@ -8,3 +8,6 @@ if [ -z "$snapshot" ]
   else
   AWS_DEFAULT_REGION=CERN  /data/VictoriaMetrics/bin/vmbackup -storageDataPath=/tsdb -snapshotName=$snapshot -credsFilePath=/etc/secrets/s3-keys -customS3Endpoint=https://s3.cern.ch -dst=s3://cms-monitoring/vmbackup/$NOW
 fi
+
+/usr/sbin/crond -n
+
