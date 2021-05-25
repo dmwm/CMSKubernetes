@@ -49,17 +49,17 @@ spec:
             protocol: TCP
             name: http
           volumeMounts:
-          - name: cinder-volume
+          - name: vm-volume
             mountPath: /tsdb
         - name: vmbackup
           image: cmssw/vmbackup-utility
           volumeMounts:
-          - name: cinder-volume
+          - name: vm-volume
             mountPath: /tsdb
           - name: secrets
             mountPath: /etc/secrets
         volumes:
-        - name: cinder-volume
+        - name: vm-volume
           persistentVolumeClaim:
             claimName: vm-volume-claim
         - name: secrets
