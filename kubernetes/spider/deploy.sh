@@ -22,6 +22,7 @@ cluster="htcondor_spider"
 cluster_ns=${OS_PROJECT_NAME:-"CMS Web"}
 ns="spider"
 spider_secrets="amq-username amq-password es-conf collectors"
+
 #spider_hostname="cms-spider.cern.ch"
 
 # define help
@@ -144,6 +145,7 @@ deploy_secrets()
     delete_secrets
     echo
     echo "+++ deploy secrets"
+
     for sec in $spider_secrets; do
         if [ -f "$secrets"/cms-htcondor-es/"$sec" ]; then
             kubectl create secret generic "$sec" -n $ns --from-file="$secrets"/cms-htcondor-es/"$sec"
