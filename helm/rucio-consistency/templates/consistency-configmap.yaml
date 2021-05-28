@@ -7,9 +7,10 @@ data:
     rses:
       "*": # default
         partitions:     5
+{{- with .Values.consistency.ignore }}
         ignore_list:
-        - "/store/backfill"
-        - "/store/test"
+{{ toYaml . | indent 12 }}
+{{- end }}
         scanner:
           recursion:      1
           nworkers:        8
