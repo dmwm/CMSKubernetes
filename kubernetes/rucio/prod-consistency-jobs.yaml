@@ -1,4 +1,7 @@
 consistency:
+  ignore:
+    - /store/backfill
+    - /store/test
   sites:
     T1_DE_KIT_Disk:
       interval: 7

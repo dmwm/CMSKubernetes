@@ -1,6 +1,6 @@
 consistency:
   instance: "int"
-  defaultRoot: "/store/test/rucio/int/cms/store"
+  defaultRoot: "/store/test/rucio/int/store"
 reportStorageClass:
   osShareID: 80be847f-ec9c-4119-b511-512f3d3eaabf
   osShareAccessID: c5d8db3f-4465-4913-8c96-e1613307638d
