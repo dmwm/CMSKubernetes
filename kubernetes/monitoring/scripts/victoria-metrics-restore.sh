@@ -20,19 +20,40 @@ cd $tmpDir
 
 curl -ksLO https://raw.githubusercontent.com/dmwm/CMSKubernetes/master/kubernetes/monitoring/services/agg/vmrestore.yaml
 #ls $tmpDir
+
 if [[ "$backup_service"  == "victoria-metrics" ]] ; then
 
-	echo "testing"
   cat vmrestore.yaml | sed -e "s,cms-monitoring/vmbackup/2021/05/31/00:00,$bucket_path,g" > vmrestore.yaml.new
   
   curl -ksLO https://raw.githubusercontent.com/dmwm/CMSKubernetes/master/kubernetes/monitoring/services/agg/victoria-metrics.yaml
 
   kubectl delete -f victoria-metrics.yaml
-  sleep 60s
+  a=0
+  while [ $a -lt 50 ]
+  do
+    sleep 5s
+    pod=`kubectl get pods | grep victoria-metrics | grep -v long`
+    if [ -z "$pod" ]
+    then
+      break 
+    else
+      a=`expr $a + 1`
+    fi
+  done
 
   kubectl apply -f vmrestore.yaml.new
 
-  sleep 60s
+  a=0
+  while [ $a -lt 50 ]
+  do
+    sleep 5s	  
+    job=`kubectl get pods | grep vmrestore | awk '{print $3}'`
+    if [[ "$job"  == "Completed" ]] ; then
+      break
+    else
+      a=`expr $a + 1`
+    fi
+  done
 
   kubectl delete -f vmrestore.yaml.new
 
@@ -47,12 +68,36 @@ if [[ "$backup_service"  == "victoria-metrics-long" ]] ; then
 
   curl -ksLO https://raw.githubusercontent.com/dmwm/CMSKubernetes/master/kubernetes/monitoring/services/agg/victoria-metrics-long.yaml
 
+
   kubectl delete -f victoria-metrics-long.yaml
-  sleep 60s
+
+  a=0
+  while [ $a -lt 50 ]
+  do
+    sleep 5s
+    pod=`kubectl get pods | grep victoria-metrics-long`
+    if [ -z "$pod" ]
+    then
+      break
+    else
+      a=`expr $a + 1`
+    fi
+  done
+
 
   kubectl apply -f vmrestore.yaml.new
 
-  sleep 60s
+  a=0
+  while [ $a -lt 50 ]
+  do
+    sleep 5s
+    job=`kubectl get pods | grep vmrestore | awk '{print $3}'`
+    if [[ "$job"  == "Completed" ]] ; then
+      break
+    else
+      a=`expr $a + 1`
+    fi
+  done
 
   kubectl delete -f vmrestore.yaml.new
 
