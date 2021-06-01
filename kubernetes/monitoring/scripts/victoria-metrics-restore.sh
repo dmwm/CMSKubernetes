@@ -39,6 +39,11 @@ if [[ "$backup_service"  == "victoria-metrics" ]] ; then
     else
       a=`expr $a + 1`
     fi
+
+    if [ $a -eq 50 ] ; then 
+       exit 1;
+    fi
+
   done
 
   kubectl apply -f vmrestore.yaml.new
@@ -53,6 +58,10 @@ if [[ "$backup_service"  == "victoria-metrics" ]] ; then
     else
       a=`expr $a + 1`
     fi
+    if [ $a -eq 50 ] ; then
+       exit 1;
+    fi
+
   done
 
   kubectl delete -f vmrestore.yaml.new
@@ -82,6 +91,10 @@ if [[ "$backup_service"  == "victoria-metrics-long" ]] ; then
     else
       a=`expr $a + 1`
     fi
+    if [ $a -eq 50 ] ; then
+       exit 1;
+    fi
+
   done
 
 
@@ -96,6 +109,9 @@ if [[ "$backup_service"  == "victoria-metrics-long" ]] ; then
       break
     else
       a=`expr $a + 1`
+    fi
+    if [ $a -eq 50 ] ; then
+       exit 1;
     fi
   done
 
