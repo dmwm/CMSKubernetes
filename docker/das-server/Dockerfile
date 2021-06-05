@@ -20,7 +20,7 @@ RUN cp -r js css images templates examples /build
 WORKDIR /data
 RUN curl -ksLO https://raw.githubusercontent.com/dmwm/cmsweb-exporters/master/das2go_exporter.go
 RUN go get github.com/vkuznet/x509proxy && \
-    go get github.com/prometheus/common/log && \
+    go get github.com/prometheus/common && \
     go get github.com/prometheus/client_golang/prometheus
 RUN go mod init github.com/dmwm/cmsweb-exporters && go mod tidy && \
     go build -o /build/das2go_exporter -ldflags="-s -w -extldflags -static" /data/das2go_exporter.go
