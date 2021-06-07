@@ -162,7 +162,7 @@ spec:
     driver: cinder.csi.openstack.org
     fsType: ext4
     # This is how csi-cinder knows how to find the volume.
-    volumeHandle: 
+    volumeHandle: 58749000-1dda-4929-8e3f-4e4f080ea74e 
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
