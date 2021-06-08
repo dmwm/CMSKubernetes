@@ -20,7 +20,39 @@ spec:
     targetPort: 32001
   - name: port-2
     nodePort: 32002
-    port: 8001
+    port: 32002
+    protocol: TCP
+  - name: port-3
+    nodePort: 32003
+    port: 32003
+    protocol: TCP
+  - name: port-4
+    nodePort: 32004
+    port: 32004
+    protocol: TCP
+  - name: port-5
+    nodePort: 32005
+    port: 32005
+    protocol: TCP
+  - name: port-6
+    nodePort: 32006
+    port: 32006
+    protocol: TCP
+  - name: port-7
+    nodePort: 32007
+    port: 32007
+    protocol: TCP
+  - name: port-8
+    nodePort: 32008
+    port: 32008
+    protocol: TCP
+  - name: port-9
+    nodePort: 32009
+    port: 32009
+    protocol: TCP
+  - name: service-port # do not use format of port-n
+    nodePort: 30000
+    port: 8080
     protocol: TCP
 ---
 kind: Deployment
@@ -43,7 +75,11 @@ spec:
       hostname: rumble
       containers:
       - name: rumble-image
-        image: mrceyhun/rumble-image:latest #imagetag
+        image: mrceyhun/rumble-go:latest
+        imagePullPolicy: Always
+        args:
+        - /bin/bash
+        - /data/run.sh
         tty: true
         stdin: true
         env:
@@ -56,8 +92,31 @@ spec:
           name: port-0
         - containerPort: 32001
           name: port-1
-        - containerPort: 8001
+        - containerPort: 32002
           name: port-2
+        - containerPort: 32003
+          name: port-3
+        - containerPort: 32004
+          name: port-4
+        - containerPort: 32005
+          name: port-5
+        - containerPort: 32006
+          name: port-6
+        - containerPort: 32007
+          name: port-7
+        - containerPort: 32008
+          name: port-8
+        - containerPort: 32009
+          name: port-9
+        - containerPort: 30000
+          name: service-port
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 2000Mi
+          requests:
+             cpu: 1000m
+             memory: 500Mi
         volumeMounts:
         - name: rumble-secrets
           mountPath: /etc/rumble
