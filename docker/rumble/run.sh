@@ -11,8 +11,5 @@ if [ $? == 1 ]; then
 fi
 klist -k "$keytab"
 
-git clone https://github.com/mrceyhun/CMSMonitoring.git && \
-    cp -R CMSMonitoring/src/go/Rumble/* $WDIR && \
-    go build rumble_server.go && \
-    chmod 755 $WDIR/rumble_server && \
-    ./rumble_server
+# run rumble_server
+$WDIR/rumble_server
