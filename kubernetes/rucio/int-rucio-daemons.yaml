@@ -4,7 +4,10 @@ conveyorFinisherCount: 1
 darkReaperCount: 1
 
 reaper2:
-  includeRses: "cms_type=test|rse=T3_US_NERSC"
+  includeRses: "cms_type=int"
+  greedy: 1
+  threads: 1
+
 darkReaper:
 #  rses: "T2_US_Purdue_Test"
   includeRses: "T2_US_Purdue"
