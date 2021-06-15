@@ -85,6 +85,15 @@ for fname in $files; do
     fi
 done
 
+# before running the service, we need to make sure rucio.cfg has the correct URLs
+SERVICE_CONFIG=${cdir}/config-*.py
+RUCIO_CONFIG=${cdir}/etc/rucio.cfg
+MATCH_RUCIO_URL=`cat ${SERVICE_CONFIG} | egrep '^RUCIO_URL =' | awk -F'=' '{print $2}' | sed 's/"//g'`
+MATCH_RUCIO_AUTH_URL=`cat ${SERVICE_CONFIG} | egrep '^RUCIO_AUTH_URL =' | awk -F'=' '{print $2}' | sed 's/"//g'`
+# now replace it in the rucio.cfg file
+sed -i -e "s,rucio_host.*,rucio_host =${MATCH_RUCIO_URL},g" ${RUCIO_CONFIG}
+sed -i -e "s,auth_host.*,auth_host =${MATCH_RUCIO_AUTH_URL},g" ${RUCIO_CONFIG}
+
 # start the service
 sudo chmod 755 /data/srv/current/config/$srv/manage
 /data/srv/current/config/$srv/manage start 'I did read documentation'
