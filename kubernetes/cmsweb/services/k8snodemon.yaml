@@ -30,8 +30,9 @@ data:
     secret=`env | grep OS_APPLICATION_CREDENTIAL_SECRET | awk '{split($0,a,"="); print a[2]}'`
     endpoint=`env | grep OS_AUTH_URL | awk '{split($0,a,"="); print a[2]}'`
     name=`env | grep OS_APP_NAME | awk '{split($0,a,"="); print a[2]}'`
+    project=`env | grep PROJECT_NAME | awk '{split($0,a,"="); print a[2]}'`
     while true; do
-       /data/k8snodemon -endpoint=$endpoint -appid=$appid -password=$secret -k8s -name=$name
+       /data/k8snodemon -endpoint=$endpoint -appid=$appid -password=$secret -k8s -name=$name -project=$project
        sleep 10
     done
 ---
