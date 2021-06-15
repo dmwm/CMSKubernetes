@@ -25,7 +25,7 @@ data:
   setup-and-run.sh: |
     #!/bin/sh
 
-    source /etc/secrets/env_test.sh
+    source /etc/secrets/env.sh
     appid=`env | grep OS_APPLICATION_CREDENTIAL_ID | awk '{split($0,a,"="); print a[2]}'`
     secret=`env | grep OS_APPLICATION_CREDENTIAL_SECRET | awk '{split($0,a,"="); print a[2]}'`
     endpoint=`env | grep OS_AUTH_URL | awk '{split($0,a,"="); print a[2]}'`
