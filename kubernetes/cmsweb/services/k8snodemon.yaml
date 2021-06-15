@@ -3,16 +3,17 @@ kind: ServiceAccount
 metadata:
   name: k8snodemon
 ---
-kind: RoleBinding
+kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: k8snodemon
 subjects:
 - kind: ServiceAccount
   name: k8snodemon
+  namespace: default
 roleRef:
   kind: ClusterRole
-  name: edit
+  name: cluster-admin
   apiGroup: rbac.authorization.k8s.io
 ---
 kind: ConfigMap
@@ -54,7 +55,7 @@ spec:
     spec:
       serviceAccountName: k8snodemon
       containers:
-      - image: cmssw/k8snodemon:00.00.10 #imagetag
+      - image: cmssw/k8snodemon #imagetag
         name: k8snodemon
         resources:
           requests:
