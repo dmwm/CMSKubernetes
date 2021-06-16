@@ -3,16 +3,17 @@ kind: ServiceAccount
 metadata:
   name: k8snodemon
 ---
-kind: RoleBinding
+kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: k8snodemon
 subjects:
 - kind: ServiceAccount
   name: k8snodemon
+  namespace: default
 roleRef:
   kind: ClusterRole
-  name: edit
+  name: cluster-admin
   apiGroup: rbac.authorization.k8s.io
 ---
 kind: ConfigMap
@@ -30,8 +31,9 @@ data:
     secret=`env | grep OS_APPLICATION_CREDENTIAL_SECRET | awk '{split($0,a,"="); print a[2]}'`
     endpoint=`env | grep OS_AUTH_URL | awk '{split($0,a,"="); print a[2]}'`
     name=`env | grep OS_APP_NAME | awk '{split($0,a,"="); print a[2]}'`
+    project=`env | grep OS_PROJECT_NAME | awk '{split($0,a,"="); print a[2]}'`
     while true; do
-       /data/k8snodemon -endpoint=$endpoint -appid=$appid -password=$secret -k8s -name=$name
+       /data/k8snodemon -endpoint=$endpoint -appid=$appid -password=$secret -k8s -name=$name -project=$project
        sleep 10
     done
 ---
@@ -53,7 +55,7 @@ spec:
     spec:
       serviceAccountName: k8snodemon
       containers:
-      - image: cmssw/k8snodemon:00.00.10 #imagetag
+      - image: cmssw/k8snodemon #imagetag
         name: k8snodemon
         resources:
           requests:
