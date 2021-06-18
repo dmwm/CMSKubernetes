@@ -14,9 +14,6 @@ spec:
       labels:
         app: auth-proxy-server
         env: k8s-mon
-      annotations:
-        prometheus.io/scrape: 'true'
-        prometheus.io/port: "9091"
     spec:
       serviceAccountName: auth-proxy-server
       terminationGracePeriodSeconds: 60
@@ -39,12 +36,8 @@ spec:
             memory: "6Gi"
             cpu: "6000m"
         ports:
-        - containerPort: 80
-          name: http
         - containerPort: 443
           name: https
-        - containerPort: 9091
-          name: metrics
         volumeMounts:
         - name: auth-proxy-server-secrets
           mountPath: /etc/secrets
