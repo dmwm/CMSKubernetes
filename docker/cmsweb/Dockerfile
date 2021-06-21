@@ -54,7 +54,7 @@ ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
 ENV GOPATH=$WDIR/gopath
 RUN mkdir -p $GOPATH
 ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
-RUN go get github.com/dmwm/cmsauth && go get github.com/vkuznet/x509proxy && go get github.com/buger/jsonparser && go get github.com/Lusitaniae/apache_exporter && go get github.com/prometheus/client_golang/prometheus && go get github.com/prometheus/common/log && go get -d github.com/vkuznet/cmsweb-exporters && go get github.com/shirou/gopsutil && go get github.com/ryotarai/prometheus-query && mkdir ${WDIR}/bin
+RUN go get github.com/dmwm/cmsauth && go get github.com/vkuznet/x509proxy && go get github.com/buger/jsonparser && go get github.com/Lusitaniae/apache_exporter && go get github.com/prometheus/client_golang/prometheus && go get github.com/prometheus/common && go get -d github.com/vkuznet/cmsweb-exporters && go get github.com/shirou/gopsutil && go get github.com/ryotarai/prometheus-query && mkdir ${WDIR}/bin
 
 # download node exporter
 WORKDIR ${WDIR}
