@@ -54,15 +54,23 @@ ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
 ENV GOPATH=$WDIR/gopath
 RUN mkdir -p $GOPATH
 ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
-RUN go get github.com/dmwm/cmsauth && go get github.com/vkuznet/x509proxy && go get github.com/buger/jsonparser && go get github.com/Lusitaniae/apache_exporter && go get github.com/prometheus/client_golang/prometheus && go get github.com/prometheus/common && go get -d github.com/vkuznet/cmsweb-exporters && go get github.com/shirou/gopsutil && go get github.com/ryotarai/prometheus-query && mkdir ${WDIR}/bin
+RUN mkdir -p $WDIR/bin
 
 # download node exporter
 WORKDIR ${WDIR}
-RUN curl -k -L -O https://github.com/prometheus/node_exporter/releases/download/v0.15.2/node_exporter-0.15.2.linux-amd64.tar.gz && tar xfz node_exporter-0.15.2.linux-amd64.tar.gz && cp node_exporter*/node_exporter $WDIR/bin && rm -r node_exporter-0.15.2.linux-amd64/ && rm -r node_exporter-0.15.2.linux-amd64.tar.gz
+RUN curl -k -L -O https://github.com/prometheus/node_exporter/releases/download/v1.1.2/node_exporter-1.1.2.linux-amd64.tar.gz && tar xfz node_exporter-1.1.2.linux-amd64.tar.gz && cp node_exporter*/node_exporter $WDIR/bin && rm -r node_exporter-1.1.2.linux-amd64/ && rm -r node_exporter-1.1.2.linux-amd64.tar.gz
 
 # build exporters
-WORKDIR $GOPATH/src/github.com/vkuznet/cmsweb-exporters
-RUN go build das2go_exporter.go && cp das2go_exporter $WDIR/bin && go build reqmgr_exporter.go && cp reqmgr_exporter $WDIR/bin && go build process_exporter.go && cp process_exporter $WDIR/bin && cp process_monitor.sh $WDIR/bin && go build wmcore_exporter.go && cp wmcore_exporter $WDIR/bin && go build cpy_exporter.go && cp cpy_exporter $WDIR/bin && go build cmsweb-ping.go && cp cmsweb-ping $WDIR/bin
+RUN git clone https://github.com/dmwm/cmsweb-exporters.git
+ARG CGO_ENABLED=0
+RUN cd cmsweb-exporters && \
+    go build -o $WDIR/bin/das2go_exporter -ldflags="-s -w -extldflags -static" das2go_exporter.go && \
+    go build -o $WDIR/bin/reqmgr_exporter -ldflags="-s -w -extldflags -static" reqmgr_exporter.go && \
+    go build -o $WDIR/bin/wmcore_exporter -ldflags="-s -w -extldflags -static" wmcore_exporter.go && \
+    go build -o $WDIR/bin/http_exporter -ldflags="-s -w -extldflags -static" http_exporter.go && \
+    go build -o $WDIR/bin/process_exporter -ldflags="-s -w -extldflags -static" process_exporter.go && \
+    go build -o $WDIR/bin/cpy_exporter -ldflags="-s -w -extldflags -static" cpy_exporter.go && \
+    go build -o $WDIR/bin/cmsweb-ping -ldflags="-s -w -extldflags -static" cmsweb-ping.go
 
 ENV PATH="${GOPATH}/src/github.com/vkuznet/cmsweb-exporters:${GOPATH}/src/github.com/vkuznet/cmsweb-exporters/bin:${PATH}"
 
@@ -71,9 +79,8 @@ ENV PATH="${WDIR}/bin:${GOPATH}/bin:${PATH}"
 
 # build mongo exporter
 WORKDIR ${WDIR}
-RUN curl -k -L -O "https://github.com/dcu/mongodb_exporter/archive/v1.0.0.tar.gz" && tar xfz v1.0.0.tar.gz && mkdir -p $GOPATH/src/github.com/dcu/ && cp -r mongodb_exporter-1.0.0 $GOPATH/src/github.com/dcu/mongodb_exporter && rm -f v1.0.0.tar.gz
-WORKDIR $GOPATH/src/github.com/dcu/mongodb_exporter
-RUN go get github.com/Masterminds/glide && make build && cp mongodb_exporter $WDIR/bin
+RUN curl -ksLO https://github.com/dcu/mongodb_exporter/releases/download/v1.0.0/mongodb_exporter-linux-amd64
+RUN cp mongodb_exporter-linux-amd64 $WDIR/bin/mongodb_exporter && rm mongodb_exporter-linux-amd64
 
 WORKDIR ${WDIR}
 ADD print_hmac $WDIR/bin/print_hmac
