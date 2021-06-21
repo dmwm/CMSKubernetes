@@ -1,4 +1,4 @@
-FROM cmssw/cmsweb:20210519
+FROM cmssw/cmsweb:20210621
 
 RUN echo "Adding the AFS cmst1:zh user"
 RUN groupadd -g 1399 zh

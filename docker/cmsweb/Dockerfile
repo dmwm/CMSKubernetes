@@ -1,4 +1,4 @@
-FROM cern/cc7-base:20210501-2.x86_64
+FROM cern/cc7-base:20210601-1.x86_64
 
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
