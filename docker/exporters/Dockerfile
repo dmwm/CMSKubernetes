@@ -20,6 +20,8 @@ RUN cd cmsweb-exporters && \
     go build -o /build/wmcore_exporter -ldflags="-s -w -extldflags -static" wmcore_exporter.go && \
     go build -o /build/http_exporter -ldflags="-s -w -extldflags -static" http_exporter.go && \
     go build -o /build/process_exporter -ldflags="-s -w -extldflags -static" process_exporter.go && \
+    go build -o /build/cpy_exporter -ldflags="-s -w -extldflags -static" cpy_exporter.go && \
+    go build -o /build/cmsweb-ping -ldflags="-s -w -extldflags -static" cmsweb-ping.go && \
     cp process_monitor.sh /build
 
 # build mongo exporter
