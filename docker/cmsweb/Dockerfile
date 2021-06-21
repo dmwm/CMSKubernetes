@@ -55,8 +55,8 @@ ENV GOROOT=$WDIR/go
 ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
 
 # get go dependencies which we'll use on all cmsweb nodes
-ENV GOPATH=$WDIR/gopath
-RUN mkdir -p $GOPATH
+#ENV GOPATH=$WDIR/gopath
+#RUN mkdir -p $GOPATH
 ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
 RUN mkdir -p $WDIR/bin
 
@@ -76,10 +76,11 @@ WORKDIR ${WDIR}
 #    go build -o $WDIR/bin/cpy_exporter -ldflags="-s -w -extldflags -static" cpy_exporter.go && \
 #    go build -o $WDIR/bin/cmsweb-ping -ldflags="-s -w -extldflags -static" cmsweb-ping.go
 
-ENV PATH="${GOPATH}/src/github.com/vkuznet/cmsweb-exporters:${GOPATH}/src/github.com/vkuznet/cmsweb-exporters/bin:${PATH}"
+#ENV PATH="${GOPATH}/src/github.com/vkuznet/cmsweb-exporters:${GOPATH}/src/github.com/vkuznet/cmsweb-exporters/bin:${PATH}"
 
 # setup final environment
-ENV PATH="${WDIR}/bin:${GOPATH}/bin:${PATH}"
+#ENV PATH="${WDIR}/bin:${GOPATH}/bin:${PATH}"
+ENV PATH="${WDIR}/bin:${PATH}"
 
 # build mongo exporter
 WORKDIR ${WDIR}
