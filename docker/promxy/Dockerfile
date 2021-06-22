@@ -4,7 +4,7 @@ ENV WDIR=/data
 ENV USER=promxy
 EXPOSE 8082
 WORKDIR $WDIR
-ENV VER=v0.0.62
+ENV VER=v0.0.70
 RUN curl -ksLO https://github.com/jacksontj/promxy/releases/download/${VER}/promxy-${VER}-linux-amd64 && mv promxy-${VER}-linux-amd64 promxy && chmod +x /data/promxy
 
 FROM alpine
