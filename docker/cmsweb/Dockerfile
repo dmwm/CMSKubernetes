@@ -1,4 +1,8 @@
-FROM cern/cc7-base:20210501-2.x86_64
+FROM cmssw/exporters:latest as exporters-builder
+RUN mkdir -p /data
+
+
+FROM cern/cc7-base:20210601-1.x86_64
 
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
@@ -51,36 +55,27 @@ ENV GOROOT=$WDIR/go
 ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
 
 # get go dependencies which we'll use on all cmsweb nodes
-ENV GOPATH=$WDIR/gopath
-RUN mkdir -p $GOPATH
 ENV PATH="${GOROOT}/bin:${WDIR}:${PATH}"
 RUN mkdir -p $WDIR/bin
 
-# download node exporter
 WORKDIR ${WDIR}
-RUN curl -k -L -O https://github.com/prometheus/node_exporter/releases/download/v1.1.2/node_exporter-1.1.2.linux-amd64.tar.gz && tar xfz node_exporter-1.1.2.linux-amd64.tar.gz && cp node_exporter*/node_exporter $WDIR/bin && rm -r node_exporter-1.1.2.linux-amd64/ && rm -r node_exporter-1.1.2.linux-amd64.tar.gz
 
-# build exporters
-RUN git clone https://github.com/dmwm/cmsweb-exporters.git
-ARG CGO_ENABLED=0
-RUN cd cmsweb-exporters && \
-    go build -o $WDIR/bin/das2go_exporter -ldflags="-s -w -extldflags -static" das2go_exporter.go && \
-    go build -o $WDIR/bin/reqmgr_exporter -ldflags="-s -w -extldflags -static" reqmgr_exporter.go && \
-    go build -o $WDIR/bin/wmcore_exporter -ldflags="-s -w -extldflags -static" wmcore_exporter.go && \
-    go build -o $WDIR/bin/http_exporter -ldflags="-s -w -extldflags -static" http_exporter.go && \
-    go build -o $WDIR/bin/process_exporter -ldflags="-s -w -extldflags -static" process_exporter.go && \
-    go build -o $WDIR/bin/cpy_exporter -ldflags="-s -w -extldflags -static" cpy_exporter.go && \
-    go build -o $WDIR/bin/cmsweb-ping -ldflags="-s -w -extldflags -static" cmsweb-ping.go
-
-ENV PATH="${GOPATH}/src/github.com/vkuznet/cmsweb-exporters:${GOPATH}/src/github.com/vkuznet/cmsweb-exporters/bin:${PATH}"
 
 # setup final environment
-ENV PATH="${WDIR}/bin:${GOPATH}/bin:${PATH}"
+ENV PATH="${WDIR}/bin:${PATH}"
 
-# build mongo exporter
-WORKDIR ${WDIR}
-RUN curl -ksLO https://github.com/dcu/mongodb_exporter/releases/download/v1.0.0/mongodb_exporter-linux-amd64
-RUN cp mongodb_exporter-linux-amd64 $WDIR/bin/mongodb_exporter && rm mongodb_exporter-linux-amd64
+# copy all exporters from exporters image
+
+COPY --from=exporters-builder /data/cmsweb-ping ${WDIR}/bin/
+COPY --from=exporters-builder /data/das2go_exporter ${WDIR}/bin/
+COPY --from=exporters-builder /data/mongodb_exporter ${WDIR}/bin/
+COPY --from=exporters-builder /data/cpy_exporter ${WDIR}/bin/
+COPY --from=exporters-builder /data/http_exporter ${WDIR}/bin/
+COPY --from=exporters-builder /data/node_exporter ${WDIR}/bin/
+COPY --from=exporters-builder /data/process_exporter ${WDIR}/bin/
+COPY --from=exporters-builder /data/reqmgr_exporter ${WDIR}/bin/
+COPY --from=exporters-builder /data/wmcore_exporter ${WDIR}/bin/
+
 
 WORKDIR ${WDIR}
 ADD print_hmac $WDIR/bin/print_hmac
