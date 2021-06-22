@@ -2,7 +2,7 @@ FROM golang:latest as go-builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 # DAS tag to use
-ENV TAG=04.06.74
+ENV TAG=04.07.03
 
 # build procedure
 ENV WDIR=/data
@@ -25,12 +25,14 @@ RUN go get github.com/vkuznet/x509proxy && \
 RUN go mod init github.com/dmwm/cmsweb-exporters && go mod tidy && \
     go build -o /build/das2go_exporter -ldflags="-s -w -extldflags -static" /data/das2go_exporter.go
 
-FROM alpine
-RUN mkdir -p /data
+# FROM alpine
+# RUN mkdir -p /data
+# https://blog.baeke.info/2021/03/28/distroless-or-scratch-for-go-apps/
+FROM gcr.io/distroless/static AS final
 COPY --from=go-builder /build/das* /data/
 COPY --from=go-builder /build/js /data/js
 COPY --from=go-builder /build/css /data/css
 COPY --from=go-builder /build/images /data/images
 COPY --from=go-builder /build/templates /data/templates
 COPY --from=go-builder /build/examples /data/examples
-ADD run.sh /data/run.sh
+# ADD run.sh /data/run.sh
