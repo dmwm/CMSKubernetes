@@ -90,8 +90,10 @@ spec:
         - containerPort: 18217
           protocol: TCP
           name: das-mon
-        command:
-        - /data/run.sh
+        args:
+        - /data/das2go
+        - -config
+        - /etc/secrets/dasconfig.json
         volumeMounts:
         - name: proxy-secrets
           mountPath: /etc/proxy
@@ -105,6 +107,16 @@ spec:
         - name: hmac-secrets
           mountPath: /etc/hmac
           readOnly: true
+      - image: cmssw/das-server #imagetag
+        name: das-server-exporter
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "50m"
+        args:
+        - /data/das2go_exporter
+        - -address
+        - ":18217"
 #PROD#  - name: logs-cephfs
 #PROD#    mountPath: /data/logs
 #PROD#- image: cmssw/promtail
