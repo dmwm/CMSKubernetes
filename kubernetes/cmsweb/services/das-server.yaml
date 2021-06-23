@@ -124,10 +124,6 @@ spec:
         - name: proxy-secrets
           mountPath: /etc/proxy
           readOnly: true
-        volumeMounts:
-        - name: proxy-secrets
-          mountPath: /etc/proxy
-          readOnly: true
 #PROD#  - name: logs-cephfs
 #PROD#    mountPath: /data/logs
 #PROD#- image: cmssw/promtail
