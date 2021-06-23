@@ -107,6 +107,8 @@ spec:
         - name: hmac-secrets
           mountPath: /etc/hmac
           readOnly: true
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/logs
       - image: cmssw/das-server #imagetag
         name: das-server-exporter
         resources:
@@ -120,10 +122,6 @@ spec:
         - /data/das2go_exporter
         - -address
         - ":18217"
-        volumeMounts:
-        - name: proxy-secrets
-          mountPath: /etc/proxy
-          readOnly: true
         volumeMounts:
         - name: proxy-secrets
           mountPath: /etc/proxy
