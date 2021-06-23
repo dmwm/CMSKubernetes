@@ -107,6 +107,8 @@ spec:
         - name: hmac-secrets
           mountPath: /etc/hmac
           readOnly: true
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/logs
       - image: cmssw/das-server #imagetag
         name: das-server-exporter
         resources:
