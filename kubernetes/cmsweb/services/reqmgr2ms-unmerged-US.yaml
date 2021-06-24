@@ -1,0 +1,143 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: ms-unmerged
+  namespace: dmwm
+spec:
+  selector:
+    app: ms-unmerged
+  ports:
+    - port: 8242
+      targetPort: 8242
+      name: ms-unmerged
+    - port: 18242
+      targetPort: 18242
+      name: unmerged-mon
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: ms-unmerged
+  labels:
+    app: ms-unmerged
+  namespace: dmwm
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+    cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    su  -c "cd /data && /data/run.sh -e 'cms_type=real&rse_type=DISK&country=US' " --preserve-environment _reqmgr2ms
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: ms-unmerged
+  name: ms-unmerged
+  namespace: dmwm
+spec:
+  selector:
+    matchLabels:
+      app: ms-unmerged
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ms-unmerged
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18242"
+    spec:
+      # use hostNetwork to allow communication between reqmgr2ms/reqmon/workqueue and couch
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      containers:
+      - image: cmssw/reqmgr2ms #imagetag
+        name: ms-unmerged
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - bash
+              - -c
+              - sudo chmod 0777 /data/srv/logs/reqmgr2ms; sudo chown _reqmgr2ms:_reqmgr2ms /data/srv/logs/reqmgr2ms
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8242/ms-unmerged/data/status"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 8242
+          protocol: TCP
+          name: ms-unmerged
+        - containerPort: 18242
+          protocol: TCP
+          name: unmerged-mon
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/srv/logs/reqmgr2ms
+        securityContext:
+          privileged: true
+#      initContainers:
+#      - name: checkcouchdb
+#        image: busybox:1.28
+#        command: ['sh', '-c', 'until nslookup couchdb.couchdb; do echo "Waiting for couchdb"; sleep 10; done;']
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: reqmgr2ms-unmerged-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: etc-grid-security
+        hostPath:
+            path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: ms-unmerged
+#PROD#- name: logs-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim-dmwm
