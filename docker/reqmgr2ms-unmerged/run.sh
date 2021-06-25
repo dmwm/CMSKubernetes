@@ -1,5 +1,4 @@
 #!/bin/bash
-
 srv=`echo $USER | sed -e "s,_,,g"`
 
 # overwrite host PEM files in /data/srv area
@@ -51,7 +50,7 @@ fi
 # In case there is at least one configuration file under /etc/secrets, remove
 # the default config files from the image and copy over those from the secrets area
 cdir=/data/srv/current/config/$srv
-cfiles="config-monitor.py config-output.py config-transferor.py config-ruleCleaner.py config-unmerged.py"
+cfiles="config-monitor.py config-output.py config-transferor.py config-ruleCleaner.py"
 for fname in $cfiles; do
     if [ -f /etc/secrets/$fname ]; then
         pushd $cdir

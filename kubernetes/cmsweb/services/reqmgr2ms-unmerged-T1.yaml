@@ -57,7 +57,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/reqmgr2ms #imagetag
+      - image: cmssw/reqmgr2ms-unmerged #imagetag
         name: ms-unmerged
         lifecycle:
           postStart:
