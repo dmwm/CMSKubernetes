@@ -1,4 +1,4 @@
-FROM reqmgr2ms:latest
+FROM cmssw/reqmgr2ms:HG2106g-v2
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
