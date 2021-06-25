@@ -1,7 +1,7 @@
 
 
 ### build image
-docker build -t cmssw/reqmgr .
+docker build -t cmssw/reqmgr2ms-unmerged .
 
 ### list images
 docker images

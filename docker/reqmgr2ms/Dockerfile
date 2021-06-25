@@ -1,4 +1,4 @@
-FROM cmssw/cmsweb:20210621 AS reqmgr2ms
+FROM cmssw/cmsweb:20210621
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
