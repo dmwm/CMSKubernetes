@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "rucio-consistency.fullname" . }}-tmp-deckard-config
+data:
+  config.yaml: |+
+    rses:
+      "*": # default
+          scannerdir:    /var/cache/consistency-dump
+          minagedark:        28     # in days
+          maxdarkfraction:   0.01   # 1% = 0.01
+          maxmissfraction:   0.01   # 1% = 0.01
+
+{{ range $site, $config := .Values.deckard.sites }}
+      {{ $site }}:
+{{- if $config }}
+{{- if  ($config.minagedark) }}
+          minagedark: {{ $config.minagedark }}
+{{- end }}
+{{- if  ($config.maxdarkfraction) }}
+          maxdarkfraction: {{ $config.maxdarkfraction }}
+{{- end }}
+{{- if  ($config.maxmissfraction) }}
+          maxmissfraction: {{ $config.maxmissfraction }}
+{{- end }}
+{{- end }}
+{{- end }}

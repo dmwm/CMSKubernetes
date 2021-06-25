@@ -13,3 +13,11 @@ consistency:
     T2_US_Nebraska:
       server: red-gridftp10.unl.edu:1094
       interval: 1
+
+deckard:
+  sites:
+    T2_US_Purdue:
+      interval: 1
+      minagedark: 4    
+      maxdarkfraction: 0.02
+      maxmissfraction: 0.02

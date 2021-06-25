@@ -97,3 +97,18 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+deckard:
+  resources:
+    limits:
+      cpu: 700m
+      memory: 200Mi
+    requests:
+      cpu: 700m
+      memory: 200Mi
+  image:
+    repository: ericvaandering/deckard
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "latest"
+  sites: {}

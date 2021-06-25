@@ -1,12 +1,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "rucio-consistency.fullname" . }}
+  name: {{ include "rucio-consistency.fullname" . }}-tmp-deckard
   labels:
     {{- include "rucio-consistency.labels" . | nindent 4 }}
 spec:
 {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
+  replicas: 1
 {{- end }}
   selector:
     matchLabels:
@@ -22,8 +22,8 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/jobberConfig: {{ include (print $.Template.BasePath "/jobber-configmap.yaml") . | sha256sum }}
-        checksum/consistencyConfig: {{ include (print $.Template.BasePath "/consistency-configmap.yaml") . | sha256sum }}
+        checksum/jobberConfig: {{ include (print $.Template.BasePath "/tmp-deckard-jobber-configmap.yaml") . | sha256sum }}
+        checksum/deckardConfig: {{ include (print $.Template.BasePath "/tmp-deckard-configmap.yaml") . | sha256sum }}
     {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
     {{- end }}
@@ -34,7 +34,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.deckard.image.repository }}:{{ .Values.deckard.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: RUCIO_CFG_COMMON_LOGLEVEL
@@ -77,9 +77,16 @@ spec:
                 secretKeyRef:
                   key: database_pool_timeout
                   name: cms-ruciod-{{ .Values.consistency.instance }}-rucio-daemons.cfg
-          command: ["/consistency/run.sh"]
+            - name: RUCIO_DAEMON
+              value: deckard
+            - name: RUCIO_CFG_POLICY_LFN2PFN_MODULE
+              value: cmstfc
+            - name: RUCIO_HOME
+              value: /opt/rucio
+
+          command: ["/deckard/deckard_run.sh"]
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.deckard.resources | nindent 12 }}
           #        readinesProbe:
           #          exec:
           #            command:
@@ -96,29 +103,21 @@ spec:
           terminationMessagePolicy: File
           volumeMounts:
             - mountPath: /config/
-              name: consistency-config
-            - mountPath: /unmerged-config/
-              name: unmerged-config
+              name: deckard-config
             - mountPath: /etc/jobber-config/
               name: jobber-config
             - mountPath: /opt/proxy
               name: proxy-volume
-            - mountPath: /opt/certs
+            - mountPath: /etc/grid-security/certificates
               name: ca-volume
             - mountPath: /var/cache/consistency-dump
               name: consistency-dump
-            - mountPath: /var/cache/consistency-temp
-              name: csi-data-cinderplugin
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
       terminationGracePeriodSeconds: 30
       volumes:
-      - name: csi-data-cinderplugin
-        persistentVolumeClaim:
-          claimName: {{ .Release.Name }}-scratch-pvc
-          readOnly: false
       - name: consistency-dump
         persistentVolumeClaim:
             claimName: {{ .Release.Name }}-report-pvc
@@ -133,15 +132,11 @@ spec:
       - name: jobber-config
         configMap:
           defaultMode: 0644
-          name: {{ include "rucio-consistency.fullname" . }}-jobber-config
-      - name: consistency-config
+          name: {{ include "rucio-consistency.fullname" . }}-tmp-deckard-jobber-config
+      - name: deckard-config
         configMap:
           defaultMode: 0644
-          name: {{ include "rucio-consistency.fullname" . }}-consistency-config
-      - name: unmerged-config
-        configMap:
-          defaultMode: 0644
-          name: {{ include "rucio-consistency.fullname" . }}-unmerged-config
+          name: {{ include "rucio-consistency.fullname" . }}-tmp-deckard-config
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
