@@ -1,4 +1,4 @@
-FROM cmssw/cmsweb:20210621 as web-builder
+FROM cmssw/cmsweb:20210625 as web-builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
@@ -26,9 +26,11 @@ ADD install.sh $WDIR/install.sh
 RUN $WDIR/install.sh
 
 # build apache exporter
-RUN mkdir /data/gopath
+RUN mkdir -p /data/gopath/bin
 ENV GOPATH /data/gopath
-RUN go get github.com/Lusitaniae/apache_exporter && crontab -l > /data/crontab.txt
+# RUN go get github.com/Lusitaniae/apache_exporter && crontab -l > /data/crontab.txt
+
+RUN wget https://github.com/Lusitaniae/apache_exporter/releases/download/v0.9.0/apache_exporter-0.9.0.linux-amd64.tar.gz && tar -xvzf apache_exporter-0.9.0.linux-amd64.tar.gz --directory /data/gopath && cp /data/gopath/apache_exporter-0.9.0.linux-amd64/apache_exporter /data/gopath/bin && crontab -l > /data/crontab.txt 
 
 # extract relevant pieces from web-builder
 FROM cmssw/cmsweb-base:20210621
