@@ -16,6 +16,18 @@ USER ${USER}
 RUN mkdir -p $WDIR
 WORKDIR ${WDIR}
 
+# Install gfal2-python3 dependecies
+RUN yum install -y \
+    gfal2-python3 \
+    gfal2-plugin-file \
+    gfal2-plugin-gridftp \
+    gfal2-plugin-http \
+    gfal2-plugin-srm \
+    gfal2-plugin-xrootd \
+    xrootd-client \
+    yum clean all && \
+    rm -rf /var/cache/yum
+
 # pass env variable to the build
 ARG CMSK8S
 ENV CMSK8S=$CMSK8S
