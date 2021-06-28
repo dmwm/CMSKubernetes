@@ -44,8 +44,7 @@ RUN git checkout tags/$TAG -b build && \
 
 # build exporters
 WORKDIR $GOPATH/src/github.com/vkuznet/cmsweb-exporters
-RUN go mod init github.com/vkuznet/cmsweb-exporters && go mod tidy && \
-    go build process_exporter.go && cp process_exporter $WDIR && \
+RUN go build process_exporter.go && cp process_exporter $WDIR && \
     cp process_monitor.sh $WDIR
 
 # for gibc library we will use debian:stretch
