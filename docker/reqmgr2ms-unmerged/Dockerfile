@@ -1,8 +1,8 @@
-FROM cmssw/cmsweb:20210628
+FROM cmssw/reqmgr2ms:HG2106g-v2
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
-ENV USER=_alertscollector
+ENV USER=_reqmgr2ms
 ADD install.sh $WDIR/install.sh
 
 # add new user
@@ -15,6 +15,18 @@ USER ${USER}
 # start the setup
 RUN mkdir -p $WDIR
 WORKDIR ${WDIR}
+
+# Install gfal2-python3 dependecies
+RUN yum install -y \
+    gfal2-python3 \
+    gfal2-plugin-file \
+    gfal2-plugin-gridftp \
+    gfal2-plugin-http \
+    gfal2-plugin-srm \
+    gfal2-plugin-xrootd \
+    xrootd-client \
+    yum clean all && \
+    rm -rf /var/cache/yum
 
 # pass env variable to the build
 ARG CMSK8S

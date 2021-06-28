@@ -1,4 +1,4 @@
-FROM cmssw/exporters:latest as exporters-builder
+FROM cmssw/exporters:20210621 as exporters-builder
 RUN mkdir -p /data
 
 
@@ -75,6 +75,7 @@ COPY --from=exporters-builder /data/node_exporter ${WDIR}/bin/
 COPY --from=exporters-builder /data/process_exporter ${WDIR}/bin/
 COPY --from=exporters-builder /data/reqmgr_exporter ${WDIR}/bin/
 COPY --from=exporters-builder /data/wmcore_exporter ${WDIR}/bin/
+COPY --from=exporters-builder /data/process_monitor.sh ${WDIR}/bin/
 
 
 WORKDIR ${WDIR}
