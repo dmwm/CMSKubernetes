@@ -4,7 +4,7 @@
     name: cron-spider-affiliation
     namespace: spider
   spec:
-    schedule: "07 * * * *"
+    schedule: "17 * * * *"
     jobTemplate:
       spec:
         template:
@@ -42,13 +42,13 @@
               stdin: true
               tty: true
               volumeMounts:
-                - name: shared-spider
+                - name: spider-shared-ceph-claim
                   mountPath: /cms_shared
             restartPolicy: Never
             securityContext:
               fsGroup: 1414
             volumes:
-              - name: shared-spider
+              - name: spider-shared-ceph-claim
                 persistentVolumeClaim:
-                  claimName: spider-shared-cephfs-claim
+                  claimName: spider-ceph-claim
                   readOnly: false

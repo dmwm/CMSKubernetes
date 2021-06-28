@@ -40,12 +40,12 @@ spec:
              cpu: 100m
              memory: 100Mi
         volumeMounts:
-          - mountPath: /cms_shared
-            name: shared-spider
+          - name: spider-shared-ceph-claim
+            mountPath: /cms_shared
       volumes:
-        - name: shared-spider
+        - name: spider-shared-ceph-claim
           persistentVolumeClaim:
-            claimName: spider-shared-cephfs-claim
+            claimName: spider-ceph-claim
             readOnly: false
       restartPolicy: Always
       terminationGracePeriodSeconds: 60
