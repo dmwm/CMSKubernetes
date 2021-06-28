@@ -75,6 +75,7 @@ COPY --from=exporters-builder /data/node_exporter ${WDIR}/bin/
 COPY --from=exporters-builder /data/process_exporter ${WDIR}/bin/
 COPY --from=exporters-builder /data/reqmgr_exporter ${WDIR}/bin/
 COPY --from=exporters-builder /data/wmcore_exporter ${WDIR}/bin/
+COPY --from=exporters-builder /data/process_monitor.sh ${WDIR}/bin/
 
 
 WORKDIR ${WDIR}
