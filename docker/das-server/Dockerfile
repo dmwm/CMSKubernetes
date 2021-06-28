@@ -18,12 +18,12 @@ RUN git checkout tags/$TAG -b build && make && cp das2go /build
 RUN go build -o /build/das2go_monitor -ldflags="-s -w -extldflags -static" /data/das2go/monitor/das2go_monitor.go
 RUN cp -r js css images templates examples /build
 WORKDIR /data
-RUN curl -ksLO https://raw.githubusercontent.com/dmwm/cmsweb-exporters/master/das2go_exporter.go
+#RUN curl -ksLO https://raw.githubusercontent.com/dmwm/cmsweb-exporters/master/das2go_exporter.go
 RUN go get github.com/vkuznet/x509proxy && \
     go get github.com/prometheus/common && \
     go get github.com/prometheus/client_golang/prometheus
-RUN go mod init github.com/dmwm/cmsweb-exporters && go mod tidy && \
-    go build -o /build/das2go_exporter -ldflags="-s -w -extldflags -static" /data/das2go_exporter.go
+#RUN go mod init github.com/dmwm/cmsweb-exporters && go mod tidy && \
+#    go build -o /build/das2go_exporter -ldflags="-s -w -extldflags -static" /data/das2go_exporter.go
 
 # FROM alpine
 # RUN mkdir -p /data
