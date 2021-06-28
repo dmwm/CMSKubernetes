@@ -1,4 +1,4 @@
-FROM cmssw/exporters:latest as exporters-builder
+FROM cmssw/exporters:20210621 as exporters-builder
 RUN mkdir -p /data
 
 
