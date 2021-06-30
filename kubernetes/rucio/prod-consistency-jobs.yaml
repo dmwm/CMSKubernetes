@@ -250,3 +250,12 @@ consistency:
     T2_US_Vanderbilt:
       server: xrootd.accre.vanderbilt.edu
       interval: 7
+
+deckard:
+  sites:
+    T1_ES_PIC_Disk:
+      interval: 1
+      minagedark: 14
+      maxdarkfraction: 0.005
+      maxmissfraction: 0.005
+

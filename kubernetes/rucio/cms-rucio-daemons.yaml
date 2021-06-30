@@ -20,6 +20,10 @@ reaperCount: 0
 reaper2Count: 1
 minosCount: 1
 necromancerCount: 1
+darkReaperCount: 1
+
+darkReaper:
+  includeRses: "T1_ES_PIC_Disk"
 
 abacusRse:
   threads: 2
