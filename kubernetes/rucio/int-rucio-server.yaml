@@ -10,4 +10,7 @@ traceIngress:
   hosts: 
     - cmsrucio-trace-int.cern.ch
 
+config:
+    conveyor:
+        use_preparer: "True"
 

@@ -9,7 +9,7 @@
 export DAEMON_NAME=cms-ruciod-${INSTANCE}
 export SERVER_NAME=cms-rucio-${INSTANCE}
 export UI_NAME=cms-webui-${INSTANCE}
-
+export GLOBUS_NAME=cms-globus-${INSTANCE}
 
 echo
 echo "When prompted, enter the password used to encrypt the HOST P12 file"
@@ -41,6 +41,7 @@ echo "Removing existing secrets"
 kubectl delete secret rucio-server.tls-secret
 kubectl delete secret ${DAEMON_NAME}-fts-cert ${DAEMON_NAME}-fts-key ${DAEMON_NAME}-hermes-cert ${DAEMON_NAME}-hermes-key 
 kubectl delete secret ${DAEMON_NAME}-rucio-ca-bundle ${DAEMON_NAME}-rucio-ca-bundle-reaper
+kubectl delete secret ${GLOBUS_NAME}-rucio-ca-bundle ${GLOBUS_NAME}-rucio-ca-bundle-reaper
 kubectl delete secret ${SERVER_NAME}-hostcert ${SERVER_NAME}-hostkey ${SERVER_NAME}-cafile  
 kubectl delete secret ${SERVER_NAME}-auth-hostcert ${SERVER_NAME}-auth-hostkey ${SERVER_NAME}-auth-cafile  
 kubectl delete secret ${UI_NAME}-hostcert ${UI_NAME}-hostkey ${UI_NAME}-cafile 
@@ -73,6 +74,11 @@ kubectl create secret generic ${DAEMON_NAME}-hermes-cert --from-file=$ROBOTCERT
 kubectl create secret generic ${DAEMON_NAME}-hermes-key --from-file=$ROBOTKEY
 kubectl create secret generic ${DAEMON_NAME}-rucio-ca-bundle --from-file=/etc/pki/tls/certs/CERN-bundle.pem
 
+# Secrets for Globus
+kubectl create secret generic ${GLOBUS_NAME}-rucio-ca-bundle --from-file=/etc/pki/tls/certs/CERN-bundle.pem
+kubectl delete secret ${GLOBUS_NAME}-rucio-x509up
+kubectl create secret generic ${GLOBUS_NAME}-rucio-x509up  --from-file=/etc/pki/tls/certs/CERN-bundle.pem # This is a dummy, but needed for container to start
+
 # WebUI needs whole bundle as ca.pem. Keep this at end since we just over-wrote ca.pem
 
 cp /etc/pki/tls/certs/CERN-bundle.pem ca.pem  
@@ -87,6 +93,7 @@ mkdir /tmp/reaper-certs
 cp /etc/grid-security/certificates/*.0 /tmp/reaper-certs/
 cp /etc/grid-security/certificates/*.signing_policy /tmp/reaper-certs/
 kubectl create secret generic ${DAEMON_NAME}-rucio-ca-bundle-reaper --from-file=/tmp/reaper-certs/
+kubectl create secret generic ${GLOBUS_NAME}-rucio-ca-bundle-reaper --from-file=/tmp/reaper-certs/
 rm -rf /tmp/reaper-certs
 
 kubectl get secrets
