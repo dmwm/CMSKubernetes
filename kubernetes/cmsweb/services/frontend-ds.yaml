@@ -96,8 +96,6 @@ spec:
           mountPath: /data/srv/logs/frontend
 #PROD#  - name: filebeat-cephfs
 #PROD#    mountPath: /data/filebeat
-#PROD#  - name: logs-cephfs
-#PROD#    mountPath: /data/srv/logs/frontend
       - name: frontend-filebeat
         image: docker.elastic.co/beats/filebeat:7.12.0
         args: [
@@ -110,8 +108,10 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: metadata.name
-        #- name: FLUENTD_ARGS
-        #  value: --no-supervisor
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "50m"
         volumeMounts:
         - name: logs
           mountPath: /data/srv/logs/frontend
@@ -142,8 +142,6 @@ spec:
       - name: hostkey
         hostPath:
             path: /etc/grid-security/hostkey.pem
-      - name: logs
-        emptyDir: {}
       - name: varlog
         hostPath:
           path: /var/log
@@ -159,7 +157,7 @@ spec:
 #PROD#- name: filebeat-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: filebeat-cephfs-claim-default
-#PROD#- name: logs-cephfs
+#PROD#- name: logs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-default
       nodeSelector:
