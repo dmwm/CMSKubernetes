@@ -8,29 +8,39 @@
 # - Eric Vaandering, <ewv@fnal.gov>, 2018
 
 ARG RUCIO_VERSION
-
 FROM rucio/rucio-daemons:release-$RUCIO_VERSION
+ARG CMS_TAG
 
 # Install what's needed out of dmwm/rucio/CMS branch
 ADD install_mail_templates.sh /tmp/
 RUN /tmp/install_mail_templates.sh
 
-ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/cmstfc.py /usr/lib/python2.7/site-packages/cmstfc.py
-RUN chmod 755 /usr/lib/python2.7/site-packages/cmstfc.py
+# Install globus SDK
+RUN python3 -m pip install --no-cache-dir globus-sdk pyyaml
+ADD globus-config.yml.j2 /tmp
+
+ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/cmstfc.py /usr/local/lib/python3.6/site-packages/cmstfc.py
+RUN chmod 755 /usr/local/lib/python3.6/site-packages/cmstfc.py
+
+# Delete checks that it exists
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/rse/protocols/gfal.py /usr/local/lib/python3.6/site-packages/rucio/rse/protocols/gfal.py
+RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/rse/protocols
 
 ADD cms-entrypoint.sh /
 
-# Better delete
+# Nick patch for Production Output issues, should be fixed in 1.25 series
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/core/request.py /usr/local/lib/python3.6/site-packages/rucio/core/request.py
+RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/core
 
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano4/lib/rucio/rse/protocols/gfal.py /usr/lib/python2.7/site-packages/rucio/rse/protocols/gfal.py
-RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/rse/protocols
+# Eric patches for Globus
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/transfertool/globusLibrary.py /usr/local/lib/python3.6/site-packages/rucio/transfertool/globusLibrary.py
+RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/transfertool
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/core/transfer.py /usr/local/lib/python3.6/site-packages/rucio/core/transfer.py
+RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/core
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/daemons/conveyor/submitter.py /usr/local/lib/python3.6/site-packages/rucio/daemons/conveyor/submitter.py
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/daemons/conveyor/common.py /usr/local/lib/python3.6/site-packages/rucio/daemons/conveyor/common.py
+RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/daemons/conveyor
 
-# Our schema
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano4/lib/rucio/common/schema/cms.py /usr/lib/python2.7/site-packages/rucio/common/schema/cms.py
-RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/common/schema
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano4/lib/rucio/api/did.py /usr/lib/python2.7/site-packages/rucio/api/did.py
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano4/lib/rucio/api/replica.py /usr/lib/python2.7/site-packages/rucio/api/replica.py
-RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/api
+ADD https://raw.githubusercontent.com/ericvaandering/containers/add_preparer/daemons/rucio.cfg.j2 /tmp/rucio.cfg.j2
 
 ENTRYPOINT ["/cms-entrypoint.sh"]
-

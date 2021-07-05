@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 import argparse
 import json
@@ -34,7 +34,7 @@ def load_config(conffile):
 
     returns the content dictionnary
     """
-    with file(conffile, 'r') as stream:
+    with open(conffile, 'r') as stream:
         config = yaml.load(stream, Loader=yaml.SafeLoader)
     return config
 
@@ -233,10 +233,10 @@ class SiteSyncer(object):
             print('Site %s (%s)is ok %s' % (site, type(site), site not in ['default', 'main']))
             if site not in ['default', 'main']:
                 if site_config.get('multi_das_calls', False):
-                    for prefix in list(string.letters + string.digits):
+                    for prefix in list(string.ascii_letters + string.digits):
                         if (('CERN' in site) or ('FNAL' in site) or ('_Tape' in site)) and prefix == 'S':
                             for fnal_prefix in ('Sc', 'Se', 'Si', 'Sp', 'St', 'SI', 'SM', 'ST', 'SU', 'SV', 'SS',
-                                                'Su', 'SP'):
+                                                'Su', 'SP', 'SL'):
                                 to_sync.append((site, fnal_prefix))
                         elif (('T0' in site) or ('FNAL' in site) or ('_Tape' in site)) and prefix == 'M':
                             for fnal_prefix in ('Ma', 'MC', 'ME', 'Mi', 'Mo', 'MS', 'Mu'):
@@ -276,24 +276,14 @@ class SiteSyncer(object):
         offset = random.randrange(len(to_sync))
         to_sync = to_sync[offset:] + to_sync[:offset]
 
-        # to_sync = [
-        #            ('T2_CH_CERN', 'StreamExpress/Commissi'),
-        #            ('T2_CH_CERN', 'StreamExpress/Run2016B'),
-        #            ('T2_CH_CERN', 'StreamExpress/Run2017A'),
-        #            ('T2_CH_CERN', 'StreamExpress/Run2017B'),
-        #            ('T2_CH_CERN', 'StreamExpress/Run2017C'),
-        #            ('T2_CH_CERN', 'StreamExpress/Run2018A'),
-        #            ('T2_CH_CERN', 'StreamExpress/Run2018B'),
-        #            ('T2_CH_CERN', 'StreamExpress/Run2018C'),
-        #            ('T2_CH_CERN', 'StreamExpress/Run2018D'),
-        #            ('T2_CH_CERN', 'StreamExpress/Run2018E'),
-        #            ('T2_CH_CERN', 'StreamExpress/Tier0_RE'),
-        #            ('T2_CH_CERN', 'StreamExpressAlignment/'),
-        #            ('T2_CH_CERN', 'StreamExpressCosmics/C'),
-        #            ('T2_CH_CERN', 'StreamExpressCosmics/H'),
-        #            ('T2_CH_CERN', 'StreamExpressCosmics/R'),
-        #            ('T2_CH_CERN', 'StreamExpressCosmics/T'),
-        #            ]
+
+        to_sync = [
+        #     # ('T1_US_FNAL_Tape', 'ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8/RunIISummer19UL18RECO-106X_upgrade2018_realistic_v11_L1v1-v1'),
+             ('T0_CH_CERN_Tape', 'DQ'),
+            ('T0_CH_CERN_Tape', 'TAC'),
+            #     # ('T1_US_FNAL_Tape', 'VBFH_HToSSTo4Tau_MH-125_TuneCUETP8M1_13TeV-powheg-pythia8/RunIISummer16DR80Premix-PUMoriond17_rp_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v2'),
+        #     # ('T1_US_FNAL_Tape', 'ZeroBias1/Commissioning2018-26Apr2018-v1'),
+        ]
 
         return to_sync
 
@@ -361,7 +351,7 @@ if __name__ == '__main__':
     site_pairs = syncer.chunks_to_sync()
 
     # Multi-process version of the syncer
-    pool = Pool(processes=8)  # start N worker processes
+    pool = Pool(processes=1)  # start N worker processes
     sites_and_options = [(site_pair, options) for site_pair in site_pairs]
     pool.map(sync_a_site, sites_and_options, chunksize=1)
 

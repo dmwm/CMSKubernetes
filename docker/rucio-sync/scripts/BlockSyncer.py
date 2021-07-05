@@ -12,7 +12,7 @@ from rucio.api.replica import list_replicas, add_replicas, set_tombstone
 from rucio.api.rse import get_rse, list_rses
 from rucio.api.rule import add_replication_rule, list_replication_rules
 from rucio.common.exception import (DataIdentifierNotFound, DuplicateContent,
-                                    FileAlreadyExists, ReplicaNotFound, RucioException)
+                                    FileAlreadyExists, ReplicaNotFound, RucioException, UnsupportedOperation)
 from rucio.common.types import InternalScope
 from rucio.common.utils import chunks
 from rucio.core import monitor
@@ -171,11 +171,14 @@ class BlockSyncer(object):
         remove_rules = [rule for rule in rules
                         if rule['account'] == self.account and rule['rse_expression'] == rse_expression]
 
+        logging.info('Figuring out what to do with rule: %s and %s' % (remove_rules, self.is_at_pnn))
+
         if not remove_rules and self.is_at_pnn:
             self.rule_exists = False
             if self.dry_run:
                 logging.info("Dry run: Adding rule for dataset %s at rse %s.", self.block_name, self.rse)
             else:
+                logging.info('Rule added for %s at %s' % (self.block_name, rse_expression))
                 self.add_replication_rule_with_defaults(dids=[{'scope': self.scope, 'name': self.block_name}],
                                                         copies=1, rse_expression=rse_expression, account=self.account)
                 monitor.record_counter('cms_sync.rules_added')
@@ -215,7 +218,7 @@ class BlockSyncer(object):
                              self.rse, self.block_name, len(phedex_replicas), len(missing))
 
             if missing:
-                logging.info('All replicas for %s at %s missing', self.rse, self.block_name)
+                logging.info('Some or all replicas for %s at %s missing', self.rse, self.block_name)
                 lfns_added = self.add_missing_replicas(missing)
                 monitor.record_counter('cms_sync.files_added', delta=lfns_added)
             if to_remove:
@@ -241,18 +244,30 @@ class BlockSyncer(object):
         with monitor.record_timer_block('cms_sync.time_recover_replica'):
             logging.info('Recovering unavailable replicas for %s:%s at %s', self.scope, self.block_name, self.rse)
 
-            replicas = list_replicas(dids=[{'scope': self.scope, 'name': self.block_name}],
-                                     rse_expression='rse=%s' % self.rse, all_states=True)
+            replicas = list(list_replicas(dids=[{'scope': self.scope, 'name': self.block_name}],
+                                          rse_expression='rse=%s' % self.rse, all_states=True))
+            logging.info('Recovery: Rucio replicas %s', len(replicas))
+            ewv_rucio_repl = {repl['name'] for repl in replicas}
+
+            import pprint
+            logging.info(pprint.pformat(ewv_rucio_repl))
 
             try:
                 unavailable_replicas = {repl['name']
                                         for repl in replicas
                                         if repl['states'][self.rse] != 'AVAILABLE'}
             except TypeError:
+                logging.warn('Got a type error, setting unavailable replicas to null')
                 unavailable_replicas = set()
-
+            logging.info('Recovery: Unavailable replicas %s', len(unavailable_replicas))
             phedex_replicas = set(self.replicas.keys())
+            logging.info('Recovery: PhEDEx replicas %s', len(phedex_replicas))
+
+            logging.info('Recovery: PhEDEx %s', pprint.pformat(phedex_replicas))
+            logging.info('Recovery: Unavailable %s', pprint.pformat(unavailable_replicas))
+
             missing = list(phedex_replicas & unavailable_replicas)
+            logging.info('Recovery: Missing replicas %s', len(missing))
 
             logging.info('Recovery for %s:%s at %s: PhEDEx has %s, Rucio unavailable %s. Missing: %s ',
                          self.scope, self.block_name, self.rse,
@@ -335,7 +350,6 @@ class BlockSyncer(object):
                 missing_lfns = list(set(missing) - set(lfns))
 
                 if missing_lfns:
-                    logging.debug('Attaching %s lfns to %s at %s', len(missing_lfns), self.block_name, self.rse)
                     dids = [{'scope': self.scope, 'name': lfn} for lfn in missing_lfns]
                     try:
                         attach_dids(scope=self.scope, name=self.block_name, attachment={'dids': dids},
@@ -343,7 +357,20 @@ class BlockSyncer(object):
                     except FileAlreadyExists:
                         logging.warning('Trying to attach already existing files to %s', self.block_name)
                     except DataIdentifierNotFound:
-                        logging.critical('Could not attach to %s at %s. Constraint violated?', self.block_name, self.rse)
+                        logging.critical('Could not attach to %s at %s. Constraint violated?',
+                                         self.block_name, self.rse)
+                    except UnsupportedOperation:
+                        for did in dids:
+                            did['scope'] = self.scope  # Get's converted to object
+                            retry_dids = [did]
+                            try:
+                                attach_dids(scope=self.scope, name=self.block_name, attachment={'dids': retry_dids},
+                                            issuer=self.account)
+                                logging.warning('Attaching LFNs one at a time: %s to %s at %s' % (
+                                did['name'], self.block_name, self.rse))
+                            except UnsupportedOperation:
+                                logging.warning('Failed to attach %s to %s at %s',
+                                                did['name'], self.block_name, self.rse)
                 return len(missing_lfns)
 
     def add_replication_rule_with_defaults(self, dids, copies, rse_expression, account):

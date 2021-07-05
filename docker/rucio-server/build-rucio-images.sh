@@ -2,31 +2,30 @@
 
 set -e
 
-export CMS_VERSION=1.24.5.nano2
-export RUCIO_VERSION=1.24.5.post1
-export CMS_TAG=cms_nano13
+export CMS_VERSION=1.25.7.cms1
+export RUCIO_VERSION=1.25.7
+export CMS_TAG=cms_nano17
 
+#export CMS_VERSION=1.25.4.cmsgo
+#export RUCIO_VERSION=1.25.4
+#export CMS_TAG=cms_go_dbg
 
-docker build --build-arg RUCIO_VERSION=$RUCIO_VERSION --build-arg CMS_TAG=$CMS_TAG -t cmssw/rucio-server:release-$CMS_VERSION  -f Dockerfile.nano .
+docker build --build-arg RUCIO_VERSION=$RUCIO_VERSION --build-arg CMS_TAG=$CMS_TAG -t cmssw/rucio-server:release-$CMS_VERSION .
 docker push cmssw/rucio-server:release-$CMS_VERSION
 
 cd ../rucio-daemons
-docker build -f Dockerfile.nano --build-arg RUCIO_VERSION=$RUCIO_VERSION --build-arg CMS_TAG=$CMS_TAG -t cmssw/rucio-daemons:release-$CMS_VERSION .
+docker build --build-arg RUCIO_VERSION=$RUCIO_VERSION --build-arg CMS_TAG=$CMS_TAG -t cmssw/rucio-daemons:release-$CMS_VERSION .
 docker push cmssw/rucio-daemons:release-$CMS_VERSION
 
 cd ../rucio-probes
 docker build --build-arg RUCIO_VERSION=$RUCIO_VERSION --build-arg CMS_TAG=$CMS_TAG -t cmssw/rucio-probes:release-$CMS_VERSION .
 docker push cmssw/rucio-probes:release-$CMS_VERSION
 
-cd ../rucio-sync
-docker build --build-arg RUCIO_VERSION=$CMS_VERSION --build-arg CMS_TAG=$CMS_TAG -t cmssw/rucio-sync:release-$CMS_VERSION .
-docker push cmssw/rucio-sync:release-$CMS_VERSION
-
 cd ../rucio-ui
-docker build --build-arg RUCIO_VERSION=$RUCIO_VERSION --build-arg CMS_TAG=$CMS_TAG -t cmssw/rucio-ui:release-$CMS_VERSION -f Dockerfile.nano .
+docker build --build-arg RUCIO_VERSION=$RUCIO_VERSION --build-arg CMS_TAG=$CMS_TAG -t cmssw/rucio-ui:release-$CMS_VERSION .
 docker push cmssw/rucio-ui:release-$CMS_VERSION
 
-cd ../rucio-upgrade
-docker build  --build-arg RUCIO_VERSION=$RUCIO_VERSION -t ericvaandering/rucio-upgrade:release-$CMS_VERSION .
-docker push ericvaandering/rucio-upgrade:release-$CMS_VERSION
+#cd ../rucio-upgrade
+#docker build  --build-arg RUCIO_VERSION=$RUCIO_VERSION -t ericvaandering/rucio-upgrade:release-$CMS_VERSION .
+#docker push ericvaandering/rucio-upgrade:release-$CMS_VERSION
 
