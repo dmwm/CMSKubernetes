@@ -2,6 +2,8 @@ consistency:
   ignore:
     - /store/backfill
     - /store/test
+    - /store/unmerged
+    - /store/temp
   sites:
     T1_DE_KIT_Disk:
       interval: 7
@@ -265,5 +267,9 @@ deckard:
     T1_ES_PIC_Disk:
       interval: 1
       minagedark: 14
-      maxdarkfraction: 0.005
-      maxmissfraction: 0.005
+    T2_UK_SGrid_RALPP:
+      interval: 1
+      minagedark: 14
+    T2_IT_Rome:
+      interval: 1
+      minagedark: 14
