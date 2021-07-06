@@ -109,7 +109,7 @@ spec:
           readOnly: true
 #PROD#  - name: logs-cephfs
 #PROD#    mountPath: /data/logs
-      - image: exporters:20210628-static
+      - image: cmssw/exporters:20210628-static
         name: das-server-exporter
         resources:
           requests:
