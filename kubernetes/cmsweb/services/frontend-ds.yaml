@@ -134,7 +134,7 @@ spec:
         - name: varlibdockercontainers
           mountPath: /var/lib/docker/containers
           readOnly: true
-      - image: exporters:20210621
+      - image: cmssw/exporters:20210621
         name: frontend-exporter
         resources:
           requests:
