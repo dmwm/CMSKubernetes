@@ -56,6 +56,12 @@ spec:
       - image: cmssw/frontend #imagetag
         name: frontend
 #         imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 120
+          periodSeconds: 10
         resources:
           requests:
             memory: "50Mi"
