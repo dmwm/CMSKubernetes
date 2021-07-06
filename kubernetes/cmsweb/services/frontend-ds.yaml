@@ -100,6 +100,8 @@ spec:
           mountPath: /etc/grid-security/hostkey.pem
         - name: logs
           mountPath: /data/srv/logs/frontend
+        - name: maindata
+          mountPath: /data
 #PROD#  - name: filebeat-cephfs
 #PROD#    mountPath: /data/filebeat
       - name: frontend-filebeat
@@ -132,6 +134,23 @@ spec:
         - name: varlibdockercontainers
           mountPath: /var/lib/docker/containers
           readOnly: true
+      - image: cmssw/exporters:20210621
+        name: frontend-exporter
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "50m"
+        env:
+        - name: X509_USER_PROXY
+          value: /etc/proxy/proxy
+        args:
+        - /data/exporters.sh 
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: maindata
+          mountPath: /data
       volumes:
       - name: proxy-secrets
         secret:
@@ -159,6 +178,8 @@ spec:
           defaultMode: 0640
           name: frontend-filebeat-config
       - name: data
+        emptyDir: {}
+      - name: maindata
         emptyDir: {}
 #PROD#- name: filebeat-cephfs
 #PROD#  persistentVolumeClaim:
