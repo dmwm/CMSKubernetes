@@ -53,7 +53,7 @@ spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/frontend:HG2107c-test #imagetag
+      - image: cmssw/frontend #imagetag
         name: frontend
 #         imagePullPolicy: Always
         livenessProbe:
