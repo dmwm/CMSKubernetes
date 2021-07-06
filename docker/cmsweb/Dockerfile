@@ -2,7 +2,7 @@ FROM cmssw/exporters:20210621 as exporters-builder
 RUN mkdir -p /data
 
 
-FROM cern/cc7-base:20210601-1.x86_64
+FROM cern/cc7-base:20210701-1
 
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
