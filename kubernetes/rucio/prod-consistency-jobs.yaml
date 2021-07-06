@@ -261,6 +261,11 @@ consistency:
     T2_US_Vanderbilt:
       server: xrootd.accre.vanderbilt.edu
       interval: 7
+    T2_CH_CERN:
+      server: eoscms.cern.ch
+      server_root: /eos/cms/store/
+      remove_prefix: /eos/cms/
+      interval: 7
 
 deckard:
   sites:
