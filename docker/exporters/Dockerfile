@@ -24,6 +24,10 @@ RUN cd cmsweb-exporters && \
     go build -o /build/cmsweb-ping -ldflags="-s -w -extldflags -static" cmsweb-ping.go && \
     cp process_monitor.sh /build
 
+# Adding apache exporter
+
+RUN wget https://github.com/Lusitaniae/apache_exporter/releases/download/v0.9.0/apache_exporter-0.9.0.linux-amd64.tar.gz && tar -xvzf apache_exporter-0.9.0.linux-amd64.tar.gz --directory /data/gopath && cp /data/gopath/apache_exporter-0.9.0.linux-amd64/apache_exporter /build
+
 # build mongo exporter
 WORKDIR /tmp
 RUN curl -ksLO https://github.com/dcu/mongodb_exporter/releases/download/v1.0.0/mongodb_exporter-linux-amd64
