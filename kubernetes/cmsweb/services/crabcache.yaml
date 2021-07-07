@@ -77,8 +77,8 @@ spec:
             - "0"
           failureThreshold: 3
           initialDelaySeconds: 120
-          periodSeconds: 25
-          timeoutSeconds: 20
+          periodSeconds: 60
+          timeoutSeconds: 60
         resources:
           requests:
             memory: "512Mi"
