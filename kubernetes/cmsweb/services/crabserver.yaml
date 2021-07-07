@@ -67,7 +67,8 @@ spec:
               cmsweb-ping --url=http://localhost:8270/crabserver/prod/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
           initialDelaySeconds: 120
           failureThreshold: 3
-          periodSeconds: 10
+          periodSeconds: 20
+          timeoutSeconds: 10
         resources:
           requests:
             memory: "256Mi"
