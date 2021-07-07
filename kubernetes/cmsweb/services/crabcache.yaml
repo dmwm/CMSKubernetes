@@ -75,8 +75,10 @@ spec:
             - "--authz=/etc/hmac/hmac"
             - -verbose
             - "0"
+          failureThreshold: 3
           initialDelaySeconds: 120
-          periodSeconds: 10
+          periodSeconds: 25
+          timeoutSeconds: 20
         resources:
           requests:
             memory: "512Mi"
