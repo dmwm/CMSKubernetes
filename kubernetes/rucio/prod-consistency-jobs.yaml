@@ -270,26 +270,34 @@ consistency:
       server: eoscms.cern.ch
       server_root: /eos/cms/tier0/store/
       remove_prefix: /eos/cms/tier0/
+      interval: 7
     T1_FR_CCIN2P3_Disk:
       server: ccxrootdcms.in2p3.fr:1094
       server_root: /pnfs/in2p3.fr/data/cms/disk/data/store/
       remove_prefix: /pnfs/in2p3.fr/data/cms/disk/data/
+      interval: 7
     T1_RU_JINR_Disk:
       server: xrootd01jinr-t1.ru:1094
       server_root: /pnfs/jinr-t1.ru/data/cms
       remove_prefix: /pnfs/jinr-t1.ru/data/cms
+      interval: 7
     T1_UK_RAL_Disk:
       server: xrootd.echo.stfc.ac.uk
+      interval: 7
     T2_BE_UCL:
       server: ingrid-se08.cism.ucl.ac.be:1094
+      interval: 7
     T2_ES_IFCA:
       server: gridftp.ifca.es
+      interval: 7
     T2_RU_ITEP:
       server: se3.itep.ru
+      interval: 7
     T2_UK_London_IC:
       server: gfe02.grid.hep.ph.ic.ac.uk:1094
       server_root: /pnfs/hep.ph.ic.ac.uk/data/cms/store/
       remove_prefix: /pnfs/hep.ph.ic.ac.uk/data/cms/
+      interval: 7
 
 deckard:
   sites:
