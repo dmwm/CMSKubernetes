@@ -1,3 +1,29 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: das-server-filebeat-config
+  namespace: das
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/logs/das.log*
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+---
 kind: Service
 apiVersion: v1
 metadata:
@@ -126,7 +152,7 @@ spec:
         - name: proxy-secrets
           mountPath: /etc/proxy
           readOnly: true
-#PROD#  - name: logs-cephfs
+#PROD#  - name: logs
 #PROD#    mountPath: /data/logs
 #PROD#- image: cmssw/promtail
 #PROD#  name: promtail
@@ -141,8 +167,38 @@ spec:
 #PROD#  volumeMounts:
 #PROD#  - name: promtail-secrets
 #PROD#    mountPath: /etc/secrets
-#PROD#  - name: logs-cephfs
+#PROD#  - name: logs
 #PROD#    mountPath: /data/logs
+#PROD#- name: das-server-filebeat
+#PROD#  image: docker.elastic.co/beats/filebeat:7.12.0
+#PROD#  args: [
+#PROD#    "-c", "/etc/filebeat.yml",
+#PROD#    "-e",
+#PROD#  ]
+#PROD#  env:
+#PROD#  - name: MY_POD_NAME
+#PROD#    valueFrom:
+#PROD#      fieldRef:
+#PROD#        apiVersion: v1
+#PROD#        fieldPath: metadata.name
+#PROD#  resources:
+#PROD#    requests:
+#PROD#      memory: "50Mi"
+#PROD#      cpu: "50m"
+#PROD#  volumeMounts:
+#PROD#  - name: logs
+#PROD#    mountPath: /data/logs
+#PROD#  - name: config
+#PROD#    mountPath: /etc/filebeat.yml
+#PROD#    readOnly: true
+#PROD#    subPath: filebeat.yml
+#PROD#  - name: data
+#PROD#    mountPath: /usr/share/filebeat/data
+#PROD#  - name: varlog
+#PROD#    mountPath: /var/log
+#PROD#  - name: varlibdockercontainers
+#PROD#    mountPath: /var/lib/docker/containers
+#PROD#    readOnly: true
       initContainers:
       - name: checkcouchdb
         image: busybox:1.28
@@ -160,9 +216,21 @@ spec:
       - name: hmac-secrets
         secret:
           secretName: hmac-secrets
-#PROD#- name: logs-cephfs
+#PROD#- name: logs
 #PROD#  persistentVolumeClaim:
 #PROD#    claimName: logs-cephfs-claim-das
 #PROD#- name: promtail-secrets
 #PROD#  configMap:
 #PROD#    name: das-server-promtail
+#PROD#- name: varlog
+#PROD#  hostPath:
+#PROD#    path: /var/log
+#PROD#- name: varlibdockercontainers
+#PROD#  hostPath:
+#PROD#    path: /var/lib/docker/containers
+#PROD#- name: config
+#PROD#  configMap:
+#PROD#    defaultMode: 0640
+#PROD#    name: das-server-filebeat-config
+#PROD#- name: data
+#PROD#  emptyDir: {}
