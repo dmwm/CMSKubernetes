@@ -133,7 +133,7 @@ spec:
         - name: hmac-secrets
           mountPath: /etc/hmac
           readOnly: true
-#PROD#  - name: logs-cephfs
+#PROD#  - name: logs
 #PROD#    mountPath: /data/logs
       - image: cmssw/exporters:20210628-static
         name: das-server-exporter
