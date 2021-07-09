@@ -130,7 +130,8 @@ spec:
 #PROD#  - name: varlog
 #PROD#    mountPath: /var/log
 #PROD#  - name: varlibdockercontainers
-         securityContext:
+#PROD#    mountPath: /var/lib/docker/containers
+        securityContext:
           privileged: true
 #      initContainers:
 #      - name: checkcouchdb
