@@ -12,7 +12,7 @@ data:
     - type: log
       enabled: true
       paths:
-        - /data/logs/das.log*
+        - /data/logs/das.log*${MY_POD_NAME}*
       scan_frequency: 10s
       backoff: 5s
       max_backoff: 10s

@@ -12,7 +12,7 @@ data:
     - type: log
       enabled: true
       paths:
-        - /data/srv/logs/crabcache/*.log
+        - /data/srv/logs/crabcache/*${MY_POD_NAME}*.log
       scan_frequency: 10s
       backoff: 5s
       max_backoff: 10s
