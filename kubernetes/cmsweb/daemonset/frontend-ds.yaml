@@ -12,13 +12,13 @@ data:
     - type: log
       enabled: true
       paths:
-        - /data/srv/logs/frontend/*.txt
+        - /data/srv/logs/frontend/*${MY_POD_NAME}*.txt
       scan_frequency: 10s
       backoff: 5s
       max_backoff: 10s
     output.console:
       codec.format:
-        string: '%{[message]} - Podname=${MY_POD_NAME}}'
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
         pretty: false
     queue.mem:
       events: 65536
@@ -98,40 +98,40 @@ spec:
           mountPath: /etc/grid-security/hostcert.pem
         - name: hostkey
           mountPath: /etc/grid-security/hostkey.pem
-        - name: logs
-          mountPath: /data/srv/logs/frontend
+#PROD#  - name: logs
+#PROD#    mountPath: /data/srv/logs/frontend
 #PROD#  - name: filebeat-cephfs
 #PROD#    mountPath: /data/filebeat
-      - name: frontend-filebeat
-        image: docker.elastic.co/beats/filebeat:7.12.0
-        args: [
-          "-c", "/etc/filebeat.yml",
-          "-e",
-        ]
-        env:
-        - name: MY_POD_NAME
-          valueFrom:
-            fieldRef:
-              apiVersion: v1
-              fieldPath: metadata.name
-        resources:
-          requests:
-            memory: "50Mi"
-            cpu: "50m"
-        volumeMounts:
-        - name: logs
-          mountPath: /data/srv/logs/frontend
-        - name: config
-          mountPath: /etc/filebeat.yml
-          readOnly: true
-          subPath: filebeat.yml
-        - name: data
-          mountPath: /usr/share/filebeat/data
-        - name: varlog
-          mountPath: /var/log
-        - name: varlibdockercontainers
-          mountPath: /var/lib/docker/containers
-          readOnly: true
+#PROD#- name: frontend-filebeat
+#PROD#  image: docker.elastic.co/beats/filebeat:7.12.0
+#PROD#  args: [
+#PROD#    "-c", "/etc/filebeat.yml",
+#PROD#    "-e",
+#PROD#  ]
+#PROD#  env:
+#PROD#  - name: MY_POD_NAME
+#PROD#    valueFrom:
+#PROD#      fieldRef:
+#PROD#        apiVersion: v1
+#PROD#        fieldPath: metadata.name
+#PROD#  resources:
+#PROD#    requests:
+#PROD#      memory: "50Mi"
+#PROD#      cpu: "50m"
+#PROD#  volumeMounts:
+#PROD#  - name: logs
+#PROD#    mountPath: /data/srv/logs/frontend
+#PROD#  - name: config
+#PROD#    mountPath: /etc/filebeat.yml
+#PROD#    readOnly: true
+#PROD#    subPath: filebeat.yml
+#PROD#  - name: data
+#PROD#    mountPath: /usr/share/filebeat/data
+#PROD#  - name: varlog
+#PROD#    mountPath: /var/log
+#PROD#  - name: varlibdockercontainers
+#PROD#    mountPath: /var/lib/docker/containers
+#PROD#    readOnly: true
       - image: cmssw/exporters:20210706-static
         name: frontend-exporter
         imagePullPolicy: Always
@@ -168,18 +168,18 @@ spec:
       - name: hostkey
         hostPath:
             path: /etc/grid-security/hostkey.pem
-      - name: varlog
-        hostPath:
-          path: /var/log
-      - name: varlibdockercontainers
-        hostPath:
-          path: /var/lib/docker/containers
-      - name: config
-        configMap:
-          defaultMode: 0640
-          name: frontend-filebeat-config
-      - name: data
-        emptyDir: {}
+#PROD#- name: varlog
+#PROD#  hostPath:
+#PROD#    path: /var/log
+#PROD#- name: varlibdockercontainers
+#PROD#  hostPath:
+#PROD#    path: /var/lib/docker/containers
+#PROD#- name: config
+#PROD#  configMap:
+#PROD#    defaultMode: 0640
+#PROD#    name: frontend-filebeat-config
+#PROD#- name: data
+#PROD#  emptyDir: {}
 #PROD#- name: filebeat-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: filebeat-cephfs-claim-default
