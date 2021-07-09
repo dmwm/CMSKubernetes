@@ -1,3 +1,29 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ms-monitor-filebeat-config
+  namespace: dmwm
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/reqmgr2ms/*${MY_POD_NAME}*.log
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+---
 kind: Service
 apiVersion: v1
 metadata:
@@ -111,8 +137,35 @@ spec:
           readOnly: true
         - name: setup-certs-and-run
           mountPath: /opt/setup-certs-and-run
-#PROD#  - name: logs-cephfs
+#PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/reqmgr2ms
+#PROD#- name: ms-monitor-filebeat
+#PROD#  image: docker.elastic.co/beats/filebeat:7.12.0
+#PROD#  args: [
+#PROD#    "-c", "/etc/filebeat.yml",
+#PROD#    "-e",
+#PROD#  ]
+#PROD#  env:
+#PROD#  - name: MY_POD_NAME
+#PROD#    valueFrom:
+#PROD#      fieldRef:
+#PROD#        apiVersion: v1
+#PROD#        fieldPath: metadata.name
+#PROD#  resources:
+#PROD#    requests:
+#PROD#      memory: "50Mi"
+#PROD#      cpu: "50m"
+#PROD#  volumeMounts:
+#PROD#  - name: logs
+#PROD#    mountPath: /data/srv/logs/reqmgr2ms
+#PROD#  - name: config
+#PROD#    mountPath: /etc/filebeat.yml
+#PROD#    readOnly: true
+#PROD#    subPath: filebeat.yml
+#PROD#  - name: data
+#PROD#    mountPath: /usr/share/filebeat/data
+#PROD#  - name: varlog
+#PROD#    mountPath: /var/log
         securityContext:
           privileged: true
 #      initContainers:
@@ -138,6 +191,18 @@ spec:
       - name: setup-certs-and-run
         configMap:
           name: ms-monitor
-#PROD#- name: logs-cephfs
+#PROD#- name: logs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-dmwm
+#PROD#- name: varlog
+#PROD#  hostPath:
+#PROD#    path: /var/log
+#PROD#- name: varlibdockercontainers
+#PROD#  hostPath:
+#PROD#    path: /var/lib/docker/containers
+#PROD#- name: config
+#PROD#  configMap:
+#PROD#    defaultMode: 0640
+#PROD#    name: ms-monitor-filebeat-config
+#PROD#- name: data
+#PROD#  emptyDir: {}
