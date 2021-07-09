@@ -166,6 +166,9 @@ spec:
 #PROD#    mountPath: /usr/share/filebeat/data
 #PROD#  - name: varlog
 #PROD#    mountPath: /var/log
+#PROD#  - name: varlibdockercontainers
+#PROD#    mountPath: /var/lib/docker/containers
+#PROD#    readOnly: true
         securityContext:
           privileged: true
       initContainers:
