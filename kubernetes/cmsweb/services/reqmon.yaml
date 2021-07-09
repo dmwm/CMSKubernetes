@@ -160,6 +160,7 @@ spec:
 #PROD#    mountPath: /var/log
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
+#PROD#    readOnly: true
         securityContext:
           privileged: true
 #      initContainers:
