@@ -1,35 +1,89 @@
-# CephFS volume claims:
-# for production storage use
-#   storageClassName: meyrin-cephfs
-# for test storage use
-#   storageClassName: geneva-cephfs-testing
-# Cephfs storage must >= 1G
-# ---
-#
-# Redis
-apiVersion: v1
-kind: PersistentVolumeClaim
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
 metadata:
-  name: spider-redis-cephfs-claim
+  name: redis-cp-share
   namespace: spider
-spec:
-  accessModes:
-  - ReadWriteMany
-  resources:
-    requests:
-      storage: 6G
-  storageClassName: meyrin-cephfs
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: ebfec527-6b09-425a-b0d9-6842916fa39a
+  osShareAccessID: ede947f6-f010-4afa-8e91-37a7bf4865f8
 ---
-# Shared including affiliations
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: spider-shared-cephfs-claim
+  name: redis-cp-ceph-claim
   namespace: spider
 spec:
   accessModes:
   - ReadWriteMany
   resources:
     requests:
-      storage: 4G
-  storageClassName: meyrin-cephfs
+      storage: 30G
+  storageClassName: redis-cp-share
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: redis-share
+  namespace: spider
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: ad178494-a50f-4f0a-a5ad-35ee7663c95d
+  osShareAccessID: a1cc9e1f-0674-4575-b0ed-a238452d98db
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-ceph-claim
+  namespace: spider
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 30G
+  storageClassName: redis-share
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: affiliation-share
+  namespace: spider
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: 00bde0a3-07f0-4bcd-8123-9f87ae4f8562
+  osShareAccessID: 8864f829-c4df-4c11-bc74-04607e1ce072
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: spider-ceph-claim
+  namespace: spider
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 10G
+  storageClassName: affiliation-share

@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dataaccess
+  namespace: spider
+spec:
+  containers:
+    - name: alpine
+      image: alpine:latest
+      command: ["sleep", "infinity"]
+      volumeMounts:
+        - name: redis-celery-claim
+          mountPath: /data/redis-celery
+        - name: redis-checkpoint-claim
+          mountPath: /data/redis-cp
+        - name: spider-shared-ceph-claim
+          mountPath: /data/spider
+  volumes:
+    - name: redis-celery-claim
+      persistentVolumeClaim:
+        claimName: redis-ceph-claim
+    - name: redis-checkpoint-claim
+      persistentVolumeClaim:
+        claimName: redis-cp-ceph-claim
+    - name: spider-shared-ceph-claim
+      persistentVolumeClaim:
+        claimName: spider-ceph-claim
