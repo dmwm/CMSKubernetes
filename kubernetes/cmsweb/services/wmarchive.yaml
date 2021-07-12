@@ -13,6 +13,7 @@ data:
       enabled: true
       paths:
         - /data/srv/logs/wmarchive/*${MY_POD_NAME}*
+      ignore_older: 1h
       scan_frequency: 10s
       backoff: 5s
       max_backoff: 10s

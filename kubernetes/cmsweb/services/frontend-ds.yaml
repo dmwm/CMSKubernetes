@@ -13,6 +13,7 @@ data:
       enabled: true
       paths:
         - /data/srv/logs/frontend/*${MY_POD_NAME}*.txt
+      ignore_older: 1h
       scan_frequency: 10s
       backoff: 5s
       max_backoff: 10s
