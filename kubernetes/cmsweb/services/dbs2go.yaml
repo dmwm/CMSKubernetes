@@ -12,7 +12,7 @@ data:
     - type: log
       enabled: true
       paths:
-        - /data/logs/*${MY_POD_NAME}*.log
+        - /data/logs/*${MY_POD_NAME}*
       ignore_older: 1h
       scan_frequency: 10s
       backoff: 5s
