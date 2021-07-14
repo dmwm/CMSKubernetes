@@ -1,0 +1,9 @@
+apiVersion: v2
+name: exitcodes
+description: A Helm chart for Exitcodes
+
+type: application
+
+version: 0.1.0
+
+appVersion: 1.16.0
