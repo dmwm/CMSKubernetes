@@ -119,7 +119,9 @@ elif [ "$secret" == "rumble-secrets" ]; then
 elif [ "$secret" == "rucio-secrets" ]; then
     files=`ls $sdir/rucio/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/rucio | sed "s, $,,g"`
 elif [ "$secret" == "sqoop-secrets" ]; then
-    files=`ls $sdir/sqoop/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/sqoop | sed "s, $,,g"`
+    s_files=`ls $sdir/sqoop/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/sqoop | sed "s, $,,g"`
+    c_files=`ls $cdir/sqoop/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$cdir/sqoop | sed "s, $,,g"`
+    files="${s_files} ${c_files}"
 fi
 echo "files: \"$files\""
 #echo "literals: $literals"
