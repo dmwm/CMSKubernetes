@@ -45,7 +45,8 @@ spec:
       spec:
         containers:
         - name: hdfs-exporter-eos
-          image: cmssw/sqoop:20210323-v2
+          image: cmssw/sqoop:20210715
+          #image: cmssw/sqoop:20210323-v2
           #image: cmssw/sqoop:20210212-v2
           command:
           - /bin/sh

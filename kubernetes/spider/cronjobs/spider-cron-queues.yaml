@@ -19,7 +19,7 @@ spec:
           serviceAccountName: spider-account
           containers:
           - name: cms-htcondor-es
-            image: cmssw/cms-htcondor-es:00.00.02
+            image: cmssw/cms-htcondor-es:d1dfe4d
             imagePullPolicy: Always
             args:
             - python

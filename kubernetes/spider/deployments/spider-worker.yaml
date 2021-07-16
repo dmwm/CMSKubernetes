@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: spider-worker
-        image: cmssw/cms-htcondor-es:00.00.02
+        image: cmssw/cms-htcondor-es:d1dfe4d
         imagePullPolicy: Always
         args:
         - celery
