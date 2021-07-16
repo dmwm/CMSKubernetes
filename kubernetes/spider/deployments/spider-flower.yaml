@@ -27,7 +27,7 @@ spec:
         - --persistent=True
         - --max_tasks=1000000000
         - --db=/cms_shared/flower.db
-        image: cmssw/cms-htcondor-es:00.00.02
+        image: cmssw/cms-htcondor-es:d1dfe4d
         name: spider-flower
         ports:
         - containerPort: 5555
