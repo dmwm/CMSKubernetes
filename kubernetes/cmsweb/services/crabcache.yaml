@@ -114,7 +114,6 @@ spec:
             - "--authz=/etc/hmac/hmac"
             - -verbose
             - "0"
-          initialDelaySeconds: 120
           periodSeconds: 60
           timeoutSeconds: 60
         resources:
