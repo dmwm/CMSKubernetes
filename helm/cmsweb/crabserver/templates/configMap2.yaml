@@ -1,0 +1,13 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: crabserver
+  labels:
+    app: crabserver
+  namespace: crab
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    su  -c "cd /data && /data/run.sh" --preserve-environment  _crabserver
