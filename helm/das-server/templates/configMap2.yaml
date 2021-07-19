@@ -1,0 +1,24 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: das-server-promtail
+  labels:
+    app: das-server-promtail
+  namespace: das
+data:
+  promtail-config.yaml: |
+    server:
+      http_listen_port: 9080
+      grpc_listen_port: 0
+    positions:
+      filename: /tmp/positions.yaml
+    clients:
+      - url: http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
+    scrape_configs:
+    - job_name: das-server
+      static_configs:
+      - targets:
+          - das-logs
+        labels:
+          job: das-logs
+          __path__: /data/logs/das.log*
