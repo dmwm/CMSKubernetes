@@ -48,7 +48,7 @@ spec:
             fieldRef:
               fieldPath: spec.nodeName
         - name: CPU_EFF_OUTPUT # Define output path here
-          value: /eos/user/c/cmsmonit/www/cpu_eff_k8s
+          value: /eos/user/c/cmsmonit/www/cpu_eff
         resources:
           limits:
             cpu: 2000m
