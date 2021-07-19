@@ -1,6 +1,8 @@
 FROM cern/cc7-base:20210201-1.x86_64
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+
 # set working directory
 ENV WDIR=/data
 WORKDIR $WDIR
