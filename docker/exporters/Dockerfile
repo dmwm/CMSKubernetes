@@ -39,6 +39,7 @@ RUN mkdir -p /data
 #FROM gcr.io/distroless/static AS final
 COPY --from=go-builder /build/* /data/
 RUN sed -i -e "s,bash,sh,g" -e "s,print \$2,print \$1,g" /data/process_monitor.sh
+ENV PATH $PATH:/data
 
 # ADD run.sh /data/run.sh
 # ADD probe.sh /data/probe.sh
