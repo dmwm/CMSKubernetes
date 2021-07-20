@@ -23,8 +23,5 @@ FROM alpine
 RUN mkdir -p /data/
 ENV PATH $PATH:/data
 COPY --from=go-builder /data/wmarchive /data/
-COPY --from=go-builder /data/run.sh /data/
 COPY --from=go-builder /data/wmarch_go.json /data/
-#COPY --from=exporters /data/process_exporter /data/
-#COPY --from=exporters /data/process_monitor.sh /data/
-#RUN sed -i -e "s,bash,sh,g" -e "s,print \$2,print \$1,g" /data/process_monitor.sh
+ADD run.sh /data/run.sh
