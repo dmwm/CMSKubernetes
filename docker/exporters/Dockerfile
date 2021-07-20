@@ -33,10 +33,10 @@ WORKDIR /tmp
 RUN curl -ksLO https://github.com/dcu/mongodb_exporter/releases/download/v1.0.0/mongodb_exporter-linux-amd64
 RUN cp mongodb_exporter-linux-amd64 /build/mongodb_exporter
 
-# FROM alpine
-# RUN mkdir -p /data
+FROM alpine
+RUN mkdir -p /data && apk update && apk upgrade && apk add bash
 # https://blog.baeke.info/2021/03/28/distroless-or-scratch-for-go-apps/
-FROM gcr.io/distroless/static AS final
+#FROM gcr.io/distroless/static AS final
 COPY --from=go-builder /build/* /data/
 # ADD run.sh /data/run.sh
 # ADD probe.sh /data/probe.sh
