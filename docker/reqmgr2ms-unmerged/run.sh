@@ -151,7 +151,8 @@ sed -i -e "s,auth_host.*,auth_host =${MATCH_RUCIO_AUTH_URL},g" ${RUCIO_CONFIG}
 # Edit the MSUnmerged configuration file (msConfig for the service) at runtime
 # based on the set of arguments passed to the run.sh script by the service
 # statrtup command defined in the .yaml file of the currently starting service
-[[ -n $rseExpr ]] && sed -e "s/^[[:blank:]]*RSEEXPR.*/RSEEXPR = \"${rseExpr}\"/g" ${cdir}/config-unmerged.py
+[[ -n $rseExpr ]] && sed -i -e "s/^[[:blank:]]*RSEEXPR.*/RSEEXPR = \"${rseExpr}\"/g" ${cdir}/config-unmerged.py
+
 
 
 # start the service
