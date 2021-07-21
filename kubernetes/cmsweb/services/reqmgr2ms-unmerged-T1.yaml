@@ -1,15 +1,15 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: ms-unmerged-T1
+  name: ms-um-t1
   namespace: dmwm
 spec:
   selector:
-    app: ms-unmerged-T1
+    app: ms-um-t1
   ports:
     - port: 8360
       targetPort: 8360
-      name: ms-unmerged-T1
+      name: ms-um-t1
     - port: 18360
       targetPort: 18360
       name: unmerged-mon
@@ -17,9 +17,9 @@ spec:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: ms-unmerged-T1
+  name: ms-um-t1
   labels:
-    app: ms-unmerged-T1
+    app: ms-um-t1
   namespace: dmwm
 data:
   setup-certs-and-run.sh: |
@@ -33,18 +33,18 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   labels:
-    app: ms-unmerged-T1
-  name: ms-unmerged-T1
+    app: ms-um-t1
+  name: ms-um-t1
   namespace: dmwm
 spec:
   selector:
     matchLabels:
-      app: ms-unmerged-T1
+      app: ms-um-t1
   replicas: 1
   template:
     metadata:
       labels:
-        app: ms-unmerged-T1
+        app: ms-um-t1
         env: k8s #k8s#
       annotations:
         prometheus.io/scrape: 'true'
@@ -58,7 +58,7 @@ spec:
         runAsGroup: 0
       containers:
       - image: cmssw/reqmgr2ms-unmerged #imagetag
-        name: ms-unmerged-T1
+        name: ms-um-t1
         lifecycle:
           postStart:
             exec:
@@ -70,7 +70,7 @@ spec:
           exec:
             command:
             - cmsweb-ping
-            - "--url=http://localhost:8360/ms-unmerged-T1/data/status"
+            - "--url=http://localhost:8360/ms-um-t1/data/status"
             - "--authz=/etc/hmac/hmac"
             - -verbose
             - "0"
@@ -86,7 +86,7 @@ spec:
         ports:
         - containerPort: 8360
           protocol: TCP
-          name: ms-unmerged-T1
+          name: ms-um-t1
         - containerPort: 18360
           protocol: TCP
           name: unmerged-mon
@@ -137,7 +137,7 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: ms-unmerged-T1
+          name: ms-um-t1
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-dmwm
