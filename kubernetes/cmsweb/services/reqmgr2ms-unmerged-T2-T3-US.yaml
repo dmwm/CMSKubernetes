@@ -1,15 +1,15 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: ms-um-t2-t3-us
+  name: ms-unmerged-t2-t3-us
   namespace: dmwm
 spec:
   selector:
-    app: ms-um-t2-t3-us
+    app: ms-unmerged-t2-t3-us
   ports:
     - port: 8361
       targetPort: 8361
-      name: ms-um-t2-t3-us
+      name: ms-unmerged-t2-t3-us
     - port: 18361
       targetPort: 18361
       name: unmerged-mon
@@ -27,7 +27,7 @@ data:
     cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
-    su  -c "cd /data && /data/run.sh -e '((cms_type=real&rse_type=DISK&(tier=2|tier=3))&country=US)' " --preserve-environment _reqmgr2ms
+    su  -c "cd /data && /data/run.sh -e '(((cms_type=real|cms_type=int)&rse_type=DISK&(tier=2|tier=3))&country=US)' " --preserve-environment _reqmgr2ms
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -70,7 +70,7 @@ spec:
           exec:
             command:
             - cmsweb-ping
-            - "--url=http://localhost:8361/ms-um-t2-t3-us/data/status"
+            - "--url=http://localhost:8361/ms-unmerged-t2-t3-us/data/status"
             - "--authz=/etc/hmac/hmac"
             - -verbose
             - "0"
