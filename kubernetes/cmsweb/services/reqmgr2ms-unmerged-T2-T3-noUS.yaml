@@ -1,15 +1,15 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: ms-um-t2-t3
+  name: ms-unmerged-t2-t3
   namespace: dmwm
 spec:
   selector:
-    app: ms-um-t2-t3
+    app: ms-unmerged-t2-t3
   ports:
     - port: 8362
       targetPort: 8362
-      name: ms-um-t2-t3
+      name: ms-unmerged-t2-t3
     - port: 18362
       targetPort: 18362
       name: unmerged-mon
