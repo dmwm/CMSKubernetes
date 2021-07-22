@@ -27,7 +27,7 @@ data:
     cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
-    su  -c "cd /data && /data/run.sh -e 'cms_type=real&rse_type=DISK&tier=1' " --preserve-environment _reqmgr2ms
+    su  -c "cd /data && /data/run.sh -e '(cms_type=real|cms_type=int)&rse_type=DISK&tier=1' " --preserve-environment _reqmgr2ms
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -70,7 +70,7 @@ spec:
           exec:
             command:
             - cmsweb-ping
-            - "--url=http://localhost:8360/ms-um-t1/data/status"
+            - "--url=http://localhost:8360/ms-unmerged-t1/data/status"
             - "--authz=/etc/hmac/hmac"
             - -verbose
             - "0"
