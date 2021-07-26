@@ -94,7 +94,7 @@ spec:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
         volumeMounts:
-        - name: proxy-secrets
+        - name: proxy-secrets-ms-unmerged
           mountPath: /etc/proxy
           readOnly: true
         - name: secrets
@@ -120,7 +120,7 @@ spec:
 #        image: busybox:1.28
 #        command: ['sh', '-c', 'until nslookup couchdb.couchdb; do echo "Waiting for couchdb"; sleep 10; done;']
       volumes:
-      - name: proxy-secrets
+      - name: proxy-secrets-ms-unmerged
         secret:
           secretName: proxy-secrets
       - name: secrets
