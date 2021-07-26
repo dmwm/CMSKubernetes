@@ -1,25 +1,25 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: ms-unmerged-T2-T3-US
+  name: ms-unmerged-t1
   namespace: dmwm
 spec:
   selector:
-    app: ms-unmerged
+    app: ms-unmerged-t1
   ports:
-    - port: 8242
-      targetPort: 8242
-      name: ms-unmerged
-    - port: 18242
-      targetPort: 18242
+    - port: 8360
+      targetPort: 8360
+      name: ms-unmerged-t1
+    - port: 18360
+      targetPort: 18360
       name: unmerged-mon
 ---
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: ms-unmerged
+  name: ms-um-t1
   labels:
-    app: ms-unmerged
+    app: ms-um-t1
   namespace: dmwm
 data:
   setup-certs-and-run.sh: |
@@ -27,28 +27,28 @@ data:
     cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
-    su  -c "cd /data && /data/run.sh -e '((cms_type=real&rse_type=DISK&(tier=2|tier=3))&country=US)' " --preserve-environment _reqmgr2ms
+    su  -c "cd /data && /data/run.sh -e '(cms_type=real|cms_type=int)&rse_type=DISK&tier=1' " --preserve-environment _reqmgr2ms
 ---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
   labels:
-    app: ms-unmerged
-  name: ms-unmerged
+    app: ms-um-t1
+  name: ms-um-t1
   namespace: dmwm
 spec:
   selector:
     matchLabels:
-      app: ms-unmerged
+      app: ms-um-t1
   replicas: 1
   template:
     metadata:
       labels:
-        app: ms-unmerged
+        app: ms-um-t1
         env: k8s #k8s#
       annotations:
         prometheus.io/scrape: 'true'
-        prometheus.io/port: "18242"
+        prometheus.io/port: "18360"
     spec:
       # use hostNetwork to allow communication between reqmgr2ms/reqmon/workqueue and couch
 #       hostNetwork: true
@@ -58,7 +58,7 @@ spec:
         runAsGroup: 0
       containers:
       - image: cmssw/reqmgr2ms-unmerged #imagetag
-        name: ms-unmerged
+        name: ms-um-t1
         lifecycle:
           postStart:
             exec:
@@ -66,16 +66,16 @@ spec:
               - bash
               - -c
               - sudo chmod 0777 /data/srv/logs/reqmgr2ms; sudo chown _reqmgr2ms:_reqmgr2ms /data/srv/logs/reqmgr2ms
-        livenessProbe:
-          exec:
-            command:
-            - cmsweb-ping
-            - "--url=http://localhost:8242/ms-unmerged/data/status"
-            - "--authz=/etc/hmac/hmac"
-            - -verbose
-            - "0"
-          initialDelaySeconds: 120
-          periodSeconds: 10
+#        livenessProbe:
+#          exec:
+#            command:
+#            - cmsweb-ping
+#            - "--url=http://localhost:8360/ms-unmerged-t1/data/status"
+#            - "--authz=/etc/hmac/hmac"
+#            - -verbose
+#            - "0"
+#          initialDelaySeconds: 120
+#          periodSeconds: 10
         resources:
           requests:
             memory: "256Mi"
@@ -84,10 +84,10 @@ spec:
             memory: "3Gi"
             cpu: "1000m"
         ports:
-        - containerPort: 8242
+        - containerPort: 8360
           protocol: TCP
-          name: ms-unmerged
-        - containerPort: 18242
+          name: ms-um-t1
+        - containerPort: 18360
           protocol: TCP
           name: unmerged-mon
         command:
@@ -137,7 +137,7 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: ms-unmerged
+          name: ms-um-t1
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-dmwm
