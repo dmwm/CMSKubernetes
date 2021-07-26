@@ -152,7 +152,7 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
-      - image: cmssw/exporters:20210720-nonstatic
+      - image: cmssw/exporters:20210726-nonstatic
         name: wmarchive-exporter
         imagePullPolicy: Always
         resources:
