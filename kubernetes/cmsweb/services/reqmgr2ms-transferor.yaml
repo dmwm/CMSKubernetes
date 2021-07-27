@@ -83,6 +83,7 @@ spec:
       securityContext:
         runAsUser: 0
         runAsGroup: 0
+      shareProcessNamespace: true
       containers:
       - image: cmssw/reqmgr2ms #imagetag
         name: ms-transferor
@@ -170,6 +171,17 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
+        securityContext:
+          privileged: true
+      - image: cmssw/exporters:20210726-nonstatic
+        name: ms-transferor-exporter
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "50m"
+        command: ["/bin/bash","-c"]
+        args: ["echo \"Starting exporter\" ; sleep 120s ; pid=`ps axjfwww | grep \"wmc-httpd.*config-transferor\" | grep -v grep | grep -v process_monitor | grep -v \" 1 \" | awk '{print $1}'` && process_exporter -pid $pid -prefix reqmgr2ms_exporter -address \":18247\""]
         securityContext:
           privileged: true
 #      initContainers:
