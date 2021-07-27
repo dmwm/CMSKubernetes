@@ -94,16 +94,6 @@ spec:
               - bash
               - -c
               - sudo chmod 0777 /data/srv/logs/reqmgr2ms; sudo chown _reqmgr2ms:_reqmgr2ms /data/srv/logs/reqmgr2ms
-        livenessProbe:
-          exec:
-            command:
-            - cmsweb-ping
-            - "--url=http://localhost:8247/ms-transferor/data/status"
-            - "--authz=/etc/hmac/hmac"
-            - -verbose
-            - "0"
-          initialDelaySeconds: 120
-          periodSeconds: 10
         resources:
           requests:
             memory: "256Mi"
@@ -175,6 +165,16 @@ spec:
           privileged: true
       - image: cmssw/exporters:20210726-nonstatic
         name: ms-transferor-exporter
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8247/ms-transferor/data/status"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 120
+          periodSeconds: 10
         imagePullPolicy: Always
         resources:
           requests:
@@ -182,6 +182,10 @@ spec:
             cpu: "50m"
         command: ["/bin/bash","-c"]
         args: ["echo \"Starting exporter\" ; sleep 120s ; pid=`ps axjfwww | grep \"wmc-httpd.*config-transferor\" | grep -v grep | grep -v process_monitor | grep -v \" 1 \" | awk '{print $1}'` && process_exporter -pid $pid -prefix reqmgr2ms_exporter -address \":18247\""]
+        volumeMounts:
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
         securityContext:
           privileged: true
 #      initContainers:
