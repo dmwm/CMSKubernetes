@@ -85,6 +85,7 @@ spec:
       securityContext:
         runAsUser: 0
         runAsGroup: 0
+      shareProcessNamespace: true
       containers:
       - image: cmssw/dbsmigration #imagetag
         name: dbsmigration
@@ -157,6 +158,17 @@ spec:
 #PROD#    mountPath: /var/log
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
+        securityContext:
+          privileged: true
+      - image: cmssw/exporters:20210726-nonstatic
+        name: dbsmigration-exporter
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "50m"
+        command: ["/bin/bash","-c"]
+        args: ["echo \"Starting exporter\" ; sleep 120s ; /data/process_monitor.sh \".*dbsmigration\" dbsmigration \":18251\" 15"]
         securityContext:
           privileged: true
       volumes:
