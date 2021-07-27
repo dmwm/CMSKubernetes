@@ -90,16 +90,6 @@ spec:
       containers:
       - image: cmssw/dbs #imagetag
         name: dbs-phys03-r
-        livenessProbe:
-          exec:
-            command:
-            - cmsweb-ping
-            - "--url=http://localhost:8254/dbs/prod/phys03/DBSReader/"
-            - "--authz=/etc/hmac/hmac"
-            - -verbose
-            - "0"
-          initialDelaySeconds: 120
-          periodSeconds: 10
         resources:
           requests:
             memory: "500Mi"
@@ -174,6 +164,16 @@ spec:
           privileged: true
       - image: cmssw/exporters:20210726-nonstatic
         name: dbs-phys03-r-exporter
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8254/dbs/prod/phys03/DBSReader/"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 120
+          periodSeconds: 10
         imagePullPolicy: Always
         resources:
           requests:
@@ -181,6 +181,10 @@ spec:
             cpu: "50m"
         command: ["/bin/bash","-c"]
         args: ["echo \"Starting exporter\" ; sleep 120s ; /data/process_monitor.sh \".*DBSPhys03Reader\" dbs_phys03R_exporter \":18254\" 15 && /data/cpy_exporter -uri http://localhost:8254/dbs/stats -address \":19254\""]
+        volumeMounts:
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
         securityContext:
           privileged: true
       volumes:
