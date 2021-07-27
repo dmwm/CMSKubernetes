@@ -95,16 +95,6 @@ spec:
               - bash
               - -c
               - sudo chmod 0777 /data/srv/logs/reqmgr2; sudo chown _reqmgr2:_reqmgr2 /data/srv/logs/reqmgr2
-        livenessProbe:
-          exec:
-            command:
-            - cmsweb-ping
-            - "--url=http://localhost:8246/reqmgr2/data/info"
-            - "--authz=/etc/hmac/hmac"
-            - -verbose
-            - "0"
-          initialDelaySeconds: 120
-          periodSeconds: 10
         resources:
           requests:
             memory: "512Mi"
@@ -178,6 +168,16 @@ spec:
           privileged: true
       - image: cmssw/exporters:20210726-nonstatic
         name: reqmgr2-exporter
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8246/reqmgr2/data/info"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 120
+          periodSeconds: 10
         imagePullPolicy: Always
         resources:
           requests:
@@ -188,6 +188,9 @@ spec:
         volumeMounts:
         - name: state
           mountPath: /data/srv/state/reqmgr2
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
         securityContext:
           privileged: true
 #      initContainers:

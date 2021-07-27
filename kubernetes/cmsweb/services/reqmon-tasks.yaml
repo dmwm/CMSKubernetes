@@ -64,16 +64,6 @@ spec:
       containers:
       - image: cmssw/reqmon #imagetag
         name: reqmon-tasks
-        livenessProbe:
-          exec:
-            command:
-            - cmsweb-ping
-            - "--url=http://localhost:8249/wmstatsserver/data/info"
-            - "--authz=/etc/hmac/hmac"
-            - -verbose
-            - "0"
-          initialDelaySeconds: 120
-          periodSeconds: 10
         resources:
           requests:
             memory: "4Gi"
@@ -138,6 +128,16 @@ spec:
           privileged: true
       - image: cmssw/exporters:20210726-nonstatic
         name: reqmon-exporter
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8249/wmstatsserver/data/info"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 120
+          periodSeconds: 10
         imagePullPolicy: Always
         resources:
           requests:
@@ -145,6 +145,10 @@ spec:
             cpu: "50m"
         command: ["/bin/bash","-c"]
         args: ["echo \"Starting exporter\" ; sleep 120s ; pid=`ps axjfwww | grep \"wmc-httpd.*reqmon\" | grep -v grep | grep -v process_monitor | grep -v \" 1 \" | awk '{print $1}'` && process_exporter -pid $pid -prefix reqmon_exporter -address \":18249\""]
+        volumeMounts:
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
         securityContext:
           privileged: true
 #      initContainers:
