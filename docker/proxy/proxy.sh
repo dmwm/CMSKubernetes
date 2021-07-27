@@ -32,11 +32,28 @@ if [ -f /tmp/robotkey.pem ] && [ -f /tmp/robotcert.pem ]; then
         -key /tmp/robotkey.pem \
         -cert /tmp/robotcert.pem \
         -out /tmp/proxy
+
+#### Use below section for proxy in ms-unmerged service
+#    voms-proxy-init -voms cms -rfc -valid 95:50 \
+#        -key /tmp/robotkey.pem \
+#        -cert /tmp/robotcert.pem \
+#        --voms cms:/cms/Role=production --valid 192:00 \
+#        -out /tmp/proxy
+
+        
     out=$?
     if [ $out -eq 0 ]; then
         kubectl create secret generic proxy-secrets \
             --from-file=/tmp/proxy --dry-run=client -o yaml | \
             kubectl apply --validate=false -f -
+
+#### Use below section for proxy in ms-unmerged service
+#        kubectl create secret generic proxy-secrets-ms-unmerged \
+#            --from-file=/tmp/proxy --dry-run=client -o yaml | \
+#            kubectl apply --validate=false -f -
+            
+            
+            
     else
         echo "Failed to obtain new proxy, voms-proxy-init error $out"
         echo "Will not update proxy-secrets"
