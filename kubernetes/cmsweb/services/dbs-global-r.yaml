@@ -88,7 +88,7 @@ spec:
         runAsGroup: 0
       shareProcessNamespace: true
       containers:
-      - image: cmssw/dbs:HG2108d-v2 #imagetag
+      - image: cmssw/dbs #imagetag
         name: dbs-global-r
         livenessProbe:
           exec:
