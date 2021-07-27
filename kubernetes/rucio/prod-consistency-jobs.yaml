@@ -46,9 +46,9 @@ consistency:
       server: grid-cms-xrootd.physik.rwth-aachen.de:1094
       interval: 7
     T2_FR_GRIF_IRFU:
-      server: node12.datagrid.cea.fr:11001
-      server_root: /dpm/datagrid.cea.fr/home/cms/trivcat/store/
-      remove_prefix: /dpm/datagrid.cea.fr/home/cms/trivcat/
+      server: node12.datagrid.cea.fr
+      server_root: /cms/trivcat/store/
+      remove_prefix: /cms/trivcat/
       interval: 7
     #T2_HU_Budapest_Test:
     #  server: grid143.kfki.hu:11000
