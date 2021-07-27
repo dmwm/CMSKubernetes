@@ -88,16 +88,6 @@ spec:
       containers:
       - image: cmssw/t0wmadatasvc #imagetag
         name: t0wmadatasvc
-        livenessProbe:
-          exec:
-            command:
-            - cmsweb-ping
-            - "--url=http://localhost:8308/t0wmadatasvc/replayone/hello"
-            - "--authz=/etc/hmac/hmac"
-            - -verbose
-            - "0"
-          initialDelaySeconds: 120
-          periodSeconds: 10
         resources:
           requests:
             memory: "256Mi"
