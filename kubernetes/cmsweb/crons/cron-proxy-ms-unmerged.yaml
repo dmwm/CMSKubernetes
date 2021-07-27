@@ -12,7 +12,7 @@ spec:
           serviceAccountName: proxy-account
           containers:
           - name: proxy
-            image: cmssw/proxy:proxy-ms-unmerged
+            image: cmssw/proxy-ms-unmerged
             args:
             - /bin/sh
             - -c
