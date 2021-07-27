@@ -39,7 +39,7 @@ echo "docker system prune -f -a"
 
 #cmssw_pkgs="proxy frontend exporters exitcodes nats-sub das dbs2go dbs couchdb reqmgr2 reqmgr2ms reqmon workqueue acdcserver crabserver crabcache cmsmon dmwmmon dqmgui t0_reqmon t0wmadatasvc dbsmigration phedex httpgo httpsgo"
 
-cmssw_pkgs="frontend dbs dbsmigration reqmgr2 reqmon crabserver crabcache t0_reqmon t0wmadatasvc workqueue reqmgr2ms"
+cmssw_pkgs="frontend dbs dbsmigration reqmgr2 reqmon crabserver crabcache t0_reqmon t0wmadatasvc workqueue reqmgr2ms reqmgr2ms-unmerged"
 
 if [ $# -eq 1 ]; then
     cmssw_pkgs="$1"
