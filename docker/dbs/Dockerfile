@@ -1,4 +1,4 @@
-FROM cmssw/cmsweb:20210628
+FROM cmssw/cmsweb:20210706-withoutexporter
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
@@ -30,4 +30,4 @@ ADD monitor.sh $WDIR/monitor.sh
 
 USER $USER
 WORKDIR $WDIR
-CMD ["./run.sh"]
+#CMD ["./run.sh"]

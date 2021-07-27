@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG2107c
+VER=HG2108e
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend reqmgr2"

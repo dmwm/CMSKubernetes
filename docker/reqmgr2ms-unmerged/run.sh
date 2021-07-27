@@ -160,9 +160,9 @@ sudo chmod 755 /data/srv/current/config/$srv/manage
 /data/srv/current/config/$srv/manage start 'I did read documentation'
 
 # run monitoring script
-if [ -f /data/monitor.sh ]; then
-    /data/monitor.sh
-fi
+#if [ -f /data/monitor.sh ]; then
+#    /data/monitor.sh
+#fi
 
 # start cron daemon
 sudo /usr/sbin/crond -n
