@@ -86,26 +86,6 @@ spec:
       #- image: sbelforte/crabserver:3.3.1911.rc3
       - image: cmssw/crabserver #imagetag
         name: crabserver
-        livenessProbe:
-          exec:
-            command:
-            - /bin/sh
-            - -c
-            - |
-              cmsweb-ping --url=http://localhost:8270/crabserver/prod/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
-          initialDelaySeconds: 120
-          failureThreshold: 3
-          periodSeconds: 60
-          timeoutSeconds: 60
-        readinessProbe:
-          exec:
-            command:
-            - /bin/sh
-            - -c
-            - |
-              cmsweb-ping --url=http://localhost:8270/crabserver/prod/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
-          periodSeconds: 60
-          timeoutSeconds: 60
         resources:
           requests:
             memory: "256Mi"
@@ -179,6 +159,26 @@ spec:
           privileged: true
       - image: cmssw/exporters:20210726-nonstatic
         name: crabserver-exporter
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - |
+              cmsweb-ping --url=http://localhost:8270/crabserver/prod/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
+          initialDelaySeconds: 120
+          failureThreshold: 3
+          periodSeconds: 60
+          timeoutSeconds: 60
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - |
+              cmsweb-ping --url=http://localhost:8270/crabserver/prod/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
+          periodSeconds: 60
+          timeoutSeconds: 60
         imagePullPolicy: Always
         resources:
           requests:
@@ -189,6 +189,9 @@ spec:
         volumeMounts:
         - name: state
           mountPath: /data/srv/state/crabserver
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
         securityContext:
           privileged: true
       volumes:
