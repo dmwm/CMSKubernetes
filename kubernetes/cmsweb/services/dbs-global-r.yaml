@@ -86,6 +86,7 @@ spec:
       securityContext:
         runAsUser: 0
         runAsGroup: 0
+      shareProcessNamespace: true
       containers:
       - image: cmssw/dbs #imagetag
         name: dbs-global-r
@@ -169,6 +170,17 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
+        securityContext:
+          privileged: true
+      - image: cmssw/exporters:20210726-nonstatic
+        name: dbs-global-r-exporter
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "50m"
+        command: ["/bin/bash","-c"]
+        args: ["echo \"Starting exporter\" ; sleep 120s ; /data/process_monitor.sh \".*DBSGlobalReader\" dbs_global_exporter \":18252\" 15 && /data/cpy_exporter -uri http://localhost:8252/dbs/stats -address \":19252\""]
         securityContext:
           privileged: true
       volumes:
