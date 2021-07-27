@@ -189,6 +189,8 @@ spec:
         volumeMounts:
         - name: state
           mountPath: /data/srv/state/crabserver
+        securityContext:
+          privileged: true
       volumes:
       - name: proxy-secrets
         secret:
