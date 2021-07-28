@@ -1,4 +1,4 @@
-FROM cmssw/reqmgr2ms:HG2108e
+FROM cmssw/reqmgr2ms:HG2108e-v2
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
@@ -10,18 +10,18 @@ RUN mkdir -p $WDIR
 WORKDIR ${WDIR}
 
 # Install gfal2-python3 dependecies
-RUN sudo yum install -y \
-    gfal2-python3 \
-    gfal2-plugin-file \
-    gfal2-plugin-gridftp \
-    gfal2-plugin-http \
-    gfal2-plugin-srm \
-    gfal2-plugin-xrootd \
-    xrootd-client \
-    && sudo yum clean all && \
-    sudo rm -rf /var/cache/yum
+#RUN sudo yum install -y \
+#    gfal2-python3 \
+#    gfal2-plugin-file \
+#    gfal2-plugin-gridftp \
+#    gfal2-plugin-http \
+#    gfal2-plugin-srm \
+#    gfal2-plugin-xrootd \
+#    xrootd-client \
+#    && sudo yum clean all && \
+#    sudo rm -rf /var/cache/yum
 
-ENV PYTHONPATH="$PYTHONPATH:/usr/lib64/python3.6/site-packages/"
+#ENV PYTHONPATH="$PYTHONPATH:/usr/lib64/python3.6/site-packages/"
 # switch to user
 ARG CMSK8S
 ENV CMSK8S=$CMSK8S
