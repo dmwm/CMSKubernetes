@@ -1,6 +1,8 @@
 reaper2Count: 4
 judgeInjectorCount: 1
+judgeRepairerCount: 2
 conveyorPollerCount: 2
+conveyorFinisherCount: 4
 
 # Should be one in normal running
 
@@ -25,13 +27,15 @@ conveyorPoller:
       memory: 400Mi
 
 judgeEvaluator:
+  threads: 5
   resources:
     limits:
       memory: 1000Mi
     requests:
-      memory: 400Mi
+      memory: 200Mi
 
-
+judgeRepairer:
+  threads: 2
 
 conveyorFinisher: 
   threads: 5
