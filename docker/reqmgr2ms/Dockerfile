@@ -23,6 +23,20 @@ ENV CMSK8S=$CMSK8S
 # install
 RUN $WDIR/install.sh
 
+# Install gfal2-python3 dependecies
+RUN sudo yum install -y \
+    gfal2-python3 \
+    gfal2-plugin-file \
+    gfal2-plugin-gridftp \
+    gfal2-plugin-http \
+    gfal2-plugin-srm \
+    gfal2-plugin-xrootd \
+    xrootd-client \
+    && sudo yum clean all && \
+    sudo rm -rf /var/cache/yum
+
+ENV PYTHONPATH="$PYTHONPATH:/usr/lib64/python3.6/site-packages/"
+
 # run the service
 ADD run.sh $WDIR/run.sh
 ADD monitor.sh $WDIR/monitor.sh
