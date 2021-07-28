@@ -247,7 +247,7 @@ consistency:
       server: transfer-10.ultralight.org
       interval: 7
     T2_US_Florida:
-      server: cmsio5.rc.ufl.edu:1094
+      server: cmsio7.rc.ufl.edu 
       interval: 7
     T2_US_MIT:
       server: xrootd15.cmsaf.mit.edu:1094
