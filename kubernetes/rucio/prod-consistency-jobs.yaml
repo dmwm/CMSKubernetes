@@ -205,7 +205,7 @@ consistency:
       server: ruhex-osgce.rutgers.edu
       interval: 7
     T1_IT_CNAF_Disk:
-      server: xrootd-cms.infn.it:1194
+      server: xs-302.cr.cnaf.infn.it
       interval: 7
     T2_BR_SPRACE:
       server: osg-se.sprace.org.br
@@ -259,7 +259,7 @@ consistency:
       server: gftp-1.t2.ucsd.edu:1094
       interval: 7
     T2_US_Vanderbilt:
-      server: xrootd.accre.vanderbilt.edu
+      server: xrootd-vanderbilt.sites.opensciencegrid.org
       interval: 7
     T2_CH_CERN:
       server: eoscms.cern.ch
@@ -281,9 +281,6 @@ consistency:
       server_root: /pnfs/jinr-t1.ru/data/cms
       remove_prefix: /pnfs/jinr-t1.ru/data/cms
       interval: 7
-    T1_UK_RAL_Disk:
-      server: xrootd.echo.stfc.ac.uk
-      interval: 7
     T2_BE_UCL:
       server: ingrid-se08.cism.ucl.ac.be:1094
       interval: 7
@@ -303,10 +300,11 @@ deckard:
   sites:
     T1_ES_PIC_Disk:
       interval: 1
-      minagedark: 14
     T2_UK_SGrid_RALPP:
       interval: 1
-      minagedark: 14
     T2_IT_Rome:
       interval: 1
+    T1_IT_CNAF_Disk:
+      interval: 1
       minagedark: 14
+      # Probably needs 4%. Check when 14 day history elapsed
