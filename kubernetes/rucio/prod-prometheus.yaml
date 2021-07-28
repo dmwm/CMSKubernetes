@@ -5,3 +5,10 @@ extraScrapeConfigs: |
     - targets: ['statsd-exporter-rucio-statsd-exporter:9102']
       labels: 
         rucioInstance: 'prod'
+  - job_name: "traces"
+    metrics_path: "/metrics"
+    static_configs:
+    - targets: ['rucio-traces-prod-cmsswpop-trace:8888', 'rucio-traces-prod-wmagent-trace:8888']
+      labels:
+        rucioInstance: 'prod'
+
