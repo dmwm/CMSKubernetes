@@ -42,6 +42,9 @@ USER ${USER}
 COPY --chown=_frontend:_frontend --from=web-builder /data /data
 RUN crontab /data/crontab.txt
 
+# Install python dependencies
+RUN pip3 install requests
+
 # run the service
 ADD run.sh $WDIR/run.sh
 ADD monitor.sh $WDIR/monitor.sh
