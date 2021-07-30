@@ -1,15 +1,15 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: ms-unmerged-t2-t3
+  name: ms-unmer-t2t3
   namespace: dmwm
 spec:
   selector:
-    app: ms-unmerged-t2-t3
+    app: ms-unmer-t2t3
   ports:
     - port: 8242
       targetPort: 8242
-      name: ms-unmerged-t2-t3
+      name: ms-unmer-t2t3
     - port: 18242
       targetPort: 18242
       name: unmerged-mon
@@ -17,9 +17,9 @@ spec:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: ms-um-t2-t3
+  name: ms-unmer-t2t3
   labels:
-    app: ms-um-t2-t3
+    app: ms-unmer-t2t3
   namespace: dmwm
 data:
   setup-certs-and-run.sh: |
@@ -33,18 +33,18 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   labels:
-    app: ms-um-t2-t3
-  name: ms-um-t2-t3
+    app: ms-unmer-t2t3
+  name: ms-unmer-t2t3
   namespace: dmwm
 spec:
   selector:
     matchLabels:
-      app: ms-um-t2-t3
+      app: ms-unmer-t2t3
   replicas: 1
   template:
     metadata:
       labels:
-        app: ms-um-t2-t3
+        app: ms-unmer-t2t3
         env: k8s #k8s#
       annotations:
         prometheus.io/scrape: 'true'
@@ -58,7 +58,7 @@ spec:
         runAsGroup: 0
       containers:
       - image: cmssw/reqmgr2ms-unmerged #imagetag
-        name: ms-um-t2-t3
+        name: ms-unmer-t2t3
         lifecycle:
           postStart:
             exec:
@@ -86,7 +86,7 @@ spec:
         ports:
         - containerPort: 8242
           protocol: TCP
-          name: ms-um-t2-t3
+          name: ms-unmer-t2t3
         - containerPort: 18242
           protocol: TCP
           name: unmerged-mon
@@ -137,7 +137,7 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: ms-um-t2-t3
+          name: ms-unmer-t2t3
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-dmwm
