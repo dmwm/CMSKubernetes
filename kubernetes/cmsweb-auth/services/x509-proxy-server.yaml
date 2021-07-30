@@ -37,7 +37,7 @@ spec:
         prometheus.io/port: "9091"
     spec:
       containers:
-      - image: cmssw/auth-proxy-server:0.1.63
+      - image: cmssw/auth-proxy-server:0.2.03 #imagetag
         name: x509-proxy-server
 #         imagePullPolicy: Always
         args:
@@ -51,6 +51,14 @@ spec:
           limits:
             memory: "3Gi"
             cpu: "4000m" # we can add higher limit here
+        env:
+        - name: X509_USER_PROXY
+          value: /etc/proxy/proxy
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
         ports:
         - containerPort: 8443
           name: https
@@ -60,6 +68,9 @@ spec:
         - name: auth-secrets
           mountPath: /etc/secrets
           defaultMode: 256
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
         - name: www-htdocs
           mountPath: /www
       initContainers:
@@ -75,6 +86,9 @@ spec:
       - name: auth-secrets
         secret:
           secretName: auth-secrets
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
       - name: www-htdocs
         emptyDir: {}
 #PROD#- name: logs-cephfs
