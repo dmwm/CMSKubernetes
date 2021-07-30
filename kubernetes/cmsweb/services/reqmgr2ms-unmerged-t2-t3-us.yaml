@@ -122,7 +122,7 @@ spec:
       volumes:
       - name: proxy-secrets-ms-unmerged
         secret:
-          secretName: proxy-secrets
+          secretName: proxy-secrets-ms-unmerged
       - name: secrets
         secret:
           secretName: reqmgr2ms-unmerged-secrets
