@@ -27,7 +27,10 @@ spec:
         role: auth
       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/auth-proxy-server #imagetag
+#       - image: cmssw/auth-proxy-server #imagetag
+#       - image: cmssw/auth-proxy-server:0.1.106 #imagetag
+#       - image: cmssw/auth-proxy-server:0.1.106-static #imagetag
+      - image: cmssw/auth-proxy-server:0.2.03 #imagetag
         name: auth-proxy-server
 #         imagePullPolicy: Always
         args:
@@ -41,6 +44,8 @@ spec:
             memory: "10Gi"
             cpu: "4000m" # we can add higher limit here
         env:
+        - name: X509_USER_PROXY
+          value: /etc/proxy/proxy
         - name: MY_POD_NAME
           valueFrom:
             fieldRef:
@@ -54,7 +59,9 @@ spec:
         volumeMounts:
         - name: auth-proxy-server-secrets
           mountPath: /etc/secrets
-          #defaultMode: 256
+          readOnly: true
+        - name: proxy-secrets
+          mountPath: /etc/proxy
           readOnly: true
         - name: www-htdocs
           mountPath: /www
@@ -75,6 +82,9 @@ spec:
       - name: auth-proxy-server-secrets
         secret:
           secretName: auth-proxy-server-secrets
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
       - name: www-htdocs
         emptyDir: {}
       - name: hostcert
