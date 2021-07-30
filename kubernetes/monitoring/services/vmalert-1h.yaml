@@ -1,4 +1,18 @@
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vmalert-1h
+spec:
+  type: ClusterIP
+  selector:
+    app: vmalert-1h
+  type: ClusterIP
+  ports:
+  - port: 31880
+    protocol: TCP
+    name: http
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -20,9 +34,12 @@ spec:
           - -datasource.url=http://cms-monitoring:30082
           - -remoteWrite.url=http://cms-monitoring-agg:30428
           - -rule=/etc/vmalert/rucio-agg-1h.rules
-          - -notifier.url=http://cms-monitoring:9093
+          - -notifier.url=http://cms-monitoring:30093
+          - -httpListenAddr=:31880
           name: vmalert-1h
           image: victoriametrics/vmalert
+          ports:
+          - containerPort: 31880
           volumeMounts:
           - name: vmalert-secrets
             mountPath: /etc/vmalert

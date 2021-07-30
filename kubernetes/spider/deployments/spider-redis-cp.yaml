@@ -46,7 +46,7 @@ spec:
       - name: redis-checkpoint-claim
         #emptyDir: {}
         persistentVolumeClaim:
-          claimName: spider-redis-cephfs-claim
+          claimName: redis-cp-ceph-claim
           readOnly: false
       - name: redis-cp-conf
         configMap:

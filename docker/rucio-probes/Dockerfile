@@ -51,8 +51,8 @@ ADD https://raw.githubusercontent.com/ericvaandering/probes/donata_sqlalchemy/co
 ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common/check_used_space /probes/common
 
 # CMS Specific probes
-
-ADD https://raw.githubusercontent.com/FernandoGarzon/CMSRucio/cms-only-probes/probes/common/check_space_uniquely_used_by_rucio /probes/common
+# Removed 3/17 presumably no longer needed
+# ADD https://raw.githubusercontent.com/FernandoGarzon/CMSRucio/cms-only-probes/probes/common/check_space_uniquely_used_by_rucio /probes/common
 
 RUN chmod +x /probes/common/check_*
 RUN chmod +x /probes/cms/check_*

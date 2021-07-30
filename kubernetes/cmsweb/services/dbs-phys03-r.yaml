@@ -1,3 +1,30 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dbs-phys03-r-filebeat-config
+  namespace: dbs
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/dbs/*${MY_POD_NAME}*.log
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+---
 kind: Service
 apiVersion: v1
 metadata:
@@ -59,19 +86,10 @@ spec:
       securityContext:
         runAsUser: 0
         runAsGroup: 0
+      shareProcessNamespace: true
       containers:
       - image: cmssw/dbs #imagetag
         name: dbs-phys03-r
-        livenessProbe:
-          exec:
-            command:
-            - cmsweb-ping
-            - "--url=http://localhost:8254/dbs/prod/phys03/DBSReader/"
-            - "--authz=/etc/hmac/hmac"
-            - -verbose
-            - "0"
-          initialDelaySeconds: 120
-          periodSeconds: 10
         resources:
           requests:
             memory: "500Mi"
@@ -110,8 +128,63 @@ spec:
           readOnly: true
         - name: setup-certs-and-run
           mountPath: /opt/setup-certs-and-run
-#PROD#  - name: logs-cephfs
+#PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/dbs
+#PROD#- name: dbs-phys03-r-filebeat
+#PROD#  image: docker.elastic.co/beats/filebeat:7.12.0
+#PROD#  args: [
+#PROD#    "-c", "/etc/filebeat.yml",
+#PROD#    "-e",
+#PROD#  ]
+#PROD#  env:
+#PROD#  - name: MY_POD_NAME
+#PROD#    valueFrom:
+#PROD#      fieldRef:
+#PROD#        apiVersion: v1
+#PROD#        fieldPath: metadata.name
+#PROD#  resources:
+#PROD#    requests:
+#PROD#      memory: "50Mi"
+#PROD#      cpu: "50m"
+#PROD#  volumeMounts:
+#PROD#  - name: logs
+#PROD#    mountPath: /data/srv/logs/dbs
+#PROD#  - name: config
+#PROD#    mountPath: /etc/filebeat.yml
+#PROD#    readOnly: true
+#PROD#    subPath: filebeat.yml
+#PROD#  - name: data
+#PROD#    mountPath: /usr/share/filebeat/data
+#PROD#  - name: varlog
+#PROD#    mountPath: /var/log
+#PROD#  - name: varlibdockercontainers
+#PROD#    mountPath: /var/lib/docker/containers
+#PROD#    readOnly: true
+        securityContext:
+          privileged: true
+      - image: cmssw/exporters:20210726-nonstatic
+        name: dbs-phys03-r-exporter
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8254/dbs/prod/phys03/DBSReader/"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "50m"
+        command: ["/bin/bash","-c"]
+        args: ["echo \"Starting exporter\" ; sleep 120s ; /data/process_monitor.sh \".*DBSPhys03Reader\" dbs_phys03R_exporter \":18254\" 15 && /data/cpy_exporter -uri http://localhost:8254/dbs/stats -address \":19254\""]
+        volumeMounts:
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
         securityContext:
           privileged: true
       volumes:
@@ -133,6 +206,18 @@ spec:
       - name: setup-certs-and-run
         configMap:
           name: dbs-phys03-r
-#PROD#- name: logs-cephfs
+#PROD#- name: logs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-dbs
+#PROD#- name: varlog
+#PROD#  hostPath:
+#PROD#    path: /var/log
+#PROD#- name: varlibdockercontainers
+#PROD#  hostPath:
+#PROD#    path: /var/lib/docker/containers
+#PROD#- name: config
+#PROD#  configMap:
+#PROD#    defaultMode: 0640
+#PROD#    name: dbs-phys03-r-filebeat-config
+#PROD#- name: data
+#PROD#  emptyDir: {}

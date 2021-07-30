@@ -2,6 +2,8 @@ consistency:
   ignore:
     - /store/backfill
     - /store/test
+    - /store/unmerged
+    - /store/temp
   sites:
     T1_DE_KIT_Disk:
       interval: 7
@@ -9,7 +11,7 @@ consistency:
     #  server: cmsxrootd-redirectors.gridka.de:1094
     T2_US_Purdue:      
       interval: 7
-      server: cms-m001.rcac.purdue.edu 
+      server: cms-m001.rcac.purdue.edu:1094 
     T2_BR_UERJ:      
       interval: 7
       server: xrootd.hepgrid.uerj.br
@@ -44,7 +46,9 @@ consistency:
       server: grid-cms-xrootd.physik.rwth-aachen.de:1094
       interval: 7
     T2_FR_GRIF_IRFU:
-      server: node12.datagrid.cea.fr:11001
+      server: node12.datagrid.cea.fr
+      server_root: /cms/trivcat/store/
+      remove_prefix: /cms/trivcat/
       interval: 7
     #T2_HU_Budapest_Test:
     #  server: grid143.kfki.hu:11000
@@ -146,11 +150,12 @@ consistency:
       server: se01.indiacms.res.in:11001
       interval: 7
     T2_CH_CSCS:
-      server: cms02.lcg.cscs.ch:1094
+      server: cms03.lcg.cscs.ch:1094
       interval: 7
     T2_FR_IPHC:
-      #server: sbgse1.in2p3.fr
-      server: sbgse1.in2p3.fr:11001
+      server: sbgse1.in2p3.fr:1094
+      server_root: /cms/phedex/store
+      remove_prefix: /cms/phedex/
       interval: 7
     T2_AT_Vienna:
       server: eos.grid.vbc.ac.at:1094
@@ -200,53 +205,106 @@ consistency:
       server: ruhex-osgce.rutgers.edu
       interval: 7
     T1_IT_CNAF_Disk:
-      server: xrootd-cms.infn.it:1194
+      server: xs-302.cr.cnaf.infn.it
       interval: 7
     T2_BR_SPRACE:
-      server: spstrg08.sprace.org.br:1094
+      server: osg-se.sprace.org.br
       interval: 7
     T2_CN_Beijing:
-      server: seadmin.ihep.ac.cn:1094
+      server: ccsrm.ihep.ac.cn:1094
+      server_root: /cms/store/
+      remove_prefix: /cms/
       interval: 7
     T2_DE_DESY:
       server: t2-cms-xrootd01.desy.de:1094
       interval: 7
     T2_EE_Estonia:
-      server: xrootd2:1094
+      server: xrootd.hep.kbfi.ee:1094
       interval: 7
     T2_GR_Ioannina:
-      server: grid02.physics.uoi:11001
+      server: grid02.physics.uoi.gr 
       interval: 7
     T2_HU_Budapest:
       server: grid143.kfki.hu:11000
       interval: 7
     T2_PT_NCG_Lisbon:
-      server: xroot-data01.ncg.ingrid.pt:1094
+      server: xroot02.ncg.ingrid.pt:1094
       interval: 7
     T2_TR_METU:
-      server: eymir.grid.metu.edu.tr:11001
+      server: eymir.grid.metu.edu.tr
+      server_root: /cms/store/
+      remove_prefix: /cms/
       interval: 7
     T2_UA_KIPT:
       server: cms-se0.kipt.kharkov.ua:11001
       interval: 7
     T2_UK_London_Brunel:
-      server: dc2-grid-64.brunel.ac.uk:1094
+      server: dc2-grid-64.brunel.ac.uk
+      server_root: //dpm/brunel.ac.uk/home/cms/store/
+      remove_prefix: //dpm/brunel.ac.uk/home/cms/
       interval: 7
-    T2_US_Caltech:
-      server: xrootd.ultralight.org
+    T2_US_Caltech_Ceph:
+      server: transfer-10.ultralight.org
       interval: 7
     T2_US_Florida:
-      server: cmsio5.rc.ufl.edu:1094
+      server: cmsio7.rc.ufl.edu 
       interval: 7
     T2_US_MIT:
       server: xrootd15.cmsaf.mit.edu:1094
       interval: 7
     T2_US_Nebraska:
-      server: red-gridftp1.unl.edu:1094
+      server: xrootd-local.unl.edu:1094
       interval: 7
     T2_US_UCSD:
       server: gftp-1.t2.ucsd.edu:1094
       interval: 7
     T2_US_Vanderbilt:
-      server: xrootd.accre.vanderbilt.edu
+      server: xrootd-vanderbilt.sites.opensciencegrid.org
       interval: 7
+    T2_CH_CERN:
+      server: eoscms.cern.ch
+      server_root: /eos/cms/store/
+      remove_prefix: /eos/cms/
+      interval: 7
+    T0_CH_CERN_Disk:
+      server: eoscms.cern.ch
+      server_root: /eos/cms/tier0/store/
+      remove_prefix: /eos/cms/tier0/
+      interval: 7
+    T1_FR_CCIN2P3_Disk:
+      server: ccxrootdcms.in2p3.fr:1094
+      server_root: /pnfs/in2p3.fr/data/cms/disk/data/store/
+      remove_prefix: /pnfs/in2p3.fr/data/cms/disk/data/
+      interval: 7
+    T1_RU_JINR_Disk:
+      server: xrootd01jinr-t1.ru:1094
+      server_root: /pnfs/jinr-t1.ru/data/cms
+      remove_prefix: /pnfs/jinr-t1.ru/data/cms
+      interval: 7
+    T2_BE_UCL:
+      server: ingrid-se08.cism.ucl.ac.be:1094
+      interval: 7
+    T2_ES_IFCA:
+      server: gridftp.ifca.es
+      interval: 7
+    T2_RU_ITEP:
+      server: se3.itep.ru
+      interval: 7
+    T2_UK_London_IC:
+      server: gfe02.grid.hep.ph.ic.ac.uk:1094
+      server_root: /pnfs/hep.ph.ic.ac.uk/data/cms/store/
+      remove_prefix: /pnfs/hep.ph.ic.ac.uk/data/cms/
+      interval: 7
+
+deckard:
+  sites:
+    T1_ES_PIC_Disk:
+      interval: 1
+    T2_UK_SGrid_RALPP:
+      interval: 1
+    T2_IT_Rome:
+      interval: 1
+    T1_IT_CNAF_Disk:
+      interval: 1
+      minagedark: 14
+      # Probably needs 4%. Check when 14 day history elapsed

@@ -11,9 +11,11 @@ ARG RUCIO_VERSION
 
 FROM rucio/rucio-server:release-$RUCIO_VERSION
 
-ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/cmstfc.py  /usr/lib/python2.7/site-packages/cmstfc.py
+ARG CMS_TAG
 
-RUN chmod 755 /usr/lib/python2.7/site-packages/cmstfc.py
+ADD https://raw.githubusercontent.com/dmwm/CMSRucio/master/docker/CMSRucioClient/scripts/cmstfc.py  /usr/local/lib/python3.6/site-packages/cmstfc.py
+
+RUN chmod 755 /usr/local/lib/python3.6/site-packages/cmstfc.py
 
 RUN yum -y install http://linuxsoft.cern.ch/wlcg/centos7/x86_64/wlcg-repo-1.0.0-1.el7.noarch.rpm && \
     yum clean all && \
@@ -33,23 +35,15 @@ ENV RUCIO_CA_PATH="/etc/grid-security/certificates"
 ADD cms-entrypoint.sh /
 RUN echo "32 */6 * * * root ! /usr/sbin/fetch-crl -q -r 360 ; killall -HUP httpd" > /etc/cron.d/fetch-crl-docker
 
-# Might get recreated if apache was upgraded
-RUN rm -f /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/userdir.conf /etc/httpd/conf.d/ssl.conf
-
 # Install what's needed out of dmwm/rucio/CMS branch
 ADD install_mail_templates.sh /tmp/
 RUN /tmp/install_mail_templates.sh
 
-# Our schema
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano4/lib/rucio/common/schema/cms.py /usr/lib/python2.7/site-packages/rucio/common/schema/cms.py
-RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/common/schema
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano4/lib/rucio/api/did.py /usr/lib/python2.7/site-packages/rucio/api/did.py
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/cms_nano4/lib/rucio/api/replica.py /usr/lib/python2.7/site-packages/rucio/api/replica.py
-RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/api
+# Might get recreated if apache was upgraded
+RUN rm -f /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/userdir.conf /etc/httpd/conf.d/ssl.conf
 
-# Test for Katy
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/test_ignore_lock/lib/rucio/core/rule.py /usr/lib/python2.7/site-packages/rucio/core/rule.py
-RUN python -m compileall /usr/lib/python2.7/site-packages/rucio/core
+# Patch for Globus stuff
+ADD https://raw.githubusercontent.com/ericvaandering/containers/add_preparer/server/rucio.cfg.j2 /tmp/rucio.cfg.j2
 
 
 ENTRYPOINT ["/cms-entrypoint.sh"]

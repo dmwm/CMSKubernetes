@@ -1,4 +1,58 @@
 #!/bin/bash
+
+### Usage: Usage: run.sh [-e 'RSE Expression']
+### Usage:
+### Usage:   -e  <RSE Expression>   A Rucio RSE Expression to be passed to the service configuration
+### Usage:                          before service start
+### Usage:   -h <help>              Provides help to the current script
+### Usage:
+### Usage: Example: ./run.sh -e 'rse_type=DISK&country=US&tier=3&cms_type=real'
+### Usage: Example: ./run.sh
+### Usage:
+
+FULL_SCRIPT_PATH="$(realpath "${0}")"
+
+usage()
+{
+    echo -e $1
+    grep '^### Usage:' < $FULL_SCRIPT_PATH
+    exit 1
+}
+
+help()
+{
+    echo -e $1
+    grep '^### Usage:' < $FULL_SCRIPT_PATH
+    exit 0
+}
+
+### Searching for the mandatory and optional arguments:
+# export OPTIND=1
+while getopts ":e:h" opt; do
+    case ${opt} in
+        e)
+            rseExpr=${OPTARG}
+            # escaping all possible special characters in the RSE expression:
+            # NOTE: One should always start escaping the escaping chars first
+            rseExpr=${rseExpr//\\/\\\\}
+            rseExpr=${rseExpr//&/\\&}
+            rseExpr=${rseExpr//|/\\|}
+            ;;
+        h)
+            help
+            ;;
+        \? )
+            msg="Invalid Option: -$OPTARG"
+            usage "$msg"
+            ;;
+        : )
+            msg="Invalid Option: -$OPTARG requires an argument"
+            usage "$msg"
+            ;;
+    esac
+done
+
+
 srv=`echo $USER | sed -e "s,_,,g"`
 
 # overwrite host PEM files in /data/srv area
@@ -50,7 +104,7 @@ fi
 # In case there is at least one configuration file under /etc/secrets, remove
 # the default config files from the image and copy over those from the secrets area
 cdir=/data/srv/current/config/$srv
-cfiles="config-monitor.py config-output.py config-transferor.py config-ruleCleaner.py"
+cfiles="config-monitor.py config-output.py config-transferor.py config-ruleCleaner.py config-unmerged.py"
 for fname in $cfiles; do
     if [ -f /etc/secrets/$fname ]; then
         pushd $cdir
@@ -94,14 +148,21 @@ MATCH_RUCIO_AUTH_URL=`cat ${SERVICE_CONFIG} | egrep '^RUCIO_AUTH_URL =' | awk -F
 sed -i -e "s,rucio_host.*,rucio_host =${MATCH_RUCIO_URL},g" ${RUCIO_CONFIG}
 sed -i -e "s,auth_host.*,auth_host =${MATCH_RUCIO_AUTH_URL},g" ${RUCIO_CONFIG}
 
+# Edit the MSUnmerged configuration file (msConfig for the service) at runtime
+# based on the set of arguments passed to the run.sh script by the service
+# statrtup command defined in the .yaml file of the currently starting service
+[[ -n $rseExpr ]] && sed -i -e "s/^[[:blank:]]*RSEEXPR.*/RSEEXPR = \"${rseExpr}\"/g" ${cdir}/config-unmerged.py
+
+
+
 # start the service
 sudo chmod 755 /data/srv/current/config/$srv/manage
 /data/srv/current/config/$srv/manage start 'I did read documentation'
 
 # run monitoring script
-if [ -f /data/monitor.sh ]; then
-    /data/monitor.sh
-fi
+#if [ -f /data/monitor.sh ]; then
+#    /data/monitor.sh
+#fi
 
 # start cron daemon
 sudo /usr/sbin/crond -n

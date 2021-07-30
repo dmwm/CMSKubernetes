@@ -12,7 +12,7 @@
             serviceAccountName: spider-account
             containers:
             - name: cms-htcondor-es
-              image: mrceyhun/cms_htcondor_es:latest
+              image: cmssw/cms-htcondor-es:d1dfe4d
               args:
               - /bin/sh
               - -c
@@ -38,17 +38,17 @@
                     command:
                     - bash
                     - -c
-                    - sudo chmod 0777 $AFFILIATION_DIR_LOCATION; sudo chown 1414:1414 $AFFILIATION_DIR_LOCATION; ls -al $AFFILIATION_DIR_LOCATION
+                    - chmod 0777 $AFFILIATION_DIR_LOCATION; chown 1414:1414 $AFFILIATION_DIR_LOCATION; ls -alh $AFFILIATION_DIR_LOCATION
               stdin: true
               tty: true
               volumeMounts:
-                - name: shared-spider
+                - name: spider-shared-ceph-claim
                   mountPath: /cms_shared
             restartPolicy: Never
             securityContext:
               fsGroup: 1414
             volumes:
-              - name: shared-spider
+              - name: spider-shared-ceph-claim
                 persistentVolumeClaim:
-                  claimName: spider-shared-cephfs-claim
+                  claimName: spider-ceph-claim
                   readOnly: false

@@ -31,4 +31,4 @@
 # ASO dump
 42 03 * * * cd /data/sqoop; ./run.sh ./cms-aso.sh
 
-40 14 * * * cd /data; /data/sqoop/run.sh /data/monit -query="stats" -token /etc/cmsdb/token -hdfs /data/CMSMonitoring/doc/hdfs/hdfs.json -creds=/etc/cmsdb/cms-es-size.json -verbose 1 -inject 2>&1 1>& monit.log
+40 14 * * * cd /data; /data/sqoop/run.sh /data/monit -query="stats" -token /etc/cmsdb/token -hdfs=/etc/cmsdb/hdfs.json -creds=/etc/cmsdb/cms-es-size.json -verbose 1 -inject 2>&1 1>& monit.log

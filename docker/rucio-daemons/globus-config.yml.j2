@@ -1,0 +1,5 @@
+globus:
+  apps:
+    CMSRucioProduction:
+      client_id: {{ RUCIO_CFG_CMS_GLOBUS_CLIENT | default('unknown') }}
+      refresh_token: {{ RUCIO_CFG_CMS_GLOBUS_REFRESH | default('unknown') }}

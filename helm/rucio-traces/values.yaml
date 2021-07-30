@@ -3,12 +3,13 @@
 # Declare variables to be passed into your templates.
 
 wmagentReplicaCount: 1
+cmsswPopReplicaCount: 1
 
 image:
-  repository: cmssw/rucio-tracers
+  repository: yuyiguo/rucio-tracers
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.4"
+  tag: "2.0.1"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -82,4 +83,11 @@ monitoring:
 wmagentBroker:
   stompPassword: ""
   stompLogin: "cmsrucio"
-  stompURI: "cms-mb.cern.ch:61313"
+  stompURIProducer: "cms-mb.cern.ch:61313"
+  stompURIConsumer: "cms-mb.cern.ch:61313"
+
+cmsswPopBroker:
+  stompPassword: ""
+  stompLogin: "cmsrucio"
+  stompURIProducer: "cms-mb.cern.ch:61313"
+  stompURIConsumer: "cms-mb.cern.ch:61313"

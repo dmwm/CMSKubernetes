@@ -10,7 +10,7 @@ conveyorFinisherCount: 2
 conveyorStagerCount: 0
 hermesCount: 1
 judgeCleanerCount: 1
-judgeEvaluatorCount: 1
+judgeEvaluatorCount: 4
 judgeInjectorCount: 1
 judgeRepairerCount: 1
 tracerKronosCount: 1
@@ -20,6 +20,10 @@ reaperCount: 0
 reaper2Count: 1
 minosCount: 1
 necromancerCount: 1
+darkReaperCount: 1
+
+darkReaper:
+  includeRses: "T1_ES_PIC_Disk"
 
 abacusRse:
   threads: 2
@@ -44,7 +48,7 @@ reaper2:
     prometheus.io/port: "8080"
 
 conveyorTransferSubmitter:
-  activities: "'Data Consolidation' 'Recovery' 'Data Brokering' 'Data rebalancing' 'Debug' 'Express' 'Functional Test' 'Group Subscriptions' 'Production Input' 'Production Output' 'Analysis Input' 'Analysis Output' 'Staging' 'T0 Export' 'T0 Tape' 'Upload/Download (Job)' 'Upload/Download (User)' 'User Subscriptions'"
+  activities: "'Data Challenge' 'Data Consolidation' 'Recovery' 'Data Brokering' 'Data rebalancing' 'Debug' 'Express' 'Group Subscriptions' 'Production Input' 'Production Output' 'Analysis Input' 'Analysis Output' 'Staging' 'T0 Export' 'T0 Tape' 'Upload/Download (Job)' 'Upload/Download (User)' 'User Subscriptions'"
     # Same size or smaller than bulk which is 100
   groupBulk: 50
   podAnnotations:

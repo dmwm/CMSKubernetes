@@ -1,2 +1,2 @@
 # Gets CPU_EFF_OUTPUT from k8s conf
-02 16 * * 4 source $VIRTUAL_ENV/bin/activate && /bin/bash $WDIR/CMSSpark/bin/k8s_condor_cpu_efficiency.sh $CPU_EFF_OUTPUT >> /data/cron.log 2>&1
+00 03 * * 1 source $VIRTUAL_ENV/bin/activate && /bin/bash $WDIR/CMSSpark/bin/k8s_condor_cpu_efficiency.sh $CPU_EFF_OUTPUT > /proc/1/fd/1 2>&1

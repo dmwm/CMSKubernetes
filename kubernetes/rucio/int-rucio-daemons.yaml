@@ -12,6 +12,8 @@ darkReaper:
 #  rses: "T2_US_Purdue_Test"
   includeRses: "T2_US_Purdue"
 
+ftsRenewal:
+  schedule: "42 19 * * *"
 conveyorTransferSubmitter:
   threads: 1
 
@@ -20,6 +22,9 @@ podLabels:
 
 config:
     common:
-        #loglevel: "DEBUG"
-        loglevel: "INFO"
+        loglevel: "DEBUG"
+        #loglevel: "INFO"
+    conveyor:
+      use_preparer: "True"
+      filter_transfertool: "fts3"
 

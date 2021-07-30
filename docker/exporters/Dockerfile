@@ -24,16 +24,26 @@ RUN cd cmsweb-exporters && \
     go build -o /build/cmsweb-ping -ldflags="-s -w -extldflags -static" cmsweb-ping.go && \
     cp process_monitor.sh /build
 
+# Adding apache exporter
+
+RUN wget https://github.com/Lusitaniae/apache_exporter/releases/download/v0.9.0/apache_exporter-0.9.0.linux-amd64.tar.gz && tar -xvzf apache_exporter-0.9.0.linux-amd64.tar.gz --directory /data/gopath && cp /data/gopath/apache_exporter-0.9.0.linux-amd64/apache_exporter /build
+
 # build mongo exporter
 WORKDIR /tmp
 RUN curl -ksLO https://github.com/dcu/mongodb_exporter/releases/download/v1.0.0/mongodb_exporter-linux-amd64
 RUN cp mongodb_exporter-linux-amd64 /build/mongodb_exporter
 
-# FROM alpine
-# RUN mkdir -p /data
+#FROM alpine
+FROM debian:stretch
+RUN apt-get update && apt-get install -y procps
+
+RUN mkdir -p /data
 # https://blog.baeke.info/2021/03/28/distroless-or-scratch-for-go-apps/
-FROM gcr.io/distroless/static AS final
+#FROM gcr.io/distroless/static AS final
 COPY --from=go-builder /build/* /data/
+#RUN sed -i -e "s,bash,sh,g" -e "s,print \$2,print \$1,g" /data/process_monitor.sh
+ENV PATH $PATH:/data
+
 # ADD run.sh /data/run.sh
 # ADD probe.sh /data/probe.sh
 # RUN ln -s /bin/sh /bin/bash

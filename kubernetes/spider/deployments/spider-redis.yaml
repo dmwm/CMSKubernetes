@@ -19,10 +19,11 @@ spec:
       labels:
         app: redis
     spec:
-      terminationGracePeriodSeconds: 10
+      terminationGracePeriodSeconds: 60
       containers:
       - name: redis
         image: redis:6.2.3-alpine
+        #command: ["sleep", "infinity"]
         command:
         - redis-server
         args:
@@ -46,7 +47,7 @@ spec:
       - name: redis-celery-claim
         #emptyDir: {}
         persistentVolumeClaim:
-          claimName: spider-redis-cephfs-claim
+          claimName: redis-ceph-claim
           readOnly: false
       - name: redis-celery-conf
         configMap:
@@ -98,8 +99,8 @@ data:
     oom-score-adj-values 0 200 800
     disable-thp yes
     no-appendfsync-on-rewrite no
-    auto-aof-rewrite-percentage 100
-    auto-aof-rewrite-min-size 64mb
+    auto-aof-rewrite-percentage 1000
+    auto-aof-rewrite-min-size 128mb
     aof-load-truncated yes
     aof-use-rdb-preamble yes
     lua-time-limit 5000

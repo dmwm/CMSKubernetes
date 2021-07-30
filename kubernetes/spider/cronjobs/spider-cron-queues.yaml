@@ -19,7 +19,7 @@ spec:
           serviceAccountName: spider-account
           containers:
           - name: cms-htcondor-es
-            image: mrceyhun/cms_htcondor_es:latest
+            image: cmssw/cms-htcondor-es:d1dfe4d
             imagePullPolicy: Always
             args:
             - python
@@ -70,7 +70,7 @@ spec:
                 mountPath: /cms_secrets/es-conf
               - name: collectors
                 mountPath: /cms_secrets/collectors
-              - name: shared-spider
+              - name: spider-shared-ceph-claim
                 mountPath: /cms_shared
           restartPolicy: Never
           securityContext:
@@ -100,7 +100,7 @@ spec:
                 - key: collectors
                   path: collectors
                 secretName: collectors
-            - name: shared-spider
+            - name: spider-shared-ceph-claim
               persistentVolumeClaim:
-                claimName: spider-shared-cephfs-claim
+                claimName: spider-ceph-claim
                 readOnly: false

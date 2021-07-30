@@ -1,3 +1,30 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: workqueue-filebeat-config
+  namespace: dmwm
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/workqueue/*${MY_POD_NAME}*.log
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+---
 kind: Service
 apiVersion: v1
 metadata:
@@ -53,19 +80,10 @@ spec:
       securityContext:
         runAsUser: 0
         runAsGroup: 0
+      shareProcessNamespace: true
       containers:
       - image: cmssw/workqueue #imagetag
         name: workqueue
-        livenessProbe:
-          exec:
-            command:
-            - cmsweb-ping
-            - "--url=http://localhost:8240/workqueue/index.html"
-            - "--authz=/etc/hmac/hmac"
-            - -verbose
-            - "0"
-          initialDelaySeconds: 120
-          periodSeconds: 10
         resources:
           requests:
             memory: "512Mi"
@@ -97,10 +115,62 @@ spec:
           readOnly: true
         - name: setup-certs-and-run
           mountPath: /opt/setup-certs-and-run
-#PROD#  - name: logs-cephfs
+#PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/workqueue
+#PROD#- name: workqueue-filebeat
+#PROD#  image: docker.elastic.co/beats/filebeat:7.12.0
+#PROD#  args: [
+#PROD#    "-c", "/etc/filebeat.yml",
+#PROD#    "-e",
+#PROD#  ]
+#PROD#  env:
+#PROD#  - name: MY_POD_NAME
+#PROD#    valueFrom:
+#PROD#      fieldRef:
+#PROD#        apiVersion: v1
+#PROD#        fieldPath: metadata.name
+#PROD#  resources:
+#PROD#    requests:
+#PROD#      memory: "50Mi"
+#PROD#      cpu: "50m"
+#PROD#  volumeMounts:
+#PROD#  - name: logs
+#PROD#    mountPath: /data/srv/logs/workqueue
+#PROD#  - name: config
+#PROD#    mountPath: /etc/filebeat.yml
+#PROD#    readOnly: true
+#PROD#    subPath: filebeat.yml
+#PROD#  - name: data
+#PROD#    mountPath: /usr/share/filebeat/data
+#PROD#  - name: varlog
+#PROD#    mountPath: /var/log
+#PROD#  - name: varlibdockercontainers
+#PROD#    mountPath: /var/lib/docker/containers
+#PROD#    readOnly: true
         securityContext:
           privileged: true
+      - image: cmssw/exporters:20210726-nonstatic
+        name: workqueue-exporter
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8240/workqueue/index.html"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "50m"
+        command: ['sh', '-c', 'echo The app is running! && sleep 3600d']
+        volumeMounts:
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
 #      initContainers:
 #      - name: checkcouchdb
 #        image: busybox:1.28
@@ -124,6 +194,18 @@ spec:
       - name: setup-certs-and-run
         configMap:
           name: workqueue
-#PROD#- name: logs-cephfs
+#PROD#- name: logs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-dmwm
+#PROD#- name: varlog
+#PROD#  hostPath:
+#PROD#    path: /var/log
+#PROD#- name: varlibdockercontainers
+#PROD#  hostPath:
+#PROD#    path: /var/lib/docker/containers
+#PROD#- name: config
+#PROD#  configMap:
+#PROD#    defaultMode: 0640
+#PROD#    name: workqueue-filebeat-config
+#PROD#- name: data
+#PROD#  emptyDir: {}
