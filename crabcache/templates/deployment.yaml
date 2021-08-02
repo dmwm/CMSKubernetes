@@ -44,9 +44,7 @@ spec:
           stdin: true
           lifecycle:
           {{- toYaml .Values.lifecycle | nindent 12 }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
            - containerPort: {{ .Values.service.port}}
@@ -103,7 +101,9 @@ spec:
             mountPath: /var/lib/docker/containers
             readOnly: true
 {{- end }}
-        - image: {{ .Values.imageExp.path }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+        - image: "{{ .Values.imageExp.path }}:{{ .Values.imageExp.tag }}"
           name: {{ .Values.imageExp.name }}
           imagePullPolicy: {{ .Values.imageExp.imagePullPolicy }}
           command: 
@@ -144,7 +144,7 @@ spec:
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: crabcache-storage
         persistentVolumeClaim:
-        claimName: crabcache-claim
+            claimName: crabcache-claim
       - name: logs
         persistentVolumeClaim:
 {{- if .Values.environment.preprod }}

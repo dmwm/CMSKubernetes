@@ -22,6 +22,7 @@ data:
         pretty: false
     queue.mem:
       events: 65536
+    logging.metrics.enabled: false
 ---
 kind: ConfigMap
 apiVersion: v1

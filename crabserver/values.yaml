@@ -7,7 +7,7 @@ shareProcessNamespace: true
 replicaCount: 1
 
 image:
-  repository: cmssw/crabserver:latest
+  repository: cmssw/crabserver:HG2108e
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""

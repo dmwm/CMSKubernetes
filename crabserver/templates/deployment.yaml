@@ -45,8 +45,6 @@ spec:
       shareProcessNamespace: {{ .Values.shareProcessNamespace }}
       containers:
         - name: {{ .Chart.Name }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
@@ -106,6 +104,8 @@ spec:
             mountPath: /var/lib/docker/containers
             readOnly: true
 {{- end }}
+          securityContext:
+              privileged: true
         - image: {{ .Values.imageExp.path }}
           name: {{ .Values.imageExp.name }}
           imagePullPolicy: {{ .Values.imageExp.imagePullPolicy }}
@@ -114,16 +114,16 @@ spec:
           args:
           {{- toYaml .Values.imageExp.args | nindent 12 }}
           livenessProbe:
-          {{- if .Values.environment.preprod}}
-          {{- toYaml .Values.imageExpLivenessProbePreProd | nindent 12 }}
-          {{- else }}
+          {{- if .Values.environment.prod}}
           {{- toYaml .Values.imageExpLivenessProbe | nindent 12 }}
+          {{- else }}
+          {{- toYaml .Values.imageExpLivenessProbePreProd | nindent 12 }}
           {{- end }}
           readinessProbe:
-          {{- if .Values.environment.preprod}}
-          {{- toYaml .Values.imageExpReadinessProbePreProd | nindent 12 }}
-          {{- else }}
+          {{- if .Values.environment.prod}}
           {{- toYaml .Values.imageExpReadinessProbe | nindent 12 }}
+          {{- else }}
+          {{- toYaml .Values.imageExpReadinessProbePreProd | nindent 12 }}
           {{- end }}
           resources:
           {{- toYaml .Values.imageExpResources | nindent 12 }}
@@ -133,6 +133,8 @@ spec:
           - name: hmac-secrets
             mountPath: /etc/hmac
             readOnly: true
+          - name: state
+            mountPath: /data/srv/state/crabserver
       volumes:
       - name: proxy-secrets
         secret:

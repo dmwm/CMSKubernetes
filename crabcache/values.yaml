@@ -12,7 +12,9 @@ image:
   repository: cmssw/crabcache
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+  tag: "HG2108e"
+
+shareProcessNamespace: true
 
 lifecycle:
   postStart:
@@ -121,7 +123,7 @@ command:
 - /opt/setup-certs-and-run/setup-certs-and-run.sh
 
 imageExp:
-  name: cmssw-exporter
+  name: crabcache-exporter
   tag: "20210726-nonstatic"
   path: cmssw/exporters
   imagePullPolicy: Always
