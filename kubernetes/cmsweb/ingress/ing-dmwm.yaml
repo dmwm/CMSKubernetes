@@ -41,3 +41,19 @@ spec:
         backend:
           serviceName: ms-rulecleaner
           servicePort: 8244
+      - backend:
+          serviceName: ms-unmer-t1
+          servicePort: 8242
+        path: /ms-unmerged/data/status?rses=t1
+      - backend:
+          serviceName: ms-unmer-t2t3
+          servicePort: 8242
+        path: /ms-unmerged/data/status?rses=t2t3
+      - backend:
+          serviceName: ms-unmer-t2t3us
+          servicePort: 8242
+        path: /ms-unmerged/data/status?rses=t2t3us
+      - backend:
+          serviceName: ms-unmer-t1
+          servicePort: 8242
+        path: /ms-unmerged/data/status          
