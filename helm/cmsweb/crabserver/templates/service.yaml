@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "crabserver.fullname" . }}
+  labels:
+    {{- include "crabserver.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}
+      name: {{ .Values.service.name }}
+      protocol: {{ .Values.service.protocol }}
+    - port: {{ .Values.serviceMon.port }}
+      targetPort: {{ .Values.serviceMon.port }}
+      name: {{ .Values.serviceMon.name }}
+      protocol: {{ .Values.serviceMon.protocol }}
+
+  selector:
+    {{- include "crabserver.selectorLabels" . | nindent 4 }}
