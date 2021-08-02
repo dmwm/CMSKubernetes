@@ -4,7 +4,9 @@
 
 shareProcessNamespace: true
 
-replicaCount: 1
+replicaCount:
+  prod: 5
+  test: 1
 
 image:
   repository: cmssw/crabserver:HG2108e
@@ -64,15 +66,6 @@ lifecycle:
         - bash
         - -c
         - sudo chmod 0777 /data/srv/state/crabcache/files; sudo chown _crabcache:_crabcache /data/srv/state/crabcache/files
-
-livenessProbe:
-  exec:
-    command:
-      - cmsweb-ping
-      - "--url=http://localhost:8271/crabcache/info"
-      - "--authz=/etc/hmac/hmac"
-      - -verbose
-      - "0"
 
 ingress:
   enabled: false
