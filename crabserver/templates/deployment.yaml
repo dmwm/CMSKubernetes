@@ -8,10 +8,9 @@ metadata:
 spec:
   {{- if not .Values.autoscaling.enabled }}
   {{- if or .Values.environment.prod .Values.environment.preprod}}
-  replicas: 5
-  {{- end}}
-  {{-  if .Values.environment.test}}
-  replicas: {{ .Values.replicaCount }} 
+  replicas: {{ .Values.replicaCount.prod }}
+  {{- else }}
+  replicas: {{ .Values.replicaCount.test }}
   {{- end }}
   {{- end }}
   selector:
