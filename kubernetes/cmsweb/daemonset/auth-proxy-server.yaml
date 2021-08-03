@@ -41,6 +41,8 @@ spec:
             memory: "10Gi"
             cpu: "4000m" # we can add higher limit here
         env:
+        - name: X509_USER_PROXY
+          value: /etc/proxy/proxy
         - name: MY_POD_NAME
           valueFrom:
             fieldRef:
