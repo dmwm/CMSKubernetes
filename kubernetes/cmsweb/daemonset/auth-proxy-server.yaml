@@ -56,6 +56,9 @@ spec:
           mountPath: /etc/secrets
           #defaultMode: 256
           readOnly: true
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
         - name: www-htdocs
           mountPath: /www
         - name: hostcert
@@ -75,6 +78,9 @@ spec:
       - name: auth-proxy-server-secrets
         secret:
           secretName: auth-proxy-server-secrets
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
       - name: www-htdocs
         emptyDir: {}
       - name: hostcert
