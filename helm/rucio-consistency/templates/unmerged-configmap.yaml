@@ -8,6 +8,7 @@ data:
       "*": # default
         ignore_list:
         - "/store/unmerged/logs"
+        - "/store/unmerged/SAM/testSRM"
         scanner:
           recursion:      1
           nworkers:        8
