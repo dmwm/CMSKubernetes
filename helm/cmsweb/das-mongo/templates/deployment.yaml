@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "das-mongo.fullname" . }}
+  labels:
+    {{- include "das-mongo.labels" . | nindent 4 }}
+  namespace: das
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "das-mongo.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "das-mongo.selectorLabels" . | nindent 8 }}
+        {{- if .Values.environment.preprod}}
+        env: k8s-preprod
+        {{- end }}
+        {{- if .Values.environment.prod}}
+        env: k8s-prod
+        {{- end }}
+        {{- if .Values.environment.test}}
+        env: k8s
+        {{- end }}
+    spec:
+ 
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "das-mongo.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          tty: true
+          stdin: true
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+           - containerPort: {{ .Values.service.port }}
+             name: {{ .Values.service.name }}
+             protocol: {{ .Values.service.protocol }}
+           - containerPort: {{ .Values.serviceMon.port }}
+             name: {{ .Values.serviceMon.name }}
+             protocol: {{ .Values.serviceMon.protocol }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+          - name: secrets
+            mountPath: /etc/secrets
+            readOnly: true
+      volumes:
+      - name: secrets
+        secret:
+          secretName: das-mongo-secrets
