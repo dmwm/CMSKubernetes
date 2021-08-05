@@ -44,16 +44,4 @@ spec:
       - backend:
           serviceName: ms-unmer-t1
           servicePort: 8242
-        path: /ms-unmerged/data/status?rse_type=t1
-      - backend:
-          serviceName: ms-unmer-t2t3
-          servicePort: 8242
-        path: /ms-unmerged/data/status?rse_type=t2t3
-      - backend:
-          serviceName: ms-unmer-t2t3us
-          servicePort: 8242
-        path: /ms-unmerged/data/status?rse_type=t2t3us
-      - backend:
-          serviceName: ms-unmer-t1
-          servicePort: 8242
-        path: /ms-unmerged/data          
+        path: /ms-unmerged/data
