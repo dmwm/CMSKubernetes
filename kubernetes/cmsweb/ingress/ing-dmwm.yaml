@@ -56,4 +56,4 @@ spec:
       - backend:
           serviceName: ms-unmer-t1
           servicePort: 8242
-        path: /ms-unmerged/data/status          
+        path: /ms-unmerged/data          
