@@ -228,6 +228,6 @@ spec:
 #PROD#- name: config
 #PROD#  configMap:
 #PROD#    defaultMode: 0640
-#PROD#    name: ms-ms-unmer-t2t3us-filebeat-config
+#PROD#    name: ms-unmer-t2t3us-filebeat-config
 #PROD#- name: data
 #PROD#  emptyDir: {}
