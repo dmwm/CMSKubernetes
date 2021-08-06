@@ -1,8 +1,8 @@
 # Do not run cronjobs at the same time!
 # Gets CMSMONIT_WWW from k8s conf
 
-# Condor cpu efficiency
-00 03 * * 1 source $VIRTUAL_ENV/bin/activate && /bin/bash $WDIR/CMSSpark/bin/k8s_condor_cpu_efficiency.sh $CMSMONIT_WWW > /proc/1/fd/1 2>&1
+# Condor cpu efficiency, last_n_days is 30
+00 03 * * 1 source $VIRTUAL_ENV/bin/activate && /bin/bash $WDIR/CMSSpark/bin/k8s_condor_cpu_efficiency.sh $CMSMONIT_WWW 30 > /proc/1/fd/1 2>&1
 
-# StepChain cpu efficiency
-00 03 * * 2 source $VIRTUAL_ENV/bin/activate && /bin/bash $WDIR/CMSSpark/bin/k8s_stepchain_cpu_eff.sh $CMSMONIT_WWW > /proc/1/fd/1 2>&1
+# StepChain cpu efficiency, last_n_days is 15
+00 03 * * 2 source $VIRTUAL_ENV/bin/activate && /bin/bash $WDIR/CMSSpark/bin/k8s_stepchain_cpu_eff.sh $CMSMONIT_WWW 15 > /proc/1/fd/1 2>&1

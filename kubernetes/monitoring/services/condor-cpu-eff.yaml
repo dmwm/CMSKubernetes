@@ -40,6 +40,7 @@ spec:
       containers:
       - name: condor-cpu-eff
         image: mrceyhun/condor_cpu_eff:latest
+        imagePullPolicy: Always
         tty: true
         stdin: true
         env:
