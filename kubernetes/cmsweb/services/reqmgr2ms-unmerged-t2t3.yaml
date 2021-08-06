@@ -83,6 +83,7 @@ spec:
       securityContext:
         runAsUser: 0
         runAsGroup: 0
+      shareProcessNamespace: true
       containers:
       - image: cmssw/reqmgr2ms-unmerged #imagetag
         name: ms-unmer-t2t3
