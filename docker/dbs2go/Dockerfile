@@ -1,4 +1,4 @@
-FROM cmssw/oracle:19_10 as oracle
+FROM cmssw/oracle:21_1 as oracle
 FROM cmssw/exporters:latest as exporters
 FROM cmssw/filebeat:latest as filebeat
 FROM golang:latest as builder
