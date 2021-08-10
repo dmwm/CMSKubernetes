@@ -96,7 +96,7 @@ deploy_proxies()
     voms-proxy-init -voms cms -rfc --key $robot_key --cert $robot_crt -valid 95:50 --out $proxy
 
     # create proxy-secrets for list of namespaces
-    for ns in http alerts; do
+    for ns in auth http alerts; do
         # create robot-secrets
         if [ -n "`kubectl -n $ns get secrets | grep robot-secrets`" ]; then
             echo "delete robot-secrets in $ns namespace"
