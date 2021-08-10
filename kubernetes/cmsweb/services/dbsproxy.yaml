@@ -1,0 +1,170 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dbsproxy-filebeat-config
+  namespace: dbs
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/logs/*${MY_POD_NAME}*
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: dbsproxy
+  namespace: dbs
+spec:
+  selector:
+    app: dbsproxy
+  ports:
+    - port: 8222
+      targetPort: 8222
+      name: dbs
+    - port: 18222
+      targetPort: 18222
+      name: dbs-mon
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: dbsproxy
+  name: dbsproxy
+  namespace: dbs
+spec:
+  selector:
+    matchLabels:
+      app: dbsproxy
+  replicas: 1 #PROD# 3
+  template:
+    metadata:
+      labels:
+        app: dbsproxy
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18222"
+    spec:
+      containers:
+      - image: cmssw/dbsproxy #imagetag
+        name: dbsproxy
+        imagePullPolicy: Always
+        env:
+        - name: X509_USER_PROXY
+          value: /etc/proxy/proxy
+        args:
+          - /data/dbsproxy
+          - -config=/etc/secrets/config.json
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "200m"
+          limits:
+            memory: "500Mi"
+            cpu: "8000m"
+#         livenessProbe:
+#           httpGet:
+#             path: /dbsproxy/status
+#             port: 8222
+#             httpHeaders:
+#             - name: Accept
+#               value: application/json
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        ports:
+        - containerPort: 8222
+          protocol: TCP
+          name: dbs
+        - containerPort: 18222
+          protocol: TCP
+          name: dbs-mon
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
+#PROD#  - name: logs
+#PROD#    mountPath: /data/logs
+#PROD#- name: dbsproxy-filebeat
+#PROD#  image: docker.elastic.co/beats/filebeat:7.12.0
+#PROD#  args: [
+#PROD#    "-c", "/etc/filebeat.yml",
+#PROD#    "-e",
+#PROD#  ]
+#PROD#  env:
+#PROD#  - name: MY_POD_NAME
+#PROD#    valueFrom:
+#PROD#      fieldRef:
+#PROD#        apiVersion: v1
+#PROD#        fieldPath: metadata.name
+#PROD#  resources:
+#PROD#    requests:
+#PROD#      memory: "50Mi"
+#PROD#      cpu: "50m"
+#PROD#  volumeMounts:
+#PROD#  - name: logs
+#PROD#    mountPath: /data/logs
+#PROD#  - name: config
+#PROD#    mountPath: /etc/filebeat.yml
+#PROD#    readOnly: true
+#PROD#    subPath: filebeat.yml
+#PROD#  - name: data
+#PROD#    mountPath: /usr/share/filebeat/data
+#PROD#  - name: varlog
+#PROD#    mountPath: /var/log
+#PROD#  - name: varlibdockercontainers
+#PROD#    mountPath: /var/lib/docker/containers
+#PROD#    readOnly: true
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: secrets
+        secret:
+          secretName: dbsproxy-secrets
+#PROD#- name: logs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim-dbs
+#PROD#- name: varlog
+#PROD#  hostPath:
+#PROD#    path: /var/log
+#PROD#- name: varlibdockercontainers
+#PROD#  hostPath:
+#PROD#    path: /var/lib/docker/containers
+#PROD#- name: config
+#PROD#  configMap:
+#PROD#    defaultMode: 0640
+#PROD#    name: dbsproxy-filebeat-config
+#PROD#- name: data
+#PROD#  emptyDir: {}
