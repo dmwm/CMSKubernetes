@@ -9,6 +9,6 @@ RUN apt-get update && apt-get -y install unzip libaio1 wget && \
     apt update && \
     apt -y install filebeat
 
-FROM debian:stretch
+FROM debian:buster-slim
 COPY --from=builder /usr/bin/filebeat /usr/bin/filebeat
 COPY --from=builder /usr/share/filebeat /usr/share/filebeat

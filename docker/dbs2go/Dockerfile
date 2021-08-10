@@ -34,7 +34,7 @@ RUN git checkout tags/$TAG -b build && \
     make && cp -r dbs2go static $WDIR
 
 # for gibc library we will use debian:stretch
-FROM debian:stretch
+FROM debian:buster-slim
 RUN apt-get update && apt-get -y install libaio1 procps && mkdir -p /data
 COPY --from=builder /data /data
 COPY --from=exporters /data/process_exporter /data
