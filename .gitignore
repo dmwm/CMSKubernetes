@@ -49,6 +49,16 @@ kubernetes/hcal/secrets
 kubernetes/cmsweb/hcal.json
 kubernetes/tfaas/config.json
 kubernetes/tfaas/config.tfaas
+kubernetes/cmsweb/dbs-scale
+kubernetes/cmsweb/filebeat
+docker/reqmgr2ms/Dockerfile.full
+docker/reqmgr2ms/Dockerfile.new
+docker/reqmgr2-small
+docker/wmcore
+docker/test-htcondor
+docker/cuda
+docker/gotorch
+docker/py_vs_go
 
 # Files containing DB passwords
 
