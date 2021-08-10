@@ -7,6 +7,9 @@ conveyorFinisherCount: 4
 # Should be one in normal running
 
 
+darkReaper:
+  includeRses: "reaper=True"
+
 reaper2:
   includeRses: "reaper=True"
   threads: 8
