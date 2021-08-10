@@ -79,8 +79,8 @@ spec:
         prometheus.io/port: "18270"
     spec:
       securityContext:
-        runAsUser: 0
-        runAsGroup: 0
+        runAsUser: 1000
+        #runAsGroup: 0
       shareProcessNamespace: true
       containers:
       #- image: sbelforte/crabserver:3.3.1911.rc3
@@ -125,6 +125,8 @@ spec:
           mountPath: /data/srv/state/crabserver
 #PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/crabserver
+        securityContext:
+          privileged: true
 #PROD#- name: crabserver-filebeat
 #PROD#  image: docker.elastic.co/beats/filebeat:7.12.0
 #PROD#  args: [
@@ -155,8 +157,6 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
-        securityContext:
-          privileged: true
       - image: cmssw/exporters:20210726-nonstatic
         name: crabserver-exporter
         livenessProbe:
@@ -192,8 +192,6 @@ spec:
         - name: hmac-secrets
           mountPath: /etc/hmac
           readOnly: true
-        securityContext:
-          privileged: true
       volumes:
       - name: proxy-secrets
         secret:
