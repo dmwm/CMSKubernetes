@@ -79,7 +79,7 @@ spec:
           - name: logs
             mountPath: /data/srv/logs/reqmgr2
         - name: {{ .Values.imageFilebeat.name }}
-          image: {{ .Values.imageFilebeat.name }}
+          image: {{ .Values.imageFilebeat.path }}
           args: {{ .Values.imageFilebeat.args }}
           env:
           {{- toYaml .Values.imageFilebeat.env | nindent 10 }}
