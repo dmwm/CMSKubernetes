@@ -18,8 +18,8 @@ mv instantclient_21_1 /usr/lib/oracle
 # start the setup
 ADD oci8.pc /usr/lib/oracle/instantclient_21_1/oci8.pc
 
-# for gibc library we will use debian:buster-slim
-FROM debian:buster-slim
+# for gibc library we will use debian:stable-slim
+FROM debian:stable-slim
 RUN apt-get update && apt-get -y install libaio1 procps
 COPY --from=builder /usr/lib/oracle/instantclient_21_1 /usr/lib/oracle/
 ENV LD_LIBRARY_PATH=/usr/lib/oracle
