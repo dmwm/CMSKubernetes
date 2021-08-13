@@ -182,7 +182,6 @@ spec:
             cpu: "50m"
         command: ["/bin/bash","-c"]
         args: ["echo \"Starting exporter\" ; sleep 120s ; /data/process_monitor.sh \".*DBSGlobalReader\" dbs_global_exporter \":18252\" 15 && /data/cpy_exporter -uri http://localhost:8252/dbs/stats -address \":19252\""]
-        volumeMounts:
         securityContext:
           privileged: true
       volumes:

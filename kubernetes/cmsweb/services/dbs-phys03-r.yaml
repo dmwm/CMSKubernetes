@@ -181,10 +181,6 @@ spec:
             cpu: "50m"
         command: ["/bin/bash","-c"]
         args: ["echo \"Starting exporter\" ; sleep 120s ; /data/process_monitor.sh \".*DBSPhys03Reader\" dbs_phys03R_exporter \":18254\" 15 && /data/cpy_exporter -uri http://localhost:8254/dbs/stats -address \":19254\""]
-        volumeMounts:
-        - name: hmac-secrets
-          mountPath: /etc/hmac
-          readOnly: true
         securityContext:
           privileged: true
       volumes:
