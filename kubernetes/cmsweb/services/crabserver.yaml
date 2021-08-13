@@ -94,6 +94,26 @@ spec:
           limits:
             memory: "3Gi"
             cpu: "1500m"
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - |
+              cmsweb-ping --url=http://localhost:8270/crabserver/prod/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
+          initialDelaySeconds: 120
+          failureThreshold: 3
+          periodSeconds: 60
+          timeoutSeconds: 60
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - |
+              cmsweb-ping --url=http://localhost:8270/crabserver/prod/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
+          periodSeconds: 60
+          timeoutSeconds: 60
         ports:
         - containerPort: 8270
           protocol: TCP
@@ -160,26 +180,6 @@ spec:
 #PROD#    readOnly: true
       - image: cmssw/exporters:20210726-nonstatic
         name: crabserver-exporter
-        livenessProbe:
-          exec:
-            command:
-            - /bin/sh
-            - -c
-            - |
-              cmsweb-ping --url=http://localhost:8270/crabserver/prod/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
-          initialDelaySeconds: 120
-          failureThreshold: 3
-          periodSeconds: 60
-          timeoutSeconds: 60
-        readinessProbe:
-          exec:
-            command:
-            - /bin/sh
-            - -c
-            - |
-              cmsweb-ping --url=http://localhost:8270/crabserver/prod/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
-          periodSeconds: 60
-          timeoutSeconds: 60
         imagePullPolicy: Always
         resources:
           requests:
@@ -190,9 +190,6 @@ spec:
         volumeMounts:
         - name: state
           mountPath: /data/srv/state/crabserver
-        - name: hmac-secrets
-          mountPath: /etc/hmac
-          readOnly: true
       volumes:
       - name: proxy-secrets
         secret:
