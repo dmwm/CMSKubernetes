@@ -1,4 +1,4 @@
-FROM cmssw/reqmgr2ms:HG2108h
+FROM cmssw/reqmgr2ms:HG2108h-v2
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
