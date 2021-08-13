@@ -175,11 +175,12 @@ spec:
         livenessProbe:
           exec:
             command:
-            - cmsweb-ping
-            - "--url=http://localhost:8252/dbs/prod/global/DBSReader/datasets?dataset=/ZMM*/*/*"
-            - "--authz=/etc/hmac/hmac"
-            - -verbose
-            - "0"
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - |
+            - cmsweb-ping --url=http://localhost:8252/dbs/prod/global/DBSReader/datasets?dataset=/ZMM*/*/* --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
           initialDelaySeconds: 120
           periodSeconds: 10
         imagePullPolicy: Always
