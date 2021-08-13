@@ -97,6 +97,14 @@ spec:
           limits:
             memory: "10Gi"
             cpu: "2000m"
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /dbs/prod/global/DBSReader/
+            port: 8252
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
         ports:
         - containerPort: 8252
           protocol: TCP
@@ -168,7 +176,7 @@ spec:
           exec:
             command:
             - cmsweb-ping
-            - "--url=http://localhost:8252/dbs/prod/global/DBSReader/"
+            - "--url=http://localhost:8252/dbs/prod/global/DBSReader/datasets?dataset=/ZMM*/*/*"
             - "--authz=/etc/hmac/hmac"
             - -verbose
             - "0"
