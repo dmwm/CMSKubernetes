@@ -97,6 +97,16 @@ spec:
           limits:
             memory: "10Gi"
             cpu: "2000m"
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8255/dbs/prod/phys03/DBSWriter/"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 120
+          periodSeconds: 10
         ports:
         - containerPort: 8255
           protocol: TCP
@@ -164,16 +174,6 @@ spec:
           privileged: true
       - image: cmssw/exporters:20210726-nonstatic
         name: dbs-phys03-w-exporter
-        livenessProbe:
-          exec:
-            command:
-            - cmsweb-ping
-            - "--url=http://localhost:8255/dbs/prod/phys03/DBSWriter/"
-            - "--authz=/etc/hmac/hmac"
-            - -verbose
-            - "0"
-          initialDelaySeconds: 120
-          periodSeconds: 10
         imagePullPolicy: Always
         resources:
           requests:
@@ -181,10 +181,6 @@ spec:
             cpu: "50m"
         command: ["/bin/bash","-c"]
         args: ["echo \"Starting exporter\" ; sleep 120s ; /data/process_monitor.sh \".*DBSPhys03Writer\" dbs_phys03W_exporter \":18255\" 15 && /data/cpy_exporter -uri http://localhost:8255/dbs/stats -address \":19255\""]
-        volumeMounts:
-        - name: hmac-secrets
-          mountPath: /etc/hmac
-          readOnly: true
         securityContext:
           privileged: true
       volumes:
