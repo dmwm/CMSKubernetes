@@ -1,8 +1,8 @@
-#FROM cmssw/exporters:20210621 as exporters-builder
-#RUN mkdir -p /data
+FROM cmssw/exporters:20210726-nonstatic as exporters-builder
+RUN mkdir -p /data
 
 
-FROM cern/cc7-base:20210701-1
+FROM cern/cc7-base:20210715-1
 
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
@@ -66,7 +66,7 @@ ENV PATH="${WDIR}/bin:${PATH}"
 
 # copy all exporters from exporters image
 
-#COPY --from=exporters-builder /data/cmsweb-ping ${WDIR}/bin/
+COPY --from=exporters-builder /data/cmsweb-ping ${WDIR}/bin/
 #COPY --from=exporters-builder /data/das2go_exporter ${WDIR}/bin/
 #COPY --from=exporters-builder /data/mongodb_exporter ${WDIR}/bin/
 #COPY --from=exporters-builder /data/cpy_exporter ${WDIR}/bin/
