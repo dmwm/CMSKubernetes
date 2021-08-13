@@ -98,12 +98,15 @@ spec:
             memory: "10Gi"
             cpu: "2000m"
         livenessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /dbs/prod/global/DBSReader/
-            port: 8252
-            scheme: HTTP
-          initialDelaySeconds: 10
+          exec:
+            command:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - |
+            - cmsweb-ping --url=http://localhost:8252/dbs/prod/global/DBSReader/datasets?dataset=/ZMM*/*/* --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
+          initialDelaySeconds: 60
           periodSeconds: 10
         ports:
         - containerPort: 8252
@@ -172,17 +175,6 @@ spec:
           privileged: true
       - image: cmssw/exporters:20210726-nonstatic
         name: dbs-global-r-exporter
-        livenessProbe:
-          exec:
-            command:
-          exec:
-            command:
-            - /bin/sh
-            - -c
-            - |
-            - cmsweb-ping --url=http://localhost:8252/dbs/prod/global/DBSReader/datasets?dataset=/ZMM*/*/* --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
-          initialDelaySeconds: 120
-          periodSeconds: 10
         imagePullPolicy: Always
         resources:
           requests:
@@ -191,9 +183,6 @@ spec:
         command: ["/bin/bash","-c"]
         args: ["echo \"Starting exporter\" ; sleep 120s ; /data/process_monitor.sh \".*DBSGlobalReader\" dbs_global_exporter \":18252\" 15 && /data/cpy_exporter -uri http://localhost:8252/dbs/stats -address \":19252\""]
         volumeMounts:
-        - name: hmac-secrets
-          mountPath: /etc/hmac
-          readOnly: true
         securityContext:
           privileged: true
       volumes:

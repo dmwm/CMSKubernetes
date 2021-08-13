@@ -96,6 +96,16 @@ spec:
           limits:
             memory: "10Gi"
             cpu: "800m"
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8257/dbs/prod/global/DBSMigrate/"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 120
+          periodSeconds: 10
         ports:
         - containerPort: 8257
           protocol: TCP
@@ -163,16 +173,6 @@ spec:
           privileged: true
       - image: cmssw/exporters:20210726-nonstatic
         name: dbs-migrate-exporter
-        livenessProbe:
-          exec:
-            command:
-            - cmsweb-ping
-            - "--url=http://localhost:8257/dbs/prod/global/DBSMigrate/"
-            - "--authz=/etc/hmac/hmac"
-            - -verbose
-            - "0"
-          initialDelaySeconds: 120
-          periodSeconds: 10
         imagePullPolicy: Always
         resources:
           requests:

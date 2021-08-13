@@ -97,6 +97,16 @@ spec:
           limits:
             memory: "10Gi"
             cpu: "2000m"
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8254/dbs/prod/phys03/DBSReader/"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 120
+          periodSeconds: 10
         ports:
         - containerPort: 8254
           protocol: TCP
@@ -164,16 +174,6 @@ spec:
           privileged: true
       - image: cmssw/exporters:20210726-nonstatic
         name: dbs-phys03-r-exporter
-        livenessProbe:
-          exec:
-            command:
-            - cmsweb-ping
-            - "--url=http://localhost:8254/dbs/prod/phys03/DBSReader/"
-            - "--authz=/etc/hmac/hmac"
-            - -verbose
-            - "0"
-          initialDelaySeconds: 120
-          periodSeconds: 10
         imagePullPolicy: Always
         resources:
           requests:
