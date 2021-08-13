@@ -102,6 +102,28 @@ spec:
           limits:
             memory: "3Gi"
             cpu: "1500m"
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8271/crabcache/info"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          failureThreshold: 3
+          initialDelaySeconds: 120
+          periodSeconds: 60
+          timeoutSeconds: 60
+        readinessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8271/crabcache/info"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          periodSeconds: 60
+          timeoutSeconds: 60
         ports:
         - containerPort: 8271
           protocol: TCP
@@ -169,28 +191,6 @@ spec:
           privileged: true
       - image: cmssw/exporters:20210726-nonstatic
         name: crabcache-exporter
-        livenessProbe:
-          exec:
-            command:
-            - cmsweb-ping
-            - "--url=http://localhost:8271/crabcache/info"
-            - "--authz=/etc/hmac/hmac"
-            - -verbose
-            - "0"
-          failureThreshold: 3
-          initialDelaySeconds: 120
-          periodSeconds: 60
-          timeoutSeconds: 60
-        readinessProbe:
-          exec:
-            command:
-            - cmsweb-ping
-            - "--url=http://localhost:8271/crabcache/info"
-            - "--authz=/etc/hmac/hmac"
-            - -verbose
-            - "0"
-          periodSeconds: 60
-          timeoutSeconds: 60
         imagePullPolicy: Always
         resources:
           requests:
@@ -198,10 +198,6 @@ spec:
             cpu: "50m"
         command: ["/bin/bash","-c"]
         args: ["echo \"Starting exporter\" ; sleep 120s ; pid=`ps axjfwww | grep \"wmc-httpd.*crabcache\" | grep -v grep | grep -v process_monitor | grep -v \" 1 \" | awk '{print $1}'` && process_exporter -pid $pid -prefix crabcache_exporter -address \":18271\""]
-        volumeMounts:
-        - name: hmac-secrets
-          mountPath: /etc/hmac
-          readOnly: true
         securityContext:
           privileged: true
       volumes:
