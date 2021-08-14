@@ -76,6 +76,15 @@ spec:
           limits:
             memory: "3Gi"
             cpu: "1000m"
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8246/reqmgr2/data/info"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 120
         command:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
@@ -135,15 +144,6 @@ spec:
           privileged: true
       - image: cmssw/exporters:20210726-nonstatic
         name: reqmgr2-tasks-exporter
-        livenessProbe:
-          exec:
-            command:
-            - cmsweb-ping
-            - "--url=http://localhost:8246/reqmgr2/data/info"
-            - "--authz=/etc/hmac/hmac"
-            - -verbose
-            - "0"
-          initialDelaySeconds: 120
         imagePullPolicy: Always
         resources:
           requests:
