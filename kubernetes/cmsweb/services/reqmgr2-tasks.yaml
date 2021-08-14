@@ -154,9 +154,6 @@ spec:
         volumeMounts:
         - name: state
           mountPath: /data/srv/state/reqmgr2
-        - name: hmac-secrets
-          mountPath: /etc/hmac
-          readOnly: true
         securityContext:
           privileged: true
 #      initContainers:
