@@ -101,6 +101,16 @@ spec:
           limits:
             memory: "3Gi"
             cpu: "1000m"
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8244/ms-rulecleaner/data/status"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 120
+          periodSeconds: 10
         ports:
         - containerPort: 8244
           protocol: TCP
@@ -165,16 +175,6 @@ spec:
           privileged: true
       - image: cmssw/exporters:20210726-nonstatic
         name: ms-rulecleaner-exporter
-        livenessProbe:
-          exec:
-            command:
-            - cmsweb-ping
-            - "--url=http://localhost:8244/ms-rulecleaner/data/status"
-            - "--authz=/etc/hmac/hmac"
-            - -verbose
-            - "0"
-          initialDelaySeconds: 120
-          periodSeconds: 10
         imagePullPolicy: Always
         resources:
           requests:
@@ -182,10 +182,6 @@ spec:
             cpu: "50m"
         command: ["/bin/bash","-c"]
         args: ["echo \"Starting exporter\" ; sleep 120s ; pid=`ps axjfwww | grep \"wmc-httpd.*config-ruleCleaner\" | grep -v grep | grep -v process_monitor | grep -v \" 1 \" | awk '{print $1}'` && process_exporter -pid $pid -prefix reqmgr2ms_exporter -address \":18244\""]
-        volumeMounts:
-        - name: hmac-secrets
-          mountPath: /etc/hmac
-          readOnly: true
         securityContext:
           privileged: true
 #      initContainers:

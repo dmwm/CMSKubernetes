@@ -91,6 +91,16 @@ spec:
           limits:
             memory: "3Gi"
             cpu: "1500m"
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8240/workqueue/index.html"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 120
+          periodSeconds: 10
         ports:
         - containerPort: 8240
           protocol: TCP
@@ -151,26 +161,12 @@ spec:
           privileged: true
       - image: cmssw/exporters:20210726-nonstatic
         name: workqueue-exporter
-        livenessProbe:
-          exec:
-            command:
-            - cmsweb-ping
-            - "--url=http://localhost:8240/workqueue/index.html"
-            - "--authz=/etc/hmac/hmac"
-            - -verbose
-            - "0"
-          initialDelaySeconds: 120
-          periodSeconds: 10
         imagePullPolicy: Always
         resources:
           requests:
             memory: "50Mi"
             cpu: "50m"
         command: ['sh', '-c', 'echo The app is running! && sleep 3600d']
-        volumeMounts:
-        - name: hmac-secrets
-          mountPath: /etc/hmac
-          readOnly: true
 #      initContainers:
 #      - name: checkcouchdb
 #        image: busybox:1.28
