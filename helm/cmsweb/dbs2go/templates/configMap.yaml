@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dbs2go-filebeat-config
+  namespace: dbs
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/logs/*${MY_POD_NAME}*
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
