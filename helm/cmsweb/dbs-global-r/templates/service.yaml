@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "dbs-global-r.fullname" . }}
+  labels:
+    {{- include "dbs-global-r.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+
+  ports:
+  - port: {{ .Values.service.port }}
+    targetPort: {{ .Values.service.port}}
+    name: {{ .Values.service.name }}
+    protocol: {{ .Values.service.protocol }}
+  - port: {{ .Values.serviceMon.port }}
+    protocol: {{ .Values.serviceMon.protocol }}
+    name: {{ .Values.serviceMon.name }}
+    targetPort: {{ .Values.serviceMon.port}}
+  - port: {{ .Values.serviceCpyMon.port }}
+    protocol: {{ .Values.serviceCpyMon.protocol }}
+    name: {{ .Values.serviceCpyMon.name }}
+    targetPort: {{ .Values.serviceCpyMon.port}}
+  selector:
+    {{- include "dbs-global-r.selectorLabels" . | nindent 4 }}
