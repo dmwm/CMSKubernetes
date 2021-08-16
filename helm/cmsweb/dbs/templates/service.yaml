@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "dbs.fullname" . }}
+  labels:
+    {{- include "dbs.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+  - port: {{ .Values.service.port }}
+    targetPort: {{ .Values.service.port}}
+    name: {{ .Values.service.name }}
+    protocol: {{ .Values.service.protocol }}
+  - port: {{ .Values.serviceDbsGlobalR.port }}
+    protocol: {{ .Values.serviceDbsGlobalR.protocol }}
+    name: {{ .Values.serviceDbsGlobalR.name }}
+    targetPort: {{ .Values.serviceDbsGlobalR.port}}
+  - port: {{ .Values.serviceDbsGlobalW.port }}
+    protocol: {{ .Values.serviceDbsGlobalW.protocol }}
+    name: {{ .Values.serviceDbsGlobalW.name }}
+    targetPort: {{ .Values.serviceDbsGlobalW.port}}
+  - port: {{ .Values.serviceDbsPhys03R.port }}
+    protocol: {{ .Values.serviceDbsPhys03R.protocol }}
+    name: {{ .Values.serviceDbsPhys03R.name }}
+    targetPort: {{ .Values.serviceDbsPhys03R.port}}
+  - port: {{ .Values.serviceDbsPhys03W.port }}
+    protocol: {{ .Values.serviceDbsPhys03W.protocol }}
+    name: {{ .Values.serviceDbsPhys03W.name }}
+    targetPort: {{ .Values.serviceDbsPhys03W.port}}
+  - port: {{ .Values.serviceDbsMon.port }}
+    protocol: {{ .Values.serviceDbsMon.protocol }}
+    name: {{ .Values.serviceDbsMon.name }}
+    targetPort: {{ .Values.serviceDbsMon.port}}
+  selector:
+    {{- include "dbs.selectorLabels" . | nindent 4 }}

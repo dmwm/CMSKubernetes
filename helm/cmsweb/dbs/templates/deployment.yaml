@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "dbs.fullname" . }}
+  labels:
+    {{- include "dbs.labels" . | nindent 4 }}
+  namespace: dbs
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "dbs.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "dbs.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "dbs.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          ports:
+           - containerPort: {{ .Values.service.port }}
+             name: {{ .Values.service.name }}
+             protocol: {{ .Values.service.protocol }}
+           - containerPort: {{ .Values.serviceDbsGlobalR.port }}
+             name: {{ .Values.serviceDbsGlobalR.name }}
+             protocol: {{ .Values.serviceDbsGlobalR.protocol }}
+           - containerPort: {{ .Values.serviceDbsGlobalW.port }}
+             name: {{ .Values.serviceDbsGlobalW.name }}
+             protocol: {{ .Values.serviceDbsGlobalW.protocol }}
+           - containerPort: {{ .Values.serviceDbsPhys03R.port }}
+             name: {{ .Values.serviceDbsPhys03R.name }}
+             protocol: {{ .Values.serviceDbsPhys03R.protocol }}
+           - containerPort: {{ .Values.serviceDbsPhys03W.port }}
+             name: {{ .Values.serviceDbsPhys03W.name }}
+             protocol: {{ .Values.serviceDbsPhys03W.protocol }}
+           - containerPort: {{ .Values.serviceDbsMon.port }}
+             name: {{ .Values.serviceDbsMon.name }}
+             protocol: {{ .Values.serviceDbsMon.protocol }}
+          volumeMounts:
+          - name: proxy-secrets
+            mountPath: /etc/proxy
+            readOnly: true
+          - name: secrets
+            mountPath: /etc/secrets
+            readOnly: true
+          - name: hostkey
+            mountPath: /etc/grid-security/hostkey.pem
+            readOnly: true 
+          - name: hostcert
+            mountPath: /etc/grid-security/hostcert.pem
+            readOnly: true 
+          {{- if or .Values.environment.prod .Values.environment.preprod }}
+          - name: logs
+            mountPath: /data/srv/logs/dbs
+          {{- end }}
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: dbs-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File
+{{- if or .Values.environment.prod .Values.environment.preprod }}
+      - name: logs
+        persistentVolumeClaim:
+{{- if .Values.environment.preprod }}
+            claimName: logs-cephfs-claim-preprod-dbs
+{{- end }}
+{{- if .Values.environment.prod }}
+            claimName: logs-cephfs-claim-prod-dbs
+{{- end }}
+{{- end }}
