@@ -83,7 +83,6 @@ spec:
       securityContext:
         runAsUser: 1000
         #runAsGroup: 0
-      shareProcessNamespace: true
       containers:
       - image: cmssw/crabcache #imagetag
         name: crabcache

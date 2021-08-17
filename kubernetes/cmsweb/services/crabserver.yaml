@@ -82,7 +82,6 @@ spec:
       securityContext:
         runAsUser: 1000
         #runAsGroup: 0
-      shareProcessNamespace: true
       containers:
       #- image: sbelforte/crabserver:3.3.1911.rc3
       - image: cmssw/crabserver #imagetag
