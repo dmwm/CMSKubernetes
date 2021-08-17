@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "reqmgr2ms-unmerged-t2t3us.fullname" . }}-test-connection"
+  labels:
+    {{- include "reqmgr2ms-unmerged-t2t3us.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "reqmgr2ms-unmerged-t2t3us.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never
