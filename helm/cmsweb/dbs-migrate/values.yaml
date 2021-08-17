@@ -5,7 +5,7 @@
 shareProcessNamespace: true
 
 replicaCount: 
-  prod: 5
+  prod: 3
   test: 1
 
 image:
@@ -62,7 +62,7 @@ livenessProbePreProd:
   exec:
     command:
     - cmsweb-ping
-    - "--url=http://localhost:8257/dbs/init/global/DBSMigrate/"
+    - "--url=http://localhost:8257/dbs/int/global/DBSMigrate/"
     - "--authz=/etc/hmac/hmac"
     - -verbose
     - "0"
