@@ -10,7 +10,7 @@ image:
   repository: cmssw/t0_reqmon
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "HG2108h"
+  tag: "HG2108h-v2"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -40,6 +40,17 @@ podSecurityContext:
 
 securityContext: 
   privileged: true
+
+livenessProbe:
+  exec:
+    command:
+    - cmsweb-ping
+    - "--url=http://localhost:8243/t0_reqmon/data/info"
+    - "--authz=/etc/hmac/hmac"
+    - -verbose
+    - "0"
+  initialDelaySeconds: 120
+  periodSeconds: 10
 
 service:
   type: ClusterIP
@@ -108,17 +119,6 @@ imageExporterResources:
     requests:
       memory: "50Mi"
       cpu: "50m"
-
-imageExporterLivenessProbe:
-  exec:
-    command:
-    - cmsweb-ping
-    - "--url=http://localhost:8243/t0_reqmon/data/info"
-    - "--authz=/etc/hmac/hmac"
-    - -verbose
-    - "0"
-  initialDelaySeconds: 120
-  periodSeconds: 10
 
 autoscaling:
   enabled: false
