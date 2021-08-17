@@ -35,10 +35,11 @@ metadata:
 data:
   setup-certs-and-run.sh: |
     #!/bin/bash
-    cp /host/etc/grid-security/* /etc/grid-security
+    sudo cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
-    su  -c "cd /data && /data/run.sh" --preserve-environment _reqmgr2
+    #su  -c "cd /data && /data/run.sh" --preserve-environment _reqmgr2
+    cd /data && /data/run.sh
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -63,8 +64,8 @@ spec:
 #         prometheus.io/scrape: 'true'
     spec:
       securityContext:
-        runAsUser: 0
-        runAsGroup: 0
+        runAsUser: 1000
+        #runAsGroup: 0
       shareProcessNamespace: true
       containers:
       - image: cmssw/reqmgr2 #imagetag
@@ -110,6 +111,8 @@ spec:
           mountPath: /data/srv/state/reqmgr2
 #PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/reqmgr2
+        securityContext:
+          privileged: true
 #PROD#- name: reqmgr2-tasks-filebeat
 #PROD#  image: docker.elastic.co/beats/filebeat:7.12.0
 #PROD#  args: [
@@ -140,8 +143,6 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
-        securityContext:
-          privileged: true
       - image: cmssw/exporters:20210726-nonstatic
         name: reqmgr2-tasks-exporter
         imagePullPolicy: Always
@@ -154,8 +155,6 @@ spec:
         volumeMounts:
         - name: state
           mountPath: /data/srv/state/reqmgr2
-        securityContext:
-          privileged: true
 #      initContainers:
 #      - name: checkcouchdb
 #        image: busybox:1.28
