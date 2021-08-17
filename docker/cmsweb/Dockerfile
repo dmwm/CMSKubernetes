@@ -67,15 +67,15 @@ ENV PATH="${WDIR}/bin:${PATH}"
 # copy all exporters from exporters image
 
 COPY --from=exporters-builder /data/cmsweb-ping ${WDIR}/bin/
-#COPY --from=exporters-builder /data/das2go_exporter ${WDIR}/bin/
-#COPY --from=exporters-builder /data/mongodb_exporter ${WDIR}/bin/
-#COPY --from=exporters-builder /data/cpy_exporter ${WDIR}/bin/
-#COPY --from=exporters-builder /data/http_exporter ${WDIR}/bin/
-#COPY --from=exporters-builder /data/node_exporter ${WDIR}/bin/
-#COPY --from=exporters-builder /data/process_exporter ${WDIR}/bin/
-#COPY --from=exporters-builder /data/reqmgr_exporter ${WDIR}/bin/
-#COPY --from=exporters-builder /data/wmcore_exporter ${WDIR}/bin/
-#COPY --from=exporters-builder /data/process_monitor.sh ${WDIR}/bin/
+COPY --from=exporters-builder /data/das2go_exporter ${WDIR}/bin/
+COPY --from=exporters-builder /data/mongodb_exporter ${WDIR}/bin/
+COPY --from=exporters-builder /data/cpy_exporter ${WDIR}/bin/
+COPY --from=exporters-builder /data/http_exporter ${WDIR}/bin/
+COPY --from=exporters-builder /data/node_exporter ${WDIR}/bin/
+COPY --from=exporters-builder /data/process_exporter ${WDIR}/bin/
+COPY --from=exporters-builder /data/reqmgr_exporter ${WDIR}/bin/
+COPY --from=exporters-builder /data/wmcore_exporter ${WDIR}/bin/
+COPY --from=exporters-builder /data/process_monitor.sh ${WDIR}/bin/
 
 
 WORKDIR ${WDIR}
