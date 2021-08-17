@@ -1,0 +1,136 @@
+# Default values for wmarchive.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+shareProcessNamespace: true
+
+replicaCount: 
+  prod: 2
+  test: 1
+
+environment:
+  prod: false
+  preprod: false
+  test : false
+
+image:
+  repository: cmssw/wmarchive
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "v00.08.69-v2"
+  args:
+    - /data/run.sh
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: 
+  prometheus.io/scrape: 'true'
+  prometheus.io/port: "18200"
+
+podSecurityContext: 
+  runAsUser: 0
+  runAsGroup: 0
+
+securityContext: 
+  privileged: true
+
+livenessProbe:
+  httpGet:
+    path: /wmarchive/data
+    port: 8200
+  initialDelaySeconds: 120
+  periodSeconds: 10
+
+service:
+  type: ClusterIP
+  port: 8200
+  protocol: TCP
+  name: wma
+
+serviceMon:
+  port: 18200
+  protocol: TCP
+  name: wma-mon
+
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "200m"
+  limits:
+    memory: "3Gi"
+    cpu: "1000m"
+
+imageFilebeat:
+  name: wmarchive-filebeat
+  path: docker.elastic.co/beats/filebeat:7.12.0
+  args: [
+    "-c", "/etc/filebeat.yml",
+    "-e",
+  ]
+  env:
+  - name: MY_POD_NAME
+    valueFrom:
+      fieldRef:
+        apiVersion: v1
+        fieldPath: metadata.name
+
+imageFilebeatResources:
+  requests:
+    memory: "50Mi"
+    cpu: "50m"
+
+imageExporter:
+  name: wmarchive-exporter
+  tag: "20210726-nonstatic"
+  path: cmssw/exporters
+  imagePullPolicy: Always
+  args:
+  - /data/process_monitor.sh
+  - ".*wmarch_go.json"
+  - wma_exporter
+  - ":18200"
+  - "15"
+
+imageExporterResources:
+    requests:
+      memory: "50Mi"
+      cpu: "50m"
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths: []
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
