@@ -46,6 +46,8 @@ spec:
           {{- toYaml .Values.image.command | nindent 10 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          livenessProbe:
+          {{- toYaml .Values.livenessProbe | nindent 12 }}
           volumeMounts:
           - name: proxy-secrets
             mountPath: /etc/proxy
@@ -99,16 +101,10 @@ spec:
           {{- toYaml .Values.imageExporter.command | nindent 10 }}
           args:
           {{- toYaml .Values.imageExporter.args | nindent 10 }}
-          livenessProbe:
-          {{- toYaml .Values.imageExporterLivenessProbe | nindent 12 }}
           resources:
           {{- toYaml .Values.imageExporterResources | nindent 12 }}
           securityContext:
           {{- toYaml .Values.securityContext | nindent 12 }}
-          volumeMounts:
-          - name: hmac-secrets
-            mountPath: /etc/hmac
-            readOnly: true
       volumes:
       - name: proxy-secrets
         secret:
