@@ -1,17 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "t0reqmon-tasks.fullname" . }}
+  name: {{ include "dbs-phys03-w.fullname" . }}
   labels:
-    {{- include "t0reqmon-tasks.labels" . | nindent 4 }}
-  namespace: tzero
+    {{- include "dbs-phys03-w.labels" . | nindent 4 }}
+  namespace: dbs
 spec:
   {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount}}     
+  {{- if or .Values.environment.prod .Values.environment.preprod}}
+  replicas: {{ .Values.replicaCount.prod }}
+  {{- else }}
+  replicas: {{ .Values.replicaCount.test }}
+  {{- end }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "t0reqmon-tasks.selectorLabels" . | nindent 6 }}
+      {{- include "dbs-phys03-w.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -19,7 +23,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "t0reqmon-tasks.selectorLabels" . | nindent 8 }}
+        {{- include "dbs-phys03-w.selectorLabels" . | nindent 8 }}
         {{- if .Values.environment.preprod}}
         env: k8s-preprod
         {{- end }}
@@ -29,25 +33,40 @@ spec:
         {{- if .Values.environment.test}}
         env: k8s
         {{- end }}
+        job: dbs-phys03-w
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "t0reqmon-tasks.serviceAccountName" . }}
+      serviceAccountName: {{ include "dbs-phys03-w.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       shareProcessNamespace: {{ .Values.shareProcessNamespace }}
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag}}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+           - containerPort: {{ .Values.service.port }}
+             name: {{ .Values.service.name }}
+             protocol: {{ .Values.service.protocol }}
+           - containerPort: {{ .Values.serviceMon.port }}
+             name: {{ .Values.serviceMon.name }}
+             protocol: {{ .Values.serviceMon.protocol }}
+           - containerPort: {{ .Values.serviceCpyMon.port }}
+             name: {{ .Values.serviceCpyMon.name }}
+             protocol: {{ .Values.serviceCpyMon.protocol }}
           command:
-          {{- toYaml .Values.image.command | nindent 10 }}
+           {{- toYaml .Values.image.command | nindent 10 }}
+          livenessProbe:
+          {{- if .Values.environment.prod}}
+          {{- toYaml .Values.livenessProbe | nindent 12 }}
+          {{- else }}
+          {{- toYaml .Values.livenessProbePreProd | nindent 12 }}
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          livenessProbe:
-          {{- toYaml .Values.livenessProbe | nindent 12 }}
           volumeMounts:
           - name: proxy-secrets
             mountPath: /etc/proxy
@@ -68,18 +87,18 @@ spec:
             mountPath: /opt/setup-certs-and-run
 {{- if or .Values.environment.prod .Values.environment.preprod }}
           - name: logs
-            mountPath: /data/srv/logs/t0_reqmon
+            mountPath: /data/srv/logs/dbs
         - name: {{ .Values.imageFilebeat.name }}
-          image: {{ .Values.imageFilebeat.name }}
-          args:
-          {{- toYaml .Values.imageFilebeat.args | nindent 10 }}
+          image: {{ .Values.imageFilebeat.path }}
           env:
           {{- toYaml .Values.imageFilebeat.env | nindent 10 }}
+          args:
+          {{- toYaml .Values.imageFilebeat.args | nindent 10 }}
           resources:
           {{- toYaml .Values.imageFilebeatResources | nindent 12 }}
           volumeMounts:
           - name: logs
-            mountPath: /data/srv/logs/t0_reqmon
+            mountPath: /data/srv/logs/dbs
           - name: config
             mountPath: /etc/filebeat.yml
             readOnly: true
@@ -111,7 +130,7 @@ spec:
           secretName: proxy-secrets
       - name: secrets
         secret:
-          secretName: t0reqmon-tasks-secrets
+          secretName: dbs-phys03-w-secrets
       - name: robot-secrets
         secret:
           secretName: robot-secrets
@@ -123,15 +142,15 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: t0reqmon-tasks
+          name: dbs-phys03-w
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: logs
         persistentVolumeClaim:
 {{- if .Values.environment.preprod }}
-            claimName: logs-cephfs-claim-preprod-tzero
+            claimName: logs-cephfs-claim-preprod-dbs
 {{- end }}
 {{- if .Values.environment.prod }}
-            claimName: logs-cephfs-claim-prod-tzero
+            claimName: logs-cephfs-claim-prod-dbs
 {{- end }}
       - name: varlog
         hostPath:
@@ -142,7 +161,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: t0reqmon-tasks-filebeat-config
+          name: dbs-phys03-w-filebeat-config
       - name: data
         emptyDir: {}
 {{- end }}

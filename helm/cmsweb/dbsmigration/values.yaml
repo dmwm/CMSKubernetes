@@ -1,25 +1,30 @@
-# Default values for t0_reqmon.
+# Default values for dbsmigration.yaml.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount:
+shareProcessNamespace: true
+
+replicaCount: 
   prod: 5
   test: 1
 
 image:
-  repository: cmssw/t0_reqmon
+  repository: cmssw/dbsmigration
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "HG2108h-v2"
-
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
+  tag: "HG2106h-v2"
+  command:
+  - /bin/bash
+  - /opt/setup-certs-and-run/setup-certs-and-run.sh
 
 environment:
   prod: false
   preprod: false
   test : false
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -32,51 +37,56 @@ serviceAccount:
 
 podAnnotations: 
   prometheus.io/scrape: 'true'
-  prometheus.io/port: "18243"
+  prometheus.io/port: "18251"
+# prometheus.io/port: "19251"
 
-podSecurityContext: 
-  runAsUser: 0
+podSecurityContext:
   runAsGroup: 0
+  runAsUser: 0
 
-securityContext: 
+securityContext:
   privileged: true
 
-livenessProbe:
-  exec:
-    command:
-    - cmsweb-ping
-    - "--url=http://localhost:8243/t0_reqmon/data/info"
-    - "--authz=/etc/hmac/hmac"
-    - -verbose
-    - "0"
-  initialDelaySeconds: 120
-  periodSeconds: 10
-
-service:
+service: 
+  port: 8251
+  name: dbsmigration
+  protocol: TCP
   type: ClusterIP
-  port: 8243
-  protocol: TCP
-  name: t0reqmon
 
-serviceMon:
-  port: 18243
+serviceMon: 
+  port: 18251 
+  name: dbsmig-mon 
   protocol: TCP
-  name: t0reqmon-mon
+
+serviceCpyMon:
+  port: 19251
+  name: dbsmig-cpy-mon 
+  protocol: TCP
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths: []
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
 
 resources:
   requests:
-    memory: "512Mi"
-    cpu: "200m"
+    memory: "256Mi"
+    cpu: "100m"
   limits:
-    memory: "3Gi"
-    cpu: "1000m"
-
-command:
-- /bin/bash
-- /opt/setup-certs-and-run/setup-certs-and-run.sh
+    memory: "10Gi"
+    cpu: "800m"
 
 imageFilebeat:
-  name: t0reqmon-filebeat
+  name: dbsmigration-filebeat
   path: docker.elastic.co/beats/filebeat:7.12.0
   args: [
   "-c", "/etc/filebeat.yml",
@@ -94,26 +104,13 @@ imageFilebeatResources:
     memory: "50Mi"
     cpu: "50m"
 
-ingress:
-  enabled: false
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths: []
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
-
 imageExporter:
-  name: t0reqmon-exporter
+  name: dbsmigration-exporter
   path: cmssw/exporters
   tag: 20210726-nonstatic
   imagePullPolicy: Always
   command:  ["/bin/bash","-c"]
-  args: ["echo \"Starting exporter\" ; sleep 120s ; pid=`ps axjfwww | grep \"wmc-httpd.*reqmon\" | grep -v grep | grep -v process_monitor | grep -v \" 1 \" | awk '{print $1}'` && process_exporter -pid $pid -prefix t0reqmon_exporter -address \":18243\""]
+  args: ["echo \"Starting exporter\" ; sleep 120s ; /data/process_monitor.sh \".*dbsmigration\" dbsmigration \":18251\" 15"]
 
 imageExporterResources:
     requests:

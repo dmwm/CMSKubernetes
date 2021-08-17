@@ -1,25 +1,29 @@
-# Default values for t0_reqmon.
+# Default values for reqmgr2ms-unmer-t2t3us.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+shareProcessNamespace: true
 
-replicaCount:
-  prod: 5
-  test: 1
+replicaCount: 1
 
 image:
-  repository: cmssw/t0_reqmon
+  repository: cmssw/reqmgr2ms-unmerged
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "HG2108h-v2"
+  name: ms-unmer-t2t3us
+  command:
+  - /bin/bash
+  - /opt/setup-certs-and-run/setup-certs-and-run.sh
 
 imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
+nameOverride: "ms-unmer-t2t3us"
+fullnameOverride: "ms-unmer-t2t3us"
 
 environment:
   prod: false
   preprod: false
   test : false
+
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -30,9 +34,29 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
+lifecycle:
+  postStart:
+    exec:
+      command:
+      - bash
+      - -c
+      - sudo chmod 0777 /data/srv/logs/reqmgr2ms; sudo chown _reqmgr2ms:_reqmgr2ms /data/srv/logs/reqmgr2ms
+
+
+livenessProbe:
+  exec:
+    command:
+    - cmsweb-ping
+    - "--url=http://localhost:8242/ms-unmerged/data/status"
+    - "--authz=/etc/hmac/hmac"
+    - -verbose
+    - "0"
+  initialDelaySeconds: 120
+  periodSeconds: 10
+
 podAnnotations: 
   prometheus.io/scrape: 'true'
-  prometheus.io/port: "18243"
+  prometheus.io/port: "18242"
 
 podSecurityContext: 
   runAsUser: 0
@@ -41,55 +65,55 @@ podSecurityContext:
 securityContext: 
   privileged: true
 
-livenessProbe:
-  exec:
-    command:
-    - cmsweb-ping
-    - "--url=http://localhost:8243/t0_reqmon/data/info"
-    - "--authz=/etc/hmac/hmac"
-    - -verbose
-    - "0"
-  initialDelaySeconds: 120
-  periodSeconds: 10
-
 service:
   type: ClusterIP
-  port: 8243
+  port: 8242
   protocol: TCP
-  name: t0reqmon
+  name: ms-unmer-t2t3us
 
 serviceMon:
-  port: 18243
+  port: 18242
   protocol: TCP
-  name: t0reqmon-mon
+  name: unmerged-mon
+
 
 resources:
   requests:
-    memory: "512Mi"
+    memory: "256Mi"
     cpu: "200m"
   limits:
     memory: "3Gi"
     cpu: "1000m"
 
-command:
-- /bin/bash
-- /opt/setup-certs-and-run/setup-certs-and-run.sh
 
 imageFilebeat:
-  name: t0reqmon-filebeat
+  name: ms-unmer-t2t3us-filebeat
   path: docker.elastic.co/beats/filebeat:7.12.0
-  args: [
-  "-c", "/etc/filebeat.yml",
-  "-e",
-  ]
   env:
   - name: MY_POD_NAME
     valueFrom:
       fieldRef:
         apiVersion: v1
         fieldPath: metadata.name
+  args: [
+  "-c", "/etc/filebeat.yml",
+  "-e",
+   ]
 
 imageFilebeatResources:
+  requests:
+    memory: "50Mi"
+    cpu: "50m"
+
+imageExporter:
+  name: ms-unmer-t2t3us-exporter
+  tag: "20210726-nonstatic"
+  path: cmssw/exporters
+  imagePullPolicy: Always
+  command: ["/bin/bash", "-c"] 
+  args: ["echo \"Starting exporter\" ; sleep 120s ; pid=`ps axjfwww | grep \"wmc-httpd.*config-unmerged\" | grep -v grep | grep -v process_monitor | grep -v \" 1 \" | awk '{print $1}'` && process_exporter -pid $pid -prefix reqmgr2ms_exporter -address \":18242\""]
+
+imageExporterResources:
   requests:
     memory: "50Mi"
     cpu: "50m"
@@ -107,18 +131,6 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-imageExporter:
-  name: t0reqmon-exporter
-  path: cmssw/exporters
-  tag: 20210726-nonstatic
-  imagePullPolicy: Always
-  command:  ["/bin/bash","-c"]
-  args: ["echo \"Starting exporter\" ; sleep 120s ; pid=`ps axjfwww | grep \"wmc-httpd.*reqmon\" | grep -v grep | grep -v process_monitor | grep -v \" 1 \" | awk '{print $1}'` && process_exporter -pid $pid -prefix t0reqmon_exporter -address \":18243\""]
-
-imageExporterResources:
-    requests:
-      memory: "50Mi"
-      cpu: "50m"
 
 autoscaling:
   enabled: false

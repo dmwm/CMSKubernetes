@@ -1,17 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "t0reqmon-tasks.fullname" . }}
+  name: {{ include "wmarchive.fullname" . }}
   labels:
-    {{- include "t0reqmon-tasks.labels" . | nindent 4 }}
-  namespace: tzero
+    {{- include "wmarchive.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount}}     
+  {{- if or .Values.environment.prod .Values.environment.preprod }}
+  replicas: {{ .Values.replicaCount.prod }}
+  {{- else }}
+  replicas: {{ .Values.replicaCount.test }}
+  {{- end }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "t0reqmon-tasks.selectorLabels" . | nindent 6 }}
+      {{- include "wmarchive.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -19,7 +22,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "t0reqmon-tasks.selectorLabels" . | nindent 8 }}
+        {{- include "wmarchive.selectorLabels" . | nindent 8 }}
         {{- if .Values.environment.preprod}}
         env: k8s-preprod
         {{- end }}
@@ -34,7 +37,7 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "t0reqmon-tasks.serviceAccountName" . }}
+      serviceAccountName: {{ include "wmarchive.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       shareProcessNamespace: {{ .Values.shareProcessNamespace }}
@@ -42,12 +45,19 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command:
-          {{- toYaml .Values.image.command | nindent 10 }}
+          args:
+          {{- toYaml .Values.image.args | nindent 10 }}
+          ports:
+           - containerPort: {{ .Values.service.port }}
+             name: {{ .Values.service.name }}
+             protocol: {{ .Values.service.protocol }}
+           - containerPort: {{ .Values.serviceMon.port }}
+             name: {{ .Values.serviceMon.name }}
+             protocol: {{ .Values.serviceMon.protocol }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           livenessProbe:
-          {{- toYaml .Values.livenessProbe | nindent 12 }}
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
           volumeMounts:
           - name: proxy-secrets
             mountPath: /etc/proxy
@@ -68,18 +78,17 @@ spec:
             mountPath: /opt/setup-certs-and-run
 {{- if or .Values.environment.prod .Values.environment.preprod }}
           - name: logs
-            mountPath: /data/srv/logs/t0_reqmon
+            mountPath: /data/srv/logs/wmarchive
         - name: {{ .Values.imageFilebeat.name }}
-          image: {{ .Values.imageFilebeat.name }}
-          args:
-          {{- toYaml .Values.imageFilebeat.args | nindent 10 }}
+          image: {{ .Values.imageFilebeat.path }}
+          args: {{ .Values.imageFilebeat.args }}
           env:
           {{- toYaml .Values.imageFilebeat.env | nindent 10 }}
           resources:
           {{- toYaml .Values.imageFilebeatResources | nindent 12 }}
           volumeMounts:
           - name: logs
-            mountPath: /data/srv/logs/t0_reqmon
+            mountPath: /data/srv/logs/wmarchive
           - name: config
             mountPath: /etc/filebeat.yml
             readOnly: true
@@ -92,26 +101,20 @@ spec:
             mountPath: /var/lib/docker/containers
             readOnly: true
 {{- end }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
         - image: "{{ .Values.imageExporter.path }}:{{ .Values.imageExporter.tag }}"
           name: {{ .Values.imageExporter.name }}
           imagePullPolicy: {{ .Values.imageExporter.imagePullPolicy }}
-          command:
-          {{- toYaml .Values.imageExporter.command | nindent 10 }}
           args:
-          {{- toYaml .Values.imageExporter.args | nindent 10 }}
+          {{- toYaml .Values.imageExporter.args | nindent 12 }}
           resources:
           {{- toYaml .Values.imageExporterResources | nindent 12 }}
-          securityContext:
-          {{- toYaml .Values.securityContext | nindent 12 }}
       volumes:
       - name: proxy-secrets
         secret:
           secretName: proxy-secrets
       - name: secrets
         secret:
-          secretName: t0reqmon-tasks-secrets
+          secretName: wmarchive-secrets
       - name: robot-secrets
         secret:
           secretName: robot-secrets
@@ -123,15 +126,15 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: t0reqmon-tasks
+          name: wmarchive
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: logs
         persistentVolumeClaim:
 {{- if .Values.environment.preprod }}
-            claimName: logs-cephfs-claim-preprod-tzero
+            claimName: logs-cephfs-claim-preprod-wma
 {{- end }}
 {{- if .Values.environment.prod }}
-            claimName: logs-cephfs-claim-prod-tzero
+            claimName: logs-cephfs-claim-prod-wma
 {{- end }}
       - name: varlog
         hostPath:
@@ -142,7 +145,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: t0reqmon-tasks-filebeat-config
+          name: wmarchive-filebeat-config
       - name: data
         emptyDir: {}
 {{- end }}

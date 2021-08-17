@@ -1,25 +1,30 @@
-# Default values for t0_reqmon.
+# Default values for dbs-phys03-w.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount:
-  prod: 5
-  test: 1
+shareProcessNamespace: true
+
+replicaCount: 
+   prod: 5
+   test: 1
 
 image:
-  repository: cmssw/t0_reqmon
+  repository: cmssw/dbs
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "HG2108h-v2"
-
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
+  command:
+  - /bin/bash
+  - /opt/setup-certs-and-run/setup-certs-and-run.sh
 
 environment:
   prod: false
   preprod: false
   test : false
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -32,8 +37,9 @@ serviceAccount:
 
 podAnnotations: 
   prometheus.io/scrape: 'true'
-  prometheus.io/port: "18243"
-
+  prometheus.io/port: "18255"
+# prometheus.io/port: "19255"
+#
 podSecurityContext: 
   runAsUser: 0
   runAsGroup: 0
@@ -45,38 +51,42 @@ livenessProbe:
   exec:
     command:
     - cmsweb-ping
-    - "--url=http://localhost:8243/t0_reqmon/data/info"
+    - "--url=http://localhost:8255/dbs/prod/phys03/DBSWriter/"
     - "--authz=/etc/hmac/hmac"
     - -verbose
     - "0"
   initialDelaySeconds: 120
   periodSeconds: 10
 
-service:
+livenessProbePreProd:
+  exec:
+    command:
+    - cmsweb-ping
+    - "--url=http://localhost:8255/dbs/int/phys03/DBSWriter/"
+    - "--authz=/etc/hmac/hmac"
+    - -verbose
+    - "0"
+  initialDelaySeconds: 120
+  periodSeconds: 10
+
+service: 
+  port: 8255
+  name: dbs-phys03-w
+  protocol: TCP
   type: ClusterIP
-  port: 8243
+
+serviceMon: 
+  port: 18255 
+  name: dbs-pw-mon
   protocol: TCP
-  name: t0reqmon
 
-serviceMon:
-  port: 18243
+serviceCpyMon:
+  port: 19255
+  name: dbs-pw-cpy-mon 
   protocol: TCP
-  name: t0reqmon-mon
-
-resources:
-  requests:
-    memory: "512Mi"
-    cpu: "200m"
-  limits:
-    memory: "3Gi"
-    cpu: "1000m"
-
-command:
-- /bin/bash
-- /opt/setup-certs-and-run/setup-certs-and-run.sh
 
 imageFilebeat:
-  name: t0reqmon-filebeat
+  name: dbs-phys03-w-filebeat
   path: docker.elastic.co/beats/filebeat:7.12.0
   args: [
   "-c", "/etc/filebeat.yml",
@@ -94,6 +104,19 @@ imageFilebeatResources:
     memory: "50Mi"
     cpu: "50m"
 
+imageExporter:
+  name: dbs-phys03-w-exporter
+  path: cmssw/exporters
+  tag: 20210726-nonstatic
+  imagePullPolicy: Always
+  command:  ["/bin/bash","-c"]
+  args: ["echo \"Starting exporter\" ; sleep 120s ; /data/process_monitor.sh \".*DBSPhys03Writer\" dbs_phys03W_exporter \":18255\" 15 && /data/cpy_exporter -uri http://localhost:8255/dbs/stats -address \":19255\""]
+
+imageExporterResources:
+    requests:
+      memory: "50Mi"
+      cpu: "50m"
+
 ingress:
   enabled: false
   annotations: {}
@@ -107,18 +130,14 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-imageExporter:
-  name: t0reqmon-exporter
-  path: cmssw/exporters
-  tag: 20210726-nonstatic
-  imagePullPolicy: Always
-  command:  ["/bin/bash","-c"]
-  args: ["echo \"Starting exporter\" ; sleep 120s ; pid=`ps axjfwww | grep \"wmc-httpd.*reqmon\" | grep -v grep | grep -v process_monitor | grep -v \" 1 \" | awk '{print $1}'` && process_exporter -pid $pid -prefix t0reqmon_exporter -address \":18243\""]
+resources:
+  requests:
+    memory: "500Mi"
+    cpu: "300m"
+  limits:
+    memory: "10Gi"
+    cpu: "2000m"
 
-imageExporterResources:
-    requests:
-      memory: "50Mi"
-      cpu: "50m"
 
 autoscaling:
   enabled: false
