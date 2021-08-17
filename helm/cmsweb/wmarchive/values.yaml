@@ -45,6 +45,13 @@ podSecurityContext:
 securityContext: 
   privileged: true
 
+livenessProbe:
+  httpGet:
+    path: /wmarchive/data
+    port: 8200
+  initialDelaySeconds: 120
+  periodSeconds: 10
+
 service:
   type: ClusterIP
   port: 8200
@@ -64,7 +71,6 @@ resources:
   limits:
     memory: "3Gi"
     cpu: "1000m"
-
 
 imageFilebeat:
   name: wmarchive-filebeat
@@ -101,7 +107,6 @@ imageExporterResources:
     requests:
       memory: "50Mi"
       cpu: "50m"
-
 
 ingress:
   enabled: false

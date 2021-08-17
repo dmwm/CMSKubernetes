@@ -56,6 +56,8 @@ spec:
              protocol: {{ .Values.serviceMon.protocol }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
           volumeMounts:
           - name: proxy-secrets
             mountPath: /etc/proxy
