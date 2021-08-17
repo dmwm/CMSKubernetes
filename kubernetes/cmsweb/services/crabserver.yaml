@@ -142,8 +142,6 @@ spec:
           readOnly: true
         - name: setup-certs-and-run
           mountPath: /opt/setup-certs-and-run
-        - name: state
-          mountPath: /data/srv/state/crabserver
 #PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/crabserver
         securityContext:
@@ -178,18 +176,6 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
-      - image: cmssw/exporters:20210726-nonstatic
-        name: crabserver-exporter
-        imagePullPolicy: Always
-        resources:
-          requests:
-            memory: "50Mi"
-            cpu: "50m"
-        command: ["/bin/bash", "-c"]
-        args: [ "echo \"Starting exporter\" ; sleep 120s ; process_monitor.sh /data/srv/state/crabserver/crabserver.pid crabserver \":18270\" 15" ]
-        volumeMounts:
-        - name: state
-          mountPath: /data/srv/state/crabserver
       volumes:
       - name: proxy-secrets
         secret:
@@ -209,8 +195,6 @@ spec:
       - name: setup-certs-and-run
         configMap:
           name: crabserver
-      - name: state
-        emptyDir: {}
 #PROD#- name: logs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-crab
