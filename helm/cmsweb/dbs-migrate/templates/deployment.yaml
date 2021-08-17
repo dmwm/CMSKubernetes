@@ -124,10 +124,6 @@ spec:
           {{- toYaml .Values.imageExporterResources | nindent 12 }}
           securityContext:
           {{- toYaml .Values.securityContext | nindent 12 }}
-          volumeMounts:
-          - name: hmac-secrets
-            mountPath: /etc/hmac
-            readOnly: true
       volumes:
       - name: proxy-secrets
         secret:
