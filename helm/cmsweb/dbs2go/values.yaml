@@ -39,9 +39,7 @@ podAnnotations:
   prometheus.io/scrape: 'true'
   prometheus.io/port: "18258"
 
-podSecurityContext:
-  runAsGroup: 0
-  runAsUser: 0
+podSecurityContext: {}
 
 securityContext: 
   privileged: true
