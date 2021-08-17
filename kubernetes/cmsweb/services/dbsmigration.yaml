@@ -54,10 +54,11 @@ metadata:
 data:
   setup-certs-and-run.sh: |
     #!/bin/bash
-    cp /host/etc/grid-security/* /etc/grid-security
+    sudo cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
-    su  -c "cd /data && /data/run.sh" --preserve-environment _dbsmigration
+    #su  -c "cd /data && /data/run.sh" --preserve-environment _dbsmigration
+    cd /data && /data/run.sh
 ---    
 kind: Deployment
 apiVersion: apps/v1
@@ -83,8 +84,8 @@ spec:
 #         prometheus.io/port: "19251"
     spec:
       securityContext:
-        runAsUser: 0
-        runAsGroup: 0
+        runAsUser: 1000
+        #runAsGroup: 0
       shareProcessNamespace: true
       containers:
       - image: cmssw/dbsmigration #imagetag
@@ -129,6 +130,8 @@ spec:
           mountPath: /opt/setup-certs-and-run
 #PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/dbsmigration
+        securityContext:
+          privileged: true
 #PROD#- name: dbsmigration-filebeat
 #PROD#  image: docker.elastic.co/beats/filebeat:7.12.0
 #PROD#  args: [
@@ -158,8 +161,6 @@ spec:
 #PROD#    mountPath: /var/log
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
-        securityContext:
-          privileged: true
       - image: cmssw/exporters:20210726-nonstatic
         name: dbsmigration-exporter
         imagePullPolicy: Always
@@ -169,8 +170,6 @@ spec:
             cpu: "50m"
         command: ["/bin/bash","-c"]
         args: ["echo \"Starting exporter\" ; sleep 120s ; /data/process_monitor.sh \".*dbsmigration\" dbsmigration \":18251\" 15"]
-        securityContext:
-          privileged: true
       volumes:
       - name: proxy-secrets
         secret:
