@@ -81,7 +81,6 @@ spec:
       securityContext:
         runAsUser: 1000
         #runAsGroup: 0
-      shareProcessNamespace: true
       containers:
       - image: cmssw/workqueue #imagetag
         name: workqueue
@@ -160,14 +159,6 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
-      - image: cmssw/exporters:20210726-nonstatic
-        name: workqueue-exporter
-        imagePullPolicy: Always
-        resources:
-          requests:
-            memory: "50Mi"
-            cpu: "50m"
-        command: ['sh', '-c', 'echo The app is running! && sleep 3600d']
 #      initContainers:
 #      - name: checkcouchdb
 #        image: busybox:1.28

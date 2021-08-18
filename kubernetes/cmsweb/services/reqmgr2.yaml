@@ -85,7 +85,6 @@ spec:
       securityContext:
         runAsUser: 1000
         #runAsGroup: 0
-      shareProcessNamespace: true
       containers:
       - image: cmssw/reqmgr2 #imagetag
         name: reqmgr2
@@ -141,8 +140,6 @@ spec:
           readOnly: true
         - name: setup-certs-and-run
           mountPath: /opt/setup-certs-and-run
-        - name: state
-          mountPath: /data/srv/state/reqmgr2
 #PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/reqmgr2
         securityContext:
@@ -177,18 +174,6 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
-      - image: cmssw/exporters:20210726-nonstatic
-        name: reqmgr2-exporter
-        imagePullPolicy: Always
-        resources:
-          requests:
-            memory: "50Mi"
-            cpu: "50m"
-        command: ["/bin/bash", "-c"]
-        args: [ "echo \"Starting exporter\" ; sleep 120s ; process_monitor.sh /data/srv/state/reqmgr2/reqmgr2.pid reqmgr2 \":18240\" 15" ]
-        volumeMounts:
-        - name: state
-          mountPath: /data/srv/state/reqmgr2
 #      initContainers:
 #      - name: checkcouchdb
 #        image: busybox:1.28
@@ -212,8 +197,6 @@ spec:
       - name: setup-certs-and-run
         configMap:
           name: reqmgr2
-      - name: state
-        emptyDir: {}
 #PROD#- name: logs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-dmwm
