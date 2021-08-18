@@ -85,7 +85,6 @@ spec:
       securityContext:
         runAsUser: 1000
         #runAsGroup: 0
-      shareProcessNamespace: true
       containers:
       - image: cmssw/t0_reqmon #imagetag
         name: t0reqmon
@@ -168,15 +167,6 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
-      - image: cmssw/exporters:20210726-nonstatic
-        name: t0reqmon-exporter
-        imagePullPolicy: Always
-        resources:
-          requests:
-            memory: "50Mi"
-            cpu: "50m"
-        command: ["/bin/bash","-c"]
-        args: ["echo \"Starting exporter\" ; sleep 120s ; pid=`ps axjfwww | grep \"wmc-httpd.*reqmon\" | grep -v grep | grep -v process_monitor | grep -v \" 1 \" | awk '{print $1}'` && process_exporter -pid $pid -prefix t0reqmon_exporter -address \":18243\""]
       volumes:
       - name: proxy-secrets
         secret:

@@ -81,7 +81,6 @@ spec:
       securityContext:
         runAsUser: 1000
         #runAsGroup: 0
-      shareProcessNamespace: true
       containers:
       - image: cmssw/reqmon #imagetag
         name: reqmon
@@ -166,15 +165,6 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
-      - image: cmssw/exporters:20210726-nonstatic
-        name: reqmon-exporter
-        imagePullPolicy: Always
-        resources:
-          requests:
-            memory: "50Mi"
-            cpu: "50m"
-        command: ["/bin/bash","-c"]
-        args: ["echo \"Starting exporter\" ; sleep 120s ; pid=`ps axjfwww | grep \"wmc-httpd.*reqmon\" | grep -v grep | grep -v process_monitor | grep -v \" 1 \" | awk '{print $1}'` && process_exporter -pid $pid -prefix reqmon_exporter -address \":18249\""]
 #      initContainers:
 #      - name: checkcouchdb
 #        image: busybox:1.28

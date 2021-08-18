@@ -87,7 +87,6 @@ spec:
       securityContext:
         runAsUser: 1000
         #runAsGroup: 0
-      shareProcessNamespace: true
       containers:
       - image: cmssw/dbs #imagetag
         name: dbs-phys03-r
@@ -173,15 +172,6 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
-      - image: cmssw/exporters:20210726-nonstatic
-        name: dbs-phys03-r-exporter
-        imagePullPolicy: Always
-        resources:
-          requests:
-            memory: "50Mi"
-            cpu: "50m"
-        command: ["/bin/bash","-c"]
-        args: ["echo \"Starting exporter\" ; sleep 120s ; /data/process_monitor.sh \".*DBSPhys03Reader\" dbs_phys03R_exporter \":18254\" 15 && /data/cpy_exporter -uri http://localhost:8254/dbs/stats -address \":19254\""]
       volumes:
       - name: proxy-secrets
         secret:
