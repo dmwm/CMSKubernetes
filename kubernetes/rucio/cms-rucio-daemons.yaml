@@ -78,7 +78,7 @@ hermes:
   useSSL: 1
   threads: 5
   bulk: 500
-  brokerTimeout: 120
+  brokerTimeout: 300
   podAnnotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "8080"

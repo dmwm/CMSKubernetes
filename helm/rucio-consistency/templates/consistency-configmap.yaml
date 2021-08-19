@@ -6,6 +6,7 @@ data:
   config.yaml: |+
     rses:
       "*": # default
+        include_sizes: no
         partitions:     5
 {{- with .Values.consistency.ignore }}
         ignore_list:
