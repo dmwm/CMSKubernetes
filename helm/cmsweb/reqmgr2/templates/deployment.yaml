@@ -44,6 +44,8 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
           ports:
            - containerPort: {{ .Values.service.port }}
              name: {{ .Values.service.name }}
@@ -55,6 +57,8 @@ spec:
           {{- toYaml .Values.lifecycle | nindent 12 }}
           command:
           {{- toYaml .Values.image.command | nindent 10 }}
+          livenessProbe:
+          {{- toYaml .Values.livenessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
@@ -79,7 +83,7 @@ spec:
           - name: logs
             mountPath: /data/srv/logs/reqmgr2
         - name: {{ .Values.imageFilebeat.name }}
-          image: {{ .Values.imageFilebeat.path }}
+          image: {{ .Values.imageFilebeat.name }}
           args: {{ .Values.imageFilebeat.args }}
           env:
           {{- toYaml .Values.imageFilebeat.env | nindent 10 }}
@@ -100,27 +104,6 @@ spec:
             mountPath: /var/lib/docker/containers
             readOnly: true
 {{- end }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-        - image: "{{ .Values.imageExporter.path }}:{{ .Values.imageExporter.tag }}"
-          name: {{ .Values.imageExporter.name }}
-          imagePullPolicy: {{ .Values.imageExporter.imagePullPolicy }}
-          command: 
-          {{- toYaml .Values.imageExporter.command | nindent 10 }}
-          args:
-          {{- toYaml .Values.imageExporter.args | nindent 12 }}
-          livenessProbe:
-          {{- toYaml .Values.imageExporterLivenessProbe | nindent 12 }}
-          resources:
-          {{- toYaml .Values.imageExporterResources | nindent 12 }}
-          securityContext:
-          {{- toYaml .Values.securityContext | nindent 12 }}
-          volumeMounts:
-          - name: hmac-secrets
-            mountPath: /etc/hmac
-            readOnly: true
-          - name: state
-            mountPath: /data/srv/state/reqmgr2
       volumes:
       - name: proxy-secrets
         secret:
@@ -140,8 +123,6 @@ spec:
       - name: setup-certs-and-run
         configMap:
           name: reqmgr2
-      - name: state
-        emptyDir: {}
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: logs
         persistentVolumeClaim:

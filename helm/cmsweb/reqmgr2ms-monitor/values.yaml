@@ -1,15 +1,13 @@
 # Default values for reqmgr2ms-monitor.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-shareProcessNamespace: true
-
 replicaCount: 1
 
 image:
   repository: cmssw/reqmgr2ms
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "HG2108h"
+  tag: "HG2108h-v3"
   name: ms-monitor
   command:
   - /bin/bash
@@ -47,8 +45,8 @@ podAnnotations:
   prometheus.io/port: "18248"
 
 podSecurityContext: 
-  runAsUser: 0
-  runAsGroup: 0
+  runAsUser: 1000
+  #  runAsGroup: 0
 
 securityContext: 
   privileged: true
@@ -96,20 +94,8 @@ imageFilebeatResources:
   requests:
     memory: "50Mi"
     cpu: "50m"
-imageExporter:
-  name: ms-monitor-exporter
-  tag: "20210726-nonstatic"
-  path: cmssw/exporters
-  imagePullPolicy: Always
-  command: ["/bin/bash", "-c"] 
-  args: ["echo \"Starting exporter\" ; sleep 120s ; pid=`ps axjfwww | grep \"wmc-httpd.*config-monitor\" | grep -v grep | grep -v process_monitor | grep -v \" 1 \" | awk '{print $1}'` && process_exporter -pid $pid -prefix reqmgr2ms_exporter -address \":18248\""]
 
-imageExporterResources:
-    requests:
-      memory: "50Mi"
-      cpu: "50m"
-
-imageExporterLivenessProbe:
+livenessProbe:
   exec:
     command:
     - cmsweb-ping

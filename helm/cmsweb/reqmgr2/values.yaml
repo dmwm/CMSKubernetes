@@ -10,7 +10,7 @@ image:
   repository: cmssw/reqmgr2
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "HG2108h"
+  tag: "HG2108h-v3"
   command:
   - /bin/bash
   - /opt/setup-certs-and-run/setup-certs-and-run.sh
@@ -45,8 +45,8 @@ podAnnotations: {}
 #         prometheus.io/scrape: 'true'
 
 podSecurityContext: 
-  runAsUser: 0
-  runAsGroup: 0
+  runAsUser: 1000
+  #  runAsGroup: 0
 
 securityContext: 
   privileged: true
@@ -89,21 +89,8 @@ imageFilebeatResources:
   requests:
     memory: "50Mi"
     cpu: "50m"
-imageExporter:
-  name: reqmgr2-exporter
-  tag: "20210726-nonstatic"
-  path: cmssw/exporters
-  imagePullPolicy: Always
-  command: ["/bin/bash", "-c"] 
-  args: [ "echo \"Starting exporter\" ; sleep 120s ; process_monitor.sh /data/srv/state/reqmgr2/reqmgr2.pid reqmgr2 \":18240\" 15" ]
 
-
-imageExporterResources:
-    requests:
-      memory: "50Mi"
-      cpu: "50m"
-
-imageExporterLivenessProbe:
+livenessProbe:
   exec:
     command:
     - cmsweb-ping
