@@ -1,5 +1,5 @@
-# Imports CMS_RUCIO_PROD.DIDS table for access time of datasets
-BASE_PATH=/project/awg/cms/rucio_dids/
+# Imports CMS_RUCIO_PROD.CONTENTS table for access time of datasets
+BASE_PATH=/project/awg/cms/rucio_contents/
 JDBC_URL=jdbc:oracle:thin:@cms-nrac-scan.cern.ch:10121/CMSR_CMS_NRAC.cern.ch
 if [ -f /etc/secrets/rucio ]; then
   USERNAME=$(grep username </etc/secrets/rucio | awk '{print $2}')
@@ -9,21 +9,21 @@ else
   exit 1
 fi
 LOG_FILE=log/$(date +'%F_%H%m%S')_$(basename "$0")
-TABLE=CMS_RUCIO_PROD.DIDS
+TABLE=CMS_RUCIO_PROD.CONTENTS
 TZ=UTC
 
 /usr/hdp/sqoop/bin/sqoop import \
   -Dmapreduce.job.user.classpath.first=true \
   -Ddfs.client.socket-timeout=120000 \
   --username "$USERNAME" --password "$PASSWORD" \
-  -m 10 \
+  -m 1 \
   -z \
   --direct \
   --connect $JDBC_URL \
   --fetch-size 10000 \
   --as-avrodatafile \
   --target-dir "$BASE_PATH""$(date +%Y-%m-%d)" \
-  --query "SELECT * FROM ${TABLE} WHERE scope='cms' AND did_type='F' AND deleted_at IS NULL AND hidden=0 AND \$CONDITIONS" \
+  --query "SELECT * FROM ${TABLE} WHERE did_type='D' AND child_type='F' AND \$CONDITIONS" \
   1>"$LOG_FILE".stdout 2>"$LOG_FILE".stderr
 
 # change permission of HDFS area
