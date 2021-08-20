@@ -8,6 +8,9 @@ else
   echo "Unable to read Rucio credentials"
   exit 1
 fi
+
+# There should be always one folder
+PREVIOUS_FOLDER=$(hadoop fs -ls $BASE_PATH | awk '{ORS=""; print $8}')
 LOG_FILE=log/$(date +'%F_%H%m%S')_$(basename "$0")
 TABLE=CMS_RUCIO_PROD.DIDS
 TZ=UTC
@@ -28,3 +31,6 @@ TZ=UTC
 
 # change permission of HDFS area
 hadoop fs -chmod -R o+rx $BASE_PATH"$(date +%Y-%m-%d)"
+
+# Delete previous folder
+hadoop fs -rmdir --ignore-fail-on-non-empty "$PREVIOUS_FOLDER"
