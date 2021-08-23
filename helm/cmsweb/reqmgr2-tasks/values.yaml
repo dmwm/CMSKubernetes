@@ -35,9 +35,13 @@ serviceAccount:
 podAnnotations: {}
 #         prometheus.io/scrape: 'true'
 
-podSecurityContext: 
+podSecurityContext:
   runAsUser: 1000
-  #runAsGroup: 0
+  runAsGroup: 1000
+  fsGroup: 2000
+
+imageFilebeatSecurityContext:
+  allowPrivilegeEscalation: false
 
 securityContext: 
   privileged: true

@@ -44,12 +44,16 @@ podAnnotations:
   prometheus.io/scrape: 'true'
   prometheus.io/port: "18248"
 
-podSecurityContext: 
-  runAsUser: 1000
-  #  runAsGroup: 0
-
 securityContext: 
   privileged: true
+
+podSecurityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 2000
+
+imageFilebeatSecurityContext:
+  allowPrivilegeEscalation: false
 
 service:
   type: ClusterIP
