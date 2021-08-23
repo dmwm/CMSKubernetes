@@ -10,7 +10,7 @@ spec:
   {{- if or .Values.environment.prod .Values.environment.preprod}}
   replicas: {{ .Values.replicaCount.prod }}
   {{- else }}
-  replicas: {{ .Values.replicaCount.test }}
+  replicas: {{ .Values.replicaCount.test }} 
   {{- end }}
   {{- end }}
   selector:
@@ -41,11 +41,12 @@ spec:
       serviceAccountName: {{ include "crabserver.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      shareProcessNamespace: {{ .Values.shareProcessNamespace }}
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.repository }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+           {{- toYaml .Values.securityContext | nindent 12 }}
           ports:
            - containerPort: {{ .Values.service.port}}
              name: {{ .Values.service.name }}
@@ -56,7 +57,19 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           command:
-          {{- toYaml .Values.command | nindent 10 }}
+          {{- toYaml .Values.image.command | nindent 10 }}
+          livenessProbe:
+          {{- if .Values.environment.prod}}
+          {{- toYaml .Values.livenessProbe | nindent 12 }}
+          {{- else }}
+          {{- toYaml .Values.livenessProbePreProd | nindent 12 }}
+          {{- end }}
+          readinessProbe:
+          {{- if .Values.environment.prod}}
+          {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- else }}
+          {{- toYaml .Values.readinessProbePreProd | nindent 12 }}
+          {{- end }}
           volumeMounts:
           - name: proxy-secrets
             mountPath: /etc/proxy
@@ -87,7 +100,7 @@ spec:
           env:
           {{- toYaml .Values.imageFilebeat.env | nindent 10 }}
           resources:
-          {{- toYaml .Values.imageFilebeatresources | nindent 12 }}
+          {{- toYaml .Values.imageFilebeatResources | nindent 12 }}
           volumeMounts:
           - name: logs
             mountPath: /data/srv/logs/crabserver
@@ -102,38 +115,9 @@ spec:
           - name: varlibdockercontainers
             mountPath: /var/lib/docker/containers
             readOnly: true
+          securityContext:
+          {{- toYaml .Values.imageFilebeatSecurityContext | nindent 12 }}
 {{- end }}
-          securityContext:
-              privileged: true
-        - image: "{{ .Values.imageExporter.path }}:{{ .Values.imageExporter.tag }}"
-          name: {{ .Values.imageExporter.name }}
-          imagePullPolicy: {{ .Values.imageExporter.imagePullPolicy }}
-          command: 
-          {{- toYaml .Values.imageExporter.command | nindent 10 }}
-          args:
-          {{- toYaml .Values.imageExporter.args | nindent 12 }}
-          livenessProbe:
-          {{- if .Values.environment.prod}}
-          {{- toYaml .Values.imageExporterLivenessProbe | nindent 12 }}
-          {{- else }}
-          {{- toYaml .Values.imageExporterLivenessProbePreProd | nindent 12 }}
-          {{- end }}
-          readinessProbe:
-          {{- if .Values.environment.prod}}
-          {{- toYaml .Values.imageExporterReadinessProbe | nindent 12 }}
-          {{- else }}
-          {{- toYaml .Values.imageExporterReadinessProbePreProd | nindent 12 }}
-          {{- end }}
-          resources:
-          {{- toYaml .Values.imageExporterResources | nindent 12 }}
-          securityContext:
-            privileged: true
-          volumeMounts:
-          - name: hmac-secrets
-            mountPath: /etc/hmac
-            readOnly: true
-          - name: state
-            mountPath: /data/srv/state/crabserver
       volumes:
       - name: proxy-secrets
         secret:
@@ -153,8 +137,6 @@ spec:
       - name: setup-certs-and-run
         configMap:
           name: crabserver
-      - name: state
-        emptyDir: {}
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: logs
         persistentVolumeClaim:

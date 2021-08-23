@@ -10,11 +10,28 @@ environment:
 replicaCount: 1
 image:
   repository: cmssw/crabcache
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "HG2108e"
+  tag: "HG2108h-v3"
+  command:
+  - /bin/bash
+  - /opt/setup-certs-and-run/setup-certs-and-run.sh
 
-shareProcessNamespace: true
+
+podAnnotations:  
+  prometheus.io/scrape: 'true'
+  prometheus.io/port: "18271"
+
+securityContext: 
+  privileged: true
+
+podSecurityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 2000
+
+imageFilebeatSecurityContext:
+  allowPrivilegeEscalation: false
 
 lifecycle:
   postStart:
@@ -37,16 +54,6 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-podAnnotations:  
-  prometheus.io/scrape: 'true'
-  prometheus.io/port: "18271"
-
-podSecurityContext: 
-  runAsUser: 0
-  runAsGroup: 0  
-
-securityContext: 
-  privileged: true
 
 ingress:
   enabled: false
@@ -90,11 +97,11 @@ imageFilebeat:
         apiVersion: v1
         fieldPath: metadata.name
 
-imageFilebeatresources:
+imageFilebeatResources:
   requests:
     memory: "50Mi"
     cpu: "50m"
-    
+
 service:
   port: 8271
   protocol: TCP
@@ -106,25 +113,7 @@ serviceMon:
   protocol: TCP
   name: crabcache-mon
  
-command:
-- /bin/bash
-- /opt/setup-certs-and-run/setup-certs-and-run.sh
-
-imageExporter:
-  name: crabcache-exporter
-  tag: "20210726-nonstatic"
-  path: cmssw/exporters
-  imagePullPolicy: Always
-  command: ["/bin/bash","-c"]
-  args: ["echo \"Starting exporter\" ; sleep 120s ; pid=`ps axjfwww | grep \"wmc-httpd.*crabcache\" | grep -v grep | grep -v process_monitor | grep -v \" 1 \" | awk '{print $1}'` && process_exporter -pid $pid -prefix crabcache_exporter -address \":18271\""]
-
-
-imageExporterResources:
-    requests:
-      memory: "50Mi"
-      cpu: "50m"
-
-imageExporterLivenessProbe:
+livenessProbe:
   exec:
     command:
     - cmsweb-ping
@@ -137,7 +126,7 @@ imageExporterLivenessProbe:
   periodSeconds: 60
   timeoutSeconds: 60
 
-imageExporterReadinessProbe:
+readinessProbe:
   exec:
     command:
     - cmsweb-ping
