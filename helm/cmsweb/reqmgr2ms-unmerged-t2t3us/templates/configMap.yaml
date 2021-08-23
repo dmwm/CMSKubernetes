@@ -35,8 +35,9 @@ metadata:
 data:
   setup-certs-and-run.sh: |
     #!/bin/bash
-    cp /host/etc/grid-security/* /etc/grid-security
+    sudo cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
-    su  -c "cd /data && /data/run.sh -e '(((cms_type=real|cms_type=int)&rse_type=DISK&(tier=2|tier=3))&country=US)' " --preserve-environment _reqmgr2ms
+    #su  -c "cd /data && /data/run.sh -e '(((cms_type=real|cms_type=int)&rse_type=DISK&(tier=2|tier=3))&country=US)' " --preserve-environment _reqmgr2ms
+    cd /data && /data/run.sh -e '(((cms_type=real|cms_type=int)&rse_type=DISK&(tier=2|tier=3))&country=US)'
 ---
