@@ -34,7 +34,9 @@ metadata:
 data:
   setup-certs-and-run.sh: |
     #!/bin/bash
-    cp /host/etc/grid-security/* /etc/grid-security
+    sudo cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
-    su  -c "cd /data && /data/run.sh" --preserve-environment _dbs
+    #su  -c "cd /data && /data/run.sh" --preserve-environment _dbs
+    cd /data && /data/run.sh
+---
