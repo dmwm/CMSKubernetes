@@ -59,14 +59,6 @@ serviceMon:
   port: 18720
   protocol: TCP
 
-lifecycle:
-  postStart:
-    exec:
-      command:
-        - bash
-        - -c
-        - sudo chmod 0777 /data/srv/state/crabcache/files; sudo chown _crabcache:_crabcache /data/srv/state/crabcache/files
-
 ingress:
   enabled: false
   annotations: {}
@@ -90,7 +82,7 @@ resources:
 
 
 imageFilebeat:
-  name: crabcache-filebeat
+  name: crabserver-filebeat
   path: docker.elastic.co/beats/filebeat:7.12.0
   args: [
   "-c", "/etc/filebeat.yml",
