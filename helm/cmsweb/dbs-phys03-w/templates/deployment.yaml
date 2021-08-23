@@ -111,6 +111,8 @@ spec:
           - name: varlibdockercontainers
             mountPath: /var/lib/docker/containers
             readOnly: true
+          securityContext:
+          {{- toYaml .Values.imageFilebeatSecurityContext | nindent 12 }}
 {{- end }}
       volumes:
       - name: proxy-secrets
