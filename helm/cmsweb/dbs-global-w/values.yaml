@@ -1,7 +1,6 @@
 # Default values for dbs-global-w.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-shareProcessNamespace: true
 
 replicaCount:
   prod: 5
@@ -16,7 +15,7 @@ image:
   repository: cmssw/dbs
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "HG2108h-v2"
+  tag: "HG2108h-v3"
 
 resources:
   requests:
@@ -44,8 +43,8 @@ podAnnotations:
   prometheus.io/port: "18253"
 
 podSecurityContext: 
-  runAsUser: 0
-  runAsGroup: 0
+  runAsUser: 1000
+  #runAsGroup: 0
 
 securityContext: 
   privileged: true
@@ -113,22 +112,6 @@ imageFilebeatResources:
   requests:
     memory: "50Mi"
     cpu: "50m"
-
-# image exporter
-
-imageExporter:
-  name: dbs-global-w-exporter
-  path: cmssw/exporters
-  tag: 20210726-nonstatic
-  imagePullPolicy: Always
-  command:  ["/bin/bash","-c"]
-  args: ["echo \"Starting exporter\" ; sleep 120s ; /data/process_monitor.sh \".*DBSGlobalWriter\" dbs_globalW_exporter \":18253\" 15 && /data/cpy_exporter -uri http://localhost:8253/dbs/stats -address \":19253\""]
-
-imageExporterResources:
-    requests:
-      memory: "50Mi"
-      cpu: "50m"
-
 
 ingress:
   enabled: false
