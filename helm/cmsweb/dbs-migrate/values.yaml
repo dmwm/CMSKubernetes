@@ -38,12 +38,17 @@ podAnnotations:
   prometheus.io/port: "18257"
 # prometheus.io/port: "19257"
 
-podSecurityContext:
-  runAsGroup: 1000
-  #runAsUser: 0
-
 securityContext:
   privileged: true
+
+podSecurityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 2000
+
+imageFilebeatSecurityContext:
+  allowPrivilegeEscalation: false
+
 
 livenessProbe:
   exec:
