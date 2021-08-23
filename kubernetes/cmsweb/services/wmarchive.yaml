@@ -82,7 +82,6 @@ spec:
       securityContext:
         runAsUser: 0
         runAsGroup: 0
-      shareProcessNamespace: true
       containers:
       - image: cmssw/wmarchive #imagetag
         name: wmarchive
@@ -152,19 +151,6 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
-      - image: cmssw/exporters:20210726-nonstatic
-        name: wmarchive-exporter
-        imagePullPolicy: Always
-        resources:
-          requests:
-            memory: "50Mi"
-            cpu: "50m"
-        args:
-        - /data/process_monitor.sh
-        - ".*wmarch_go.json"
-        - wma_exporter
-        - ":18200"
-        - "15"
       volumes:
       - name: proxy-secrets
         secret:
