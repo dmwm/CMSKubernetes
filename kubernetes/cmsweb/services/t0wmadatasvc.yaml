@@ -84,7 +84,8 @@ spec:
 #       dnsPolicy: ClusterFirstWithHostNet
       securityContext:
         runAsUser: 1000
-        #runAsGroup: 0
+        runAsGroup: 1000
+        fsGroup: 1000
       containers:
       - image: cmssw/t0wmadatasvc #imagetag
         name: t0wmadatasvc
@@ -167,6 +168,8 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
+#PROD#  securityContext:
+#PROD#    allowPrivilegeEscalation: false
       volumes:
       - name: proxy-secrets
         secret:

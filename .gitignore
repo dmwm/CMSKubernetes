@@ -9,6 +9,9 @@ tmp
 log
 hmac
 
+# PyCharm IDE
+.idea
+
 # 3rd party packages
 kubernetes-prometheus
 

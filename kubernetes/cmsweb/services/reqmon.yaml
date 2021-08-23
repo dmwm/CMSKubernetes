@@ -80,7 +80,8 @@ spec:
 #       dnsPolicy: ClusterFirstWithHostNet
       securityContext:
         runAsUser: 1000
-        #runAsGroup: 0
+        runAsGroup: 1000
+        fsGroup: 2000
       containers:
       - image: cmssw/reqmon #imagetag
         name: reqmon
@@ -165,6 +166,8 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
+#PROD#  securityContext:
+#PROD#    allowPrivilegeEscalation: false
 #      initContainers:
 #      - name: checkcouchdb
 #        image: busybox:1.28
