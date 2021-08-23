@@ -86,7 +86,8 @@ spec:
     spec:
       securityContext:
         runAsUser: 1000
-        #runAsGroup: 0
+        runAsGroup: 1000
+        fsGroup: 2000
       containers:
       - image: cmssw/dbs #imagetag
         name: dbs-global-r
@@ -105,7 +106,7 @@ spec:
             - /bin/sh
             - -c
             - |
-            - cmsweb-ping --url=http://localhost:8252/dbs/prod/global/DBSReader/datasets?dataset=/ZMM*/*/* --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
+            - cmsweb-ping --url=http://localhost:8252/dbs/prod/global/DBSReader/ --authz=/etc/hmac/hmac -verbose 0
           initialDelaySeconds: 60
           periodSeconds: 10
         ports:
@@ -173,6 +174,8 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
+#PROD#  securityContext:
+#PROD#    allowPrivilegeEscalation: false
       volumes:
       - name: proxy-secrets
         secret:
