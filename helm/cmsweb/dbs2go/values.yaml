@@ -40,9 +40,9 @@ podAnnotations:
   prometheus.io/port: "18258"
 
 podSecurityContext: {}
+#runAsGroup: 0
+# runAsUser: 0
 
-securityContext: 
-  privileged: true
 
 service: 
   port: 8258
