@@ -1,6 +1,7 @@
 # Default values for reqmon.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+shareProcessNamespace: true
 
 replicaCount: 
   prod: 5
@@ -10,7 +11,7 @@ image:
   repository: cmssw/reqmon
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "HG2108h-v3"
+  tag: "HG2108h"
   command:
   - /bin/bash
   - /opt/setup-certs-and-run/setup-certs-and-run.sh
@@ -37,8 +38,8 @@ podAnnotations: {}
 #         prometheus.io/scrape: 'true'
 
 podSecurityContext: 
-  runAsUser: 1000
-  # runAsGroup: 0
+  runAsUser: 0
+  runAsGroup: 0
 
 securityContext: 
   privileged: true
@@ -83,7 +84,20 @@ imageFilebeatResources:
     memory: "50Mi"
     cpu: "50m"
 
-livenessProbe:
+imageExporter:
+  name: reqmon-exporter
+  tag: "20210726-nonstatic"
+  path: cmssw/exporters
+  imagePullPolicy: Always
+  command: ["/bin/bash", "-c"] 
+  args: ["echo \"Starting exporter\" ; sleep 120s ; pid=`ps axjfwww | grep \"wmc-httpd.*reqmon\" | grep -v grep | grep -v process_monitor | grep -v \" 1 \" | awk '{print $1}'` && process_exporter -pid $pid -prefix reqmon_exporter -address \":18249\""]
+
+imageExporterResources:
+    requests:
+      memory: "50Mi"
+      cpu: "50m"
+
+imageExporterLivenessProbe:
   exec:
     command:
     - cmsweb-ping

@@ -1,6 +1,7 @@
 # Default values for workqueue.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+shareProcessNamespace: true
 
 replicaCount: 1
 
@@ -8,7 +9,7 @@ image:
   repository: cmssw/workqueue
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "HG2108h-v3"
+  tag: "HG2108h"
   command:
   - /bin/bash
   - /opt/setup-certs-and-run/setup-certs-and-run.sh
@@ -35,8 +36,8 @@ podAnnotations: {}
 #         prometheus.io/scrape: 'true'
 
 podSecurityContext: 
-  runAsUser: 1000
-  #runAsGroup: 0
+  runAsUser: 0
+  runAsGroup: 0
 
 securityContext: 
   privileged: true
@@ -75,7 +76,19 @@ imageFilebeatResources:
     memory: "50Mi"
     cpu: "50m"
 
-livenessProbe:
+imageExporter:
+  name: workqueue-exporter
+  tag: "20210726-nonstatic"
+  path: cmssw/exporters
+  imagePullPolicy: Always
+  command: ['sh', '-c', 'echo The app is running! && sleep 3600d']
+
+imageExporterResources:
+    requests:
+      memory: "50Mi"
+      cpu: "50m"
+
+imageExporterLivenessProbe:
   exec:
     command:
     - cmsweb-ping
