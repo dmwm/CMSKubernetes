@@ -1,7 +1,14 @@
-FROM golang:latest as go-builder
+FROM golang:latest as builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
-RUN curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.10.2-amd64.deb
-RUN apt-get update && apt-get install -y sudo
-RUN sudo dpkg -i filebeat-7.10.2-amd64.deb
-FROM debian
-COPY --from=go-builder /usr/share/filebeat /usr/share/filebeat/
+
+# update apt
+RUN apt-get update && apt-get -y install unzip libaio1 wget && \
+    wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add - && \
+    echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee /etc/apt/sources.list.d/elastic-7.x.list && \
+    apt-get install apt-transport-https && \
+    apt update && \
+    apt -y install filebeat
+
+FROM debian:stable-slim
+COPY --from=builder /usr/bin/filebeat /usr/bin/filebeat
+COPY --from=builder /usr/share/filebeat /usr/share/filebeat

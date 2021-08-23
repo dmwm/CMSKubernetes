@@ -21,7 +21,8 @@ data:
           server_root: {{.Values.consistency.defaultRoot }}
           remove_prefix: /
           add_prefix: /store/
-          roots: 
+          roots:
+          - path: express
           - path: mc
           - path: data
           - path: generator

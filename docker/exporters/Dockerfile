@@ -34,7 +34,7 @@ RUN curl -ksLO https://github.com/dcu/mongodb_exporter/releases/download/v1.0.0/
 RUN cp mongodb_exporter-linux-amd64 /build/mongodb_exporter
 
 #FROM alpine
-FROM debian:stretch
+FROM debian:stable-slim
 RUN apt-get update && apt-get install -y procps
 
 RUN mkdir -p /data

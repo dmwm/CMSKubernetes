@@ -1,0 +1,149 @@
+# Default values for das-server.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 
+  prod: 3
+  test: 1
+
+image:
+  repository: cmssw/das-server
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "04.06.97"
+  env:
+  - name: X509_USER_PROXY
+    value: /etc/proxy/proxy
+  args:
+  - /data/das2go
+  - -config
+  - /etc/secrets/dasconfig.json
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+environment:
+  prod: false
+  preprod: false
+  test : false
+
+podAnnotations: 
+  prometheus.io/scrape: 'true'
+  prometheus.io/port: "18217"
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service: 
+  port: 8217
+  name: das
+  protocol: TCP
+  type: ClusterIP
+
+serviceMon: 
+  port: 18127 
+  name: das-mon 
+  protocol: TCP
+
+autoscaling: {}
+
+resources:
+  requests:
+    memory: "100Mi"
+    cpu: "200m"
+  limits:
+    memory: "3Gi"
+    cpu: "4000m"
+
+livenessProbe:
+  httpGet:
+    path: /das
+    port: 8217
+  initialDelaySeconds: 120
+  periodSeconds: 10
+  # targetMemoryUtilizationPercentage: 80
+
+#imageExporter values
+
+imageExporter:
+  name: das-server-exporter
+  path: cmssw/exporters:20210628-static
+  args:
+  - /data/das2go_exporter
+  - -address
+  - ":18217"
+  env:
+  - name: X509_USER_PROXY
+    value: /etc/proxy/proxy
+
+imageExporterResources:
+  requests:
+    memory: "50Mi"
+    cpu: "50m"
+
+#imagePromtail values
+imagePromtail:
+  name: promtail
+  path: cmssw/promtail
+  args:
+  - /data/promtail
+  - -config.file
+  - /etc/secrets/promtail-config.yaml
+
+imagePromtailResources:
+  requests:
+    memory: "50Mi"
+    cpu: "50m"
+
+#imageFilebeat values
+imageFilebeat:
+  name: das-server-filebeat
+  path: docker.elastic.co/beats/filebeat:7.12.0
+  args: [
+  "-c", "/etc/filebeat.yml",
+  "-e",
+  ]
+  env:
+  - name: MY_POD_NAME
+    valueFrom:
+      fieldRef:
+        apiVersion: v1
+        fieldPath: metadata.name
+
+imageFilebeatResources:
+  requests:
+    memory: "50Mi"
+    cpu: "50m"
+
+initContainers:
+- name: checkcouchdb
+  image: busybox:1.28
+  command: ['sh', '-c', 'until nslookup das-mongo.das; do echo "Waiting for das-mongo"; sleep 10; done;']
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+ingress:
+  enabled: false
+  hosts:
+    - chart-example.local
+  tls:
+    - secretName: chart-example-tls
+      hosts:
+        - chart-example.local-1
+        - chart-example.local-2
+        - chart-example.local-3

@@ -55,10 +55,11 @@ data:
   setup-certs-and-run.sh: |
     #!/bin/bash
 
-    cp /host/etc/grid-security/* /etc/grid-security
+    sudo cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
-    su  -c "cd /data && /data/run.sh" --preserve-environment _dbs
+    #su  -c "cd /data && /data/run.sh" --preserve-environment _dbs
+    cd /data && /data/run.sh
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -84,9 +85,8 @@ spec:
 #         prometheus.io/port: "19254"
     spec:
       securityContext:
-        runAsUser: 0
-        runAsGroup: 0
-      shareProcessNamespace: true
+        runAsUser: 1000
+        #runAsGroup: 0
       containers:
       - image: cmssw/dbs #imagetag
         name: dbs-phys03-r
@@ -97,6 +97,16 @@ spec:
           limits:
             memory: "10Gi"
             cpu: "2000m"
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8254/dbs/prod/phys03/DBSReader/"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 120
+          periodSeconds: 10
         ports:
         - containerPort: 8254
           protocol: TCP
@@ -130,6 +140,8 @@ spec:
           mountPath: /opt/setup-certs-and-run
 #PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/dbs
+        securityContext:
+          privileged: true
 #PROD#- name: dbs-phys03-r-filebeat
 #PROD#  image: docker.elastic.co/beats/filebeat:7.12.0
 #PROD#  args: [
@@ -160,33 +172,6 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
-        securityContext:
-          privileged: true
-      - image: cmssw/exporters:20210726-nonstatic
-        name: dbs-phys03-r-exporter
-        livenessProbe:
-          exec:
-            command:
-            - cmsweb-ping
-            - "--url=http://localhost:8254/dbs/prod/phys03/DBSReader/"
-            - "--authz=/etc/hmac/hmac"
-            - -verbose
-            - "0"
-          initialDelaySeconds: 120
-          periodSeconds: 10
-        imagePullPolicy: Always
-        resources:
-          requests:
-            memory: "50Mi"
-            cpu: "50m"
-        command: ["/bin/bash","-c"]
-        args: ["echo \"Starting exporter\" ; sleep 120s ; /data/process_monitor.sh \".*DBSPhys03Reader\" dbs_phys03R_exporter \":18254\" 15 && /data/cpy_exporter -uri http://localhost:8254/dbs/stats -address \":19254\""]
-        volumeMounts:
-        - name: hmac-secrets
-          mountPath: /etc/hmac
-          readOnly: true
-        securityContext:
-          privileged: true
       volumes:
       - name: proxy-secrets
         secret:

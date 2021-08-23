@@ -40,6 +40,7 @@ spec:
       containers:
       - name: condor-cpu-eff
         image: mrceyhun/condor_cpu_eff:latest
+        imagePullPolicy: Always
         tty: true
         stdin: true
         env:
@@ -47,8 +48,8 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        - name: CPU_EFF_OUTPUT # Define output path here
-          value: /eos/user/c/cmsmonit/www/cpu_eff
+        - name: CMSMONIT_WWW # Define output path here
+          value: /eos/user/c/cmsmonit/www
         resources:
           limits:
             cpu: 2000m

@@ -49,27 +49,38 @@ echo "CMSK8S=$CMSK8S"
 echo "CMSK8STAG=$CMSK8STAG"
 echo "CMSWEB_ENV=$CMSWEB_ENV"
 
+registry=registry.cern.ch/cmsweb
+
 repo=${CMSK8SREPO:-cmssw}
 echo "repo=$repo"
 for pkg in $cmssw_pkgs; do
     echo "### build $repo/$pkg"
     if [ -n "$CMSK8STAG" ]; then
         docker build --build-arg CMSK8S=$CMSK8S --build-arg CMSWEB_ENV=$CMSWEB_ENV -t $repo/$pkg -t $repo/$pkg:$CMSK8STAG $pkg
+        docker tag $repo/$pkg:$CMSK8STAG $registry/$pkg:$CMSK8STAG
     else
         docker build --build-arg CMSK8S=$CMSK8S --build-arg CMSWEB_ENV=$CMSWEB_ENV  -t $repo/$pkg $pkg
     fi
+        docker tag $repo/$pkg $registry/$pkg
+
     echo "### existing images"
     docker images
     docker push $repo/$pkg
+    docker push $registry/$pkg
+
     if [ -n "$CMSK8STAG" ]; then
         docker push $repo/$pkg:$CMSK8STAG
+        docker push $registry/$pkg:$CMSK8STAG
     fi
     if [ "$pkg" != "cmsweb" ] && [ "$pkg" != "cmsweb-base" ]; then
         echo "Images was uploaded to docker hub, time to clean-up, press CTRL+C to interrupt..."
         sleep 5
         docker rmi $repo/$pkg
+        docker rmi $registry/$pkg
+
     	if [ -n "$CMSK8STAG" ]; then
         	docker rmi $repo/$pkg:$CMSK8STAG
+                docker rmi $registry/$pkg:$CMSK8STAG
     	fi
     fi
 done

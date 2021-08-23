@@ -1,0 +1,21 @@
+# CephFS volume claims:
+# for production storage use
+#   storageClassName: meyrin-cephfs
+# for test storage use
+#   storageClassName: geneva-cephfs-testing
+# ---
+#
+# models storage claim
+#
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: models-claim
+  namespace: default # this may change if we move tfaas into its own namespace
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: meyrin-cephfs

@@ -41,6 +41,8 @@ spec:
             memory: "10Gi"
             cpu: "4000m" # we can add higher limit here
         env:
+        - name: X509_USER_PROXY
+          value: /etc/proxy/proxy
         - name: MY_POD_NAME
           valueFrom:
             fieldRef:
@@ -55,6 +57,9 @@ spec:
         - name: auth-proxy-server-secrets
           mountPath: /etc/secrets
           #defaultMode: 256
+          readOnly: true
+        - name: proxy-secrets
+          mountPath: /etc/proxy
           readOnly: true
         - name: www-htdocs
           mountPath: /www
@@ -75,6 +80,9 @@ spec:
       - name: auth-proxy-server-secrets
         secret:
           secretName: auth-proxy-server-secrets
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
       - name: www-htdocs
         emptyDir: {}
       - name: hostcert

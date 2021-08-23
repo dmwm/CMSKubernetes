@@ -52,10 +52,11 @@ data:
   setup-certs-and-run.sh: |
     #!/bin/bash
 
-    cp /host/etc/grid-security/* /etc/grid-security
+    sudo cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
-    su  -c "cd /data && /data/run.sh" --preserve-environment _reqmgr2
+    #su  -c "cd /data && /data/run.sh" --preserve-environment _reqmgr2
+    cd /data && /data/run.sh
 ---    
 kind: Deployment
 apiVersion: apps/v1
@@ -82,9 +83,8 @@ spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       securityContext:
-        runAsUser: 0
-        runAsGroup: 0
-      shareProcessNamespace: true
+        runAsUser: 1000
+        #runAsGroup: 0
       containers:
       - image: cmssw/reqmgr2 #imagetag
         name: reqmgr2
@@ -102,6 +102,16 @@ spec:
           limits:
             memory: "3Gi"
             cpu: "1000m"
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8246/reqmgr2/data/info"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 120
+          periodSeconds: 10
         ports:
         - containerPort: 8246
           protocol: TCP
@@ -130,10 +140,10 @@ spec:
           readOnly: true
         - name: setup-certs-and-run
           mountPath: /opt/setup-certs-and-run
-        - name: state
-          mountPath: /data/srv/state/reqmgr2
 #PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/reqmgr2
+        securityContext:
+          privileged: true
 #PROD#- name: reqmgr2-filebeat
 #PROD#  image: docker.elastic.co/beats/filebeat:7.12.0
 #PROD#  args: [
@@ -164,35 +174,6 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
-        securityContext:
-          privileged: true
-      - image: cmssw/exporters:20210726-nonstatic
-        name: reqmgr2-exporter
-        livenessProbe:
-          exec:
-            command:
-            - cmsweb-ping
-            - "--url=http://localhost:8246/reqmgr2/data/info"
-            - "--authz=/etc/hmac/hmac"
-            - -verbose
-            - "0"
-          initialDelaySeconds: 120
-          periodSeconds: 10
-        imagePullPolicy: Always
-        resources:
-          requests:
-            memory: "50Mi"
-            cpu: "50m"
-        command: ["/bin/bash", "-c"]
-        args: [ "echo \"Starting exporter\" ; sleep 120s ; process_monitor.sh /data/srv/state/reqmgr2/reqmgr2.pid reqmgr2 \":18240\" 15" ]
-        volumeMounts:
-        - name: state
-          mountPath: /data/srv/state/reqmgr2
-        - name: hmac-secrets
-          mountPath: /etc/hmac
-          readOnly: true
-        securityContext:
-          privileged: true
 #      initContainers:
 #      - name: checkcouchdb
 #        image: busybox:1.28
@@ -216,8 +197,6 @@ spec:
       - name: setup-certs-and-run
         configMap:
           name: reqmgr2
-      - name: state
-        emptyDir: {}
 #PROD#- name: logs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-dmwm
