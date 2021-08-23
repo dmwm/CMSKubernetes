@@ -12,26 +12,9 @@ image:
   repository: cmssw/crabcache
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "HG2108h-v3"
-  command:
-  - /bin/bash
-  - /opt/setup-certs-and-run/setup-certs-and-run.sh
+  tag: "HG2108e"
 
-
-podAnnotations:  
-  prometheus.io/scrape: 'true'
-  prometheus.io/port: "18271"
-
-securityContext: 
-  privileged: true
-
-podSecurityContext:
-  runAsUser: 1000
-  runAsGroup: 1000
-  fsGroup: 2000
-
-imageFilebeatSecurityContext:
-  allowPrivilegeEscalation: false
+shareProcessNamespace: true
 
 lifecycle:
   postStart:
@@ -54,6 +37,16 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
+podAnnotations:  
+  prometheus.io/scrape: 'true'
+  prometheus.io/port: "18271"
+
+podSecurityContext: 
+  runAsUser: 0
+  runAsGroup: 0  
+
+securityContext: 
+  privileged: true
 
 ingress:
   enabled: false
@@ -83,7 +76,7 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-imageFilebeat:
+image2:
   name: crabcache-filebeat
   path: docker.elastic.co/beats/filebeat:7.12.0
   args: [
@@ -97,11 +90,11 @@ imageFilebeat:
         apiVersion: v1
         fieldPath: metadata.name
 
-imageFilebeatResources:
+image2resources:
   requests:
     memory: "50Mi"
     cpu: "50m"
-
+    
 service:
   port: 8271
   protocol: TCP
@@ -113,7 +106,25 @@ serviceMon:
   protocol: TCP
   name: crabcache-mon
  
-livenessProbe:
+command:
+- /bin/bash
+- /opt/setup-certs-and-run/setup-certs-and-run.sh
+
+imageExp:
+  name: crabcache-exporter
+  tag: "20210726-nonstatic"
+  path: cmssw/exporters
+  imagePullPolicy: Always
+  command: ["/bin/bash","-c"]
+  args: ["echo \"Starting exporter\" ; sleep 120s ; pid=`ps axjfwww | grep \"wmc-httpd.*crabcache\" | grep -v grep | grep -v process_monitor | grep -v \" 1 \" | awk '{print $1}'` && process_exporter -pid $pid -prefix crabcache_exporter -address \":18271\""]
+
+
+imageExpResources:
+    requests:
+      memory: "50Mi"
+      cpu: "50m"
+
+imageExpLivenessProbe:
   exec:
     command:
     - cmsweb-ping
@@ -126,7 +137,7 @@ livenessProbe:
   periodSeconds: 60
   timeoutSeconds: 60
 
-readinessProbe:
+imageExpReadinessProbe:
   exec:
     command:
     - cmsweb-ping
