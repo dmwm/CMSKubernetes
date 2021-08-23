@@ -24,6 +24,7 @@ data:
       events: 65536
     logging.metrics.enabled: false
 ---
+---
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -34,8 +35,8 @@ metadata:
 data:
   setup-certs-and-run.sh: |
    #!/bin/bash
-
    cp /host/etc/grid-security/* /etc/grid-security
    echo 'INFO Files in /etc/grid-security'
    ls -lahZ /etc/grid-security
    su  -c "cd /data && /data/run.sh" --preserve-environment _wmarchive
+---
