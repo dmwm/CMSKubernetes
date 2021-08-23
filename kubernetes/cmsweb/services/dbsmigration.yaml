@@ -85,7 +85,8 @@ spec:
     spec:
       securityContext:
         runAsUser: 1000
-        #runAsGroup: 0
+        runAsGroup: 1000
+        fsGroup: 2000
       containers:
       - image: cmssw/dbsmigration #imagetag
         name: dbsmigration
@@ -160,6 +161,8 @@ spec:
 #PROD#    mountPath: /var/log
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
+#PROD#  securityContext:
+#PROD#    allowPrivilegeEscalation: false
       volumes:
       - name: proxy-secrets
         secret:

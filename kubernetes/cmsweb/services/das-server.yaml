@@ -142,17 +142,10 @@ spec:
           requests:
             memory: "50Mi"
             cpu: "50m"
-        env:
-        - name: X509_USER_PROXY
-          value: /etc/proxy/proxy
         args:
         - /data/das2go_exporter
         - -address
         - ":18217"
-        volumeMounts:
-        - name: proxy-secrets
-          mountPath: /etc/proxy
-          readOnly: true
 #PROD#  - name: logs
 #PROD#    mountPath: /data/logs
 #PROD#- image: cmssw/promtail
@@ -200,6 +193,8 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
+#PROD#  securityContext:
+#PROD#    allowPrivilegeEscalation: false
       initContainers:
       - name: checkcouchdb
         image: busybox:1.28
