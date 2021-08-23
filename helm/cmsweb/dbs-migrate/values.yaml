@@ -2,8 +2,6 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-shareProcessNamespace: true
-
 replicaCount: 
   prod: 3
   test: 1
@@ -12,7 +10,7 @@ image:
   repository: cmssw/dbs
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "HG2108h-v2"
+  tag: "HG2108h-v3"
   command:
   - /bin/bash
   - /opt/setup-certs-and-run/setup-certs-and-run.sh
@@ -41,8 +39,8 @@ podAnnotations:
 # prometheus.io/port: "19257"
 
 podSecurityContext:
-  runAsGroup: 0
-  runAsUser: 0
+  runAsGroup: 1000
+  #runAsUser: 0
 
 securityContext:
   privileged: true
@@ -125,20 +123,6 @@ imageFilebeatResources:
   requests:
     memory: "50Mi"
     cpu: "50m"
-
-imageExporter:
-  name: dbs-migrate-exporter
-  path: cmssw/exporters
-  tag: 20210726-nonstatic
-  imagePullPolicy: Always
-  command:  ["/bin/bash","-c"]
-  args: ["echo \"Starting exporter\" ; sleep 120s ; /data/process_monitor.sh \".*DBSMigrate\" dbs_migrate_exporter \":18257\" 15 && /data/cpy_exporter -uri http://localhost:8257/dbs/stats -address \":19257\""]
-
-imageExporterResources:
-    requests:
-      memory: "50Mi"
-      cpu: "50m"
-
 
 autoscaling:
   enabled: false
