@@ -15,7 +15,13 @@ LOG_FILE=log/$(date +'%F_%H%m%S')_$(basename "$0")
 TABLE=CMS_RUCIO_PROD.CONTENTS
 TZ=UTC
 
-/usr/hdp/sqoop/bin/sqoop import \
+# Check sqoop and hadoop executables exist
+if ! [ -x "$(command -v hadoop)" ] || ! [ -x "$(command -v sqoop)" ]; then
+  echo "It seems 'sqoop' or 'hadoop' is not exist in PATH! Exiting..."
+  exit 1
+fi
+
+sqoop import \
   -Dmapreduce.job.user.classpath.first=true \
   -Ddfs.client.socket-timeout=120000 \
   --username "$USERNAME" --password "$PASSWORD" \
@@ -34,3 +40,4 @@ hadoop fs -chmod -R o+rx $BASE_PATH"$(date +%Y-%m-%d)"
 
 # Delete previous folder
 hadoop fs -rmdir --ignore-fail-on-non-empty "$PREVIOUS_FOLDER"
+echo "$PREVIOUS_FOLDER is deleted"

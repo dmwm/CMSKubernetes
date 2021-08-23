@@ -15,18 +15,24 @@ LOG_FILE=log/$(date +'%F_%H%m%S')_$(basename "$0")
 TABLE=CMS_RUCIO_PROD.DIDS
 TZ=UTC
 
-/usr/hdp/sqoop/bin/sqoop import \
+# Check sqoop and hadoop executables exist
+if ! [ -x "$(command -v hadoop)" ] || ! [ -x "$(command -v sqoop)" ]; then
+  echo "It seems 'sqoop' or 'hadoop' is not exist in PATH! Exiting..."
+  exit 1
+fi
+
+sqoop import \
   -Dmapreduce.job.user.classpath.first=true \
   -Ddfs.client.socket-timeout=120000 \
   --username "$USERNAME" --password "$PASSWORD" \
-  -m 10 \
+  -m 1 \
   -z \
   --direct \
   --connect $JDBC_URL \
   --fetch-size 10000 \
   --as-avrodatafile \
   --target-dir "$BASE_PATH""$(date +%Y-%m-%d)" \
-  --query "SELECT * FROM ${TABLE} WHERE scope='cms' AND did_type='F' AND deleted_at IS NULL AND hidden=0 AND \$CONDITIONS" \
+  --query "SELECT * FROM ${TABLE} WHERE scope='cms' AND deleted_at IS NULL AND hidden=0 AND \$CONDITIONS" \
   1>"$LOG_FILE".stdout 2>"$LOG_FILE".stderr
 
 # change permission of HDFS area
@@ -34,3 +40,4 @@ hadoop fs -chmod -R o+rx $BASE_PATH"$(date +%Y-%m-%d)"
 
 # Delete previous folder
 hadoop fs -rmdir --ignore-fail-on-non-empty "$PREVIOUS_FOLDER"
+echo "$PREVIOUS_FOLDER is deleted"
