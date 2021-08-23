@@ -56,9 +56,13 @@ podAnnotations:
   prometheus.io/scrape: 'true'
   prometheus.io/port: "18242"
 
-podSecurityContext: 
+podSecurityContext:
   runAsUser: 1000
-  # runAsGroup: 0
+  runAsGroup: 1000
+  fsGroup: 2000
+
+imageFilebeatSecurityContext:
+  allowPrivilegeEscalation: false
 
 securityContext: 
   privileged: true
