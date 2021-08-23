@@ -106,7 +106,7 @@ spec:
             - /bin/sh
             - -c
             - |
-            - cmsweb-ping --url=http://localhost:8252/dbs/prod/global/DBSReader/datasets?dataset=/ZMM*/*/* --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
+            - cmsweb-ping --url=http://localhost:8252/dbs/prod/global/DBSReader/ --authz=/etc/hmac/hmac -verbose 0
           initialDelaySeconds: 60
           periodSeconds: 10
         ports:
