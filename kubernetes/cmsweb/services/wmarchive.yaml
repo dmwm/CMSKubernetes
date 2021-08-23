@@ -53,10 +53,11 @@ metadata:
 data:
   setup-certs-and-run.sh: |
    #!/bin/bash
-   cp /host/etc/grid-security/* /etc/grid-security
+   sudo cp /host/etc/grid-security/* /etc/grid-security
    echo 'INFO Files in /etc/grid-security'
    ls -lahZ /etc/grid-security
-   su  -c "cd /data && /data/run.sh" --preserve-environment _wmarchive
+   #su  -c "cd /data && /data/run.sh" --preserve-environment _wmarchive
+   cd /data && /data/run.sh
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -80,8 +81,9 @@ spec:
         prometheus.io/port: "18200"
     spec:
       securityContext:
-        runAsUser: 0
-        runAsGroup: 0
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
       containers:
       - image: cmssw/wmarchive #imagetag
         name: wmarchive
@@ -121,6 +123,8 @@ spec:
           mountPath: /opt/setup-certs-and-run
 #PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/wmarchive
+        securityContext:
+          privileged: true
 #PROD#- name: wmarchive-filebeat
 #PROD#  image: docker.elastic.co/beats/filebeat:7.12.0
 #PROD#  args: [
@@ -151,6 +155,8 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
+#PROD#  securityContext:
+#PROD#    allowPrivilegeEscalation: false
       volumes:
       - name: proxy-secrets
         secret:
