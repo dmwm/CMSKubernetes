@@ -10,7 +10,7 @@ image:
   repository: cmssw/t0_reqmon
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "HG2108h-v2"
+  tag: "HG2108h-v3"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -34,12 +34,16 @@ podAnnotations:
   prometheus.io/scrape: 'true'
   prometheus.io/port: "18243"
 
-podSecurityContext: 
-  runAsUser: 0
-  runAsGroup: 0
-
 securityContext: 
   privileged: true
+
+podSecurityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 2000
+
+imageFilebeatSecurityContext:
+  allowPrivilegeEscalation: false
 
 livenessProbe:
   exec:
@@ -106,19 +110,6 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
-
-imageExporter:
-  name: t0reqmon-exporter
-  path: cmssw/exporters
-  tag: 20210726-nonstatic
-  imagePullPolicy: Always
-  command:  ["/bin/bash","-c"]
-  args: ["echo \"Starting exporter\" ; sleep 120s ; pid=`ps axjfwww | grep \"wmc-httpd.*reqmon\" | grep -v grep | grep -v process_monitor | grep -v \" 1 \" | awk '{print $1}'` && process_exporter -pid $pid -prefix t0reqmon_exporter -address \":18243\""]
-
-imageExporterResources:
-    requests:
-      memory: "50Mi"
-      cpu: "50m"
 
 autoscaling:
   enabled: false
