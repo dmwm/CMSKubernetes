@@ -10,7 +10,7 @@ environment:
 replicaCount: 1
 image:
   repository: cmssw/crabcache
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "HG2108h-v3"
   command:
