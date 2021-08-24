@@ -110,6 +110,20 @@ spec:
             - "0"
           initialDelaySeconds: 60
           periodSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8252/dbs/prod/global/DBSReader/"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          failureThreshold: 3
         ports:
         - containerPort: 8252
           protocol: TCP
