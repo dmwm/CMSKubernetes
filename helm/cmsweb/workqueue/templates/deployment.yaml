@@ -36,7 +36,6 @@ spec:
       serviceAccountName: {{ include "workqueue.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8}}
-      shareProcessNamespace: {{ .Values.shareProcessNamespace }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -48,6 +47,10 @@ spec:
             protocol: {{ .Values.service.protocol }}
           command:
           {{- toYaml .Values.image.command | nindent 10 }}
+          securityContext:
+          {{- toYaml .Values.securityContext | nindent 12 }}
+          livenessProbe:
+          {{- toYaml .Values.livenessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
@@ -92,24 +95,9 @@ spec:
           - name: varlibdockercontainers
             mountPath: /var/lib/docker/containers
             readOnly: true
+          securityContext:
+          {{- toYaml .Values.imageFilebeatSecurityContext | nindent 12 }}
 {{- end }}
-          securityContext:
-          {{- toYaml .Values.securityContext | nindent 12 }}
-        - image: "{{ .Values.imageExporter.path }}:{{ .Values.imageExporter.tag }}"
-          name: {{ .Values.imageExporter.name }}
-          imagePullPolicy: {{ .Values.imageExporter.imagePullPolicy }}
-          command:
-          {{- toYaml .Values.imageExporter.command | nindent 10 }}
-          livenessProbe:
-          {{- toYaml .Values.imageExporterLivenessProbe | nindent 12 }}
-          resources:
-          {{- toYaml .Values.imageExporterResources | nindent 12 }}
-          securityContext:
-          {{- toYaml .Values.securityContext | nindent 12 }}
-          volumeMounts:
-          - name: hmac-secrets
-            mountPath: /etc/hmac
-            readOnly: true
       volumes:
       - name: proxy-secrets
         secret:
