@@ -37,6 +37,6 @@ data:
     sudo cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
-    su  -c "cd /data && /data/run.sh" --preserve-environment  _crabcache
+    #su  -c "cd /data && /data/run.sh" --preserve-environment  _crabcache
     cd /data && /data/run.sh
 ---
