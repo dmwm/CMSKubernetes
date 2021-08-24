@@ -36,13 +36,16 @@ spec:
       serviceAccountName: {{ include "reqmgr2-tasks.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      shareProcessNamespace: {{ .Values.shareProcessNamespace }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
           {{- toYaml .Values.image.command | nindent 10 }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          livenessProbe:
+          {{- toYaml .Values.livenessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
@@ -87,28 +90,9 @@ spec:
           - name: varlibdockercontainers
             mountPath: /var/lib/docker/containers
             readOnly: true
+          securityContext:
+          {{- toYaml .Values.imageFilebeatSecurityContext | nindent 12 }}
 {{- end }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-        - image: "{{ .Values.imageExporter.path }}:{{ .Values.imageExporter.tag }}"
-          name: {{ .Values.imageExporter.name }}
-          imagePullPolicy: {{ .Values.imageExporter.imagePullPolicy }}
-          command: 
-          {{- toYaml .Values.imageExporter.command | nindent 10 }}
-          args:
-          {{- toYaml .Values.imageExporter.args | nindent 12 }}
-          livenessProbe:
-          {{- toYaml .Values.imageExporterLivenessProbe | nindent 12 }}
-          resources:
-          {{- toYaml .Values.imageExporterResources | nindent 12 }}
-          securityContext:
-          {{- toYaml .Values.securityContext | nindent 12 }}
-          volumeMounts:
-          - name: state
-            mountPath: /data/srv/state/reqmgr2
-          - name: hmac-secrets
-            mountPath: /etc/hmac
-            readOnly: true
       volumes:
       - name: proxy-secrets
         secret:
@@ -128,8 +112,6 @@ spec:
       - name: setup-certs-and-run
         configMap:
           name: reqmgr2-tasks
-      - name: state
-        emptyDir: {}
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: logs
         persistentVolumeClaim:

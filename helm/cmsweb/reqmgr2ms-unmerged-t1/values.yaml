@@ -1,26 +1,28 @@
-# Default values for reqmon-tasks.
+# Default values for reqmgr2ms-unmer-t1.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
 
 image:
-  repository: cmssw/reqmon
+  repository: cmssw/reqmgr2ms-unmerged
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "HG2108h-v3"
+  name: ms-unmer-t1
   command:
   - /bin/bash
   - /opt/setup-certs-and-run/setup-certs-and-run.sh
 
 imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
+nameOverride: "ms-unmer-t1"
+fullnameOverride: "ms-unmer-t1"
 
 environment:
   prod: false
   preprod: false
   test : false
+
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -31,11 +33,28 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-podAnnotations: {}
-#         prometheus.io/scrape: 'true'
+lifecycle:
+  postStart:
+    exec:
+      command:
+      - bash
+      - -c
+      - sudo chmod 0777 /data/srv/logs/reqmgr2ms; sudo chown _reqmgr2ms:_reqmgr2ms /data/srv/logs/reqmgr2ms
 
-securityContext: 
-  privileged: true
+livenessProbe:
+  exec:
+    command:
+    - cmsweb-ping
+    - "--url=http://localhost:8242/ms-unmerged/data/status"
+    - "--authz=/etc/hmac/hmac"
+    - -verbose
+    - "0"
+  initialDelaySeconds: 120
+  periodSeconds: 10
+
+podAnnotations: 
+  prometheus.io/scrape: 'true'
+  prometheus.io/port: "18242"
 
 podSecurityContext:
   runAsUser: 1000
@@ -45,29 +64,32 @@ podSecurityContext:
 imageFilebeatSecurityContext:
   allowPrivilegeEscalation: false
 
+securityContext: 
+  privileged: true
+
 service:
   type: ClusterIP
-  port: 8249
+  port: 8242
   protocol: TCP
-  name: reqmon
+  name: ms-unmer-t1
 
 serviceMon:
-  port: 18249
+  port: 18242
   protocol: TCP
-  name: reqmon-mon
+  name: unmerged-mon
 
 
 resources:
   requests:
-    memory: "4Gi"
-    cpu: "500m"
+    memory: "256Mi"
+    cpu: "200m"
   limits:
-    memory: "8Gi"
+    memory: "3Gi"
     cpu: "1000m"
 
 
 imageFilebeat:
-  name: reqmon-tasks-filebeat
+  name: ms-unmer-t1-filebeat
   path: docker.elastic.co/beats/filebeat:7.12.0
   env:
   - name: MY_POD_NAME
@@ -85,6 +107,7 @@ imageFilebeatResources:
     memory: "50Mi"
     cpu: "50m"
 
+
 ingress:
   enabled: false
   annotations: {}
@@ -98,16 +121,6 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-livenessProbe:
-  exec:
-    command:
-    - cmsweb-ping
-    - "--url=http://localhost:8249/wmstatsserver/data/info"
-    - "--authz=/etc/hmac/hmac"
-    - -verbose
-    - "0"
-  initialDelaySeconds: 120
-  periodSeconds: 10
 
 autoscaling:
   enabled: false
