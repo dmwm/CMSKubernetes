@@ -1,0 +1,136 @@
+# Default values for reqmgr2ms-unmer-t1.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: cmssw/reqmgr2ms-unmerged
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "HG2108h-v3"
+  name: ms-unmer-t1
+  command:
+  - /bin/bash
+  - /opt/setup-certs-and-run/setup-certs-and-run.sh
+
+imagePullSecrets: []
+nameOverride: "ms-unmer-t1"
+fullnameOverride: "ms-unmer-t1"
+
+environment:
+  prod: false
+  preprod: false
+  test : false
+
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+lifecycle:
+  postStart:
+    exec:
+      command:
+      - bash
+      - -c
+      - sudo chmod 0777 /data/srv/logs/reqmgr2ms; sudo chown _reqmgr2ms:_reqmgr2ms /data/srv/logs/reqmgr2ms
+
+livenessProbe:
+  exec:
+    command:
+    - cmsweb-ping
+    - "--url=http://localhost:8242/ms-unmerged/data/status"
+    - "--authz=/etc/hmac/hmac"
+    - -verbose
+    - "0"
+  initialDelaySeconds: 120
+  periodSeconds: 10
+
+podAnnotations: 
+  prometheus.io/scrape: 'true'
+  prometheus.io/port: "18242"
+
+podSecurityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 2000
+
+imageFilebeatSecurityContext:
+  allowPrivilegeEscalation: false
+
+securityContext: 
+  privileged: true
+
+service:
+  type: ClusterIP
+  port: 8242
+  protocol: TCP
+  name: ms-unmer-t1
+
+serviceMon:
+  port: 18242
+  protocol: TCP
+  name: unmerged-mon
+
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "200m"
+  limits:
+    memory: "3Gi"
+    cpu: "1000m"
+
+
+imageFilebeat:
+  name: ms-unmer-t1-filebeat
+  path: docker.elastic.co/beats/filebeat:7.12.0
+  env:
+  - name: MY_POD_NAME
+    valueFrom:
+      fieldRef:
+        apiVersion: v1
+        fieldPath: metadata.name
+  args: [
+  "-c", "/etc/filebeat.yml",
+  "-e",
+   ]
+
+imageFilebeatResources:
+  requests:
+    memory: "50Mi"
+    cpu: "50m"
+
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths: []
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

@@ -1,0 +1,145 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "reqmgr2ms-unmerged-t1.fullname" . }}
+  labels:
+    {{- include "reqmgr2ms-unmerged-t1.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas : {{ .Values.replicaCount}}     
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "reqmgr2ms-unmerged-t1.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "reqmgr2ms-unmerged-t1.selectorLabels" . | nindent 8 }}
+        {{- if .Values.environment.preprod}}
+        env: k8s-preprod
+        {{- end }}
+        {{- if .Values.environment.prod}}
+        env: k8s-prod
+        {{- end }}
+        {{- if .Values.environment.test}}
+        env: k8s
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "reqmgr2ms-unmerged-t1.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Values.image.name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+           - containerPort: {{ .Values.service.port }}
+             name: {{ .Values.service.name }}
+             protocol: {{ .Values.service.protocol }}
+           - containerPort: {{ .Values.serviceMon.port }}
+             name: {{ .Values.serviceMon.name }}
+             protocol: {{ .Values.serviceMon.protocol }}
+          lifecycle:
+          {{- toYaml .Values.lifecycle | nindent 12 }}
+          livenessProbe:
+          {{- toYaml .Values.livenessProbe | nindent 12 }}
+          securityContext:
+          {{- toYaml .Values.securityContext | nindent 12 }}
+          command:
+          {{- toYaml .Values.image.command | nindent 10 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+          - name: proxy-secrets-ms-unmerged
+            mountPath: /etc/proxy
+            readOnly: true
+          - name: secrets
+            mountPath: /etc/secrets
+            readOnly: true
+          - name: robot-secrets
+            mountPath: /etc/robots
+            readOnly: true
+          - name: hmac-secrets
+            mountPath: /etc/hmac
+            readOnly: true
+          - mountPath: /host/etc/grid-security
+            name: etc-grid-security
+            readOnly: true
+          - name: setup-certs-and-run
+            mountPath: /opt/setup-certs-and-run
+{{- if or .Values.environment.prod .Values.environment.preprod }}
+          - name: logs
+            mountPath: /data/srv/logs/reqmgr2ms
+        - name: {{ .Values.imageFilebeat.name }}
+          image: {{ .Values.imageFilebeat.path }}
+          args: {{ .Values.imageFilebeat.args }}
+          env:
+          {{- toYaml .Values.imageFilebeat.env | nindent 10 }}
+          resources:
+          {{- toYaml .Values.imageFilebeatResources | nindent 12 }}
+          volumeMounts:
+          - name: logs
+            mountPath: /data/srv/logs/reqmgr2ms
+          - name: config
+            mountPath: /etc/filebeat.yml
+            readOnly: true
+            subPath: filebeat.yml
+          - name: data
+            mountPath: /usr/share/filebeat/data
+          - name: varlog
+            mountPath: /var/log
+          - name: varlibdockercontainers
+            mountPath: /var/lib/docker/containers
+            readOnly: true
+          securityContext:
+          {{- toYaml .Values.imageFilebeatSecurityContext | nindent 12 }}
+{{- end }}
+      volumes:
+      - name: proxy-secrets-ms-unmerged
+        secret:
+          secretName: proxy-secrets-ms-unmerged
+      - name: secrets
+        secret:
+          secretName: reqmgr2ms-unmerged-t1-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: etc-grid-security
+        hostPath:
+            path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: ms-unmer-t1
+{{- if or .Values.environment.prod .Values.environment.preprod }}
+      - name: logs
+        persistentVolumeClaim:
+{{- if .Values.environment.preprod }}
+            claimName: logs-cephfs-claim-preprod-dmwm
+{{- end }}
+{{- if .Values.environment.prod }}
+            claimName: logs-cephfs-claim-prod-dmwm
+{{- end }}
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: config
+        configMap:
+          defaultMode: 0640
+          name: ms-unmer-t1-filebeat-config
+      - name: data
+        emptyDir: {}
+{{- end }}

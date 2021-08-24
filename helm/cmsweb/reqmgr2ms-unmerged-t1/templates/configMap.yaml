@@ -1,0 +1,43 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ms-unmer-t1-filebeat-config
+  namespace: dmwm
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/reqmgr2ms/*${MY_POD_NAME}*.log
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: ms-unmer-t1
+  labels:
+    app: ms-unmer-t1
+  namespace: dmwm
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+    sudo cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    #su  -c "cd /data && /data/run.sh -e '(cms_type=real|cms_type=int)&rse_type=DISK&tier=1' " --preserve-environment _reqmgr2ms
+    cd /data && /data/run.sh -e '(cms_type=real|cms_type=int)&rse_type=DISK&tier=1'
+---
