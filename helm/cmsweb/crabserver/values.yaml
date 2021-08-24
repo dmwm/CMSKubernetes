@@ -2,9 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-shareProcessNamespace: true
-
-replicaCount:
+replicaCount: 
   prod: 5
   test: 1
 
@@ -12,7 +10,10 @@ image:
   repository: cmssw/crabserver
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "HG2108e"
+  tag: "v3.210823"
+  command:
+  - /bin/bash
+  - /opt/setup-certs-and-run/setup-certs-and-run.sh
 
 environment:
   prod: false
@@ -36,10 +37,13 @@ podAnnotations:
   prometheus.io/scrape: 'true'
   prometheus.io/port: "18270"
 
+podSecurityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 2000
 
-podSecurityContext: 
-  runAsUser: 0
-  runAsGroup: 0
+imageFilebeatSecurityContext:
+  allowPrivilegeEscalation: false
 
 securityContext: 
   privileged: true
@@ -54,18 +58,6 @@ serviceMon:
   name: crabserver-mon
   port: 18720
   protocol: TCP
-
-command:
-- /bin/bash
-- /opt/setup-certs-and-run/setup-certs-and-run.sh
-
-lifecycle:
-  postStart:
-    exec:
-      command:
-        - bash
-        - -c
-        - sudo chmod 0777 /data/srv/state/crabcache/files; sudo chown _crabcache:_crabcache /data/srv/state/crabcache/files
 
 ingress:
   enabled: false
@@ -88,18 +80,6 @@ resources:
     cpu: 200m
     memory: 256Mi
 
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
 
 imageFilebeat:
   name: crabserver-filebeat
@@ -115,27 +95,13 @@ imageFilebeat:
         apiVersion: v1
         fieldPath: metadata.name
 
-imageFilebeatresources:
+imageFilebeatResources:
   requests:
     memory: "50Mi"
     cpu: "50m"
 
-imageExporter:
-  name: crabserver-exporter
-  tag: "20210726-nonstatic"
-  path: cmssw/exporters
-  imagePullPolicy: Always
-  command: ["/bin/bash", "-c"] 
-  args: [ 
-  "echo \"Starting exporter\" ; sleep 120s ; process_monitor.sh /data/srv/state/crabserver/crabserver.pid crabserver \":18270\" 15"
-  ]
 
-imageExporterResources:
-    requests:
-      memory: "50Mi"
-      cpu: "50m"
-
-imageExporterLivenessProbe:
+livenessProbe:
   exec:
     command:
     - /bin/sh
@@ -147,7 +113,7 @@ imageExporterLivenessProbe:
   periodSeconds: 60
   timeoutSeconds: 60
 
-imageExporterReadinessProbe:
+readinessProbe:
   exec:
     command:
     - /bin/sh
@@ -157,7 +123,7 @@ imageExporterReadinessProbe:
   periodSeconds: 60  
   timeoutSeconds: 60
 
-imageExporterLivenessProbePreProd:
+livenessProbePreProd:
   exec:
     command:
     - /bin/sh
@@ -169,7 +135,7 @@ imageExporterLivenessProbePreProd:
   periodSeconds: 60
   timeoutSeconds: 60
 
-imageExporterReadinessProbePreProd:
+readinessProbePreProd:
   exec:
     command:
     - /bin/sh
@@ -178,3 +144,16 @@ imageExporterReadinessProbePreProd:
       cmsweb-ping --url=http://localhost:8270/crabserver/preprod/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
   periodSeconds: 60  
   timeoutSeconds: 60
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
