@@ -109,8 +109,9 @@ spec:
             - -verbose 
             - "0"
           initialDelaySeconds: 60
-          periodSeconds: 10
+          periodSeconds: 20
           failureThreshold: 3
+          timeoutSeconds: 10
         readinessProbe:
           exec:
             command:
@@ -122,8 +123,9 @@ spec:
             - -verbose
             - "0"
           initialDelaySeconds: 60
-          periodSeconds: 10
+          periodSeconds: 20
           failureThreshold: 3
+          timeoutSeconds: 10
         ports:
         - containerPort: 8252
           protocol: TCP
