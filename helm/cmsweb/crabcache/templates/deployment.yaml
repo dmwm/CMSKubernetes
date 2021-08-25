@@ -80,9 +80,9 @@ spec:
             readOnly: true
           - name: setup-certs-and-run
             mountPath: /opt/setup-certs-and-run
+{{- if or .Values.environment.preprod .Values.environment.prod }}
           - name: crabcache-storage
             mountPath: /data/srv/state/crabcache/files
-{{- if or .Values.environment.preprod .Values.environment.prod }}
           - name: logs
             mountPath: /data/srv/logs/crabcache
         - name: {{ .Values.imageFilebeat.name }}
