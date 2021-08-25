@@ -88,8 +88,6 @@ spec:
             readOnly: true
           - name: setup-certs-and-run
             mountPath: /opt/setup-certs-and-run
-          - name: state
-            mountPath: /data/srv/state/crabserver
 {{- if or .Values.environment.preprod .Values.environment.prod }}
           - name: logs
             mountPath: /data/srv/logs/crabserver
