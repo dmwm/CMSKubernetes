@@ -1,16 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "reqmgr2ms-unmerged-t2t3us.fullname" . }}
+  name: {{ include "dbs2go.fullname" . }}
   labels:
-    {{- include "reqmgr2ms-unmerged-t2t3us.labels" . | nindent 4 }}
+    {{- include "dbs2go.labels" . | nindent 4 }}
+  namespace: dbs
 spec:
   {{- if not .Values.autoscaling.enabled }}
-  replicas : {{ .Values.replicaCount}}     
+  {{- if or .Values.environment.prod .Values.environment.preprod}}
+  replicas: {{ .Values.replicaCount.prod }}
+  {{- else }}
+  replicas: {{ .Values.replicaCount.test }}
+  {{- end }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "reqmgr2ms-unmerged-t2t3us.selectorLabels" . | nindent 6 }}
+      {{- include "dbs2go.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,7 +23,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "reqmgr2ms-unmerged-t2t3us.selectorLabels" . | nindent 8 }}
+        {{- include "dbs2go.selectorLabels" . | nindent 8 }}
         {{- if .Values.environment.preprod}}
         env: k8s-preprod
         {{- end }}
@@ -33,11 +38,9 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "reqmgr2ms-unmerged-t2t3us.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      serviceAccountName: {{ include "dbs2go.serviceAccountName" . }}
       containers:
-        - name: {{ .Values.image.name }}
+        - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
@@ -47,18 +50,16 @@ spec:
            - containerPort: {{ .Values.serviceMon.port }}
              name: {{ .Values.serviceMon.name }}
              protocol: {{ .Values.serviceMon.protocol }}
-          lifecycle:
-          {{- toYaml .Values.lifecycle | nindent 12 }}
+          env: 
+          {{- toYaml .Values.image.env | nindent 10 }}
           livenessProbe:
           {{- toYaml .Values.livenessProbe | nindent 12 }}
-          securityContext:
-          {{- toYaml .Values.securityContext | nindent 12 }}
           command:
           {{- toYaml .Values.image.command | nindent 10 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-          - name: proxy-secrets-ms-unmerged
+          - name: proxy-secrets
             mountPath: /etc/proxy
             readOnly: true
           - name: secrets
@@ -70,24 +71,20 @@ spec:
           - name: hmac-secrets
             mountPath: /etc/hmac
             readOnly: true
-          - mountPath: /host/etc/grid-security
-            name: etc-grid-security
-            readOnly: true
-          - name: setup-certs-and-run
-            mountPath: /opt/setup-certs-and-run
 {{- if or .Values.environment.prod .Values.environment.preprod }}
           - name: logs
-            mountPath: /data/srv/logs/reqmgr2ms
+            mountPath: /data/logs
         - name: {{ .Values.imageFilebeat.name }}
           image: {{ .Values.imageFilebeat.path }}
-          args: {{ .Values.imageFilebeat.args }}
+          args: 
+          {{- toYaml .Values.imageFilebeat.args | nindent 10 }}
           env:
           {{- toYaml .Values.imageFilebeat.env | nindent 10 }}
           resources:
           {{- toYaml .Values.imageFilebeatResources | nindent 12 }}
           volumeMounts:
           - name: logs
-            mountPath: /data/srv/logs/reqmgr2ms
+            mountPath: /data/logs
           - name: config
             mountPath: /etc/filebeat.yml
             readOnly: true
@@ -99,36 +96,31 @@ spec:
           - name: varlibdockercontainers
             mountPath: /var/lib/docker/containers
             readOnly: true
-          securityContext:
-          {{- toYaml .Values.imageFilebeatSecurityContext | nindent 12 }}
 {{- end }}
       volumes:
-      - name: proxy-secrets-ms-unmerged
+      - name: proxy-secrets
         secret:
-          secretName: proxy-secrets-ms-unmerged
-      - name: secrets
-        secret:
-          secretName: reqmgr2ms-unmerged-t2t3us-secrets
+          secretName: proxy-secrets
+#        - name: secrets
+#          secret:
+#            secretName: dbs2go-secrets
       - name: robot-secrets
         secret:
           secretName: robot-secrets
       - name: hmac-secrets
         secret:
           secretName: hmac-secrets
-      - name: etc-grid-security
-        hostPath:
-            path: /etc/grid-security
-      - name: setup-certs-and-run
+      - name: secrets
         configMap:
-          name: ms-unmer-t2t3us
+          name: dbs2go-config
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: logs
         persistentVolumeClaim:
 {{- if .Values.environment.preprod }}
-            claimName: logs-cephfs-claim-preprod-dmwm
+            claimName: logs-cephfs-claim-preprod-dbs
 {{- end }}
 {{- if .Values.environment.prod }}
-            claimName: logs-cephfs-claim-prod-dmwm
+            claimName: logs-cephfs-claim-prod-dbs
 {{- end }}
       - name: varlog
         hostPath:
@@ -139,7 +131,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: ms-unmer-t2t3us-filebeat-config
+          name: dbs2go-filebeat-config
       - name: data
         emptyDir: {}
 {{- end }}
