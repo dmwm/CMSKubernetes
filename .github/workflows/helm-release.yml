@@ -28,6 +28,6 @@ jobs:
         uses: helm/chart-releaser-action@v1.2.1
         with:
           charts_dir: helm
+          charts_repo_url: https://dmwm.github.io/CMSKubernetes
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          
