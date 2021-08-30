@@ -1,0 +1,76 @@
+apiVersion: v1
+entries:
+  rucio-consistency:
+  - apiVersion: v2
+    appVersion: 0.1.0
+    created: "2021-08-27T17:25:38.918582016Z"
+    description: A Helm chart for Kubernetes
+    digest: 4bdf6e1a976309b2ca9e9d6e4bfdfc049e94d0ff34ec69f7756ba6e4ab5e56f5
+    name: rucio-consistency
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/rucio-consistency-0.2.1/rucio-consistency-0.2.1.tgz
+    version: 0.2.1
+  - apiVersion: v2
+    appVersion: 0.1.0
+    created: "2021-08-27T16:08:29.847096564Z"
+    description: A Helm chart for Kubernetes
+    digest: ddf4a3fe9fb73d387edd7a85139dbbdaac5ad456ced3d71e0d42514205012fa4
+    name: rucio-consistency
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/rucio-consistency-0.2.0/rucio-consistency-0.2.0.tgz
+    version: 0.2.0
+  rucio-cron-jobs:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2021-08-27T17:25:39.065291921Z"
+    description: A Helm chart for Kubernetes
+    digest: f769157f73df2e143e33b46491bee5b866d35edbb7107fd652be23ba94a0cd6c
+    name: rucio-cron-jobs
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/rucio-cron-jobs-0.2.1/rucio-cron-jobs-0.2.1.tgz
+    version: 0.2.1
+  rucio-loadtest:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2021-08-27T17:25:39.216581785Z"
+    description: A Helm chart for the loadtest application for Rucio
+    digest: a2bf6e6632b6e9ba2fabba24b631b712f4c02405110850696446261640ef0e86
+    name: rucio-loadtest
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/rucio-loadtest-0.2.0/rucio-loadtest-0.2.0.tgz
+    version: 0.2.0
+  rucio-statsd-exporter:
+  - apiVersion: v1
+    appVersion: "1.0"
+    created: "2021-08-27T17:25:39.330297861Z"
+    description: A Helm chart to deploy statsd-exporter for CMS Rucio
+    digest: b7532dc20518ec1f4d6a5ed55a7fa52add19e3bb187b0326fc16a4c21af32496
+    home: https://github.com/dmwm/CMSKubernetes
+    keywords:
+    - data-management
+    - science
+    maintainers:
+    - email: ewv@fnal.gov
+      name: Eric Vaandering
+    name: rucio-statsd-exporter
+    sources:
+    - https://github.com/dmwm/CMSKubernetes
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/rucio-statsd-exporter-1.0.2/rucio-statsd-exporter-1.0.2.tgz
+    version: 1.0.2
+  rucio-traces:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2021-08-27T17:25:39.459042633Z"
+    description: A Helm chart for Kubernetes
+    digest: c83d6f84dab68da1ed85b8c8ae790853d84eae2482782f95f42b95bc3eea7753
+    name: rucio-traces
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/rucio-traces-0.2.0/rucio-traces-0.2.0.tgz
+    version: 0.2.0
+generated: "2021-08-27T17:25:39.459052733Z"
