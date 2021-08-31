@@ -55,6 +55,83 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/das-server-0.1.1/das-server-0.1.1.tgz
     version: 0.1.1
+  dbs-global-r:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2021-08-31T16:22:22.665110197Z"
+    description: A Helm chart for Kubernetes
+    digest: 122f6021cde24bbebb4db832430334ce05c599c6594729e028d9440769dd9326
+    name: dbs-global-r
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/dbs-global-r-0.1.1/dbs-global-r-0.1.1.tgz
+    version: 0.1.1
+  dbs-global-w:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2021-08-31T16:22:22.796038063Z"
+    description: A Helm chart for Kubernetes
+    digest: 132820afd04ff49827d27f148815705a9e10f2c663ff63ee2f4a781beda1bc4b
+    name: dbs-global-w
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/dbs-global-w-0.1.1/dbs-global-w-0.1.1.tgz
+    version: 0.1.1
+  dbs-migrate:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2021-08-31T16:22:22.936515592Z"
+    description: A Helm chart for Kubernetes
+    digest: 5d5e1ad3b10150604497ba9983815e707a43b00f51f3133017723d7b0fa476e5
+    name: dbs-migrate
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/dbs-migrate-0.1.1/dbs-migrate-0.1.1.tgz
+    version: 0.1.1
+  dbs-phys03-r:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2021-08-31T16:22:23.063327131Z"
+    description: A Helm chart for Kubernetes
+    digest: a88d285067e959fabc2f52f671e403b0fcb19b73d3b6ed703de47ceb59e5dd61
+    name: dbs-phys03-r
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/dbs-phys03-r-0.1.1/dbs-phys03-r-0.1.1.tgz
+    version: 0.1.1
+  dbs-phys03-w:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2021-08-31T16:22:23.232310448Z"
+    description: A Helm chart for Kubernetes
+    digest: 61579c2f2525857aaebf702671db867e1d194552fc6f2699409b5cd3cfac8a59
+    name: dbs-phys03-w
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/dbs-phys03-w-0.1.1/dbs-phys03-w-0.1.1.tgz
+    version: 0.1.1
+  dbs2go:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2021-08-31T16:22:23.350946033Z"
+    description: A Helm chart for Kubernetes
+    digest: 2e2076041b15178fe430d76e97f7660705f41569195814f328f0d82584f7dd55
+    name: dbs2go
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/dbs2go-0.1.1/dbs2go-0.1.1.tgz
+    version: 0.1.1
+  dbsmigration:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2021-08-31T16:22:23.507396468Z"
+    description: A Helm chart for Kubernetes
+    digest: 89f7bdf6b6c8063402b100823dafbd6c33109fc3c110b12dac264068d29e735a
+    name: dbsmigration
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/dbsmigration-0.1.1/dbsmigration-0.1.1.tgz
+    version: 0.1.1
   rucio-consistency:
   - apiVersion: v2
     appVersion: 0.1.0
@@ -128,4 +205,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/rucio-traces-0.2.0/rucio-traces-0.2.0.tgz
     version: 0.2.0
-generated: "2021-08-31T15:55:48.066568788Z"
+generated: "2021-08-31T16:22:23.507410068Z"
