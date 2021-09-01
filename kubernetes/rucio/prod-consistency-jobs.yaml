@@ -271,8 +271,8 @@ consistency:
       remove_prefix: /pnfs/in2p3.fr/data/cms/disk/data/
       interval: 7
     T1_RU_JINR_Disk:
-      server: xrootd01jinr-t1.ru:1094
-      server_root: /pnfs/jinr-t1.ru/data/cms
+      server: xrootd01.jinr-t1.ru:1094
+      server_root: /pnfs/jinr-t1.ru/data/cms/store/
       remove_prefix: /pnfs/jinr-t1.ru/data/cms
       interval: 7
     T2_BE_UCL:
