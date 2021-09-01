@@ -3,6 +3,16 @@ entries:
   crabcache:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2021-09-01T07:48:17.788481267Z"
+    description: A Helm chart for Kubernetes
+    digest: 1c74cad1e44a9392cb428bacf68ae3944a3a10088a422b4e5a97e3ecee2fae52
+    name: crabcache
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/crabcache-0.1.7/crabcache-0.1.7.tgz
+    version: 0.1.7
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2021-09-01T07:42:06.972431106Z"
     description: A Helm chart for Kubernetes
     digest: f14cef1691f375cf0ed40911f6abe77c63c3afb5f4e93c4e4b1311ba395aa8d5
@@ -235,4 +245,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/rucio-traces-0.2.0/rucio-traces-0.2.0.tgz
     version: 0.2.0
-generated: "2021-09-01T07:42:06.972450906Z"
+generated: "2021-09-01T07:48:17.788500367Z"
