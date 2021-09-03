@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dbs-phys03-w-filebeat-config
+  name: '{{ include "dbs-phys03-w.fullname" . }}-filebeat-config'
   namespace: dbs
   labels:
     k8s-app: filebeat
@@ -27,7 +27,8 @@ data:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: dbs-phys03-w
+  name: {{ include "dbs-phys03-w.fullname" . }}
+  namespace: dbs
   labels:
     app: dbs-phys03-w
   namespace: dbs

@@ -128,7 +128,7 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: dbs-global-r
+          name: {{ include "dbs-global-r.fullname" . }}
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: logs
         persistentVolumeClaim:
@@ -147,7 +147,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: dbs-global-r-filebeat-config
+          name: {{ include "dbs-global-r.fullname" . }}-filebeat-config
       - name: data
         emptyDir: {}       
 {{- end }}

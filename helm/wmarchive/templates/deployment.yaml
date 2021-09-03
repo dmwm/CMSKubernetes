@@ -120,7 +120,7 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: wmarchive
+          name: {{ include "wmarchive.fullname" . }}
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: logs
         persistentVolumeClaim:
@@ -139,7 +139,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: wmarchive-filebeat-config
+          name: {{ include "wmarchive.fullname" . }}-filebeat-config
       - name: data
         emptyDir: {}
 {{- end }}

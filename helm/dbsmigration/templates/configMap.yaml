@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dbsmigration-filebeat-config
+  name: '{{ include "dbsmigration.fullname" . }}-filebeat-config'
   namespace: dbs
   labels:
     k8s-app: filebeat
@@ -27,7 +27,8 @@ data:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: dbsmigration
+  name: {{ include "dbsmigration.fullname" . }}
+  namespace: dbs
   labels:
     app: dbsmigration
   namespace: dbs

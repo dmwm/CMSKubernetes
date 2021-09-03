@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dbs-global-r-filebeat-config
+  name: '{{ include "dbs-global-r.fullname" . }}-filebeat-config'
   namespace: dbs
   labels:
     k8s-app: filebeat
@@ -27,7 +27,7 @@ data:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: dbs-global-r
+  name: {{ include "dbs-global-r.fullname" . }}
   labels:
     app: dbs-global-r
   namespace: dbs

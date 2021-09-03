@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: crabserver-filebeat-config
+  name: '{{ include "crabserver.fullname" . }}-filebeat-config'
   namespace: crab
   labels:
     k8s-app: filebeat
@@ -28,7 +28,7 @@ data:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: crabserver
+  name: {{ include "crabserver.fullname" . }}
   labels:
     app: crabserver
   namespace: crab

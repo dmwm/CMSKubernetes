@@ -112,7 +112,7 @@ spec:
           secretName: hmac-secrets
       - name: secrets
         configMap:
-          name: dbs2go-config
+          name: {{ include "dbs2go.fullname" .}}-config
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: logs
         persistentVolumeClaim:
@@ -131,7 +131,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: dbs2go-filebeat-config
+          name: {{ include "dbs2go.fullname" .}}-filebeat-config
       - name: data
         emptyDir: {}
 {{- end }}

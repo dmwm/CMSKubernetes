@@ -124,7 +124,7 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: t0reqmon
+          name: {{ include "t0reqmon.fullname" . }}
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: logs
         persistentVolumeClaim:
@@ -143,7 +143,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: t0reqmon-filebeat-config
+          name: {{ include "t0reqmon.fullname" . }}-filebeat-config
       - name: data
         emptyDir: {}
 {{- end }}

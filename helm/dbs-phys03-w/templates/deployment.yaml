@@ -132,7 +132,7 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: dbs-phys03-w
+          name: {{ include "dbs-phys03-w.fullname" . }}
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: logs
         persistentVolumeClaim:
@@ -151,7 +151,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: dbs-phys03-w-filebeat-config
+          name: {{ include "dbs-phys03-w.fullname" . }}-filebeat-config
       - name: data
         emptyDir: {}
 {{- end }}

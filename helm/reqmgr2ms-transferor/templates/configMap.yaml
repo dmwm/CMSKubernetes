@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ms-transferor-filebeat-config
+  name: '{{ include "reqmgr2ms-transferor.fullname" . }}-filebeat-config'
   namespace: dmwm
   labels:
     k8s-app: filebeat
@@ -27,7 +27,7 @@ data:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: ms-transferor
+  name: {{ include "reqmgr2ms-rulecleaner.fullname" . }}
   labels:
     app: ms-transferor
   namespace: dmwm

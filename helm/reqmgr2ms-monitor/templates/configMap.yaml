@@ -1,7 +1,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ms-monitor-filebeat-config
+  name: ms-monitor
+  name: '{{ include "reqmgr2ms-monitor.fullname" . }}-filebeat-config'
   namespace: dmwm
   labels:
     k8s-app: filebeat
@@ -27,7 +28,7 @@ data:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: ms-monitor
+  name: {{ include "reqmgr2ms-monitor.fullname" . }}
   labels:
     app: ms-monitor
   namespace: dmwm

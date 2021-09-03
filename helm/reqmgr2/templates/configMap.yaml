@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: reqmgr2-filebeat-config
+  name: '{{ include "reqmgr2.fullname" . }}-filebeat-config'
   namespace: dmwm
   labels:
     k8s-app: filebeat
@@ -27,7 +27,7 @@ data:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: reqmgr2
+  name: {{ include "reqmgr2.fullname" . }}
   labels:
     app: reqmgr2
   namespace: dmwm

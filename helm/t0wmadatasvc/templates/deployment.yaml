@@ -123,7 +123,7 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: t0wmadatasvc
+          name: {{ include "t0wmadatasvc.fullname" . }}
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: logs
         persistentVolumeClaim:
@@ -142,7 +142,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: t0wmadatasvc-filebeat-config
+          name: {{ include "t0wmadatasvc.fullname" . }}-filebeat-config
       - name: data
         emptyDir: {}
 {{- end }}

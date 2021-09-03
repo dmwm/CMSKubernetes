@@ -118,7 +118,7 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: ms-rulecleaner
+           name: {{ include "reqmgr2ms-rulecleaner.fullname" . }}
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: logs
         persistentVolumeClaim:
@@ -137,7 +137,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: ms-rulecleaner-filebeat-config
+          name: {{ include "reqmgr2ms-rulecleaner.fullname" . }}-filebeat-config
       - name: data
         emptyDir: {}
 {{- end }}
