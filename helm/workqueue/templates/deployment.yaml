@@ -116,7 +116,7 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: workqueue
+          name: {{ include "workqueue.fullname" . }}
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: logs
         persistentVolumeClaim:
@@ -135,7 +135,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: workqueue-filebeat-config
+          name: {{ include "workqueue.fullname" . }}-filebeat-config
       - name: data
         emptyDir: {}
 {{- end }}

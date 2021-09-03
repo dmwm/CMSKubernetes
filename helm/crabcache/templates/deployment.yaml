@@ -128,7 +128,7 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: crabcache
+          name: {{ include "crabcache.fullname" .}}
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: crabcache-storage
         persistentVolumeClaim:
@@ -150,7 +150,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: crabcache-filebeat-config
+          name: {{ include "crabcache.fullname" . }}-filebeat-config
       - name: data
         emptyDir: {}
 {{- end }}

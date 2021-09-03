@@ -132,7 +132,7 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: dbs-migrate
+          name: {{ include "dbs-migrate.fullname" . }}
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: logs
         persistentVolumeClaim:
@@ -151,7 +151,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: dbs-migrate-filebeat-config
+          name: {{ include "dbs-migrate.fullname" . }}-filebeat-config
       - name: data
         emptyDir: {}
 {{- end }}

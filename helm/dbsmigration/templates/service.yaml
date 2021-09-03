@@ -1,7 +1,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: dbsmigration
+  name: {{ include "dbsmigration.fullname" . }}
   namespace: dbs
 spec:
   selector:

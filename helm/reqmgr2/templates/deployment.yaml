@@ -124,7 +124,7 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: reqmgr2
+          name: {{ include "reqmgr2.fullname" . }}
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: logs
         persistentVolumeClaim:
@@ -143,7 +143,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: reqmgr2-filebeat-config
+          name: {{ include "reqmgr2.fullname" . }}-filebeat-config
       - name: data
         emptyDir: {}
 {{- end }}

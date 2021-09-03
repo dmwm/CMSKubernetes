@@ -134,7 +134,7 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: crabserver
+          name: {{ include "crabserver.fullname" . }}
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: logs
         persistentVolumeClaim:
@@ -153,7 +153,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: crabserver-filebeat-config
+          name: {{ include "crabserver.fullname" . }}-filebeat-config
       - name: data
         emptyDir: {}
 {{- end }}

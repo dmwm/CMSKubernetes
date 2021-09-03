@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: workqueue-filebeat-config
+  name: '{{ include "workqueue.fullname" . }}-filebeat-config'
   namespace: dmwm
   labels:
     k8s-app: filebeat
@@ -27,7 +27,7 @@ data:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: workqueue
+  name: {{ include "workqueue.fullname" . }}
   labels:
     app: workqueue
   namespace: dmwm

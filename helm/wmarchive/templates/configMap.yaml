@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: wmarchive-filebeat-config
+  name: '{{ include "wmarchive.fullname" . }}-filebeat-config'
   namespace: wma
   labels:
     k8s-app: filebeat
@@ -27,7 +27,7 @@ data:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: wmarchive
+  name: {{ include "wmarchive.fullname" . }}
   labels:
     app: wmarchive
   namespace: wma

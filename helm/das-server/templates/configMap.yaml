@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: das-server-filebeat-config
+  name: '{{ include "das-server.fullname" . }}-filebeat-config'
   namespace: das
   labels:
     k8s-app: filebeat
@@ -29,7 +29,7 @@ data:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: das-server-promtail
+  name: {{ include "das-server.fullname" . }}
   labels:
     app: das-server-promtail
   namespace: das

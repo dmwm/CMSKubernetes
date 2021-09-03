@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dbs2go-filebeat-config
+  name: '{{ include "dbs2go.fullname" . }}-filebeat-config'
   namespace: dbs
   labels:
     k8s-app: filebeat
