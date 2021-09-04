@@ -2,7 +2,7 @@
 
 helm repo add stable https://charts.helm.sh/stable
 helm plugin install https://github.com/chartmuseum/helm-push
-helm repo add --username=${HARBOR_USER} --password=${HARBOR_TOKEN} myrepo  https://registry.cern.ch/chartrepo/cmsweb
+helm repo add --username=${CERN_USER} --password=${CERN_TOKEN} myrepo  https://registry.cern.ch/chartrepo/cmsweb
 helm repo update
 helm repo list
 cd helm
@@ -18,7 +18,7 @@ echo $chart
               helm dep update ${chart}
               helm package ${chart}
 	      set +x
-              helm push --username=${HARBOR_USER} --password=${HARBOR_TOKEN} "${chart}-${LOCAL_VERSION}.tgz"  myrepo
+              helm push --username=${CERN_USER} --password=${CERN_TOKEN} "${chart}-${LOCAL_VERSION}.tgz"  myrepo
               set -x
           fi
 done
