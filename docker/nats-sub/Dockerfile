@@ -1,4 +1,4 @@
-FROM golang:latest
+FROM golang:1.17.0-bullseye
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 ENV WDIR=/data
 WORKDIR $WDIR
