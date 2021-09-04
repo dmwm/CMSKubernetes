@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  release:
+  github-release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -31,3 +31,18 @@ jobs:
           charts_repo_url: https://dmwm.github.io/CMSKubernetes
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+  cern-registry:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          
+      - name: Run deploy script
+        run: ./.github/scripts/deploy.sh
+        shell: bash
+        env:
+          HARBOR_USER: "${{ secrets.HARBOR_USER }}"
+          HARBOR_TOKEN: "${{ secrets.HARBOR_TOKEN }}"    
+
