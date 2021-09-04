@@ -3,6 +3,16 @@ entries:
   crabcache:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2021-09-04T18:27:44.593359102Z"
+    description: A Helm chart for Kubernetes
+    digest: 84545dbf53a674f7ae05adbdf066c4c1be504cdb626fb3d29af4625bb3a3a7ea
+    name: crabcache
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/crabcache-0.1.9/crabcache-0.1.9.tgz
+    version: 0.1.9
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2021-09-03T10:10:53.895491808Z"
     description: A Helm chart for Kubernetes
     digest: ed74a594d1c0d437443aa428a808b4101ea3214c3405a5aa17018394848aeb88
@@ -584,4 +594,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/workqueue-0.1.1/workqueue-0.1.1.tgz
     version: 0.1.1
-generated: "2021-09-03T10:10:59.477005806Z"
+generated: "2021-09-04T18:27:44.593468308Z"
