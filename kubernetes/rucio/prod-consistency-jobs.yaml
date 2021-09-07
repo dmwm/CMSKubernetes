@@ -39,9 +39,6 @@ consistency:
       server: lcgse01.phy.bris.ac.uk:11001
       #server: heplnx228.pp.rl.ac.uk:1094
       interval: 7
-    T2_FR_CCIN2P3:
-      server: ccxrpli003.in2p3.fr:1094
-      interval: 7
     T2_DE_RWTH:
       server: grid-cms-xrootd.physik.rwth-aachen.de:1094
       interval: 7
@@ -274,8 +271,8 @@ consistency:
       remove_prefix: /pnfs/in2p3.fr/data/cms/disk/data/
       interval: 7
     T1_RU_JINR_Disk:
-      server: xrootd01jinr-t1.ru:1094
-      server_root: /pnfs/jinr-t1.ru/data/cms
+      server: xrootd01.jinr-t1.ru:1094
+      server_root: /pnfs/jinr-t1.ru/data/cms/store/
       remove_prefix: /pnfs/jinr-t1.ru/data/cms
       interval: 7
     T2_BE_UCL:
@@ -297,21 +294,20 @@ deckard:
   sites:
     T0_CH_CERN_Disk:
       interval: 1
+      maxdarkfraction: 0.00
     T1_DE_KIT_Disk:
-      maxdarkfraction: 0.03
       interval: 1
     T1_ES_PIC_Disk:
       interval: 1
-#    T1_FR_CCIN2P3_Disk:
-#      interval: 1
+    T1_FR_CCIN2P3_Disk:
+      interval: 1
     T1_IT_CNAF_Disk:
       interval: 1
+    T1_RU_JINR_Disk:
+      interval: 1
+    T1_US_FNAL_Disk:
       maxdarkfraction: 0.05
-      # Probably needs 4%. Check when 14 day history elapsed
-#    T1_RU_JINR_Disk:
-#      interval: 1
-#    T1_US_FNAL_Disk:
-#      interval: 1
+      interval: 1
     T2_AT_Vienna:
       interval: 1
     T2_BE_IIHE:
@@ -324,6 +320,7 @@ deckard:
     T2_BR_UERJ:      
       interval: 1
     T2_CH_CERN:
+      maxdarkfraction: 0.03
       interval: 1
     T2_CH_CSCS:
       interval: 1
@@ -335,17 +332,12 @@ deckard:
       maxdarkfraction: 0.03
       interval: 1
     T2_EE_Estonia:
-      maxdarkfraction: 0.03
       interval: 1
     T2_ES_CIEMAT:
       interval: 1
-#    T2_ES_IFCA:
-#      interval: 1
-    T2_FI_HIP:
+    T2_ES_IFCA:
       interval: 1
-      maxdarkfraction: 0.03
-    T2_FR_CCIN2P3:
-      maxdarkfraction: 0.03
+    T2_FI_HIP:
       interval: 1
     T2_FR_GRIF_IRFU:
       interval: 1
@@ -354,8 +346,8 @@ deckard:
       interval: 1
     T2_FR_IPHC:
       interval: 1
-#    T2_GR_Ioannina:
-#      interval: 1
+    T2_GR_Ioannina:
+      interval: 1
     T2_HU_Budapest:
       interval: 1
     T2_IN_TIFR:
@@ -365,20 +357,17 @@ deckard:
       maxdarkfraction: 0.03
       interval: 1
     T2_IT_Legnaro:
-      maxdarkfraction: 0.03
       interval: 1
     T2_IT_Pisa:
       interval: 1
       maxdarkfraction: 0.03
     T2_IT_Rome:
       interval: 1
-      maxdarkfraction: 0.03
     T2_KR_KISTI:
       interval: 1
-#    T2_PK_NCP:
-#      interval: 1
+    T2_PK_NCP:
+      interval: 1
     T2_PL_Swierk:
-      maxdarkfraction: 0.03
       interval: 1
     T2_PT_NCG_Lisbon:
       maxdarkfraction: 0.03
@@ -386,52 +375,47 @@ deckard:
     T2_RU_IHEP:
       interval: 1
     T2_RU_INR:
-      maxdarkfraction: 0.03
       interval: 1
     T2_RU_ITEP:
       interval: 1
     T2_RU_JINR:
       maxdarkfraction: 0.03
       interval: 1
-#    T2_TR_METU:
-#      interval: 1
+    T2_TR_METU:
+      interval: 1
     T2_TW_NCHC:
       interval: 1
     T2_UA_KIPT:
       interval: 1
-#    T2_UK_London_Brunel:
-#      interval: 1
+    T2_UK_London_Brunel:
+      interval: 1
     T2_UK_London_IC:
       interval: 1
     T2_UK_SGrid_Bristol:
-      maxdarkfraction: 0.03
       interval: 1
     T2_UK_SGrid_RALPP:
-      maxdarkfraction: 0.03
       interval: 1
-#    T2_US_Caltech_Ceph:
-#      interval: 1
-    T2_US_Florida:
-      interval: 1
-    T2_US_MIT:
+    T2_US_Caltech_Ceph:
       interval: 1
     T2_US_Florida:
       interval: 1
     T2_US_MIT:
+      interval: 1
+    T2_US_Florida:
+      interval: 1
+    T2_US_MIT:
       maxdarkfraction: 0.03
       interval: 1
-#    T2_US_Nebraska:
-#      interval: 1
+    T2_US_Nebraska:
+      interval: 1
     T2_US_Purdue:
       interval: 1
-      maxdarkfraction: 0.03
     T2_US_UCSD:
       maxdarkfraction: 0.03
       interval: 1
     T2_US_Vanderbilt:
       interval: 1
-#    T2_US_Wisconsin:
-#      interval: 1
+    T2_US_Wisconsin:
+      interval: 1
     T3_US_Rutgers:
-      maxdarkfraction: 0.03
       interval: 1

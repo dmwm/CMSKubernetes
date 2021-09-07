@@ -1,0 +1,156 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "crabcache.fullname" . }}
+  labels:
+    {{- include "crabcache.labels" . | nindent 4 }}
+  namespace: crab
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }} 
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "crabcache.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "crabcache.selectorLabels" . | nindent 8 }}
+        {{- if .Values.environment.preprod}}
+        env: k8s-preprod
+        {{- end }}
+        {{- if .Values.environment.prod}}
+        env: k8s-prod
+        {{- end }}
+        {{- if .Values.environment.test}}
+        env: k8s
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "crabcache.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          tty: true
+          stdin: true
+          lifecycle:
+          {{- toYaml .Values.lifecycle | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          livenessProbe:
+          {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+          {{- toYaml .Values.readinessProbe | nindent 12 }}
+          ports:
+           - containerPort: {{ .Values.service.port}}
+             name: {{ .Values.service.name }}
+             protocol: {{ .Values.service.protocol }}
+           - containerPort: {{ .Values.serviceMon.port }}
+             name: {{ .Values.serviceMon.name }}
+             protocol: {{ .Values.serviceMon.protocol }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          command:
+          {{- toYaml .Values.image.command | nindent 10 }}
+          volumeMounts:
+          - name: proxy-secrets
+            mountPath: /etc/proxy
+            readOnly: true
+          - name: secrets
+            mountPath: /etc/secrets
+            readOnly: true
+          - name: robot-secrets
+            mountPath: /etc/robots
+            readOnly: true
+          - name: hmac-secrets
+            mountPath: /etc/hmac
+            readOnly: true
+          - mountPath: /host/etc/grid-security
+            name: etc-grid-security
+            readOnly: true
+          - name: setup-certs-and-run
+            mountPath: /opt/setup-certs-and-run
+{{- if or .Values.environment.preprod .Values.environment.prod }}
+          - name: crabcache-storage
+            mountPath: /data/srv/state/crabcache/files
+          - name: logs
+            mountPath: /data/srv/logs/crabcache
+        - name: {{ .Values.imageFilebeat.name }}
+          image: {{ .Values.imageFilebeat.path }}
+          args: 
+          {{- toYaml .Values.imageFilebeat.args | nindent 10 }}
+          env:
+          {{- toYaml .Values.imageFilebeat.env | nindent 10 }}
+          resources:
+          {{- toYaml .Values.imageFilebeatResources | nindent 12 }}
+          volumeMounts:
+          - name: logs
+            mountPath: /data/srv/logs/crabcache
+          - name: config
+            mountPath: /etc/filebeat.yml
+            readOnly: true
+            subPath: filebeat.yml
+          - name: data
+            mountPath: /usr/share/filebeat/data
+          - name: varlog
+            mountPath: /var/log
+          - name: varlibdockercontainers
+            mountPath: /var/lib/docker/containers
+            readOnly: true
+          securityContext:
+          {{- toYaml .Values.imageFilebeatSecurityContext | nindent 12 }}
+{{- end }}
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: crabcache-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: etc-grid-security
+        hostPath:
+            path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: {{ include "crabcache.fullname" .}}
+{{- if or .Values.environment.prod .Values.environment.preprod }}
+      - name: crabcache-storage
+        persistentVolumeClaim:
+            claimName: crabcache-claim
+      - name: logs
+        persistentVolumeClaim:
+{{- if .Values.environment.preprod }}
+            claimName: logs-cephfs-claim-preprod-crab
+{{- end }}
+{{- if .Values.environment.prod }}
+            claimName: logs-cephfs-claim-prod-crab
+{{- end }}
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: config
+        configMap:
+          defaultMode: 0640
+          name: {{ include "crabcache.fullname" . }}-filebeat-config
+      - name: data
+        emptyDir: {}
+{{- end }}
