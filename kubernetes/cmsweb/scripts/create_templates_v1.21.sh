@@ -74,8 +74,8 @@ openstack \
 	--fixed-network CERN_NETWORK \
 	--network-driver calico \
 	--dns-nameserver 137.138.16.5,137.138.17.5 \
-	--flavor m2.large \
-	--master-flavor m2.medium \
+	--flavor m2.2xlarge \
+	--master-flavor m2.large \
 	--docker-storage-driver overlay2 \
 	--server-type vm
 
