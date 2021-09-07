@@ -67,7 +67,7 @@ deploy_prometheus_operator()
 deploy_cronjobs()
 {
     # create cron accounts
-    for ns in http alerts; do
+    for ns in http alerts auth; do
         kubectl apply -f crons/proxy-account.yaml -n $ns
         kubectl apply -f crons/cron-proxy.yaml -n $ns
     done
