@@ -38,7 +38,7 @@ spec:
       #- image: cmssw/auth-proxy-server:0.1.81
       #- image: cmssw/auth-proxy-server:0.1.106
 #       - image: cmssw/auth-proxy-server:0.1.106-static
-      - image: cmssw/auth-proxy-server:0.2.05
+      - image: cmssw/auth-proxy-server:0.2.07
         name: auth-proxy-server
         imagePullPolicy: Always
         args:
