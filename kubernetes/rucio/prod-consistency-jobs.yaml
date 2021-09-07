@@ -240,6 +240,9 @@ consistency:
     T2_US_Caltech_Ceph:
       server: transfer-10.ultralight.org
       interval: 7
+    T2_US_Caltech:
+      server: transfer-10.ultralight.org
+      interval: 7
     T2_US_Florida:
       server: cmsio7.rc.ufl.edu 
       interval: 7
