@@ -39,7 +39,8 @@ spec:
 #       - image: cmssw/auth-proxy-server #imagetag
 #       - image: cmssw/auth-proxy-server:0.1.106 #imagetag
 #       - image: cmssw/auth-proxy-server:0.1.106-static #imagetag
-      - image: cmssw/auth-proxy-server:0.2.06 #imagetag
+#       - image: cmssw/auth-proxy-server:0.2.06 #imagetag
+      - image: cmssw/auth-proxy-server:0.2.07 #imagetag
         name: x509-proxy-server
 #         imagePullPolicy: Always
         args:
