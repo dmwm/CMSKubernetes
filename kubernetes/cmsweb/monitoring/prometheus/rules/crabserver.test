@@ -23,3 +23,22 @@ tests:
               exp_annotations:
                  summary: "crabserver prod is down"
                  description: "prod has been down for more than 5m"
+- interval: 1m
+  input_series:
+  - series: 'avg_open_fds{env="prod",instance="test-instance",host="k8s-test"}'
+    values: '6+1x100'
+  alert_rule_test:
+      - eval_time: 10m
+        alertname: CRAB server service has high number of fds
+        exp_alerts:
+            - exp_labels:
+                 severity: high
+                 tag: cmsweb
+                 service: crab
+                 host: k8s-test
+                 action: Please check CRAB server test-instance and possibly restart it
+                 instance: test-instance
+                 env: prod
+              exp_annotations:
+                 summary: "CRAB prod environment"
+                 description: "prod has high level of fds 16 for more than 1m"
