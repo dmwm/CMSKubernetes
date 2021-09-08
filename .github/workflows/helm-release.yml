@@ -43,6 +43,5 @@ jobs:
         run: ./.github/scripts/deploy.sh
         shell: bash
         env:
-          CERN_USER: "${{ secrets.CERN_USER }}"
-          CERN_TOKEN: "${{ secrets.CERN_TOKEN }}"    
-
+          CERN_USER: "${{ secrets.CERN_LOGIN }}"
+          CERN_TOKEN: "${{ secrets.CERN_TOKEN }}"
