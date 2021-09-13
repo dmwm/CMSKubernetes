@@ -237,9 +237,9 @@ consistency:
       server_root: //dpm/brunel.ac.uk/home/cms/store/
       remove_prefix: //dpm/brunel.ac.uk/home/cms/
       interval: 7
-    T2_US_Caltech_Ceph:
-      server: transfer-10.ultralight.org
-      interval: 7
+    #T2_US_Caltech_Ceph:
+    #  server: transfer-10.ultralight.org
+    #  interval: 7
     T2_US_Caltech:
       server: transfer-10.ultralight.org
       interval: 7
