@@ -1,7 +1,8 @@
 groups:
 - name: crabserver
   rules:
-
+  - record: avg_open_fds
+    expr: avg_over_time(crabserver_process_open_fds[15m])
   - alert: CRAB server is down
     expr: crabserver_num_cpus == 0
     for: 5m
@@ -14,3 +15,14 @@ groups:
     annotations:
       summary: "crabserver {{ $labels.env }} is down"
       description: "{{ $labels.env }} has been down for more than 5m"
+  - alert: CRAB server service has high number of fds
+    expr: avg_open_fds > 5
+    for: 1m
+    labels:
+      severity: high
+      tag: cmsweb
+      service: crab
+      action: Please check CRAB server {{ $labels.instance }} and possibly restart it
+    annotations:
+      summary: "CRAB {{ $labels.env }} environment"
+      description: "{{ $labels.env }} has high level of fds {{ $value }} for more than 1m"
