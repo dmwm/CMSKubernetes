@@ -2,7 +2,7 @@ FROM cmssw/exporters:20210726-nonstatic as exporters-builder
 RUN mkdir -p /data
 
 
-FROM cern/cc7-base:20210715-1
+FROM cern/cc7-base:20210901-1
 
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
