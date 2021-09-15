@@ -487,6 +487,16 @@ entries:
   reqmon:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2021-09-15T14:36:20.575231065Z"
+    description: A Helm chart for Kubernetes
+    digest: 9326155ae90ee4f1b755f56f12e7c8578d34daf718cd8d88640ddb6a66401fd2
+    name: reqmon
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/reqmon-0.1.2/reqmon-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2021-09-03T10:10:58.412605495Z"
     description: A Helm chart for Kubernetes
     digest: e88709ee280443f00a39e405ec254db606db841a5eb04e0c4568ad6b673a0e2e
@@ -654,4 +664,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/workqueue-0.1.1/workqueue-0.1.1.tgz
     version: 0.1.1
-generated: "2021-09-08T18:51:35.684147787Z"
+generated: "2021-09-15T14:36:20.575299765Z"
