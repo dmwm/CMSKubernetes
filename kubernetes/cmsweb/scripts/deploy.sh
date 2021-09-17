@@ -589,7 +589,7 @@ deploy_monitoring()
         if [ -f /tmp/prometheus.yaml ]; then
             files="$files --from-file=/tmp/prometheus.yaml"
         else
-            files="$files --from-file=/monitoring/prometheus/$mon/prometheus.yaml"
+            files="$files --from-file=monitoring/prometheus/$mon/prometheus.yaml"
         fi
         for fname in monitoring/prometheus/rules/*; do
             files="$files --from-file=$fname"

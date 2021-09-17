@@ -10,7 +10,7 @@ image:
   repository: cmssw/reqmon
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "HG2108h-v3"
+  tag: "HG2109f"
   command:
   - /bin/bash
   - /opt/setup-certs-and-run/setup-certs-and-run.sh

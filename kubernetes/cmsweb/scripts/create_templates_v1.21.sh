@@ -14,7 +14,7 @@ echo "Creating: $tmpl"
 # large template
 openstack \
 	--os-project-name "$namespace" coe cluster template create $tmpl \
-	--labels admission_control_list="    ExtendedResourceToleration,NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,DefaultTolerationSeconds,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority" \
+	--labels admission_control_list="ExtendedResourceToleration,NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,DefaultTolerationSeconds,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority" \
 	--labels autoscaler_tag="v1.21.0-cern.0" \
 	--labels calico_ipv4pool="10.100.0.0/16" \
 	--labels calico_ipv4pool_ipip="CrossSubnet" \
