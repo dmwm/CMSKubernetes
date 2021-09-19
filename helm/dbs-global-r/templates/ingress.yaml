@@ -1,6 +1,11 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "dbs-global-r.fullname" . -}}
 {{- $svcPort := .Values.service.port -}}
+{{- if .Values.environment.prod }}
+{{- $path := "/dbs/int/global/DBSReader" }}
+{{- else }}
+{{- $path := "/dbs/int/global/DBSReader" }}
+{{- end }}
 {{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1beta1
 {{- else -}}
@@ -15,6 +20,10 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+    {{- if .Values.isCanaryRelease.set }}
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "{{ .Values.isCanaryRelease.weight }}"
+    {{- end }}
 spec:
   {{- if .Values.ingress.tls }}
   tls:
@@ -31,11 +40,14 @@ spec:
     - host: {{ .host | quote }}
       http:
         paths:
-          {{- range .paths }}
-          - path: {{ . }}
+        {{- if $.Values.environment.prod }}
+          - path: /dbs/prod/global/DBSReader
+        {{- else }}
+          - path: /dbs/int/global/DBSReader
+        {{- end }}
             backend:
               serviceName: {{ $fullName }}
               servicePort: {{ $svcPort }}
-          {{- end }}
     {{- end }}
   {{- end }}
+

@@ -11,10 +11,14 @@ metadata:
   name: {{ $fullName }}
   labels:
     {{- include "exitcodes.labels" . | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
+  {{- with .Values.ingress.annotationsProd }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  {{- if .Values.isCanaryRelease.set}}
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "{{ .Values.isCanaryRelease.weight }}"
+   {{- end }}
 spec:
   {{- if .Values.ingress.tls }}
   tls:

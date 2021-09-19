@@ -1,7 +1,11 @@
 # Default values for crabcache.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-#
+
+isCanaryRelease: 
+  set: false
+  weight: 10
+
 environment:
   preprod: false
   prod: false
@@ -56,13 +60,13 @@ serviceAccount:
 
 
 ingress:
-  enabled: false
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
   hosts:
-    - host: chart-example.local
-      paths: []
+    - host: cmsweb-test8.cern.ch
+      paths:
+      - /crabcache
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:

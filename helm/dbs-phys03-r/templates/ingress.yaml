@@ -15,6 +15,10 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+    {{- if .Values.isCanaryRelease.set }}
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "{{ .Values.isCanaryRelease.weight }}"
+    {{- end }}
 spec:
   {{- if .Values.ingress.tls }}
   tls:
@@ -31,11 +35,13 @@ spec:
     - host: {{ .host | quote }}
       http:
         paths:
-          {{- range .paths }}
-          - path: {{ . }}
+        {{- if $.Values.environment.prod }}
+          - path: /dbs/prod/phys03/DBSReader
+        {{- else }}
+          - path: /dbs/int/phys03/DBSReader
+        {{- end }}
             backend:
               serviceName: {{ $fullName }}
               servicePort: {{ $svcPort }}
-          {{- end }}
     {{- end }}
   {{- end }}

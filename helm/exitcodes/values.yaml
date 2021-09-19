@@ -3,7 +3,7 @@ replicaCount: 1
 
 image:
   repository: cmssw/exitcodes
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   tag: "HG2011h-c"
 
 imagePullSecrets: []
@@ -26,13 +26,17 @@ service:
   port: 9201
 
 ingress:
-  enabled: false
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  enabled: true
+  annotationsProd:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "route"
+    nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
   hosts:
-    - host: chart-example.local
-      paths: []
+    - host: cmsweb-test8.cern.ch #ingress.hosts[0].host= ""
+      paths: 
+      - /exitcodes
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
