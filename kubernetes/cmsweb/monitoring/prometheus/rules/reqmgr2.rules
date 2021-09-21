@@ -3,7 +3,7 @@ groups:
   rules:
 
   - alert: ReqMgr2 service is down
-    expr: reqmgr2_num_cpus == 0 or rate(reqmgr2_process_cpu_seconds_total[5m]) == 0
+    expr: avg_over_time(reqmgr2_process_cpu_seconds_total[5m]) == 0
     for: 5m
     labels:
       severity: high
