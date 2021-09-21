@@ -1,6 +1,6 @@
 #!/bin/bash
 namespace=${OS_PROJECT_NAME:-"CMS Web"}
-tmpl=rucio-template-v-1.21.1-1-`date +%Y%m%d`
+tmpl=cmsweb-template-v-1.21.1-1-`date +%Y%m%d`
 usage="create_templates.sh <tmpl_name, if not provided will use $tmpl>"
 if [ "$1" != "" ]; then
     if [ "$1" == "-help" ] || [ "$1" == "-h" ]; then
