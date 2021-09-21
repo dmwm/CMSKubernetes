@@ -1,0 +1,63 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: autodqmwebapp
+  namespace: dqm
+spec:
+  selector:
+    app: autodqmwebapp
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: autodqmwebapp
+    - port: 18080
+      targetPort: 18080
+      name: dqmwebapp-mon
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: autodqmwebapp
+  name: autodqmwebapp
+  namespace: dqm
+spec:
+  selector:
+    matchLabels:
+      app: autodqmwebapp
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: autodqmwebapp
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18080"
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 2000
+      containers:
+      - image: ghcr.io/jrotter2/autodqmwebapp
+        name: autodqmwebapp
+        env:
+         - name: HOME
+           value: /
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "1"
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+          name: autodqmwebapp
+        - containerPort: 18080
+          protocol: TCP
+          name: dqmwebapp-mon
+        securityContext:
+          privileged: true
