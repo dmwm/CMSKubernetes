@@ -32,9 +32,11 @@ ADD https://raw.githubusercontent.com/FernandoGarzon/probes/check_rules_state_PR
 # PR 57
 ADD https://raw.githubusercontent.com/FernandoGarzon/probes/cms_free_space_probe_2/cms/check_free_space /probes/cms
 
+# PR 62 - Merged on July 6 2021
+ADD https://raw.githubusercontent.com/rucio/probes/master/cms/check_report_used_space /probes/cms
+
 # Until Fernando ports to SQLAlchemy and/or merged
 
-ADD https://raw.githubusercontent.com/rucio/probes/master/cms/check_report_used_space /probes/cms
 ADD https://raw.githubusercontent.com/ericvaandering/probes/hack_obsolete_replicas/common/check_obsolete_replicas /probes/common
 ADD https://raw.githubusercontent.com/nsmith-/probes/hack_replicas/common/check_deletable_replicas /probes/common
 
