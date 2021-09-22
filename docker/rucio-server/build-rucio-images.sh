@@ -2,10 +2,11 @@
 
 set -e
 
-export CMS_VERSION=1.25.7.cms1
-export RUCIO_VERSION=1.25.7
-export CMS_TAG=cms_nano17
+export CMS_VERSION=1.26.2.cms1
+export RUCIO_VERSION=1.26.2
+export CMS_TAG=cms_126_1
 
+# Globus Online (need to revisit in 1.26)
 #export CMS_VERSION=1.25.4.cmsgo
 #export RUCIO_VERSION=1.25.4
 #export CMS_TAG=cms_go_dbg
