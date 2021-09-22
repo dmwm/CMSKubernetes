@@ -601,6 +601,16 @@ entries:
   rucio-traces:
   - apiVersion: v2
     appVersion: 4.0.3
+    created: "2021-09-22T20:10:01.796170459Z"
+    description: A Helm chart for Kubernetes
+    digest: d11b2d7792dc52bdb12f6db0940c64df317dd4200a7a2f78d960b1ba68be58f4
+    name: rucio-traces
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/rucio-traces-1.0.1/rucio-traces-1.0.1.tgz
+    version: 1.0.1
+  - apiVersion: v2
+    appVersion: 4.0.3
     created: "2021-09-22T16:50:32.735364652Z"
     description: A Helm chart for Kubernetes
     digest: c3c03b548f48b4c7f5e98f9935cc3fd2a335c9d6456600e8d52ee678c99f1dcb
@@ -684,4 +694,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/workqueue-0.1.1/workqueue-0.1.1.tgz
     version: 0.1.1
-generated: "2021-09-22T16:50:32.735463155Z"
+generated: "2021-09-22T20:10:01.796927474Z"
