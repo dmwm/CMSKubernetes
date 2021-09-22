@@ -34,6 +34,7 @@ ADD https://raw.githubusercontent.com/FernandoGarzon/probes/cms_free_space_probe
 
 # Until Fernando ports to SQLAlchemy and/or merged
 
+ADD https://raw.githubusercontent.com/rucio/probes/master/cms/check_report_used_space /probes/cms
 ADD https://raw.githubusercontent.com/ericvaandering/probes/hack_obsolete_replicas/common/check_obsolete_replicas /probes/common
 ADD https://raw.githubusercontent.com/nsmith-/probes/hack_replicas/common/check_deletable_replicas /probes/common
 
