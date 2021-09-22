@@ -1,12 +1,12 @@
 groups:
 - name: reqmgr2
   rules:
-  - record: avg_process_cpu_over_time_5m
-    expr: avg_over_time(reqmgr2_process_cpu_seconds_total[5m])
+  - record: avg_open_fds_2m
+    expr: avg_over_time(reqmgr2_process_open_fds[2m])
 
   - alert: ReqMgr2 service is down
-    expr: avg_process_cpu_over_time_5m == 0
-    for: 5m
+    expr: avg_open_fds_2m < 1
+    for: 2m
     labels:
       severity: high
       tag: cmsweb
@@ -16,7 +16,7 @@ groups:
       action: Please check ReqMgr2 service on {{ $labels.instance }} and restart it if needed
     annotations:
       summary: "reqmgr2 {{ $labels.env }} is down"
-      description: "{{ $labels.env }} has been down - zero CPU load over time - for more than 5m"
+      description: "{{ $labels.env }} has been down - zero file descriptors - for more than 2m"
 
   - alert: ReqMgr2 high memory usage
     expr: reqmgr2_proc_mem > 70
