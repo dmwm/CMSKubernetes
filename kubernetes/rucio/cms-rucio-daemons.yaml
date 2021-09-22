@@ -16,7 +16,7 @@ judgeRepairerCount: 1
 tracerKronosCount: 1
 transmogrifierCount: 1
 undertakerCount: 1
-reaperCount: 0
+reaperCount: 1
 reaper2Count: 1
 minosCount: 1
 necromancerCount: 1
@@ -36,6 +36,18 @@ abacusRse:
       memory: 900Mi
 
 reaper2:
+  greedy: 0
+  threads: 8
+  resources:
+    requests:
+      memory: 750Mi
+    limits:
+      memory: 2Gi
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+
+reaper:
   greedy: 0
   threads: 8
   resources:

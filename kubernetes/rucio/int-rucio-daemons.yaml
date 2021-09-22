@@ -7,6 +7,10 @@ reaper2:
   includeRses: "cms_type=int"
   greedy: 1
   threads: 1
+reaper:
+  includeRses: "cms_type=int"
+  greedy: 1
+  threads: 1
 
 darkReaper:
 #  rses: "T2_US_Purdue_Test"

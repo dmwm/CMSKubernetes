@@ -294,6 +294,9 @@ consistency:
       interval: 7
 
 deckard:
+  image:
+    repository: ericvaandering/deckard
+    tag: "1.1.1"
   sites:
     T0_CH_CERN_Disk:
       interval: 1
@@ -332,7 +335,7 @@ deckard:
     T2_DE_DESY:
       interval: 1
     T2_DE_RWTH:
-      maxdarkfraction: 0.03
+      maxdarkfraction: 0.05
       interval: 1
     T2_EE_Estonia:
       interval: 1
@@ -354,10 +357,10 @@ deckard:
     T2_HU_Budapest:
       interval: 1
     T2_IN_TIFR:
-      maxdarkfraction: 0.03
+      maxdarkfraction: 0.05
       interval: 1
     T2_IT_Bari:
-      maxdarkfraction: 0.03
+      maxdarkfraction: 0.05
       interval: 1
     T2_IT_Legnaro:
       interval: 1
@@ -382,7 +385,7 @@ deckard:
     T2_RU_ITEP:
       interval: 1
     T2_RU_JINR:
-      maxdarkfraction: 0.03
+      maxdarkfraction: 0.05
       interval: 1
     T2_TR_METU:
       interval: 1
@@ -410,6 +413,7 @@ deckard:
       maxdarkfraction: 0.03
       interval: 1
     T2_US_Nebraska:
+      maxdarkfraction: 0.03
       interval: 1
     T2_US_Purdue:
       interval: 1

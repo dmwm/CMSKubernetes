@@ -47,6 +47,8 @@ conveyorTransferSubmitter:
   bulk: 50
   groupBulk: 50
 
+
+# Move to reaper
 reaper2:
   includeRses: "rse=T3_US_Theta"
   scheme: "globus"
