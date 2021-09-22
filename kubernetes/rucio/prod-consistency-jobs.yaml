@@ -269,7 +269,7 @@ consistency:
       remove_prefix: /eos/cms/tier0/
       interval: 7
     T1_FR_CCIN2P3_Disk:
-      server: ccxrootdcms.in2p3.fr:1094
+      server: ccxrdcms.in2p3.fr:1094
       server_root: /pnfs/in2p3.fr/data/cms/disk/data/store/
       remove_prefix: /pnfs/in2p3.fr/data/cms/disk/data/
       interval: 7
