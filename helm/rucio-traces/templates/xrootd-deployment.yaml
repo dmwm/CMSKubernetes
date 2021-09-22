@@ -1,12 +1,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-cmsswpop-trace
+  name: {{ .Release.Name }}-xrootd-trace
   labels:
     {{- include "rucio-traces.labels" . | nindent 4 }}
 spec:
 {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.cmsswPopReplicaCount }}
+  replicas: {{ .Values.xrootdReplicaCount }}
 {{- end }}
   selector:
     matchLabels:
@@ -39,7 +39,7 @@ spec:
               protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          command: ["/bin/sh", "/data/run/run-swpop.sh"]
+          command: ["/bin/sh", "/data/run/run-xrootd.sh"]
           volumeMounts:
             - name: secrets
               mountPath: /etc/secrets
@@ -47,7 +47,7 @@ spec:
       volumes:
         - name: secrets
           secret:
-            secretName: cmssw-pop-trace-secrets
+            secretName: xrootd-trace-secrets
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
