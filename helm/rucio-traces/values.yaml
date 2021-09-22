@@ -2,14 +2,15 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-wmagentReplicaCount: 1
-cmsswPopReplicaCount: 1
+wmagentReplicaCount: 0
+cmsswPopReplicaCount: 0
+xrootdReplicaCount: 0
 
 image:
-  repository: yuyiguo/rucio-tracers
+  repository: cmssw/rucio-tracers
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "2.0.1"
+  tag: "4.0.3"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -87,6 +88,12 @@ wmagentBroker:
   stompURIConsumer: "cms-mb.cern.ch:61313"
 
 cmsswPopBroker:
+  stompPassword: ""
+  stompLogin: "cmsrucio"
+  stompURIProducer: "cms-mb.cern.ch:61313"
+  stompURIConsumer: "cms-mb.cern.ch:61313"
+
+xrootdPopBroker:
   stompPassword: ""
   stompLogin: "cmsrucio"
   stompURIProducer: "cms-mb.cern.ch:61313"
