@@ -8,7 +8,8 @@ extraScrapeConfigs: |
   - job_name: "traces"
     metrics_path: "/metrics"
     static_configs:
-    - targets: ['rucio-traces-prod-cmsswpop-trace:8888', 'rucio-traces-prod-wmagent-trace:8888']
+    - targets: ['rucio-traces-prod-cmsswpop-trace:8888', 'rucio-traces-prod-wmagent-trace:8888', 'rucio-traces-prod-xrootd-trace:8888']
       labels:
         rucioInstance: 'prod'
 
+# FIXME: The hostnames will change for flux-based install
