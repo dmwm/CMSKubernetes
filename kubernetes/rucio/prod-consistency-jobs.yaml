@@ -401,7 +401,7 @@ deckard:
       interval: 1
     T2_UK_SGrid_RALPP:
       interval: 1
-    T2_US_Caltech_Ceph:
+    T2_US_Caltech:
       interval: 1
     T2_US_Florida:
       interval: 1
@@ -418,7 +418,8 @@ deckard:
     T2_US_Purdue:
       interval: 1
     T2_US_UCSD:
-      maxdarkfraction: 0.03
+      maxdarkfraction: 0.10
+      maxmissfraction: 0.10
       interval: 1
     T2_US_Vanderbilt:
       interval: 1
