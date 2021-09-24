@@ -33,7 +33,7 @@ spec:
         app: loki
     spec:
       containers:
-      - image: cmssw/loki #imagetag
+      - image: registry.cern.ch/cmsweb/loki #imagetag
         name: loki
         args:
         - /data/loki
