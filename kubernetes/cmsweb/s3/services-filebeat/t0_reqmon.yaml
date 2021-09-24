@@ -84,7 +84,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/t0_reqmon #imagetag
+      - image: registry.cern.ch/cmsweb/t0_reqmon #imagetag
         name: t0reqmon
         livenessProbe:
           exec:

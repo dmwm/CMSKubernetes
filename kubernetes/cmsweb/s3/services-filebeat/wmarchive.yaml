@@ -82,7 +82,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/wmarchive #imagetag
+      - image: registry.cern.ch/cmsweb/wmarchive #imagetag
         name: wmarchive
         args:
           - /data/run.sh

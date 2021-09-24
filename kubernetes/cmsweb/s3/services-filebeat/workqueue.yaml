@@ -80,7 +80,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/workqueue #imagetag
+      - image: registry.cern.ch/cmsweb/workqueue #imagetag
         name: workqueue
         livenessProbe:
           exec:

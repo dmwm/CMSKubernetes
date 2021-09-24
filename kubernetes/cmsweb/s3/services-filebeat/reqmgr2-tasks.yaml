@@ -65,7 +65,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/reqmgr2 #imagetag
+      - image: registry.cern.ch/cmsweb/reqmgr2 #imagetag
         name: reqmgr2-tasks
         livenessProbe:
           exec:

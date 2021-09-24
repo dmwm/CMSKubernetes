@@ -85,7 +85,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/dbsmigration #imagetag
+      - image: registry.cern.ch/cmsweb/dbsmigration #imagetag
         name: dbsmigration
         resources:
           requests:
