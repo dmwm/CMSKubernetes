@@ -36,7 +36,7 @@ spec:
 #         prometheus.io/scrape: 'true'
     spec:
       containers:
-      - image: cmssw/auth-proxy-server:20200714-x509
+      - image: registry.cern.ch/cmsweb/auth-proxy-server:20200714-x509
         name: auth-proxy-server
         imagePullPolicy: Always
         args:
@@ -60,7 +60,7 @@ spec:
           mountPath: /www
       initContainers:
       - name: htdocs
-        image: cmssw/htdocs
+        image: registry.cern.ch/cmsweb/htdocs
         command: ['sh', '-c', 'cp -r /www/* /tmp/htdocs']
         volumeMounts:
         - name: www-htdocs
