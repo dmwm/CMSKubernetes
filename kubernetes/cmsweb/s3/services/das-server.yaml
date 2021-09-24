@@ -64,7 +64,7 @@ spec:
         prometheus.io/port: "18217"
     spec:
       containers:
-      - image: cmssw/das-server #imagetag
+      - image: registry.cern.ch/cmsweb/das-server #imagetag
         name: das-server
         imagePullPolicy: Always
         env:
@@ -107,7 +107,7 @@ spec:
           readOnly: true
         - name: logs
           mountPath: /data/logs
-#PROD#- image: cmssw/promtail
+#PROD#- image: registry.cern.ch/cmsweb/promtail
 #PROD#  name: promtail
 #PROD#  resources:
 #PROD#    requests:
