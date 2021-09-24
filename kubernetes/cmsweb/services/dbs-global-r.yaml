@@ -89,7 +89,7 @@ spec:
         runAsGroup: 1000
         fsGroup: 2000
       containers:
-      - image: cmssw/dbs #imagetag
+      - image:registry.cern.ch/cmsweb/dbs #imagetag
         name: dbs-global-r
         resources:
           requests:
