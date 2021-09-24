@@ -63,7 +63,7 @@ spec:
         runAsGroup: 1000
         fsGroup: 2000
       containers:
-      - image: cmssw/reqmon #imagetag
+      - image: registry.cern.ch/cmsweb/reqmon #imagetag
         name: reqmon-tasks
         resources:
           requests:
