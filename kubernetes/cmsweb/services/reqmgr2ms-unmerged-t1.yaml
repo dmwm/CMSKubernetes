@@ -86,7 +86,7 @@ spec:
         runAsGroup: 1000
         fsGroup: 2000
       containers:
-      - image: cmssw/reqmgr2ms-unmerged #imagetag
+      - image: registry.cern.ch/cmsweb/reqmgr2ms-unmerged #imagetag
         name: ms-unmer-t1
         lifecycle:
           postStart:

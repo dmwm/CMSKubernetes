@@ -87,7 +87,7 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
       containers:
-      - image: cmssw/t0wmadatasvc #imagetag
+      - image: registry.cern.ch/cmsweb/t0wmadatasvc #imagetag
         name: t0wmadatasvc
         resources:
           requests:
