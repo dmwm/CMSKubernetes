@@ -60,7 +60,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/das #imagetag
+      - image: registry.cern.ch/cmsweb/das #imagetag
         name: das
         tty: true
         stdin: true

@@ -36,7 +36,7 @@ spec:
         env: k8s #k8s#
     spec:
       containers:
-      - image: cmssw/rucio-tracer #imagetag
+      - image: registry.cern.ch/cmsweb/rucio-tracer #imagetag
         name: rucio-tracer
         imagePullPolicy: Always
         resources:

@@ -57,7 +57,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/confdb #imagetag
+      - image: registry.cern.ch/cmsweb/confdb #imagetag
         name: confdb
         resources:
           requests:
