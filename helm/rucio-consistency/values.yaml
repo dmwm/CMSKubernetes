@@ -14,7 +14,7 @@ consistency:
   scratchSize: 100Gi
   reportSize: 10Gi
   defaultRoot: "/path/to/nowhere"
-  instance: "dev-int"
+  rucioCfgSecret: "this-one"
   filter: ""
   sites: {}
     # Specify the names of the sites to check and an interval. Recommended intervals are 1, 7, 14, 31 (days)

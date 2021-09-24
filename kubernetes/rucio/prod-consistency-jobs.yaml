@@ -237,7 +237,10 @@ consistency:
       server_root: //dpm/brunel.ac.uk/home/cms/store/
       remove_prefix: //dpm/brunel.ac.uk/home/cms/
       interval: 7
-    T2_US_Caltech_Ceph:
+    #T2_US_Caltech_Ceph:
+    #  server: transfer-10.ultralight.org
+    #  interval: 7
+    T2_US_Caltech:
       server: transfer-10.ultralight.org
       interval: 7
     T2_US_Florida:
@@ -266,7 +269,7 @@ consistency:
       remove_prefix: /eos/cms/tier0/
       interval: 7
     T1_FR_CCIN2P3_Disk:
-      server: ccxrootdcms.in2p3.fr:1094
+      server: ccxrdcms.in2p3.fr:1094
       server_root: /pnfs/in2p3.fr/data/cms/disk/data/store/
       remove_prefix: /pnfs/in2p3.fr/data/cms/disk/data/
       interval: 7
@@ -291,6 +294,9 @@ consistency:
       interval: 7
 
 deckard:
+  image:
+    repository: ericvaandering/deckard
+    tag: "1.1.1"
   sites:
     T0_CH_CERN_Disk:
       interval: 1
@@ -329,7 +335,7 @@ deckard:
     T2_DE_DESY:
       interval: 1
     T2_DE_RWTH:
-      maxdarkfraction: 0.03
+      maxdarkfraction: 0.05
       interval: 1
     T2_EE_Estonia:
       interval: 1
@@ -351,10 +357,10 @@ deckard:
     T2_HU_Budapest:
       interval: 1
     T2_IN_TIFR:
-      maxdarkfraction: 0.03
+      maxdarkfraction: 0.05
       interval: 1
     T2_IT_Bari:
-      maxdarkfraction: 0.03
+      maxdarkfraction: 0.05
       interval: 1
     T2_IT_Legnaro:
       interval: 1
@@ -379,7 +385,7 @@ deckard:
     T2_RU_ITEP:
       interval: 1
     T2_RU_JINR:
-      maxdarkfraction: 0.03
+      maxdarkfraction: 0.05
       interval: 1
     T2_TR_METU:
       interval: 1
@@ -395,7 +401,7 @@ deckard:
       interval: 1
     T2_UK_SGrid_RALPP:
       interval: 1
-    T2_US_Caltech_Ceph:
+    T2_US_Caltech:
       interval: 1
     T2_US_Florida:
       interval: 1
@@ -407,11 +413,13 @@ deckard:
       maxdarkfraction: 0.03
       interval: 1
     T2_US_Nebraska:
+      maxdarkfraction: 0.03
       interval: 1
     T2_US_Purdue:
       interval: 1
     T2_US_UCSD:
-      maxdarkfraction: 0.03
+      maxdarkfraction: 0.10
+      maxmissfraction: 0.10
       interval: 1
     T2_US_Vanderbilt:
       interval: 1

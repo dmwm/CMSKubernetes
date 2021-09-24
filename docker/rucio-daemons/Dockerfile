@@ -28,18 +28,18 @@ RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/rse/proto
 
 ADD cms-entrypoint.sh /
 
-# Nick patch for Production Output issues, should be fixed in 1.25 series
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/core/request.py /usr/local/lib/python3.6/site-packages/rucio/core/request.py
-RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/core
+# Nick patch for Production Output issues, fixed in 1.26 series
+# ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/core/request.py /usr/local/lib/python3.6/site-packages/rucio/core/request.py
+# RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/core
 
-# Eric patches for Globus
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/transfertool/globusLibrary.py /usr/local/lib/python3.6/site-packages/rucio/transfertool/globusLibrary.py
-RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/transfertool
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/core/transfer.py /usr/local/lib/python3.6/site-packages/rucio/core/transfer.py
-RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/core
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/daemons/conveyor/submitter.py /usr/local/lib/python3.6/site-packages/rucio/daemons/conveyor/submitter.py
-ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/daemons/conveyor/common.py /usr/local/lib/python3.6/site-packages/rucio/daemons/conveyor/common.py
-RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/daemons/conveyor
+# Eric patches for Globus (need to revisit in 1.26)
+# ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/transfertool/globusLibrary.py /usr/local/lib/python3.6/site-packages/rucio/transfertool/globusLibrary.py
+# RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/transfertool
+# ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/core/transfer.py /usr/local/lib/python3.6/site-packages/rucio/core/transfer.py
+# RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/core
+# ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/daemons/conveyor/submitter.py /usr/local/lib/python3.6/site-packages/rucio/daemons/conveyor/submitter.py
+# ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/daemons/conveyor/common.py /usr/local/lib/python3.6/site-packages/rucio/daemons/conveyor/common.py
+# RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/daemons/conveyor
 
 ADD https://raw.githubusercontent.com/ericvaandering/containers/add_preparer/daemons/rucio.cfg.j2 /tmp/rucio.cfg.j2
 

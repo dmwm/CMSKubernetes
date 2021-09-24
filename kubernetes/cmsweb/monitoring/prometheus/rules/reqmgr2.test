@@ -6,10 +6,10 @@ evaluation_interval: 1m
 tests:
 - interval: 1m
   input_series:
-  - series: 'reqmgr2_num_cpus{env="prod",host="k8s-test",instance="test-instance"}'
+  - series: 'avg_open_fds_2m{env="prod",host="k8s-test",instance="test-instance"}'
     values: '0+0x100'
   alert_rule_test:
-      - eval_time: 10m
+      - eval_time: 5m
         alertname: ReqMgr2 service is down
         exp_alerts:
             - exp_labels:
@@ -18,12 +18,12 @@ tests:
                  service: reqmgr2
                  host: k8s-test
                  kind: dmwm
-                 action: Please restart ReqMgr2 service on test-instance
+                 action: Please check ReqMgr2 service on test-instance and restart it if needed
                  instance: test-instance
                  env: prod
               exp_annotations:
                  summary: "reqmgr2 prod is down"
-                 description: "prod has been down for more than 5m"
+                 description: "prod has been down - zero file descriptors - for more than 2m"
 
 - interval: 1m
   input_series:
