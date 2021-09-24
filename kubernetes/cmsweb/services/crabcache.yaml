@@ -85,7 +85,7 @@ spec:
         runAsGroup: 1000
         fsGroup: 2000
       containers:
-      - image: cmssw/crabcache #imagetag
+      - image: registry.cern.ch/cmsweb/crabcache #imagetag
         name: crabcache
         tty: true
         stdin: true

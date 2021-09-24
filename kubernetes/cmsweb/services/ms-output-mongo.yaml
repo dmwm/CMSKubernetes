@@ -40,7 +40,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/ms-output-mongo #imagetag
+      - image: registry.cern.ch/cmsweb/ms-output-mongo #imagetag
         name: ms-output-mongo
         tty: true
         stdin: true

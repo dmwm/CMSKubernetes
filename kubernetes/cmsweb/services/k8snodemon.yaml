@@ -55,7 +55,7 @@ spec:
     spec:
       serviceAccountName: k8snodemon
       containers:
-      - image: cmssw/k8snodemon #imagetag
+      - image: registry.cern.ch/cmsweb/k8snodemon #imagetag
         name: k8snodemon
         resources:
           requests:

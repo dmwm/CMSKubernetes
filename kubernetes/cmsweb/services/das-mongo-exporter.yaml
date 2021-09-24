@@ -33,7 +33,7 @@ spec:
         prometheus.io/port: "18230"
     spec:
       containers:
-      - image: cmssw/exporters #imagetag
+      - image: registry.cern.ch/cmsweb/exporters #imagetag
         name: das-mongo-exporter
         resources:
           requests:

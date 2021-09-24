@@ -36,7 +36,7 @@ spec:
         prometheus.io/port: "19212"
     spec:
       containers:
-      - image: cmssw/cmskv #imagetag
+      - image: registry.cern.ch/cmsweb/cmskv #imagetag
         name: cmskv
         imagePullPolicy: Always
         resources:

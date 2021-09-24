@@ -40,7 +40,7 @@ spec:
 #         prometheus.io/port: "19250"
     spec:
       containers:
-      - image: cmssw/dbs #imagetag
+      - image: registry.cern.ch/cmsweb/dbs #imagetag
         name: dbs-default
         ports:
         - containerPort: 8250

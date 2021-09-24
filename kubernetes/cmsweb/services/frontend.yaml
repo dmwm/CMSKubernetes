@@ -53,7 +53,7 @@ spec:
         prometheus.io/port: "18443"
     spec:
       containers:
-      - image: cmssw/frontend #imagetag
+      - image: registry.cern.ch/cmsweb/frontend #imagetag
         name: frontend
         livenessProbe:
           httpGet:

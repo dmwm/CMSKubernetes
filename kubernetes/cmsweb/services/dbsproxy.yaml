@@ -63,7 +63,7 @@ spec:
         prometheus.io/port: "18222"
     spec:
       containers:
-      - image: cmssw/dbsproxy #imagetag
+      - image: registry.cern.ch/cmsweb/dbsproxy #imagetag
         name: dbsproxy
         imagePullPolicy: Always
         env:

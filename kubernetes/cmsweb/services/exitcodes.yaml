@@ -35,7 +35,7 @@ spec:
 #         prometheus.io/scrape: 'true'
     spec:
       containers:
-      - image: cmssw/exitcodes #imagetag
+      - image: registry.cern.ch/cmsweb/exitcodes #imagetag
         name: exitcodes
         livenessProbe:
           httpGet:

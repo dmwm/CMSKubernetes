@@ -85,7 +85,7 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
       containers:
-      - image: cmssw/wmarchive #imagetag
+      - image: registry.cern.ch/cmsweb/wmarchive #imagetag
         name: wmarchive
         args:
           - /data/run.sh
