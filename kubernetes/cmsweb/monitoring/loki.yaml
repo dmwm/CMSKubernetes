@@ -7,7 +7,7 @@ spec:
 #   type: ClusterIP
   type: NodePort
   ports:
-  - port: 3100 # the port here is matching port used in cmssw/loki cotainer
+  - port: 3100 # the port here is matching port used in registry.cern.ch/cmsweb cotainer
     protocol: TCP
     name: monitoring
     nodePort: 31000
