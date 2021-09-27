@@ -82,7 +82,7 @@ spec:
         runAsGroup: 0
       containers:
       #- image: sbelforte/crabserver:3.3.1911.rc3
-      - image: cmssw/crabserver #imagetag
+      - image: registry.cern.ch/cmsweb/crabserver #imagetag
         name: crabserver
         livenessProbe:
           exec:

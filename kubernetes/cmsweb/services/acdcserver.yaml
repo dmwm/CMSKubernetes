@@ -57,7 +57,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/acdcserver #imagetag
+      - image: registry.cern.ch/cmsweb/acdcserver #imagetag
         name: acdcserver
         resources:
           requests:

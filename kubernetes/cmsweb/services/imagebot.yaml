@@ -74,7 +74,7 @@ spec:
     spec:
       serviceAccountName: imagebot-account
       containers:
-      - image: cmssw/imagebot #imagetag
+      - image: registry.cern.ch/cmsweb/imagebot #imagetag
         args:
         - /data/imagebot
         - -config

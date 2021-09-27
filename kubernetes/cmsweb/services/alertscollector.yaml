@@ -38,7 +38,7 @@ spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/alertscollector #imagetag
+      - image: registry.cern.ch/cmsweb/alertscollector #imagetag
         name: alertscollector
         resources:
           requests:

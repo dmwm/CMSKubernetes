@@ -86,7 +86,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/dbs #imagetag
+      - image: registry.cern.ch/cmsweb/dbs #imagetag
         name: dbs-phys03-r
         livenessProbe:
           exec:

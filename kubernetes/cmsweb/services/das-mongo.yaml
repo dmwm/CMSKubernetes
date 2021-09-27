@@ -40,7 +40,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/das-mongo #imagetag
+      - image: registry.cern.ch/cmsweb/das-mongo #imagetag
         name: das-mongo
         tty: true
         stdin: true

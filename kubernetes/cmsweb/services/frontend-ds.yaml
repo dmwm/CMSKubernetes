@@ -54,7 +54,7 @@ spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - image: cmssw/frontend #imagetag
+      - image: registry.cern.ch/cmsweb/frontend #imagetag
         name: frontend
 #         imagePullPolicy: Always
         livenessProbe:
@@ -136,7 +136,7 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
-      - image: cmssw/exporters:20210706-static
+      - image: registry.cern.ch/cmsweb/exporters:20210706-static
         name: frontend-exporter
         imagePullPolicy: Always
         resources:

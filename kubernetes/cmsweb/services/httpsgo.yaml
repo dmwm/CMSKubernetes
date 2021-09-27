@@ -30,7 +30,7 @@ spec:
         app: httpsgo
     spec:
       containers:
-      - image: cmssw/httpsgo #imagetag
+      - image: registry.cern.ch/cmsweb/httpsgo #imagetag
         name: httpsgo
         resources:
           requests:

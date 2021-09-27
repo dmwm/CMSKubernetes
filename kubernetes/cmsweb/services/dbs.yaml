@@ -44,7 +44,7 @@ spec:
         app: dbs
     spec:
       containers:
-      - image: cmssw/dbs #imagetag
+      - image: registry.cern.ch/cmsweb/dbs #imagetag
         name: dbs
         resources:
           requests:

@@ -84,7 +84,7 @@ spec:
         runAsUser: 0
         runAsGroup: 0
       containers:
-      - image: cmssw/t0wmadatasvc #imagetag
+      - image: registry.cern.ch/cmsweb/t0wmadatasvc #imagetag
         name: t0wmadatasvc
         livenessProbe:
           exec:
