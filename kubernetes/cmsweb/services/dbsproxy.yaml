@@ -86,8 +86,8 @@ spec:
 #             httpHeaders:
 #             - name: Accept
 #               value: application/json
-          initialDelaySeconds: 120
-          periodSeconds: 10
+#          initialDelaySeconds: 120
+#          periodSeconds: 10
         ports:
         - containerPort: 8222
           protocol: TCP
