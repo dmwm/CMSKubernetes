@@ -146,6 +146,7 @@ spec:
         - /data/das2go_exporter
         - -address
         - ":18217"
+#PROD#  volumeMounts:
 #PROD#  - name: logs
 #PROD#    mountPath: /data/logs
 #PROD#- image: registry.cern.ch/cmsweb/promtail
