@@ -65,10 +65,8 @@ fi
 
 # obtain original authmap to be used by frontend
 if [ -f /etc/robots/robotkey.pem ] && [ -f /data/srv/current/config/frontend/mkauthmap ]; then
-    /data/srv/current/apps/frontend/etc/profile.d/init.sh
-    PYTHONPATH=/data/srv/current/auth/frontend:$PYTHONPATH
     /data/srv/current/config/frontend/mkauthmap \
-        --key /etc/robots/robotcert.pem \
+        --key /etc/robots/robotkey.pem \
         --cert /etc/robots/robotcert.pem \
         -c /data/srv/current/config/frontend/mkauth.conf \
         -o /data/srv/state/frontend/etc/authmap.json --ca-cert /etc/ssl/certs/CERN-bundle.pem
