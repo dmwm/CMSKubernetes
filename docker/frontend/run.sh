@@ -64,7 +64,7 @@ if [ -f /data/srv/current/auth/proxy/proxy ] && [ -f /data/srv/current/config/fr
 fi
 
 # obtain original authmap to be used by frontend
-if [ -f /etc/robots/robotkey.pem ] && [ -f /data/srv/current/config/frontend/mkauthmap ]; 
+if [ -f /etc/robots/robotkey.pem ] && [ -f /data/srv/current/config/frontend/mkauthmap ]; then
     /data/srv/current/apps/frontend/etc/profile.d/init.sh
     PYTHONPATH=/data/srv/current/auth/frontend:$PYTHONPATH
     /data/srv/current/config/frontend/mkauthmap \
