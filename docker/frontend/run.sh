@@ -63,6 +63,17 @@ if [ -f /data/srv/current/auth/proxy/proxy ] && [ -f /data/srv/current/config/fr
         -o /data/srv/state/frontend/etc/voms-gridmap.txt --vo cms --git-token-path /data/srv/current/auth/frontend/gitlab_token.txt
 fi
 
+# obtain original authmap to be used by frontend
+if [ -f /etc/robots/robotkey.pem ] && [ -f /data/srv/current/config/frontend/mkauthmap ]; 
+    /data/srv/current/apps/frontend/etc/profile.d/init.sh
+    PYTHONPATH=/data/srv/current/auth/frontend:$PYTHONPATH
+    /data/srv/current/config/frontend/mkauthmap \
+        --key /etc/robots/robotcert.pem \
+        --cert /etc/robots/robotcert.pem \
+        -c /data/srv/current/config/frontend/mkauth.conf \
+        -o /data/srv/state/frontend/etc/authmap.json --ca-cert /etc/ssl/certs/CERN-bundle.pem
+fi
+
 # check if we provided server.services explicitly and use it if necessary
 if [ -f /etc/secrets/cmsweb.services ]; then
     cp /data/srv/state/frontend/server.conf /data/srv/state/frontend/server.conf.orig
