@@ -41,6 +41,10 @@ echo "docker system prune -f -a"
 
 cmssw_pkgs="frontend dbs dbsmigration reqmgr2 reqmon crabserver crabcache t0_reqmon t0wmadatasvc workqueue reqmgr2ms reqmgr2ms-unmerged"
 
+rucio_pkgs="rucio-consistency rucio-daemons rucio-probes rucio-server rucio-sync rucio-tracer rucio-ui rucio-upgrade"
+
+monitoring_pkgs="cmsmon cmsmon-alerts cmsmon-intelligence cmsweb-monit condor-cpu-eff jobber karma log-clustering monitor nats-nsc nats-sub rumble sqoop vmbackup-utility udp-server"
+
 if [ $# -eq 1 ]; then
     cmssw_pkgs="$1"
 fi
@@ -54,6 +58,18 @@ registry=registry.cern.ch/cmsweb
 repo=${CMSK8SREPO:-cmssw}
 echo "repo=$repo"
 for pkg in $cmssw_pkgs; do
+
+string='My long string'
+    if [[ $rucio_pkgs == *$pkg* ]]; then
+       registry=registry.cern.ch/cmsrucio
+    fi
+
+    if [[ $monitoring_pkgs == *$pkg* ]]; then
+       registry=registry.cern.ch/cmsmonitoring
+    fi
+
+    echo "Registry #### $registry"
+
     echo "### build $repo/$pkg"
     if [ -n "$CMSK8STAG" ]; then
         docker build --build-arg CMSK8S=$CMSK8S --build-arg CMSWEB_ENV=$CMSWEB_ENV -t $repo/$pkg -t $repo/$pkg:$CMSK8STAG $pkg
@@ -83,9 +99,12 @@ for pkg in $cmssw_pkgs; do
                 docker rmi $registry/$pkg:$CMSK8STAG
     	fi
     fi
+
 done
 
 echo
 echo "To remove all images please use this command"
 echo "docker rmi \$(docker images -qf \"dangling=true\")"
+
 echo "docker images | awk '{print \"docker rmi -f \"$3\"\"}' | /bin/sh"
+
