@@ -59,7 +59,6 @@ repo=${CMSK8SREPO:-cmssw}
 echo "repo=$repo"
 for pkg in $cmssw_pkgs; do
 
-string='My long string'
     if [[ $rucio_pkgs == *$pkg* ]]; then
        registry=registry.cern.ch/cmsrucio
     fi
@@ -99,12 +98,9 @@ string='My long string'
                 docker rmi $registry/$pkg:$CMSK8STAG
     	fi
     fi
-
 done
 
 echo
 echo "To remove all images please use this command"
 echo "docker rmi \$(docker images -qf \"dangling=true\")"
-
 echo "docker images | awk '{print \"docker rmi -f \"$3\"\"}' | /bin/sh"
-
