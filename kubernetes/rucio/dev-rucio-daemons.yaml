@@ -1,9 +1,0 @@
-tracerKronosCount: 0
-reaper2Count: 1
-
-reaper2:
-  includeRses: "cms_type=test"
-
-conveyorTransferSubmitter:
-  threads: 7
-

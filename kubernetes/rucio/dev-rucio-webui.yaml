@@ -1,8 +1,0 @@
-ingress:
-  hosts: 
-    - "cms-rucio-webui-dev.cern.ch"
-proxy:
-  rucioProxy: "cms-rucio-dev.cern.ch"
-  rucioAuthProxy: "cms-rucio-auth-dev.cern.ch:443"
-  
-
