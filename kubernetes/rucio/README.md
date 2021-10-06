@@ -1,3 +1,9 @@
+# Migration to flux
+
+Most of the files and instructions here are out of date. Things have been moved over to the rucio-flux repository in DMWM
+
+The files left here are the few things (globus) not migrated or legacy stuff no longer used, so left here for posterity
+
 # Accessing the existing kubernetes clusters
 
 Most people will only need to access an existing cluster to view logs, change configs, etc. 
