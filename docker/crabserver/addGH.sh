@@ -13,9 +13,8 @@ CRABServerDir=`realpath /data/srv/current/sw*/*/cms/crabserver/*`
 # 1. find which GitHub tags were installed
 # beware that directory name in $CRABServerDir may not be the GH tag but rather
 # name assigned at build time like v3.230303-comp4
-export PYTHONPATH=${CRABServerDir}/lib/python2.7/site-packages
-CRABServerGHTag=`python -c "from CRABInterface import __version__; print __version__"`
-WMCoreGHTag=`python -c "from WMCore import __version__; print __version__"`
+CRABServerGHTag=$(grep __version__ $CRABServerDir/lib/python*/site-packages/CRABInterface/__init__.py | tail -n 1 | cut -f1 -d"#" | cut -f2 -d"=" |  tr -d " '\"")
+WMCoreGHTag=$(grep __version__ $CRABServerDir/lib/python*/site-packages/WMCore/__init__.py | cut -f2 -d"=" |  tr -d " '\"")
 
 # 2. create directories for repositories and clone
 mkdir /data/repos

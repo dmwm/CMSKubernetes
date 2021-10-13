@@ -65,6 +65,7 @@ done
 sleep 5
 
 # start the service
+export CRYPTOGRAPHY_ALLOW_OPENSSL_102=true
 /data/srv/current/config/$srv/manage start 'I did read documentation'
 
 # run monitoring script
