@@ -3,7 +3,7 @@ FROM golang:latest as go-builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 # tag to use
-ENV TAG=v00.08.72
+ENV TAG=v00.08.75
 
 ENV WDIR=/data
 ENV USER=wmarchive

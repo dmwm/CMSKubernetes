@@ -1,7 +1,7 @@
 #!/bin/sh
 logDir=/data/srv/logs/wma
 if [ ! -d $logDir ]; then
-    logDir=/data
+    logDir=/tmp
 fi
 config=/data/wmarch_go.json
 if [ -f /etc/secrets/wmarch_go.json ]; then
