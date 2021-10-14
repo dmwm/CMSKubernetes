@@ -1,4 +1,0 @@
-cronjobSettings:
-  daemonName: "cms-ruciod-prod"
-  instance: "prod"
-

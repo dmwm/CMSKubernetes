@@ -1,4 +1,0 @@
-loadtest:
-  sourceExpression:   "webdav_loadtest=True"
-  destinationExpression:   "webdav_loadtest=True"
-

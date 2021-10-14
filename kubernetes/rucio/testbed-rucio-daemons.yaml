@@ -1,8 +1,0 @@
-reaperCount: 0
-reaper2Count: 3
-
-
-reaper2:
-  greedy: 1
-  includeRses: "cms_type=test"
-  threads: 8
