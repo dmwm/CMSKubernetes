@@ -33,7 +33,7 @@ spec:
         - args:
           - /data/http_exporter
           - -uri
-          - "http://cms-cric.cern.ch/api/cms/site/query/?json&preset=data-processing"
+          - "https://cms-cric.cern.ch/api/cms/site/query/?json&preset=data-processing"
           - -namespace
           - "cric"
           - -port
@@ -42,6 +42,17 @@ spec:
           - "monitoring"
           - -verbose
           name: http-exporter-cric
-          image: cmssw/http-exporter:20200615
+          image: cmssw/http-exporter:20210921
+#           image: cmssw/http-exporter:20200615
           ports:
           - containerPort: 18004
+          env:
+          - name: X509_USER_PROXY
+            value: /etc/proxy/proxy
+          volumeMounts:
+          - name: proxy-secrets
+            mountPath: /etc/proxy
+        volumes:
+        - name: proxy-secrets
+          secret:
+            secretName: proxy-secrets
