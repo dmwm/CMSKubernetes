@@ -48,3 +48,11 @@ spec:
               command: ["/bin/sh", "-c", "ls"]
         ports:
         - containerPort: 8888
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
