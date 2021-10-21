@@ -331,6 +331,28 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/dbs2go-0.1.1/dbs2go-0.1.1.tgz
     version: 0.1.1
+  dbs2go-reader:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2021-10-21T19:43:06.572718695Z"
+    description: A Helm chart for Kubernetes
+    digest: ba14fd0f526047ffce08afe97b462b0f76fb63c84b59874286ef9471f842ac4b
+    name: dbs2go-reader
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/dbs2go-reader-0.1.2/dbs2go-reader-0.1.2.tgz
+    version: 0.1.2
+  dbs2go-writer:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2021-10-21T19:43:06.790218687Z"
+    description: A Helm chart for Kubernetes
+    digest: bce56a73c7b68bd0161db0980b49d26f381f00ac563b5b22a0194b8d4e0afdcc
+    name: dbs2go-writer
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/dbs2go-writer-0.1.2/dbs2go-writer-0.1.2.tgz
+    version: 0.1.2
   dbsmigration:
   - apiVersion: v2
     appVersion: 1.16.0
@@ -714,4 +736,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/workqueue-0.1.1/workqueue-0.1.1.tgz
     version: 0.1.1
-generated: "2021-09-23T21:28:47.922332476Z"
+generated: "2021-10-21T19:43:06.790374696Z"
