@@ -60,7 +60,9 @@ spec:
         env: k8s #k8s#
       annotations:
         prometheus.io/scrape: 'true'
-        prometheus.io/port: "18260"
+        prometheus.io/path: "/dbs2go-writer/metrics"
+        prometheus.io/port: "8260"
+#         prometheus.io/port: "18260"
     spec:
       containers:
       - image: registry.cern.ch/cmsweb/dbs2go #imagetag
