@@ -11,10 +11,14 @@ To adjust existing repo:
 
    * make changes to your helm package area
      * change version number of the chart (directory/Chart.yaml)
-   * git commit -m "small fixes" <helm-package>
+   * `git commit -m "small fixes" <helm-package>`
    * visit https://registry.cern.ch/harbor/projects to obtain your token
      password from your `<Name>->User Profile->CLI secret`
    * `helm cm-push --username=<name> --password=<secret> <pkg> <repo>`
+     * here `<repo>` will be cmsweb
+     * `<pkg>` any of help packages, e.g. httpgo
+     * `<name>` is your CERN login name
+     * `<secret>` is a secret you obtain from registry harbor site
 
 To add to the repo:
 
