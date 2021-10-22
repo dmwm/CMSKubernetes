@@ -77,7 +77,7 @@ livenessProbe:
 #image Filebeat values
 
 imageFilebeat:
-  name: dbs2go-filebeat
+  name: dbs2go-r-filebeat
   path: docker.elastic.co/beats/filebeat:7.12.0
   args: [
   "-c", "/etc/filebeat.yml",
@@ -112,7 +112,7 @@ ingress:
 autoscaling:
   enabled: false
   minReplicas: 1
-  maxReplicas: 100
+  maxReplicas: 10
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
