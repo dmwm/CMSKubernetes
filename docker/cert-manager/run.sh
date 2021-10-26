@@ -1,6 +1,6 @@
 #!/bin/bash
 cert=$1
-if [ -n $AMURL ] ; then
+if [ -n  "${AMURL}" ] ; then
     amurl=$AMURL
 else
     amurl=http://cms-monitoring.cern.ch:30093

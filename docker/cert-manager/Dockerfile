@@ -8,4 +8,3 @@ RUN curl -ksLO https://github.com/prometheus/alertmanager/releases/download/v0.2
     rm -rf alertmanager-0.23.0.linux-amd64*
 # add scripts to run and configuration
 ADD run.sh /data/run.sh
-CMD ["run.sh"]
