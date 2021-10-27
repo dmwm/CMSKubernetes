@@ -1,4 +1,4 @@
-FROM registry.cern.ch/cmsweb/reqmgr2ms:HG2110b
+FROM registry.cern.ch/cmsweb/reqmgr2ms:HG2111a
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
