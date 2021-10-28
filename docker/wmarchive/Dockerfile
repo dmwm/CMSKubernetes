@@ -7,7 +7,6 @@ ENV TAG=v00.08.75
 
 ENV WDIR=/data
 ENV USER=wmarchive
-
 ADD run.sh $WDIR/run.sh
 ADD wmarch_go.json $WDIR/wmarch_go.json
 WORKDIR $WDIR
