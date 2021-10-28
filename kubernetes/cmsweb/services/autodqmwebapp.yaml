@@ -1,17 +1,17 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: autodqmwebapp
+  name: autodqm
   namespace: dqm
 spec:
   selector:
     app: autodqmwebapp
   ports:
-    - port: 8080
-      targetPort: 8080
+    - port: 8083
+      targetPort: 8083
       name: autodqmwebapp
-    - port: 18080
-      targetPort: 18080
+    - port: 18083
+      targetPort: 18083
       name: dqmwebapp-mon
 ---
 kind: Deployment
@@ -19,7 +19,7 @@ apiVersion: apps/v1
 metadata:
   labels:
     app: autodqmwebapp
-  name: autodqmwebapp
+  name: autodqm
   namespace: dqm
 spec:
   selector:
@@ -33,7 +33,7 @@ spec:
         env: k8s #k8s#
       annotations:
         prometheus.io/scrape: 'true'
-        prometheus.io/port: "18080"
+        prometheus.io/port: "18083"
     spec:
       securityContext:
         runAsUser: 1000
@@ -53,10 +53,10 @@ spec:
             memory: "1Gi"
             cpu: "1"
         ports:
-        - containerPort: 8080
+        - containerPort: 8083
           protocol: TCP
           name: autodqmwebapp
-        - containerPort: 18080
+        - containerPort: 18083
           protocol: TCP
           name: dqmwebapp-mon
         securityContext:
