@@ -56,6 +56,7 @@ spec:
       containers:
       - image: registry.cern.ch/cmsweb/frontend #imagetag
         name: frontend
+#         imagePullPolicy: Always
         livenessProbe:
           httpGet:
             path: /
@@ -101,6 +102,40 @@ spec:
           mountPath: /etc/grid-security/hostcert.pem
         - name: hostkey
           mountPath: /etc/grid-security/hostkey.pem
+#PROD#  - name: logs
+#PROD#    mountPath: /data/srv/logs/frontend
+#PROD#  - name: filebeat-cephfs
+#PROD#    mountPath: /data/filebeat
+#PROD#- name: frontend-filebeat
+#PROD#  image: docker.elastic.co/beats/filebeat:7.12.0
+#PROD#  args: [
+#PROD#    "-c", "/etc/filebeat.yml",
+#PROD#    "-e",
+#PROD#  ]
+#PROD#  env:
+#PROD#  - name: MY_POD_NAME
+#PROD#    valueFrom:
+#PROD#      fieldRef:
+#PROD#        apiVersion: v1
+#PROD#        fieldPath: metadata.name
+#PROD#  resources:
+#PROD#    requests:
+#PROD#      memory: "50Mi"
+#PROD#      cpu: "50m"
+#PROD#  volumeMounts:
+#PROD#  - name: logs
+#PROD#    mountPath: /data/srv/logs/frontend
+#PROD#  - name: config
+#PROD#    mountPath: /etc/filebeat.yml
+#PROD#    readOnly: true
+#PROD#    subPath: filebeat.yml
+#PROD#  - name: data
+#PROD#    mountPath: /usr/share/filebeat/data
+#PROD#  - name: varlog
+#PROD#    mountPath: /var/log
+#PROD#  - name: varlibdockercontainers
+#PROD#    mountPath: /var/lib/docker/containers
+#PROD#    readOnly: true
       - image: registry.cern.ch/cmsweb/exporters:20210706-static
         name: frontend-exporter
         imagePullPolicy: Always
@@ -130,6 +165,15 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "300m"
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
         command:
         - /bin/sh
         - -c
@@ -137,6 +181,7 @@ spec:
         volumeMounts:
         - name: robot-secrets
           mountPath: /etc/certs/robot.cert
+          subPath: robotcert.pem
         - name: hostcert
           mountPath: /etc/certs/host.cert
       volumes:
@@ -178,7 +223,6 @@ spec:
 #PROD#      claimName: logs-cephfs-claim-default
       nodeSelector:
         role: auth
-
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
