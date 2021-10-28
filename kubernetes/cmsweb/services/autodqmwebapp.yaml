@@ -40,7 +40,7 @@ spec:
         runAsGroup: 1000
         fsGroup: 2000
       containers:
-      - image: ghcr.io/jrotter2/autodqmwebapp #imagetag
+      - image: registry.cern.ch/cmsweb/autodqmwebapp #imagetag
         name: autodqmwebapp
         env:
          - name: HOME
