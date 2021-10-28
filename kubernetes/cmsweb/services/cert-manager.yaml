@@ -28,11 +28,17 @@ spec:
         command:
         - /bin/sh
         - -c
-        - /data/run.sh /etc/grid-security/hostcert.pem
+        - /data/run.sh /etc/certs
         volumeMounts:
+        - name: robot-secrets
+          mountPath: /etc/certs/robot.cert
+          subPath: robotcert.pem
         - name: hostcert
-          mountPath: /etc/grid-security/hostcert.pem
+          mountPath: /etc/certs/host.cert
       volumes:
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
       - name: hostcert
         hostPath:
             path: /etc/grid-security/hostcert.pem

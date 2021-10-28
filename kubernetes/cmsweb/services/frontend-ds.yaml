@@ -156,34 +156,6 @@ spec:
         - name: proxy-secrets
           mountPath: /etc/proxy
           readOnly: true
-      - image: registry.cern.ch/cmsweb/cert-manager-sidecar:latest
-        name: cert-manager
-        resources: 
-          requests:
-            memory: "256Mi"
-            cpu: "100m"
-          limits:
-            memory: "512Mi"
-            cpu: "300m"
-        env:
-        - name: NODE_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: spec.nodeName
-        - name: POD_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.name
-        command:
-        - /bin/sh
-        - -c
-        - /data/run.sh /etc/certs
-        volumeMounts:
-        - name: robot-secrets
-          mountPath: /etc/certs/robot.cert
-          subPath: robotcert.pem
-        - name: hostcert
-          mountPath: /etc/certs/host.cert
       volumes:
       - name: proxy-secrets
         secret:

@@ -13,7 +13,7 @@ do
         tstamp=`date --date="$certTime" +"%s"`
         alertDate=`date -d "+15 days" +"%s"`
         if [  ! -z  "$certTime" ] && [ $tstamp -lt $alertDate ] ; then
-            msg="Certificate $cert on pod $POD_NAME running on node $NODE_NAME will expire on $certTime"
+            msg="Certificate $cert will expire on $certTime"
             expire=`date -d '+15 days' --rfc-3339=ns | tr ' ' 'T'`
             if [ -f /data/amtool ] ; then
                 /data/amtool alert add cert_alert \
