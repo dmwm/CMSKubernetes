@@ -5,11 +5,11 @@ metadata:
   namespace: dqm
 spec:
   selector:
-    app: autodqmwebapp
+    app: autodqm
   ports:
     - port: 8083
       targetPort: 8083
-      name: autodqmwebapp
+      name: autodqm
     - port: 18083
       targetPort: 18083
       name: dqmwebapp-mon
@@ -18,18 +18,18 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   labels:
-    app: autodqmwebapp
+    app: autodqm
   name: autodqm
   namespace: dqm
 spec:
   selector:
     matchLabels:
-      app: autodqmwebapp
+      app: autodqm
   replicas: 1
   template:
     metadata:
       labels:
-        app: autodqmwebapp
+        app: autodqm
         env: k8s #k8s#
       annotations:
         prometheus.io/scrape: 'true'
@@ -40,8 +40,8 @@ spec:
         runAsGroup: 1000
         fsGroup: 2000
       containers:
-      - image: registry.cern.ch/cmsweb/autodqmwebapp #imagetag
-        name: autodqmwebapp
+      - image: registry.cern.ch/cmsweb/autodqm #imagetag
+        name: autodqm
         env:
          - name: HOME
            value: /
@@ -55,7 +55,7 @@ spec:
         ports:
         - containerPort: 8083
           protocol: TCP
-          name: autodqmwebapp
+          name: autodqm
         - containerPort: 18083
           protocol: TCP
           name: dqmwebapp-mon
