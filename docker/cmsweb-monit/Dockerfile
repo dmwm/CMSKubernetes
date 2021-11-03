@@ -1,4 +1,4 @@
-FROM cern/cc7-base:20210201-1.x86_64 as builder
+FROM cern/cc7-base:20211101-1 as builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
