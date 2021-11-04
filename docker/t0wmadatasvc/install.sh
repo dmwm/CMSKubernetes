@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG2111b
+VER=HG2111c
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend t0wmadatasvc"
