@@ -30,6 +30,8 @@ if [ "$debug" = true ]; then
   # this will direct WMCore/REST/Main.py to run in the foreground rather than as a demon
   # allowing among other things to insert pdb calls in the crabserver code and debug interactively
   export DONT_DAEMONIZE_REST=True
+  # this will start crabserver with only one thread (default is 25) to make it easier to run pdb
+  export CRABSERVER_THREAD_POOL=1
 fi
 
 if [ "$MODE" = fromGH ]; then
