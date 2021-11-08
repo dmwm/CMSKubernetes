@@ -29,4 +29,15 @@ COPY --from=go-builder /data/run.sh /data/
 
 COPY --from=exporters /data/process_exporter /data/
 COPY --from=exporters /data/process_monitor.sh /data/
+
+ENV USER=wmarchive
+#RUN adduser -D -u 1000 -h ${WDIR} ${USER}
+ENV WDIR=/data
+WORKDIR $WDIR
+RUN adduser --disabled-password --home "${WDIR}" --uid 1000 "$USER"
+# # add user to sudoers file
+RUN echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+#
+USER ${USER}
+#
 RUN sed -i -e "s,bash,sh,g" -e "s,print \$2,print \$1,g" /data/process_monitor.sh

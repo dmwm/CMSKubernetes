@@ -12,7 +12,7 @@ spec:
           serviceAccountName: proxy-account
           containers:
           - name: proxy
-            image: cmssw/proxy
+            image: registry.cern.ch/cmsweb/proxy
             args:
             - /bin/sh
             - -c
