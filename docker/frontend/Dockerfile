@@ -26,11 +26,12 @@ ADD install.sh $WDIR/install.sh
 RUN $WDIR/install.sh &&  crontab -l > /data/crontab.txt
 
 # build apache exporter
-# RUN mkdir -p /data/gopath/bin
-# ENV GOPATH /data/gopath
+RUN mkdir -p /data/gopath/bin
+ENV GOPATH /data/gopath
 # RUN go get github.com/Lusitaniae/apache_exporter && crontab -l > /data/crontab.txt
 
-# RUN wget https://github.com/Lusitaniae/apache_exporter/releases/download/v0.9.0/apache_exporter-0.9.0.linux-amd64.tar.gz && tar -xvzf apache_exporter-0.9.0.linux-amd64.tar.gz --directory /data/gopath && cp /data/gopath/apache_exporter-0.9.0.linux-amd64/apache_exporter /data/gopath/bin && crontab -l > /data/crontab.txt 
+RUN wget https://github.com/Lusitaniae/apache_exporter/releases/download/v0.9.0/apache_exporter-0.9.0.linux-amd64.tar.gz && tar -xvzf apache_exporter-0.9.0.linux-amd64.tar.gz --directory /data/gopath && cp /data/gopath/apache_exporter-0.9.0.linux-amd64/apache_exporter /data/gopath/bin && crontab -l > /data/crontab.txt 
+
 
 # extract relevant pieces from web-builder
 FROM registry.cern.ch/cmsweb/cmsweb-base:20211103-stable
@@ -46,8 +47,7 @@ RUN crontab /data/crontab.txt
 ADD run.sh $WDIR/run.sh
 ADD monitor.sh $WDIR/monitor.sh
 
-# ENV PATH="${WDIR}/cmsweb/bin:${WDIR}:${WDIR}/gopath/bin:${PATH}"
-ENV PATH="${WDIR}/cmsweb/bin:${WDIR}:${PATH}"
+ENV PATH="${WDIR}/cmsweb/bin:${WDIR}:${WDIR}/gopath/bin:${PATH}"
 
 WORKDIR $WDIR
 CMD ["./run.sh"]
