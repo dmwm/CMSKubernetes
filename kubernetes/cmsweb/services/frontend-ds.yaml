@@ -136,26 +136,6 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
-      - image: registry.cern.ch/cmsweb/exporters:20210706-static
-        name: frontend-exporter
-        imagePullPolicy: Always
-        resources:
-          requests:
-            memory: "50Mi"
-            cpu: "50m"
-        env:
-        - name: X509_USER_PROXY
-          value: /etc/proxy/proxy
-        args:
-        - /data/apache_exporter
-        - --scrape_uri
-        - http://localhost:80/server-status/?auto
-        - --telemetry.address
-        - ":18443"
-        volumeMounts:
-        - name: proxy-secrets
-          mountPath: /etc/proxy
-          readOnly: true
       volumes:
       - name: proxy-secrets
         secret:
