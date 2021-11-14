@@ -21,7 +21,8 @@ ADD hadoop-mapreduce-client-core-2.6.0-cdh5.7.6.jar $WDIR
 ADD cronjobs.txt $WDIR
 
 # oracle java is included as spark dependency
-RUN yum install -y cern-hadoop-config spark-bin-2.4 hadoop-bin-2.7.5 git python3 && \
+RUN yum -y update && \
+    yum install -y cern-hadoop-config spark-bin-2.4 hadoop-bin-2.7.5 git python3 && \
     yum clean all && \
     rm -rf /var/cache/yum && \
     hadoop-set-default-conf.sh analytix && \
