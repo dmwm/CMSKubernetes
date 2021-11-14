@@ -77,8 +77,8 @@ spec:
             memory: "100Mi"
             cpu: "200m"
           limits:
-            memory: "500Mi"
-            cpu: "8000m"
+            memory: "8000Mi"
+            cpu: "4000m"
         livenessProbe:
           httpGet:
             path: /dbs2go-migration/serverinfo
