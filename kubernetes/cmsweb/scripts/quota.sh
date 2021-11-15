@@ -35,6 +35,9 @@ do
 
 
 done < "$input"
+
+rm server.list
+
 ram=$((ram/1024))
 ram_used=$((ram_used/1024))
 
