@@ -6,10 +6,6 @@ fi
 
 export OS_PROJECT_NAME=$1
 
-#echo $OS_PROJECT_NAME
-
-#openstack coe cluster list
-
 cpus=`openstack quota show | grep core | awk '{print $4}'`
 ram=`openstack quota show | grep ram | awk '{print $4}'`
 instances=`openstack quota show | grep instances | awk '{print $4}'`
@@ -23,8 +19,6 @@ instances_used=`openstack server list | grep -v + | grep -v Flavor | wc -l`
 
 openstack server list | awk '{print $12}' | sort | uniq -c | grep -v Flavor | tail -n +2 | awk '{print $1","$2}' > server.list
 
-#cat server.list
-
 cpus_used=0
 ram_used=0
 
@@ -33,7 +27,6 @@ input="server.list"
 while IFS= read -r line
 do
  
-       
   number_of_servers=`echo "$line" | cut -d ',' -f1`
   server_flavor=`echo "$line" | cut -d ',' -f2`
 
@@ -41,18 +34,9 @@ do
   ram_used=$((ram_used+`openstack flavor list | grep $server_flavor | awk '{print $6}'`*number_of_servers))
 
 
- # $for i in $(echo $line | tr "," "\n")
-
-#do
-#	  echo $i
-#  done
-
-#echo $cpus_used
-#echo $ram_used
 done < "$input"
 ram=$((ram/1024))
 ram_used=$((ram_used/1024))
-
 
 
 echo "Total CPUs in Quota: $cpus ,  Total CPUs Used: $cpus_used"
@@ -61,7 +45,7 @@ echo "Total Instances: $instances , Total Instances Used: $instances_used"
 echo "Total Volumes in Quota: $volumes , Volumes Used: $volumes_used"
 echo "Total Volume Size in Quota: $volume_size , Total Volume Size Used: $volume_size_used"
 
-echo "#####################Output in JSON"
+echo "#####################  Output in JSON  ##################"
 
 JSON_STRING=$( jq -n \
                   --arg cpus "$cpus" \
