@@ -1,0 +1,196 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: dqm-square-k8
+  namespace: dqm
+spec:
+  selector:
+    app: dqm-square-mirror-server
+  ports:
+    - port: 8084
+      targetPort: 8084
+      name: dqm-square-mirror-server
+    - port: 18084
+      targetPort: 18084
+      name: dqm-square-mirror-server-mon
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata: 
+  name: dqm-square-mirror-server
+  namespace: dqm
+  labels:
+    app: dqm-square-mirror-server
+spec:
+  selector:
+    matchLabels:
+      app: dqm-square-mirror-server
+  replicas: 1
+  template: # This is the pod template
+    metadata:
+      labels:
+        app: dqm-square-mirror-server
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+      - name: dqm-square-mirror-server
+        image: registry.cern.ch/cmsweb/dqmsquare_mirror:latest #imagetag
+        command: ["./dqmsquare_k8_wrapper.sh", "server"]
+        args: []
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "400m"
+        ports:
+          - containerPort: 8084
+            protocol: TCP
+            name: crabserver
+          - containerPort: 18084
+            protocol: TCP
+            name: crabserver-mon
+        volumeMounts:
+          - mountPath: /cephfs/testbed
+            name: dqm-square-mirror-pvc
+      volumes:
+      - name: dqm-square-mirror-pvc
+        persistentVolumeClaim:
+          claimName: dqm-square-mirror-pvc
+          readOnly: false
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata: 
+  name: dqm-square-mirror-parser
+  namespace: dqm
+  labels:
+    app: dqm-square-mirror-parser
+spec:
+  selector:
+    matchLabels:
+      app: dqm-square-mirror-parser
+  replicas: 1
+  template: # This is the pod template
+    metadata:
+      labels:
+        app: dqm-square-mirror-parser
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+      - name: dqm-square-mirror-parser
+        image: registry.cern.ch/cmsweb/dqmsquare_mirror:latest #imagetag
+        command: ["./dqmsquare_k8_wrapper.sh", "parser"]
+        args: []
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "400m"
+        volumeMounts:
+          - mountPath: /cephfs/testbed
+            name: dqm-square-mirror-pvc
+      volumes:
+      - name: dqm-square-mirror-pvc
+        persistentVolumeClaim:
+          claimName: dqm-square-mirror-pvc
+          readOnly: false
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata: 
+  name: dqm-square-mirror-robber
+  namespace: dqm
+  labels:
+    app: dqm-square-mirror-robber
+spec:
+  selector:
+    matchLabels:
+      app: dqm-square-mirror-robber
+  replicas: 1
+  template: # This is the pod template
+    metadata:
+      labels:
+        app: dqm-square-mirror-robber
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+      - name: dqm-square-mirror-robber
+        image: registry.cern.ch/cmsweb/dqmsquare_mirror:latest #imagetag
+        command: ["./dqmsquare_k8_wrapper.sh", "robber"]
+        args: []
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "400m"
+          limits:
+            memory: "4Gi"
+            cpu: "800m"
+        volumeMounts:
+          - mountPath: /cephfs/testbed
+            name: dqm-square-mirror-pvc
+          - name: robot-secrets
+            mountPath: /etc/robots
+      volumes:
+      - name: dqm-square-mirror-pvc
+        persistentVolumeClaim:
+          claimName: dqm-square-mirror-pvc
+          readOnly: false
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata: 
+  name: dqm-square-mirror-robber-oldruns
+  namespace: dqm
+  labels:
+    app: dqm-square-mirror-robber-oldruns
+spec:
+  selector:
+    matchLabels:
+      app: dqm-square-mirror-robber-oldruns
+  replicas: 1
+  template: # This is the pod template
+    metadata:
+      labels:
+        app: dqm-square-mirror-robber-oldruns
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+      - name: dqm-square-mirror-robber-oldruns
+        image: registry.cern.ch/cmsweb/dqmsquare_mirror:latest #imagetag
+        command: ["./dqmsquare_k8_wrapper.sh", "robber_oldruns"]
+        args: []
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "400m"
+          limits:
+            memory: "4Gi"
+            cpu: "800m"
+        volumeMounts:
+          - mountPath: /cephfs/testbed
+            name: dqm-square-mirror-pvc
+          - name: robot-secrets
+            mountPath: /etc/robots
+      volumes:
+      - name: dqm-square-mirror-pvc
+        persistentVolumeClaim:
+          claimName: dqm-square-mirror-pvc
+          readOnly: false
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
