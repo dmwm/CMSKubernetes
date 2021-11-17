@@ -38,7 +38,7 @@ spec:
           - /etc/secrets/config.json
         livenessProbe:
           httpGet:
-            path: /status
+            path: /cmsamqproxy/status
             port: 8300
           initialDelaySeconds: 3
           periodSeconds: 3
