@@ -6,7 +6,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 8200 # the port here is matching port used in registry.cern.ch/cmsweb/cmsamqproxy cotainer
+  - port: 8300 # the port here is matching port used in registry.cern.ch/cmsweb/cmsamqproxy cotainer
     protocol: TCP
     name: http
   selector:
@@ -39,7 +39,7 @@ spec:
         livenessProbe:
           httpGet:
             path: /status
-            port: 8200
+            port: 8300
           initialDelaySeconds: 3
           periodSeconds: 3
         resources:
@@ -50,7 +50,7 @@ spec:
             memory: "3Gi"
             cpu: "1000m"
         ports:
-        - containerPort: 8200
+        - containerPort: 8300
         volumeMounts:
         - name: secrets
           mountPath: /etc/secrets
