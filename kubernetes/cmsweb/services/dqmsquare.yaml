@@ -36,7 +36,7 @@ spec:
         runAsGroup: 1000
       containers:
       - name: dqm-square-mirror-server
-        image: registry.cern.ch/cmsweb/dqmsquare_mirror:latest #imagetag
+        image: registry.cern.ch/cmsweb/dqmsquare_mirror #imagetag
         command: ["./dqmsquare_k8_wrapper.sh", "server"]
         args: []
         resources:
@@ -84,7 +84,7 @@ spec:
         runAsGroup: 1000
       containers:
       - name: dqm-square-mirror-parser
-        image: registry.cern.ch/cmsweb/dqmsquare_mirror:latest #imagetag
+        image: registry.cern.ch/cmsweb/dqmsquare_mirror #imagetag
         command: ["./dqmsquare_k8_wrapper.sh", "parser"]
         args: []
         resources:
@@ -125,7 +125,7 @@ spec:
         runAsGroup: 1000
       containers:
       - name: dqm-square-mirror-robber
-        image: registry.cern.ch/cmsweb/dqmsquare_mirror:latest #imagetag
+        image: registry.cern.ch/cmsweb/dqmsquare_mirror #imagetag
         command: ["./dqmsquare_k8_wrapper.sh", "robber"]
         args: []
         resources:
@@ -171,7 +171,7 @@ spec:
         runAsGroup: 1000
       containers:
       - name: dqm-square-mirror-robber-oldruns
-        image: registry.cern.ch/cmsweb/dqmsquare_mirror:latest #imagetag
+        image: registry.cern.ch/cmsweb/dqmsquare_mirror #imagetag
         command: ["./dqmsquare_k8_wrapper.sh", "robber_oldruns"]
         args: []
         resources:
