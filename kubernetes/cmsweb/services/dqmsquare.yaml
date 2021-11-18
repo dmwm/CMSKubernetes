@@ -49,10 +49,10 @@ spec:
         ports:
           - containerPort: 8084
             protocol: TCP
-            name: crabserver
+            name: dqm-square-mirror-server
           - containerPort: 18084
             protocol: TCP
-            name: crabserver-mon
+            name: dqm-square-mirror-server-mon
         volumeMounts:
           - mountPath: /cephfs/testbed
             name: dqm-square-mirror-pvc
