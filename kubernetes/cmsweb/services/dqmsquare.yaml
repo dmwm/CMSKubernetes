@@ -9,10 +9,10 @@ spec:
   ports:
     - port: 8084
       targetPort: 8084
-      name: dqm-square-m
+      name: dqmsquare
     - port: 18084
       targetPort: 18084
-      name: dqm-square-m-mon
+      name: dqmsquare-mon
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -49,10 +49,10 @@ spec:
         ports:
           - containerPort: 8084
             protocol: TCP
-            name: dqm-square-m
+            name: dqmsquare
           - containerPort: 18084
             protocol: TCP
-            name: dqm-square-m-mon
+            name: dqmsquare-mon
         volumeMounts:
           - mountPath: /cephfs/testbed
             name: dqm-square-mirror-pvc
