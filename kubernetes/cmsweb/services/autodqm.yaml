@@ -59,5 +59,19 @@ spec:
         - containerPort: 18083
           protocol: TCP
           name: dqmwebapp-mon
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
         securityContext:
           privileged: true
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets          
