@@ -39,4 +39,5 @@ if [ "$MODE" = fromGH ]; then
 fi
 
 #==== START THE SERVICE
+export CRYPTOGRAPHY_ALLOW_OPENSSL_102=true
 /data/srv/current/config/crabserver/manage start 'I did read documentation'
