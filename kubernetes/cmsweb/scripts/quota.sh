@@ -17,6 +17,11 @@ volumes_used=`openstack volume list | tail -n +4 | grep -v + | wc -l`
 volume_size_used=`openstack volume list | tail -n +4 | grep -v + | awk '{ SUM += $8} END { print SUM }'`
 instances_used=`openstack server list | grep -v + | grep -v Flavor | wc -l`
 
+shares=`manila quota-show | grep ' shares ' | awk '{print $4}'`
+shares_used=`manila list | grep -v + | tail -n +2 | wc -l`
+shares_size=`manila quota-show | grep ' gigabytes ' | awk '{print $4}'`
+shares_size_used=`manila list | grep -v + | tail -n +2 | awk '{ SUM += $6} END { print SUM }'`
+
 openstack server list | awk '{print $12}' | sort | uniq -c | grep -v Flavor | tail -n +2 | awk '{print $1","$2}' > server.list
 
 cpus_used=0
@@ -48,6 +53,9 @@ echo "Total Instances: $instances , Total Instances Used: $instances_used"
 echo "Total Volumes in Quota: $volumes , Volumes Used: $volumes_used"
 echo "Total Volume Size in Quota: $volume_size , Total Volume Size Used: $volume_size_used"
 
+echo "Total Quota of CephFS Shares: $shares , Total Shares Used: $shares_used"
+echo "Total Quota of CephFS Shares Size: $shares_size , Total Shares Size Used: $shares_size_used"
+
 echo "#####################  Output in JSON  ##################"
 
 JSON_STRING=$( jq -n \
@@ -61,6 +69,10 @@ JSON_STRING=$( jq -n \
                   --arg volumes_used "$volumes_used" \
                   --arg volume_size "$volume_size" \
                   --arg volume_size_used "$volume_size_used" \
-                  '{total_cpus: $cpus, cpus_used: $cpus_used, total_ram: $ram, ram_used: $ram_used, total_instances: $instances, instances_used: $instances_used, total_volume: $volumes, volumes_used: $volumes_used, total_volume_size: $volume_size, total_volume_size_used: $volume_size_used,}' )
+                  --arg shares "$shares" \
+                  --arg shares_used "$shares_used" \
+                  --arg shares_size "$shares_size" \
+                  --arg shares_size_used "$shares_size_used" \
+                  '{total_cpus: $cpus, cpus_used: $cpus_used, total_ram: $ram, ram_used: $ram_used, total_instances: $instances, instances_used: $instances_used, total_volume: $volumes, volumes_used: $volumes_used, total_volume_size: $volume_size, total_volume_size_used: $volume_size_used, total_shares: $shares, shares_used: $shares_used, shares_size: $shares_size, shares_size_used: $shares_size_used,}' )
 
 echo $JSON_STRING
