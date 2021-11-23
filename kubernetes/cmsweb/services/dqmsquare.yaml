@@ -128,6 +128,9 @@ spec:
         image: registry.cern.ch/cmsweb/dqmsquare_mirror #imagetag
         command: ["./dqmsquare_k8_wrapper.sh", "robber"]
         args: []
+        envFrom:
+        - secretRef:
+          name: dqmsecret
         resources:
           requests:
             memory: "2Gi"
@@ -174,6 +177,9 @@ spec:
         image: registry.cern.ch/cmsweb/dqmsquare_mirror #imagetag
         command: ["./dqmsquare_k8_wrapper.sh", "robber_oldruns"]
         args: []
+        envFrom:
+        - secretRef:
+          name: dqmsecret
         resources:
           requests:
             memory: "2Gi"
