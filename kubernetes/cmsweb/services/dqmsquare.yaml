@@ -130,7 +130,7 @@ spec:
         args: []
         envFrom:
         - secretRef:
-          name: dqmsecret
+            name: dqmsecret
         resources:
           requests:
             memory: "2Gi"
@@ -179,7 +179,7 @@ spec:
         args: []
         envFrom:
         - secretRef:
-          name: dqmsecret
+            name: dqmsecret
         resources:
           requests:
             memory: "2Gi"
