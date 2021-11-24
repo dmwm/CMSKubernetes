@@ -1,10 +1,10 @@
 #!/bin/bash
 if [ $# -ne 1 ]; then
-     echo "Usage: ./quota.sh \"PROJECT NAME\" "
+     echo "Usage: ./quota.sh \"path to env file for application credentials\" "
      exit 1;
 fi
 
-export OS_PROJECT_NAME=$1
+source $1
 
 cpus=`openstack quota show | grep core | awk '{print $4}'`
 ram=`openstack quota show | grep ram | awk '{print $4}'`
@@ -17,10 +17,11 @@ volumes_used=`openstack volume list | tail -n +4 | grep -v + | wc -l`
 volume_size_used=`openstack volume list | tail -n +4 | grep -v + | awk '{ SUM += $8} END { print SUM }'`
 instances_used=`openstack server list | grep -v + | grep -v Flavor | wc -l`
 
-shares=`manila quota-show | grep ' shares ' | awk '{print $4}'`
-shares_used=`manila list | grep -v + | tail -n +2 | wc -l`
-shares_size=`manila quota-show | grep ' gigabytes ' | awk '{print $4}'`
-shares_size_used=`manila list | grep -v + | tail -n +2 | awk '{ SUM += $6} END { print SUM }'`
+
+shares=`openstack --os-share-api-version 2.57 share quota show | grep ' shares ' | awk '{print $4}'`
+shares_used=`openstack --os-share-api-version 2.57 share list | grep -v + | tail -n +2 | wc -l`
+shares_size=`openstack --os-share-api-version 2.57 share quota show | grep ' gigabytes ' | awk '{print $4}'`
+shares_size_used=`openstack --os-share-api-version 2.57 share list | grep -v + | tail -n +2 | awk '{ SUM += $6} END { print SUM }'`
 
 openstack server list | awk '{print $12}' | sort | uniq -c | grep -v Flavor | tail -n +2 | awk '{print $1","$2}' > server.list
 
