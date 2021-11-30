@@ -148,7 +148,8 @@ spec:
           privileged: true
       - name: crabserver-filebeat
         image: docker.elastic.co/beats/filebeat:7.12.0
-        command: /bin/sh
+        command: 
+        - /bin/sh
         # args: [
         #   "-c", "/etc/filebeat.yml",
         #   "-e",
