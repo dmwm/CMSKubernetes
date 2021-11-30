@@ -201,7 +201,7 @@ spec:
 #TEST#  emptyDir: {}
 #PROD#- name: logs
 #PROD#  persistentVolumeClaim:
-            claimName: logs-cephfs-claim-crab
+#PROD#      claimName: logs-cephfs-claim-crab
       - name: varlog
         hostPath:
           path: /var/log
