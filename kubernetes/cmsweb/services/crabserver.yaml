@@ -177,7 +177,7 @@ spec:
           mountPath: /var/lib/docker/containers
           readOnly: true
         securityContext:
-          allowPrivilegeEscalation: false
+          allowPrivilegeEscalation: true
       volumes:
       - name: proxy-secrets
         secret:
