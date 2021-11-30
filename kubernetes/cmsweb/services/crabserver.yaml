@@ -148,10 +148,11 @@ spec:
           privileged: true
       - name: crabserver-filebeat
         image: docker.elastic.co/beats/filebeat:7.12.0
-        args: [
-          "-c", "/etc/filebeat.yml",
-          "-e",
-        ]
+        command: /bin/sh
+        # args: [
+        #   "-c", "/etc/filebeat.yml",
+        #   "-e",
+        # ]
         env:
         - name: MY_POD_NAME
           valueFrom:
@@ -177,7 +178,7 @@ spec:
           mountPath: /var/lib/docker/containers
           readOnly: true
         securityContext:
-          privileged: true
+          allowPrivilegeEscalation: false
       volumes:
       - name: proxy-secrets
         secret:
