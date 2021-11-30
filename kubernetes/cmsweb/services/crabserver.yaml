@@ -197,10 +197,10 @@ spec:
       - name: setup-certs-and-run
         configMap:
           name: crabserver
-      - name: logs
-        emptyDir: {}
-      - name: logs
-        persistentVolumeClaim:
+#TEST#- name: logs
+#TEST#  emptyDir: {}
+#PROD#- name: logs
+#PROD#  persistentVolumeClaim:
             claimName: logs-cephfs-claim-crab
       - name: varlog
         hostPath:
