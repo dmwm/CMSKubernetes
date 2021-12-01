@@ -66,6 +66,11 @@ scrape_configs:
         - targets: ["das-mongo-exporter.das.svc.cluster.local:18230"]
           labels:
             env: "k8s"
+  - job_name: 'quota-exporter'
+    scrape_interval: 120s
+    scrape_timeout: 110s
+    static_configs:
+      - targets: ['quota-exporter.http.svc.cluster.local:18000']
 #   - job_name: "dbsmigration-service"
 #     static_configs:
 #         - targets: ["dbsmigration.dbs.svc.cluster.local:18251", "dbsmigration.dbs.svc.cluster.local:19251"]
