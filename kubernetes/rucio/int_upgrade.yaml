@@ -31,78 +31,78 @@ spec:
           valueFrom:
             secretKeyRef:
               key: common_loglevel
-              name: cms-ruciod-int-rucio-daemons.cfg
+              name: daemons-rucio-daemons.cfg
         - name: RUCIO_CFG_DATABASE_DEFAULT
           valueFrom:
             secretKeyRef:
               key: database_default
-              name: cms-ruciod-int-rucio-daemons.cfg
+              name: daemons-rucio-daemons.cfg
         - name: RUCIO_CFG_DATABASE_ECHO
           valueFrom:
             secretKeyRef:
               key: database_echo
-              name: cms-ruciod-int-rucio-daemons.cfg
+              name: daemons-rucio-daemons.cfg
         - name: RUCIO_CFG_DATABASE_MAX_OVERFLOW
           valueFrom:
             secretKeyRef:
               key: database_max_overflow
-              name: cms-ruciod-int-rucio-daemons.cfg
+              name: daemons-rucio-daemons.cfg
         - name: RUCIO_CFG_DATABASE_POOL_RECYCLE
           valueFrom:
             secretKeyRef:
               key: database_pool_recycle
-              name: cms-ruciod-int-rucio-daemons.cfg
+              name: daemons-rucio-daemons.cfg
         - name: RUCIO_CFG_DATABASE_POOL_RESET_ON_RETURN
           valueFrom:
             secretKeyRef:
               key: database_pool_reset_on_return
-              name: cms-ruciod-int-rucio-daemons.cfg
+              name: daemons-rucio-daemons.cfg
         - name: RUCIO_CFG_DATABASE_POOL_SIZE
           valueFrom:
             secretKeyRef:
               key: database_pool_size
-              name: cms-ruciod-int-rucio-daemons.cfg
+              name: daemons-rucio-daemons.cfg
         - name: RUCIO_CFG_DATABASE_POOL_TIMEOUT
           valueFrom:
             secretKeyRef:
               key: database_pool_timeout
-              name: cms-ruciod-int-rucio-daemons.cfg
+              name: daemons-rucio-daemons.cfg
         - name: RUCIO_CFG_MONITOR_CARBON_SERVER
           valueFrom:
             secretKeyRef:
               key: monitor_carbon_server
-              name: cms-ruciod-int-rucio-daemons.cfg
+              name: daemons-rucio-daemons.cfg
         - name: RUCIO_CFG_MONITOR_USER_SCOPE
           valueFrom:
             secretKeyRef:
               key: monitor_user_scope
-              name: cms-ruciod-int-rucio-daemons.cfg
+              name: daemons-rucio-daemons.cfg
         - name: RUCIO_CFG_POLICY_LFN2PFN_ALGORITHM_DEFAULT
           valueFrom:
             secretKeyRef:
               key: policy_lfn2pfn_algorithm_default
-              name: cms-ruciod-int-rucio-daemons.cfg
+              name: daemons-rucio-daemons.cfg
         - name: RUCIO_CFG_POLICY_LFN2PFN_MODULE
           valueFrom:
             secretKeyRef:
               key: policy_lfn2pfn_module
-              name: cms-ruciod-int-rucio-daemons.cfg
+              name: daemons-rucio-daemons.cfg
         - name: RUCIO_CFG_POLICY_PERMISSION
           valueFrom:
             secretKeyRef:
               key: policy_permission
-              name: cms-ruciod-int-rucio-daemons.cfg
+              name: daemons-rucio-daemons.cfg
         - name: RUCIO_CFG_POLICY_SCHEMA
           valueFrom:
             secretKeyRef:
               key: policy_schema
-              name: cms-ruciod-int-rucio-daemons.cfg
+              name: daemons-rucio-daemons.cfg
         - name: RUCIO_CFG_POLICY_SUPPORT
           valueFrom:
             secretKeyRef:
               key: policy_support
-              name: cms-ruciod-int-rucio-daemons.cfg
-        image: ericvaandering/rucio-upgrade:release-1.24.1.nano1
+              name: daemons-rucio-daemons.cfg
+        image: yuyiguo/rucio-upgrade:release-1.27.0
         imagePullPolicy: Always
         name: cms-rucio-upgrade
         resources:
@@ -113,8 +113,6 @@ spec:
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
         volumeMounts:
-        - mountPath: /etc/sync-config/
-          name: config
         - mountPath: /opt/proxy
           name: proxy-volume
         - mountPath: /opt/certs
@@ -128,15 +126,8 @@ spec:
       - name: proxy-volume
         secret:
           defaultMode: 420
-          secretName: cms-ruciod-int-rucio-x509up
+          secretName: daemons-rucio-x509up
       - name: ca-volume
         secret:
           defaultMode: 420
-          secretName: cms-ruciod-int-rucio-ca-bundle
-      - configMap:
-          defaultMode: 420
-          name: dataset-config
-        name: config
-
-
-
+          secretName: daemons-rucio-ca-bundle
