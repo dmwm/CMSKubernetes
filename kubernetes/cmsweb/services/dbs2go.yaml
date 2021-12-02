@@ -82,7 +82,7 @@ spec:
             cpu: "8000m"
         livenessProbe:
           httpGet:
-            path: /dbs2go/status
+            path: /dbs2go/healthz
             port: 8258
             httpHeaders:
             - name: Accept

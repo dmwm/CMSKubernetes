@@ -81,7 +81,7 @@ spec:
             cpu: "8000m"
         livenessProbe:
           httpGet:
-            path: /dbs2go-migrate/serverinfo
+            path: /dbs2go-migrate/healthz
             port: 8259
             httpHeaders:
             - name: Accept
