@@ -52,7 +52,7 @@ spec:
   selector:
     matchLabels:
       app: dbs2go-global-r
-  replicas: 3 #PROD# 5
+  replicas: 1 #PROD# 5
   template:
     metadata:
       labels:
