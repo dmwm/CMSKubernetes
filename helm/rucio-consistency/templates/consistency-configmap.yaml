@@ -24,6 +24,8 @@ data:
           add_prefix: /store/
           roots:
           - path: express
+            ignore:
+              - tier0_harvest
           - path: mc
           - path: data
           - path: generator
