@@ -31,7 +31,7 @@ conf=$3
                 done
         fi
        echo $files
-
+       kubectl delete cm ${srv}-config -n $ns
        kubectl create configmap ${srv}-config $files -n $ns
 
     echo

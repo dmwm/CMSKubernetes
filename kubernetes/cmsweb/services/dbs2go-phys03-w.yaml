@@ -34,12 +34,9 @@ spec:
   selector:
     app: dbs2go-phys03-w
   ports:
-    - port: 9262
-      targetPort: 9262
+    - port: 9255
+      targetPort: 9255
       name: dbs
-    - port: 19262
-      targetPort: 19262
-      name: dbs-mon
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -61,8 +58,7 @@ spec:
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/path: "/dbs/prod/phys03/DBSWriter/metrics"
-        prometheus.io/port: "9262"
-#         prometheus.io/port: "19262"
+        prometheus.io/port: "9255"
     spec:
       containers:
       - image: registry.cern.ch/cmsweb/dbs2go #imagetag
@@ -83,19 +79,16 @@ spec:
         livenessProbe:
           httpGet:
             path: /dbs/prod/phys03/DBSWriter/healthz
-            port: 9262
+            port: 9255
             httpHeaders:
             - name: Accept
               value: application/json
           initialDelaySeconds: 120
           periodSeconds: 10
         ports:
-        - containerPort: 9262
+        - containerPort: 9255
           protocol: TCP
           name: dbs
-        - containerPort: 19262
-          protocol: TCP
-          name: dbs-mon
         command:
         - /data/run.sh
         volumeMounts:
