@@ -18,7 +18,7 @@ for chart in $(ls -d */Chart.yaml | xargs dirname); do
               helm dep update ${chart}
               helm package ${chart}
 	      set +x
-              helm push --username=${CERN_LOGIN} --password=${CERN_TOKEN} "${chart}-${LOCAL_VERSION}.tgz"  myrepo
+              helm cm-push --username=${CERN_LOGIN} --password=${CERN_TOKEN} "${chart}-${LOCAL_VERSION}.tgz"  myrepo
               set -x
           fi
 done
