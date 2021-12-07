@@ -2,7 +2,7 @@
 # helper script to deploy given service with given tag to k8s infrastructure
 
 if [ $# -ne 3 ]; then
-    echo "Usage: deploy-secrets.sh <namespace> <service-name> <path_to_configuration>"
+    echo "Usage: deploy-cm.sh <namespace> <service-name> <path_to_configuration>"
     exit 1
 fi
 
