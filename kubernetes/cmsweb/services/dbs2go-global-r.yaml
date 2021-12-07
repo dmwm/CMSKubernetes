@@ -34,11 +34,11 @@ spec:
   selector:
     app: dbs2go-global-r
   ports:
-    - port: 8258
-      targetPort: 8258
+    - port: 9251
+      targetPort: 9251
       name: dbs
-    - port: 18258
-      targetPort: 18258
+    - port: 19251
+      targetPort: 19251
       name: dbs-mon
 ---
 kind: Deployment
@@ -61,8 +61,8 @@ spec:
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/path: "/dbs/prod/global/DBSReader/metrics"
-        prometheus.io/port: "8258"
-#         prometheus.io/port: "18258"
+        prometheus.io/port: "9251"
+#         prometheus.io/port: "19251"
     spec:
       containers:
       - image: registry.cern.ch/cmsweb/dbs2go #imagetag
@@ -83,17 +83,17 @@ spec:
         livenessProbe:
           httpGet:
             path: /dbs/prod/global/DBSReader/healthz
-            port: 8258
+            port: 9251
             httpHeaders:
             - name: Accept
               value: application/json
           initialDelaySeconds: 120
           periodSeconds: 10
         ports:
-        - containerPort: 8258
+        - containerPort: 9251
           protocol: TCP
           name: dbs
-        - containerPort: 18258
+        - containerPort: 19251
           protocol: TCP
           name: dbs-mon
         command:
