@@ -39,6 +39,9 @@ spec:
         image: registry.cern.ch/cmsweb/dqmsquare_mirror #imagetag
         command: ["./dqmsquare_k8_wrapper.sh", "server"]
         args: []
+        envFrom:
+        - secretRef:
+            name: dqmsecret
         resources:
           requests:
             memory: "100Mi"
