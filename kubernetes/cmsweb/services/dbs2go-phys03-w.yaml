@@ -12,7 +12,7 @@ data:
     - type: log
       enabled: true
       paths:
-        - /data/logs/*${MY_POD_NAME}*
+        - /data/srv/logs/dbs/*${MY_POD_NAME}*
       ignore_older: 1h
       scan_frequency: 10s
       backoff: 5s
@@ -105,7 +105,7 @@ spec:
           mountPath: /etc/hmac
           readOnly: true
 #PROD#  - name: logs
-#PROD#    mountPath: /data/logs
+#PROD#    mountPath: /data/srv/logs/dbs
 #PROD#- name: dbs2go-phys03-w-filebeat
 #PROD#  image: docker.elastic.co/beats/filebeat:7.12.0
 #PROD#  args: [
@@ -124,7 +124,7 @@ spec:
 #PROD#      cpu: "50m"
 #PROD#  volumeMounts:
 #PROD#  - name: logs
-#PROD#    mountPath: /data/logs
+#PROD#    mountPath: /data/srv/logs/dbs
 #PROD#  - name: config
 #PROD#    mountPath: /etc/filebeat.yml
 #PROD#    readOnly: true
