@@ -70,7 +70,7 @@ cmsweb_aps="auth-proxy-server scitokens-proxy-server x509-proxy-server"
 
 #cmsweb_srvs="httpgo httpsgo frontend acdcserver couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
 
-cmsweb_srvs="httpgo httpsgo frontend cert-manager crabcache crabserver das-server das-mongo das-mongo-exporter dbs dbsmigration reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmgr2ms-rulecleaner reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes wmarchive imagebot"
+cmsweb_srvs="httpgo httpsgo frontend cert-manager crabcache crabserver das-server das-mongo das-mongo-exporter dbs dbsmigration dbs2go reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmgr2ms-rulecleaner reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes wmarchive imagebot"
 
 # list of DBS instances
 dbs_instances="migrate  global-r global-w phys03-r phys03-w"
@@ -120,7 +120,7 @@ if [ "$deployment" == "services" ]; then
     cmsweb_ing="ing-crab ing-dbs ing-das ing-dmwm ing-http ing-tzero ing-exitcodes ing-wma"
 
     #cmsweb_srvs="httpgo httpsgo acdcserver couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
-    cmsweb_srvs="httpgo httpsgo cert-manager crabcache crabserver das-server das-mongo das-mongo-exporter dbs dbsmigration reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmgr2ms-rulecleaner reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes wmarchive imagebot"
+    cmsweb_srvs="httpgo httpsgo cert-manager crabcache crabserver das-server das-mongo das-mongo-exporter dbs dbsmigration dbs2go reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmgr2ms-rulecleaner reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes wmarchive imagebot"
 
     echo "+++ deploy services: $cmsweb_srvs"
     echo "+++ deploy ingress : $cmsweb_ing"
@@ -264,7 +264,7 @@ cleanup()
     echo "--- delete pods"
     for srv in $cmsweb_srvs; do
         # special case for DBS instances
-        if [ "$srv" == "dbs" ]; then
+        if [ "$srv" == "dbs" ] || [ "$srv" == "dbs2go" ] ; then
             for inst in $dbs_instances; do
                 if [ -f $sdir/${srv}-${inst}.yaml ]; then
                     kubectl delete -f $sdir/${srv}-${inst}.yaml
@@ -426,6 +426,7 @@ deploy_secrets()
                         for fconf in $secretdir-$inst/*; do
                             dbsfiles="$dbsfiles --from-file=$fconf"
                         done
+
                     fi
                     # proceed only if service namespace matches the loop one
                     local srv_ns=`grep namespace $sdir/${osrv}-${inst}.yaml | grep $ns`
@@ -433,6 +434,29 @@ deploy_secrets()
                         continue
                     fi
                     kubectl create secret generic ${srv}-${inst}-secrets \
+                        $files $dbsfiles --dry-run -o yaml | \
+                        kubectl apply --namespace=$ns -f -
+                done
+            elif [ "$srv" == "dbs2go" ]; then
+                if [ -f $conf/$srv-$inst/dbfile ]; then
+                    files="--from-file=$conf/$srv-$inst/dbfile"
+                fi
+                if [ -f $conf/$srv-$inst/migration_dbfile ]; then
+                    files="$files --from-file=$conf/$srv-$inst/migration_dbfile"
+                fi
+                for inst in $dbs_instances; do
+                    local dbsfiles=""
+                    if [ -d "$secretdir-$inst" ] && [ -n "`ls $secretdir-$inst`" ]; then
+                        for fconf in $secretdir-$inst/*; do
+                            dbsfiles="$dbsfiles --from-file=$fconf"
+                        done
+                    fi
+                    # proceed only if service namespace matches the loop one
+                    local srv_ns=`grep namespace $sdir/${osrv}-${inst}.yaml | grep $ns`
+                    if [ -z "$srv_ns" ] ; then
+                        continue
+                    fi
+                    kubectl create cm ${srv}-${inst}-config \
                         $files $dbsfiles --dry-run -o yaml | \
                         kubectl apply --namespace=$ns -f -
                 done
@@ -773,7 +797,7 @@ deploy_services()
     echo
     echo "+++ deploy services: $cmsweb_srvs"
     for srv in $cmsweb_srvs; do
-        if [ "$srv" == "dbs" ]; then
+        if [ "$srv" == "dbs" ] || [ "$srv" == "dbs2go" ] ; then
             for inst in $dbs_instances; do
                 if [ -f "$sdir/${srv}-${inst}.yaml" ]; then
                     #kubectl apply -f "$sdir/${srv}-${inst}.yaml"
