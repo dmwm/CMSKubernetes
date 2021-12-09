@@ -55,6 +55,7 @@ spec:
       labels:
         app: dbs2go-global-w
         env: k8s #k8s#
+        job: dbs2go-global-w
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/path: "/dbs/prod/global/DBSWriter/metrics"

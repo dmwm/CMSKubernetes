@@ -55,6 +55,7 @@ spec:
       labels:
         app: dbs2go-phys03-w
         env: k8s #k8s#
+        job: dbs2go-phys03-w
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/path: "/dbs/prod/phys03/DBSWriter/metrics"
