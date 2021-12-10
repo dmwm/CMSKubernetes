@@ -14,14 +14,14 @@ spec:
   - type: Object
     object:
       metric:
-        name: dbs2go_global_reader_procfs_openfds
+        name: dbs2go_global_reader_rps
       describedObject:
         apiVersion: batch/v1
         kind: Job
         name: dbs2go-global-r
       target:
         type: Value
-        value: 800
+        value: 100
   - type: Resource
     resource:
       name: cpu
@@ -51,14 +51,14 @@ spec:
   - type: Object
     object:
       metric:
-        name: dbs2go_global_writer_procfs_openfds
+        name: dbs2go_global_writer_rps
       describedObject:
         apiVersion: batch/v1
         kind: Job
         name: dbs2go-global-w
       target:
         type: Value
-        value: 800
+        value: 100
   - type: Resource
     resource:
       name: cpu
@@ -88,14 +88,14 @@ spec:
   - type: Object
     object:
       metric:
-        name: dbs2go_phys03_writer_procfs_openfds
+        name: dbs2go_phys03_writer_rps
       describedObject:
         apiVersion: batch/v1
         kind: Job
         name: dbs2go-phys03-w
       target:
         type: Value
-        value: 800
+        value: 100
   - type: Resource
     resource:
       name: cpu
@@ -125,14 +125,14 @@ spec:
   - type: Object
     object:
       metric:
-        name: dbs2go_phys03_reader_procfs_openfds
+        name: dbs2go_phys03_reader_rps
       describedObject:
         apiVersion: batch/v1
         kind: Job
         name: dbs2go-phys03-r
       target:
         type: Value
-        value: 800
+        value: 100
   - type: Resource
     resource:
       name: cpu

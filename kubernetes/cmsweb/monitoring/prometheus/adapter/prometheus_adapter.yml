@@ -1,32 +1,32 @@
 rules:
-  - seriesQuery: 'dbs2go_global_reader_procfs_openfds'
+  - seriesQuery: 'dbs2go_global_reader_rps'
     resources:
       template: "<<.Resource>>"
     name:
       matches: "^(.*)"
       as: "${1}"
-    metricsQuery: 'max(<<.Series>>) by (job)'
-  - seriesQuery: 'dbs2go_global_writer_procfs_openfds'
+    metricsQuery: 'avg(<<.Series>>) by (job)'
+  - seriesQuery: 'dbs2go_global_writer_rps'
     resources:
       template: "<<.Resource>>"
     name:
       matches: "^(.*)"
       as: "${1}"
-    metricsQuery: 'max(<<.Series>>) by (job)'
-  - seriesQuery: 'dbs2go_phys03_reader_procfs_openfds'
+    metricsQuery: 'avg(<<.Series>>) by (job)'
+  - seriesQuery: 'dbs2go_phys03_reader_rps'
     resources:
       template: "<<.Resource>>"
     name:
       matches: "^(.*)"
       as: "${1}"
-    metricsQuery: 'max(<<.Series>>) by (job)'
-  - seriesQuery: 'dbs2go_phys03_writer_procfs_openfds'
+    metricsQuery: 'avg(<<.Series>>) by (job)'
+  - seriesQuery: 'dbs2go_phys03_writer_rps'
     resources:
       template: "<<.Resource>>"
     name:
       matches: "^(.*)"
       as: "${1}"
-    metricsQuery: 'max(<<.Series>>) by (job)'
+    metricsQuery: 'avg(<<.Series>>) by (job)'
   - seriesQuery: 'dbs_global_exporter_process_open_fds'
     resources:
       template: "<<.Resource>>"
