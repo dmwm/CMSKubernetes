@@ -19,7 +19,8 @@ data:
     cp /tmp/dbs_queries.txt /urls.txt
     file="/urls.txt"
     while IFS= read -r line; do  _base_url="$line" ;
-         curl \
+    ### Following curl command should be used without encoding.
+        curl \
               -s -L \
               --cert /certs/cms-proxy.pem \
               --cacert /certs/cms-proxy.pem \
@@ -27,6 +28,19 @@ data:
               -w "${_base_url} %{http_code} %{remote_ip} %{time_total}\n" \
               -o /dev/null \
               "${_base_url}" | tee --append --ignore-interrupts /tmp/clients/curl-$HOSTNAME.log ;
+    ### Following curl commmand should be used with encoding.
+    #     curl \
+    #          -s -L \
+    #          --cert /certs/cms-proxy.pem \
+    #          --cacert /certs/cms-proxy.pem \
+    #          --cacert /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem \
+    #          -H "Accept-Encoding: gzip" \
+    #          -w "${_base_url} %{http_code} %{remote_ip} %{time_total}\n" \
+    #          --output $PWD/log.gz \
+    #          "${_base_url}" | tee --append --ignore-interrupts /tmp/clients/curl-$HOSTNAME.log ;
+
+
+
     done < "$file"
     #done
     echo "Finished. sleeping 100d"
