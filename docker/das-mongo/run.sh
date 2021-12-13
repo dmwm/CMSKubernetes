@@ -42,8 +42,11 @@ fi
 
 # import das maps
 if [ -f /etc/secrets/frontend ]; then
+    # provide substitution for das map record entries, e.g.
+    # if /etc/secrets/frontend has cmsweb-k8s-prod all entries
+    # with cmsweb will be replaced with this value
     fe=`cat /etc/secrets/frontend`
-    ls $STAGEDIR/*.js | awk '{print "sed -i -e \"s,cmsweb.cern.ch,"fe",g\" "$1""}' fe=$fe | /bin/sh
+    ls $STAGEDIR/*.js | grep -v presentation | awk '{print "sed -i -e \"s,cmsweb.cern.ch,"fe",g\" "$1""}' fe=$fe | /bin/sh
 fi
 if [ -f /etc/secrets/dasmap ]; then
     if [ -n "grep testbed in $fe" ]; then
