@@ -19,7 +19,7 @@ spec:
         app: logstash
     spec:
       containers:
-      - image: docker.elastic.co/logstash/logstash:7.4.1
+      - image: docker.elastic.co/logstash/logstash:7.16.1
         name: logstash
         env:
         - name: CMSWEB_CLUSTER
