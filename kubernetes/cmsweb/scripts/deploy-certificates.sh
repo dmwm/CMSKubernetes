@@ -1,5 +1,5 @@
 #!/bin/bash
-# helper script to deploy given service with given tag to k8s infrastructure
+# helper script to deploy robot and proxy certificates secrets in all namespaces.
 
 if [ $# -ne 1 ]; then
     echo "Usage: deploy-certificates.sh  <path_to_certificates>"
