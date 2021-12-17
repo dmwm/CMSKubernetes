@@ -26,6 +26,13 @@ RUN chmod 755 /usr/local/lib/python3.6/site-packages/cmstfc.py
 ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/rse/protocols/gfal.py /usr/local/lib/python3.6/site-packages/rucio/rse/protocols/gfal.py
 RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/rse/protocols
 
+# Radu's Patch (not needed in 1.27.2)
+#ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/core/transfer.py /usr/local/lib/python3.6/site-packages/rucio/core
+#RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/core
+#ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/daemons/conveyor/common.py /usr/local/lib/python3.6/site-packages/rucio/daemons/conveyor
+#RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/daemons/conveyor
+
+
 ADD cms-entrypoint.sh /
 
 # Nick patch for Production Output issues, fixed in 1.26 series
