@@ -17,7 +17,7 @@ data:
         else
             echo "$(date -u '+%Y-%m-%d %H:%M:%S') UTC INFO Certificate expires in: ${expires_in}, will not renew."
         fi
-        sleep 300s
+        sleep 60m
     done
     # end
 kind: ConfigMap
