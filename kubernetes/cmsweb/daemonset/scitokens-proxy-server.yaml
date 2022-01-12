@@ -36,7 +36,7 @@ spec:
       securityContext: {}
 
       containers:
-      - image: cmssw/auth-proxy-server #imagetag
+      - image: registry.cern.ch/cmsweb/auth-proxy-server #imagetag
         name: scitokens-proxy-server
 #         imagePullPolicy: Always
         args:
@@ -79,7 +79,7 @@ spec:
           mountPath: /etc/grid-security/hostkey.pem
       initContainers:
       - name: htdocs
-        image: cmssw/htdocs
+        image: registry.cern.ch/cmsweb/htdocs:0.0.2
         command: ['sh', '-c', 'cp -r /www/* /tmp/htdocs']
         volumeMounts:
         - name: www-htdocs
