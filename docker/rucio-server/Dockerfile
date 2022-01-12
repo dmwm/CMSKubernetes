@@ -45,6 +45,4 @@ RUN rm -f /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/userdir.conf /etc/htt
 # Patch for Globus stuff
 ADD https://raw.githubusercontent.com/ericvaandering/containers/add_preparer/server/rucio.cfg.j2 /tmp/rucio.cfg.j2
 
-# Patch until 1.26.5
-ADD https://raw.githubusercontent.com/rucio/containers/ebfbf4909fb32dbbb7b0bd9de736912edc6ad5ec/server/rucio.conf.j2 /tmp/rucio.conf.j2
 ENTRYPOINT ["/cms-entrypoint.sh"]

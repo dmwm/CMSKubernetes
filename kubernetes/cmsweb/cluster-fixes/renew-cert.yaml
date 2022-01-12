@@ -1,0 +1,80 @@
+apiVersion: v1
+data:
+  script.sh: |
+    #!/bin/bash
+
+    while true
+    do
+        expires_in=$(cern-get-certificate --status --grid | grep "cert days until expiry :" | awk '{print $6}')
+        if [[ "${expires_in}" = "expired" || "${expires_in}" -lt "14" ]] ; then
+            _hostname="$(hostname -s).cern.ch"
+            echo "$(date -u '+%Y-%m-%d %H:%M:%S') UTC INFO Certificate expires in: ${expires_in}, renewing certificate for host: ${_hostname}"
+            cern-get-certificate --verbose --debug --renew --grid --force --hostname "${_hostname}"
+            set -x
+            /bin/cp -f "/etc-host/grid-security/${_hostname}.grid.pem" /etc-host/grid-security/hostcert.pem
+            /bin/cp -f "/etc-host/grid-security/${_hostname}.grid.key" /etc-host/grid-security/hostkey.pem
+            set +x
+        else
+            echo "$(date -u '+%Y-%m-%d %H:%M:%S') UTC INFO Certificate expires in: ${expires_in}, will not renew."
+        fi
+        sleep 60m
+    done
+    # end
+kind: ConfigMap
+metadata:
+  labels:
+    k8s-app: renew-cern-certs
+  name: renew-cern-certs
+  namespace: kube-system
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: renew-cern-certs
+  name: renew-cern-certs
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: renew-cern-certs
+  template:
+    metadata:
+      labels:
+        app: renew-cern-certs
+    spec:
+      containers:
+      - command:
+        - /bin/bash
+        - /opt/cci/script.sh
+        image: gitlab-registry.cern.ch/cloud/cern-hostcert:v0.5.0
+        imagePullPolicy: Always
+        name: dummy
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc-host
+          name: etc-host
+        - mountPath: /opt/cci
+          name: renew-cern-certs
+      dnsPolicy: ClusterFirst
+      hostNetwork: true
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        seLinuxOptions:
+          type: spc_t
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - hostPath:
+          path: /etc
+          type: Directory
+        name: etc-host
+      - configMap:
+          defaultMode: 420
+          name: renew-cern-certs
+        name: renew-cern-certs
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 1
