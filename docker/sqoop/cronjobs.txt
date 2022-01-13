@@ -22,7 +22,7 @@
 # Rucio DIDS table dump
 00 01 * * * cd /data/sqoop; ./run.sh ./rucio_dids.sh
 # Rucio CONTENTS table dump
-15 02 * * * cd /data/sqoop; ./run.sh ./rucio_contents.sh
+30 02 * * * cd /data/sqoop; ./run.sh ./rucio_contents.sh
 
 # DBS dumps
 27 03 * * *   cd /data/sqoop; ./run.sh ./cms-dbs3-datasets.sh
