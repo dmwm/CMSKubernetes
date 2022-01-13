@@ -20,8 +20,8 @@ TZ=UTC
 ####
 trap 'onFailExit' ERR
 onFailExit() {
-    echo "Finished with error! Please see logs!"
-    echo "Log files: ${LOG_FILE}"
+    echo "Finished with error!" >>"$LOG_FILE".stdout
+    echo "Log files: ${LOG_FILE}" >>"$LOG_FILE".stdout
     echo FAILED
     exit 1
 }
@@ -31,19 +31,20 @@ if [ -f /etc/secrets/rucio ]; then
     USERNAME=$(grep username </etc/secrets/rucio | awk '{print $2}')
     PASSWORD=$(grep password </etc/secrets/rucio | awk '{print $2}')
 else
-    echo "Unable to read Rucio credentials"
+    echo "Unable to read Rucio credentials" >>"$LOG_FILE".stdout
     exit 1
 fi
 
 # Check sqoop and hadoop executables exist
-if ! [ -x "$(command -v hadoop)" ] || ! [ -x "$(command -v sqoop)" ]; then
-    echo "It seems 'sqoop' or 'hadoop' is not exist in PATH! Exiting..."
+if ! [ -x "$(command -v hadoop)" ]; then
+    echo "It seems 'hadoop' is not exist in PATH! Exiting..." >>"$LOG_FILE".stdout
     exit 1
 fi
 
-echo "[INFO] Sqoob job for Rucio CONTENTS table is starting.."
-echo "[INFO] Rucio table will be imported: ${TABLE}"
-sqoop import \
+echo "[INFO] Sqoob job for Rucio CONTENTS table is starting.." >>"$LOG_FILE".stdout
+echo "[INFO] Rucio table will be imported: ${TABLE}" >>"$LOG_FILE".stdout
+# Start sqoop import
+/usr/hdp/sqoop/bin/sqoop import \
     -Dmapreduce.job.user.classpath.first=true \
     -Doraoop.timestamp.string=false \
     -Dmapred.child.java.opts="-Djava.security.egd=file:/dev/../dev/urandom" \
@@ -62,6 +63,8 @@ sqoop import \
 # change permission of HDFS area
 hadoop fs -chmod -R o+rx "$TARGET_DIR"
 
-echo "[INFO] Sqoob job for Rucio CONTENTS table is finished."
-echo "[INFO] Output hdfs path : ${TARGET_DIR}"
-echo SUCCESS
+{
+    echo "[INFO] Sqoob job for Rucio CONTENTS table is finished."
+    echo "[INFO] Output hdfs path : ${TARGET_DIR}"
+    echo "SUCCESS"
+} >>"$LOG_FILE".stdout
