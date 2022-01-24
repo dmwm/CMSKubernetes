@@ -72,11 +72,11 @@ spec:
         - /data/run.sh
         resources:
           requests:
-            memory: "100Mi"
-            cpu: "200m"
+            memory: "500Mi"
+            cpu: "2000m"
           limits:
-            memory: "4Gi"
-            cpu: "4000m"
+            memory: "500Mi"
+            cpu: "2000m"
         livenessProbe:
           httpGet:
             path: /dbs/prod/global/DBSReader/healthz
@@ -121,8 +121,11 @@ spec:
 #PROD#        fieldPath: metadata.name
 #PROD#  resources:
 #PROD#    requests:
-#PROD#      memory: "50Mi"
-#PROD#      cpu: "50m"
+#PROD#      memory: "500Mi"
+#PROD#      cpu: "500m"
+#PROD#    limits:
+#PROD#      memory: "500Mi"
+#PROD#      cpu: "500m"
 #PROD#  volumeMounts:
 #PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/dbs
