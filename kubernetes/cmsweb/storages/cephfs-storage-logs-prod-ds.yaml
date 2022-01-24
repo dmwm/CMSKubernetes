@@ -132,8 +132,8 @@ parameters:
   protocol: CEPHFS
   backend: csi-cephfs
   csi-driver: cephfs.csi.ceph.com
-  osShareID: 3e866d15-20b2-4582-bf28-e1295b1b9133
-  osShareAccessID: 0e29647f-e4df-44c5-bf0f-95f3d28616b9
+  osShareID: 807e551b-ae09-46b6-9484-c7b21135038c
+  osShareAccessID: 2f582590-7a60-40f9-8271-17abfdfcbe6a
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -145,7 +145,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 150G
+      storage: 500G
   storageClassName: crab-share
 ---
 apiVersion: storage.k8s.io/v1beta1
@@ -267,36 +267,6 @@ spec:
     requests:
       storage: 150G
   storageClassName: wma-share
----
-apiVersion: storage.k8s.io/v1beta1
-kind: StorageClass
-metadata:
-  name: crabcache-share
-  namespace: crab
-provisioner: manila-provisioner
-parameters:
-  type: "Meyrin CephFS"
-  zones: nova
-  osSecretName: os-trustee
-  osSecretNamespace: kube-system
-  protocol: CEPHFS
-  backend: csi-cephfs
-  csi-driver: cephfs.csi.ceph.com
-  osShareID: b3575691-b8e5-4292-ad98-4a7caa1ffdc2
-  osShareAccessID: f8d4e2c7-f3ed-4703-8028-8b0b97a177b0
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: crabcache-claim
-  namespace: crab
-spec:
-  accessModes:
-  - ReadWriteMany
-  resources:
-    requests:
-      storage: 500G
-  storageClassName: crabcache-share
 ---
 apiVersion: storage.k8s.io/v1beta1
 kind: StorageClass
