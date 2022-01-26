@@ -27,10 +27,14 @@ cd CRABServer
 git checkout $CRABServerGHTag
 git remote add stefano https://github.com/belforte/CRABServer.git
 git remote add daina https://github.com/ddaina/CRABServer.git
+git remote add dario https://github.com/mapellidario/CRABServer.git
+git remote add wa https://github.com/novicecpp/CRABServer.git
 cd ..
 cd WMCore
 git checkout $WMCoreGHTag
 git remote add stefano https://github.com/belforte/WMCore.git
+git remote add dario https://github.com/mapellidario/CRABServer.git
+git remote add wa https://github.com/novicecpp/CRABServer.git
 
 # add dummy global names to git for git stash to work
 git config --global user.email dummy@nowhere
