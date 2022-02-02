@@ -633,7 +633,7 @@ deploy_monitoring()
 
     # locate all prometheus files
     local mon=""
-    if [ "$deployment" == "services" ]; then
+    if [ "$deployment" == "services" ] || [ "$deployment" == "aps" ]; then
         mon="services"
     else
         mon="frontend"
