@@ -615,7 +615,6 @@ deploy_monitoring()
 
     # use common logstash yaml for ALL services
     #kubectl -n monitoring apply -f monitoring/logstash.yaml
-    #if [ "$deployment" == "aps" ]; then
     cat monitoring/logstash.yaml | \
         sed -e "s,dev # cmsweb_env,$env_prefix,g" | \
         sed -e "s,dev # cluster,$cluster,g" | \
