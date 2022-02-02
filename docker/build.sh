@@ -39,7 +39,7 @@ echo "docker system prune -f -a"
 
 #cmssw_pkgs="proxy frontend exporters exitcodes nats-sub das dbs2go dbs couchdb reqmgr2 reqmgr2ms reqmon workqueue acdcserver crabserver crabcache cmsmon dmwmmon dqmgui t0_reqmon t0wmadatasvc dbsmigration phedex httpgo httpsgo"
 
-cmssw_pkgs="frontend dbs dbsmigration reqmgr2 reqmon crabserver crabcache t0_reqmon t0wmadatasvc workqueue reqmgr2ms reqmgr2ms-unmerged"
+cmssw_pkgs="cmsweb cmsweb-base frontend dbs dbsmigration reqmgr2 reqmon crabserver crabcache t0_reqmon t0wmadatasvc workqueue reqmgr2ms reqmgr2ms-unmerged"
 
 rucio_pkgs="rucio-consistency rucio-daemons rucio-probes rucio-server rucio-sync rucio-tracer rucio-ui rucio-upgrade"
 
@@ -58,16 +58,19 @@ registry=registry.cern.ch/cmsweb
 repo=${CMSK8SREPO:-cmssw}
 echo "repo=$repo"
 for pkg in $cmssw_pkgs; do
-
     if [[ $rucio_pkgs == *$pkg* ]]; then
        registry=registry.cern.ch/cmsrucio
     fi
-
     if [[ $monitoring_pkgs == *$pkg* ]]; then
        registry=registry.cern.ch/cmsmonitoring
     fi
+    if [ "$pkg" == "cmsweb" ] || [ "$pkg" == "cmsweb-base" ]; then
+       registry=registry.cern.ch/cmsweb
+    fi
 
-    echo "Registry #### $registry"
+
+
+  echo "Registry #### $registry"
 
     echo "### build $repo/$pkg"
     if [ -n "$CMSK8STAG" ]; then
