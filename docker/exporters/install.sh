@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG2201e
+VER=HG2202c
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend couchdb"
