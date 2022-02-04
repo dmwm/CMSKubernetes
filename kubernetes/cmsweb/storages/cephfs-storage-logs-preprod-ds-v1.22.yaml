@@ -1,7 +1,8 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: auth-share
+  name: default-share
+  namespace: auth
 spec:
   accessModes:
   - ReadWriteMany
@@ -32,5 +33,42 @@ spec:
     requests:
       storage: 22G
   storageClassName: ""
-  volumeName: auth-share
+  volumeName: default-share
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: dbs-share
+  namespace: dbs
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 22G
+  csi:
+    driver: cephfs.manila.csi.openstack.org
+    volumeHandle: cdac4377-c1a2-40d5-9a9e-f303b383609c
+    nodeStageSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    nodePublishSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    volumeAttributes:
+      shareID: cdac4377-c1a2-40d5-9a9e-f303b383609c
+      shareAccessID: 4c736d7e-d0f3-4f59-98cd-7d276d83c910
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-dbs
+  namespace: dbs
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 22G
+  storageClassName: ""
+  volumeName: dbs-share
 ---
