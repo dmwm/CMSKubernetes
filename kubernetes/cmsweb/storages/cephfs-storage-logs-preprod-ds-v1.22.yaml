@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: default-share
+  name: auth-share
 spec:
   accessModes:
   - ReadWriteMany
@@ -32,5 +32,5 @@ spec:
     requests:
       storage: 22G
   storageClassName: ""
-  volumeName: default-share
+  volumeName: auth-share
 ---
