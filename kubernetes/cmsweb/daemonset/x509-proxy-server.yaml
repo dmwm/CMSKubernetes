@@ -77,6 +77,8 @@ spec:
           mountPath: /etc/grid-security/hostcert.pem
         - name: hostkey
           mountPath: /etc/grid-security/hostkey.pem
+#PROD#  - name: logs-cephfs
+#PROD#    mountPath: /data/srv/logs/frontend
       initContainers:
       - name: htdocs
         image: registry.cern.ch/cmsweb/htdocs:0.0.2
@@ -84,8 +86,6 @@ spec:
         volumeMounts:
         - name: www-htdocs
           mountPath: /tmp/htdocs
-#PROD#  - name: logs-cephfs
-#PROD#    mountPath: /data/srv/logs/frontend
       volumes:
       - name: x509-proxy-server-secrets
         secret:
