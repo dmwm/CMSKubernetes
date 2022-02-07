@@ -82,8 +82,6 @@ spec:
           - name: OUTPUT_ENDPOINT
             value: http://monit-logs.cern.ch:10012/
         resources:
-          limits:
-            memory: 200Mi
           requests:
             cpu: 100m
             memory: 200Mi
