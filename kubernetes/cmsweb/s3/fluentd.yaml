@@ -7,7 +7,7 @@ metadata:
   namespace: default
 ---
 # Source: fluentd/templates/fluentd-rbac.yaml
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: fluentd
@@ -24,7 +24,7 @@ rules:
 ---
 # Source: fluentd/templates/fluentd-rbac.yaml
 kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: fluentd
 roleRef:
@@ -40,7 +40,7 @@ subjects:
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: fluentd-test
+  name: cmsweb-test
   namespace: default
   labels:
     k8s-app: fluentd-logging
