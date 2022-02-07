@@ -1,3 +1,30 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-proxy-server-filebeat-config
+  namespace: auth
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/frontend/*${MY_POD_NAME}*
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+---
 kind: DaemonSet
 apiVersion: apps/v1
 metadata:
@@ -67,8 +94,40 @@ spec:
           mountPath: /etc/grid-security/hostcert.pem
         - name: hostkey
           mountPath: /etc/grid-security/hostkey.pem
-#PROD#  - name: logs-cephfs
+#PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/frontend
+#PROD#  - name: filebeat-cephfs
+#PROD#    mountPath: /data/filebeat
+#PROD#- name: auth-proxy-server-filebeat
+#PROD#  image: docker.elastic.co/beats/filebeat:7.12.0
+#PROD#  args: [
+#PROD#    "-c", "/etc/filebeat.yml",
+#PROD#    "-e",
+#PROD#  ]
+#PROD#  env:
+#PROD#  - name: MY_POD_NAME
+#PROD#    valueFrom:
+#PROD#      fieldRef:
+#PROD#        apiVersion: v1
+#PROD#        fieldPath: metadata.name
+#PROD#  resources:
+#PROD#    requests:
+#PROD#      memory: "50Mi"
+#PROD#      cpu: "50m"
+#PROD#  volumeMounts:
+#PROD#  - name: logs
+#PROD#    mountPath: /data/srv/logs/frontend
+#PROD#  - name: config
+#PROD#    mountPath: /etc/filebeat.yml
+#PROD#    readOnly: true
+#PROD#    subPath: filebeat.yml
+#PROD#  - name: data
+#PROD#    mountPath: /usr/share/filebeat/data
+#PROD#  - name: varlog
+#PROD#    mountPath: /var/log
+#PROD#  - name: varlibdockercontainers
+#PROD#    mountPath: /var/lib/docker/containers
+#PROD#    readOnly: true
       initContainers:
       - name: htdocs
         image: registry.cern.ch/cmsweb/htdocs:0.0.2
@@ -91,7 +150,22 @@ spec:
       - name: hostkey
         hostPath:
             path: /etc/grid-security/hostkey.pem
-#PROD#- name: logs-cephfs
+#PROD#- name: varlog
+#PROD#  hostPath:
+#PROD#    path: /var/log
+#PROD#- name: varlibdockercontainers
+#PROD#  hostPath:
+#PROD#    path: /var/lib/docker/containers
+#PROD#- name: config
+#PROD#  configMap:
+#PROD#    defaultMode: 0640
+#PROD#    name: auth-proxy-server-filebeat-config
+#PROD#- name: data
+#PROD#  emptyDir: {}
+#PROD#- name: filebeat-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: filebeat-cephfs-claim-default
+#PROD#- name: logs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-default
 ---
