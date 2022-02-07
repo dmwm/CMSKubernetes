@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: filebeat-share
+  namespace: auth
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 22G
+  csi:
+    driver: cephfs.manila.csi.openstack.org
+    volumeHandle: 83e03ddf-a578-4cef-94ac-22efe729abc0
+    nodeStageSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    nodePublishSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    volumeAttributes:
+      shareID: 83e03ddf-a578-4cef-94ac-22efe729abc0
+      shareAccessID: 3e4c4a49-d881-49ab-8852-480c8927a080
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: filebeat-cephfs-claim-default
+  namespace: auth
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 22G
+  storageClassName: ""
+  volumeName: filebeat-share
+---
