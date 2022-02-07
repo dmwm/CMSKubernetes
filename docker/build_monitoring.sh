@@ -1,39 +1,35 @@
 #!/bin/bash
-# build_monitoring.sh: script to build docker images for cmsmonitoring k8s services
+##H Usage:  <pkgs> <tag> <-stable|-not-stable>[optional, default: -not-stable]
+##H
+##H Arguments:
+##H   1st=PKGS       : image name(s) [required]
+##H   2st=DOCKER_TAG : tag           [required]
+##H   3st=IS_STABLE  : is stable     [optional]
+##H
+##H Explanation
+##H   - build and push docker images to ONLY Cern registry
+##H   - provides "-stable" argument to build docker tags with "-stable" postfix,
+##H       which sets retention of image as 360 days with immutability,
+##H     If "-stable" arg is not provided, does not apply "-stable" postfix to the image as default,
+##H       which has 180 days of retention and NO immutability.
+##H
+##H Examples:
+##H   > build not-stable(default) image
+##H       $ build_monitoring.sh cmsmon-hadoop-base 20220202-01
+##H   > build stable image
+##H       $ build_monitoring.sh cmsmon-hadoop-base 20220202-01 -stable
+##H
 
-# This script
-#   - build and push docker images to ONLY Cern registry
-#   - uses current git commit hash as docker tag
-#   - provides "-stable" argument to build docker tags with "-stable" postfix,
-#       which sets retention of image as 360 days with immutability,
-#     If "-stable" arg is not provided, does not apply "-stable" postfix to the image as default,
-#       which has 180 days of retention and NO immutability.
-
-# define help
-if [ "$1" == "" ] || [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ]; then
-    echo "Usage: build.sh <pkgs> <-stable | -not-stable>[optional, default: -not-stable]"
-    echo "Examples:"
-    echo "  # build image for one cmsmonitoring service with -not-stable flag as default"
-    echo "  ./build_monitoring.sh \"sqoop\""
-    echo "  # build images for multiple cmsmonitoring services with -stable flag"
-    echo "  ./build_monitoring.sh \"sqoop karma\" -stable"
+# help definition
+if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ] || [ "$1" == "" ]; then
+    perl -ne '/^##H/ && do { s/^##H ?//; print }' <$0
     exit 1
 fi
-
-echo "This script will set the Docker image tag as the current commit hash"
-
-# DOCKER_TAG: Add git commit short hash as docker image tag
-if ! DOCKER_TAG=$(git rev-parse --short HEAD); then
-    echo "'git rev-parse --short HEAD' failed. Exiting!"
-    exit 1
-fi
-
-# We can add building all cmsmonitoring docker images.
-#monitoring_pkgs="cmsmon cmsmon-alerts cmsmon-intelligence cmsweb-monit condor-cpu-eff jobber karma log-clustering monitor nats-nsc nats-sub rumble sqoop vmbackup-utility udp-server"
 
 # If it's empty, help conditions catch it
 PKGS=${1:-}
-IS_STABLE=${2:-not-stable}
+DOCKER_TAG=${2:-}
+IS_STABLE=${3:-not-stable}
 REGISTRY=registry.cern.ch/cmsmonitoring
 REPO=cmsmonitoring
 
@@ -48,11 +44,6 @@ Please read carefully!
   - To not conflict docker images, please prune images:
       $ docker system prune -f -a
       $ docker rmi $(docker images -qf "dangling=true")
-  - To give appropriate docker TAG, please git checkout to the desired commit:
-  - If you want to create docker images with the latest commit:
-      $ git remote -v | grep upstream # should be 'https://github.com/dmwm/CMSKubernetes.git
-      $ git fetch --all
-      $ git pull --rebase upstream master
   - ### Docker images will be build with below settings: ###
     #    Packages to build  : $PKGS
     #    TAG will be used   : $DOCKER_TAG
@@ -99,7 +90,3 @@ for pkg in $PKGS; do
 done
 
 echo
-echo "To remove all images please use this command"
-echo "  $ docker rmi \$(docker images -qf \"dangling=true\")"
-echo "  $ docker images | awk '{print \"docker rmi -f \"$3\"\"}' | /bin/sh"
-

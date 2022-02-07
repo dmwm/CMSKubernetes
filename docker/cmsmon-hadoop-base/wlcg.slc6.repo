@@ -1,0 +1,9 @@
+[wlcg]
+name=WLCG Repository
+baseurl=http://linuxsoft.cern.ch/wlcg/sl6/$basearch
+protect=1
+enabled=1
+# To use priorities you must have yum-priorities installed
+priority=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg
