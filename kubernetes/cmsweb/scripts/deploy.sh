@@ -42,13 +42,49 @@ logs_prefix=""
 if [ "$CMSWEB_ENV" == "production" ] || [ "$CMSWEB_ENV" == "prod" ]; then
     prod_prefix="      " # will replace '#PROD#' prefix
     logs_prefix="-prod" # will append this prefix to logs-cephfs-claim
-    env_prefix="k8s-prod" # will replace k8s #k8s# part
+#    env_prefix="k8s-prod" # will replace k8s #k8s# part
 fi
 if [ "$CMSWEB_ENV" == "preproduction" ] || [ "$CMSWEB_ENV" == "preprod" ]; then
     prod_prefix="      " # will replace '#PROD#' prefix
     logs_prefix="-preprod" # will append this prefix to logs-cephfs-claim
-    env_prefix="k8s-preprod" # will replace k8s #k8s# part
+#    env_prefix="k8s-preprod" # will replace k8s #k8s# part
 fi
+
+    cluster_name=`kubectl config get-clusters | grep -v NAME`
+    if [[ "$cluster_name" == *"testbed"* ]] ; then
+                env_prefix="preprod"
+    fi
+    if [[ "$cluster_name" == *"prod"* ]] ; then
+                env_prefix="prod"
+    fi
+    if [[ "$cluster_name" == *"cmsweb-auth"* ]] ; then
+                env_prefix="auth"
+    fi
+    if [[ "$cluster_name" == *"cmsweb-test1"* ]] ; then
+                env_prefix="test1"
+    fi
+    if [[ "$cluster_name" == *"cmsweb-test2"* ]] ; then
+                env_prefix="test2"
+    fi
+    if [[ "$cluster_name" == *"cmsweb-test3"* ]] ; then
+                env_prefix="test3"
+    fi
+    if [[ "$cluster_name" == *"cmsweb-test4"* ]] ; then
+                env_prefix="test4"
+    fi
+    if [[ "$cluster_name" == *"cmsweb-test5"* ]] ; then
+                env_prefix="test5"
+    fi
+    if [[ "$cluster_name" == *"cmsweb-test6"* ]] ; then
+                env_prefix="test6"
+    fi
+    if [[ "$cluster_name" == *"cmsweb-test7"* ]] ; then
+                env_prefix="test7"
+    fi
+    env_prefix="k8s-$env_prefix"
+
+    echo "#### env_prefix = $env_prefix"
+
 sdir=services
 mdir=monitoring
 idir=ingress
@@ -65,7 +101,7 @@ cmsweb_ns="auth default crab das dbs dmwm http tzero wma"
 cmsweb_ing="ing-crab ing-dbs ing-das ing-dmwm ing-http ing-tzero ing-exitcodes ing-wma"
 cmsweb_ds="frontend-ds"
 
-cmsweb_aps="auth-proxy-server scitokens-proxy-server x509-proxy-server"
+cmsweb_aps="auth-proxy-server scitokens-proxy-server x509-proxy-server aps-filebeat sps-filebeat xps-filebeat"
 
 
 #cmsweb_srvs="httpgo httpsgo frontend acdcserver couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
@@ -563,16 +599,19 @@ deploy_monitoring()
         kubectl create namespace monitoring
     fi
 
+    cat monitoring/kube-eagle.yaml | sed -e "s,k8s #k8s#,$env_prefix,g" | kubectl apply -f -
+
+
     echo
     echo "+++ deploy monitoring services"
     # add kube-eagle
-    if [ "$CMSWEB_ENV" == "production" ] || [ "$CMSWEB_ENV" == "prod" ]; then
-        cat monitoring/kube-eagle.yaml | sed -e 's,k8s #k8s#,"k8s-prod",g' | kubectl apply -f -
-    elif [ "$CMSWEB_ENV" == "preproduction" ] || [ "$CMSWEB_ENV" == "preprod" ]; then
-        cat monitoring/kube-eagle.yaml | sed -e 's,k8s #k8s#,"k8s-preprod",g' | kubectl apply -f -
-    else
-        kubectl apply -f monitoring/kube-eagle.yaml
-    fi
+    #if [ "$CMSWEB_ENV" == "production" ] || [ "$CMSWEB_ENV" == "prod" ]; then
+    #    cat monitoring/kube-eagle.yaml | sed -e 's,k8s #k8s#,"k8s-prod",g' | kubectl apply -f -
+    #elif [ "$CMSWEB_ENV" == "preproduction" ] || [ "$CMSWEB_ENV" == "preprod" ]; then
+    #    cat monitoring/kube-eagle.yaml | sed -e 's,k8s #k8s#,"k8s-preprod",g' | kubectl apply -f -
+    #else
+    #    kubectl apply -f monitoring/kube-eagle.yaml
+    #fi
 
     # use common logstash yaml for ALL services
     #kubectl -n monitoring apply -f monitoring/logstash.yaml
@@ -594,21 +633,24 @@ deploy_monitoring()
 
     # locate all prometheus files
     local mon=""
-    if [ "$deployment" == "services" ]; then
+    if [ "$deployment" == "services" ] || [ "$deployment" == "aps" ]; then
         mon="services"
-    elif [ "$deployment" == "frontend" ]; then
+    else
         mon="frontend"
     fi
     local files=""
     if [ -d monitoring ] && [ -n "`ls monitoring/prometheus/$mon`" ]; then
         # change "k8s" env label in prometheus.yaml files based on our cmsweb environment
         if [ -f monitoring/prometheus/$mon/prometheus.yaml ]; then
-            if [ "$CMSWEB_ENV" == "production" ] || [ "$CMSWEB_ENV" == "prod" ]; then
-                cat monitoring/prometheus/$mon/prometheus.yaml | sed -e 's,"k8s","k8s-prod",g' > /tmp/prometheus.yaml
-            fi
-            if [ "$CMSWEB_ENV" == "preproduction" ] || [ "$CMSWEB_ENV" == "preprod" ]; then
-                cat monitoring/prometheus/$mon/prometheus.yaml | sed -e 's,"k8s","k8s-preprod",g' > /tmp/prometheus.yaml
-            fi
+
+            cat monitoring/prometheus/$mon/prometheus.yaml | sed -e 's,"k8s",$env_prefix,g' > /tmp/prometheus.yaml
+
+##            if [ "$CMSWEB_ENV" == "production" ] || [ "$CMSWEB_ENV" == "prod" ]; then
+##                cat monitoring/prometheus/$mon/prometheus.yaml | sed -e 's,"k8s","k8s-prod",g' > /tmp/prometheus.yaml
+##            fi
+##            if [ "$CMSWEB_ENV" == "preproduction" ] || [ "$CMSWEB_ENV" == "preprod" ]; then
+##                cat monitoring/prometheus/$mon/prometheus.yaml | sed -e 's,"k8s","k8s-preprod",g' > /tmp/prometheus.yaml
+##            fi
         fi
         if [ -f /tmp/prometheus.yaml ]; then
             files="$files --from-file=/tmp/prometheus.yaml"
@@ -634,9 +676,14 @@ deploy_monitoring()
     if [ -n "`kubectl get cm -n monitoring | grep logstash`" ]; then
         kubectl delete configmap logstash -n monitoring
     fi
-    kubectl create configmap logstash \
-        --from-file=monitoring/logstash.conf --from-file=monitoring/logstash.yml -n monitoring
 
+    if [ "$deployment" == "aps" ]; then
+        kubectl create configmap logstash \
+        --from-file=monitoring/aps/logstash.conf --from-file=monitoring/logstash.yml -n monitoring
+    else
+	kubectl create configmap logstash \
+        --from-file=monitoring/logstash.conf --from-file=monitoring/logstash.yml -n monitoring
+    fi
     # add secrets for loki service
     if [ -n "`kubectl get secrets -n monitoring | grep loki-secrets`" ]; then
         kubectl delete secrets loki-secrets -n monitoring
@@ -699,6 +746,7 @@ deploy_daemonset()
    for ds in $cmsweb_ds; do
 
            cat daemonset/${ds}.yaml | \
+           sed -e "s,k8s #k8s#,$env_prefix,g" | \
            sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
            kubectl apply -f -
     done
@@ -730,6 +778,7 @@ deploy_aps()
 
            cat daemonset/${ds}.yaml | \
            sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
+           sed -e "s,k8s #k8s#,$env_prefix,g" | \
            kubectl apply -f -
     done
     fi
@@ -810,6 +859,7 @@ deploy_services()
                             sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
                             kubectl apply -f -
                       else
+                            sed -e "s,k8s #k8s#,$env_prefix,g" | \
 	                    kubectl apply -f $sdir/${srv}-${inst}.yaml
                       fi
                 fi
@@ -827,6 +877,7 @@ deploy_services()
                         sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
                         kubectl apply -f -
                 else
+                        sed -e "s,k8s #k8s#,$env_prefix,g" | \
                         kubectl apply -f $sdir/${srv}.yaml
                 fi
             fi
@@ -859,6 +910,9 @@ create()
         deploy_monitoring
     elif [ "$deployment" == "monitoring_frontend" ]; then
         deployment=frontend
+        deploy_monitoring
+    elif [ "$deployment" == "monitoring_aps" ]; then
+        deployment=aps
         deploy_monitoring
     else
         deploy_ns
