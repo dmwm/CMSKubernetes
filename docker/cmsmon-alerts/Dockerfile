@@ -1,16 +1,16 @@
 FROM golang:latest as go-builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
-#RUN apt-get update && apt-get -y install cron
+
+# tag to use
+ENV CMSMON_TAG=go-0.0.0
+
 ENV WDIR=/data
 WORKDIR $WDIR
 ENV PATH $PATH:$WDIR:$WDIR/CMSMonitoring/scripts
 
-# tag to use
-ENV TAG=0.5.25
-
 RUN git clone https://github.com/dmwm/CMSMonitoring.git
 WORKDIR $WDIR/CMSMonitoring
-RUN git checkout tags/$TAG -b build
+RUN git checkout tags/$CMSMON_TAG -b build
 ARG CGO_ENABLED=0
 WORKDIR $WDIR/CMSMonitoring/src/go/MONIT
 RUN go build -ldflags="-s -w -extldflags -static" monit.go

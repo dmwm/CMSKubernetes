@@ -1,0 +1,6 @@
+[hdp7-stable]
+name=CERN Hadoop repository [STABLE]
+baseurl=http://linuxsoft.cern.ch/internal/repos/hdp7-stable/x86_64/os
+enabled=1
+gpgcheck=0
+priority=6
