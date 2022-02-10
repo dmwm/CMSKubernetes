@@ -898,6 +898,8 @@ create()
         openstack --os-project-name "$project" coe cluster list
     elif [ "$deployment" == "secrets" ]; then
         deploy_ns
+	deploy_crons
+        deploy_roles
         deploy_secrets
     elif [ "$deployment" == "ingress" ]; then
         deploy_ingress
