@@ -21,12 +21,9 @@ spec:
           - /data/sqoop/log
           - "7"
           - "7200"
-          image: registry.cern.ch/cmsmonitoring/sqoop:20211123
-          # image: cmssw/sqoop:20210715
-          #image: cmssw/sqoop:20210323-v2
-          #image: cmssw/sqoop:20210212
-          #image: cmssw/sqoop:20210208
-          #image: cmssw/sqoop:20201214
+          image: registry.cern.ch/cmsmonitoring/sqoop:sqoop-0.0.1
+          #image: registry.cern.ch/cmsmonitoring/sqoop:20211123
+          #image: cmssw/sqoop:20210715
           name: sqoop
           volumeMounts:
           - name: sqoop-secrets
