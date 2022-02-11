@@ -60,8 +60,6 @@ spec:
           readOnly: true
         - name: setup-and-run
           mountPath: /data/run
-#PROD#  - name: logs-cephfs
-#PROD#    mountPath: /data/logs
       volumes:
       - name: secrets
         secret:
@@ -69,6 +67,3 @@ spec:
       - name: setup-and-run
         configMap:
           name: rucio-tracer
-#PROD#- name: logs-cephfs
-#PROD#  persistentVolumeClaim:
-#PROD#      claimName: logs-cephfs-claim-rucio
