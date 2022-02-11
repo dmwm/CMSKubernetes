@@ -7,7 +7,7 @@ metadata:
   name: imagebot-account
   namespace: http
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
@@ -19,7 +19,7 @@ rules:
   resources: [ "deployments", "namespaces", "pods" ]
   verbs: [ "get", "list", "apply", "create", "update", "delete", "patch" ]
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   labels:
