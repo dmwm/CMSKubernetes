@@ -41,9 +41,6 @@ COPY --from=go-builder /data/monit /data
 COPY --from=go-builder /data/CMSMonitoring/sqoop /data/sqoop
 
 WORKDIR $WDIR/sqoop
-RUN crontab cronjobs.txt
-
-WORKDIR $WDIR/sqoop/scripts
-RUN ln -s /etc/cmsdb/cmsr_cstring && ln -s /etc/cmsdb/lcgr_cstring
+RUN crontab cronjobs.txt && ln -s /etc/cmsdb/cmsr_cstring && ln -s /etc/cmsdb/lcgr_cstring
 
 WORKDIR $WDIR
