@@ -5,7 +5,7 @@ metadata:
 spec:
   storageClassName: sc-cinder-volume-claim
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   capacity:
     storage: 500Gi
   csi:
@@ -17,7 +17,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cinder-volume-claim 
+  name: cinder-volume-claim
 spec:
   # The class must be the same as in the PV
   storageClassName: sc-cinder-volume-claim
@@ -35,7 +35,7 @@ metadata:
 spec:
   storageClassName: sc-am-volume-claim
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   capacity:
     storage: 100Gi
   csi:
@@ -65,7 +65,7 @@ metadata:
 spec:
   storageClassName: sc-vm-volume-claim
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   capacity:
     storage: 1000Gi
   csi:
@@ -95,7 +95,7 @@ metadata:
 spec:
   storageClassName: sc-prometheus-volume-claim
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   capacity:
     storage: 100Gi
   csi:
@@ -125,14 +125,14 @@ metadata:
 spec:
   storageClassName: sc-share-volume-claim
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   capacity:
     storage: 1000Gi
   csi:
     driver: cinder.csi.openstack.org
     fsType: ext4
     # This is how csi-cinder knows how to find the volume.
-    volumeHandle: fd579ec0-27eb-4b4a-9353-d1aaf8b7fefe 
+    volumeHandle: fd579ec0-27eb-4b4a-9353-d1aaf8b7fefe
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -155,14 +155,14 @@ metadata:
 spec:
   storageClassName: sc-prom-volume-claim
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   capacity:
     storage: 100Gi
   csi:
     driver: cinder.csi.openstack.org
     fsType: ext4
     # This is how csi-cinder knows how to find the volume.
-    volumeHandle: 58749000-1dda-4929-8e3f-4e4f080ea74e 
+    volumeHandle: 58749000-1dda-4929-8e3f-4e4f080ea74e
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
