@@ -34,6 +34,9 @@ data:
           - path: himc
           - path: relval
         dbdump:
+          path_root: /
+          ignore:
+            - backfill
 {{- if  (.Values.consistency.filter) }}
           filter: {{ .Values.consistency.filter }}
 {{- end }}
