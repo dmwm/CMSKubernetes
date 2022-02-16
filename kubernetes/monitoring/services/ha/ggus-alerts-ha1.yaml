@@ -25,8 +25,7 @@ spec:
           - "cms"
           - "10"
           - "1"
-          image: registry.cern.ch/cmsmonitoring/cmsmon-alerts:go-0.5.37
-          #image: cmssw/cmsmon-alerts:0.5.35
+          image: registry.cern.ch/cmsmonitoring/cmsmon-alerts:go-0.5.38
           name: alerts
           env:
             - name: X509_USER_PROXY
