@@ -69,7 +69,7 @@ spec:
   selector:
     matchLabels:
       app: crabserver
-  replicas: 1 #PROD# 5
+  replicas: 1 #PROD# 10
   template:
     metadata:
       labels:
@@ -92,7 +92,7 @@ spec:
             memory: "256Mi"
             cpu: "200m"
           limits:
-            memory: "3Gi"
+            memory: "1.5Gi"
             cpu: "1500m"
         livenessProbe:
           exec:
