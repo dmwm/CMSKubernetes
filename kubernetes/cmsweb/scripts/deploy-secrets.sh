@@ -55,10 +55,10 @@ conf=$3
                 export IAM_CLIENT_ID=`grep IAM_CLIENT_ID $secretdir/client.secrets | head -n1 | awk '{print $2}'`
                 export IAM_CLIENT_SECRET=`grep IAM_CLIENT_SECRET $secretdir/client.secrets | head -n1 | awk '{print $2}'`
 	        if [ -f $secretdir/config.json ]; then
-	                echo "$(jq '.client_id=env.CLIENT_ID' $secretdir/config.json)" > $secretdir/config.json
-        	        echo "$(jq '.client_secret=env.CLIENT_SECRET' $secretdir/config.json)" > $secretdir/config.json
-	                echo "$(jq '.iam_client_id=env.IAM_CLIENT_ID' $secretdir/config.json)" > $secretdir/config.json
-        	        echo "$(jq '.iam_client_secret=env.IAM_CLIENT_SECRET' $secretdir/config.json)" > $secretdir/config.json
+			echo "$(jq '.client_id=env.CLIENT_ID' $secretdir/config.json)" > $secretdir/config.json
+			echo "$(jq '.client_secret=env.CLIENT_SECRET' $secretdir/config.json)" > $secretdir/config.json
+			echo "$(jq '.iam_client_id=env.IAM_CLIENT_ID' $secretdir/config.json)" > $secretdir/config.json
+			echo "$(jq '.iam_client_secret=env.IAM_CLIENT_SECRET' $secretdir/config.json)" > $secretdir/config.json
 		fi
         fi
     fi 
