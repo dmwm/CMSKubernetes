@@ -42,7 +42,7 @@ conf=$3
         	cp $cmsweb_crt $conf/frontend-ds/hostcert.pem
     	fi
     fi
-
+    # check (and copy if necessary) tls.key/tls.crt files in configuration area of aps/xps/sps
     if [ "$srv" == "auth-proxy-server" ] ; then
         if [ ! -f $conf/auth-proxy-server/tls.key ]; then
            cp $cmsweb_key $conf/auth-proxy-server/tls.key
@@ -51,7 +51,6 @@ conf=$3
            cp $cmsweb_crt $conf/auth-proxy-server/tls.crt
         fi
     fi
-    
     if [ "$srv" == "x509-proxy-server" ] ; then
         if [ ! -f $conf/x509-proxy-server/tls.key ]; then
            cp $cmsweb_key $conf/x509-proxy-server/tls.key
