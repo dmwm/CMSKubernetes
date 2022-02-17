@@ -42,31 +42,6 @@ conf=$3
         	cp $cmsweb_crt $conf/frontend-ds/hostcert.pem
     	fi
     fi
-    # check (and copy if necessary) tls.key/tls.crt files in configuration area of aps/xps/sps
-    if [ "$srv" == "auth-proxy-server" ] ; then
-        if [ ! -f $conf/auth-proxy-server/tls.key ]; then
-           cp $cmsweb_key $conf/auth-proxy-server/tls.key
-        fi
-        if [ ! -f $conf/auth-proxy-server/tls.crt ]; then
-           cp $cmsweb_crt $conf/auth-proxy-server/tls.crt
-        fi
-    fi
-    if [ "$srv" == "x509-proxy-server" ] ; then
-        if [ ! -f $conf/x509-proxy-server/tls.key ]; then
-           cp $cmsweb_key $conf/x509-proxy-server/tls.key
-        fi
-        if [ ! -f $conf/x509-proxy-server/tls.crt ]; then
-           cp $cmsweb_crt $conf/x509-proxy-server/tls.crt
-        fi
-    fi
-    if [ "$srv" == "scitokens-proxy-server" ] ; then
-        if [ ! -f $conf/scitokens-proxy-server/tls.key ]; then
-           cp $cmsweb_key $conf/scitokens-proxy-server/tls.key
-        fi
-        if [ ! -f $conf/scitokens-proxy-server/tls.crt ]; then
-           cp $cmsweb_crt $conf/scitokens-proxy-server/tls.crt
-        fi
-    fi
 	secretdir=$conf/$srv
         # the underscrore is not allowed in secret names
         osrv=$srv
