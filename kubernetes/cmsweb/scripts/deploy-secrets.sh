@@ -61,7 +61,6 @@ conf=$3
         fi
     fi
     if [ "$srv" == "scitokens-proxy-server" ] ; then
-
         if [ ! -f $conf/scitokens-proxy-server/tls.key ]; then
            cp $cmsweb_key $conf/scitokens-proxy-server/tls.key
         fi
