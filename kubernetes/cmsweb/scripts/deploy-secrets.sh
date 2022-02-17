@@ -42,11 +42,40 @@ conf=$3
         	cp $cmsweb_crt $conf/frontend-ds/hostcert.pem
     	fi
     fi
+
+    if [ "$srv" == "auth-proxy-server" ] ; then
+        if [ ! -f $conf/auth-proxy-server/tls.key ]; then
+           cp $cmsweb_key $conf/auth-proxy-server/tls.key
+        fi
+        if [ ! -f $conf/auth-proxy-server/tls.crt ]; then
+           cp $cmsweb_crt $conf/auth-proxy-server/tls.crt
+        fi
+    fi
+    
+    if [ "$srv" == "x509-proxy-server" ] ; then
+        if [ ! -f $conf/x509-proxy-server/tls.key ]; then
+           cp $cmsweb_key $conf/x509-proxy-server/tls.key
+        fi
+        if [ ! -f $conf/x509-proxy-server/tls.crt ]; then
+           cp $cmsweb_crt $conf/x509-proxy-server/tls.crt
+        fi
+    fi
+    if [ "$srv" == "scitokens-proxy-server" ] ; then
+
+        if [ ! -f $conf/scitokens-proxy-server/tls.key ]; then
+           cp $cmsweb_key $conf/scitokens-proxy-server/tls.key
+        fi
+        if [ ! -f $conf/scitokens-proxy-server/tls.crt ]; then
+           cp $cmsweb_crt $conf/scitokens-proxy-server/tls.crt
+        fi
+    fi
 	secretdir=$conf/$srv
         # the underscrore is not allowed in secret names
         osrv=$srv
         srv=`echo $srv | sed -e "s,_,,g"`
         files=""
+
+### Substitution for APS/XPS/SPS client secrets in config.json      
 
     if [ "$srv" == "auth-proxy-server" ] || [ "$srv" == "x509-proxy-server" ] || [ "$srv" == "scitokens-proxy-server" ] ; then
        if [ -d $secretdir ] && [ -n "`ls $secretdir`" ] && [ -f $secretdir/client.secrets ]; then
