@@ -56,7 +56,7 @@ conf=$3
            export IAM_CLIENT_SECRET=`grep IAM_CLIENT_SECRET $secretdir/client.secrets | head -n1 | awk '{print $2}'`
            export COUCHDB_USER=`grep COUCHDB_USER $secretdir/client.secrets | head -n1 | awk '{print $2}'`
            export COUCHDB_PASSWORD=`grep COUCHDB_PASSWORD $secretdir/client.secrets | head -n1 | awk '{print $2}'`
-	   if [ -f $secretdir/config.json ]; then
+           if [ -f $secretdir/config.json ]; then
               if [ -n "${IAM_CLIENT_ID}" ]; then
                  sed -i -e "s,IAM_CLIENT_ID,$IAM_CLIENT_ID,g" $secretdir/config.json
               fi
