@@ -20,8 +20,7 @@ spec:
           - /data/intelligence
           - -config
           - /etc/secrets/config.json
-          image: registry.cern.ch/cmsmonitoring/cmsmon-int:go-0.5.37
-          #image: cmssw/cmsmon-intelligence:0.5.29
+          image: registry.cern.ch/cmsmonitoring/cmsmon-int:go-0.5.38
           name: intelligence
           imagePullPolicy: Always
           volumeMounts:
