@@ -26,18 +26,7 @@ RUN chmod 755 /usr/local/lib/python3.6/site-packages/cmstfc.py
 ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/rse/protocols/gfal.py /usr/local/lib/python3.6/site-packages/rucio/rse/protocols/gfal.py
 RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/rse/protocols
 
-# Radu's Patch (not needed in 1.27.2)
-#ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/core/transfer.py /usr/local/lib/python3.6/site-packages/rucio/core
-#RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/core
-#ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/daemons/conveyor/common.py /usr/local/lib/python3.6/site-packages/rucio/daemons/conveyor
-#RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/daemons/conveyor
-
-
 ADD cms-entrypoint.sh /
-
-# Nick patch for Production Output issues, fixed in 1.26 series
-# ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/core/request.py /usr/local/lib/python3.6/site-packages/rucio/core/request.py
-# RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/core
 
 # Eric patches for Globus (need to revisit in 1.26)
 # ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/transfertool/globusLibrary.py /usr/local/lib/python3.6/site-packages/rucio/transfertool/globusLibrary.py
@@ -47,6 +36,15 @@ ADD cms-entrypoint.sh /
 # ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/daemons/conveyor/submitter.py /usr/local/lib/python3.6/site-packages/rucio/daemons/conveyor/submitter.py
 # ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/daemons/conveyor/common.py /usr/local/lib/python3.6/site-packages/rucio/daemons/conveyor/common.py
 # RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/daemons/conveyor
+
+# Eric patch for cache-consumer
+
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/fix_cache_consumer/lib/rucio/daemons/cache/consumer.py /usr/local/lib/python3.6/site-packages/rucio/daemons/cache/consumer.py
+RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/daemons/cache
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/fix_cache_consumer/lib/rucio/core/volatile_replica.py /usr/local/lib/python3.6/site-packages/rucio/core/volatile_replica.py
+RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/core
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/fix_cache_consumer/lib/rucio/common/stomp_utils.py /usr/local/lib/python3.6/site-packages/rucio/common/stomp_utils.py
+RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/common
 
 ADD https://raw.githubusercontent.com/ericvaandering/containers/add_preparer/daemons/rucio.cfg.j2 /tmp/rucio.cfg.j2
 

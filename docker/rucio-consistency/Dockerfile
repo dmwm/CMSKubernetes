@@ -1,16 +1,7 @@
 FROM centos:7
 USER root
 
-RUN yum upgrade -y \
-    && yum clean all \
-    && rm -rf /var/cache/yum
-
-
-RUN yum install -y git curl which\
-    && yum clean all \
-    && rm -rf /var/cache/yum
-
-
+-
 RUN yum install -y epel-release.noarch\
     && yum clean all \
     && rm -rf /var/cache/yum
