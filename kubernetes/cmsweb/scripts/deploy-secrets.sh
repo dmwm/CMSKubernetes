@@ -49,20 +49,38 @@ conf=$3
         files=""
 
     if [ "$srv" == "auth-proxy-server" ] || [ "$srv" == "x509-proxy-server" ] || [ "$srv" == "scitokens-proxy-server" ] ; then
-        if [ -d $secretdir ] && [ -n "`ls $secretdir`" ] && [ -f $secretdir/client.secrets ]; then
+       if [ -d $secretdir ] && [ -n "`ls $secretdir`" ] && [ -f $secretdir/client.secrets ]; then
            export CLIENT_SECRET=`grep CLIENT_SECRET $secretdir/client.secrets | head -n1 | awk '{print $2}'`
            export CLIENT_ID=`grep CLIENT_ID $secretdir/client.secrets | head -n1 | awk '{print $2}'`
            export IAM_CLIENT_ID=`grep IAM_CLIENT_ID $secretdir/client.secrets | head -n1 | awk '{print $2}'`
            export IAM_CLIENT_SECRET=`grep IAM_CLIENT_SECRET $secretdir/client.secrets | head -n1 | awk '{print $2}'`
+           export COUCHDB_USER=`grep COUCHDB_USER $secretdir/client.secrets | head -n1 | awk '{print $2}'`
+           export COUCHDB_PASSWORD=`grep COUCHDB_PASSWORD $secretdir/client.secrets | head -n1 | awk '{print $2}'`
 	   if [ -f $secretdir/config.json ]; then
-              echo "$(jq '.client_id=env.CLIENT_ID' $secretdir/config.json)" > $secretdir/config.json
-              echo "$(jq '.client_secret=env.CLIENT_SECRET' $secretdir/config.json)" > $secretdir/config.json
-              echo "$(jq '.iam_client_id=env.IAM_CLIENT_ID' $secretdir/config.json)" > $secretdir/config.json
-              echo "$(jq '.iam_client_secret=env.IAM_CLIENT_SECRET' $secretdir/config.json)" > $secretdir/config.json
-          fi
-        fi
-    fi 
+	      if [ -n "${IAM_CLIENT_ID}" ]; then
+                 sed -i -e "s,IAM_CLIENT_ID,$IAM_CLIENT_ID,g" $secretdir/config.json
+              fi
+              if [ -n "${IAM_CLIENT_SECRET}" ]; then
+                 sed -i -e "s,IAM_CLIENT_SECRET,$IAM_CLIENT_SECRET,g" $secretdir/config.json
+	      fi
+              if [ -n "${CLIENT_ID}" ]; then
+   	         sed -i -e "s,CLIENT_ID,$CLIENT_ID,g" $secretdir/config.json
+              fi
+		 
+              if [ -n "${CLIENT_SECRET}" ]; then
+                 sed -i -e "s,CLIENT_SECRET,$CLIENT_SECRET,g" $secretdir/config.json
+              fi
 
+              if [ -n "${COUCHDB_USER}" ]; then
+	         sed -i -e "s,COUCHDB_USER,$COUCHDB_USER,g" $secretdir/config.json
+              fi
+		 
+              if [ -n "${COUCHDB_PASSWORD}" ]; then
+  	         sed -i -e "s,COUCHDB_PASSWORD,$COUCHDB_PASSWORD,g" $secretdir/config.json
+              fi
+          fi
+       fi
+    fi 
         if [ -d $secretdir ] && [ -n "`ls $secretdir`" ]; then
         	for fname in $secretdir/*; do
                 	files="$files --from-file=$fname"
