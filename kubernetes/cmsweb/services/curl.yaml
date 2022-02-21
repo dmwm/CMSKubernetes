@@ -17,3 +17,11 @@ spec:
       containers:
       - image: veknet/curl
         name: curl
+        volumeMounts:
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true
+      volumes:
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
