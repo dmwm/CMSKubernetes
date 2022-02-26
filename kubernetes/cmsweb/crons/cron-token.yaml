@@ -12,7 +12,7 @@ spec:
           serviceAccountName: token-account
           containers:
           - name: cron
-            image: registry.cern.ch/cmsweb/token:00.00.05-stable
+            image: registry.cern.ch/cmsweb/token:00.00.06-stable
             args:
             - /bin/sh
             - -c
