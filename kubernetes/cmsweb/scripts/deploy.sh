@@ -94,7 +94,7 @@ ddir=daemonset
 
 # cmsweb service namespaces
 #cmsweb_ns=`grep namespace $sdir/* | awk '{print $3}' | sort | uniq | grep -v default | grep -v phedex | grep -v couchdb | grep -v dqm | grep -v auth | grep -v mongodb | grep -v udp | grep -v tfaas`
-cmsweb_ns="auth default crab das dbs dmwm http tzero wma"
+cmsweb_ns="auth default crab das dbs dmwm dqm http ruciocm tzero wma"
 # services for cmsweb cluster, adjust if necessary
 #cmsweb_ing="ing-srv"
 #cmsweb_ing="ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tzero ing-exitcodes"
