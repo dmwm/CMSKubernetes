@@ -1,8 +1,8 @@
 #!/bin/bash
-# helper script to deploy robot and proxy certificates secrets in all namespaces.
+# helper script to deploy robot, proxy and token secrets in all namespaces.
 
 if [ $# -ne 1 ]; then
-    echo "Usage: deploy-certificates.sh  <path_to_certificates>"
+    echo "Usage: deploy-cluster-secrets.sh  <path_to_secrets>"
     exit 1
 fi
 
@@ -12,7 +12,11 @@ certificates=$1
 
 robot_key=$certificates/robotkey.pem
 robot_crt=$certificates/robotcert.pem
+client_id=$certificates/client_id
+client_secret=$certificates/client_secret
+
 proxy=/tmp/$USER/proxy
+token=/tmp/$USER/token
 
 voms-proxy-init -voms cms -rfc \
         --key $robot_key --cert $robot_crt --out $proxy
@@ -32,5 +36,17 @@ voms-proxy-init -voms cms -rfc \
             kubectl create secret generic proxy-secrets \
                 --from-file=$proxy --dry-run -o yaml | \
                 kubectl apply --namespace=$ns -f -
+        fi
+        # create token secrets
+	curl -s -d grant_type=client_credentials -d scope="profile" -u ${client_id}:${client_secret} https://cms-auth.web.cern.ch/token | jq -r '.access_token' > $token
+
+        now=$(date +'%Y%m%d %H:%M')
+        if [ -f $token ]; then
+            kubectl create secret generic token-secrets \
+               --from-file=$token --dry-run=client -o yaml | \
+               kubectl apply --namespace=$ns -f -
+            echo "$now Token created."
+        else
+            echo "$now Failed to create token secrets"
         fi
    done
