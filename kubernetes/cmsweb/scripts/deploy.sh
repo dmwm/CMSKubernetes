@@ -94,7 +94,7 @@ ddir=daemonset
 
 # cmsweb service namespaces
 #cmsweb_ns=`grep namespace $sdir/* | awk '{print $3}' | sort | uniq | grep -v default | grep -v phedex | grep -v couchdb | grep -v dqm | grep -v auth | grep -v mongodb | grep -v udp | grep -v tfaas`
-cmsweb_ns="auth default crab das dbs dmwm http tzero wma"
+cmsweb_ns="auth default crab das dbs dmwm dqm http ruciocm tzero wma"
 # services for cmsweb cluster, adjust if necessary
 #cmsweb_ing="ing-srv"
 #cmsweb_ing="ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tzero ing-exitcodes"
@@ -266,9 +266,11 @@ cleanup()
     echo "--- delete crons"
     #kubectl delete -f crons
     for ns in $cmsweb_ns; do
-        kubectl apply -f crons/proxy-account.yaml --namespace=$ns
-        kubectl apply -f crons/scaler-account.yaml --namespace=$ns
-        kubectl apply -f crons/cron-proxy.yaml --namespace=$ns
+        kubectl delete -f crons/proxy-account.yaml --namespace=$ns
+        kubectl delete -f crons/scaler-account.yaml --namespace=$ns
+        kubectl delete -f crons/cron-proxy.yaml --namespace=$ns
+        kubectl delete -f crons/token-account.yaml --namespace=$ns
+        kubectl delete -f crons/cron-token.yaml --namespace=$ns
     done
 
     # delete monitoring
@@ -347,6 +349,8 @@ deploy_secrets()
     robot_crt=$certificates/robotcert.pem
     cmsweb_key=$certificates/cmsweb-hostkey.pem
     cmsweb_crt=$certificates/cmsweb-hostcert.pem
+    client_id=$certificates/client_id
+    client_secret=$certificates/client_secret
 
     # check (and copy if necessary) hostkey/hostcert.pem files in configuration area of frontend
     if [ ! -f $conf/frontend/hostkey.pem ]; then
@@ -389,9 +393,10 @@ deploy_secrets()
     tls_key=/tmp/$USER/tls.key
     tls_crt=/tmp/$USER/tls.crt
     proxy=/tmp/$USER/proxy
+    token=/tmp/$USER/token
 
     # clean-up if these files exists
-    for fname in $tls_key $tls_crt $proxy; do
+    for fname in $tls_key $tls_crt $proxy $token; do
         if [ -f $fname ]; then
             rm $fname
         fi
@@ -429,6 +434,18 @@ deploy_secrets()
                 kubectl apply --namespace=$ns -f -
         fi
 
+	# create token secrets
+        curl -s -d grant_type=client_credentials -d scope="profile" -u ${client_id}:${client_secret} https://cms-auth.web.cern.ch/token | jq -r '.access_token' > $token
+
+        now=$(date +'%Y%m%d %H:%M')
+        if [ -f $token ]; then
+            kubectl create secret generic token-secrets \
+               --from-file=$token --dry-run=client -o yaml | \
+               kubectl apply --namespace=$ns -f -
+            echo "$now Token created."
+        else
+            echo "$now Failed to create token secrets"
+        fi
         echo "+++ generate cmsweb service secrets"
         # create secret files for deployment, they are based on
         # - robot key (pem file)
@@ -871,6 +888,8 @@ deploy_crons()
         kubectl apply -f crons/proxy-account.yaml --namespace=$ns
         kubectl apply -f crons/scaler-account.yaml --namespace=$ns
         kubectl apply -f crons/cron-proxy.yaml --namespace=$ns
+        kubectl apply -f crons/token-account.yaml --namespace=$ns
+        kubectl apply -f crons/cron-token.yaml --namespace=$ns
     done
 }
 
