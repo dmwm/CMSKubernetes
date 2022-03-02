@@ -2,8 +2,8 @@
 
 set -e
 
-export CMS_VERSION=1.27.5.cms1
-export RUCIO_VERSION=1.27.5
+export CMS_VERSION=1.27.7.cms1
+export RUCIO_VERSION=1.27.7
 export CMS_TAG=cms_127_4
 export HARBOR=registry.cern.ch/cmsrucio
 
