@@ -6,8 +6,7 @@ ENV CMSMON_TAG=sqoop-0.0.0
 ENV WDIR=/data
 WORKDIR $WDIR
 
-# TO-DO: replace mrceyhun
-RUN git clone https://github.com/mrceyhun/CMSMonitoring.git
+RUN git clone https://github.com/dmwm/CMSMonitoring.git
 WORKDIR $WDIR/CMSMonitoring
 RUN git checkout tags/$CMSMON_TAG -b build
 
