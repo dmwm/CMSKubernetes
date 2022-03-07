@@ -139,6 +139,14 @@ data:
           regex: (.+)
           target_label: __metrics_path__
           replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
+      
+      - job_name: 'node-exporter'
+        kubernetes_sd_configs:
+        - role: node
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_node_name]
+          regex: 'node-exporter'
+          action: keep
 ---
 apiVersion: apps/v1
 kind: Deployment
