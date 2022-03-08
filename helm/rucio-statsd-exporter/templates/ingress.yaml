@@ -1,7 +1,8 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "rucio-statsd-exporter.fullname" . -}}
 {{- $ingressPath := .Values.ingress.path -}}
-apiVersion: extensions/v1beta1
+{{- $kubeApiVersion := include "rucio.ingress.apiVersion" . -}}
+apiVersion: {{ $kubeApiVersion }}
 kind: Ingress
 metadata:
   name: {{ $fullName }}
@@ -32,7 +33,15 @@ spec:
         paths:
           - path: {{ $ingressPath }}
             backend:
+    {{- if eq $kubeApiVersion "networking.k8s.io/v1" }}
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $.Values.service.port }}
+            pathType: Prefix
+    {{- else }}
               serviceName: {{ $fullName }}
               servicePort: export
+    {{- end }}
   {{- end }}
 {{- end }}
