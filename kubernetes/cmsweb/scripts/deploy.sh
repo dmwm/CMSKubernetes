@@ -42,21 +42,17 @@ logs_prefix=""
 if [ "$CMSWEB_ENV" == "production" ] || [ "$CMSWEB_ENV" == "prod" ]; then
     prod_prefix="      " # will replace '#PROD#' prefix
     logs_prefix="-prod" # will append this prefix to logs-cephfs-claim
-#    env_prefix="k8s-prod" # will replace k8s #k8s# part
+    env_prefix="k8s-prod" # will replace k8s #k8s# part
 fi
 if [ "$CMSWEB_ENV" == "preproduction" ] || [ "$CMSWEB_ENV" == "preprod" ]; then
     prod_prefix="      " # will replace '#PROD#' prefix
     logs_prefix="-preprod" # will append this prefix to logs-cephfs-claim
-#    env_prefix="k8s-preprod" # will replace k8s #k8s# part
+    env_prefix="k8s-preprod" # will replace k8s #k8s# part
 fi
 
+if [ "$env_prefix" != "k8s-preprod" ] && [  "$env_prefix" != "k8s-prod" ]; then
+
     cluster_name=`kubectl config get-clusters | grep -v NAME`
-    if [[ "$cluster_name" == *"testbed"* ]] ; then
-                env_prefix="preprod"
-    fi
-    if [[ "$cluster_name" == *"prod"* ]] ; then
-                env_prefix="prod"
-    fi
     if [[ "$cluster_name" == *"cmsweb-auth"* ]] ; then
                 env_prefix="auth"
     fi
@@ -82,7 +78,7 @@ fi
                 env_prefix="test7"
     fi
     env_prefix="k8s-$env_prefix"
-
+fi
     echo "#### env_prefix = $env_prefix"
 
 sdir=services
