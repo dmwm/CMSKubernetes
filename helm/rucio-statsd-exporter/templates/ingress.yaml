@@ -1,7 +1,8 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "rucio-statsd-exporter.fullname" . -}}
 {{- $ingressPath := .Values.ingress.path -}}
-apiVersion: extensions/v1beta1
+{{- $kubeApiVersion := include "rucio.ingress.apiVersion" . -}}
+apiVersion: {{ $kubeApiVersion }}
 kind: Ingress
 metadata:
   name: {{ $fullName }}

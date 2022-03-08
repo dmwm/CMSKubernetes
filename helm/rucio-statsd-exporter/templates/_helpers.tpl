@@ -30,3 +30,14 @@ Create chart name and version as used by the chart label.
 {{- define "rucio-statsd-exporter.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+
+{{/*
+Get Ingress Kube API Version
+*/}}
+{{- define "rucio.ingress.apiVersion" -}}
+  {{- if semverCompare ">= 1.19.x" (default .Capabilities.KubeVersion.Version .Values.kubeVersionOverride) -}}
+    {{- print "networking.k8s.io/v1" -}}
+  {{- else -}}
+    {{- print "extensions/v1beta1" -}}
+  {{- end -}}
+{{- end -}}
