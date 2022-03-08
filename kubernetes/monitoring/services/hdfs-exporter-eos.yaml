@@ -45,8 +45,7 @@ spec:
       spec:
         containers:
         - name: hdfs-exporter-eos
-          image: registry.cern.ch/cmsmonitoring/sqoop:20211123
-          #image: cmssw/sqoop:20210715
+          image: registry.cern.ch/cmsmonitoring/sqoop:sqoop-0.0.5
           command:
           - /bin/sh
           - /data/setup-and-run/setup-and-run.sh
