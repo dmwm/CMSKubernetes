@@ -39,6 +39,7 @@ data:
       enabled: true
       paths:
         - /data/srv/logs/crabserver/*${MY_POD_NAME}*.log
+      file_identity.path:
       ignore_older: 1h
       scan_frequency: 10s
       backoff: 5s
