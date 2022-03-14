@@ -423,7 +423,12 @@ deploy_secrets()
 
 
 
-        # create proxy secret
+        # create client secret
+        if [ -f $client_id ] && [ -f $client_secret ]; then
+            kubectl create secret generic client-secrets \
+                --from-file=$client_id --from-file=$client_secret --dry-run -o yaml | \
+                kubectl apply --namespace=$ns -f -
+        fi
         if [ -f $proxy ]; then
             kubectl create secret generic proxy-secrets \
                 --from-file=$proxy --dry-run -o yaml | \

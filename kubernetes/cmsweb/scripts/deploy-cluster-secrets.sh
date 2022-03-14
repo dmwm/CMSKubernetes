@@ -37,9 +37,14 @@ voms-proxy-init -voms cms -rfc \
                 --from-file=$proxy --dry-run -o yaml | \
                 kubectl apply --namespace=$ns -f -
         fi
+        # create client secret
+        if [ -f $client_id ] && [ -f $client_secret ]; then
+            kubectl create secret generic client-secrets \
+                --from-file=$client_id --from-file=$client_secret --dry-run -o yaml | \
+                kubectl apply --namespace=$ns -f -
+        fi
         # create token secrets
 	curl -s -d grant_type=client_credentials -d scope="profile" -u ${client_id}:${client_secret} https://cms-auth.web.cern.ch/token | jq -r '.access_token' > $token
-
         now=$(date +'%Y%m%d %H:%M')
         if [ -f $token ]; then
             kubectl create secret generic token-secrets \
