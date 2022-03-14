@@ -278,4 +278,4 @@ spec:
 #PROD#    name: crabserver-filebeat-monit-config
 #PROD#- name: filebeat-cephfs
 #PROD#  persistentVolumeClaim:
-#PROD#      claimName: filebeat-cephfs-claim-default
+#PROD#      claimName: crabserver-filebeat-monit-data
