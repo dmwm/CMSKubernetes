@@ -429,15 +429,11 @@ deploy_secrets()
                 --from-file=$client_id --from-file=$client_secret --dry-run -o yaml | \
                 kubectl apply --namespace=$ns -f -
         fi
-
-
         if [ -f $proxy ]; then
             kubectl create secret generic proxy-secrets \
                 --from-file=$proxy --dry-run -o yaml | \
                 kubectl apply --namespace=$ns -f -
         fi
-
-
 
 	# create token secrets
         curl -s -d grant_type=client_credentials -d scope="profile" -u ${client_id}:${client_secret} https://cms-auth.web.cern.ch/token | jq -r '.access_token' > $token
