@@ -1,4 +1,4 @@
-FROM registry.cern.ch/cmsweb/cmsweb:20220201-stable as web-builder
+FROM registry.cern.ch/cmsweb/cmsweb:20220301-stable as web-builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
@@ -34,7 +34,7 @@ RUN wget https://github.com/Lusitaniae/apache_exporter/releases/download/v0.9.0/
 
 
 # extract relevant pieces from web-builder
-FROM registry.cern.ch/cmsweb/cmsweb-base:20220201-stable
+FROM registry.cern.ch/cmsweb/cmsweb-base:20220301-stable
 ENV WDIR=/data
 ENV USER=_frontend
 ADD logstash.repo /etc/yum.repos.d/logstash.repo
