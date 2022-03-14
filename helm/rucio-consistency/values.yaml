@@ -12,7 +12,7 @@ image:
 
 consistency:
   scratchSize: 100Gi
-  reportSize: 10Gi
+  reportSize: 11G
   defaultRoot: "/path/to/nowhere"
   rucioCfgSecret: "this-one"
   filter: ""
