@@ -1,15 +1,56 @@
-kind: PersistentVolumeClaim
 apiVersion: v1
+kind: PersistentVolume
 metadata:
-  name: {{ .Release.Name }}-report-pvc
+  name: rucio-consistency-share
+  namespace: rucio
 spec:
   accessModes:
-    - ReadWriteMany
+  - ReadWriteMany
+  capacity:
+    storage: {{ .Values.consistency.reportSize }}
+  csi:
+    driver: cephfs.manila.csi.openstack.org
+    volumeHandle: {{ .Values.reportStorageClass.osShareID }}
+    nodeStageSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    nodePublishSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    volumeAttributes:
+      shareID: {{ .Values.reportStorageClass.osShareID }}
+      shareAccessID: {{ .Values.reportStorageClass.osShareAccessID }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-report-pvc
+  namespace: rucio
+spec:
+  accessModes:
+  - ReadWriteMany
   resources:
     requests:
       storage: {{ .Values.consistency.reportSize }}
-{{- if .Values.reportStorageClass.osShareID }}
-  storageClassName: rucio-consistency-sc
-{{- else -}}  
-  storageClassName: meyrin-cephfs 
-{{- end }}
+  storageClassName: ""
+  volumeName: rucio-consistency-share
+---
+
+#
+#
+#kind: PersistentVolumeClaim
+#apiVersion: v1
+#metadata:
+#  name: {{ .Release.Name }}-report-pvc
+#spec:
+#  accessModes:
+#    - ReadWriteMany
+#  resources:
+#    requests:
+#      storage: {{ .Values.consistency.reportSize }}
+#{{- if .Values.reportStorageClass.osShareID }}
+#  storageClassName: rucio-consistency-sc
+#  volumeName: {{ .Values.reportStorageClass.volumeName }}
+#{{- else -}}
+#  storageClassName: meyrin-cephfs
+#{{- end }}
