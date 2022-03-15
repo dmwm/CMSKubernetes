@@ -40,12 +40,12 @@ data:
       paths:
         - /data/srv/logs/crabserver/*${MY_POD_NAME}*.log
       file_identity.path:
-      ignore_older: 1h
       scan_frequency: 10s
       backoff: 5s
       max_backoff: 10s
       include_lines:
         - '^\[.+?\] crabserver-'
+      tags: ["crabserver"]
     output.logstash:
       hosts: ["logstash.monitoring:5044"]
       compression_level: 3
