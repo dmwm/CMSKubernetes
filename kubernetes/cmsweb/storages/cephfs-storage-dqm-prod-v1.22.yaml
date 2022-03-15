@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: dqm-square-mirror-prod
+  namespace: dqm
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 10G
+  csi:
+    driver: cephfs.manila.csi.openstack.org
+    volumeHandle: 017ddf48-18c1-4179-af0b-1af590e2cc84
+    nodeStageSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    nodePublishSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    volumeAttributes:
+      shareID: 017ddf48-18c1-4179-af0b-1af590e2cc84
+      shareAccessID: fb219e09-c149-4b68-835e-5140f30093ff
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dqm-square-mirror-pvc
+  namespace: dqm
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 10G
+  storageClassName: ""
+  volumeName: dqm-square-mirror-prod

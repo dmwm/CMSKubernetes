@@ -57,7 +57,7 @@ spec:
       namespace: kube-system
     volumeAttributes:
       shareID: 171e6c42-62ea-414d-8bd8-4a6d0e0a867e
-      shareAccessID: 9f48afc9-eadc-43ef-8a99-b681a77dd5f7
+      shareAccessID: a2a3d749-25fa-44d2-8d8f-d0bb7aa649dc
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
