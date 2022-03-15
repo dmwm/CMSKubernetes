@@ -8,7 +8,7 @@ PKGS="admin backend t0wmadatasvc"
 SERVER=cmsrep.cern.ch
 
 cd $WDIR
-git clone git://github.com/dmwm/deployment.git cfg
+git clone https://github.com/dmwm/deployment.git cfg
 mkdir $WDIR/srv
 
 cd $WDIR/cfg
