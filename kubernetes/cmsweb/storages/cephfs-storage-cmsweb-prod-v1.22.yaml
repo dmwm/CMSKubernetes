@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: default-share
+  namespace: auth
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 300G
+  csi:
+    driver: cephfs.manila.csi.openstack.org
+    volumeHandle: 97303f7a-23a9-4060-914c-132d75cd279d
+    nodeStageSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    nodePublishSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    volumeAttributes:
+      shareID: 97303f7a-23a9-4060-914c-132d75cd279d
+      shareAccessID: cd018975-0a75-4da0-8077-b91580d85201
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-prod-default
+  namespace: auth
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 300G
+  storageClassName: ""
+  volumeName: default-share
+---
