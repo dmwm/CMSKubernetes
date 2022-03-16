@@ -42,7 +42,6 @@ spec:
         volumeMounts:
         - name: karma-secrets
           mountPath: /etc/secrets
-          defaultMode: 256
       volumes:
       - name: karma-secrets
         secret:

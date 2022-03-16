@@ -25,6 +25,35 @@ data:
       events: 65536
     logging.metrics.enabled: false
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: crabserver-filebeat-monit-config
+  namespace: crab
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/crabserver/*${MY_POD_NAME}*.log
+      file_identity.path:
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+      include_lines:
+        - '^\[.+?\] crabserver-'
+      tags: ["crabserver"]
+    output.logstash:
+      hosts: ["logstash.monitoring:5044"]
+      compression_level: 3
+      bulk_max_size: 4096
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+---
 kind: Service
 apiVersion: v1
 metadata:
@@ -178,6 +207,37 @@ spec:
 #PROD#    readOnly: true
 #PROD#  securityContext:
 #PROD#    allowPrivilegeEscalation: false
+#PROD#- name: crabserver-filebeat-monit
+#PROD#  image: docker.elastic.co/beats/filebeat:7.12.1
+#PROD#  args: [
+#PROD#    "bash",
+#PROD#    "-c",
+#PROD#    "filebeat -c /etc/filebeat.yml --path.data /data/filebeat/${MY_POD_NAME}/data -e",
+#PROD#  ]
+#PROD#  env:
+#PROD#  - name: MY_POD_NAME
+#PROD#    valueFrom:
+#PROD#      fieldRef:
+#PROD#        apiVersion: v1
+#PROD#        fieldPath: metadata.name
+#PROD#  resources:
+#PROD#    requests:
+#PROD#      memory: "150Mi"
+#PROD#      cpu: "50m"
+#PROD#    limits:
+#PROD#      memory: "1Gi"
+#PROD#      cpu: "500m"
+#PROD#  volumeMounts:
+#PROD#  - name: logs
+#PROD#    mountPath: /data/srv/logs/crabserver
+#PROD#  - name: crabserver-filebeat-monit-config
+#PROD#    mountPath: /etc/filebeat.yml
+#PROD#    readOnly: true
+#PROD#    subPath: filebeat.yml
+#PROD#  - name: filebeat-cephfs
+#PROD#    mountPath: /data/filebeat
+#PROD#  securityContext:
+#PROD#    allowPrivilegeEscalation: false
       volumes:
       - name: proxy-secrets
         secret:
@@ -212,3 +272,10 @@ spec:
 #PROD#    name: crabserver-filebeat-config
 #PROD#- name: data
 #PROD#  emptyDir: {}
+#PROD#- name: crabserver-filebeat-monit-config
+#PROD#  configMap:
+#PROD#    defaultMode: 0640
+#PROD#    name: crabserver-filebeat-monit-config
+#PROD#- name: filebeat-cephfs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: crabserver-filebeat-monit-data

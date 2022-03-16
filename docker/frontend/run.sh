@@ -86,7 +86,7 @@ if [ -f /etc/secrets/cmsweb.services ]; then
         #backend=`cat /etc/secrets/cmsweb.services`
         backend="%{ENV:BACKEND}"
         cat /etc/secrets/vms | awk '{print ""$1"{s,"backend","$2",g}"}' backend=$backend | awk '{print "sed -i -e \""$0"\" /data/srv/state/frontend/server.conf"}' | /bin/sh
-        sed -i "s,8250:,,g" /data/srv/state/frontend/server.conf
+        #sed -i "s,8250:,,g" /data/srv/state/frontend/server.conf
     fi
 fi
 # allow to overwrite server.conf with one supplied by configuration

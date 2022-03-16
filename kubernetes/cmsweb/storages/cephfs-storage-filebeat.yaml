@@ -27,4 +27,3 @@ spec:
     requests:
       storage: 22G
   storageClassName: filebeat-share
-
