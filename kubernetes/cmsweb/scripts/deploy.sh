@@ -670,6 +670,11 @@ deploy_monitoring()
         sed -e "s,dev # cmsweb_env,$env_prefix,g" | \
         sed -e "s,dev # cluster,$cluster,g" | \
         kubectl -n monitoring apply -f -
+    # CRAB logstash
+    cat monitoring/crab/logstash.yaml | \
+        sed -e "s,dev # cmsweb_env,$env_prefix,g" | \
+        sed -e "s,dev # cluster,$cluster,g" | \
+        kubectl -n crab apply -f -
     # if we need to split monitoring by services
     #if [ "$deployment" == "frontend" ]; then
     #    kubectl -n monitoring apply -f monitoring/logstash-frontend.yaml
@@ -727,6 +732,10 @@ deploy_monitoring()
     if [ -n "`kubectl get cm -n monitoring | grep logstash`" ]; then
         kubectl delete configmap logstash -n monitoring
     fi
+    # add config map for logstash -n crab
+    if [ -n "`kubectl get cm -n crab | grep logstash`" ]; then
+        kubectl delete configmap logstash -n crab
+    fi
 
     if [ "$deployment" == "aps" ]; then
         kubectl create configmap logstash \
@@ -734,6 +743,8 @@ deploy_monitoring()
     else
 	kubectl create configmap logstash \
         --from-file=monitoring/logstash.conf --from-file=monitoring/logstash.yml -n monitoring
+    kubectl create configmap logstash \
+        --from-file=monitoring/crab/logstash.conf --from-file=monitoring/crab/logstash.yml -n crab
     fi
     # add secrets for loki service
     if [ -n "`kubectl get secrets -n monitoring | grep loki-secrets`" ]; then
