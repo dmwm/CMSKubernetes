@@ -12,7 +12,7 @@ WORKDIR $WDIR/registry-notification
 RUN make
 # RUN make
 
-FROM alpine
+FROM alpine:3.15
 RUN mkdir -p /data
 COPY --from=go-builder /data/registry-notification/registry-notification /data/
 CMD ["/data/registry-notification"]
