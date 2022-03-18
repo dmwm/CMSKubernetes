@@ -16,7 +16,7 @@ RUN curl -ksLO https://raw.githubusercontent.com/vkuznet/RucioTraces/main/messan
 RUN go mod init github.com/vkuznet/RucioTraces/messanger && go mod tidy && \
     go build -o /build/rucio-messanger -ldflags="-s -w -extldflags -static" /data/messanger/main.go
 
-FROM alpine
+FROM alpine:3.15
 RUN mkdir -p /data
 COPY --from=go-builder /build/rucio-tracer /data/
 COPY --from=go-builder /build/rucio-messanger /data/
