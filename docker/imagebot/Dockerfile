@@ -13,7 +13,7 @@ ARG CGO_ENABLED=0
 RUN git clone https://github.com/vkuznet/imagebot.git && cd imagebot && make
 
 # final image
-FROM alpine
+FROM alpine:3.15
 RUN mkdir -p /data
 COPY --from=builder /data/imagebot/imagebot /data/
 COPY --from=builder /data/kubectl /usr/bin/
