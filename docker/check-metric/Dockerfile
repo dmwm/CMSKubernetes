@@ -11,7 +11,7 @@ ADD check-metric.go $WDIR/check-metric.go
 ARG CGO_ENABLED=0
 RUN go build -o /build/check-metric -ldflags="-s -w -extldflags -static" /data/check-metric.go
 
-FROM alpine
+FROM alpine:3.15
 RUN mkdir -p /data
 COPY --from=go-builder /build/check-metric /data/
 COPY --from=go-builder /usr/bin/kubectl /data/
