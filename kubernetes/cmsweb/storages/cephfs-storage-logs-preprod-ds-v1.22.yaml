@@ -1,6 +1,43 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
+  name: proxy-server-share
+  namespace: auth
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 150G
+  csi:
+    driver: cephfs.manila.csi.openstack.org
+    volumeHandle: 20be2f54-6900-4d95-9cd6-6f67325d0b37
+    nodeStageSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    nodePublishSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    volumeAttributes:
+      shareID: 20be2f54-6900-4d95-9cd6-6f67325d0b37
+      shareAccessID: 5d48d242-29ef-410a-8834-032e577852d6 
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-aps
+  namespace: auth
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 150G
+  storageClassName: ""
+  volumeName: proxy-server-share
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
   name: default-share
   namespace: auth
 spec:
