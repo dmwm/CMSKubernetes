@@ -1,7 +1,6 @@
 FROM centos:7
 USER root
 
--
 RUN yum install -y epel-release.noarch\
     && yum clean all \
     && rm -rf /var/cache/yum
@@ -47,7 +46,7 @@ RUN yum install -y xrootd-libs xrootd-client\
 RUN rpm -i https://github.com/dshearer/jobber/releases/download/v1.4.0/jobber-1.4.0-1.el7.x86_64.rpm
 
 # Python and libs
-RUN yum install -y python3 python3-pip\
+RUN yum install -y python3 python3-pip git \
     && yum clean all \
     && rm -rf /var/cache/yum
 
