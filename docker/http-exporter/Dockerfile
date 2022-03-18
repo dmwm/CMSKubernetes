@@ -10,6 +10,6 @@ RUN mkdir /build
 ARG CGO_ENABLED=0
 RUN go mod init github.com/vkuznet/http-exporter && go mod tidy && go build -o /build/http_exporter -ldflags="-s -w -extldflags -static" http_exporter.go
 
-FROM alpine
+FROM alpine:3.15
 RUN mkdir /data
 COPY --from=go-builder /build/http_exporter /data/
