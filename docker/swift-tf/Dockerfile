@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:20.04
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 RUN apt-get update
 # configure tzinfo non-interactively
