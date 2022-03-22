@@ -741,10 +741,13 @@ deploy_monitoring()
         kubectl create configmap logstash \
         --from-file=monitoring/aps/logstash.conf --from-file=monitoring/logstash.yml -n monitoring
     else
-	kubectl create configmap logstash \
+    # create monitoring logstash config map
+    kubectl create configmap logstash \
         --from-file=monitoring/logstash.conf --from-file=monitoring/logstash.yml -n monitoring
+    # creat crab logstash config map
     kubectl create configmap logstash \
         --from-file=monitoring/crab/logstash.conf --from-file=monitoring/crab/logstash.yml -n crab
+
     fi
     # add secrets for loki service
     if [ -n "`kubectl get secrets -n monitoring | grep loki-secrets`" ]; then
