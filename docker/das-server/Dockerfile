@@ -9,8 +9,7 @@ ENV WDIR=/data
 WORKDIR $WDIR
 RUN mkdir -p /data/gopath && mkdir /build
 ENV GOPATH=/data/gopath
-RUN go get gopkg.in/yaml.v2 && \
-    git clone https://github.com/dmwm/DASTools && \
+RUN git clone https://github.com/dmwm/DASTools && \
     git clone https://github.com/dmwm/das2go
 WORKDIR /data/das2go
 ARG CGO_ENABLED=0
@@ -19,9 +18,9 @@ RUN go build -o /build/das2go_monitor -ldflags="-s -w -extldflags -static" /data
 RUN cp -r js css images templates examples /build
 WORKDIR /data
 #RUN curl -ksLO https://raw.githubusercontent.com/dmwm/cmsweb-exporters/master/das2go_exporter.go
-RUN go get github.com/vkuznet/x509proxy && \
-    go get github.com/prometheus/common && \
-    go get github.com/prometheus/client_golang/prometheus
+# RUN go get github.com/vkuznet/x509proxy && \
+#     go get github.com/prometheus/common && \
+#     go get github.com/prometheus/client_golang/prometheus
 #RUN go mod init github.com/dmwm/cmsweb-exporters && go mod tidy && \
 #    go build -o /build/das2go_exporter -ldflags="-s -w -extldflags -static" /data/das2go_exporter.go
 
