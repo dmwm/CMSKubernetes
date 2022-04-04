@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: filebeat-share-crab
+  namespace: crab
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 10G
+  csi:
+    driver: cephfs.manila.csi.openstack.org
+    volumeHandle: f9ff023f-cc24-45a5-aecf-fb8a1f71d740
+    nodeStageSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    nodePublishSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    volumeAttributes:
+      shareID: f9ff023f-cc24-45a5-aecf-fb8a1f71d740
+      shareAccessID: 778d12cf-7baf-4abe-9111-98fce81ab961
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: crabserver-filebeat-monit-data
+  namespace: crab
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 10G
+  storageClassName: ""
+  volumeName: filebeat-share-crab
+---
