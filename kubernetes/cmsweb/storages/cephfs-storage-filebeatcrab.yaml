@@ -1,0 +1,29 @@
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: filebeat-share-crab
+  namespace: crab
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: f9ff023f-cc24-45a5-aecf-fb8a1f71d740
+  osShareAccessID: 778d12cf-7baf-4abe-9111-98fce81ab961
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: crabserver-filebeat-monit-data
+  namespace: crab
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 10G
+  storageClassName: filebeat-share-crab
