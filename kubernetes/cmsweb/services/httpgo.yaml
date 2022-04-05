@@ -54,3 +54,10 @@ spec:
               command: ["/bin/sh", "-c", "ls"]
         ports:
         - containerPort: 8888
+        volumeMounts:
+        - name: testvolume
+          mountPath: /tmp/share
+      volumes:
+      - name: testvolume
+        persistentVolumeClaim:
+          claimName: cinder-volume-claim          
