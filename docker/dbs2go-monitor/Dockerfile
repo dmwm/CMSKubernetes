@@ -14,4 +14,4 @@ ENV PATH="/data/gopath/bin:/data:${PATH}"
 ADD monitor.sh /data/monitor.sh
 RUN chmod +x /data/*.sh
 WORKDIR /data
-# CMD ["monitor.sh"]
+CMD ["tail", "-f", "monitor.sh"]

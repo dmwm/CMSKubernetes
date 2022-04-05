@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 if [ -n $DBS2GO_PROCESS_MONITOR ]; then
     # start process exporters
