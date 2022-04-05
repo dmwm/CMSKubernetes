@@ -1,7 +1,5 @@
 FROM registry.cern.ch/cmsweb/oracle:21_5 as oracle
 #FROM cmssw/oracle:21_1 as oracle
-FROM cmssw/exporters:latest as exporters
-FROM cmssw/filebeat:latest as filebeat
 FROM golang:latest as builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
@@ -24,8 +22,7 @@ ENV PKG_CONFIG_PATH=$WDIR
 # build dbs2go with specific tag
 ENV TAG=v00.05.05
 WORKDIR $GOPATH/src/github.com/vkuznet
-RUN git clone https://github.com/vkuznet/dbs2go && \
-    git clone https://github.com/vkuznet/cmsweb-exporters
+RUN git clone https://github.com/vkuznet/dbs2go
 WORKDIR $GOPATH/src/github.com/vkuznet/dbs2go
 
 # example how to checkout specific branch
@@ -40,20 +37,15 @@ RUN git checkout tags/$TAG -b build && \
 FROM debian:stable-slim
 RUN apt-get update && apt-get -y install libaio1 procps && mkdir -p /data
 COPY --from=builder /data /data
-COPY --from=exporters /data/process_exporter /data
-COPY --from=exporters /data/process_monitor.sh /data
-COPY --from=filebeat /usr/share/filebeat /usr/share/filebeat
-COPY --from=filebeat /usr/bin/filebeat /usr/bin/filebeat
 COPY --from=oracle /usr/lib/oracle /usr/lib/oracle
 ENV LD_LIBRARY_PATH=/usr/lib/oracle
 ENV PATH=$PATH:/usr/lib/oracle
 ENV PKG_CONFIG_PATH=/usr/lib/oracle
 
+# remove shell from the image
+RUN apt-get -y --allow-remove-essential remove bash --purge
+RUN rm /bin/dash /bin/sh
+
 # run the service
 ENV PATH="/data/gopath/bin:/data:${PATH}"
-ADD monitor.sh /data/monitor.sh
-ADD run.sh /data/run.sh
-ADD config.json /data/config.json
-RUN chmod +x /data/*.sh
 WORKDIR /data
-# CMD ["run.sh"]
