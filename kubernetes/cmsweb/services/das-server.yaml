@@ -134,6 +134,9 @@ spec:
         - name: hmac-secrets
           mountPath: /etc/hmac
           readOnly: true
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true          
 #PROD#  - name: logs
 #PROD#    mountPath: /data/logs
       - image: registry.cern.ch/cmsweb/exporters:20210628-static
@@ -213,6 +216,9 @@ spec:
       - name: hmac-secrets
         secret:
           secretName: hmac-secrets
+      - name: token-secrets
+        secret:
+          secretName: token-secrets          
 #PROD#- name: logs
 #PROD#  persistentVolumeClaim:
 #PROD#    claimName: logs-cephfs-claim-das

@@ -99,7 +99,13 @@ spec:
         volumeMounts:
         - name: secrets
           mountPath: /etc/secrets
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true          
       volumes:
       - name: secrets
         secret:
           secretName: imagebot-secrets
+      - name: token-secrets
+        secret:
+          secretName: token-secrets          

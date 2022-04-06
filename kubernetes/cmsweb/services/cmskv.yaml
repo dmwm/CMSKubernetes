@@ -68,12 +68,18 @@ spec:
         volumeMounts:
         - name: secrets
           mountPath: /etc/secrets
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true          
 #PROD#  - name: logs-cephfs
 #PROD#    mountPath: /data/db
       volumes:
       - name: secrets
         secret:
           secretName: cmskv-secrets
+      - name: token-secrets
+        secret:
+          secretName: token-secrets          
 #PROD#- name: logs-cephfs
 #PROD#  persistentVolumeClaim:
 #PROD#    claimName: logs-cephfs-claim-cmskv
