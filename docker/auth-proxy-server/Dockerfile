@@ -5,12 +5,11 @@ ENV USER=http
 WORKDIR $WDIR
 
 # tag to use
-ENV TAG=0.1.106
+ENV TAG=0.2.32
 
 ARG CGO_ENABLED=0
 RUN mkdir $WDIR/gopath
 ENV GOPATH $WDIR/gopath
-RUN go get github.com/go-stomp/stomp && go get github.com/lestrrat-go/file-rotatelogs && go get github.com/vkuznet/lb-stomp
 RUN git clone https://github.com/vkuznet/auth-proxy-server.git
 WORKDIR $WDIR/auth-proxy-server
 RUN git checkout tags/$TAG -b build && make
