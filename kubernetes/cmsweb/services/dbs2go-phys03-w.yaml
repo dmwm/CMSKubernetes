@@ -105,6 +105,9 @@ spec:
         - name: hmac-secrets
           mountPath: /etc/hmac
           readOnly: true
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true          
 #PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/dbs
 #PROD#- name: dbs2go-phys03-w-filebeat
@@ -150,6 +153,9 @@ spec:
       - name: secrets
         configMap:
           name: dbs2go-phys03-w-config
+      - name: token-secrets
+        secret:
+          secretName: token-secrets          
 #PROD#- name: logs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-dbs

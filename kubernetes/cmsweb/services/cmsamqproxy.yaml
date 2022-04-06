@@ -55,7 +55,14 @@ spec:
         - name: secrets
           mountPath: /etc/secrets
           readOnly: true
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true          
       volumes:
       - name: secrets
         secret:
           secretName: cmsamqproxy-secrets
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+          

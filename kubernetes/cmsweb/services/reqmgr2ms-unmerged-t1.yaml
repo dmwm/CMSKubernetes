@@ -140,6 +140,9 @@ spec:
           readOnly: true
         - name: setup-certs-and-run
           mountPath: /opt/setup-certs-and-run
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true          
 #PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/reqmgr2ms
         securityContext:
@@ -195,6 +198,9 @@ spec:
       - name: setup-certs-and-run
         configMap:
           name: ms-unmer-t1
+      - name: token-secrets
+        secret:
+          secretName: token-secrets          
 #PROD#- name: logs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-dmwm

@@ -73,6 +73,9 @@ spec:
         - name: k8snodemon-secrets
           mountPath: /etc/secrets
           readOnly: true
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true          
       volumes:
       - name: setup-and-run
         configMap:
@@ -80,3 +83,6 @@ spec:
       - name: k8snodemon-secrets
         secret:
           secretName: k8snodemon-secrets
+      - name: token-secrets
+        secret:
+          secretName: token-secrets          
