@@ -22,6 +22,7 @@
 ##H        robot-secrets
 ##H        rumble-secrets
 ##H        rucio-secrets
+##H        rucio-daily-stats-secrets
 ##H        sqoop-secrets
 ##H        vmalert-secrets
 ##H Examples:
@@ -118,6 +119,13 @@ elif [ "$secret" == "rumble-secrets" ]; then
     files=`ls $sdir/rumble/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/rumble | sed "s, $,,g"`
 elif [ "$secret" == "rucio-secrets" ]; then
     files=`ls $sdir/rucio/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/rucio | sed "s, $,,g"`
+elif [ "$secret" == "rucio-daily-stats-secrets" ]; then
+    # Grep cmsr to grep cmsr_string file only, since sqoop keytab conflicts with cmsmon keytab
+    sqoop_f=`ls $sdir/sqoop/ | grep cmsr | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/sqoop | sed "s, $,,g"`
+    rucio_f=`ls $sdir/rucio/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/rucio | sed "s, $,,g"`
+    amq_creds_f=`ls $sdir/cms-rucio-dailystats/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cms-rucio-dailystats | sed "s, $,,g"`
+    cmsmonit_f=`ls $sdir/cmsmonit-keytab/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmonit-keytab | sed "s, $,,g"`
+    files="${sqoop_f} ${rucio_f} ${amq_creds_f} ${cmsmonit_f}"
 elif [ "$secret" == "sqoop-secrets" ]; then
     s_files=`ls $sdir/sqoop/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/sqoop | sed "s, $,,g"`
     c_files=`ls $cdir/sqoop/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$cdir/sqoop | sed "s, $,,g"`

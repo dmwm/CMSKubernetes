@@ -1,0 +1,108 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: cmsmon-rucio-ds
+  namespace: hdfs
+spec:
+  selector:
+    app: cmsmon-rucio-ds
+  type: NodePort
+  ports:
+    - name: port-0 # spark.driver.port, cern default is 5201
+      nodePort: 31201
+      port: 31201
+      protocol: TCP
+      targetPort: 31201
+    - name: port-1 # spark.driver.blockManager.port
+      nodePort: 31202
+      port: 31202
+      protocol: TCP
+      targetPort: 31202
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cmsmon-rucio-ds
+  namespace: hdfs
+  labels:
+    app: cmsmon-rucio-ds
+data:
+  run.sh: |
+    #!/bin/bash
+    $WDIR/CMSSpark/bin/cron4rucio_datasets_daily_stats.sh --keytab /etc/secrets/keytab \
+        --cmsr /etc/secrets/cmsr_cstring --rucio /etc/secrets/rucio --amq /etc/secrets/amq-creds.json \
+        --cmsmonitoring $WDIR/CMSMonitoring.zip --stomp $WDIR/stomp-v700.zip --k8s
+
+  run-cron.sh: |
+    cat <<EOF | crontab -
+    45 7 * * * /data/cronjob/run.sh
+    EOF
+    crond -n -s
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cmsmon-rucio-ds
+  namespace: hdfs
+  labels:
+    app: cmsmon-rucio-ds
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cmsmon-rucio-ds
+  template:
+    metadata:
+      labels:
+        app: cmsmon-rucio-ds
+    spec:
+      hostname: cmsmon-rucio-ds
+      containers:
+        - name: cmsmon-rucio-ds
+          image: registry.cern.ch/cmsmonitoring/cmsmon-rucio-ds:20220415
+          imagePullPolicy: Always
+          command:
+            - /bin/sh
+            - /data/cronjob/run-cron.sh
+          tty: true
+          stdin: true
+          env:
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 4Gi
+            requests:
+              cpu: 500m
+              memory: 750Mi
+          ports:
+            - containerPort: 31201 # spark.driver.port
+              name: port-0
+            - containerPort: 31202 # spark.driver.blockManager.port
+              name: port-1
+          lifecycle:
+            postStart:
+              exec:
+                command: [ "/bin/sh", "-c", "export > /etc/environment" ]
+          volumeMounts:
+            - name: rucio-daily-stats-secrets
+              mountPath: /etc/secrets
+              readOnly: true
+            - name: eos # EOS access
+              mountPath: /eos
+              mountPropagation: HostToContainer
+            - name: cronjobs-configmap
+              mountPath: /data/cronjob
+      volumes:
+        - name: rucio-daily-stats-secrets
+          secret:
+            secretName: rucio-daily-stats-secrets
+        - name: eos
+          hostPath:
+            path: /var/eos
+        - name: cronjobs-configmap
+          configMap:
+            name: cmsmon-rucio-ds
