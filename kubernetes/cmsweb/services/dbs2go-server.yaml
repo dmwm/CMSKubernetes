@@ -37,9 +37,6 @@ spec:
     - port: 8258
       targetPort: 8258
       name: dbs
-    - port: 18258
-      targetPort: 18258
-      name: dbs-mon
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -62,7 +59,6 @@ spec:
         prometheus.io/scrape: 'true'
         prometheus.io/path: "/dbs2go/metrics"
         prometheus.io/port: "8258"
-#         prometheus.io/port: "18258"
     spec:
       containers:
       - image: registry.cern.ch/cmsweb/dbs2go-server #imagetag
@@ -115,19 +111,6 @@ spec:
           subPath: tnsnames.ora # The name of the file to be placed inside /etc
 #PROD#  - name: logs
 #PROD#    mountPath: /data/logs
-
-      # side-car image to run process monitor
-      - image: registry.cern.ch/cmsweb/dbs2go-monitor
-        name: dbs2go-monitor
-        imagePullPolicy: Always
-        resources:
-          requests:
-            memory: "100Mi"
-            cpu: "100m"
-        ports:
-        - containerPort: 18258
-          protocol: TCP
-          name: dbs-mon
 
       # side-car image to run filebeat and scrape dbs2go logs
 #PROD#- name: dbs2go-filebeat
