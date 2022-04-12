@@ -156,9 +156,6 @@ spec:
       - name: hmac-secrets
         secret:
           secretName: hmac-secrets
-#       - name: secrets
-#         configMap:
-#           name: dbs2go-config
       - name: tnsnames-ora
         configMap:
           name: tnsnames-ora
