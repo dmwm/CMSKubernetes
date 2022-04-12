@@ -35,10 +35,7 @@ spec:
         prometheus.io/port: "9091"
     spec:
       containers:
-      #- image: cmssw/auth-proxy-server:0.1.81
-      #- image: cmssw/auth-proxy-server:0.1.106
-#       - image: cmssw/auth-proxy-server:0.1.106-static
-      - image: cmssw/auth-proxy-server:0.2.07
+      - image: registry.cern.ch/cmsweb/auth-proxy-server:0.2.34
         name: auth-proxy-server
         imagePullPolicy: Always
         args:
@@ -62,7 +59,6 @@ spec:
         volumeMounts:
         - name: auth-secrets
           mountPath: /etc/secrets
-          defaultMode: 256
         - name: proxy-secrets
           mountPath: /etc/proxy
           readOnly: true
