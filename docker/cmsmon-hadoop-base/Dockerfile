@@ -1,5 +1,12 @@
-FROM cern/cc7-base:20220202-1
+ARG CC7_BASE_VERSION
+
+FROM cern/cc7-base:$CC7_BASE_VERSION
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
+
+ARG HADOOP_VERSION
+ARG SPARK_VERSION
+ARG SPARK_MAJOR_VERSION
+#RUN echo hadoop:$HADOOP_VERSION spark:$SPARK_VERSION $SPARK_MAJOR_VERSION
 
 ENV WDIR=/data
 WORKDIR $WDIR
@@ -33,19 +40,24 @@ RUN yum -y update && yum install -y cern-get-certificate fetch-crl \
     voms-devel globus-gsi-credential-devel globus-gsi-cert-utils-devel \
     globus-common-devel globus-gsi-sysconfig-devel globus-gsi-callback-devel \
     oracle-instantclient-tnsnames.ora HEP_OSlibs python-pip  \
-    hadoop-bin-2.7 \
-    spark-bin-2.4 \
+    hadoop-bin-${HADOOP_VERSION} \
+    spark-bin-${SPARK_VERSION} \
     sqoop-bin-1.4 \
     hbase-bin-2.3 \
-    java-1.8.0-openjdk-devel \
     cern-hadoop-xrootd-connector cern-hadoop-config &&  \
     hadoop-set-default-conf.sh analytix && \
-    source hadoop-setconf.sh analytix && \
+    source hadoop-setconf.sh analytix ${HADOOP_VERSION} ${SPARK_MAJOR_VERSION} && \
     yum clean all && rm -rf /var/cache/yum &&  \
-    cp /usr/hdp/spark/kubernetes/dockerfiles/spark/entrypoint.sh /usr/bin/entrypoint.sh &&  \
     touch /etc/hadoop/conf/topology.table.file && ln -s /bin/bash /usr/bin/bashs && \
     echo "32 */6 * * * root ! /usr/sbin/fetch-crl -q -r 360" > /etc/cron.d/fetch-crl-docker
 # add fetch-crl to fetch all sertificates
+
+# Copy entrypoint.sh according to spark version
+RUN if [ "$SPARK_MAJOR_VERSION" = "spark3" ] ; then \
+        cp /usr/hdp/spark3/kubernetes/dockerfiles/spark/entrypoint.sh /usr/bin/entrypoint.sh ; \
+    else  \
+        cp /usr/hdp/spark/kubernetes/dockerfiles/spark/entrypoint.sh /usr/bin/entrypoint.sh ;  \
+    fi
 
 # start the setup
 WORKDIR ${WDIR}
