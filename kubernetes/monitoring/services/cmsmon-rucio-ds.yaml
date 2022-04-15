@@ -26,18 +26,22 @@ metadata:
   namespace: hdfs
   labels:
     app: cmsmon-rucio-ds
+# Reference: https://www.ibm.com/support/pages/cron-environment-and-cron-job-failures
 data:
   run.sh: |
     #!/bin/bash
-    $WDIR/CMSSpark/bin/cron4rucio_datasets_daily_stats.sh --keytab /etc/secrets/keytab \
-        --cmsr /etc/secrets/cmsr_cstring --rucio /etc/secrets/rucio --amq /etc/secrets/amq-creds.json \
-        --cmsmonitoring $WDIR/CMSMonitoring.zip --stomp $WDIR/stomp-v700.zip --k8s
-
-  run-cron.sh: |
-    cat <<EOF | crontab -
-    45 7 * * * /data/cronjob/run.sh
-    EOF
-    crond -n -s
+    # Get env variables, since cron's process environment is different than shell's one
+    . /etc/environment
+    # Run and print all results(except for Spark logs) to stdout
+    /data/CMSSpark/bin/cron4rucio_datasets_daily_stats.sh \
+      --keytab /etc/secrets/keytab \
+      --cmsr /etc/secrets/cmsr_cstring \
+      --rucio /etc/secrets/rucio \
+      --amq /etc/secrets/amq-creds.json \
+      --cmsmonitoring /data/CMSMonitoring.zip \
+      --stomp /data/stomp-v700.zip \
+      --eos /eos/user/c/cmsmonit/www/rucio_daily_ds_stats \
+      >> /proc/$(cat /var/run/crond.pid)/fd/1 2>&1
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -59,18 +63,28 @@ spec:
       hostname: cmsmon-rucio-ds
       containers:
         - name: cmsmon-rucio-ds
-          image: registry.cern.ch/cmsmonitoring/cmsmon-rucio-ds:20220415
+          image: registry.cern.ch/cmsmonitoring/cmsmon-rucio-ds:20220418
           imagePullPolicy: Always
-          command:
-            - /bin/sh
-            - /data/cronjob/run-cron.sh
-          tty: true
-          stdin: true
           env:
             - name: MY_NODE_NAME
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "sh"
+                  - "-c"
+                  - >
+                    export > /etc/environment;
+                    chmod +x /data/cronjob/run.sh;
+                    echo "45 6  * * * /bin/bash /data/cronjob/run.sh" | crontab -;
+          ports:
+            - containerPort: 31201 # spark.driver.port
+              name: port-0
+            - containerPort: 31202 # spark.driver.blockManager.port
+              name: port-1
           resources:
             limits:
               cpu: 2000m
@@ -78,15 +92,8 @@ spec:
             requests:
               cpu: 500m
               memory: 750Mi
-          ports:
-            - containerPort: 31201 # spark.driver.port
-              name: port-0
-            - containerPort: 31202 # spark.driver.blockManager.port
-              name: port-1
-          lifecycle:
-            postStart:
-              exec:
-                command: [ "/bin/sh", "-c", "export > /etc/environment" ]
+          stdin: true
+          tty: true
           volumeMounts:
             - name: rucio-daily-stats-secrets
               mountPath: /etc/secrets
