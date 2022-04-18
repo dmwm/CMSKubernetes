@@ -235,6 +235,12 @@ amtool check-config alertmanager.yaml
 ```
 For testing alert rules please see [8].
 
+##### How to fix EOS access problem:
+`k get pods -A | grep eos`
+
+Delete pods and restart `cern-magnum-eosxd-XXXX -n kube-system`
+
+
 ### References
 1. [Prometheus Metrics and Labels](https://blog.pvincent.io/2017/12/prometheus-blog-series-part-1-metrics-and-labels/)
 2. [Prometheus Metrics Types](https://blog.pvincent.io/2017/12/prometheus-blog-series-part-2-metric-types/)
