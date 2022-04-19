@@ -13,8 +13,7 @@ Installs:
 #### How to build and push
 
 ```shell
-cd docker/cmsmon-rucio-ds
-#
+# docker image prune -a OR docker system prune -f -a
 docker_registry=registry.cern.ch/cmsmonitoring
 image_tag=20220418
 docker build -t "${docker_registry}/cmsmon-rucio-ds:${image_tag}" .

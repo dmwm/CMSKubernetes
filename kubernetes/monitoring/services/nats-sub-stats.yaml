@@ -27,7 +27,7 @@ spec:
           - -gatewayUri=http://cms-monitoring.cern.ch:30091
           - "cms.wmarchive.exitCode.>"
           name: nats-sub
-          image: cmssw/nats-sub
+          image: registry.cern.ch/cmsmonitoring/nats-sub:20220421
           volumeMounts:
           - name: nats-secrets
             mountPath: /etc/nats

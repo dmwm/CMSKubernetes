@@ -23,8 +23,7 @@ spec:
         - args:
           - crond
           - -n
-          #image: cmssw/log-clustering:20200605
-          image: cmssw/log-clustering:20200623
+          image: registry.cern.ch/cmsmonitoring/log-clustering:20220421
           name: log-clustering
           volumeMounts:
           - name: log-clustering-secrets

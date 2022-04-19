@@ -100,7 +100,11 @@ elif [ "$secret" == "proxy-secrets" ]; then
     voms-proxy-init -voms cms -rfc -out /tmp/proxy
     files="--from-file=/tmp/proxy"
 elif [ "$secret" == "log-clustering-secrets" ]; then
-    files=`ls $sdir/log-clustering/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/log-clustering | sed "s, $,,g"`
+    # creds.json
+    log_f=`ls $sdir/log-clustering/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/log-clustering | sed "s, $,,g"`
+    # cmsmonit keytab
+    cmsmonit_f=`ls $sdir/cmsmonit-keytab/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmonit-keytab | sed "s, $,,g"`
+    files="${log_f} ${cmsmonit_f}"
 elif [ "$secret" == "condor-cpu-eff-secrets" ]; then
     files=`ls $sdir/cmsmonit-keytab/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmonit-keytab | sed "s, $,,g"`
 elif [ "$secret" == "es-wma-secrets" ]; then

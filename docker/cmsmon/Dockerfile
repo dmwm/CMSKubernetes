@@ -1,4 +1,4 @@
-FROM cmssw/cmsweb:20210628
+FROM registry.cern.ch/cmsweb/cmsweb
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 # add environment

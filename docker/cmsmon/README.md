@@ -46,5 +46,16 @@ docker push USERNAME/cmsmon:v0.1
 docker system prune -f -a
 ```
 
+#### How to build for cern registry
+
+```shell
+docker_registry=registry.cern.ch/cmsmonitoring
+image_tag=20220421
+docker build -t "${docker_registry}/cmsmon:${image_tag}" .
+# push
+docker push "${docker_registry}/cmsmon:${image_tag}"
+```
+
+
 Docker commands guide can be found
 [here](https://docs.docker.com/engine/reference/commandline/docker/)

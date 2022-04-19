@@ -1,4 +1,4 @@
-FROM cern/cc7-base:20210501-2.x86_64 as base_image
+FROM cern/cc7-base:20220401-1.x86_64 as base_image
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 RUN mkdir -p /data/

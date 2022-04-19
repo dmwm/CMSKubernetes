@@ -20,7 +20,7 @@ spec:
           fsGroup: 2000
         containers:
         - name: cmsmon-vol
-          image: cmssw/cmsmon
+          image: registry.cern.ch/cmsmonitoring/cmsmon:20220421
           volumeMounts:
           - name: share-cinder-volume
             mountPath: /tmp/share
