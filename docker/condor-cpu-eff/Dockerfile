@@ -1,37 +1,24 @@
-FROM cern/cc7-base:20210715-1.x86_64
+FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:20220401-1-spark3
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
-
-ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 
 # set working directory
 ENV WDIR=/data
 WORKDIR $WDIR
-ENV PATH="${PATH}:${WDIR}"
 
-# set required env vars
-ENV VIRTUAL_ENV "/venv"
+# For python click ASCII problem: https://click.palletsprojects.com/en/8.1.x/unicode-support/
+ENV LC_ALL=C.UTF-8 LANG=C.UTF-8
 ENV HADOOP_CONF_DIR=/etc/hadoop/conf
-ENV PATH "$VIRTUAL_ENV/bin:/usr/hdp/hadoop-2.7.5/bin:/usr/hdp/spark-2.4/bin:$PATH"
-ENV PYSPARK_PYTHON=/usr/bin/python3
-ENV PYSPARK_DRIVER_PYTHON=$VIRTUAL_ENV/bin/python
+ENV PATH="${PATH}:${WDIR}:/usr/hdp/hadoop/bin/hadoop:/usr/hdp/spark3/bin:/usr/hdp/sqoop/bin:${WDIR}/CMSSpark/bin"
+ENV PYTHONPATH "${PYTHONPATH}:${WDIR}/CMSSpark/src/python"
+ENV PYSPARK_PYTHON=/usr/bin/python3 PYSPARK_DRIVER_PYTHON=/usr/bin/python3
 
-# add required files
-ADD hadoop.repo /etc/yum.repos.d/hadoop.repo
-ADD hadoop-mapreduce-client-core-2.6.0-cdh5.7.6.jar $WDIR
-ADD cronjobs.txt $WDIR
+RUN yum remove -y hbase-bin-2.3 && \
+    yum update -y && yum install -y python3 && yum clean all && rm -rf /var/cache/yum && \
+    python3 -m pip install --upgrade pip && pip3 install pandas pyspark click && \
+    rm -f /usr/bin/python && ln -s /usr/bin/python3.6 /usr/bin/python && \
+    git clone https://github.com/dmwm/CMSSpark.git && \
+    hadoop-set-default-conf.sh analytix && source hadoop-setconf.sh analytix 3.2 spark3
 
-# oracle java is included as spark dependency
-RUN yum -y update && \
-    yum install -y cern-hadoop-config spark-bin-2.4 hadoop-bin-2.7.5 git python3 && \
-    yum clean all && \
-    rm -rf /var/cache/yum && \
-    hadoop-set-default-conf.sh analytix && \
-    source hadoop-setconf.sh analytix && \
-    python3 -m venv $VIRTUAL_ENV && \
-    source $VIRTUAL_ENV/bin/activate && \
-    pip install pandas pyspark click && \
-    git clone https://github.com/dmwm/CMSSpark.git
-
-# Setup cron
+WORKDIR $WDIR
+# Run crond
 CMD ["crond", "-n", "-s", "&"]
-RUN chmod 755 $WDIR/cronjobs.txt && crontab $WDIR/cronjobs.txt
