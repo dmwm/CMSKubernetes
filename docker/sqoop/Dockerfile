@@ -15,10 +15,10 @@ WORKDIR $WDIR
 ENV GOPATH=$WDIR/gopath
 RUN mkdir -p $GOPATH
 ENV PATH="${PATH}:${GOROOT}/bin:${WDIR}"
+WORKDIR $WDIR/CMSMonitoring/src/go/MONIT
 RUN go get github.com/go-stomp/stomp
 RUN go get github.com/prometheus/client_golang/prometheus
 RUN go get github.com/prometheus/client_golang/prometheus/promhttp
-WORKDIR $WDIR/CMSMonitoring/src/go/MONIT
 RUN go build monit.go && go build hdfs_exporter.go && cp monit hdfs_exporter $WDIR
 WORKDIR $WDIR
 
