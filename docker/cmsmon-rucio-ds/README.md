@@ -10,12 +10,13 @@ Installs:
 - Only src/python/CMSMonitoring cluster of dmwm/CMSMonitoring repo and creates its zip for Spark job to submit
 - dmwm/CMSSpark
 
-#### How to build
+#### How to build and push
 
 ```shell
+cd docker/cmsmon-rucio-ds
+#
 docker_registry=registry.cern.ch/cmsmonitoring
-image_tag=20220415
+image_tag=20220418
 docker build -t "${docker_registry}/cmsmon-rucio-ds:${image_tag}" .
-# push
 docker push "${docker_registry}/cmsmon-rucio-ds:${image_tag}"
 ```

@@ -4,8 +4,7 @@ ENV WDIR=/data
 WORKDIR $WDIR
 
 ENV HADOOP_CONF_DIR=/etc/hadoop/conf
-ENV PATH="${PATH}:${WDIR}/CMSSpark/bin"
-
+ENV PATH="${PATH}:/usr/hdp/hadoop/bin/hadoop:/usr/hdp/spark3/bin:/usr/hdp/sqoop/bin:${WDIR}/CMSSpark/bin"
 # CMSMonitoring folder is in WDIR
 ENV PYTHONPATH "${PYTHONPATH}:${WDIR}:${WDIR}/CMSSpark/src/python"
 
@@ -33,12 +32,12 @@ RUN yum remove -y hbase-bin-2.3 && \
     rm -rf stomp-v700 && \
     svn export https://github.com/dmwm/CMSMonitoring.git/branches/master/src/python/CMSMonitoring && \
     zip -r CMSMonitoring.zip CMSMonitoring/* && \
-    git clone https://github.com/mrceyhun/CMSSpark.git && \
-    cd CMSSpark && git checkout f-rucio_datasets_daily_stats && \
+    git clone https://github.com/dmwm/CMSSpark.git && \
     yum clean all &&  rm -rf /var/cache/yum && \
     rm -f /usr/bin/python && ln -s /usr/bin/python3.6 /usr/bin/python && \
-    hadoop-set-default-conf.sh analytix && \
-    source hadoop-setconf.sh analytix 3.2 spark3
-
+    hadoop-set-default-conf.sh analytix && source hadoop-setconf.sh analytix 3.2 spark3
 
 WORKDIR $WDIR
+
+# Run crond
+CMD ["crond", "-n", "-s", "&"]
