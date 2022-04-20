@@ -81,10 +81,10 @@ spec:
   accessModes:
   - ReadWriteMany
   capacity:
-    storage: 22G
+    storage: 100G
   csi:
     driver: cephfs.manila.csi.openstack.org
-    volumeHandle: cdac4377-c1a2-40d5-9a9e-f303b383609c
+    volumeHandle: 4493f013-78ca-4044-805d-c885986cbea9
     nodeStageSecretRef:
       name: os-trustee
       namespace: kube-system
@@ -92,8 +92,8 @@ spec:
       name: os-trustee
       namespace: kube-system
     volumeAttributes:
-      shareID: cdac4377-c1a2-40d5-9a9e-f303b383609c
-      shareAccessID: 4c736d7e-d0f3-4f59-98cd-7d276d83c910
+      shareID: 4493f013-78ca-4044-805d-c885986cbea9
+      shareAccessID: a33b62ba-d197-42a8-9110-99ca3d14dbba
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -105,7 +105,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 22G
+      storage: 100G
   storageClassName: ""
   volumeName: dbs-share
 ---
