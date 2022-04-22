@@ -17,17 +17,19 @@ if [[ "$cluster_name" == cmsweb-test[1-9]* ]] ; then
    secretref="https://openstack.cern.ch:9311/v1/secrets/010bee01-f50f-40e6-b954-e24eae51d8d3"
 fi
 
-tmpDir=/tmp/$USER/sops
-
-# use tmp area to store sop binary
-if [ -d $tmpDir ]; then
+if [ -z "`command -v sops`" ]; then
+  # download soap in tmp area
+  tmpDir=/tmp/$USER/sops
+  if [ -d $tmpDir ]; then
     rm -rf $tmpDir
+  fi
+  mkdir -p $tmpDir
+  cd $tmpDir
+  wget -O sops https://github.com/mozilla/sops/releases/download/v3.7.2/sops-v3.7.2.linux.amd64
+  chmod u+x sops
+  mkdir -p $HOME/bin
+  cp ./sops $HOME/bin
 fi
-mkdir -p $tmpDir
-cd $tmpDir
-wget -O sops https://github.com/mozilla/sops/releases/download/v3.7.2/sops-v3.7.2.linux.amd64
-chmod u+x sops
-
     # cmsweb configuration area
     echo "+++ cluster name: $cluster_name"
     echo "+++ configuration: $conf"
@@ -78,6 +80,11 @@ chmod u+x sops
 ### Substitution for APS/XPS/SPS client secrets in config.json      
 
     if [ "$srv" == "auth-proxy-server" ] || [ "$srv" == "x509-proxy-server" ] || [ "$srv" == "scitokens-proxy-server" ] ; then
+       for fname in $secretdir/*; do
+         if [[ $fname == *.encrypted ]]; then
+	    sops -d $fname > $secretdir/$(basename $fname .encrypted)
+         fi
+       done
        if [ -d $secretdir ] && [ -n "`ls $secretdir`" ] && [ -f $secretdir/client.secrets ]; then
            export CLIENT_SECRET=`grep CLIENT_SECRET $secretdir/client.secrets | head -n1 | awk '{print $2}'`
            export CLIENT_ID=`grep CLIENT_ID $secretdir/client.secrets | head -n1 | awk '{print $2}'`
@@ -110,9 +117,9 @@ chmod u+x sops
         if [ -d $secretdir ] && [ -n "`ls $secretdir`" ]; then
         	for fname in $secretdir/*; do
            	  if [[ $fname == *.encrypted ]]; then
-	       	    ./sops -d $fname > $secretdir/$(basename $fname .encrypted)
+	       	    sops -d $fname > $secretdir/$(basename $fname .encrypted)
 	            fname=$secretdir/$(basename $fname .encrypted)
-		    echo $fname
+		    echo "Decrypted file $fname"
                   fi
 		  if [[ ! $files == *$fname* ]]; then
                     files="$files --from-file=$fname"
@@ -121,6 +128,11 @@ chmod u+x sops
         fi
 
         if [ "$ns" == "dbs" ]; then
+		for fname in $conf/dbs/*; do
+                  if [[ $fname == *.encrypted ]]; then
+                    sops -d $fname > $conf/dbs/$(basename $fname .encrypted)
+                  fi
+                done
         	if [ -f $conf/dbs/DBSSecrets.py ]; then
                         files="$files --from-file=$conf/dbs/DBSSecrets.py"
                 fi
@@ -128,7 +140,6 @@ chmod u+x sops
                         files="$files --from-file=$conf/dbs/NATSSecrets.py"
                 fi
         fi
-
 
         kubectl create secret generic ${srv}-secrets \
                 $files --dry-run=client -o yaml | \
