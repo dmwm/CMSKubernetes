@@ -2,24 +2,33 @@
 # helper script to deploy given service with given tag to k8s infrastructure
 
 if [ $# -ne 3 ]; then
-    echo "Usage: deploy-secrets.sh <namespace> <service-name> <path_to_configuration>"
+    echo "Usage: deploy-secrets.sh <namespace> <service-name> <path_to_configuration> <reference_of_decryption_barbican_secret>"
     exit 1
 fi
 
 ns=$1
 srv=$2
 conf=$3
+secretref=${4:-https://openstack.cern.ch:9311/v1/secrets/35145b52-18af-47a3-90d0-1861c51a9c65}
 
     # cmsweb configuration area
     echo "+++ configuration: $conf"
     echo "+++ cms service : $srv"
     echo "+++ namespaces   : $ns"
+    echo "+++ secretref   : $secretref"
 
     if [ ! -d $conf/$srv ]; then
 	echo "Unable to locate $conf/$srv, please provide proper directory structure like <configuration>/<service>/<files>"
   	exit 1
     fi
-
+   
+    # Get SOPS decryption key (if it's not there) and set it as the default decryption file
+    mkdir -p $HOME/.openstack/config/sops/age
+    if [ ! -f $HOME/.openstack/config/sops/age/openstack-keys.txt ]; then
+      openstack secret get $secretref --payload_content_type application/octet-stream --file $HOME/.openstack/config/sops/age/openstack-keys.txt
+    fi
+    sopskey=$SOPS_AGE_KEY_FILE
+    export SOPS_AGE_KEY_FILE="$HOME/.openstack/config/sops/age/openstack-keys.txt"
     # check (and copy if necessary) hostkey/hostcert.pem files in configuration area of frontend
 
     if [ "$srv" == "frontend" ] ; then
@@ -82,7 +91,13 @@ conf=$3
     fi 
         if [ -d $secretdir ] && [ -n "`ls $secretdir`" ]; then
         	for fname in $secretdir/*; do
-                	files="$files --from-file=$fname"
+           	  if [[ $fname == *.encrypted ]]; then
+	       	    sops -d $fname > $secretdir/$(basename $fname .encrypted)
+	            fname=$secretdir/$(basename $fname .encrypted)
+                  fi
+		  if [[ ! $files == *$fname* ]]; then
+                    files="$files --from-file=$fname"
+		  fi
                 done
         fi
 
@@ -99,9 +114,8 @@ conf=$3
         kubectl create secret generic ${srv}-secrets \
                 $files --dry-run=client -o yaml | \
                 kubectl apply --namespace=$ns -f -
-
+    export SOPS_AGE_KEY_FILE=$sopskey
     echo
     echo "+++ list secrets"
     kubectl get secrets -n $ns
-
 
