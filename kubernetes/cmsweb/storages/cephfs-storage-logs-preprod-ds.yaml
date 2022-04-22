@@ -102,8 +102,8 @@ parameters:
   protocol: CEPHFS
   backend: csi-cephfs
   csi-driver: cephfs.csi.ceph.com
-  osShareID: cdac4377-c1a2-40d5-9a9e-f303b383609c
-  osShareAccessID: 4c736d7e-d0f3-4f59-98cd-7d276d83c910
+  osShareID: 4493f013-78ca-4044-805d-c885986cbea9
+  osShareAccessID: a33b62ba-d197-42a8-9110-99ca3d14dbba
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -115,7 +115,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 22G
+      storage: 100G
   storageClassName: dbs-share
 ---
 apiVersion: storage.k8s.io/v1beta1
