@@ -6,11 +6,16 @@ if [ $# -ne 3 ]; then
     exit 1
 fi
 
+cluster_name=`kubectl config get-clusters | grep -v NAME`
+
 ns=$1
 srv=$2
 conf=$3
 secretref=${4:-https://openstack.cern.ch:9311/v1/secrets/35145b52-18af-47a3-90d0-1861c51a9c65}
 
+if [[ "$cluster_name" == cmsweb-test[1-9] ]] || [[ "$cluster_name" == cmsweb-test10 ]] || [[ "$cluster_name" == cmsweb-test11 ]]	; then
+   secretref="https://openstack.cern.ch:9311/v1/secrets/010bee01-f50f-40e6-b954-e24eae51d8d3"
+fi
 
 tmpDir=/tmp/$USER/sops
 
@@ -24,6 +29,7 @@ wget -O sops https://github.com/mozilla/sops/releases/download/v3.7.2/sops-v3.7.
 chmod u+x sops
 
     # cmsweb configuration area
+    echo "+++ cluster name: $cluster_name"
     echo "+++ configuration: $conf"
     echo "+++ cms service : $srv"
     echo "+++ namespaces   : $ns"
