@@ -13,7 +13,7 @@ srv=$2
 conf=$3
 secretref=${4:-https://openstack.cern.ch:9311/v1/secrets/35145b52-18af-47a3-90d0-1861c51a9c65}
 
-if [[ "$cluster_name" == cmsweb-test[1-9] ]] || [[ "$cluster_name" == cmsweb-test10 ]] || [[ "$cluster_name" == cmsweb-test11 ]]	; then
+if [[ "$cluster_name" == cmsweb-test[1-9]* ]] ; then
    secretref="https://openstack.cern.ch:9311/v1/secrets/010bee01-f50f-40e6-b954-e24eae51d8d3"
 fi
 
