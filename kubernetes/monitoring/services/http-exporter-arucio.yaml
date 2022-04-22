@@ -46,7 +46,7 @@ spec:
           - "600"
           - -verbose
           name: http-exporter-arucio
-          image: cmssw/http-exporter:20200615
+          image: registry.cern.ch/cmsmonitoring/http-exporter:20220420
           ports:
           - containerPort: 18012
           volumeMounts:

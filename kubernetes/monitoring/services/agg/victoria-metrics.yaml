@@ -52,7 +52,7 @@ spec:
           - name: vm-volume
             mountPath: /tsdb
         - name: vmbackup
-          image: cmssw/vmbackup-utility
+          image: registry.cern.ch/cmsmonitoring/vmbackup-utility:20220421
           volumeMounts:
           - name: vm-volume
             mountPath: /tsdb

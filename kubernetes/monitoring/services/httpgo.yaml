@@ -30,7 +30,7 @@ spec:
         app: httpgo
     spec:
       containers:
-      - image: cmssw/httpgo
+      - image: registry.cern.ch/cmsweb/httpgo
         name: httpgo
         resources:
           requests:

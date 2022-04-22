@@ -42,6 +42,6 @@ spec:
           - "monitoring"
           - -verbose
           name: http-exporter-detox
-          image: cmssw/http-exporter:20200615
+          image: registry.cern.ch/cmsmonitoring/http-exporter:20220420
           ports:
           - containerPort: 18002

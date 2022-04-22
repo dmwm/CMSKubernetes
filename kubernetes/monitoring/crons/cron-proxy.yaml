@@ -1,3 +1,4 @@
+# cmsmonit-new and HA1 clusters version is 1.19.3, use apiVersion: batch/v1beta1, HA2 is 1.22.3, use: batch/v1
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -12,7 +13,7 @@ spec:
           serviceAccountName: proxy-account
           containers:
           - name: proxy
-            image: cmssw/proxy
+            image: registry.cern.ch/cmsweb/proxy
             args:
             - /bin/sh
             - -c
