@@ -59,11 +59,16 @@ spec:
         volumeMounts:
           - mountPath: /cephfs/testbed
             name: dqm-square-mirror-pvc
+          - name: robot-secrets
+            mountPath: /etc/robots
       volumes:
       - name: dqm-square-mirror-pvc
         persistentVolumeClaim:
           claimName: dqm-square-mirror-pvc
           readOnly: false
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
 ---
 kind: Deployment
 apiVersion: apps/v1
