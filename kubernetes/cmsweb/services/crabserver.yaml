@@ -45,9 +45,9 @@ data:
       max_backoff: 10s
       include_lines:
         - '^\[.+?\] crabserver-'
-      tags: ["crabserver"]
+      tags: ["crabhttpcall"]
     output.logstash:
-      hosts: ["logstash.monitoring:5044"]
+      hosts: ["logstash:5044"]
       compression_level: 3
       bulk_max_size: 4096
     queue.mem:
@@ -211,7 +211,7 @@ spec:
 #PROD#  securityContext:
 #PROD#    allowPrivilegeEscalation: false
 #PROD#- name: crabserver-filebeat-monit
-#PROD#  image: docker.elastic.co/beats/filebeat:7.12.1
+#PROD#  image: docker.elastic.co/beats/filebeat:8.1.3
 #PROD#  args: [
 #PROD#    "bash",
 #PROD#    "-c",
@@ -262,7 +262,7 @@ spec:
           name: crabserver
       - name: token-secrets
         secret:
-          secretName: token-secrets          
+          secretName: token-secrets
 #PROD#- name: logs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-crab
