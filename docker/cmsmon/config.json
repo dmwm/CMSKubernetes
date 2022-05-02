@@ -1,6 +1,0 @@
-{
-    "base": "",
-    "port": 8181,
-    "static": "/data/cmsmon/static",
-    "verbose": 0
-}
