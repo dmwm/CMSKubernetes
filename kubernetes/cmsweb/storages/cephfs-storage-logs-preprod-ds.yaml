@@ -1,36 +1,6 @@
 apiVersion: storage.k8s.io/v1beta1
 kind: StorageClass
 metadata:
-  name: confdb-share
-  namespace: confdb
-provisioner: manila-provisioner
-parameters:
-  type: "Meyrin CephFS"
-  zones: nova
-  osSecretName: os-trustee
-  osSecretNamespace: kube-system
-  protocol: CEPHFS
-  backend: csi-cephfs
-  csi-driver: cephfs.csi.ceph.com
-  osShareID: cf8c690e-8657-4dd9-9bd9-59bf0947879b
-  osShareAccessID: 84c6fb03-d193-4f90-912e-0cbea785915f
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: logs-cephfs-claim-preprod-confdb
-  namespace: confdb
-spec:
-  accessModes:
-  - ReadWriteMany
-  resources:
-    requests:
-      storage: 22G
-  storageClassName: confdb-share
----
-apiVersion: storage.k8s.io/v1beta1
-kind: StorageClass
-metadata:
   name: couchdb-share
   namespace: couchdb
 provisioner: manila-provisioner
@@ -192,8 +162,8 @@ parameters:
   protocol: CEPHFS
   backend: csi-cephfs
   csi-driver: cephfs.csi.ceph.com
-  osShareID: c12706bc-5f48-4c75-9153-9cb1d09adb87
-  osShareAccessID: d3ee059c-1f50-4e15-9e4c-ba71e521a410
+  osShareID: d4554eee-5b92-4af6-8d73-cbb4c536bac1
+  osShareAccessID: f6a5c6cd-3465-4418-858f-174e07b65d4b
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -207,36 +177,6 @@ spec:
     requests:
       storage: 22G
   storageClassName: dqm-share
----
-apiVersion: storage.k8s.io/v1beta1
-kind: StorageClass
-metadata:
-  name: phedex-share
-  namespace: phedex
-provisioner: manila-provisioner
-parameters:
-  type: "Meyrin CephFS"
-  zones: nova
-  osSecretName: os-trustee
-  osSecretNamespace: kube-system
-  protocol: CEPHFS
-  backend: csi-cephfs
-  csi-driver: cephfs.csi.ceph.com
-  osShareID: 772437c9-cf5a-4350-ac9c-417f8b0e55e7
-  osShareAccessID: 758fdf4b-d8a1-4376-8cd4-b98af8e67726
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: logs-cephfs-claim-preprod-phedex
-  namespace: phedex
-spec:
-  accessModes:
-  - ReadWriteMany
-  resources:
-    requests:
-      storage: 22G
-  storageClassName: phedex-share
 ---
 apiVersion: storage.k8s.io/v1beta1
 kind: StorageClass
