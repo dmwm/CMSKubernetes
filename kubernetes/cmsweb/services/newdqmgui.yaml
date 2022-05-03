@@ -62,13 +62,7 @@ spec:
       containers:
       - image: registry.cern.ch/cmsweb/newdqmgui #imagetag
         name: newdqmgui
-        lifecycle:
-          postStart:
-            exec:
-              command:
-              - bash
-              - -c
-              - sudo chmod 0777 /home/cmsusr/dqmgui/dqmgui; sudo chown _cmsusr:_cmsusr /home/cmsusr/dqmgui/dqmgui
+        command: ["./run.sh"]
         resources:
           requests:
             memory: "512Mi"
@@ -106,7 +100,12 @@ spec:
           mountPath: /opt/setup-certs-and-run
         - name: token-secrets
           mountPath: /etc/token
-          readOnly: true          
+          readOnly: true
+        - name: eos
+          mountPath: /eos
+          mountPropagation: HostToContainer
+        - name: eos-krb
+          mountPath: /tmp/krb          
 #PROD#  - name: logs
 #PROD#    mountPath: /home/cmsusr/dqmgui/dqmgui
         securityContext:
@@ -132,7 +131,13 @@ spec:
           name: newdqmgui
       - name: token-secrets
         secret:
-          secretName: token-secrets          
+          secretName: token-secrets
+      - name: eos
+        hostPath:
+          path: /var/eos
+      - name: eos-krb
+        secret:
+          secretName: eos-krb          
 #PROD#- name: logs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-dqm

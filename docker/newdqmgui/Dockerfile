@@ -11,4 +11,5 @@ RUN sudo git clone https://github.com/cms-DQM/dqmgui.git && cd dqmgui && pwd && 
 WORKDIR /home/cmsusr/dqmgui/dqmgui
 #
 CMD ["/bin/bash"]
-CMD sudo bash ./run.sh
+#CMD sudo bash ./run.sh
+CMD sudo /usr/sbin/crond -n
