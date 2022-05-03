@@ -94,7 +94,6 @@ secretref=${4:-https://openstack.cern.ch:9311/v1/secrets/35145b52-18af-47a3-90d0
            	  if [[ $fname == *.encrypted ]]; then
 	       	    sops -d $fname > $secretdir/$(basename $fname .encrypted)
 	            fname=$secretdir/$(basename $fname .encrypted)
-		    echo $fname
                   fi
 		  if [[ ! $files == *$fname* ]]; then
                     files="$files --from-file=$fname"
