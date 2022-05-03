@@ -11,18 +11,6 @@ srv=$2
 conf=$3
 secretref=${4:-https://openstack.cern.ch:9311/v1/secrets/35145b52-18af-47a3-90d0-1861c51a9c65}
 
-
-tmpDir=/tmp/$USER/sops
-
-# use tmp area to store sop binary
-if [ -d $tmpDir ]; then
-    rm -rf $tmpDir
-fi
-mkdir -p $tmpDir
-cd $tmpDir
-wget -O sops https://github.com/mozilla/sops/releases/download/v3.7.2/sops-v3.7.2.linux.amd64
-chmod u+x sops
-
     # cmsweb configuration area
     echo "+++ configuration: $conf"
     echo "+++ cms service : $srv"
@@ -104,7 +92,7 @@ chmod u+x sops
         if [ -d $secretdir ] && [ -n "`ls $secretdir`" ]; then
         	for fname in $secretdir/*; do
            	  if [[ $fname == *.encrypted ]]; then
-	       	    ./sops -d $fname > $secretdir/$(basename $fname .encrypted)
+	       	    sops -d $fname > $secretdir/$(basename $fname .encrypted)
 	            fname=$secretdir/$(basename $fname .encrypted)
 		    echo $fname
                   fi
