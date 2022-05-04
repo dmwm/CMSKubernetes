@@ -1,0 +1,21 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: csi-cvmfs-cms
+  namespace: dqm  
+provisioner: cvmfs.csi.cern.ch
+parameters:
+  repository: cms.cern.ch
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: csi-cvmfs-cms-pvc
+  namespace: dqm  
+spec:
+  accessModes:
+  - ReadOnlyMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: csi-cvmfs-cms
