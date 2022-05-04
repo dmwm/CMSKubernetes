@@ -105,7 +105,9 @@ spec:
           mountPath: /eos
           mountPropagation: HostToContainer
         - name: eos-krb
-          mountPath: /tmp/krb          
+          mountPath: /tmp/krb
+        - mountPath: /cvmfs/cms.cern.ch
+          name: cms-pvc
 #PROD#  - name: logs
 #PROD#    mountPath: /home/cmsusr/dqmgui/dqmgui
         securityContext:
@@ -137,7 +139,11 @@ spec:
           path: /var/eos
       - name: eos-krb
         secret:
-          secretName: eos-krb          
+          secretName: eos-krb
+      - name: cms-pvc
+        persistentVolumeClaim:
+          claimName: csi-cvmfs-cms-pvc
+          readOnly: true
 #PROD#- name: logs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-dqm
