@@ -80,7 +80,7 @@ spec:
         runAsGroup: 1000
         fsGroup: 2000
       containers:
-      - image: msuccarm/new_dqmgui:2.0 #imagetag
+      - image: registry.cern.ch/cmsweb/newdqmgui #imagetag
         name: newdqmgui
         command: ["./run.sh"]
         resources:
