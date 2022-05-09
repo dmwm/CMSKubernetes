@@ -68,6 +68,10 @@ sleep 5
 export CRYPTOGRAPHY_ALLOW_OPENSSL_102=true
 /data/srv/current/config/$srv/manage start 'I did read documentation'
 
+# Delay execution of /data/monitor.sh to let "crabserver" process produce PID file.
+# process_exporter need PID to monitor process
+sleep 5
+
 # run monitoring script
 if [ -f /data/monitor.sh ]; then
     /data/monitor.sh
