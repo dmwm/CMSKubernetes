@@ -29,7 +29,7 @@ data:
     sudo cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
-    cd /home/cmsusr/dqmgui/dqmgui && ./run.sh
+    cd /home/cmsusr/dqmgui && sudo bash ./run.sh
 ---    
 kind: Deployment
 apiVersion: apps/v1
@@ -81,6 +81,8 @@ spec:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
         volumeMounts:
+        - mountPath: /dev/fuse
+          name: fuse
         - name: proxy-secrets
           mountPath: /etc/proxy
           readOnly: true
@@ -107,12 +109,15 @@ spec:
         - name: eos-krb
           mountPath: /tmp/krb
         - mountPath: /cvmfs/cms.cern.ch
-          name: cms-pvc
+          name: cms-pvc                    
 #PROD#  - name: logs
 #PROD#    mountPath: /home/cmsusr/dqmgui/dqmgui
         securityContext:
           privileged: true
       volumes:
+      - name: fuse
+        hostPath:
+          path: /dev/fuse
       - name: proxy-secrets
         secret:
           secretName: proxy-secrets
@@ -139,7 +144,7 @@ spec:
           path: /var/eos
       - name: eos-krb
         secret:
-          secretName: eos-krb
+          secretName: eos-krb          
       - name: cms-pvc
         persistentVolumeClaim:
           claimName: csi-cvmfs-cms-pvc
@@ -147,3 +152,4 @@ spec:
 #PROD#- name: logs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-dqm
+
