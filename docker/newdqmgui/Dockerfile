@@ -5,7 +5,7 @@ RUN sudo yum -y install wget && sudo wget https://cmake.org/files/v3.12/cmake-3.
 
 # Clone repo and install python dependencies
 RUN sudo git clone https://github.com/cms-DQM/dqmgui.git && cd dqmgui && pwd && ls -l python && sudo python3 -m pip install -r /home/cmsusr/dqmgui/python/requirements.txt -t /home/cmsusr/dqmgui/python/.python_packages && pwd && ls -l
-WORKDIR $PWD/dqmgui/
+WORKDIR /home/cmsusr/dqmgui/
 
 CMD ["/bin/bash"]
 # CMD sudo bash ./run.sh
