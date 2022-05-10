@@ -20,7 +20,6 @@ token=/tmp/$USER/token
 
 voms-proxy-init -voms cms -rfc \
         --key $robot_key --cert $robot_crt --out $proxy
-
     for ns in $namespaces; do
         echo "---"
         echo "Create certificates secrets in namespace: $ns"
@@ -61,5 +60,4 @@ voms-proxy-init -voms cms -rfc \
         else
             echo "$now Failed to create token secrets"
         fi
-
    done
