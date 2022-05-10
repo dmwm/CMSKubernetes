@@ -51,7 +51,7 @@ fi
 #    if [ ! -f $HOME/.openstack/config/sops/age/openstack-keys.txt ]; then
 #      openstack secret get $secretref --payload_content_type application/octet-stream --file $HOME/.openstack/config/sops/age/openstack-keys.txt
 #    fi
-    export sopskey=$SOPS_AGE_KEY_FILE
+    sopskey=$SOPS_AGE_KEY_FILE
     kubectl get secrets $ns-keys-secrets -n $ns --template="{{index .data \"$ns-keys.txt\" | base64decode}}" > "$ns-keys.txt"
     export SOPS_AGE_KEY_FILE="$tmpDir/$ns-keys.txt"
     echo "Key file: $SOPS_AGE_KEY_FILE"
