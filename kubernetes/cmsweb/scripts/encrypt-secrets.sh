@@ -27,7 +27,7 @@ if [ -z "`command -v sops`" ]; then
 fi
 
 ### Get keys from secrets mounted in the desired namespace
-kubectl get secrets $namespace-keys-secret -n $namespace --template="{{index .data \"$namespace-keys.txt\" | base64decode}}" > "$namespace-keys.txt"
+kubectl get secrets $namespace-keys-secrets -n $namespace --template="{{index .data \"$namespace-keys.txt\" | base64decode}}" > "$namespace-keys.txt"
 
 ### Get public key from the secret keys file
 cat "$namespace-keys.txt" | awk '{print $4}' | grep "\S" > "$namespace-publickey.txt"

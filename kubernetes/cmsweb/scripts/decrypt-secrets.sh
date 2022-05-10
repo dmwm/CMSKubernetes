@@ -32,7 +32,7 @@ fi
 pwd
 ### Get keys from secrets mounted in the desired namespace
 
-kubectl get secrets $namespace-keys-secret -n $namespace --template="{{index .data \"$namespace-keys.txt\" | base64decode}}" > "$namespace-keys.txt"
+kubectl get secrets $namespace-keys-secrets -n $namespace --template="{{index .data \"$namespace-keys.txt\" | base64decode}}" > "$namespace-keys.txt"
 
 export SOPS_AGE_KEY_FILE="$tmpDir/$namespace-keys.txt"
 echo "Key file: $SOPS_AGE_KEY_FILE"
