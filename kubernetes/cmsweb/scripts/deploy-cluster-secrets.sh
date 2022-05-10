@@ -24,7 +24,14 @@ voms-proxy-init -voms cms -rfc \
     for ns in $namespaces; do
         echo "---"
         echo "Create certificates secrets in namespace: $ns"
-
+	keys=$certificates/$ns-keys.txt
+	echo $keys
+        if [ -f $keys ]; then
+            kubectl create secret generic $ns-keys-secrets \
+                --from-file=$keys --dry-run -o yaml | \
+                kubectl apply --namespace=$ns -f -
+        fi
+	
         # create secrets with our robot certificates
         kubectl create secret generic robot-secrets \
             --from-file=$robot_key --from-file=$robot_crt \
@@ -54,4 +61,5 @@ voms-proxy-init -voms cms -rfc \
         else
             echo "$now Failed to create token secrets"
         fi
+
    done
