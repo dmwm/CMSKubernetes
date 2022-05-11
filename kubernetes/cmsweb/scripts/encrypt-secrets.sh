@@ -1,7 +1,7 @@
 #!/bin/bash
 # helper script to encrypt services secrets file using sops-age keys mounted as secrets in Kubernetes clusters
 if [ $# -ne 2 ]; then
-  echo "The required parameters are missing. Please use encrypt-secrets.sh <namespace> <full-path-to-services-secret-file>"
+  echo "This is helper script to encrypt services secrets file using sops-age keys mounted as secrets in Kubernetes clusters. The required parameters are missing. Please use encrypt-secrets.sh <namespace> <full-path-to-services-secret-file>"
   exit 1;
 fi
 
@@ -23,6 +23,7 @@ if [ -z "`command -v sops`" ]; then
   wget -O sops https://github.com/mozilla/sops/releases/download/v3.7.2/sops-v3.7.2.linux.amd64
   chmod u+x sops
   mkdir -p $HOME/bin
+  echo "Download and install sops under $HOME/bin"
   cp ./sops $HOME/bin
 fi
 

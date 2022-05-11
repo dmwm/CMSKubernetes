@@ -24,6 +24,7 @@ if [ -z "`command -v sops`" ]; then
   wget -O sops https://github.com/mozilla/sops/releases/download/v3.7.2/sops-v3.7.2.linux.amd64
   chmod u+x sops
   mkdir -p $HOME/bin
+  echo "Download and install sops under $HOME/bin"
   cp ./sops $HOME/bin
 fi
 
@@ -40,7 +41,7 @@ fi
 
 
     sopskey=$SOPS_AGE_KEY_FILE
-    kubectl get secrets $ns-keys-secrets -n $ns --template="{{index .data \"$ns-keys.txt\" | base64decode}}" > "$ns-keys.txt"
+    kubectl get secrets $ns-keys-secrets -n $ns --template="{{index .data \"$ns-keys.txt\" | base64decode}}" > "$tmpDir/$ns-keys.txt"
     export SOPS_AGE_KEY_FILE="$tmpDir/$ns-keys.txt"
     echo "Key file: $SOPS_AGE_KEY_FILE"
 
@@ -69,3 +70,4 @@ fi
     echo
     echo "+++ list configmaps"
     kubectl get cm -n $ns
+    rm -rf $tmpDir

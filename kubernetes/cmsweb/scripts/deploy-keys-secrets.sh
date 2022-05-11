@@ -1,8 +1,8 @@
 #!/bin/bash
-# helper script to deploy robot, proxy and token secrets in all namespaces.
+# helper script to deploy keys secrets in the given namesapce. 
 
 if [ $# -ne 2 ]; then
-    echo "Usage: deploy-key-secrets.sh <namespace>  <path_to_keys>"
+    echo "This is helper script to deploy keys secrets in the given namesapce. The required parameters are missing. Usage: deploy-key-secrets.sh <namespace>  <path_to_keys>"
     exit 1
 fi
 

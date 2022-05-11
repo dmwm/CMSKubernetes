@@ -2,7 +2,7 @@
 # helper script to decrypt file using sops-age keys mounted as secrets in Kubernetes clusters
 
 if [ $# -ne 2 ]; then
-  echo "The required parameters are missing. Please use decrypt-secrets.sh <namespace> <full-path-to-enrypted-file>"
+  echo "This is helper script to decrypt file using sops-age keys mounted as secrets in Kubernetes clusters. The required parameters are missing. Please use decrypt-secrets.sh <namespace> <full-path-to-enrypted-file>"
   exit 1;
 fi
 
@@ -26,13 +26,14 @@ if [ -z "`command -v sops`" ]; then
   wget -O sops https://github.com/mozilla/sops/releases/download/v3.7.2/sops-v3.7.2.linux.amd64
   chmod u+x sops
   mkdir -p $HOME/bin
+  echo "Download and install sops under $HOME/bin"  
   cp ./sops $HOME/bin
 fi
 
 pwd
 ### Get keys from secrets mounted in the desired namespace
 
-kubectl get secrets $namespace-keys-secrets -n $namespace --template="{{index .data \"$namespace-keys.txt\" | base64decode}}" > "$namespace-keys.txt"
+kubectl get secrets $namespace-keys-secrets -n $namespace --template="{{index .data \"$namespace-keys.txt\" | base64decode}}" > "$tmpDir/$namespace-keys.txt"
 
 export SOPS_AGE_KEY_FILE="$tmpDir/$namespace-keys.txt"
 echo "Key file: $SOPS_AGE_KEY_FILE"
