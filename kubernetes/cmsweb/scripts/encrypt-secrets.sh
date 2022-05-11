@@ -28,10 +28,10 @@ if [ -z "`command -v sops`" ]; then
 fi
 
 ### Get keys from secrets mounted in the desired namespace
-kubectl get secrets $namespace-keys-secrets -n $namespace --template="{{index .data \"$namespace-keys.txt\" | base64decode}}" > "$namespace-keys.txt"
+kubectl get secrets $namespace-keys-secrets -n $namespace --template="{{index .data \"$namespace-keys.txt\" | base64decode}}" > "$tmpDir/$namespace-keys.txt"
 
 ### Get public key from the secret keys file
-cat "$namespace-keys.txt" | awk '{print $4}' | grep "\S" > "$namespace-publickey.txt"
+cat "$tmpDir/$namespace-keys.txt" | awk '{print $4}' | grep "\S" > "$tmpDir/$namespace-publickey.txt"
 export SOPS_AGE_KEY_FILE="$tmpDir/$namespace-keys.txt"
 echo "Key file: $SOPS_AGE_KEY_FILE"
 export publickey=`cat "$tmpDir/$namespace-publickey.txt"`
