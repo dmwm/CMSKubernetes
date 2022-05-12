@@ -1,4 +1,4 @@
-FROM golang:latest
+FROM golang:1.18-bullseye
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 ENV WDIR=/data
 ENV GOPATH=/data/gopath
