@@ -2,16 +2,33 @@
 # helper script to deploy given service with given tag to k8s infrastructure
 
 if [ $# -ne 3 ]; then
-    echo "Usage: deploy-secrets.sh <namespace> <service-name> <path_to_configuration> <reference_of_decryption_barbican_secret>"
+    echo "Usage: deploy-secrets.sh <namespace> <service-name> <path_to_configuration>"
     exit 1
 fi
+
+cluster_name=`kubectl config get-clusters | grep -v NAME`
 
 ns=$1
 srv=$2
 conf=$3
-secretref=${4:-https://openstack.cern.ch:9311/v1/secrets/35145b52-18af-47a3-90d0-1861c51a9c65}
+tmpDir=/tmp/$USER/sops
+if [ -d $tmpDir ]; then
+   rm -rf $tmpDir
+fi
+mkdir -p $tmpDir
+cd $tmpDir
 
+
+if [ -z "`command -v sops`" ]; then
+  # download soap in tmp area
+  wget -O sops https://github.com/mozilla/sops/releases/download/v3.7.2/sops-v3.7.2.linux.amd64
+  chmod u+x sops
+  mkdir -p $HOME/bin
+  echo "Download and install sops under $HOME/bin"
+  cp ./sops $HOME/bin
+fi
     # cmsweb configuration area
+    echo "+++ cluster name: $cluster_name"
     echo "+++ configuration: $conf"
     echo "+++ cms service : $srv"
     echo "+++ namespaces   : $ns"
@@ -23,12 +40,11 @@ secretref=${4:-https://openstack.cern.ch:9311/v1/secrets/35145b52-18af-47a3-90d0
     fi
    
     # Get SOPS decryption key (if it's not there) and set it as the default decryption file
-    mkdir -p $HOME/.openstack/config/sops/age
-    if [ ! -f $HOME/.openstack/config/sops/age/openstack-keys.txt ]; then
-      openstack secret get $secretref --payload_content_type application/octet-stream --file $HOME/.openstack/config/sops/age/openstack-keys.txt
-    fi
     sopskey=$SOPS_AGE_KEY_FILE
-    export SOPS_AGE_KEY_FILE="$HOME/.openstack/config/sops/age/openstack-keys.txt"
+    kubectl get secrets $ns-keys-secrets -n $ns --template="{{index .data \"$ns-keys.txt\" | base64decode}}" > "$tmpDir/$ns-keys.txt"
+    export SOPS_AGE_KEY_FILE="$tmpDir/$ns-keys.txt"
+    echo "Key file: $SOPS_AGE_KEY_FILE"
+
     # check (and copy if necessary) hostkey/hostcert.pem files in configuration area of frontend
 
     if [ "$srv" == "frontend" ] ; then
@@ -60,6 +76,11 @@ secretref=${4:-https://openstack.cern.ch:9311/v1/secrets/35145b52-18af-47a3-90d0
 ### Substitution for APS/XPS/SPS client secrets in config.json      
 
     if [ "$srv" == "auth-proxy-server" ] || [ "$srv" == "x509-proxy-server" ] || [ "$srv" == "scitokens-proxy-server" ] ; then
+       for fname in $secretdir/*; do
+         if [[ $fname == *.encrypted ]]; then
+	    sops -d $fname > $secretdir/$(basename $fname .encrypted)
+         fi
+       done
        if [ -d $secretdir ] && [ -n "`ls $secretdir`" ] && [ -f $secretdir/client.secrets ]; then
            export CLIENT_SECRET=`grep CLIENT_SECRET $secretdir/client.secrets | head -n1 | awk '{print $2}'`
            export CLIENT_ID=`grep CLIENT_ID $secretdir/client.secrets | head -n1 | awk '{print $2}'`
@@ -94,6 +115,7 @@ secretref=${4:-https://openstack.cern.ch:9311/v1/secrets/35145b52-18af-47a3-90d0
            	  if [[ $fname == *.encrypted ]]; then
 	       	    sops -d $fname > $secretdir/$(basename $fname .encrypted)
 	            fname=$secretdir/$(basename $fname .encrypted)
+		    echo "Decrypted file $fname"
                   fi
 		  if [[ ! $files == *$fname* ]]; then
                     files="$files --from-file=$fname"
@@ -102,6 +124,11 @@ secretref=${4:-https://openstack.cern.ch:9311/v1/secrets/35145b52-18af-47a3-90d0
         fi
 
         if [ "$ns" == "dbs" ]; then
+		for fname in $conf/dbs/*; do
+                  if [[ $fname == *.encrypted ]]; then
+                    sops -d $fname > $conf/dbs/$(basename $fname .encrypted)
+                  fi
+                done
         	if [ -f $conf/dbs/DBSSecrets.py ]; then
                         files="$files --from-file=$conf/dbs/DBSSecrets.py"
                 fi
@@ -110,7 +137,6 @@ secretref=${4:-https://openstack.cern.ch:9311/v1/secrets/35145b52-18af-47a3-90d0
                 fi
         fi
 
-
         kubectl create secret generic ${srv}-secrets \
                 $files --dry-run=client -o yaml | \
                 kubectl apply --namespace=$ns -f -
@@ -118,4 +144,5 @@ secretref=${4:-https://openstack.cern.ch:9311/v1/secrets/35145b52-18af-47a3-90d0
     echo
     echo "+++ list secrets"
     kubectl get secrets -n $ns
+    rm -rf $tmpDir
 
