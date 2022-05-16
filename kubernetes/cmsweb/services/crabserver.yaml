@@ -12,14 +12,32 @@ data:
     - type: log
       enabled: true
       paths:
-        - /data/srv/logs/crabserver/*${MY_POD_NAME}*.log
+        - /data/srv/logs/crabserver/crabserver-*${MY_POD_NAME}*.log
       ignore_older: 1h
       scan_frequency: 10s
       backoff: 5s
       max_backoff: 10s
+      processors:
+        - add_fields:
+            target: logtype
+            fields:
+              name: cherrypylog
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/crabserver/CRAB-*${MY_POD_NAME}*.log
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+      processors:
+        - add_fields:
+            target: logtype
+            fields:
+              name: crablog
     output.console:
       codec.format:
-        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        string: '%{[message]} - Podname=${MY_POD_NAME} Type=%{[logtype][name]}'
         pretty: false
     queue.mem:
       events: 65536
