@@ -24,6 +24,27 @@ spec:
             name: dbs2go-global-r
             port: 
               number: 9252
+      - path: /dbs/prod/phys03/DBSReader
+        pathType: Prefix
+        backend:
+          service:
+            name: dbs2go-phys03-r
+            port:
+              number: 9254
+      - path: /dbs/prod/global/DBSWriter
+        pathType: Prefix
+        backend:
+          service:
+            name: dbs2go-global-w
+            port:
+              number: 9253
+      - path: /dbs/prod/phys03/DBSWriter
+        pathType: Prefix
+        backend:
+          service:
+            name: dbs2go-phys03-w
+            port:
+              number: 9255
       - path: /dbs/prod/global/DBSMigrate
         pathType: Prefix
         backend:
@@ -38,28 +59,28 @@ spec:
             name: dbs-migrate
             port:
               number: 8257
-      - path: /dbsold/prod/global/DBSReader
+      - path: /dbspy/prod/global/DBSReader
         pathType: Prefix
         backend:
           service:
             name: dbs-global-r
             port:
               number: 8252
-      - path: /dbs/prod/global/DBSWriter
+      - path: /dbspy/prod/phys03/DBSReader
+        pathType: Prefix
+        backend:
+          service:
+            name: dbs-phys03-r
+            port:
+              number: 8254
+      - path: /dbspy/prod/global/DBSWriter
         pathType: Prefix
         backend:
           service:
             name: dbs-global-w
             port:
               number: 8253
-      - path: /dbs/prod/phys03/DBSReader
-        pathType: Prefix
-        backend:
-          service:
-            name: dbs2go-phys03-r
-            port:
-              number: 9254
-      - path: /dbs/prod/phys03/DBSWriter
+      - path: /dbspy/prod/phys03/DBSWriter
         pathType: Prefix
         backend:
           service:
