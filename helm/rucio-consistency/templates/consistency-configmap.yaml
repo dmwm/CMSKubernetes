@@ -64,6 +64,9 @@ data:
 {{- if  ($config.timeout) }}
           timeout: {{ $config.timeout }}
 {{- end }}
+{{- if  eq $site "T2_US_Florida" }}
+          is_redirector: false
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
