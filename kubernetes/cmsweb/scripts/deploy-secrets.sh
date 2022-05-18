@@ -148,7 +148,6 @@ fi
         kubectl create secret generic ${srv}-secrets \
                 $files --dry-run=client -o yaml | \
                 kubectl apply --namespace=$ns -f -
-	echo $files
     export SOPS_AGE_KEY_FILE=$sopskey
     echo
     echo "+++ list secrets"
