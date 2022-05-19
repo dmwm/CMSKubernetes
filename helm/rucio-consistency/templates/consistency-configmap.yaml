@@ -53,7 +53,7 @@ data:
 {{ range $site, $config := .Values.consistency.sites }}
       {{ $site }}:
 {{- if $config }}
-{{- if or (or $config.server $config.server_root) (or $config.timeout $config.is_redirector) }}
+{{- if or (or $config.server $config.server_root) (or $config.timeout (hasKey $config "is_redirector")) }}
         scanner:
 {{- if  ($config.server) }}
           server: {{ $config.server }}
@@ -64,7 +64,7 @@ data:
 {{- if  ($config.timeout) }}
           timeout: {{ $config.timeout }}
 {{- end }}
-{{- if  ($config.is_redirector) }}
+{{- if (hasKey $config "is_redirector") }}
           is_redirector: {{ $config.is_redirector }}
 {{- end }}
 {{- end }}
