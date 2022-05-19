@@ -78,7 +78,11 @@ fi
     if [ "$srv" == "auth-proxy-server" ] || [ "$srv" == "x509-proxy-server" ] || [ "$srv" == "scitokens-proxy-server" ] ; then
        for fname in $secretdir/*; do
          if [[ $fname == *.encrypted ]]; then
-	    sops -d $fname > $secretdir/$(basename $fname .encrypted)
+  	    if [[ $fname == *.json* ]]; then
+               sops --output-type json -d $fname > $secretdir/$(basename $fname .encrypted)
+            else
+	       sops -d $fname > $secretdir/$(basename $fname .encrypted)
+            fi
          fi
        done
        if [ -d $secretdir ] && [ -n "`ls $secretdir`" ] && [ -f $secretdir/client.secrets ]; then
@@ -113,7 +117,11 @@ fi
         if [ -d $secretdir ] && [ -n "`ls $secretdir`" ]; then
         	for fname in $secretdir/*; do
            	  if [[ $fname == *.encrypted ]]; then
-	       	    sops -d $fname > $secretdir/$(basename $fname .encrypted)
+                     if [[ $fname == *.json* ]]; then
+                        sops --output-type json -d $fname > $secretdir/$(basename $fname .encrypted)
+                     else
+                        sops -d $fname > $secretdir/$(basename $fname .encrypted)
+		     fi
 	            fname=$secretdir/$(basename $fname .encrypted)
 		    echo "Decrypted file $fname"
                   fi
