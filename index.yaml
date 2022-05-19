@@ -581,6 +581,16 @@ entries:
   rucio-consistency:
   - apiVersion: v2
     appVersion: 0.1.0
+    created: "2022-05-19T20:52:21.40703188Z"
+    description: A Helm chart for Kubernetes
+    digest: 30c688e06cd21208bc6c5ee7e3c2590bd349068357000b4a8f2ce60c25bf41bd
+    name: rucio-consistency
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/rucio-consistency-0.6.1/rucio-consistency-0.6.1.tgz
+    version: 0.6.1
+  - apiVersion: v2
+    appVersion: 0.1.0
     created: "2022-05-19T18:20:31.191317666Z"
     description: A Helm chart for Kubernetes
     digest: 4e80d7e5897255e7b30f4376a0a38495a893a943cd8b7e38c88c920f89a307c5
@@ -864,4 +874,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/workqueue-0.1.1/workqueue-0.1.1.tgz
     version: 0.1.1
-generated: "2022-05-19T18:20:31.191535668Z"
+generated: "2022-05-19T20:52:21.407259384Z"
