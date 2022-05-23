@@ -500,7 +500,7 @@ deploy_secrets()
                 done
             fi
             # special case for DBS instances
-            if [ "$srv" == "dbs" ]; then
+            if [ "$srv" == "dbs" ] || [ "$srv" == "dbs2go" ]; then
                 if [ -f $conf/dbs/DBSSecrets.py ]; then
 		        files="--from-file=$conf/dbs/DBSSecrets.py"
                 fi
@@ -524,38 +524,12 @@ deploy_secrets()
                         $files $dbsfiles --dry-run=client -o yaml | \
                         kubectl apply --namespace=$ns -f -
                 done
-            elif [ "$srv" == "dbs2go" ]; then
-                if [ -f $conf/$srv-$inst/dbfile ]; then
-                    files="--from-file=$conf/$srv-$inst/dbfile"
-                fi
-                if [ -f $conf/$srv-$inst/migration_dbfile ]; then
-                    files="$files --from-file=$conf/$srv-$inst/migration_dbfile"
-                fi
-                for inst in $dbs_instances; do
-                    local dbsfiles=""
-                    if [ -d "$secretdir-$inst" ] && [ -n "`ls $secretdir-$inst`" ]; then
-                        for fconf in $secretdir-$inst/*; do
-                            dbsfiles="$dbsfiles --from-file=$fconf"
-                        done
-                    fi
-                    # proceed only if service namespace matches the loop one
-                    local srv_ns=`grep namespace $sdir/${osrv}-${inst}.yaml | grep $ns`
-                    if [ -z "$srv_ns" ] ; then
-                        continue
-                    fi
-                    kubectl create cm ${srv}-${inst}-config \
-                        $files $dbsfiles --dry-run=client -o yaml | \
+# Deleting configmap for tnsnames in dbs namespace
+kubectl delete cm tnsnames-config --namespace=$ns
+# Creating configmap for tnsnames in dbs namespace
+                kubectl create cm tnsnames-config \
+                        --from-file=$conf/tnsnames/tnsnames.ora --dry-run=client -o yaml | \
                         kubectl apply --namespace=$ns -f -
-                done
-            else
-                # proceed only if service namespace matches the loop one
-                local srv_ns=`grep namespace $sdir/${osrv}.yaml | grep $ns`
-                if [ -z "$srv_ns" ] ; then
-                    continue
-                fi
-                kubectl create secret generic ${srv}-secrets \
-                    $files --dry-run=client -o yaml | \
-                    kubectl apply --namespace=$ns -f -
             fi
         done
 
