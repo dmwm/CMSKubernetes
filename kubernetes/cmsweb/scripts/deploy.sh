@@ -524,12 +524,12 @@ deploy_secrets()
                         $files $dbsfiles --dry-run=client -o yaml | \
                         kubectl apply --namespace=$ns -f -
                 done
-# Deleting configmap for tnsnames in dbs namespace
-kubectl delete cm tnsnames-config --namespace=$ns
-# Creating configmap for tnsnames in dbs namespace
+                # Deleting configmap for tnsnames in dbs namespace
+                kubectl delete cm tnsnames-config --namespace=$ns
+                # Creating configmap for tnsnames in dbs namespace
                 kubectl create cm tnsnames-config \
-                        --from-file=$conf/tnsnames/tnsnames.ora --dry-run=client -o yaml | \
-                        kubectl apply --namespace=$ns -f -
+                    --from-file=$conf/tnsnames/tnsnames.ora --dry-run=client -o yaml | \
+                    kubectl apply --namespace=$ns -f -
             fi
         done
 
