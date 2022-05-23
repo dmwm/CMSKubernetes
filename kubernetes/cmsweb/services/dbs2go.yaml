@@ -161,8 +161,6 @@ spec:
       - name: secrets
         secret:
           secretName: dbs2go-secrets
-#         configMap:
-#           name: dbs2go-config
       - name: tnsnames
         configMap:
           name: tnsnames-config
