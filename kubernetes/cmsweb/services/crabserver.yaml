@@ -130,6 +130,12 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 2000
+      initContainers:
+      - name: disableipv6
+        image: ubuntu:20.04
+        command: ["/bin/bash", "-c", "sysctl -w net.ipv6.conf.all.disable_ipv6=1"]
+        securityContext:
+          privileged: true
       containers:
       #- image: sbelforte/crabserver:3.3.1911.rc3
       - image: registry.cern.ch/cmsweb/crabserver #imagetag
