@@ -418,6 +418,16 @@ entries:
   httpgo:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2022-05-31T12:32:47.59151937Z"
+    description: A Helm chart for HTTPGO service
+    digest: fa80ce81eccb4c6b0481f959064e26e661b98e0765a425c211f17fd6cae4dbe0
+    name: httpgo
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/httpgo-0.1.5/httpgo-0.1.5.tgz
+    version: 0.1.5
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2022-05-31T12:25:02.284215401Z"
     description: A Helm chart for HTTPGO service
     digest: 0dcaf5ed5de985723ea6b0dc0cd3d64f8bfe3a97393944c6bbd5677311c3ccb5
@@ -904,4 +914,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/workqueue-0.1.1/workqueue-0.1.1.tgz
     version: 0.1.1
-generated: "2022-05-31T12:25:02.284452003Z"
+generated: "2022-05-31T12:32:47.59170188Z"
