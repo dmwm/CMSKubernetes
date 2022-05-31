@@ -32,13 +32,13 @@ spec:
                 - name: GITLAB_TOKEN
                   valueFrom:
                     secretKeyRef:
-                      name: "{{ .Values.cronjobSettings.daemonName }}-rucio-daemons.cfg"
-                      key: cms_gitlab
+                      name: "rucio-secrets"
+                      key: gitlab_token
                 - name: MONIT_TOKEN
                   valueFrom:
                     secretKeyRef:
-                      name: "{{ .Values.cronjobSettings.daemonName }}-rucio-daemons.cfg"
-                      key: cms_monit
+                      name: "rucio-secrets"
+                      key: monit_token
               command: ['/root/CMSRucio/docker/CMSRucioClient/scripts/k8s_sync_sites.sh']
           restartPolicy: OnFailure
 ---
@@ -76,12 +76,12 @@ spec:
                 - name: GITLAB_TOKEN
                   valueFrom:
                     secretKeyRef:
-                      name: "{{ .Values.cronjobSettings.daemonName }}-rucio-daemons.cfg"
-                      key: cms_gitlab
+                      name: "rucio-secrets"
+                      key: gitlab_token
                 - name: MONIT_TOKEN
                   valueFrom:
                     secretKeyRef:
-                      name: "{{ .Values.cronjobSettings.daemonName }}-rucio-daemons.cfg"
-                      key: cms_monit
+                      name: "rucio-secrets"
+                      key: monit_token
               command: ['/root/CMSRucio/docker/CMSRucioClient/scripts/k8s_sync_users_links.sh']
           restartPolicy: OnFailure
