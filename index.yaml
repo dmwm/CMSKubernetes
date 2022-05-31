@@ -762,6 +762,16 @@ entries:
   rucio-cron-jobs:
   - apiVersion: v2
     appVersion: latest
+    created: "2022-05-31T15:40:09.383244866Z"
+    description: A Helm chart for Kubernetes
+    digest: 9260016aa784cfcc0d5b94b269487624367b6b1b3c60e50cc25fdc9c97a31b70
+    name: rucio-cron-jobs
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/rucio-cron-jobs-0.4.0/rucio-cron-jobs-0.4.0.tgz
+    version: 0.4.0
+  - apiVersion: v2
+    appVersion: latest
     created: "2021-08-27T17:25:39.065291921Z"
     description: A Helm chart for Kubernetes
     digest: f769157f73df2e143e33b46491bee5b866d35edbb7107fd652be23ba94a0cd6c
@@ -914,4 +924,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/workqueue-0.1.1/workqueue-0.1.1.tgz
     version: 0.1.1
-generated: "2022-05-31T12:32:47.59170188Z"
+generated: "2022-05-31T15:40:09.384406576Z"
