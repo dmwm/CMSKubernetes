@@ -91,12 +91,12 @@ spec:
           - /data/wmstats
           - -config
           - /etc/secrets/config.json
-        livenessProbe:
-          httpGet:
-            path: /wmstats/data
-            port: 8222
-          initialDelaySeconds: 120
-          periodSeconds: 10
+#         livenessProbe:
+#           httpGet:
+#             path: /wmstats/data
+#             port: 8222
+#           initialDelaySeconds: 120
+#           periodSeconds: 10
         resources:
           requests:
             memory: "256Mi"
