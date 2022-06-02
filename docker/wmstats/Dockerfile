@@ -22,4 +22,4 @@ FROM alpine:3.15
 RUN mkdir -p /data/
 ENV PATH $PATH:/data
 COPY --from=go-builder /data/wmstats/wmstats /data/
-
+COPY --from=go-builder /data/wmstats/static /data/static
