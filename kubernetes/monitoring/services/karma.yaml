@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
       - name: karma
-        image: registry.cern.ch/cmsmonitoring/karma:20220421
+        image: registry.cern.ch/cmsmonitoring/karma:20220605
 #         imagePullPolicy: Always
         env:
         - name: ALERTMANAGER_URI

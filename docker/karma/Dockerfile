@@ -1,4 +1,4 @@
-FROM node:18.0.0-alpine as nodejs-builder
+FROM node:18.2.0-alpine as nodejs-builder
 RUN apk add make git
 RUN git clone https://github.com/prymitive/karma.git
 RUN mkdir -p /src/ui
@@ -8,7 +8,7 @@ RUN apk add make git
 RUN cp -R karma/ui /src
 RUN make -C /src/ui build
 
-FROM golang:1.18.1-alpine as go-builder
+FROM golang:1.18.3-alpine as go-builder
 RUN apk add make git
 RUN git clone https://github.com/prymitive/karma.git
 RUN mkdir -p /src
