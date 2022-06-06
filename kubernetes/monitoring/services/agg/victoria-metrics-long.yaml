@@ -52,7 +52,15 @@ spec:
           - name: vm-volume
             mountPath: /tsdb
         - name: vmbackup
-          image: registry.cern.ch/cmsmonitoring/vmbackup-utility:20220421
+          image: registry.cern.ch/cmsmonitoring/vmbackup-utility:20220603
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "sh"
+                  - "-c"
+                  - >
+                    echo "0 * * * * /data/run.sh >> /proc/$(cat /var/run/crond.pid)/fd/1 2>&1" | crontab -;
           volumeMounts:
           - name: vm-volume
             mountPath: /tsdb
