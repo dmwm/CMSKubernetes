@@ -21,5 +21,3 @@ else
   fi
 fi
 
-/usr/sbin/crond -n
-
