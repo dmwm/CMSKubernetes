@@ -1,4 +1,4 @@
-FROM cern/cc7-base:20220401-1.x86_64
+FROM cern/cc7-base:20220601-1.x86_64
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 RUN yum install -y sudo krb5-workstation krb5-libs pam_krb5 && yum clean all && rm -rf /var/cache/yum
 # Install latest kubectl
