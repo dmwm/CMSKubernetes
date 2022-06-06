@@ -87,16 +87,20 @@ spec:
       containers:
       - image: registry.cern.ch/cmsweb/wmstats #imagetag
         name: wmstats
+        imagePullPolicy: Always
+        env:
+        - name: X509_USER_PROXY
+          value: /etc/proxy/proxy
         args:
           - /data/wmstats
           - -config
           - /etc/secrets/config.json
-#         livenessProbe:
-#           httpGet:
-#             path: /wmstats/data
-#             port: 8360
-#           initialDelaySeconds: 120
-#           periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /wmstats2go/healthz
+            port: 8360
+          initialDelaySeconds: 120
+          periodSeconds: 10
         resources:
           requests:
             memory: "256Mi"
