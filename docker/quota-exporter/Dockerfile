@@ -1,4 +1,4 @@
-FROM registry.cern.ch/cmsweb/cmsweb-base:20220401-stable as web-builder
+FROM registry.cern.ch/cmsweb/cmsweb-base:20220601-stable as web-builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
