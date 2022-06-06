@@ -11,6 +11,7 @@ image:
   tag: "latest"
 
 consistency:
+  logLevel: "INFO"
   scratchSize: 100Gi
   reportSize: 10Gi
   defaultRoot: "/path/to/nowhere"
