@@ -50,10 +50,10 @@ ADD https://raw.githubusercontent.com/dmielaikaite/probes/dmielaik_probes/common
 
 # PR-o-rama for 1.27
 # PR 73 - merged 3/15/22
-ADD https://raw.githubusercontent.com/rucio/probes/master/cms/check_number_of_missing_files_per_rse /probes/cms
+# ADD https://raw.githubusercontent.com/rucio/probes/master/cms/check_number_of_missing_files_per_rse /probes/cms
 # PR 79 - merged 3/15/22
-ADD https://raw.githubusercontent.com/rucio/probes/master/cms/check_rule_counts /probes/cms
-ADD https://raw.githubusercontent.com/FernandoGarzon/probes/check_rules_state_PROBE_2/cms/check_rules_states_by_account /probes/cms
+# ADD https://raw.githubusercontent.com/rucio/probes/master/cms/check_rule_counts /probes/cms
+# ADD https://raw.githubusercontent.com/FernandoGarzon/probes/check_rules_state_PROBE_2/cms/check_rules_states_by_account /probes/cms
 
 
 # PR 80 ADD https://raw.githubusercontent.com/ericvaandering/probes/missing_data_rse_127/cms/check_missing_data_at_rse /probes/cms
@@ -68,12 +68,12 @@ ADD https://raw.githubusercontent.com/ericvaandering/probes/update_check_expecte
 ADD https://raw.githubusercontent.com/ericvaandering/probes/127_cms_fixes/cms/check_report_used_space /probes/cms
 
 # PR 75 - merged 3/15/22
-ADD https://raw.githubusercontent.com/rucio/probes/master/cms/check_not_OK_rules_per_rse  /probes/cms
-ADD https://raw.githubusercontent.com/rucio/probes/master/cms/check_rules_with_0_completion_volume  /probes/cms
-ADD https://raw.githubusercontent.com/rucio/probes/master/cms/check_unlocked_replicas_per_rse /probes/cms
+# ADD https://raw.githubusercontent.com/rucio/probes/master/cms/check_not_OK_rules_per_rse  /probes/cms
+# ADD https://raw.githubusercontent.com/rucio/probes/master/cms/check_rules_with_0_completion_volume  /probes/cms
+# ADD https://raw.githubusercontent.com/rucio/probes/master/cms/check_unlocked_replicas_per_rse /probes/cms
 
 # PR 77 - merged 3/15/22
-ADD https://raw.githubusercontent.com/rucio/probes/master/cms/check_report_free_space /probes/cms
+# ADD https://raw.githubusercontent.com/rucio/probes/master/cms/check_report_free_space /probes/cms
 
 ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_check_expired_rules/common/check_expired_rules /probes/common
 ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_check_expired_locked/common/check_expired_locked_rules /probes/common
@@ -85,13 +85,15 @@ ADD https://raw.githubusercontent.com/ericvaandering/probes/cms_check_expired_lo
 # PR 81 ADD https://raw.githubusercontent.com/rucio/probes/fts_127/common/check_fts_backlog /probes/common
 
 # PR 85 - merged 3/18/22
-RUN mkdir -p /probes/common/utils
-ADD https://raw.githubusercontent.com/rucio/probes/master/common/check_expired_rules /probes/common
-ADD https://raw.githubusercontent.com/rucio/probes/master/common/utils/common.py /probes/common/utils
-ADD https://raw.githubusercontent.com/rucio/probes/master/common/utils/__init__.py /probes/common/utils
-ADD https://raw.githubusercontent.com/rucio/probes/master/cms/utils.py /probes/cms
+# RUN mkdir -p /probes/common/utils
+# ADD https://raw.githubusercontent.com/rucio/probes/master/common/check_expired_rules /probes/common
+# ADD https://raw.githubusercontent.com/rucio/probes/master/common/utils/common.py /probes/common/utils
+# ADD https://raw.githubusercontent.com/rucio/probes/master/common/utils/__init__.py /probes/common/utils
+# ADD https://raw.githubusercontent.com/rucio/probes/master/cms/utils.py /probes/cms
 
+# PR 98
 
+ADD https://raw.githubusercontent.com/FernandoGarzon/probes/check_rules_counts_vs_time/cms/check_rule_counts /probes/cms
 
 # CMS Specific probes
 # Removed 3/17 presumably no longer needed
