@@ -3,7 +3,7 @@ kind: Pod
 metadata:
   name: "{{ include "httpgo.fullname" . }}-test-connection"
   labels:
-    {{- include "httpgo.labels" . | nindent 4 }}
+    app: httpgo
   annotations:
     "helm.sh/hook": test
 spec:

@@ -2,7 +2,6 @@ kind: Service
 apiVersion: v1
 metadata:
   name: httpgo
-  namespace: http
 spec:
   type: ClusterIP
   ports:
