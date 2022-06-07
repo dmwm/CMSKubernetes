@@ -3,7 +3,7 @@ kind: Pod
 metadata:
   name: "{{ include "exitcodes.fullname" . }}-test-connection"
   labels:
-    {{- include "exitcodes.labels" . | nindent 4 }}
+    app: exitcodes
   annotations:
     "helm.sh/hook": test
 spec:
@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "exitcodes.fullname" . }}:{{ .Values.service.port }}']
+      args: ['exitcodes:9201']
   restartPolicy: Never
