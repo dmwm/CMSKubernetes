@@ -406,6 +406,16 @@ entries:
     version: 0.1.1
   exitcodes:
   - apiVersion: v2
+    appVersion: v0.0.8
+    created: "2022-06-07T10:28:44.407269382Z"
+    description: A Helm chart for Exitcodes
+    digest: ba31cb67f31e8d8e24402abc81bc6fdf25984dc14df1d4d812431139ee5c6627
+    name: exitcodes
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/exitcodes-0.1.2/exitcodes-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
     appVersion: 1.16.0
     created: "2021-09-03T10:10:56.201903293Z"
     description: A Helm chart for Exitcodes
@@ -944,4 +954,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/workqueue-0.1.1/workqueue-0.1.1.tgz
     version: 0.1.1
-generated: "2022-06-07T09:07:50.540477007Z"
+generated: "2022-06-07T10:28:44.407452983Z"
