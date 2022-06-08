@@ -14,6 +14,7 @@
 ##H        keytab-secrets
 ##H        krb5cc-secrets
 ##H        log-clustering-secrets
+##H        monit-mongo-secrets
 ##H        nats-secrets
 ##H        prometheus-secrets
 ##H        promxy-secrets
@@ -105,6 +106,14 @@ elif [ "$secret" == "log-clustering-secrets" ]; then
     # cmsmonit keytab
     cmsmonit_f=`ls $sdir/cmsmonit-keytab/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmonit-keytab | sed "s, $,,g"`
     files="${log_f} ${cmsmonit_f}"
+elif [ "$secret" == "monit-mongo-secrets" ]; then
+    mongo_envs="MONGO_ROOT_USERNAME MONGO_ROOT_PASSWORD MONGO_USERNAME MONGO_PASSWORD MONGO_USERS_LIST"
+    literals=""
+    for mongo_env in $mongo_envs; do
+        temp_env_val=`grep $mongo_env $sdir/monit-mongo-secrets/secrets | awk '{print $2}'`
+        literals="${literals} --from-literal=${mongo_env}=${temp_env_val}"
+    done
+    files=`ls $sdir/monit-mongo-secrets/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/monit-mongo-secrets | sed "s, $,,g"`
 elif [ "$secret" == "condor-cpu-eff-secrets" ]; then
     files=`ls $sdir/cmsmonit-keytab/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmonit-keytab | sed "s, $,,g"`
 elif [ "$secret" == "es-wma-secrets" ]; then
@@ -141,7 +150,7 @@ if [ -n "`kubectl get secrets -n $ns | grep $secret`" ]; then
     kubectl -n $ns delete secret $secret
 fi
 if [ -n "$literals" ]; then
-    kubectl create secret generic $secret $files "$literals" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
+    kubectl create secret generic $secret $files $literals --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
 else
     kubectl create secret generic $secret $files --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
 fi
