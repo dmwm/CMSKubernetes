@@ -60,7 +60,7 @@ spec:
         env: k8s #k8s#
       annotations:
         prometheus.io/scrape: 'true'
-        prometheus.io/path: "/dbs2go-migrate/metrics"
+        prometheus.io/path: "/dbs/prod/phys03/DBSMigrate/metrics"
         prometheus.io/port: "9257"
     spec:
       containers:
@@ -83,7 +83,7 @@ spec:
             cpu: "3000m"
         livenessProbe:
           httpGet:
-            path: /dbs2go-migrate/healthz
+            path: /dbs/prod/phys03/DBSMigrate/healthz
             port: 9257
             httpHeaders:
             - name: Accept
