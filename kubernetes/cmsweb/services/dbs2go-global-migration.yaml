@@ -45,7 +45,7 @@ spec:
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/path: "/dbs2go-migration/metrics"
-        prometheus.io/port: "9258"
+        prometheus.io/port: "9251"
     spec:
       containers:
       - image: registry.cern.ch/cmsweb/dbs2go #imagetag
@@ -63,22 +63,22 @@ spec:
             memory: "100Mi"
             cpu: "200m"
           limits:
-            memory: "8000Mi"
+            memory: "1000Mi"
             cpu: "4000m"
         livenessProbe:
           httpGet:
             path: /dbs2go-migration/healthz
-            port: 9258
+            port: 9251
             httpHeaders:
             - name: Accept
               value: application/json
           initialDelaySeconds: 120
           periodSeconds: 10
         ports:
-        - containerPort: 9258
+        - containerPort: 9251
           protocol: TCP
           name: dbs
-        - containerPort: 19258
+        - containerPort: 19251
           protocol: TCP
           name: dbs-mon
         command:
