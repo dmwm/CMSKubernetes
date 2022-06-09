@@ -28,7 +28,7 @@ data:
 kind: Service
 apiVersion: v1
 metadata:
-  name: wmstats2go
+  name: wmstats
   namespace: dmwm
 spec:
   type: ClusterIP
