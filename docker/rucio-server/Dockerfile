@@ -42,7 +42,4 @@ RUN /tmp/install_mail_templates.sh
 # Might get recreated if apache was upgraded
 RUN rm -f /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/userdir.conf /etc/httpd/conf.d/ssl.conf
 
-# Patch for old-style DN with comma
-ADD rucio.conf.j2 /tmp/
-
 ENTRYPOINT ["/cms-entrypoint.sh"]
