@@ -19,27 +19,42 @@ if [ $# -ne 3 ]; then
         if [[ "$cluster_name" == *"cmsweb-auth"* ]] ; then
                 env="auth"
         fi
-
-	if [[ "$cluster_name" == *"cmsweb-test1"* ]] ; then
+	if [[ "$cluster_name" == *"cmsweb-test1" ]] ; then
                 env="test1"
+		echo "test1"
         fi
-        if [[ "$cluster_name" == *"cmsweb-test2"* ]] ; then
+        if [[ "$cluster_name" == *"cmsweb-test2" ]] ; then
                 env="test2"
         fi
-        if [[ "$cluster_name" == *"cmsweb-test3"* ]] ; then
+        if [[ "$cluster_name" == *"cmsweb-test3" ]] ; then
                 env="test3"
         fi
-        if [[ "$cluster_name" == *"cmsweb-test4"* ]] ; then
+        if [[ "$cluster_name" == *"cmsweb-test4" ]] ; then
                 env="test4"
         fi
-        if [[ "$cluster_name" == *"cmsweb-test5"* ]] ; then
+        if [[ "$cluster_name" == *"cmsweb-test5" ]] ; then
                 env="test5"
         fi
-        if [[ "$cluster_name" == *"cmsweb-test6"* ]] ; then
+        if [[ "$cluster_name" == *"cmsweb-test6" ]] ; then
                 env="test6"
         fi
+        if [[ "$cluster_name" == *"cmsweb-test7" ]] ; then
+                env="test7"
+        fi
+        if [[ "$cluster_name" == *"cmsweb-test8" ]] ; then
+                env="test8"
+        fi
+        if [[ "$cluster_name" == *"cmsweb-test9" ]] ; then
+                env="test9"
+        fi
+        if [[ "$cluster_name" == *"cmsweb-test10" ]] ; then
+                env="test10"
+        fi
+        if [[ "$cluster_name" == *"cmsweb-test11" ]] ; then
+                env="test11"
+        fi
+	
 fi
-
 srv=$1
 cmsweb_image_tag=:$2
 
@@ -47,11 +62,8 @@ if [ $# == 3 ]; then
 	env=$3
 fi
 
-
 cmsweb_env=k8s-$env
 cmsweb_log=logs-cephfs-claim-$env
-
-
 
 if [[ "$cluster_name" == *"testbed"* ]] ; then
         if [[ "$env" != "preprod" ]] ; then
@@ -69,49 +81,68 @@ if [[ "$cluster_name"  == *"cmsweb-auth"* ]] ; then
         fi
 fi
 
-if [[ "$cluster_name"  == *"cmsweb-test1"* ]] ; then
+if [[ "$cluster_name"  == *"cmsweb-test1" ]] ; then
         if [[ "$env" != "test1" ]] ; then
         check=false
         fi
 fi
 
-if [[ "$cluster_name"  == *"cmsweb-test2"* ]] ; then
+if [[ "$cluster_name"  == *"cmsweb-test2" ]] ; then
         if [[ "$env" != "test2" ]] ; then
         check=false
         fi
 fi
-if [[ "$cluster_name"  == *"cmsweb-test3"* ]] ; then
+if [[ "$cluster_name"  == *"cmsweb-test3" ]] ; then
         if [[ "$env" != "test3" ]] ; then
         check=false
         fi
 fi
-if [[ "$cluster_name"  == *"cmsweb-test4"* ]] ; then
+if [[ "$cluster_name"  == *"cmsweb-test4" ]] ; then
         if [[ "$env" != "test4" ]] ; then
         check=false
         fi
 fi
-if [[ "$cluster_name"  == *"cmsweb-test5"* ]] ; then
+if [[ "$cluster_name"  == *"cmsweb-test5" ]] ; then
         if [[ "$env" != "test5" ]] ; then
         check=false
         fi
 fi
-if [[ "$cluster_name"  == *"cmsweb-test6"* ]] ; then
+if [[ "$cluster_name"  == *"cmsweb-test6" ]] ; then
         if [[ "$env" != "test6" ]] ; then
         check=false
         fi
 fi
-
+if [[ "$cluster_name"  == *"cmsweb-test7" ]] ; then
+        if [[ "$env" != "test7" ]] ; then
+        check=false
+        fi
+fi
+if [[ "$cluster_name"  == *"cmsweb-test8" ]] ; then
+        if [[ "$env" != "test8" ]] ; then
+        check=false
+        fi
+fi
+if [[ "$cluster_name"  == *"cmsweb-test9" ]] ; then
+        if [[ "$env" != "test9" ]] ; then
+        check=false
+        fi
+fi
+if [[ "$cluster_name"  == *"cmsweb-test10" ]] ; then
+        if [[ "$env" != "test10" ]] ; then
+        check=false
+        fi
+fi
+if [[ "$cluster_name"  == *"cmsweb-test11" ]] ; then
+        if [[ "$env" != "test11" ]] ; then
+        check=false
+        fi
+fi
 
 if [[ $check == false ]] ; then
 
         echo "The environment and config did not match. Please check."
         exit 1;
 fi
-
-
-
-
-
 
 tmpDir=/tmp/$USER/k8s/srv
 
