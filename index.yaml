@@ -955,6 +955,16 @@ entries:
   wmarchive:
   - apiVersion: v2
     appVersion: v00.08.75
+    created: "2022-06-14T12:44:48.232712382Z"
+    description: A Helm chart for Kubernetes
+    digest: 1b563b10fe60370e052dff38cc680babafc6986f4aa5aa5d2bf15a61eaef18d0
+    name: wmarchive
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/wmarchive-0.1.4/wmarchive-0.1.4.tgz
+    version: 0.1.4
+  - apiVersion: v2
+    appVersion: v00.08.75
     created: "2022-06-14T12:12:29.716435664Z"
     description: A Helm chart for Kubernetes
     digest: e0a8a74ac1be0914597488b825c0a6b08c024111713e2f12b28f69eca2e37ef7
@@ -994,4 +1004,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/workqueue-0.1.1/workqueue-0.1.1.tgz
     version: 0.1.1
-generated: "2022-06-14T12:12:29.716746983Z"
+generated: "2022-06-14T12:44:48.233144791Z"
