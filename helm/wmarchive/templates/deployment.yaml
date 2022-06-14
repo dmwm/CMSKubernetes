@@ -74,7 +74,10 @@ spec:
 {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
         - name: {{ .Values.imageFilebeat.name }}
           image: {{ .Values.imageFilebeat.path }}
-          args: {{ .Values.imageFilebeat.args }}
+          args: [
+            "-c", "/etc/filebeat.yml",
+            "-e",
+          ]
           env:
           {{- toYaml .Values.imageFilebeat.env | nindent 10 }}
           resources:
@@ -130,7 +133,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: wmarchive.filebeat-config
+          name: wmarchive-filebeat-config
       - name: data
         emptyDir: {}
 {{- end }}
