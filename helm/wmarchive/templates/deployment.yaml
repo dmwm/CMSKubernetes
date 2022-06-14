@@ -70,7 +70,7 @@ spec:
             mountPath: /data/srv/logs/wmarchive
 {{- end }}
           securityContext:
-          {{- toYaml .Values.imageFilebeatSecurityContext | nindent 12 }}
+          {{- toYaml .Values.securityContext | nindent 12 }}
 {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
         - name: {{ .Values.imageFilebeat.name }}
           image: {{ .Values.imageFilebeat.path }}
