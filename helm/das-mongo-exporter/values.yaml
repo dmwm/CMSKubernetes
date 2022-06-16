@@ -54,7 +54,7 @@ initContainers:
 ingress:
   enabled: false
 
-  resources:
+resources:
   requests:
     memory: "50Mi"
     cpu: "200m"
