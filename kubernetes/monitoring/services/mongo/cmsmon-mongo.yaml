@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mongodb
-  namespace: monit-mongo
+  namespace: cmsmon-mongo
   labels:
     app: mongodb
 spec:
@@ -14,7 +14,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: mongodb
-  namespace: monit-mongo
+  namespace: cmsmon-mongo
 spec:
   serviceName: mongodb
   replicas: 1
@@ -23,14 +23,14 @@ spec:
       app: mongodb
   template:
     metadata:
-      namespace: monit-mongo
+      namespace: cmsmon-mongo
       labels:
         app: mongodb
         selector: mongodb
     spec:
       containers:
       - name: mongodb
-        image: registry.cern.ch/cmsmonitoring/monit-mongo:5.0.9
+        image: registry.cern.ch/cmsmonitoring/cmsmon-mongo:5.0.9
         args: [ "--dbpath","/data/db" ]
         livenessProbe:
           exec:
@@ -67,31 +67,31 @@ spec:
           - name: MONGO_ROOT_USERNAME
             valueFrom:
               secretKeyRef:
-                name: monit-mongo-secrets
+                name: cmsmon-mongo-secrets
                 key: MONGO_ROOT_USERNAME
                 optional: false
           - name: MONGO_ROOT_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: monit-mongo-secrets
+                name: cmsmon-mongo-secrets
                 key: MONGO_ROOT_PASSWORD
                 optional: false
           - name: MONGO_USERNAME
             valueFrom:
               secretKeyRef:
-                name: monit-mongo-secrets
+                name: cmsmon-mongo-secrets
                 key: MONGO_USERNAME
                 optional: false
           - name: MONGO_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: monit-mongo-secrets
+                name: cmsmon-mongo-secrets
                 key: MONGO_PASSWORD
                 optional: false
           - name: MONGO_USERS_LIST
             valueFrom:
               secretKeyRef:
-                name: monit-mongo-secrets
+                name: cmsmon-mongo-secrets
                 key: MONGO_USERS_LIST
                 optional: false
           - name: MONGO_INITDB_ROOT_USERNAME_FILE # Required by MongoDB
@@ -99,17 +99,17 @@ spec:
           - name: MONGO_INITDB_ROOT_PASSWORD_FILE # Required by MongoDB
             value: /etc/secrets/MONGO_INITDB_ROOT_PASSWORD_FILE
         volumeMounts:
-        - name: monit-mongo-secrets
+        - name: cmsmon-mongo-secrets
           mountPath: /etc/secrets
           readOnly: true
-        - name: monit-mongo-data
+        - name: cmsmon-mongo-data
           mountPath: /data/db
       volumes:
-        - name: monit-mongo-secrets
+        - name: cmsmon-mongo-secrets
           secret:
-            secretName: monit-mongo-secrets
+            secretName: cmsmon-mongo-secrets
             defaultMode: 0444
-        - name: monit-mongo-data
+        - name: cmsmon-mongo-data
           emptyDir: {}
 
 # References

@@ -24,9 +24,9 @@ mongodb://admin:password@cuzunogl-jhpbqba52z6h-node-0:32000
 apt-get update
 apt-get install nano
 
-# Service name is monit-mongo
+# Service name is cmsmon-mongo
 # Headless FQDN definition: <StatefulSet name>-<sequence number>.<Service name>.<Namespace name>.svc.cluster.local
-mongo --host mongodb-0.mongodb.monit-mongo.svc.cluster.local --port 27017 -u admin -p password
+mongo --host mongodb-0.mongodb.cmsmon-mongo.svc.cluster.local --port 27017 -u admin -p password
 show dbs
 use rucio
 show collections
@@ -39,7 +39,7 @@ cat test.json
 { "_id" : 2, "dataset" : "test2", "rse" : "CERN", "size" : 800}
 
 # Use mongoimport cli
-mongoimport --host mongodb-0.mongodb.monit-mongo.svc.cluster.local --port 27017 -u admin -p password \
+mongoimport --host mongodb-0.mongodb.cmsmon-mongo.svc.cluster.local --port 27017 -u admin -p password \
     --authenticationDatabase admin --db rucio --collection datasets --file test.json --type=json
 
 # "--authenticationDatabase admin" should be used since we're using admin user to connect "rucio" db.

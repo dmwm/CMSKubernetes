@@ -1,4 +1,4 @@
-## monit-mongo
+## cmsmon-mongo
 
 Refs for the JS and conf files: https://phoenixnap.com/kb/kubernetes-mongodb
 #### How to build and push
@@ -8,6 +8,6 @@ Refs for the JS and conf files: https://phoenixnap.com/kb/kubernetes-mongodb
 
 mongodbver=5.0.9
 docker_registry=registry.cern.ch/cmsmonitoring
-docker build --build-arg MONGODBVER=${mongodbver} -t "${docker_registry}/monit-mongo:${mongodbver}" .
-docker push "${docker_registry}/monit-mongo:${mongodbver}"
+docker build --build-arg MONGODBVER=${mongodbver} -t "${docker_registry}/cmsmon-mongo:${mongodbver}" .
+docker push "${docker_registry}/cmsmon-mongo:${mongodbver}"
 ```
