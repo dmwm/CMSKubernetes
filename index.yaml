@@ -154,6 +154,16 @@ entries:
     version: 0.1.1
   das-mongo:
   - apiVersion: v2
+    appVersion: v5.0.5-static-stable
+    created: "2022-06-16T10:17:28.414135884Z"
+    description: A Helm chart for Kubernetes
+    digest: b225dc30c5088b30f49f32ab6e438bbaf1618372fc783e43e6ab95096f84daa1
+    name: das-mongo
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/das-mongo-0.1.3/das-mongo-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
     appVersion: 1.16.0
     created: "2021-09-03T10:10:54.295080881Z"
     description: A Helm chart for Kubernetes
@@ -1004,4 +1014,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/workqueue-0.1.1/workqueue-0.1.1.tgz
     version: 0.1.1
-generated: "2022-06-14T12:44:48.233144791Z"
+generated: "2022-06-16T10:17:28.414517585Z"
