@@ -185,6 +185,16 @@ entries:
     version: 0.1.1
   das-mongo-exporter:
   - apiVersion: v2
+    appVersion: HG2011h-c
+    created: "2022-06-16T10:34:19.63707676Z"
+    description: A Helm chart for Kubernetes
+    digest: 59c4fb892d7b1b0bde316b405d7ac5791eab6ac8a0ba718448599c8759fdd37f
+    name: das-mongo-exporter
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/das-mongo-exporter-0.1.3/das-mongo-exporter-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
     appVersion: 1.16.0
     created: "2021-09-03T10:10:54.478491361Z"
     description: A Helm chart for Kubernetes
@@ -1014,4 +1024,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/workqueue-0.1.1/workqueue-0.1.1.tgz
     version: 0.1.1
-generated: "2022-06-16T10:17:28.414517585Z"
+generated: "2022-06-16T10:34:19.637319971Z"
