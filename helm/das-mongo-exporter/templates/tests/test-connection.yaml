@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "das-mongo-exporter.fullname" . }}:{{ .Values.service.port }}']
+      args: ['das-mongo-exporter:18230']
   restartPolicy: Never
