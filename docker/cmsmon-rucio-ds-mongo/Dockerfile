@@ -2,6 +2,7 @@ FROM mongo as builder
 FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-20220606
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
+ENV TAG=v0.0.0
 ENV WDIR=/data
 ENV HADOOP_CONF_DIR=/etc/hadoop/conf
 # mongoimport is in WDIR
@@ -15,7 +16,9 @@ ENV PYSPARK_DRIVER_PYTHON=/usr/bin/python
 
 COPY --from=builder /usr/bin/mongoimport $WDIR
 
+# Checkout to specific git tag
 RUN git clone https://github.com/dmwm/CMSSpark.git && \
+    git checkout tags/$TAG -b "$TAG"-branch && \
     mkdir -p $WDIR/logs && \
     pip install --no-cache-dir pandas click pyspark && \
     hadoop-set-default-conf.sh analytix && source hadoop-setconf.sh analytix 3.2 spark3 && \
