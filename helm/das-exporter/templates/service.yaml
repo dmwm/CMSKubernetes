@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: das-exporter
+spec:
+  selector:
+    app: das-exporter
+  ports:
+    - port: 18217
+      targetPort: 18217
+      name: das-exporter
