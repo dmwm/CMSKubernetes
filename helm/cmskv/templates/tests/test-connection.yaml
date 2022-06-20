@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['cmskv:8217']
+      args: ['cmskv:9212']
   restartPolicy: Never
