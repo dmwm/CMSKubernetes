@@ -152,6 +152,17 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/crabserver-0.1.1/crabserver-0.1.1.tgz
     version: 0.1.1
+  das-exporter:
+  - apiVersion: v2
+    appVersion: HG2011h-stable
+    created: "2022-06-20T08:30:39.185164886Z"
+    description: A Helm chart for Kubernetes
+    digest: 28a34c81ee158c207ca584e49f4fa2af7184800d85958cea840d1637a38943d9
+    name: das-exporter
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/das-exporter-0.1.1/das-exporter-0.1.1.tgz
+    version: 0.1.1
   das-mongo:
   - apiVersion: v2
     appVersion: v5.0.5-static-stable
@@ -1034,4 +1045,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/workqueue-0.1.1/workqueue-0.1.1.tgz
     version: 0.1.1
-generated: "2022-06-16T12:53:18.395820429Z"
+generated: "2022-06-20T08:30:39.185349997Z"
