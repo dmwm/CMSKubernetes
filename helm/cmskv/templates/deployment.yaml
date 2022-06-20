@@ -1,0 +1,74 @@
+{{- $environment := .Values.environment | default dict }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "cmskv.fullname" . }}
+  labels:
+    app: cmskv
+spec:
+  {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+  replicas: {{ .Values.replicaCount.prod }}
+  {{- else }}
+  replicas: {{ .Values.replicaCount.test }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: cmskv
+  template:
+    metadata:
+      labels:
+        app: cmskv
+        env: k8s-{{.Values.environment}}
+    spec:
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          args:
+            - /data/run.sh
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+           - containerPort: 9212
+             protocol: TCP
+             name: cmskv
+           - containerPort: 19212
+             protocol: TCP
+             name: cmskv-mon       
+          livenessProbe:
+            httpGet:
+              path: /cmskv/info
+              port: 9212
+            initialDelaySeconds: 120
+            periodSeconds: 10
+          resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+          - name: secrets
+            mountPath: /etc/secrets
+          - name: token-secrets
+            mountPath: /etc/token
+            readOnly: true                   
+          {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+          - name: logs-cephfs
+            mountPath: /data/db
+          {{- end }}
+      volumes:
+      - name: secrets
+        secret:
+          secretName: cmskv-secrets
+      - name: token-secrets
+        secret:
+          secretName: token-secrets              
+      {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+      - name: logs-cephfs
+        persistentVolumeClaim:
+          {{- if eq (toString $environment) "preprod" }}
+          claimName: logs-cephfs-claim-preprod-cmskv
+          {{- end }}
+          {{- if eq (toString $environment) "prod" }}
+          claimName: logs-cephfs-claim-prod-cmskv
+          {{- end }}
+      {{- end }}
