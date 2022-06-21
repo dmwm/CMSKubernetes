@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ include "das-mongo-exporter.fullname" . }}
   labels:
-    {{- include "das-mongo-exporter.labels" . | nindent 4 }}
+    app: das-mongo-exporter
   namespace: das
 spec:
   {{- if not .Values.autoscaling.enabled }}
@@ -11,7 +11,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "das-mongo-exporter.selectorLabels" . | nindent 6 }}
+      app: das-mongo-exporter
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -19,16 +19,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "das-mongo-exporter.selectorLabels" . | nindent 8 }}        
-        {{- if .Values.environment.preprod}}
-        env: k8s-preprod
-        {{- end }}
-        {{- if .Values.environment.prod}}
-        env: k8s-prod
-        {{- end }}
-        {{- if .Values.environment.test}}
-        env: k8s
-        {{- end }}
+        app: das-mongo-exporter        
+        env: k8s-{{.Values.environment}}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -46,9 +38,9 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-           - containerPort: {{ .Values.service.port }}
-             name: {{ .Values.service.name }}
-             protocol: {{ .Values.service.protocol }}
+           - containerPort: 18230
+             name: das-mongo-p
+             protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       initContainers:

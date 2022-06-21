@@ -17,15 +17,7 @@ spec:
       {{- end }}
       labels:
         app: exitcodes
-        {{- if .Values.environment.preprod}}
-        env: k8s-preprod
-        {{- end }}
-        {{- if .Values.environment.prod}}
-        env: k8s-prod
-        {{- end }}
-        {{- if .Values.environment.test}}
-        env: k8s
-        {{- end }}        
+        env: k8s-{{.Values.environment}}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:

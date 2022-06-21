@@ -1,12 +1,13 @@
+{{- $environment := .Values.environment | default dict }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "wmarchive.fullname" . }}
   labels:
-    {{- include "wmarchive.labels" . | nindent 4 }}
+    app: wmarchive          
 spec:
   {{- if not .Values.autoscaling.enabled }}
-  {{- if or .Values.environment.prod .Values.environment.preprod }}
+  {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
   replicas: {{ .Values.replicaCount.prod }}
   {{- else }}
   replicas: {{ .Values.replicaCount.test }}
@@ -14,7 +15,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "wmarchive.selectorLabels" . | nindent 6 }}
+      app: wmarchive            
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -22,16 +23,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "wmarchive.selectorLabels" . | nindent 8 }}
-        {{- if .Values.environment.preprod}}
-        env: k8s-preprod
-        {{- end }}
-        {{- if .Values.environment.prod}}
-        env: k8s-prod
-        {{- end }}
-        {{- if .Values.environment.test}}
-        env: k8s
-        {{- end }}
+        app: wmarchive
+        env: k8s-{{.Values.environment}}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -49,12 +42,12 @@ spec:
           livenessProbe:
           {{- toYaml .Values.livenessProbe | nindent 12 }}
           ports:
-           - containerPort: {{ .Values.service.port }}
-             name: {{ .Values.service.name }}
-             protocol: {{ .Values.service.protocol }}
-           - containerPort: {{ .Values.serviceMon.port }}
-             name: {{ .Values.serviceMon.name }}
-             protocol: {{ .Values.serviceMon.protocol }}
+           - containerPort: 8200
+             protocol: TCP
+             name: wma
+           - containerPort: 18200
+             protocol: TCP
+             name: wma-mon                  
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
@@ -64,23 +57,27 @@ spec:
           - name: secrets
             mountPath: /etc/secrets
             readOnly: true
-          - name: robot-secrets
-            mountPath: /etc/robots
-            readOnly: true
-          - name: hmac-secrets
-            mountPath: /etc/hmac
-            readOnly: true
           - mountPath: /host/etc/grid-security
             name: etc-grid-security
             readOnly: true
           - name: setup-certs-and-run
             mountPath: /opt/setup-certs-and-run
-{{- if or .Values.environment.prod .Values.environment.preprod }}
+          - name: token-secrets
+            mountPath: /etc/token
+            readOnly: true              
+{{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
           - name: logs
             mountPath: /data/srv/logs/wmarchive
+{{- end }}
+          securityContext:
+          {{- toYaml .Values.securityContext | nindent 12 }}
+{{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
         - name: {{ .Values.imageFilebeat.name }}
           image: {{ .Values.imageFilebeat.path }}
-          args: {{ .Values.imageFilebeat.args }}
+          args: [
+            "-c", "/etc/filebeat.yml",
+            "-e",
+          ]
           env:
           {{- toYaml .Values.imageFilebeat.env | nindent 10 }}
           resources:
@@ -109,25 +106,22 @@ spec:
       - name: secrets
         secret:
           secretName: wmarchive-secrets
-      - name: robot-secrets
-        secret:
-          secretName: robot-secrets
-      - name: hmac-secrets
-        secret:
-          secretName: hmac-secrets
       - name: etc-grid-security
         hostPath:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: {{ include "wmarchive.fullname" . }}
-{{- if or .Values.environment.prod .Values.environment.preprod }}
+          name: wmarchive
+      - name: token-secrets
+        secret:
+          secretName: token-secrets          
+{{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
       - name: logs
         persistentVolumeClaim:
-{{- if .Values.environment.preprod }}
+{{- if eq (toString $environment) "preprod" }}
             claimName: logs-cephfs-claim-preprod-wma
 {{- end }}
-{{- if .Values.environment.prod }}
+{{- if eq (toString $environment) "prod" }}
             claimName: logs-cephfs-claim-prod-wma
 {{- end }}
       - name: varlog
@@ -139,7 +133,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: {{ include "wmarchive.fullname" . }}-filebeat-config
+          name: wmarchive-filebeat-config
       - name: data
         emptyDir: {}
 {{- end }}

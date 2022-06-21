@@ -6,10 +6,7 @@ image:
   pullPolicy: IfNotPresent
   tag: "HG2011h-stable"
 
-environment:
-  prod: false
-  preprod: false
-  test : false
+environment: 
 
 imagePullSecrets: []
 nameOverride: ""
