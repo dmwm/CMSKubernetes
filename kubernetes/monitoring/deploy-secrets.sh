@@ -111,7 +111,7 @@ elif [ "$secret" == "cmsmon-mongo-secrets" ]; then
     literals=""
     for mongo_env in $mongo_envs; do
         temp_env_val=`grep $mongo_env $sdir/cmsmon-mongo-secrets/secrets | awk '{print $2}'`
-        literals="${literals} --from-literal=${mongo_env}=${temp_env_val}"
+        literals="--from-literal=${mongo_env}=${temp_env_val} ${literals}"
     done
     cmsmonit_f="--from-file=${sdir}/cmsmonit-keytab/keytab"
     mongo_f=`ls $sdir/cmsmon-mongo-secrets/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmon-mongo-secrets | sed "s, $,,g"`
@@ -152,7 +152,7 @@ if [ -n "`kubectl get secrets -n $ns | grep $secret`" ]; then
     kubectl -n $ns delete secret $secret
 fi
 if [ -n "$literals" ]; then
-    kubectl create secret generic $secret $files $literals --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
+    kubectl create secret generic $secret $files "$literals" --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
 else
     kubectl create secret generic $secret $files --dry-run=client -o yaml | kubectl apply --namespace=$ns -f -
 fi
