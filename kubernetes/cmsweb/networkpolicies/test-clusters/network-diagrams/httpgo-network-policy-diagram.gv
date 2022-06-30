@@ -12,7 +12,9 @@ digraph G {
 		style=filled;
 		color=lightcyan;
 		node [style=filled, color=white, shape=box];
-		auth_proxy_server [label="    Pod: auth-proxy-server     ", margin=0.7]
+		auth_proxy_server [label="    Pod: auth-proxy-server     ", margin=0.1]
+		scitokens_proxy_server [label="    Pod: scitokens-proxy-server     ", margin=0.1]
+		x509_proxy_server [label="    Pod: x509-proxy-server     ", margin=0.1]
 		label = " \n                      Namespace: auth                        ";
 		labeljust="c"
 		margin=40;
@@ -48,7 +50,9 @@ digraph G {
 	}
 	
 	
-	auth_proxy_server -> tick [minlen=1]
+	auth_proxy_server -> tick [minlen=4]
+	scitokens_proxy_server -> tick
+	x509_proxy_server -> tick
 	tick -> httpgo[]
 
 }
