@@ -2,7 +2,7 @@ FROM golang:latest as go-builder
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 # tag to use
-ENV CMSMON_TAG=go-0.0.0
+ENV CMSMON_TAG=rgo-0.0.0
 ENV WDIR=/data
 
 # build
