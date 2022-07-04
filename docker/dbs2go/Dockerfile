@@ -61,6 +61,5 @@ ADD run.sh /data/run.sh
 ADD config.json /data/config.json
 RUN chmod +x /data/*.sh
 USER $USER
-
 WORKDIR /data
 # CMD ["run.sh"]
