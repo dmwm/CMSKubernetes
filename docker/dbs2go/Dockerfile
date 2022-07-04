@@ -16,7 +16,6 @@ ENV PKG_CONFIG_PATH=/usr/lib/oracle
 
 # start the setup
 ENV WDIR=/data
-#RUN mkdir -p $WDIR
 RUN mkdir -p $WDIR
 WORKDIR ${WDIR}
 ADD oci8.pc $WDIR/oci8.pc
