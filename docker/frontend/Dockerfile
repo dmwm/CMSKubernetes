@@ -38,7 +38,7 @@ FROM registry.cern.ch/cmsweb/cmsweb-base:20220601-stable
 ENV WDIR=/data
 ENV USER=_frontend
 ADD logstash.repo /etc/yum.repos.d/logstash.repo
-RUN rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch && yum install -y perl filebeat python-pip && yum clean all && rm -rf /var/cache/yum && pip install requests && useradd ${USER} && install -o ${USER} -d ${WDIR} && echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch && yum install -y perl filebeat python-pip && yum clean all && rm -rf /var/cache/yum && pip install requests==2.27.1 && useradd ${USER} && install -o ${USER} -d ${WDIR} && echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 USER ${USER}
 COPY --chown=_frontend:_frontend --from=web-builder /data /data
 RUN crontab /data/crontab.txt
