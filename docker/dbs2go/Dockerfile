@@ -39,12 +39,10 @@ RUN git checkout tags/$TAG -b build && \
 # for gibc library we will use debian:stretch
 FROM debian:stable-slim
 RUN apt-get update && apt-get -y install libaio1 procps && mkdir -p /data
-
 ENV WDIR=/data
 ENV USER=_dbs2go
 # add new user
 RUN useradd -d ${WDIR} ${USER} # && install -o ${USER} -d ${WDIR}
-
 RUN mkdir -p /data
 COPY --from=builder /data /data
 COPY --from=exporters /data/process_exporter /data
@@ -55,6 +53,8 @@ COPY --from=oracle /usr/lib/oracle /usr/lib/oracle
 ENV LD_LIBRARY_PATH=/usr/lib/oracle
 ENV PATH=$PATH:/usr/lib/oracle
 ENV PKG_CONFIG_PATH=/usr/lib/oracle
+
+# run the service
 ENV PATH="/data/gopath/bin:/data:${PATH}"
 ADD monitor.sh /data/monitor.sh
 ADD run.sh /data/run.sh
