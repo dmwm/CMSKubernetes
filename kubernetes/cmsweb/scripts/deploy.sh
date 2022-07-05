@@ -15,7 +15,7 @@
 ##H   daemonset  deploy cluster's daemonsets
 ##H   aps	 deploy auth-proxy-servers as frontends
 ##H   ingress    deploy ingress controller
-##H   monitoring deploy monitoring components
+##H   monitoring_frontend deploy monitoring components in frontend services
 ##H   monitoring_backend deploy monitoring components as backend services
 ##H   monitoring_aps deploy monitoring components in aps clusters
 ##H   crons      deploy crons components
