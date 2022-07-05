@@ -13,6 +13,7 @@
 ##H   services   deploy services cluster
 ##H   frontend   deploy frontend cluster
 ##H   daemonset  deploy cluster's daemonsets
+##H   aps	 deploy auth-proxy-servers as frontends
 ##H   ingress    deploy ingress controller
 ##H   monitoring deploy monitoring components
 ##H   crons      deploy crons components
