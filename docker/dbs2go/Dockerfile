@@ -59,6 +59,7 @@ ENV PATH="/data/gopath/bin:/data:${PATH}"
 ADD monitor.sh /data/monitor.sh
 ADD run.sh /data/run.sh
 ADD config.json /data/config.json
+RUN chown -R $USER.$USER /data && chown -R $USER.$USER /usr/lib/oracle && chown -R $USER.$USER /usr/bin/filebeat
 RUN chmod +x /data/*.sh
 USER $USER
 WORKDIR /data
