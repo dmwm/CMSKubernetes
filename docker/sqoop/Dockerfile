@@ -23,24 +23,26 @@ RUN go build monit.go && go build hdfs_exporter.go && cp monit hdfs_exporter $WD
 WORKDIR $WDIR
 
 # get amtool
-RUN curl -ksLO https://github.com/prometheus/alertmanager/releases/download/v0.20.0/alertmanager-0.20.0.linux-amd64.tar.gz
-RUN tar xfz alertmanager-0.20.0.linux-amd64.tar.gz && mv alertmanager-0.20.0.linux-amd64/amtool $WDIR/ && rm -rf alertmanager-0.20.0.linux-amd64*
+RUN curl -ksLO https://github.com/prometheus/alertmanager/releases/download/v0.24.0/alertmanager-0.24.0.linux-amd64.tar.gz
+RUN tar xfz alertmanager-0.24.0.linux-amd64.tar.gz && mv alertmanager-0.24.0.linux-amd64/amtool $WDIR/ && rm -rf alertmanager-0.24.0.linux-amd64*
 
 
-FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:20220401-1-spark2
+FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark2-20220606
 # Do not use spark3, it requires additional settings
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 ENV WDIR=/data
 WORKDIR $WDIR
 
-RUN yum remove -y hbase-bin-2.3 && mkdir -p $WDIR/sqoop/log
 COPY --from=go-builder /data/amtool /data
 COPY --from=go-builder /data/hdfs_exporter /data
 COPY --from=go-builder /data/monit /data
 COPY --from=go-builder /data/CMSMonitoring/sqoop /data/sqoop
 
 WORKDIR $WDIR/sqoop
-RUN crontab cronjobs.txt && ln -s /etc/cmsdb/cmsr_cstring && ln -s /etc/cmsdb/lcgr_cstring
+RUN mkdir -p $WDIR/sqoop/log && \
+# Create symbolic link of below files in $WDIR/sqoop directory
+    ln -s /etc/cmsdb/cmsr_cstring && ln -s /etc/cmsdb/lcgr_cstring && \
+    crontab cronjobs.txt
 
 WORKDIR $WDIR

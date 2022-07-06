@@ -2,7 +2,7 @@
 
 For sending rucio datasets information data to MONIT.
 
-Analytix cluster 3.2, spark3 and python3.6 will be used. Base image already contains sqoop.
+Analytix cluster 3.2, spark3 and python3.9 will be used. Base image already contains sqoop.
 
 Installs:
 

@@ -63,7 +63,7 @@ spec:
       hostname: cmsmon-rucio-ds
       containers:
         - name: cmsmon-rucio-ds
-          image: registry.cern.ch/cmsmonitoring/cmsmon-rucio-ds:20220418
+          image: registry.cern.ch/cmsmonitoring/cmsmon-rucio-ds:20220606
           imagePullPolicy: Always
           env:
             - name: MY_NODE_NAME
@@ -88,7 +88,7 @@ spec:
           resources:
             limits:
               cpu: 2000m
-              memory: 4Gi
+              memory: 6Gi
             requests:
               cpu: 500m
               memory: 750Mi

@@ -33,8 +33,8 @@ cd ..
 cd WMCore
 git checkout $WMCoreGHTag
 git remote add stefano https://github.com/belforte/WMCore.git
-git remote add dario https://github.com/mapellidario/CRABServer.git
-git remote add wa https://github.com/novicecpp/CRABServer.git
+git remote add dario https://github.com/mapellidario/WMCore.git
+git remote add wa https://github.com/novicecpp/WMCore.git
 
 # add dummy global names to git for git stash to work
 git config --global user.email dummy@nowhere
