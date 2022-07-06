@@ -42,4 +42,10 @@ RUN /tmp/install_mail_templates.sh
 # Might get recreated if apache was upgraded
 RUN rm -f /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/userdir.conf /etc/httpd/conf.d/ssl.conf
 
+
+# Patch for 5642
+ADD https://raw.githubusercontent.com/ericvaandering/rucio/$CMS_TAG/lib/rucio/core/replica.py /usr/local/lib/python3.6/site-packages/rucio/core/replica.py
+RUN chmod 755 /usr/local/lib/python3.6/site-packages/rucio/core/*
+RUN python3 -m compileall /usr/local/lib/python3.6/site-packages/rucio/core
+
 ENTRYPOINT ["/cms-entrypoint.sh"]
