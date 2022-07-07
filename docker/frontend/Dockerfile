@@ -32,6 +32,7 @@ ENV GOPATH /data/gopath
 
 RUN wget https://github.com/Lusitaniae/apache_exporter/releases/download/v0.9.0/apache_exporter-0.9.0.linux-amd64.tar.gz && tar -xvzf apache_exporter-0.9.0.linux-amd64.tar.gz --directory /data/gopath && cp /data/gopath/apache_exporter-0.9.0.linux-amd64/apache_exporter /data/gopath/bin && crontab -l > /data/crontab.txt 
 
+
 # extract relevant pieces from web-builder
 FROM registry.cern.ch/cmsweb/cmsweb-base:20220601-stable
 ENV WDIR=/data
@@ -45,7 +46,6 @@ RUN crontab /data/crontab.txt
 # run the service
 ADD run.sh $WDIR/run.sh
 ADD monitor.sh $WDIR/monitor.sh
-ADD alerts.sh $WDIR/alerts.sh
 
 ENV PATH="${WDIR}/cmsweb/bin:${WDIR}:${WDIR}/gopath/bin:${PATH}"
 
