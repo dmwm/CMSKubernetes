@@ -14,7 +14,6 @@ spec:
     - port: 18889
       targetPort: 18889
       name: newdqmgui-mon
-  type: LoadBalancer
 ---
 kind: ConfigMap
 apiVersion: v1
