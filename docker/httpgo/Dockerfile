@@ -13,7 +13,7 @@ WORKDIR $WDIR/httpgo
 RUN git checkout tags/$TAG -b build && make
 # RUN make
 
-FROM alpine:3.15
+FROM alpine:3.16
 RUN mkdir -p /data
 COPY --from=go-builder /data/httpgo/httpgo /data/
 CMD ["/data/httpgo"]
