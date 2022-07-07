@@ -17,5 +17,5 @@ spec:
   - ReadOnlyMany
   resources:
     requests:
-      storage: 10Gi
+      storage: 1Gi
   storageClassName: csi-cvmfs-cms

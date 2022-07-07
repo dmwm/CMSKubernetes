@@ -20,7 +20,7 @@ RUN go build -ldflags="-s -w -extldflags -static" ggus_alerting.go
 RUN go build -ldflags="-s -w -extldflags -static" es_exporter.go
 RUN go build -ldflags="-s -w -extldflags -static" hdfs_exporter.go
 
-FROM alpine:3.15.4
+FROM alpine:3.16
 RUN mkdir /data
 COPY --from=go-builder /data/CMSMonitoring/src/go/MONIT/monit /data
 COPY --from=go-builder /data/CMSMonitoring/src/go/MONIT/ssb_alerting /data

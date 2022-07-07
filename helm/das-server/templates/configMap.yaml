@@ -1,7 +1,8 @@
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: '{{ include "das-server.fullname" . }}-filebeat-config'
+  name: das-server-filebeat-config
   namespace: das
   labels:
     k8s-app: filebeat
@@ -23,13 +24,11 @@ data:
     queue.mem:
       events: 65536
     logging.metrics.enabled: false
-
 ---
-
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: {{ include "das-server.fullname" . }}
+  name: das-server-promtail
   labels:
     app: das-server-promtail
   namespace: das
@@ -50,3 +49,4 @@ data:
         labels:
           job: das-logs
           __path__: /data/logs/das.log*
+---

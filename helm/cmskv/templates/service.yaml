@@ -1,0 +1,15 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: cmskv
+  namespace: http
+spec:
+  selector:
+    app: cmskv
+  ports:
+    - port: 9212
+      targetPort: 9212
+      name: cmskv
+    - port: 19212
+      targetPort: 19212
+      name: cmskv-mon

@@ -3,14 +3,14 @@ kind: Deployment
 metadata:
   name: {{ include "httpgo.fullname" . }}
   labels:
-    {{- include "httpgo.labels" . | nindent 4 }}
+    app: httpgo
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "httpgo.selectorLabels" . | nindent 6 }}
+      app: httpgo
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,7 +18,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "httpgo.selectorLabels" . | nindent 8 }}
+        app: httpgo
+        env: k8s-{{.Values.environment}}        
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -35,7 +36,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: 8888
               protocol: TCP
           livenessProbe:
             {{ .Values.livenessProbe| toYaml | indent 12 | trim }}

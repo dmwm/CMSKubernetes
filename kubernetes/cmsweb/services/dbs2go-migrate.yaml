@@ -70,6 +70,8 @@ spec:
         env:
         - name: X509_USER_PROXY
           value: /etc/proxy/proxy
+        - name: TNS_ADMIN
+          value: /etc/tnsnames.ora
         command:
         - /data/run.sh
         resources:
@@ -110,6 +112,9 @@ spec:
         - name: hmac-secrets
           mountPath: /etc/hmac
           readOnly: true
+        - name: tnsnames
+          mountPath: /etc/tnsnames.ora
+          subPath: tnsnames.ora
 #PROD#  - name: logs
 #PROD#    mountPath: /data/logs
 #PROD#- name: dbs2go-filebeat
@@ -146,9 +151,6 @@ spec:
       - name: proxy-secrets
         secret:
           secretName: proxy-secrets
-#       - name: secrets
-#         secret:
-#           secretName: dbs2go-secrets
       - name: robot-secrets
         secret:
           secretName: robot-secrets
@@ -156,8 +158,11 @@ spec:
         secret:
           secretName: hmac-secrets
       - name: secrets
+        secret:
+          secretName: dbs2go-migrate-secrets
+      - name: tnsnames
         configMap:
-          name: dbs2go-migrate-config
+          name: tnsnames-config
 #PROD#- name: logs
 #PROD#  persistentVolumeClaim:
 #PROD#      claimName: logs-cephfs-claim-dbs
