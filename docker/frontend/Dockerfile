@@ -32,6 +32,9 @@ ENV GOPATH /data/gopath
 
 RUN wget https://github.com/Lusitaniae/apache_exporter/releases/download/v0.9.0/apache_exporter-0.9.0.linux-amd64.tar.gz && tar -xvzf apache_exporter-0.9.0.linux-amd64.tar.gz --directory /data/gopath && cp /data/gopath/apache_exporter-0.9.0.linux-amd64/apache_exporter /data/gopath/bin && crontab -l > /data/crontab.txt 
 
+# get amtool
+RUN curl -ksLO https://github.com/prometheus/alertmanager/releases/download/v0.24.0/alertmanager-0.24.0.linux-amd64.tar.gz
+RUN tar xfz alertmanager-0.24.0.linux-amd64.tar.gz && mv alertmanager-0.24.0.linux-amd64/amtool $WDIR/ && rm -rf alertmanager-0.24.0.linux-amd64*
 
 # extract relevant pieces from web-builder
 FROM registry.cern.ch/cmsweb/cmsweb-base:20220601-stable
@@ -46,6 +49,7 @@ RUN crontab /data/crontab.txt
 # run the service
 ADD run.sh $WDIR/run.sh
 ADD monitor.sh $WDIR/monitor.sh
+ADD alerts.sh $WDIR/alerts.sh
 
 ENV PATH="${WDIR}/cmsweb/bin:${WDIR}:${WDIR}/gopath/bin:${PATH}"
 
