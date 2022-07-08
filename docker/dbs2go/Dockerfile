@@ -22,7 +22,7 @@ ADD oci8.pc $WDIR/oci8.pc
 ENV PKG_CONFIG_PATH=$WDIR
 
 # build dbs2go with specific tag
-ENV TAG=v00.05.05
+ENV TAG=v00.06.01
 WORKDIR $GOPATH/src/github.com/vkuznet
 RUN git clone https://github.com/vkuznet/dbs2go && \
     git clone https://github.com/vkuznet/cmsweb-exporters
