@@ -47,6 +47,10 @@ spec:
         prometheus.io/path: "/dbs/prod/global/DBSMigration/metrics"
         prometheus.io/port: "9251"
     spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 2000            
       containers:
       - image: registry.cern.ch/cmsweb/dbs2go #imagetag
         name: dbs2go-global-migration
@@ -101,6 +105,8 @@ spec:
           subPath: tnsnames.ora
 #PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/dbs
+        securityContext:
+          allowPrivilegeEscalation: false
 #PROD#- name: dbs2go-global-migration-filebeat
 #PROD#  image: docker.elastic.co/beats/filebeat:7.12.0
 #PROD#  args: [
@@ -131,6 +137,8 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
+#PROD#  securityContext:
+#PROD#    allowPrivilegeEscalation: false
       volumes:
       - name: proxy-secrets
         secret:
