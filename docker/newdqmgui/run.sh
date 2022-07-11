@@ -6,7 +6,7 @@ source $VO_CMS_SW_DIR/cmsset_default.sh
 
 # Run kerberos configuration
 if [ -f /home/cmsusr/monitor.sh ]; then
-    /home/cmsusr/monitor.sh
+    bash /home/cmsusr/monitor.sh
 fi
 
 # Run the service
