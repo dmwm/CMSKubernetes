@@ -61,6 +61,7 @@ spec:
         fsGroup: 2000
       containers:
       - image: registry.cern.ch/cmsweb/newdqmgui #imagetag
+#      - image: msuccarm/new_dqmgui:4.0 #imagetag
         name: newdqmgui
         command: ["./run.sh"]
         resources:
