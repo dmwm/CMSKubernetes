@@ -1,5 +1,16 @@
 apiVersion: v1
 entries:
+  auth-proxy-server:
+  - apiVersion: v2
+    appVersion: 0.2.34
+    created: "2022-07-12T15:52:31.722251519Z"
+    description: A Helm chart for Kubernetes
+    digest: 34d39c1976e5e2bd63a2f34c65a75178bdb4e7e7e3db89924d91b80bfbd2e0fb
+    name: auth-proxy-server
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/auth-proxy-server-0.1.1/auth-proxy-server-0.1.1.tgz
+    version: 0.1.1
   cmskv:
   - apiVersion: v2
     appVersion: 20220404-stable
@@ -971,6 +982,17 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/rucio-traces-0.2.0/rucio-traces-0.2.0.tgz
     version: 0.2.0
+  scitokens-proxy-server:
+  - apiVersion: v2
+    appVersion: 0.2.34
+    created: "2022-07-12T15:52:31.860477437Z"
+    description: A Helm chart for Kubernetes
+    digest: 7265c810531526941d850904cd1f62e75f26e257088e9df08bde1d8f59e4a04c
+    name: scitokens-proxy-server
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/scitokens-proxy-server-0.1.1/scitokens-proxy-server-0.1.1.tgz
+    version: 0.1.1
   t0reqmon:
   - apiVersion: v2
     appVersion: 1.16.0
@@ -1056,4 +1078,15 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/workqueue-0.1.1/workqueue-0.1.1.tgz
     version: 0.1.1
-generated: "2022-06-20T11:37:33.058141554Z"
+  x509-proxy-server:
+  - apiVersion: v2
+    appVersion: 0.2.34
+    created: "2022-07-12T15:52:32.017669025Z"
+    description: A Helm chart for Kubernetes
+    digest: 83cc2a514f25c8a4ee65b59f2769bf9daffa48e0ea9ad4c85c9fadfc42e62351
+    name: x509-proxy-server
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
+    version: 0.1.1
+generated: "2022-07-12T15:52:32.017883133Z"
