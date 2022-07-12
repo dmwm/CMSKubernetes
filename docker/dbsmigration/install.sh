@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG2207h
+VER=HG2207i
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend dbsmigration"
