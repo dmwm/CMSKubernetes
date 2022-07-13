@@ -6,7 +6,10 @@ source $VO_CMS_SW_DIR/cmsset_default.sh
 
 # Run kerberos configuration
 if [ -f /home/cmsusr/monitor.sh ]; then
+    echo "MONITOR FILE FOUND"
     bash /home/cmsusr/monitor.sh
+else
+    echo "MONITOR FILE NOT FOUND"
 fi
 
 # Run the service
