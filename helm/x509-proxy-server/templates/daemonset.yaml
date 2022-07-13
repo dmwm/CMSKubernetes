@@ -1,0 +1,148 @@
+{{- $environment := .Values.environment | default dict }}
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: x509-proxy-server
+  name: {{ include "x509-proxy-server.fullname" . }}
+spec:
+  selector:
+    matchLabels:
+      app: x509-proxy-server
+  template:
+    metadata:
+      labels:
+        app: x509-proxy-server
+        env: k8s-{{.Values.environment}}
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "9092"
+    spec:
+      serviceAccountName: {{ include "x509-proxy-server.serviceAccountName" . }}
+      terminationGracePeriodSeconds: 60
+      hostNetwork: true
+      # this daemonset will be applied to all nodes which will have role=autha label
+      # kubectl label node <node-name> role=auth --overwrite
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        name: x509-proxy-server
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        args:
+          - /data/auth-proxy-server
+          - -config=/etc/secrets/config.json
+          - -useX509
+        resources:
+        {{- toYaml .Values.resources | nindent 12 }}
+        env:
+        - name: X509_USER_PROXY
+          value: /etc/proxy/proxy
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        ports:
+        - containerPort: 8443
+          name: https
+        - containerPort: 9092
+          name: metrics
+        volumeMounts:
+        - name: x509-proxy-server-secrets
+          mountPath: /etc/secrets
+          #defaultMode: 256
+          readOnly: true
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: www-htdocs
+          mountPath: /www
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true
+{{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+        - name: logs
+          mountPath: /data/srv/logs/frontend
+        - name: filebeat-cephfs
+          mountPath: /data/filebeat
+      - name: {{ .Values.imageFilebeat.name }}
+        image: {{ .Values.imageFilebeat.path }}
+        args: [
+          "-c", "/etc/filebeat.yml",
+          "-e",
+        ]
+        env:
+          {{- toYaml .Values.imageFilebeat.env | nindent 10 }}
+        resources:
+          {{- toYaml .Values.imageFilebeatResources | nindent 12 }}
+        volumeMounts:
+        - name: logs
+          mountPath: /data/srv/logs/frontend
+        - name: config
+          mountPath: /etc/filebeat.yml
+          readOnly: true
+          subPath: filebeat.yml
+        - name: data
+          mountPath: /usr/share/filebeat/data
+        - name: varlog
+          mountPath: /var/log
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+        securityContext:
+          allowPrivilegeEscalation: false          
+{{- end }}
+      initContainers:
+      {{- toYaml .Values.initContainers | nindent 6 }}
+        volumeMounts:
+        - name: www-htdocs
+          mountPath: /tmp/htdocs
+      volumes:
+      - name: x509-proxy-server-secrets
+        secret:
+          secretName: x509-proxy-server-secrets
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: www-htdocs
+        emptyDir: {}
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+{{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: config
+        configMap:
+          defaultMode: 0640
+          name: xps-s3-filebeat-config
+      - name: data
+        emptyDir: {}
+      - name: filebeat-cephfs
+        persistentVolumeClaim:
+            claimName: filebeat-cephfs-claim-default
+      - name: logs
+        persistentVolumeClaim:
+          {{- if eq (toString $environment) "preprod" }}
+          claimName: logs-cephfs-claim-preprod-aps
+          {{- end }}
+          {{- if eq (toString $environment) "prod" }}
+          claimName: logs-cephfs-claim-prod-aps
+          {{- end }}
+{{- end }}
