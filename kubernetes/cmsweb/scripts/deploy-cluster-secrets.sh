@@ -64,9 +64,6 @@ voms-proxy-init -voms cms -rfc \
 
 #### proxy for ms-unmerged service
 
-voms-proxy-init -voms cms -rfc \
-        --key $robot_key --cert $robot_crt --out $proxy
-
    voms-proxy-init -rfc \
         -key $robot_key \
         -cert $robot_crt \
