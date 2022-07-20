@@ -250,6 +250,16 @@ entries:
   das-server:
   - apiVersion: v2
     appVersion: 04.07.32-stable
+    created: "2022-07-20T22:38:21.154444739Z"
+    description: A Helm chart for Kubernetes
+    digest: fd61dab276b9288e8dd71d60adc7a42ae4d573e2023fee30c6f82b865e87ba88
+    name: das-server
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/das-server-0.1.4/das-server-0.1.4.tgz
+    version: 0.1.4
+  - apiVersion: v2
+    appVersion: 04.07.32-stable
     created: "2022-06-16T12:53:18.395608325Z"
     description: A Helm chart for Kubernetes
     digest: d3b04b289807e8f23a3ca8567eee695263f0e9f06d6faf6fc82e17ecd9eb1ce6
@@ -1089,4 +1099,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
     version: 0.1.1
-generated: "2022-07-12T15:52:32.017883133Z"
+generated: "2022-07-20T22:38:21.154995845Z"
