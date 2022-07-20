@@ -74,5 +74,5 @@ voms-proxy-init -voms cms -rfc \
     if [ $out -eq 0 ]; then
      kubectl create secret generic proxy-secrets-ms-unmerged \
                 --from-file=$proxy --dry-run=client -o yaml | \
-                kubectl apply --namespace=dqm -f -
+                kubectl apply --namespace=dmwm -f -
      fi
