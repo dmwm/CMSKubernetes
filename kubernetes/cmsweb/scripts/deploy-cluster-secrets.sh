@@ -61,3 +61,18 @@ voms-proxy-init -voms cms -rfc \
             echo "$now Failed to create token secrets"
         fi
    done
+
+#### proxy for ms-unmerged service
+
+   voms-proxy-init -rfc \
+        -key $robot_key \
+        -cert $robot_crt \
+        --voms cms:/cms/Role=production --valid 192:00 \
+        -out $proxy
+
+    out=$?
+    if [ $out -eq 0 ]; then
+     kubectl create secret generic proxy-secrets-ms-unmerged \
+                --from-file=$proxy --dry-run=client -o yaml | \
+                kubectl apply --namespace=dmwm -f -
+     fi
