@@ -20,6 +20,7 @@
 ##H   monitoring_aps deploy monitoring components in aps clusters
 ##H   crons      deploy crons components
 ##H   secrets    create secrets files
+##H   storages   create storages
 ##H
 ##H Envrionments:
 ##H   CMSWEB_CLUSTER            defines name of the cluster to be created (default cmsweb)
@@ -753,7 +754,30 @@ deploy_storages()
         kubectl label node $n failure-domain.beta.kubernetes.io/zone=nova --overwrite
         kubectl label node $n failure-domain.beta.kubernetes.io/region=cern --overwrite
     done
-    #kubectl apply -f storages/cinder-storage.yaml
+    #Deploy storage for testbed cluster
+    if [[ "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]]; then
+       kubectl apply -f storages/cephfs-storage-logs-preprod-ds-v1.22.yaml
+       kubectl apply -f storages/cephfs-storage-dqm-preprod-v1.22.yaml
+       kubectl apply -f storages/dqm-cvmfs.yaml
+       kubectl apply -f storages/cephfs-storage-filebeat-v1.22.yaml
+       kubectl apply -f storages/cephfs-storage-filebeatcrab-v1.22.yaml
+    fi
+    # Deploy storage for production cluster
+    if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod" ]]; then
+       if [ "$cmsweb_hostname" == "cmsweb.cern.ch"]; then
+          kubectl apply -f storages/cephfs-storage-cmsweb-v1.22.yaml
+          kubectl apply -f storages/cephfs-storage-filebeat-v1.22.yaml	  
+       elif [ "$cmsweb_hostname" == "cmsweb-prod.cern.ch" ]; then
+          kubectl apply -f storages/cephfs-storage-cmsweb-prod-v1.22.yaml
+          kubectl apply -f storages/cephfs-storage-filebeat-v1.22.yaml
+       else
+          kubectl apply -f storages/cephfs-storage-logs-prod-ds-v1.22.yaml
+          kubectl apply -f storages/cephfs-storage-dqm-prod-v1.22.yaml
+          kubectl apply -f storages/dqm-cvmfs.yaml
+          kubectl apply -f storages/cephfs-storage-filebeatcrab-v1.22.yaml
+       fi
+    fi
+
 }
 
 # deploy cluster roles
@@ -960,6 +984,8 @@ create()
     elif [ "$deployment" == "monitoring_aps" ]; then
         deployment=aps
         deploy_monitoring
+    elif [ "$deployment" == "storages" ]; then
+        deploy_storages
     else
         deploy_ns
         deploy_secrets
