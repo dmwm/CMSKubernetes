@@ -22,7 +22,7 @@ ADD oci8.pc $WDIR/oci8.pc
 ENV PKG_CONFIG_PATH=$WDIR
 
 # build dbs2go with specific tag
-ENV TAG=v00.06.01
+ENV TAG=v00.06.09
 WORKDIR $GOPATH/src/github.com/vkuznet
 RUN git clone https://github.com/vkuznet/dbs2go && \
     git clone https://github.com/vkuznet/cmsweb-exporters
@@ -35,6 +35,11 @@ RUN git checkout tags/$TAG -b build && \
     sed -i -e "s,_ \"github.com/mattn/go-sqlite3\",,g" web/server.go && \
     sed -i -e "s,_ \"github.com/go-sql-driver/mysql\",,g" web/server.go && \
     make && cp -r dbs2go static $WDIR
+
+# Install latest kubectl
+RUN curl -k -O -L https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+RUN mv kubectl /usr/bin
+RUN chmod +x /usr/bin/kubectl
 
 # for gibc library we will use debian:stretch
 FROM debian:stable-slim
@@ -53,6 +58,8 @@ COPY --from=oracle /usr/lib/oracle /usr/lib/oracle
 ENV LD_LIBRARY_PATH=/usr/lib/oracle
 ENV PATH=$PATH:/usr/lib/oracle
 ENV PKG_CONFIG_PATH=/usr/lib/oracle
+
+COPY --from=builder /usr/bin/kubectl /usr/bin/kubectl
 
 # run the service
 ENV PATH="/data/gopath/bin:/data:${PATH}"
