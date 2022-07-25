@@ -75,7 +75,7 @@ data:
       include_lines:
         - 'MeasureTime:seconds - '
         - 'MeasureSize:bytes - '
-      tags: ["crablog"]
+      tags: ["crabrest"]
     output.logstash:
       hosts: ["logstash:5044"]
       compression_level: 3
