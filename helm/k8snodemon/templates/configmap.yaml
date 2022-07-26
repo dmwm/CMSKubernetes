@@ -1,0 +1,19 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: k8snodemon
+  labels:
+    app: k8snodemon
+data:
+  setup-and-run.sh: |
+    #!/bin/sh
+    source /etc/secrets/env.sh
+    appid=`env | grep OS_APPLICATION_CREDENTIAL_ID | awk '{split($0,a,"="); print a[2]}'`
+    secret=`env | grep OS_APPLICATION_CREDENTIAL_SECRET | awk '{split($0,a,"="); print a[2]}'`
+    endpoint=`env | grep OS_AUTH_URL | awk '{split($0,a,"="); print a[2]}'`
+    name=`env | grep OS_APP_NAME | awk '{split($0,a,"="); print a[2]}'`
+    project=`env | grep OS_PROJECT_NAME | awk '{split($0,a,"="); print a[2]}'`
+    while true; do
+       /data/k8snodemon -endpoint=$endpoint -appid=$appid -password=$secret -k8s -name=$name -project=$project
+       sleep 10
+    done
