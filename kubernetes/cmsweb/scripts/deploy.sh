@@ -319,7 +319,14 @@ cleanup()
     echo "--- delete pods"
     for srv in $cmsweb_srvs; do
         # special case for DBS instances
-        if [ "$srv" == "dbs" ] || [ "$srv" == "dbs2go" ] ; then
+        if [ "$srv" == "dbs" ]  ; then
+            for inst in $dbs_instances; do
+                if [ -f $sdir/${srv}-${inst}.yaml ]; then
+                    kubectl delete -f $sdir/${srv}-${inst}.yaml
+                fi
+            done
+        else
+        if [ "$srv" == "dbs2go" ] ; then
             for inst in $dbs2go_instances; do
                 if [ -f $sdir/${srv}-${inst}.yaml ]; then
                     kubectl delete -f $sdir/${srv}-${inst}.yaml
