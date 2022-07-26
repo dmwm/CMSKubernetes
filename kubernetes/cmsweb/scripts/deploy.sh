@@ -11,6 +11,7 @@
 ##H Deployments:
 ##H   cluster    create openstack cluster
 ##H   services   deploy services cluster
+##H   default_services   deploy services cluster
 ##H   frontend   deploy frontend cluster
 ##H   daemonset  deploy cluster's daemonsets
 ##H   aps	 deploy auth-proxy-servers as frontends
@@ -81,6 +82,21 @@ if [ "$env_prefix" != "k8s-preprod" ] && [  "$env_prefix" != "k8s-prod" ]; then
     if [[ "$cluster_name" == *"cmsweb-test7"* ]] ; then
                 env_prefix="test7"
     fi
+    if [[ "$cluster_name" == *"cmsweb-test8"* ]] ; then
+                env_prefix="test8"
+    fi
+    if [[ "$cluster_name" == *"cmsweb-test9"* ]] ; then
+                env_prefix="test9"
+    fi
+    if [[ "$cluster_name" == *"cmsweb-test10"* ]] ; then
+                env_prefix="test10"
+    fi
+    if [[ "$cluster_name" == *"cmsweb-test11"* ]] ; then
+                env_prefix="test11"
+    fi
+    if [[ "$cluster_name" == *"cmsweb-test12"* ]] ; then
+                env_prefix="test12"
+    fi
     env_prefix="k8s-$env_prefix"
 fi
     echo "#### env_prefix = $env_prefix"
@@ -103,13 +119,15 @@ cmsweb_ds="frontend-ds"
 
 cmsweb_aps="auth-proxy-server scitokens-proxy-server x509-proxy-server aps-filebeat sps-filebeat xps-filebeat"
 
+default_services="cert-manager cmskv das-exporter das-mongo das-mongo-exporter exitcodes httpgo httpsgo imagebot ms-output-mongo podmanager rucio-con-mon k8snodemon"
 
 #cmsweb_srvs="httpgo httpsgo frontend acdcserver couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
 
-cmsweb_srvs="httpgo httpsgo frontend cert-manager crabcache crabserver das-server das-mongo das-mongo-exporter dbs dbsmigration dbs2go reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmgr2ms-rulecleaner reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes wmarchive imagebot"
+cmsweb_srvs="cert-manager cmskv crabserver das-exporter das-mongo das-mongo-exporter das-server dbs dbsmigration dbs2go exitcodes frontend httpgo httpsgo imagebot ms-output-mongo newdqmgui podmanager reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmgr2ms-rulecleaner reqmgr2ms-unmerged reqmon reqmon-tasks rucio-con-mon t0_reqmon t0_reqmon-tasks t0wmadatasvc k8snodemon  workqueue wmarchive"
 
 # list of DBS instances
 dbs_instances="migrate  global-r global-w phys03-r phys03-w"
+dbs2go_instances="global-m global-migration global-r global-w phys03-m phys03-migration phys03-r phys03-w"
 
 # define help
 if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ] || [ "$1" == "" ]; then
@@ -155,8 +173,7 @@ if [ "$deployment" == "services" ]; then
     #cmsweb_ing="ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tzero ing-exitcodes"
     cmsweb_ing="ing-crab ing-dbs ing-das ing-dmwm ing-http ing-tzero ing-exitcodes ing-wma"
 
-    #cmsweb_srvs="httpgo httpsgo acdcserver couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
-    cmsweb_srvs="httpgo httpsgo cert-manager crabcache crabserver das-server das-mongo das-mongo-exporter dbs dbsmigration dbs2go reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmgr2ms-rulecleaner reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes wmarchive imagebot"
+    cmsweb_srvs="cert-manager cmskv crabserver das-exporter das-mongo das-mongo-exporter das-server dbs dbsmigration dbs2go exitcodes httpgo httpsgo imagebot ms-output-mongo newdqmgui podmanager reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmgr2ms-rulecleaner reqmgr2ms-unmerged reqmon reqmon-tasks rucio-con-mon t0_reqmon t0_reqmon-tasks t0wmadatasvc k8snodemon  workqueue wmarchive"
 
     echo "+++ deploy services: $cmsweb_srvs"
     echo "+++ deploy ingress : $cmsweb_ing"
@@ -303,7 +320,7 @@ cleanup()
     for srv in $cmsweb_srvs; do
         # special case for DBS instances
         if [ "$srv" == "dbs" ] || [ "$srv" == "dbs2go" ] ; then
-            for inst in $dbs_instances; do
+            for inst in $dbs2go_instances; do
                 if [ -f $sdir/${srv}-${inst}.yaml ]; then
                     kubectl delete -f $sdir/${srv}-${inst}.yaml
                 fi
@@ -504,7 +521,7 @@ deploy_secrets()
                 done
             fi
             # special case for DBS instances
-            if [ "$srv" == "dbs" ] || [ "$srv" == "dbs2go" ]; then
+            if [ "$srv" == "dbs" ] ; then
                 if [ -f $conf/dbs/DBSSecrets.py ]; then
 		        files="--from-file=$conf/dbs/DBSSecrets.py"
                 fi
@@ -535,6 +552,40 @@ deploy_secrets()
                     --from-file=$conf/tnsnames/tnsnames.ora --dry-run=client -o yaml | \
                     kubectl apply --namespace=$ns -f -
             fi
+
+
+            if [ "$srv" == "dbs2go" ]; then
+                if [ -f $conf/dbs/DBSSecrets.py ]; then
+                files="--from-file=$conf/dbs/DBSSecrets.py"
+                fi
+                if [ -f $conf/dbs/NATSSecrets.py ]; then
+                        files="$files --from-file=$conf/dbs/NATSSecrets.py"
+                fi
+                for inst in $dbs2go_instances; do
+                    local dbsfiles=""
+                    if [ -d "$secretdir-$inst" ] && [ -n "`ls $secretdir-$inst`" ]; then
+                        for fconf in $secretdir-$inst/*; do
+                            dbsfiles="$dbsfiles --from-file=$fconf"
+                        done
+
+                    fi
+                    # proceed only if service namespace matches the loop one
+                    local srv_ns=`grep namespace $sdir/${osrv}-${inst}.yaml | grep $ns`
+                    if [ -z "$srv_ns" ] ; then
+                        continue
+                    fi
+                    kubectl create secret generic ${srv}-${inst}-secrets \
+                        $files $dbsfiles --dry-run=client -o yaml | \
+                        kubectl apply --namespace=$ns -f -
+                done
+                # Deleting configmap for tnsnames in dbs namespace
+                kubectl delete cm tnsnames-config --namespace=$ns
+                # Creating configmap for tnsnames in dbs namespace
+                kubectl create cm tnsnames-config \
+                    --from-file=$conf/tnsnames/tnsnames.ora --dry-run=client -o yaml | \
+                    kubectl apply --namespace=$ns -f -
+            fi
+ 
         done
 
         for srv in $cmsweb_ds; do
@@ -909,12 +960,36 @@ deploy_crons()
     done
 }
 
+deploy_default_ervices()
+{
+    echo
+    echo "+++ deploy services: $default_services"
+    for srv in $default_services; do
+         if [ -f $sdir/${srv}.yaml ]; then
+                if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]] ; then
+                        cat $sdir/${srv}.yaml | \
+                        sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
+                        sed -e "s,replicas: 2 #PROD#,replicas: ,g" | \
+                        sed -e "s,#PROD#,$prod_prefix,g" | \
+                        sed -e "s,k8s #k8s#,$env_prefix,g" | \
+                        sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
+                        sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
+                        kubectl apply -f -
+                else
+                        sed -e "s,k8s #k8s#,$env_prefix,g" | \
+                        kubectl apply -f $sdir/${srv}.yaml
+                fi
+         fi
+    done
+}
+
+
 deploy_services()
 {
     echo
     echo "+++ deploy services: $cmsweb_srvs"
     for srv in $cmsweb_srvs; do
-        if [ "$srv" == "dbs" ] || [ "$srv" == "dbs2go" ] ; then
+        if [ "$srv" == "dbs" ] ; then
             for inst in $dbs_instances; do
                 if [ -f "$sdir/${srv}-${inst}.yaml" ]; then
                     #kubectl apply -f "$sdir/${srv}-${inst}.yaml"
@@ -929,6 +1004,25 @@ deploy_services()
                       else
                             sed -e "s,k8s #k8s#,$env_prefix,g" | \
 	                    kubectl apply -f $sdir/${srv}-${inst}.yaml
+                      fi
+                fi
+            done
+        else
+        if [ "$srv" == "dbs2go" ] ; then
+            for inst in $dbs2go_instances; do
+                if [ -f "$sdir/${srv}-${inst}.yaml" ]; then
+                    #kubectl apply -f "$sdir/${srv}-${inst}.yaml"
+                      if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]] ; then
+                            cat $sdir/${srv}-${inst}.yaml | \
+                            sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
+                            sed -e "s,#PROD#,$prod_prefix,g" | \
+                            sed -e "s,k8s #k8s#,$env_prefix,g" | \
+                            sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
+                            sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
+                            kubectl apply -f -
+                      else
+                            sed -e "s,k8s #k8s#,$env_prefix,g" | \
+                      kubectl apply -f $sdir/${srv}-${inst}.yaml
                       fi
                 fi
             done
@@ -986,6 +1080,8 @@ create()
         deploy_monitoring
     elif [ "$deployment" == "storages" ]; then
         deploy_storages
+    elif [ "$deployment" == "default_services" ]; then 
+        deploy_default_services
     else
         deploy_ns
         deploy_secrets
