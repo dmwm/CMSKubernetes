@@ -1,0 +1,55 @@
+# Default values for podmanager.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+environment: 
+
+replicaCount: 1
+
+image:
+  repository:  registry.cern.ch/cmsweb/podmanager
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "0.0.14-stable"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+
+ingress:
+  enabled: false
+
+resources: 
+  requests:
+    memory: "256Mi"
+    cpu: "300m"
+  limits:
+    memory: "3Gi"
+    cpu: "1000m"
+
+autoscaling:
+  enabled: false
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
