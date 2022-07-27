@@ -562,12 +562,6 @@ deploy_secrets()
 
 
             if [ "$srv" == "dbs2go" ]; then
-                if [ -f $conf/dbs/DBSSecrets.py ]; then
-                files="--from-file=$conf/dbs/DBSSecrets.py"
-                fi
-                if [ -f $conf/dbs/NATSSecrets.py ]; then
-                        files="$files --from-file=$conf/dbs/NATSSecrets.py"
-                fi
                 for inst in $dbs2go_instances; do
                     local dbsfiles=""
                     if [ -d "$secretdir-$inst" ] && [ -n "`ls $secretdir-$inst`" ]; then
