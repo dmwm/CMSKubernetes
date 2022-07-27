@@ -579,6 +579,28 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/httpgo-0.1.1/httpgo-0.1.1.tgz
     version: 0.1.1
+  imagebot:
+  - apiVersion: v2
+    appVersion: 20220404-stable
+    created: "2022-07-27T07:52:09.259747264Z"
+    description: A Helm chart for Kubernetes
+    digest: 94a89e8fb5e978a72e8ddfd80cdcf39b9101db0d27352f235d1ec57952e24c81
+    name: imagebot
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/imagebot-0.1.1/imagebot-0.1.1.tgz
+    version: 0.1.1
+  k8snodemon:
+  - apiVersion: v2
+    appVersion: 20220404-stable
+    created: "2022-07-27T07:52:09.556297575Z"
+    description: A Helm chart for Kubernetes
+    digest: c10682270778d64c4f8f121a5a95dc5512d06e29bc31c296de9c32d4e797491c
+    name: k8snodemon
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/k8snodemon-0.1.1/k8snodemon-0.1.1.tgz
+    version: 0.1.1
   ms-output-mongo:
   - apiVersion: v2
     appVersion: 1.16.0
@@ -589,6 +611,17 @@ entries:
     type: application
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/ms-output-mongo-0.1.1/ms-output-mongo-0.1.1.tgz
+    version: 0.1.1
+  podmanager:
+  - apiVersion: v2
+    appVersion: 0.0.14-stable
+    created: "2022-07-27T07:52:10.843790436Z"
+    description: A Helm chart for Kubernetes
+    digest: 66f8e4969a56875d210a07ab03b7124e701861574fbf05170b1dc7f3eaec6d58
+    name: podmanager
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/podmanager-0.1.1/podmanager-0.1.1.tgz
     version: 0.1.1
   reqmgr2:
   - apiVersion: v2
@@ -1099,4 +1132,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
     version: 0.1.1
-generated: "2022-07-20T22:38:21.154995845Z"
+generated: "2022-07-27T07:52:10.843988351Z"
