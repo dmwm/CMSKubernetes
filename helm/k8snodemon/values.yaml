@@ -1,0 +1,52 @@
+# Default values for k8snodemon.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+environment:
+
+replicaCount: 1
+
+image:
+  repository: registry.cern.ch/cmsweb/k8snodemon
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "20220404-stable"
+
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+ingress:
+  enabled: false
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "300m"
+  limits:
+    memory: "3Gi"
+    cpu: "1000m"
+
+autoscaling:
+  enabled: false
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
