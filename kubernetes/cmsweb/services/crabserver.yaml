@@ -56,7 +56,7 @@ data:
     - type: log
       enabled: true
       paths:
-        - /data/srv/logs/crabserver/*${MY_POD_NAME}*.log
+        - /data/srv/logs/crabserver/crabserver-*${MY_POD_NAME}*.log
       file_identity.path:
       scan_frequency: 10s
       backoff: 5s
@@ -64,6 +64,18 @@ data:
       include_lines:
         - '^\[.+?\] crabserver-'
       tags: ["crabhttpcall"]
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/crabserver/CRAB-*${MY_POD_NAME}*.log
+      file_identity.path:
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+      include_lines:
+        - 'MeasureTime:seconds - '
+        - 'MeasureSize:bytes - '
+      tags: ["crabrest"]
     output.logstash:
       hosts: ["logstash:5044"]
       compression_level: 3
