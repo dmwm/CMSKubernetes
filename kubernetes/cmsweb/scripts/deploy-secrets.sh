@@ -79,9 +79,9 @@ fi
        for fname in $secretdir/*; do
          if [[ $fname == *.encrypted ]]; then
   	    if [[ $fname == *.json* ]]; then
-               sops --output-type json -d $fname > $secretdir/$(basename $fname .encrypted)
+               $HOME/bin/sops --output-type json -d $fname > $secretdir/$(basename $fname .encrypted)
             else
-	       sops -d $fname > $secretdir/$(basename $fname .encrypted)
+	       $HOME/bin/sops -d $fname > $secretdir/$(basename $fname .encrypted)
             fi
          fi
        done
@@ -118,9 +118,9 @@ fi
         	for fname in $secretdir/*; do
            	  if [[ $fname == *.encrypted ]]; then
                      if [[ $fname == *.json* ]]; then
-                        sops --output-type json -d $fname > $secretdir/$(basename $fname .encrypted)
+                        $HOME/bin/sops --output-type json -d $fname > $secretdir/$(basename $fname .encrypted)
                      else
-                        sops -d $fname > $secretdir/$(basename $fname .encrypted)
+                        $HOME/bin/sops -d $fname > $secretdir/$(basename $fname .encrypted)
 		     fi
 	            fname=$secretdir/$(basename $fname .encrypted)
 		    echo "Decrypted file $fname"
@@ -134,7 +134,7 @@ fi
         if [ "$ns" == "dbs" ]; then
 		for fname in $conf/dbs/*; do
                   if [[ $fname == *.encrypted ]]; then
-                    sops -d $fname > $conf/dbs/$(basename $fname .encrypted)
+                    $HOME/bin/sops -d $fname > $conf/dbs/$(basename $fname .encrypted)
                   fi
                 done
         	if [ -f $conf/dbs/DBSSecrets.py ]; then
