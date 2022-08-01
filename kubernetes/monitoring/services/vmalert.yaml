@@ -34,6 +34,7 @@ spec:
           - -datasource.url=http://cms-monitoring:30082
           - -remoteWrite.url=http://cms-monitoring-agg:31428
           - -rule=/etc/vmalert/rucio-agg.rules
+          - -rule=/etc/vmalert/dbs-dbinfo.rules
           - -notifier.url=http://cms-monitoring:30093
           - -httpListenAddr=:30880
           name: vmalert

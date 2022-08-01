@@ -1,0 +1,112 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: json-exporter-dbs-db
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 17979
+    protocol: TCP
+    name: http
+  selector:
+    app: json-exporter-dbs-db
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: json-exporter-dbs-db-config
+  namespace: http
+  labels:
+    app: json-exporter-dbs-db
+data:
+  exporter-config.yml: |-
+    modules:
+      default:
+        headers:
+          MyHeader: dbs-db-info
+        http_client_config:
+          tls_config:
+            key_file: /etc/proxy/proxy
+            cert_file: /etc/proxy/proxy
+            insecure_skip_verify: true
+        metrics:
+        - name: dbs_dbinfo_full_size
+          path: '{.FullSize}'
+        - name: dbs_dbinfo_index_size
+          path: '{.IndexSize}'
+        - name: dbs_dbinfo_schemas
+          type: object
+          help: dbs2go DBS DB info schemas
+          path: '{.Schemas[*]}'
+          labels:
+            owner: '{.Owner}'
+          values:
+            size: '{.Size}'
+        - name: dbs_dbinfo_schemas_indexes
+          type: object
+          help: dbs2go DBS DB info schemas indexes
+          path: '{.Schemas[*].Indexes[*]}'
+          labels:
+            owner: '{.Owner}'
+            index: '{.Index}'
+          values:
+            size: '{.Size}'
+        - name: dbs_dbinfo_tables
+          type: object
+          help: dbs2go DBS DB info tables
+          path: '{.Tables[*]}'
+          labels:
+            owner: '{.Owner}'
+            table: '{.Table}'
+          values:
+            size: '{.Size}'
+            rows: '{.Rows}'
+        - name: dbs_dbinfo_tables_indexes
+          type: object
+          help: dbs2go DBS DB info tables indexes
+          path: '{.Tables[*].Indexes[*]}'
+          labels:
+            owner: '{.Owner}'
+            table: '{.Table}'
+            index: '{.Index}'
+          values:
+            size: '{.Size}'
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: json-exporter-dbs-db
+  namespace: http
+  labels:
+     app: json-exporter-dbs-db
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: json-exporter-dbs-db
+   template:
+      metadata:
+         labels:
+           app: json-exporter-dbs-db
+      spec:
+        containers:
+        - args:
+          - --config.file=/etc/config/exporter-config.yml
+          - --web.listen-address=:17979
+          name: json-exporter-dbs-db
+          image: quay.io/prometheuscommunity/json-exporter
+          ports:
+          - containerPort: 17979
+          volumeMounts:
+          - name: config
+            mountPath: /etc/config
+          - name: proxy-secrets
+            mountPath: /etc/proxy
+        volumes:
+        - name: config
+          configMap:
+            name: json-exporter-dbs-db-config
+        - name: proxy-secrets
+          secret:
+            secretName: proxy-secrets
