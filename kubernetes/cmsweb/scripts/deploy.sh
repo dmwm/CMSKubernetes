@@ -114,7 +114,7 @@ cmsweb_ns="auth default crab das dbs dmwm dqm http ruciocm tzero wma"
 # services for cmsweb cluster, adjust if necessary
 #cmsweb_ing="ing-srv"
 #cmsweb_ing="ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tzero ing-exitcodes"
-cmsweb_ing="ing-crab ing-dbs ing-das ing-dmwm ing-http ing-tzero ing-exitcodes ing-wma"
+cmsweb_ing="ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-ruciocm ing-tzero ing-wma"
 cmsweb_ds="frontend-ds"
 
 cmsweb_aps="auth-proxy-server scitokens-proxy-server x509-proxy-server aps-filebeat sps-filebeat xps-filebeat"
@@ -325,17 +325,14 @@ cleanup()
                     kubectl delete -f $sdir/${srv}-${inst}.yaml
                 fi
             done
-        else
-        if [ "$srv" == "dbs2go" ] ; then
+        elif [ "$srv" == "dbs2go" ] ; then
             for inst in $dbs2go_instances; do
                 if [ -f $sdir/${srv}-${inst}.yaml ]; then
                     kubectl delete -f $sdir/${srv}-${inst}.yaml
                 fi
             done
-        else
-            if [ -f $sdir/${srv}.yaml ]; then
+        elif [ -f $sdir/${srv}.yaml ]; then
                 kubectl delete -f $sdir/${srv}.yaml
-            fi
         fi
     done
 
@@ -813,13 +810,15 @@ deploy_storages()
        kubectl apply -f storages/dqm-cvmfs.yaml
        kubectl apply -f storages/cephfs-storage-filebeat-v1.22.yaml
        kubectl apply -f storages/cephfs-storage-filebeatcrab-v1.22.yaml
+       kubectl apply -f storages/cephfs-storage-msoutput-preprod-v1.22.yaml
+       kubectl apply -f storages/cephfs-storage-ruciocm-ds-v1.22.yaml
     fi
     # Deploy storage for production cluster
     if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod" ]]; then
-       if [ "$cmsweb_hostname" == "cmsweb.cern.ch"]; then
+       if [[ "$cmsweb_hostname" == "cmsweb.cern.ch" ]]; then
           kubectl apply -f storages/cephfs-storage-cmsweb-v1.22.yaml
           kubectl apply -f storages/cephfs-storage-filebeat-v1.22.yaml	  
-       elif [ "$cmsweb_hostname" == "cmsweb-prod.cern.ch" ]; then
+       elif [[ "$cmsweb_hostname" == "cmsweb-prod.cern.ch" ]]; then
           kubectl apply -f storages/cephfs-storage-cmsweb-prod-v1.22.yaml
           kubectl apply -f storages/cephfs-storage-filebeat-v1.22.yaml
        else
@@ -827,6 +826,8 @@ deploy_storages()
           kubectl apply -f storages/cephfs-storage-dqm-prod-v1.22.yaml
           kubectl apply -f storages/dqm-cvmfs.yaml
           kubectl apply -f storages/cephfs-storage-filebeatcrab-v1.22.yaml
+          kubectl apply -f storages/cephfs-storage-msoutput-prod-v1.22.yaml
+          kubectl apply -f storages/cephfs-storage-ruciocm-ds-v1.22.yaml
        fi
     fi
 
@@ -920,6 +921,10 @@ deploy_ingress()
     echo "+++ deploy $cmsweb_ing"
     echo "+++ use CMSWEB_HOSTNAME=$cmsweb_hostname"
     ips=`host $cmsweb_hostname_frontend | awk '{ORS=","; print $4}' | rev | cut -c2- | rev`
+    ips_cmsweb=`host cmsweb-prod.cern.ch | awk '{ORS=","; print $4}' | rev | cut -c2- | rev`
+    
+    ips=$ips,$ips_cmsweb
+
     echo "+++ use CMSWEB IPs: $ips"
     tmpDir=/tmp/$USER/ingress
     mkdir -p $tmpDir
@@ -1008,8 +1013,7 @@ deploy_services()
                       fi
                 fi
             done
-        else
-        if [ "$srv" == "dbs2go" ] ; then
+        elif [ "$srv" == "dbs2go" ] ; then
             for inst in $dbs2go_instances; do
                 if [ -f "$sdir/${srv}-${inst}.yaml" ]; then
                     #kubectl apply -f "$sdir/${srv}-${inst}.yaml"
@@ -1027,8 +1031,7 @@ deploy_services()
                       fi
                 fi
             done
-        else
-            if [ -f $sdir/${srv}.yaml ]; then
+        elif [ -f $sdir/${srv}.yaml ]; then
                 #kubectl apply -f $sdir/${srv}.yaml 
                 if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]] ; then
                         cat $sdir/${srv}.yaml | \
@@ -1043,7 +1046,6 @@ deploy_services()
                         sed -e "s,k8s #k8s#,$env_prefix,g" | \
                         kubectl apply -f $sdir/${srv}.yaml
                 fi
-            fi
         fi
     done
 }
