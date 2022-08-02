@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ing-http
@@ -7,7 +7,7 @@ metadata:
     kubernetes.io/ingress.class: nginx
     # restrict access to this ingress controller from specific IPs
     # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#whitelist-source-range
-    nginx.ingress.kubernetes.io/whitelist-source-range: 137.138.31.19,137.138.158.91,137.138.33.200,137.138.54.48
+    nginx.ingress.kubernetes.io/whitelist-source-range: 188.185.101.116,188.184.75.82,137.138.154.184,188.184.73.32,188.185.89.202,188.185.89.194,137.138.157.32,137.138.62.154,188.184.31.220,137.138.31.95
 #    nginx.ingress.kubernetes.io/affinity: "cookie"
 #    nginx.ingress.kubernetes.io/session-cookie-name: "route"
 #    nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
@@ -18,18 +18,37 @@ spec:
     http:
       paths:
       - path: /exitcodes
+        pathType: Prefix
         backend:
-          serviceName: exitcodes
-          servicePort: 9201
+          service:
+            name: exitcodes
+            port: 
+              number: 9201
       - path: /httpgo
+        pathType: Prefix
         backend:
-          serviceName: httpgo
-          servicePort: 8888
+          service:
+            name: httpgo
+            port:
+              number: 8888
       - path: /httpsgo
+        pathType: Prefix
         backend:
-          serviceName: httpsgo
-          servicePort: 443
+          service:
+            name: httpsgo
+            port:
+              number: 443
       - path: /cmskv
+        pathType: Prefix
         backend:
-          serviceName: cmskv
-          servicePort: 9212
+          service:
+            name: cmskv
+            port:
+              number: 9212
+      - path: /cmsamqproxy
+        pathType: Prefix
+        backend:
+          service:
+            name: cmsamqproxy
+            port:
+              number: 8300

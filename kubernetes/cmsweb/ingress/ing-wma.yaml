@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ing-wma
@@ -7,7 +7,7 @@ metadata:
     kubernetes.io/ingress.class: nginx
     # restrict access to this ingress controller from specific IPs
     # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#whitelist-source-range
-    nginx.ingress.kubernetes.io/whitelist-source-range: 137.138.31.19,137.138.158.91,137.138.33.200,137.138.54.48
+    nginx.ingress.kubernetes.io/whitelist-source-range: 188.185.101.116,188.184.75.82,137.138.154.184,188.184.73.32,188.185.89.202,188.185.89.194,137.138.157.32,137.138.62.154,188.184.31.220,137.138.31.95
 #    nginx.ingress.kubernetes.io/affinity: "cookie"
 #    nginx.ingress.kubernetes.io/session-cookie-name: "route"
 #    nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
@@ -18,6 +18,9 @@ spec:
     http:
       paths:
       - path: /wmarchive
+        pathType: Prefix
         backend:
-          serviceName: wmarchive
-          servicePort: 8200
+          service:
+            name: wmarchive
+            port: 
+              number: 8200
