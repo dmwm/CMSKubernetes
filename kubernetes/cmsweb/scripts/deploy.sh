@@ -119,7 +119,7 @@ cmsweb_ds="frontend-ds"
 
 cmsweb_aps="auth-proxy-server scitokens-proxy-server x509-proxy-server aps-filebeat sps-filebeat xps-filebeat"
 
-default_services="cert-manager cmskv das-exporter das-mongo das-mongo-exporter exitcodes httpgo httpsgo imagebot ms-output-mongo podmanager rucio-con-mon k8snodemon"
+default_services="cert-manager cmskv exitcodes httpgo httpsgo imagebot podmanager rucio-con-mon k8snodemon"
 
 #cmsweb_srvs="httpgo httpsgo frontend acdcserver couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
 
@@ -486,7 +486,7 @@ deploy_secrets()
             local osrv=$srv
             srv=`echo $srv | sed -e "s,_,,g"`
             local files=""
-
+            secret_check="false"
 ### Substitution for APS/XPS/SPS client secrets in config.json	    
     if [ "$srv" == "auth-proxy-server" ] || [ "$srv" == "x509-proxy-server" ] || [ "$srv" == "scitokens-proxy-server" ] ; then
        if [ -d $secretdir ] && [ -n "`ls $secretdir`" ] && [ -f $secretdir/client.secrets ]; then
@@ -526,8 +526,9 @@ deploy_secrets()
             fi
             # special case for DBS instances
             if [ "$srv" == "dbs" ] ; then
+                secret_check="true"
                 if [ -f $conf/dbs/DBSSecrets.py ]; then
-		        files="--from-file=$conf/dbs/DBSSecrets.py"
+   		             files="--from-file=$conf/dbs/DBSSecrets.py"
                 fi
                 if [ -f $conf/dbs/NATSSecrets.py ]; then
                         files="$files --from-file=$conf/dbs/NATSSecrets.py"
@@ -557,8 +558,8 @@ deploy_secrets()
                     kubectl apply --namespace=$ns -f -
             fi
 
-
             if [ "$srv" == "dbs2go" ]; then
+                secret_check="true"
                 for inst in $dbs2go_instances; do
                     local dbsfiles=""
                     if [ -d "$secretdir-$inst" ] && [ -n "`ls $secretdir-$inst`" ]; then
@@ -573,7 +574,7 @@ deploy_secrets()
                         continue
                     fi
                     kubectl create secret generic ${srv}-${inst}-secrets \
-                        $files $dbsfiles --dry-run=client -o yaml | \
+                        $dbsfiles --dry-run=client -o yaml | \
                         kubectl apply --namespace=$ns -f -
                 done
                 # Deleting configmap for tnsnames in dbs namespace
@@ -583,7 +584,17 @@ deploy_secrets()
                     --from-file=$conf/tnsnames/tnsnames.ora --dry-run=client -o yaml | \
                     kubectl apply --namespace=$ns -f -
             fi
- 
+            
+            local srv_ns=`grep namespace $sdir/${osrv}.yaml | grep $ns`
+            if [ -z "$srv_ns" ] ; then
+               continue
+            fi
+            if [ "$secret_check" == "false" ]; then
+                kubectl create secret generic ${srv}-secrets \
+                $files --dry-run=client -o yaml | \
+                kubectl apply --namespace=$ns -f -
+
+            fi
         done
 
         for srv in $cmsweb_ds; do
@@ -966,7 +977,7 @@ deploy_crons()
     done
 }
 
-deploy_default_ervices()
+deploy_default_services()
 {
     echo
     echo "+++ deploy services: $default_services"
@@ -1063,7 +1074,7 @@ create()
         openstack --os-project-name "$project" coe cluster list
     elif [ "$deployment" == "secrets" ]; then
         deploy_ns
-	deploy_crons
+      	deploy_crons
         deploy_roles
         deploy_secrets
     elif [ "$deployment" == "ingress" ]; then
