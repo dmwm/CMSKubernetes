@@ -1,0 +1,9 @@
+apiVersion: v3
+name: opapolicies
+version: '0.0.1'
+
+dependencies:
+- name: allowedrepos
+  version: '0.0.1'
+  repository: "file://../charts/allowedrepos"
+  condition: disabled
