@@ -1,3 +1,0 @@
-ranges:
-    - min_replicas: 3
-      max_replicas: 50

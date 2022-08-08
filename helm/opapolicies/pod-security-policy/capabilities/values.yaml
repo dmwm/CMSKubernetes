@@ -1,4 +1,0 @@
-allowedCapabilities: 
-- "something"
-requiredDropCapabilities: 
-- "must_drop"

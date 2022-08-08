@@ -1,6 +1,0 @@
-limits: 
-- "cpu"
-- "memory"
-requests:
-- "cpu"
-- "memory"
