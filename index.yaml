@@ -614,6 +614,18 @@ entries:
     version: 0.1.1
   opapolicies:
   - apiVersion: v3
+    created: "2022-08-09T11:41:43.878509612Z"
+    dependencies:
+    - condition: disabled
+      name: allowedrepos
+      repository: ""
+      version: 0.0.2
+    digest: 9607a09845d024b1e8c3a54d4f8c9158b5d320f0317d5b341bf545e55f04b72c
+    name: opapolicies
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/opapolicies-0.0.2/opapolicies-0.0.2.tgz
+    version: 0.0.2
+  - apiVersion: v3
     created: "2022-08-08T16:55:16.712034639Z"
     dependencies:
     - condition: disabled
@@ -1145,4 +1157,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
     version: 0.1.1
-generated: "2022-08-08T16:55:16.712205837Z"
+generated: "2022-08-09T11:41:43.87881811Z"
