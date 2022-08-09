@@ -508,6 +508,17 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/exitcodes-0.1.1/exitcodes-0.1.1.tgz
     version: 0.1.1
+  fluentd-logs:
+  - apiVersion: v2
+    appVersion: v2.4.0
+    created: "2022-08-09T12:11:07.402747902Z"
+    description: A Helm chart for Kubernetes
+    digest: afab5c2f1ea3f0e1f97da5aa9c5253f3c771d2eaf8931a2fccb0eda9dde31e7e
+    name: fluentd-logs
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/fluentd-logs-0.1.1/fluentd-logs-0.1.1.tgz
+    version: 0.1.1
   httpgo:
   - apiVersion: v2
     appVersion: 00.00.19
@@ -1157,4 +1168,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
     version: 0.1.1
-generated: "2022-08-09T11:41:43.87881811Z"
+generated: "2022-08-09T12:11:07.402980904Z"
