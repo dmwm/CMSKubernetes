@@ -8,7 +8,7 @@ helm repo list
 cd helm
 for chart in $(ls -d */Chart.yaml | xargs dirname); do
 # echo $chart
-          LOCAL_VERSION=$(grep -R "version:" ${chart}/Chart.yaml | awk '{print $2}')
+          LOCAL_VERSION=$(grep -R "version:" ${chart}/Chart.yaml | awk '{print $2}' | head -n +1)
           if ! REMOTE_LATEST_VERSION="$(helm search repo myrepo/"${chart}" | grep myrepo/"${chart}" | awk '{print $2}')" ; then
               echo "INFO There are no remote versions."
               REMOTE_LATEST_VERSION=""
