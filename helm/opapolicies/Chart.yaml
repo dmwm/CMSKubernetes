@@ -1,10 +1,10 @@
 apiVersion: v3
 name: opapolicies
-version: 0.0.3
+version: 0.0.4
 
 dependencies:
 - name: allowedrepos
-  version: 0.0.2
+  version: 0.0.3
   condition: disabled
 - name: replicalimits
   version: 0.0.1
