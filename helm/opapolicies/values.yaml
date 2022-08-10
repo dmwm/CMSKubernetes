@@ -6,3 +6,4 @@ isEnabled:
  replicalimits: false
  capabilities: false
  containerlimits: false
+ containerrequests: false
