@@ -9,3 +9,4 @@ isEnabled:
  containerrequests: false
  containerresourceratios: false
  containerresources: false
+ disallowanonymous: false
