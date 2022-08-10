@@ -8,3 +8,4 @@ isEnabled:
  containerlimits: false
  containerrequests: false
  containerresourceratios: false
+ containerresources: false
