@@ -1,6 +1,6 @@
 apiVersion: v3
 name: opapolicies
-version: 0.0.7
+version: 0.0.8
 
 dependencies:
 - name: allowedrepos

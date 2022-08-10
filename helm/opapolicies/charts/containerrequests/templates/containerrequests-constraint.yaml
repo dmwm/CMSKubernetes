@@ -7,6 +7,8 @@ spec:
     kinds:
       - apiGroups: [""]
         kinds: ["Pod"]
+    excludedNamespaces:
+      - "auth"
   parameters:
     cpu: {{ .Values.requests.cpu }}
     memory: {{ .Values.requests.memory }}
