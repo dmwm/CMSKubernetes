@@ -1,6 +1,6 @@
 apiVersion: v3
 name: opapolicies
-version: 0.0.5
+version: 0.0.6
 
 dependencies:
 - name: allowedrepos
@@ -12,3 +12,6 @@ dependencies:
 - name: capabilities
   version: 0.0.1
   condition: isEnabled.capabilities
+- name: containerlimits
+  version: 0.0.1
+  condition: isEnabled.containerlimits
