@@ -1,2 +1,7 @@
 enabled: true
 disabled: false
+
+isEnabled:
+ allowedrepos: false
+ replicalimits: false
+ capabilities: false

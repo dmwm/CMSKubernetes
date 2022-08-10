@@ -1,0 +1,14 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPCapabilities
+metadata:
+  name: capabilities-constraints
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - "default"
+  parameters:
+    allowedCapabilities: {{- toYaml .Values.allowedCapabilities | nindent 12 }}
+    requiredDropCapabilities: {{- toYaml .Values.requiredDropCapabilities | nindent 12 }}
