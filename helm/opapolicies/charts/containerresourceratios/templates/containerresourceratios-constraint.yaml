@@ -8,4 +8,4 @@ spec:
       - apiGroups: [""]
         kinds: ["Pod"]
   parameters:
-    ratio: {{ .Values.containerresourceratios }}
+    ratio: {{ .Values.containerresourcerations }}
