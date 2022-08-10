@@ -2,6 +2,6 @@ enabled: true
 disabled: false
 
 isEnabled:
- allowedrepos: true
- replicalimits: true
- capabilities: true
+ allowedrepos: false
+ replicalimits: false
+ capabilities: false
