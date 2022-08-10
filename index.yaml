@@ -625,6 +625,42 @@ entries:
     version: 0.1.1
   opapolicies:
   - apiVersion: v3
+    created: "2022-08-10T14:12:50.076621076Z"
+    dependencies:
+    - condition: isEnabled.allowedrepos
+      name: allowedrepos
+      repository: ""
+      version: 0.0.3
+    - condition: isEnabled.replicalimits
+      name: replicalimits
+      repository: ""
+      version: 0.0.1
+    - condition: isEnabled.capabilities
+      name: capabilities
+      repository: ""
+      version: 0.0.1
+    - condition: isEnabled.containerlimits
+      name: containerlimits
+      repository: ""
+      version: 0.0.1
+    - condition: isEnabled.containerrequests
+      name: containerrequests
+      repository: ""
+      version: 0.0.1
+    - condition: isEnabled.containerresourceratios
+      name: containerresourceratios
+      repository: ""
+      version: 0.0.1
+    - condition: isEnabled.containerresources
+      name: containerresources
+      repository: ""
+      version: 0.0.1
+    digest: 0854ef2e2e82190876a2423b4c92e08f4c08d352494cf4c05250880a1c7f9d7f
+    name: opapolicies
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/opapolicies-0.0.10/opapolicies-0.0.10.tgz
+    version: 0.0.10
+  - apiVersion: v3
     created: "2022-08-10T12:21:04.577867458Z"
     dependencies:
     - condition: isEnabled.allowedrepos
@@ -1332,4 +1368,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
     version: 0.1.1
-generated: "2022-08-10T12:21:04.578260265Z"
+generated: "2022-08-10T14:12:50.076876783Z"
