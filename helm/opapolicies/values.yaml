@@ -5,3 +5,4 @@ isEnabled:
  allowedrepos: false
  replicalimits: false
  capabilities: false
+ containerlimits: false
