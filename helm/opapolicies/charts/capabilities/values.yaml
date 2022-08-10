@@ -1,4 +1,4 @@
 allowedCapabilities: 
-- "something"
+- NET_BIND_SERVICE
 requiredDropCapabilities: 
-- "must_drop"
+- all
