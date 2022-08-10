@@ -1,0 +1,13 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredResources
+metadata:
+  name: containerresources
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+  parameters:
+    limits: {{- toYaml .Values.limits | nindent 12 }}
+    requests: {{- toYaml .Values.requests | nindent 12 }}
+    exemptImages: {{- toYaml .Values.exemptImages | nindent 12 }}

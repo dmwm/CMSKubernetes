@@ -1,6 +1,6 @@
 apiVersion: v3
 name: opapolicies
-version: 0.0.9
+version: 0.0.10
 
 dependencies:
 - name: allowedrepos
@@ -21,3 +21,6 @@ dependencies:
 - name: containerresourceratios
   version: 0.0.1
   condition: isEnabled.containerresourceratios
+- name: containerresources
+  version: 0.0.1
+  condition: isEnabled.containerresources
