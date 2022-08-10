@@ -7,3 +7,4 @@ isEnabled:
  capabilities: false
  containerlimits: false
  containerrequests: false
+ containerresourceratios: false
