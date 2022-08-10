@@ -5,7 +5,10 @@ version: 0.0.4
 dependencies:
 - name: allowedrepos
   version: 0.0.3
-  condition: disabled
+  condition: isEnabled.allowedrepos
 - name: replicalimits
   version: 0.0.1
-  condition: disabled
+  condition: isEnabled.replicalimits
+- name: capabilities
+  version: 0.0.1
+  condition: isEnabled.capabilities
