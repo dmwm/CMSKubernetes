@@ -1,4 +1,4 @@
 ranges:
-- max: 1000
+- max: 2000
   min: 1
 rule: MayRunAs
