@@ -1,0 +1,3 @@
+hostNetwork: true
+max: 9000
+min: 80

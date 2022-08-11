@@ -1,0 +1,3 @@
+apiVersion: v3
+name: host-network-ports
+version: 0.0.1

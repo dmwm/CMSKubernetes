@@ -1,0 +1,13 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPPrivilegedContainer
+metadata:
+  name: privileged-containers
+spec:
+  match:
+    excludedNamespaces:
+    - kube-system
+    kinds:
+    - apiGroups:
+      - ''
+      kinds:
+      - Pod

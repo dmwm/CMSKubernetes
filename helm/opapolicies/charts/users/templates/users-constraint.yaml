@@ -1,0 +1,16 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPAllowedUsers
+metadata:
+  name: users
+spec:
+  match:
+    kinds:
+    - apiGroups:
+      - ''
+      kinds:
+      - Pod
+  parameters:
+    fsGroup: {{- toYaml .Values.fsGroup | nindent 12 }}
+    runAsGroup: {{- toYaml .Values.runAsGroup | nindent 12 }}
+    runAsUser: {{- toYaml .Values.runAsUser | nindent 12 }}
+    supplementalGroups: {{- toYaml .Values.supplementalGroups | nindent 12 }}

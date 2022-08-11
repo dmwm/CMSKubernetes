@@ -1,0 +1,13 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPFlexVolumes
+metadata:
+  name: flexvolume-drivers
+spec:
+  match:
+    kinds:
+    - apiGroups:
+      - ''
+      kinds:
+      - Pod
+  parameters:
+    allowedFlexVolumes:  {{- toYaml .Values.allowedFlexVolumes | nindent 12 }}

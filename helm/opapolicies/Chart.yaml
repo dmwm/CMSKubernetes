@@ -1,6 +1,6 @@
 apiVersion: v3
 name: opapolicies
-version: 0.0.13
+version: 0.0.14
 
 dependencies:
 - name: allowedrepos
@@ -74,5 +74,47 @@ dependencies:
   version: 0.0.1
 - condition: isEnabled.uniqueserviceselector
   name: uniqueserviceselector
+  version: 0.0.1
+- condition: isEnabled.allow-privilege-escalation
+  name: allow-privilege-escalation
+  version: 0.0.1
+- condition: isEnabled.apparmor
+  name: apparmor
+  version: 0.0.1
+- condition: isEnabled.flexvolume-drivers
+  name: flexvolume-drivers
+  version: 0.0.1
+- condition: isEnabled.forbidden-sysctls
+  name: forbidden-sysctls
+  version: 0.0.1
+- condition: isEnabled.fsgroup
+  name: fsgroup
+  version: 0.0.1
+- condition: isEnabled.host-filesystem
+  name: host-filesystem
+  version: 0.0.1
+- condition: isEnabled.host-network-ports
+  name: host-network-ports
+  version: 0.0.1
+- condition: isEnabled.privileged-containers
+  name: privileged-containers
+  version: 0.0.1
+- condition: isEnabled.proc-mount
+  name: proc-mount
+  version: 0.0.1
+- condition: isEnabled.read-only-root-filesystem
+  name: read-only-root-filesystem
+  version: 0.0.1
+- condition: isEnabled.seccomp
+  name: seccomp
+  version: 0.0.1
+- condition: isEnabled.selinux
+  name: selinux
+  version: 0.0.1
+- condition: isEnabled.users
+  name: users
+  version: 0.0.1
+- condition: isEnabled.volumes
+  name: volumes
   version: 0.0.1
 

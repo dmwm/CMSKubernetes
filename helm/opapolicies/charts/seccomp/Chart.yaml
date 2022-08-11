@@ -1,0 +1,3 @@
+apiVersion: v3
+name: seccomp
+version: 0.0.1
