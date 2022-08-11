@@ -33,3 +33,46 @@ dependencies:
 - name: host-namespaces
   version: 0.0.1
   condition: isEnabled.host-namespaces
+- condition: isEnabled.automount-serviceaccount-token
+  name: automount-serviceaccount-token
+  version: 0.0.1
+- condition: isEnabled.block-endpoint-edit-default-role
+  name: block-endpoint-edit-default-role
+  version: 0.0.1
+- condition: isEnabled.block-nodeport-services
+  name: block-nodeport-services
+  version: 0.0.1
+- condition: isEnabled.block-wildcard-ingress
+  name: block-wildcard-ingress
+  version: 0.0.1
+- condition: isEnabled.disallowedtags
+  name: disallowedtags
+  version: 0.0.1
+- condition: isEnabled.externalip
+  name: externalip
+  version: 0.0.1
+- condition: isEnabled.httpsonly
+  name: httpsonly
+  version: 0.0.1
+- condition: isEnabled.imagedigests
+  name: imagedigests
+  version: 0.0.1
+- condition: isEnabled.noupdateserviceaccount
+  name: noupdateserviceaccount
+  version: 0.0.1
+- condition: isEnabled.poddisruptionbudget
+  name: poddisruptionbudget
+  version: 0.0.1
+- condition: isEnabled.requiredannotations
+  name: requiredannotations
+  version: 0.0.1
+- condition: isEnabled.requiredlabels
+  name: requiredlabels
+  version: 0.0.1
+- condition: isEnabled.uniqueingresshost
+  name: uniqueingresshost
+  version: 0.0.1
+- condition: isEnabled.uniqueserviceselector
+  name: uniqueserviceselector
+  version: 0.0.1
+

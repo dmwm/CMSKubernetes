@@ -1,0 +1,6 @@
+annotations:
+- allowedRegex: ^([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}|[a-z]{1,39})$
+  key: a8r.io/owner
+- allowedRegex: ^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$
+  key: a8r.io/runbook
+message: "All services must have a `a8r.io/owner` and `a8r.io/runbook` annotations."

@@ -1,0 +1,4 @@
+labels:
+- allowedRegex: ^[a-zA-Z]+.agilebank.demo$
+  key: owner
+message: "All namespaces must have an `owner` label that points to your company username"

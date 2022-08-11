@@ -1,0 +1,11 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sBlockNodePort
+metadata:
+  name: block-nodeport-services
+spec:
+  match:
+    kinds:
+    - apiGroups:
+      - ''
+      kinds:
+      - Service

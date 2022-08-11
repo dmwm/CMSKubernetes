@@ -1,0 +1,16 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sDisallowedTags
+metadata:
+  name: disallowedtags
+spec:
+  match:
+    kinds:
+    - apiGroups:
+      - ''
+      kinds:
+      - Pod
+    namespaces:
+    - default
+  parameters:
+    exemptImages: {{- toYaml .Values.exemptImages | nindent 12 }}
+    tags: {{- toYaml .Values.tags | nindent 12 }}
