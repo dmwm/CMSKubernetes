@@ -10,3 +10,4 @@ isEnabled:
  containerresourceratios: false
  containerresources: false
  disallowanonymous: false
+ requiredprobes: false

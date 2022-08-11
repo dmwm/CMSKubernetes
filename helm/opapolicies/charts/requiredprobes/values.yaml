@@ -1,0 +1,7 @@
+requiredProbes:
+ probes: 
+ - "livenessProbe"
+ probeTypes:
+ - "tcpSocket"
+ - "httpGet"
+ - "exec"
