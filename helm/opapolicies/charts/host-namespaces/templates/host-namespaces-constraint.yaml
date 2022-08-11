@@ -1,7 +1,7 @@
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sPSPHostNamespace
 metadata:
-  name: host-namespace
+  name: host-namespaces
 spec:
   match:
     kinds:

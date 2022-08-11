@@ -30,6 +30,6 @@ dependencies:
 - name: requiredprobes
   version: 0.0.1
   condition: isEnabled.requiredprobes
-- name: host-namespace
+- name: host-namespaces
   version: 0.0.1
-  condition: isEnabled.host-namespace
+  condition: isEnabled.host-namespaces
