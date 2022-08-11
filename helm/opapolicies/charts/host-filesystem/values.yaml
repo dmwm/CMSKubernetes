@@ -1,0 +1,3 @@
+allowedHostPaths:
+- pathPrefix: /foo
+  readOnly: true

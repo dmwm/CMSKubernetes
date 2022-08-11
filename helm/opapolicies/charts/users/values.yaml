@@ -1,0 +1,20 @@
+fsGroup:
+  ranges:
+  - max: 200
+    min: 100
+  rule: MustRunAs
+runAsGroup:
+  ranges:
+  - max: 200
+    min: 100
+  rule: MustRunAs
+runAsUser:
+  ranges:
+  - max: 200
+    min: 100
+  rule: MustRunAs
+supplementalGroups:
+  ranges:
+  - max: 200
+    min: 100
+  rule: MustRunAs

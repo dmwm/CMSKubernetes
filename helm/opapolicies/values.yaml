@@ -26,3 +26,17 @@ isEnabled:
  requiredlabels: false
  uniqueingresshost: false
  uniqueserviceselector: false
+ allow-privilege-escalation: false
+ apparmor: false
+ flexvolume-drivers: false
+ forbidden-sysctls: false
+ fsgroup: false
+ host-filesystem: false
+ host-network ports: false
+ privileged-containers: false
+ proc-mount: false
+ read-only-root-filesystem: false
+ seccomp: false
+ selinux: false
+ users: false
+ volumes: false

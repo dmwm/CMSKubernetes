@@ -1,0 +1,3 @@
+allowedFlexVolumes:
+- driver: example/lvm
+- driver: example/cifs
