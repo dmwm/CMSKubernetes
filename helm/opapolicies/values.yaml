@@ -12,3 +12,17 @@ isEnabled:
  disallowanonymous: false
  requiredprobes: false
  host-namespaces: false
+ automount-serviceaccount-token: false
+ block-endpoint-edit-default-role: false
+ block-nodeport-services: false
+ block-wildcard-ingress: false
+ disallowedtags: false
+ externalip: false
+ httpsonly: false
+ imagedigests: false
+ noupdateserviceaccount: false
+ poddisruptionbudget: false
+ requiredannotations: false
+ requiredlabels: false
+ uniqueingresshost: false
+ uniqueserviceselector: false

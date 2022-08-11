@@ -1,0 +1,14 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredAnnotations
+metadata:
+  name: requiredannotations
+spec:
+  match:
+    kinds:
+    - apiGroups:
+      - ''
+      kinds:
+      - Service
+  parameters:
+    annotations: {{- toYaml .Values.annotations | nindent 12 }}
+    message: {{ .Values.message }}

@@ -1,0 +1,4 @@
+allowedGroups:
+- "NoGroupIsAllowed"
+allowedUsers:
+- "NoUserIsAllowed"
