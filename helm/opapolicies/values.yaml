@@ -11,3 +11,4 @@ isEnabled:
  containerresources: false
  disallowanonymous: false
  requiredprobes: false
+ host-namespace: false

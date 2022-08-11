@@ -1,6 +1,6 @@
 apiVersion: v3
 name: opapolicies
-version: 0.0.12
+version: 0.0.13
 
 dependencies:
 - name: allowedrepos
@@ -30,3 +30,6 @@ dependencies:
 - name: requiredprobes
   version: 0.0.1
   condition: isEnabled.requiredprobes
+- name: host-namespace
+  version: 0.0.1
+  condition: isEnabled.host-namespace
