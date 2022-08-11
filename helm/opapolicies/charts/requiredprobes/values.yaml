@@ -1,6 +1,5 @@
 requiredProbes:
  probes: 
- - "readinessProbe"
  - "livenessProbe"
  probeTypes:
  - "tcpSocket"
