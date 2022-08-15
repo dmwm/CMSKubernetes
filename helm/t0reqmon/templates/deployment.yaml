@@ -75,7 +75,7 @@ spec:
           privileged: true
         {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
       - name: t0reqmon-filebeat
-        image: {{ .Values.imageFilebeat.name}}
+        image: {{ .Values.imageFilebeat.path}}
         args: [
           "-c", "/etc/filebeat.yml",
           "-e",
