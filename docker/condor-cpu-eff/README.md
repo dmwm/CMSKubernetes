@@ -4,7 +4,9 @@ Condor cpu efficiency static pages, including separate step chain calculations.
 
 Resultant page: https://cmsdatapop.web.cern.ch/cmsdatapop/
 
-#### How to build
+##### Image built by GH workflow in CMSSpark repository
+
+#### [DEPRECATED] How to build
 
 ```shell
 # docker image prune -a OR docker system prune -f -a
