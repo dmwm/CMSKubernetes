@@ -1292,6 +1292,16 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/reqmon-tasks-0.1.1/reqmon-tasks-0.1.1.tgz
     version: 0.1.1
+  rucio-con-mon:
+  - apiVersion: v2
+    created: "2022-08-15T14:18:53.637850307Z"
+    description: A Helm chart for Kubernetes
+    digest: 587f00047c4233f7ee189f5e9e9b351669c10408306c3c168bf1d9289e8889d6
+    name: rucio-con-mon
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/rucio-con-mon-0.1.1/rucio-con-mon-0.1.1.tgz
+    version: 0.1.1
   rucio-consistency:
   - apiVersion: v2
     appVersion: 0.1.0
@@ -1700,4 +1710,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
     version: 0.1.1
-generated: "2022-08-15T13:46:34.764559846Z"
+generated: "2022-08-15T14:18:53.63809901Z"
