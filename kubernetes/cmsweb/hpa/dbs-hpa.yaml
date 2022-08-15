@@ -156,8 +156,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: dbs-global-r # should match deployment target
-  minReplicas: 5
-  maxReplicas: 8
+  minReplicas: 1
+  maxReplicas: 1
   metrics:
   - type: Object
     object:
@@ -193,8 +193,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: dbs-global-w # should match deployment target
-  minReplicas: 5
-  maxReplicas: 8
+  minReplicas: 1
+  maxReplicas: 1
   metrics:
   - type: Object
     object:
@@ -230,8 +230,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: dbs-phys03-r # should match deployment target
-  minReplicas: 5
-  maxReplicas: 8
+  minReplicas: 1
+  maxReplicas: 1
   metrics:
   - type: Object
     object:
@@ -267,8 +267,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: dbs-phys03-w # should match deployment target
-  minReplicas: 5
-  maxReplicas: 8
+  minReplicas: 1
+  maxReplicas: 1
   metrics:
   - type: Object
     object:
@@ -341,8 +341,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: dbsmigration # should match deployment target
-  minReplicas: 5
-  maxReplicas: 8
+  minReplicas: 3
+  maxReplicas: 5
   metrics:
   - type: Object
     object:
