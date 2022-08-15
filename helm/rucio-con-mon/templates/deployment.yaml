@@ -1,0 +1,38 @@
+{{- $environment := .Values.environment | default dict }}
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: monitor
+  name: monitor
+  namespace: ruciocm
+spec:
+  selector:
+    matchLabels:
+      app: monitor
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: monitor
+        env: k8s-{{.Values.environment}}
+    spec:
+      containers:
+      - image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        name: monitor
+        livenessProbe:
+        {{- toYaml .Values.livenessProbe | nindent 12 }}
+        command: ["/root/start.sh", "-r", "/rucioconmon"]
+        resources:
+        {{- toYaml .Values.resources | nindent 12 }}
+        ports:
+        - containerPort: 8400
+{{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+        volumeMounts:
+            - mountPath: /reports
+              name: consistency-reports
+      volumes:
+        - name: consistency-reports
+          persistentVolumeClaim:
+            claimName: consistency-report-pvc
+{{- end }}
