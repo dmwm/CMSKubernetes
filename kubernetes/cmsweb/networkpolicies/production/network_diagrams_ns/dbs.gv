@@ -1,0 +1,65 @@
+digraph G {
+
+	fontname="Helvetica,Arial,sans-serif"
+	node [fontname="Helvetica,Arial,sans-serif"]
+	edge [fontname="Helvetica,Arial,sans-serif"]
+    node [shape=box, style=filled, color=white]
+
+	subgraph cluster_0 {
+		style=filled;
+		color=lightcyan;
+		node [style=filled, color=white, shape=box];
+		nginx_ingress [label="    Pod: nginx-ingress     ", margin="1.4,0.2"]
+		label = " \nNamespace: kube-system";
+		labeljust="c"
+		margin=20;
+	}
+
+	subgraph cluster_1 {
+	    style=filled;
+		color=lightcyan;
+		node [style=filled, shape=box];
+		label = "Namespace: dbs";
+		labelloc=b;
+		labeljust="c"
+		margin=20;
+		
+        dbs_global_r[label="dbs_global_r", labeljust="c"]
+        dbs_global_w[label="dbs_global_w", labeljust="c"]
+        dbs_migrate[label="dbs_migrate", labeljust="c"]
+        dbs_phys03_r[label="dbs_phys03_r", labeljust="c"]
+        dbs_phys03_w[label="dbs_phys03_w", labeljust="c"]
+        dbs2go_global_m[label="dbs2go_global_m", labeljust="c"]
+        dbs2go_global_r[label="dbs2go_global_r", labeljust="c"]
+        dbs2go_global_w[label="dbs2go_global_w", labeljust="c"]
+        dbs2go_phys03_m[label="dbs2go_phys03_m", labeljust="c"]
+        dbs2go_phys03_r[label="dbs2go_phys03_r", labeljust="c"]
+        dbs2go_phys03_w[label="dbs2go_phys03_w", labeljust="c"]
+        dbsproxy[label="dbsproxy", labeljust="c"]
+
+
+	}
+	subgraph cluster_4 {
+		color=white
+		allow_label[color=white, margin=0, label="Allow Ingress Traffic"]
+		tick[shape=circle, style=filled, color=darkgreen, fontcolor=white label=<&#10004;>]
+	}
+	
+	
+	nginx_ingress -> tick[minlen=4]
+
+	tick -> dbs_global_r
+	tick -> dbs_global_w
+	tick -> dbs_migrate
+	tick -> dbs_phys03_r
+	tick -> dbs_phys03_w
+	tick -> dbs2go_global_m
+	tick -> dbs2go_global_r
+	tick -> dbs2go_global_w
+	tick -> dbs2go_phys03_m
+	tick -> dbs2go_phys03_r
+	tick -> dbs2go_phys03_w
+	tick -> dbsproxy
+
+
+}

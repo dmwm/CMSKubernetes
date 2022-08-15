@@ -1,0 +1,53 @@
+digraph G {
+
+	fontname="Helvetica,Arial,sans-serif"
+	node [fontname="Helvetica,Arial,sans-serif"]
+	edge [fontname="Helvetica,Arial,sans-serif"]
+    node [shape=box, style=filled, color=white]
+
+	subgraph cluster_0 {
+		style=filled;
+		color=lightcyan;
+		node [style=filled, color=white, shape=box];
+		frontend [label="    Pod: frontend     ", margin="1.4,0.2"]
+		label = " \nNamespace: auth";
+		labeljust="c"
+		margin=20;
+	}
+
+	subgraph cluster_1 {
+	    style=filled;
+		color=lightcyan;
+		node [style=filled, shape=box];
+		label = "Namespace: das";
+		labelloc=b;
+		labeljust="c"
+		margin=20;
+		
+        das_server[label="das_server", labeljust="c"]
+		das_mongo[label="das_mongo", labeljust="c"]
+		das_mongo_exporter[label="das_mongo_exporter", labeljust="c"]
+
+		subgraph cluster_5 {
+			label=""
+			allow_label1[color=lightcyan, margin=0, label="Allow Ingress Traffic"]
+			tick1[shape=circle, style=filled, color=darkgreen, fontcolor=white label=<&#10004;>]
+		}
+
+	}
+	subgraph cluster_4 {
+		color=white
+		allow_label[color=white, margin=0, label="Allow Ingress Traffic"]
+		tick[shape=circle, style=filled, color=darkgreen, fontcolor=white label=<&#10004;>]
+	}
+	
+	
+	frontend -> tick[minlen=4]
+
+	tick -> das_server
+	das_server -> tick1
+	das_mongo_exporter -> tick1
+	tick1 -> das_mongo
+
+
+}
