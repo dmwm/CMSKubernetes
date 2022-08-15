@@ -1607,6 +1607,16 @@ entries:
     version: 0.1.1
   t0reqmon-tasks:
   - apiVersion: v2
+    appVersion: HG2208d
+    created: "2022-08-15T13:46:34.764133141Z"
+    description: A Helm chart for Kubernetes
+    digest: d36cc084d1c851012e8cd3c4c7f6801b38ead7f0f0bd5c2d6a0a89da5977bd79
+    name: t0reqmon-tasks
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/t0reqmon-tasks-0.1.2/t0reqmon-tasks-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
     appVersion: 1.16.0
     created: "2021-09-03T10:10:58.943403227Z"
     description: A Helm chart for Kubernetes
@@ -1690,4 +1700,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
     version: 0.1.1
-generated: "2022-08-15T13:25:58.400226773Z"
+generated: "2022-08-15T13:46:34.764559846Z"
