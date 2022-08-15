@@ -186,52 +186,6 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: dbs2go-migrate-network-policy
-  namespace: dbs
-spec:
-  podSelector:
-    matchLabels:
-      app: dbs2go-migrate
-  policyTypes:
-    - Ingress
-  ingress:
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: kube-system
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: ingress-nginx
-      ports:
-        - protocol: TCP
-          port: 8259
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: dbs2go-migration-network-policy
-  namespace: dbs
-spec:
-  podSelector:
-    matchLabels:
-      app: dbs2go-migration
-  policyTypes:
-    - Ingress
-  ingress:
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: kube-system
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: ingress-nginx
-      ports:
-        - protocol: TCP
-          port: 8259
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
   name: dbs2go-phys03-m-network-policy
   namespace: dbs
 spec:
@@ -301,29 +255,6 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: dbs2go-writer-network-policy
-  namespace: dbs
-spec:
-  podSelector:
-    matchLabels:
-      app: dbs2go-writer
-  policyTypes:
-    - Ingress
-  ingress:
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: kube-system
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: ingress-nginx
-      ports:
-        - protocol: TCP
-          port: 8260
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
   name: dbsproxy-network-policy
   namespace: dbs
 spec:
@@ -343,49 +274,3 @@ spec:
       ports:
         - protocol: TCP
           port: 8222
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: dbs2go-global-migration-network-policy
-  namespace: dbs
-spec:
-  podSelector:
-    matchLabels:
-      app: dbs2go-global-migration
-  policyTypes:
-    - Ingress
-  ingress:
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: kube-system
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: ingress-nginx
-      ports:
-        - protocol: TCP
-          port: 9251
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: dbs2go-phys03-migration-network-policy
-  namespace: dbs
-spec:
-  podSelector:
-    matchLabels:
-      app: dbs2go-phys03-migration
-  policyTypes:
-    - Ingress
-  ingress:
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: kube-system
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: ingress-nginx
-      ports:
-        - protocol: TCP
-          port: 9251

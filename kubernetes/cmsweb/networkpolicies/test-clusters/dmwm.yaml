@@ -2,41 +2,6 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: ms-output-mongo-network-policy
-  namespace: dmwm
-spec:
-  podSelector:
-    matchLabels:
-      app: ms-output-mongo
-  policyTypes:
-    - Ingress
-  ingress:
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: auth
-          podSelector:
-            matchLabels:
-              app: auth-proxy-server
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: auth
-          podSelector:
-            matchLabels:
-              app: scitokens-proxy-server
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: auth
-          podSelector:
-            matchLabels:
-              app: x509-proxy-server
-      ports:
-        - protocol: TCP
-          port: 8230
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
   name: reqmgr2-network-policy
   namespace: dmwm
 spec:
@@ -418,3 +383,26 @@ spec:
       ports:
         - protocol: TCP
           port: 8240
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ms-output-mongo-network-policy
+  namespace: dmwm
+spec:
+  podSelector:
+    matchLabels:
+      app: ms-output-mongo
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: dmwm
+          podSelector:
+            matchLabels:
+              app: ms-output
+      ports:
+        - protocol: TCP
+          port: 8230
