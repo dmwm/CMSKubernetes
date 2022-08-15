@@ -40,13 +40,13 @@ spec:
               kubernetes.io/metadata.name: das
           podSelector:
             matchLabels:
-              app.kubernetes.io/name: das-server
+              app: das-server
         - namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: das
           podSelector:
             matchLabels:
-              app.kubernetes.io/name: das-mongo-exporter
+              app: das-mongo-exporter
       ports:
         - protocol: TCP
           port: 8230

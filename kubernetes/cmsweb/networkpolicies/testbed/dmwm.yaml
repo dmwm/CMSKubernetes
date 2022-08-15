@@ -270,7 +270,7 @@ spec:
               kubernetes.io/metadata.name: dmwm
           podSelector:
             matchLabels:
-              app.kubernetes.io/name: ms-output
+              app: ms-output
       ports:
         - protocol: TCP
           port: 8230
