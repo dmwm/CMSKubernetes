@@ -126,7 +126,12 @@ spec:
       {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }} 
       - name: logs
         persistentVolumeClaim:
-            claimName: logs-cephfs-claim-tzero
+        {{- if eq (toString $environment) "preprod" }}
+          claimName: logs-cephfs-claim-preprod-tzero
+          {{- end }}
+          {{- if eq (toString $environment) "prod" }}
+          claimName: logs-cephfs-claim-prod-tzero
+        {{- end }}
       - name: varlog
         hostPath:
           path: /var/log
