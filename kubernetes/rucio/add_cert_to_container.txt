@@ -1,8 +1,0 @@
-#! /bin/bash
-
-cd ~/CMSKubernetes/kubernetes/rucio/
-kubectl apply -f rucio-client.yaml 
-kubectl cp ~/.globus/usercert.pem $1:/tmp
-kubectl cp ~/.globus/userkey.pem $1:/tmp
-
-kubectl exec -it $1 /bin/bash
