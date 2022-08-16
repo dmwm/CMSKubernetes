@@ -1,4 +1,4 @@
-## cmsmon-rucio-ds-web
+## cmsmon-rucio-mon-goweb
 
 Notes:
 - Built by github wf

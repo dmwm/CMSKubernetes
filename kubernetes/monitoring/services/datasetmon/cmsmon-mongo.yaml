@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mongodb
-  namespace: cmsmon-mongo
+  namespace: datasetmon
   labels:
     app: mongodb
 spec:
@@ -14,7 +14,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: mongodb
-  namespace: cmsmon-mongo
+  namespace: datasetmon
 spec:
   serviceName: mongodb
   replicas: 1
@@ -23,7 +23,7 @@ spec:
       app: mongodb
   template:
     metadata:
-      namespace: cmsmon-mongo
+      namespace: datasetmon
       labels:
         app: mongodb
         selector: mongodb
@@ -31,7 +31,7 @@ spec:
       containers:
       - name: mongodb
         image: registry.cern.ch/cmsmonitoring/cmsmon-mongo:5.0.9
-        args: [ "--dbpath","/data/db" ]
+        args: [ "--tlsAllowInvalidHostnames","--dbpath","/data/db","--profile","2","--slowms","9","--slowOpSampleRate","0.5"]
         livenessProbe:
           exec:
             command:

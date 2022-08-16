@@ -32,8 +32,8 @@ ENV PATH="${PATH}:/usr/hdp/hadoop/bin/hadoop:/usr/hdp/spark3/bin:/usr/hdp/sqoop/
 # CMSMonitoring folder is in WDIR
 ENV PYTHONPATH "${PYTHONPATH}:${WDIR}:${WDIR}/CMSSpark/src/python"
 
-# LCG101 uses this cvmfs python
-ENV PYSPARK_PYTHON=/cvmfs/sft.cern.ch/lcg/releases/Python/3.9.6-b0f98/x86_64-centos7-gcc8-opt/bin/python3
+# LCG102 uses this cvmfs python
+ENV PYSPARK_PYTHON=/cvmfs/sft.cern.ch/lcg/releases/Python/3.9.12-9a1bc/x86_64-centos7-gcc8-opt/bin/python3
 
 # Local
 ENV PYSPARK_DRIVER_PYTHON=/usr/bin/python

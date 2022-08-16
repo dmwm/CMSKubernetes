@@ -45,3 +45,25 @@ mongoimport --host mongodb-0.mongodb.cmsmon-mongo.svc.cluster.local --port 27017
 # "--authenticationDatabase admin" should be used since we're using admin user to connect "rucio" db.
 
 ```
+
+### Index Examples
+```shell
+db.detailed_datasets.createIndex( { "_id": 1, "Type": 1 } )
+db.detailed_datasets.createIndex( { "_id": 1, "Dataset": 1 } )
+db.detailed_datasets.createIndex( { "_id": 1, "Dataset": 1, "RSE":1 } )
+db.detailed_datasets.createIndex( {"Dataset": 1} )
+db.detailed_datasets.createIndex( { "Dataset": 1, "RSE":1 } )
+
+# we can create only 1 text type index
+db.detailed_datasets.createIndex( 
+	{ 
+		"Type": "text", 
+		"Dataset": "text", 
+		"RSE": "text", 
+		"Tier": "text",
+		"C": "text",
+		"RseKind": "text",
+		"ProdAccts": "text", } 
+)
+
+```

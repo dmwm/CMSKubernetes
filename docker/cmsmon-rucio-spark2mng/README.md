@@ -1,4 +1,4 @@
-## cmsmon-rucio-ds-mongo
+## cmsmon-rucio-spark2mng
 
 For sending rucio datasets Spark results to MongoDB (cmsmon-mongo).
 
@@ -9,12 +9,14 @@ Installs:
 - dmwm/CMSSpark
 - mongoimport CLI
 
-#### How to build and push
+##### This docker image is built by GH workflow in dmwm/CMSSpark repo
+
+#### [Deprecated] How to build and push
 
 ```shell
 # docker image prune -a OR docker system prune -f -a
 docker_registry=registry.cern.ch/cmsmonitoring
 image_tag=20220616
-docker build -t "${docker_registry}/cmsmon-rucio-ds-mongo:${image_tag}" .
-docker push "${docker_registry}/cmsmon-rucio-ds-mongo:${image_tag}"
+docker build -t "${docker_registry}/cmsmon-rucio-spark2mng:${image_tag}" .
+docker push "${docker_registry}/cmsmon-rucio-spark2mng:${image_tag}"
 ```
