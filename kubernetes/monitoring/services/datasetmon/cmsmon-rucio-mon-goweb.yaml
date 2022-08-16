@@ -64,7 +64,7 @@ spec:
     spec:
       containers:
       - name: cmsmon-rucio-mon-goweb
-        image: registry.cern.ch/cmsmonitoring/cmsmon-rucio-mon-goweb:20220810
+        image: registry.cern.ch/cmsmonitoring/cmsmon-rucio-mon-goweb:rgo-0.0.1
         imagePullPolicy: Always
         args:
           - /data/rucio-dataset-monitoring
