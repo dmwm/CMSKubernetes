@@ -1638,6 +1638,16 @@ entries:
     version: 0.1.1
   t0wmadatasvc:
   - apiVersion: v2
+    appVersion: HG2208d
+    created: "2022-08-16T08:03:58.897105825Z"
+    description: A Helm chart for Kubernetes
+    digest: 2644ce6cb172d637d6bcb85d9f6d52e3645f5f04c6310a124f3eeecd227ad039
+    name: t0wmadatasvc
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/t0wmadatasvc-0.1.2/t0wmadatasvc-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
     appVersion: 1.16.0
     created: "2021-09-03T10:10:59.114918388Z"
     description: A Helm chart for Kubernetes
@@ -1710,4 +1720,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
     version: 0.1.1
-generated: "2022-08-15T14:18:53.63809901Z"
+generated: "2022-08-16T08:03:58.897621122Z"
