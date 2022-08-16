@@ -68,7 +68,7 @@ spec:
       hostname: cmsmon-rucio-spark2mng
       containers:
         - name: cmsmon-rucio-spark2mng
-          image: registry.cern.ch/cmsmonitoring/cmsmon-rucio-spark2mng:20220810
+          image: registry.cern.ch/cmsmonitoring/cmsmon-rucio-spark2mng:v00.03.00
           imagePullPolicy: Always
           env:
             - name: MONGO_ROOT_USERNAME
