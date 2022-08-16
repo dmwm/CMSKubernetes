@@ -1,21 +1,22 @@
+{{- $environment := .Values.environment | default dict }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "crabserver.fullname" . }}
+  name: {{ .Release.Name }}
   labels:
-    {{- include "crabserver.labels" . | nindent 4 }}
+    app: crabserver
   namespace: crab
 spec:
   {{- if not .Values.autoscaling.enabled }}
-  {{- if or .Values.environment.prod .Values.environment.preprod}}
+  {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
   replicas: {{ .Values.replicaCount.prod }}
   {{- else }}
-  replicas: {{ .Values.replicaCount.test }} 
+  replicas: {{ .Values.replicaCount.test }}
   {{- end }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "crabserver.selectorLabels" . | nindent 6 }}
+      app: crabserver
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -23,49 +24,40 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "crabserver.selectorLabels" . | nindent 8 }}
-        {{- if .Values.environment.preprod}}
-        env: k8s-preprod
-        {{- end }}
-        {{- if .Values.environment.prod}}
-        env: k8s-prod
-        {{- end }}
-        {{- if .Values.environment.test}}
-        env: k8s
-        {{- end }}
+        app: crabserver
+        env: k8s-{{.Values.environment}}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "crabserver.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}"
+        - name: crabserver
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext:
            {{- toYaml .Values.securityContext | nindent 12 }}
           ports:
-           - containerPort: {{ .Values.service.port}}
-             name: {{ .Values.service.name }}
-             protocol: {{ .Values.service.protocol }}
-           - containerPort: {{ .Values.serviceMon.port }}
-             name: {{ .Values.serviceMon.name }}
-             protocol: {{ .Values.serviceMon.protocol }}
+          - containerPort: 8270
+            protocol: TCP
+            name: crabserver
+          - containerPort: 18270
+            protocol: TCP
+            name: crabserver-mon
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           command:
           {{- toYaml .Values.image.command | nindent 10 }}
           livenessProbe:
-          {{- if .Values.environment.prod}}
+          {{- if eq (toString $environment) "prod" }}
           {{- toYaml .Values.livenessProbe | nindent 12 }}
           {{- else }}
           {{- toYaml .Values.livenessProbePreProd | nindent 12 }}
           {{- end }}
           readinessProbe:
-          {{- if .Values.environment.prod}}
+          {{- if eq (toString $environment) "prod" }}
           {{- toYaml .Values.readinessProbe | nindent 12 }}
           {{- else }}
           {{- toYaml .Values.readinessProbePreProd | nindent 12 }}
@@ -88,7 +80,10 @@ spec:
             readOnly: true
           - name: setup-certs-and-run
             mountPath: /opt/setup-certs-and-run
-{{- if or .Values.environment.preprod .Values.environment.prod }}
+          - name: token-secrets
+            mountPath: /etc/token
+            readOnly: true
+        {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }} 
           - name: logs
             mountPath: /data/srv/logs/crabserver
         - name: {{ .Values.imageFilebeat.name }}
@@ -115,7 +110,7 @@ spec:
             readOnly: true
           securityContext:
           {{- toYaml .Values.imageFilebeatSecurityContext | nindent 12 }}
-{{- end }}
+        {{- end }}
       volumes:
       - name: proxy-secrets
         secret:
@@ -134,16 +129,19 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: {{ include "crabserver.fullname" . }}
-{{- if or .Values.environment.prod .Values.environment.preprod }}
+          name: crabserver
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+      {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }} 
       - name: logs
         persistentVolumeClaim:
-{{- if .Values.environment.preprod }}
-            claimName: logs-cephfs-claim-preprod-crab
-{{- end }}
-{{- if .Values.environment.prod }}
-            claimName: logs-cephfs-claim-prod-crab
-{{- end }}
+        {{- if eq (toString $environment) "preprod" }}
+          claimName: logs-cephfs-claim-preprod-crab
+          {{- end }}
+          {{- if eq (toString $environment) "prod" }}
+          claimName: logs-cephfs-claim-prod-crab
+        {{- end }}
       - name: varlog
         hostPath:
           path: /var/log
@@ -153,7 +151,14 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: {{ include "crabserver.fullname" . }}-filebeat-config
+          name: crabserver-filebeat-config
       - name: data
         emptyDir: {}
-{{- end }}
+      - name: crabserver-filebeat-monit-config
+        configMap:
+          defaultMode: 0640
+          name: crabserver-filebeat-monit-config
+      - name: filebeat-cephfs
+        persistentVolumeClaim:
+            claimName: crabserver-filebeat-monit-data
+      {{- end }}
