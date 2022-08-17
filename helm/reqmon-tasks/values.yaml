@@ -2,12 +2,10 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 
-  prod: 5
-  test: 1
+replicaCount: 1 
 
 image:
-  repository: registry.cern.ch/cmsweb/reqmon-tasks
+  repository: registry.cern.ch/cmsweb/reqmon
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "HG2208d"
@@ -25,9 +23,9 @@ serviceAccount:
   # Specifies whether a service account should be created
   create: false
 
-podAnnotations: 
-  prometheus.io/scrape: 'true'
-  prometheus.io/port: "18249"
+podAnnotations: {}
+#  prometheus.io/scrape: 'true'
+#  prometheus.io/port: "18249"
 
 securityContext: 
   privileged: true
