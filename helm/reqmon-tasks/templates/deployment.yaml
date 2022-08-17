@@ -10,13 +10,7 @@ spec:
   selector:
     matchLabels:
       app: reqmon-tasks
-  {{- if not .Values.autoscaling.enabled }}
-  {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
-  replicas: {{ .Values.replicaCount.prod }}
-  {{- else }}
-  replicas: {{ .Values.replicaCount.test }}
-  {{- end }}
-  {{- end }}
+  replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
@@ -34,13 +28,6 @@ spec:
         {{- toYaml .Values.resources | nindent 12 }}
         livenessProbe:
         {{- toYaml .Values.livenessProbe | nindent 12 }}
-        ports:
-        - containerPort: 8249
-          protocol: TCP
-          name: reqmon-tasks
-        - containerPort: 18249
-          protocol: TCP
-          name: reqmon-tasks-mon
         command:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
