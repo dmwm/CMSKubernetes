@@ -1,19 +1,16 @@
-apiVersion: v1
 kind: Service
+apiVersion: v1
 metadata:
-  name: {{ include "reqmon.fullname" . }}
-  labels:
-    {{- include "reqmon.labels" . | nindent 4 }}
+  name: reqmon
+  namespace: dmwm
 spec:
-  type: {{ .Values.service.type }}
-  ports:
-  - port: {{ .Values.service.port }}
-    targetPort: {{ .Values.service.port}}
-    name: {{ .Values.service.name }}
-    protocol: {{ .Values.service.protocol }}
-  - port: {{ .Values.serviceMon.port }}
-    protocol: {{ .Values.serviceMon.protocol }}
-    name: {{ .Values.serviceMon.name }}
-    targetPort: {{ .Values.serviceMon.port}}
   selector:
-    {{- include "reqmon.selectorLabels" . | nindent 4 }}
+    app: reqmon
+  ports:
+    - port: 8249
+      targetPort: 8249
+      name: reqmon
+    - port: 18249
+      targetPort: 18249
+      name: reqmon-mon
+---
