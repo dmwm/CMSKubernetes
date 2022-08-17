@@ -1272,6 +1272,16 @@ entries:
     version: 0.1.1
   reqmon:
   - apiVersion: v2
+    appVersion: HG2208d
+    created: "2022-08-17T10:55:16.248944093Z"
+    description: A Helm chart for Kubernetes
+    digest: e274038f3f19319f3f9ac6540597004d064dafb17ae0a0b190c0e2ae00e6d3cd
+    name: reqmon
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/reqmon-0.1.4/reqmon-0.1.4.tgz
+    version: 0.1.4
+  - apiVersion: v2
     appVersion: 1.16.0
     created: "2021-09-15T15:49:44.187743419Z"
     description: A Helm chart for Kubernetes
@@ -1740,4 +1750,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
     version: 0.1.1
-generated: "2022-08-17T10:03:55.888052027Z"
+generated: "2022-08-17T10:55:16.2492132Z"
