@@ -10,13 +10,7 @@ spec:
   selector:
     matchLabels:
       app: reqmgr2-tasks
-  {{- if not .Values.autoscaling.enabled }}
-  {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
-  replicas: {{ .Values.replicaCount.prod }}
-  {{- else }}
-  replicas: {{ .Values.replicaCount.test }}
-  {{- end }}
-  {{- end }}
+  replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
@@ -36,7 +30,7 @@ spec:
               command:
               - bash
               - -c
-              - sudo chmod 0777 /data/srv/logs/reqmgr2; sudo chown _reqmgr2-tasks:_reqmgr2-tasks /data/srv/logs/reqmgr2
+              - sudo chmod 0777 /data/srv/logs/reqmgr2; sudo chown _reqmgr2:_reqmgr2 /data/srv/logs/reqmgr2
         resources:
         {{- toYaml .Values.resources | nindent 12 }}
         livenessProbe:
