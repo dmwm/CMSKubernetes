@@ -26,7 +26,7 @@ apt-get install nano
 
 # Service name is cmsmon-mongo
 # Headless FQDN definition: <StatefulSet name>-<sequence number>.<Service name>.<Namespace name>.svc.cluster.local
-mongo --host mongodb-0.mongodb.cmsmon-mongo.svc.cluster.local --port 27017 -u admin -p password
+mongo --host mongodb-0.mongodb.datasetmon.svc.cluster.local --port 27017 -u admin -p password
 show dbs
 use rucio
 show collections
@@ -39,7 +39,7 @@ cat test.json
 { "_id" : 2, "dataset" : "test2", "rse" : "CERN", "size" : 800}
 
 # Use mongoimport cli
-mongoimport --host mongodb-0.mongodb.cmsmon-mongo.svc.cluster.local --port 27017 -u admin -p password \
+mongoimport --host mongodb-0.mongodb.datasetmon.svc.cluster.local --port 27017 -u admin -p password \
     --authenticationDatabase admin --db rucio --collection datasets --file test.json --type=json
 
 # "--authenticationDatabase admin" should be used since we're using admin user to connect "rucio" db.
@@ -54,16 +54,34 @@ db.detailed_datasets.createIndex( { "_id": 1, "Dataset": 1, "RSE":1 } )
 db.detailed_datasets.createIndex( {"Dataset": 1} )
 db.detailed_datasets.createIndex( { "Dataset": 1, "RSE":1 } )
 
-# we can create only 1 text type index
 db.detailed_datasets.createIndex( 
-	{ 
-		"Type": "text", 
-		"Dataset": "text", 
-		"RSE": "text", 
-		"Tier": "text",
-		"C": "text",
-		"RseKind": "text",
-		"ProdAccts": "text", } 
+  { 
+    "Type": "text", 
+    "Dataset": "text", 
+    "RSE": "text", 
+    "Tier": "text",
+    "C": "text",
+    "RseKind": "text",
+    "ProdAccts": "text", } 
+)
+
+---
+db.datasets.createIndex( { "_id": 1, "Dataset": 1 } )
+db.datasets.createIndex( { "Dataset": 1 } )
+db.datasets.createIndex( { "LastAccess": 1 } )
+db.datasets.createIndex( { "Max": 1 } )
+db.datasets.createIndex( { "Min": 1 } )
+db.datasets.createIndex( { "Avg": 1 } )
+db.datasets.createIndex( { "Sum": 1 } )
+db.datasets.createIndex( { "RealSize": 1 } )
+db.datasets.createIndex( { "TotalFileCnt": 1 } )
+
+db.datasets.createIndex( 
+  { 
+    "RseType": "text", 
+    "Dataset": "text", 
+    "RSEs": "text", 
+  } 
 )
 
 ```

@@ -1,8 +1,9 @@
+ARG SPARK3_IMAGE_TAG=20220817
 FROM python:3.9 as builder
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 # tag to use
-ENV CMSMON_TAG=0.0.0
+ARG CMSSPARK_TAG=0.0.0
 ENV WDIR=/data
 WORKDIR $WDIR
 
@@ -20,9 +21,9 @@ RUN apt-get update -y && \
 #   zip file will be used to send specific CMSMonitoring folder to Spark workers with '--py-files'.
     svn export https://github.com/dmwm/CMSMonitoring.git/branches/master/src/python/CMSMonitoring && \
     zip -r CMSMonitoring.zip CMSMonitoring/* && \
-    git clone https://github.com/dmwm/CMSSpark.git && cd CMSSpark && git checkout tags/$CMSMON_TAG -b build && cd ..
+    git clone https://github.com/dmwm/CMSSpark.git && cd CMSSpark && git checkout tags/$CMSSPARK_TAG -b build && cd ..
 
-FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-20220606
+FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-${SPARK3_IMAGE_TAG}
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 ENV WDIR=/data
