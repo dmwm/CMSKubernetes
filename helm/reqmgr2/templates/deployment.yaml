@@ -91,7 +91,7 @@ spec:
         {{- toYaml .Values.imageFilebeatResources | nindent 12 }}
         volumeMounts:
         - name: logs
-          mountPath: /data/srv/logs/t0_reqmon
+          mountPath: /data/srv/logs/reqmgr2
         - name: config
           mountPath: /etc/filebeat.yml
           readOnly: true
