@@ -1163,6 +1163,16 @@ entries:
     version: 0.1.1
   reqmgr2:
   - apiVersion: v2
+    appVersion: HG2208d
+    created: "2022-08-17T10:03:55.887717623Z"
+    description: A Helm chart for Kubernetes
+    digest: 3af8f21c710487086bd344055beffcc6f4110879ef36486748c7ef7895d5ad33
+    name: reqmgr2
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/reqmgr2-0.1.2/reqmgr2-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
     appVersion: 1.16.0
     created: "2021-09-03T10:10:56.755737229Z"
     description: A Helm chart for Kubernetes
@@ -1730,4 +1740,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
     version: 0.1.1
-generated: "2022-08-16T08:34:24.670991493Z"
+generated: "2022-08-17T10:03:55.888052027Z"
