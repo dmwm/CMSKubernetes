@@ -72,7 +72,7 @@ livenessProbe:
   exec:
     command:
     - cmsweb-ping
-    - "--url=http://localhost:8246/reqmgr2-tasks/data/info"
+    - "--url=http://localhost:8246/reqmgr2/data/info"
     - "--authz=/etc/hmac/hmac"
     - -verbose
     - "0"
