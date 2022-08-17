@@ -1,98 +1,104 @@
-apiVersion: apps/v1
+{{- $environment := .Values.environment | default dict }}
 kind: Deployment
+apiVersion: apps/v1
 metadata:
-  name: {{ include "reqmgr2-tasks.fullname" . }}
   labels:
-    {{- include "reqmgr2-tasks.labels" . | nindent 4 }}
+    app: reqmgr2-tasks
+  name: {{ .Release.Name }}
+  namespace: dmwm
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas : {{ .Values.replicaCount}}     
-  {{- end }}
   selector:
     matchLabels:
-      {{- include "reqmgr2-tasks.selectorLabels" . | nindent 6 }}
+      app: reqmgr2-tasks
+  {{- if not .Values.autoscaling.enabled }}
+  {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+  replicas: {{ .Values.replicaCount.prod }}
+  {{- else }}
+  replicas: {{ .Values.replicaCount.test }}
+  {{- end }}
+  {{- end }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
-        {{- include "reqmgr2-tasks.selectorLabels" . | nindent 8 }}
-        {{- if .Values.environment.preprod}}
-        env: k8s-preprod
-        {{- end }}
-        {{- if .Values.environment.prod}}
-        env: k8s-prod
-        {{- end }}
-        {{- if .Values.environment.test}}
-        env: k8s
-        {{- end }}
+        app: reqmgr2-tasks
+        env: k8s-{{.Values.environment}}
+      annotations:
+      {{- toYaml .Values.podAnnotations | nindent 8 }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "reqmgr2-tasks.serviceAccountName" . }}
       securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command:
-          {{- toYaml .Values.image.command | nindent 10 }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          livenessProbe:
-          {{- toYaml .Values.livenessProbe | nindent 12 }}
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-          volumeMounts:
-          - name: proxy-secrets
-            mountPath: /etc/proxy
-            readOnly: true
-          - name: secrets
-            mountPath: /etc/secrets
-            readOnly: true
-          - name: robot-secrets
-            mountPath: /etc/robots
-            readOnly: true
-          - name: hmac-secrets
-            mountPath: /etc/hmac
-            readOnly: true
-          - mountPath: /host/etc/grid-security
-            name: etc-grid-security
-            readOnly: true
-          - name: setup-certs-and-run
-            mountPath: /opt/setup-certs-and-run
-{{- if or .Values.environment.prod .Values.environment.preprod }}
-          - name: logs
-            mountPath: /data/srv/logs/reqmgr2-tasks
-        - name: {{ .Values.imageFilebeat.name }}
-          image: {{ .Values.imageFilebeat.path }}
-          args: {{ .Values.imageFilebeat.args }}
-          env:
-          {{- toYaml .Values.imageFilebeat.env | nindent 10 }}
-          resources:
-          {{- toYaml .Values.imageFilebeatResources | nindent 12 }}
-          volumeMounts:
-          - name: logs
-            mountPath: /data/srv/logs/reqmgr2-tasks
-          - name: config
-            mountPath: /etc/filebeat.yml
-            readOnly: true
-            subPath: filebeat.yml
-          - name: data
-            mountPath: /usr/share/filebeat/data
-          - name: varlog
-            mountPath: /var/log
-          - name: varlibdockercontainers
-            mountPath: /var/lib/docker/containers
-            readOnly: true
-          securityContext:
-          {{- toYaml .Values.imageFilebeatSecurityContext | nindent 12 }}
-{{- end }}
+      - image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        name: reqmgr2-tasks
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - bash
+              - -c
+              - sudo chmod 0777 /data/srv/logs/reqmgr2; sudo chown _reqmgr2-tasks:_reqmgr2-tasks /data/srv/logs/reqmgr2
+        resources:
+        {{- toYaml .Values.resources | nindent 12 }}
+        livenessProbe:
+        {{- toYaml .Values.livenessProbe | nindent 12 }}
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true
+        {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}  
+        - name: logs
+          mountPath: /data/srv/logs/reqmgr2
+        {{- end }}
+        securityContext:
+          privileged: true
+        {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+      - name: reqmgr2-tasks-filebeat
+        image: {{ .Values.imageFilebeat.path}}
+        args: [
+          "-c", "/etc/filebeat.yml",
+          "-e",
+        ]
+        env:
+        {{- toYaml .Values.imageFilebeat.env | nindent 10 }}
+        resources:
+        {{- toYaml .Values.imageFilebeatResources | nindent 12 }}
+        volumeMounts:
+        - name: logs
+          mountPath: /data/srv/logs/reqmgr2
+        - name: config
+          mountPath: /etc/filebeat.yml
+          readOnly: true
+          subPath: filebeat.yml
+        - name: data
+          mountPath: /usr/share/filebeat/data
+        - name: varlog
+          mountPath: /var/log
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+        securityContext:
+          allowPrivilegeEscalation: false
+        {{- end }}
       volumes:
       - name: proxy-secrets
         secret:
@@ -111,16 +117,19 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: {{ include "reqmgr2-tasks.fullname" . }}
-{{- if or .Values.environment.prod .Values.environment.preprod }}
+          name: reqmgr2-tasks
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+      {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }} 
       - name: logs
         persistentVolumeClaim:
-{{- if .Values.environment.preprod }}
-            claimName: logs-cephfs-claim-preprod-dmwm
-{{- end }}
-{{- if .Values.environment.prod }}
-            claimName: logs-cephfs-claim-prod-dmwm
-{{- end }}
+        {{- if eq (toString $environment) "preprod" }}
+          claimName: logs-cephfs-claim-preprod-dmwm
+          {{- end }}
+          {{- if eq (toString $environment) "prod" }}
+          claimName: logs-cephfs-claim-prod-dmwm
+        {{- end }}
       - name: varlog
         hostPath:
           path: /var/log
@@ -130,7 +139,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: {{ include "reqmgr2-tasks.fullname" . }}-filebeat-config
+          name: reqmgr2-tasks-filebeat-config
       - name: data
         emptyDir: {}
-{{- end }}
+      {{- end }}
