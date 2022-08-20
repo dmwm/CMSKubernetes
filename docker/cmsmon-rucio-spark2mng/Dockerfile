@@ -1,8 +1,9 @@
+ARG SPARK3_IMAGE_TAG=20220817
 FROM mongo as builder
-FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-20220606
+FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-${SPARK3_IMAGE_TAG}
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
-ENV CMSMON_TAG=0.0.0
+ARG CMSSPARK_TAG=0.0.0
 ENV WDIR=/data
 ENV HADOOP_CONF_DIR=/etc/hadoop/conf
 # mongoimport is in WDIR
@@ -18,7 +19,7 @@ COPY --from=builder /usr/bin/mongoimport $WDIR
 
 # Checkout to specific git tag
 RUN git clone https://github.com/dmwm/CMSSpark.git && \
-    cd CMSSpark && git checkout tags/$CMSMON_TAG -b build && cd .. && \
+    cd CMSSpark && git checkout tags/$CMSSPARK_TAG -b build && cd .. && \
     mkdir -p $WDIR/logs && \
     pip install --no-cache-dir pandas click pyspark && \
     hadoop-set-default-conf.sh analytix && source hadoop-setconf.sh analytix 3.2 spark3

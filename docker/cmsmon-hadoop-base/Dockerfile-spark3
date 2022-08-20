@@ -1,9 +1,9 @@
-FROM registry.cern.ch/cmsmonitoring/cmsmon-py:3.9.13
+# cmsmon-hadoop-base:spark3-YYYYMMDD
+FROM gitlab-registry.cern.ch/linuxsupport/cc7-base:20220801-1.x86_64
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
-ARG HADOOP_VERSION
-ARG SPARK_VERSION
-ARG SPARK_MAJOR_VERSION
+# Should be full such that includes minor version
+ARG PY_VERSION=3.9.13
 
 ENV WDIR=/data
 WORKDIR $WDIR
@@ -39,28 +39,33 @@ RUN yum -y update && \
         voms-devel globus-gsi-credential-devel globus-gsi-cert-utils-devel \
         globus-common-devel globus-gsi-sysconfig-devel globus-gsi-callback-devel \
         oracle-instantclient-tnsnames.ora HEP_OSlibs python-pip libffi-devel \
-        hadoop-bin-${HADOOP_VERSION} \
-        spark-bin-${SPARK_VERSION} \
+        gcc bzip2-devel zlib-devel wget make \
+        hadoop-bin-3.2 \
+        spark-bin-3.2 \
         sqoop-bin-1.4 \
         cern-hadoop-xrootd-connector  \
         cern-hadoop-config && \
     yum clean all && rm -rf /var/cache/yum && \
+# Build Python3
+    wget https://www.python.org/ftp/python/${PY_VERSION}/Python-${PY_VERSION}.tgz && \
+    tar -xvf Python-${PY_VERSION}.tgz && \
+    cd Python-${PY_VERSION} && \
+    ./configure --enable-optimizations && \
+    make altinstall && \
+    export PY_MAJOR=$(echo ${PY_VERSION%.*}) && \
+    rm -f /usr/bin/python3 && ln -s /usr/local/bin/python${PY_MAJOR} /usr/bin/python3 && \
+    rm -f /usr/bin/pip3 && ln -s /usr/local/bin/pip${PY_MAJOR} /usr/bin/pip3 && \
+    python3 -m pip install --upgrade pip && \
+    cd $WDIR && \
+    rm -rf Python-${PY_VERSION}.tgz Python-${PY_VERSION} && \
+    unset PY_MAJOR && \
+# Python build done
     hadoop-set-default-conf.sh analytix && \
-    source hadoop-setconf.sh analytix ${HADOOP_VERSION} ${SPARK_MAJOR_VERSION} && \
+    source hadoop-setconf.sh analytix 3.2 spark3 && \
     touch /etc/hadoop/conf/topology.table.file && ln -s /bin/bash /usr/bin/bashs && \
-    echo "32 */6 * * * root ! /usr/sbin/fetch-crl -q -r 360" > /etc/cron.d/fetch-crl-docker
-    # add fetch-crl to fetch all sertificates
-
-RUN if [ "$SPARK_MAJOR_VERSION" = "spark3" ] ; then \
-# set default python as python3 if spark3
-        rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python && \
-        rm -f /usr/bin/pip && ln -s /usr/bin/pip3 /usr/bin/pip && \
-# copy spark3 entrypoint.sh
-        cp /usr/hdp/spark3/kubernetes/dockerfiles/spark/entrypoint.sh /usr/bin/entrypoint.sh; \
-    else  \
-# copy spark2 entrypoint.sh
-        cp /usr/hdp/spark/kubernetes/dockerfiles/spark/entrypoint.sh /usr/bin/entrypoint.sh; \
-  fi
+    cp /usr/hdp/spark3/kubernetes/dockerfiles/spark/entrypoint.sh /usr/bin/entrypoint.sh && \
+    echo "32 */6 * * * root ! /usr/sbin/fetch-crl -q -r 360" >/etc/cron.d/fetch-crl-docker
+# add fetch-crl to fetch all certificates
 
 # start the setup
 WORKDIR ${WDIR}
