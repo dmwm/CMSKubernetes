@@ -27,6 +27,27 @@ metadata:
   labels:
     app: cmsmon-rucio-spark2mng
 data:
+  createindexes.js: |
+    // switch to rucio db
+    use rucio;
+    // datasets indexes
+    db.datasets.createIndex( { "_id": 1, "Dataset": 1 } );
+    db.datasets.createIndex( { "Dataset": 1 } );
+    db.datasets.createIndex( { "LastAccessMs": 1 } );
+    db.datasets.createIndex( { "Max": 1 } );
+    db.datasets.createIndex( { "Min": 1 } );
+    db.datasets.createIndex( { "Avg": 1 } );
+    db.datasets.createIndex( { "Sum": 1 } );
+    db.datasets.createIndex( { "RealSize": 1 } );
+    db.datasets.createIndex( { "TotalFileCnt": 1 } );
+    db.datasets.createIndex( { "RseType": "text", "Dataset": "text", "RSEs": "text"} );
+    // detailed_datasets indexes
+    db.detailed_datasets.createIndex( { "_id": 1, "Type": 1 } );
+    db.detailed_datasets.createIndex( { "_id": 1, "Dataset": 1 } );
+    db.detailed_datasets.createIndex( { "_id": 1, "Dataset": 1, "RSE":1 } );
+    db.detailed_datasets.createIndex( {"Dataset": 1} );
+    db.detailed_datasets.createIndex( { "Dataset": 1, "RSE":1 } );
+    db.detailed_datasets.createIndex( { "Type": "text", "Dataset": "text", "RSE": "text", "Tier": "text", "C": "text", "RseKind": "text","ProdAccts": "text"} );
   run.sh: |
     #!/bin/bash
     # Get env variables, since cron's process environment is different than shell's one
@@ -47,6 +68,11 @@ data:
       --sparklocalip 127.0.0.1 \
       --wdir $WDIR \
       >> /proc/$(cat /var/run/crond.pid)/fd/1 2>&1
+    
+    # Create MongoDB indexes after successfull import
+    /data/mongosh --host mongodb-0.mongodb.datasetmon.svc.cluster.local \
+      --port "27017" --username $MONGO_ROOT_USERNAME --password $MONGO_ROOT_PASSWORD \
+      --authenticationDatabase admin </data/cronjob/createindexes.js
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -96,7 +122,7 @@ spec:
                   - >
                     export > /etc/environment;
                     chmod +x /data/cronjob/run.sh;
-                    echo "30 7  * * * /bin/bash /data/cronjob/run.sh" | crontab -;
+                    echo "30 8  * * * /bin/bash /data/cronjob/run.sh" | crontab -;
           ports:
             - containerPort: 31203 # spark.driver.port
               name: port-0

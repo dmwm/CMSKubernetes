@@ -1,6 +1,5 @@
-ARG SPARK3_IMAGE_TAG=20220817
 FROM mongo as builder
-FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-${SPARK3_IMAGE_TAG}
+FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-latest
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 ARG CMSSPARK_TAG=0.0.0
@@ -16,6 +15,7 @@ ENV PYSPARK_PYTHON=/cvmfs/sft.cern.ch/lcg/releases/Python/3.9.6-b0f98/x86_64-cen
 ENV PYSPARK_DRIVER_PYTHON=/usr/bin/python
 
 COPY --from=builder /usr/bin/mongoimport $WDIR
+COPY --from=builder /usr/bin/mongosh $WDIR
 
 # Checkout to specific git tag
 RUN git clone https://github.com/dmwm/CMSSpark.git && \

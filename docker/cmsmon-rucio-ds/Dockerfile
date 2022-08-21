@@ -1,4 +1,3 @@
-ARG SPARK3_IMAGE_TAG=20220817
 FROM python:3.9 as builder
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
@@ -23,7 +22,7 @@ RUN apt-get update -y && \
     zip -r CMSMonitoring.zip CMSMonitoring/* && \
     git clone https://github.com/dmwm/CMSSpark.git && cd CMSSpark && git checkout tags/$CMSSPARK_TAG -b build && cd ..
 
-FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-${SPARK3_IMAGE_TAG}
+FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-latest
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 ENV WDIR=/data
