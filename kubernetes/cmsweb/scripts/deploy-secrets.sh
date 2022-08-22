@@ -113,6 +113,13 @@ fi
 
 if [ -d $secretdir ] && [ -n "$(ls $secretdir)" ]; then
     for fname in $secretdir/*; do
+	# replace BASE_URL hostname in service config file with current cluster name
+	if [[ $fname == *config*.py ]]; then
+            if [[ $cluster_name == cmsweb-test[0-9]* ]]; then
+		echo "Updating config file $fname for the $cluster_name cluster."
+                sed -i "s/TEST_CLUSTER_NAME/$cluster_name/" $fname
+            fi
+	fi
         if [[ $fname == *.encrypted ]]; then
             if [[ $fname == *.json* ]]; then
                 $HOME/bin/sops --output-type json -d $fname > $secretdir/$(basename $fname .encrypted)
