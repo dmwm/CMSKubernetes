@@ -2,8 +2,10 @@
 # Builds and push cmsmon-hadoop-base image based on spark version
 # Usage: build.sh <ANALYTIX_VERSION>(2|3) <PY_VERSION>(optional, required for spark3)
 # Examples:
-#   ./build.sh 3 3.9.12
-# Example: ./build.sh 2
+#   - build spark3
+#     ./build.sh 3 3.9.12
+#   - build spark3
+#     ./build.sh 2
 
 set -e
 
@@ -30,14 +32,19 @@ PY_VERSION="$2"
 if [ "$ANALYTIX_VERSION" -eq 3 ]; then
     image_tag="spark3-${CURRENT_DATE}"
     echo "Building ${image_tag} with PY_VERSION:${PY_VERSION}"
-    docker build --build-arg PY_VERSION="$PY_VERSION" -t "${DOCKER_REGISTRY}/cmsmon-hadoop-base:${image_tag}" -f Dockerfile-spark3 .
+    docker build --build-arg PY_VERSION="$PY_VERSION" -t "${DOCKER_REGISTRY}/cmsmon-hadoop-base:${image_tag}" -t "${DOCKER_REGISTRY}/cmsmon-hadoop-base:spark3-latest" -f Dockerfile-spark3 .
+    echo Build finished: "${DOCKER_REGISTRY}/cmsmon-hadoop-base:${image_tag}"
+    #
+    docker push "${DOCKER_REGISTRY}/cmsmon-hadoop-base:${image_tag}"
+    docker push "${DOCKER_REGISTRY}/cmsmon-hadoop-base:spark3-latest"
+    echo Push finished : "${DOCKER_REGISTRY}/cmsmon-hadoop-base:${image_tag}"
 elif [ "$ANALYTIX_VERSION" -eq 2 ]; then
     image_tag="spark2-${CURRENT_DATE}"
     echo "Building ${image_tag}"
-    docker build -t "${DOCKER_REGISTRY}/cmsmon-hadoop-base:${image_tag}" -f Dockerfile-spark2 .
+    docker build -t "${DOCKER_REGISTRY}/cmsmon-hadoop-base:${image_tag}" -t "${DOCKER_REGISTRY}/cmsmon-hadoop-base:spark2-latest" -f Dockerfile-spark2 .
+    echo Build finished: "${DOCKER_REGISTRY}/cmsmon-hadoop-base:${image_tag}"
+    #
+    docker push "${DOCKER_REGISTRY}/cmsmon-hadoop-base:${image_tag}"
+    docker push "${DOCKER_REGISTRY}/cmsmon-hadoop-base:spark2-latest"
+    echo Push finished : "${DOCKER_REGISTRY}/cmsmon-hadoop-base:${image_tag}"
 fi
-echo Build finished: "${DOCKER_REGISTRY}/cmsmon-hadoop-base:${image_tag}"
-
-# push
-docker push "${DOCKER_REGISTRY}/cmsmon-hadoop-base:${image_tag}"
-echo Push finished : "${DOCKER_REGISTRY}/cmsmon-hadoop-base:${image_tag}"

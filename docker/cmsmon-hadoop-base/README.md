@@ -29,6 +29,8 @@ Image tag will be changed accordingly cern/cc7-base tag and spark cluster versio
 # Build for spark2: spark 2.4, hadoop 2.7
 ./build-and-push.sh 2
 
-# Build for spark3: spark 3.2, hadoop 3.2
-./build-and-push.sh 3
+# Build for spark3: spark 3.2, hadoop 3.2 and with Python 3.9.12
+./build-and-push.sh 3 3.9.12
 ```
+
+- Images will have `spark(2|3)-YYYYMMDD` and `spark(2|3)-latest` tags.

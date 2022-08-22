@@ -1,5 +1,4 @@
-ARG SPARK3_IMAGE_TAG=20220817
-FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-${SPARK3_IMAGE_TAG}
+FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-latest
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 # tag to use
