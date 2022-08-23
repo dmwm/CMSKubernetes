@@ -49,10 +49,38 @@ spec:
         pathType: Prefix
         backend:
           service:
+            name: dbs2go-global-m
+            port:
+              number: 9257
+      - path: /dbs/prod/phys03/DBSMigrate
+        pathType: Prefix
+        backend:
+          service:
+            name: dbs2go-phys03-m
+            port:
+              number: 9257
+      - path: /dbspy/prod/global/DBSMigrate
+        pathType: Prefix
+        backend:
+          service:
             name: dbs-migrate
             port:
               number: 8257
-      - path: /dbs/prod/phys03/DBSMigrate
+      - path: /dbspy/prod/phys03/DBSMigrate
+        pathType: Prefix
+        backend:
+          service:
+            name: dbs-migrate
+            port:
+              number: 8257
+      - path: /dbspy/prod/global/DBSMigrate
+        pathType: Prefix
+        backend:
+          service:
+            name: dbs-migrate
+            port:
+              number: 8257
+      - path: /dbspy/prod/phys03/DBSMigrate
         pathType: Prefix
         backend:
           service:
