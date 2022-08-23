@@ -58,7 +58,7 @@ spec:
       hostname: condor-cpu-eff
       containers:
         - name: condor-cpu-eff
-          image: registry.cern.ch/cmsmonitoring/condor-cpu-eff:v00.03.00
+          image: registry.cern.ch/cmsmonitoring/condor-cpu-eff:v0.0.0
           imagePullPolicy: Always
           env:
             - name: MY_NODE_NAME
