@@ -73,20 +73,6 @@ spec:
             name: dbs-migrate
             port:
               number: 8257
-      - path: /dbspy/prod/global/DBSMigrate
-        pathType: Prefix
-        backend:
-          service:
-            name: dbs-migrate
-            port:
-              number: 8257
-      - path: /dbspy/prod/phys03/DBSMigrate
-        pathType: Prefix
-        backend:
-          service:
-            name: dbs-migrate
-            port:
-              number: 8257
       - path: /dbspy/prod/global/DBSReader
         pathType: Prefix
         backend:
