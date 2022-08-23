@@ -34,7 +34,7 @@ RUN yum -y update && \
         libaio-devel net-tools lsof bind-utils initscripts patch voms-devel globus-gsi-credential-devel \
         globus-gsi-cert-utils-devel globus-common-devel globus-gsi-sysconfig-devel globus-gsi-callback-devel \
         oracle-instantclient-tnsnames.ora HEP_OSlibs python-pip libffi-devel gcc bzip2-devel zlib-devel wget \
-        hadoop-bin-3.2 spark-bin-3.2 cern-hadoop-xrootd-connector cern-hadoop-config && \
+        hadoop-bin-3.2 spark-bin-3.2 sqoop-bin-1.4 cern-hadoop-xrootd-connector cern-hadoop-config && \
     yum clean all && rm -rf /var/cache/yum && \
 # Build Python3
     wget https://www.python.org/ftp/python/${PY_VERSION}/Python-${PY_VERSION}.tgz && \
