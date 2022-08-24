@@ -1,8 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ms-monitor
-  name: '{{ include "reqmgr2ms-monitor.fullname" . }}-filebeat-config'
+  name: ms-monitor-filebeat-config
   namespace: dmwm
   labels:
     k8s-app: filebeat
@@ -28,7 +27,7 @@ data:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: {{ include "reqmgr2ms-monitor.fullname" . }}
+  name: ms-monitor
   labels:
     app: ms-monitor
   namespace: dmwm
@@ -40,4 +39,4 @@ data:
     ls -lahZ /etc/grid-security
     #su  -c "cd /data && /data/run.sh" --preserve-environment _reqmgr2ms
     cd /data && /data/run.sh
----
+---    
