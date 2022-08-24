@@ -74,21 +74,15 @@ spec:
           privileged: true
         {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
       - name: ms-unmer-t1-filebeat
-        image: docker.elastic.co/beats/filebeat:7.12.0
+        image: {{ .Values.imageFilebeat.path}}
         args: [
           "-c", "/etc/filebeat.yml",
           "-e",
         ]
         env:
-        - name: MY_POD_NAME
-          valueFrom:
-            fieldRef:
-              apiVersion: v1
-              fieldPath: metadata.name
+        {{- toYaml .Values.imageFilebeat.env | nindent 10 }}
         resources:
-          requests:
-            memory: "50Mi"
-            cpu: "50m"
+        {{- toYaml .Values.imageFilebeatResources | nindent 12 }}
         volumeMounts:
         - name: logs
           mountPath: /data/srv/logs/reqmgr2ms
