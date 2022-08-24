@@ -1236,6 +1236,16 @@ entries:
     version: 0.1.1
   reqmgr2ms-output:
   - apiVersion: v2
+    appVersion: HG2208d
+    created: "2022-08-24T09:31:42.943605646Z"
+    description: A Helm chart for Kubernetes
+    digest: 4f551406c9a94f83bbf3ddfd12b2290fa4c5c4dc557d39e4e2a2963e48409ff7
+    name: reqmgr2ms-output
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/reqmgr2ms-output-0.1.2/reqmgr2ms-output-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
     appVersion: 1.16.0
     created: "2021-09-03T10:10:57.306831522Z"
     description: A Helm chart for Kubernetes
@@ -1247,6 +1257,16 @@ entries:
     version: 0.1.1
   reqmgr2ms-rulecleaner:
   - apiVersion: v2
+    appVersion: HG2208d
+    created: "2022-08-24T09:31:43.104556998Z"
+    description: A Helm chart for Kubernetes
+    digest: 7447d522b9f2ed048ea0f8834df8423e79d7ed0bcc24a26f16a9918c0422d20e
+    name: reqmgr2ms-rulecleaner
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/reqmgr2ms-rulecleaner-0.1.2/reqmgr2ms-rulecleaner-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
     appVersion: 1.16.0
     created: "2021-09-03T10:10:57.49131636Z"
     description: A Helm chart for Kubernetes
@@ -1257,6 +1277,16 @@ entries:
     - https://github.com/dmwm/CMSKubernetes/releases/download/reqmgr2ms-rulecleaner-0.1.1/reqmgr2ms-rulecleaner-0.1.1.tgz
     version: 0.1.1
   reqmgr2ms-transferor:
+  - apiVersion: v2
+    appVersion: HG2208d
+    created: "2022-08-24T09:31:43.25414528Z"
+    description: A Helm chart for Kubernetes
+    digest: 4af75e8b3efed7713e8e8181ddc3b0d6f8e1c98610aa030602599481a82fe449
+    name: reqmgr2ms-transferor
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/reqmgr2ms-transferor-0.1.2/reqmgr2ms-transferor-0.1.2.tgz
+    version: 0.1.2
   - apiVersion: v2
     appVersion: 1.16.0
     created: "2021-09-03T10:10:57.671252461Z"
@@ -1810,4 +1840,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
     version: 0.1.1
-generated: "2022-08-24T08:42:23.488791152Z"
+generated: "2022-08-24T09:31:43.254384978Z"
