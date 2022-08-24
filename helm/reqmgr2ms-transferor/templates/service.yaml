@@ -1,15 +1,16 @@
-apiVersion: v1
 kind: Service
+apiVersion: v1
 metadata:
-  name: {{ include "reqmgr2ms-transferor.fullname" . }}
-  labels:
-    {{- include "reqmgr2ms-transferor.labels" . | nindent 4 }}
+  name: ms-transferor
+  namespace: dmwm
 spec:
-  type: {{ .Values.service.type }}
-  ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
   selector:
-    {{- include "reqmgr2ms-transferor.selectorLabels" . | nindent 4 }}
+    app: ms-transferor
+  ports:
+    - port: 8247
+      targetPort: 8247
+      name: ms-transferor
+    - port: 18247
+      targetPort: 18247
+      name: ms-transfer-mon
+---
