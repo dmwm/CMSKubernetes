@@ -1299,6 +1299,16 @@ entries:
     version: 0.1.1
   reqmgr2ms-unmerged-t1:
   - apiVersion: v2
+    appVersion: HG2208d
+    created: "2022-08-24T10:08:34.082986577Z"
+    description: A Helm chart for Kubernetes
+    digest: e442f5f879a011cd5c2074962c6f161b84f0091b315291336eb2496327433457
+    name: reqmgr2ms-unmerged-t1
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/reqmgr2ms-unmerged-t1-0.1.2/reqmgr2ms-unmerged-t1-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
     appVersion: 1.16.0
     created: "2021-09-03T10:10:57.865008785Z"
     description: A Helm chart for Kubernetes
@@ -1840,4 +1850,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
     version: 0.1.1
-generated: "2022-08-24T09:31:43.254384978Z"
+generated: "2022-08-24T10:08:34.083566552Z"
