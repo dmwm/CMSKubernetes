@@ -5,10 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: cmssw/reqmgr2ms-unmerged
+  repository: registry.cern.ch/cmsweb/reqmgr2ms-unmerged
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "HG2108h-v3"
+  tag: "HG2208d"
   name: ms-unmer-t2t3us
   command:
   - /bin/bash
@@ -19,19 +19,12 @@ nameOverride: "ms-unmer-t2t3us"
 fullnameOverride: "ms-unmer-t2t3us"
 
 environment:
-  prod: false
-  preprod: false
-  test : false
 
 
 serviceAccount:
   # Specifies whether a service account should be created
   create: false
   # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
 
 lifecycle:
   postStart:
@@ -40,7 +33,6 @@ lifecycle:
       - bash
       - -c
       - sudo chmod 0777 /data/srv/logs/reqmgr2ms; sudo chown _reqmgr2ms:_reqmgr2ms /data/srv/logs/reqmgr2ms
-
 
 livenessProbe:
   exec:
@@ -67,18 +59,6 @@ imageFilebeatSecurityContext:
 
 securityContext: 
   privileged: true
-
-service:
-  type: ClusterIP
-  port: 8242
-  protocol: TCP
-  name: ms-unmer-t2t3us
-
-serviceMon:
-  port: 18242
-  protocol: TCP
-  name: unmerged-mon
-
 
 resources:
   requests:
@@ -107,6 +87,7 @@ imageFilebeatResources:
   requests:
     memory: "50Mi"
     cpu: "50m"
+
 
 ingress:
   enabled: false
