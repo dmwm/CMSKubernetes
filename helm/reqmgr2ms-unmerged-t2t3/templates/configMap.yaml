@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: '{{ include "reqmgr2ms-unmerged-t2t3.fullname" . }}-filebeat-config'
+  name: ms-unmer-t2t3-filebeat-config
   namespace: dmwm
   labels:
     k8s-app: filebeat
@@ -27,7 +27,7 @@ data:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: {{ include "reqmgr2ms-unmerged-t2t3.fullname" . }}
+  name: ms-unmer-t2t3
   labels:
     app: ms-unmer-t2t3
   namespace: dmwm
@@ -37,6 +37,6 @@ data:
     sudo cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
-    #su  -c "cd /data && /data/run.sh -e '(((cms_type=real|cms_type=int)&rse_type=DISK&(tier=2|tier=3))\country=US)' " --preserve-environment _reqmgr2ms
+    # su  -c "cd /data && /data/run.sh -e '(((cms_type=real|cms_type=int)&rse_type=DISK&(tier=2|tier=3))\country=US)' " --preserve-environment _reqmgr2ms
     cd /data && /data/run.sh -e '(((cms_type=real|cms_type=int)&rse_type=DISK&(tier=2|tier=3))\country=US)'
 ---
