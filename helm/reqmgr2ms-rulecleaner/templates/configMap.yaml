@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: '{{ include "reqmgr2ms-rulecleaner.fullname" . }}-filebeat-config'
+  name: ms-rulecleaner-filebeat-config
   namespace: dmwm
   labels:
     k8s-app: filebeat
@@ -27,7 +27,7 @@ data:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: {{ include "reqmgr2ms-rulecleaner.fullname" . }}
+  name: ms-rulecleaner
   labels:
     app: ms-rulecleaner
   namespace: dmwm
