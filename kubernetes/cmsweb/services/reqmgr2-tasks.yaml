@@ -72,10 +72,10 @@ spec:
         name: reqmgr2-tasks
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "200m"
+            memory: "1Gi"
+            cpu: "400m"
           limits:
-            memory: "3Gi"
+            memory: "5Gi"
             cpu: "1000m"
         livenessProbe:
           exec:
