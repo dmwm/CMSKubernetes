@@ -86,6 +86,9 @@ spec:
             - -verbose
             - "0"
           initialDelaySeconds: 120
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 10
         command:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
