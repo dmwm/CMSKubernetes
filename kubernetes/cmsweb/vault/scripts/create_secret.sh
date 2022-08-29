@@ -1,12 +1,13 @@
-annotations=""
+annotations="        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/role: '$1'
+        vault.hashicorp.com/secret-volume-path: '/etc/secrets'
+"
 kubectl cp $2 vault/vault-0:/tmp/$1
 command="kubectl -n vault exec -it vault-0 -- vault kv put cmsweb/$1"
 for file in $(ls $2); do 
   filename="${file%.*}"
   command+=" $filename=@/tmp/$1/$file"
-  annotations+="        vault.hashicorp.com/agent-inject: 'true'
-        vault.hashicorp.com/role: '$1'
-        vault.hashicorp.com/agent-inject-secret-$file: 'cmsweb/data/$1'
+  annotations+="        vault.hashicorp.com/agent-inject-secret-$file: 'cmsweb/data/$1'
         vault.hashicorp.com/agent-inject-template-$file: |
           {{- with secret \"cmsweb/data/$1\" -}}
           {{ .Data.data.$filename }}
