@@ -5,7 +5,6 @@ metadata:
   name: reqmgr2-sa
   namespace: dmwm
 ---
-
 apiVersion: v1
 kind: ConfigMap
 metadata:
