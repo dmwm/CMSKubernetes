@@ -147,9 +147,6 @@ spec:
         - name: proxy-secrets
           mountPath: /etc/proxy
           readOnly: true
-        - name: secrets
-          mountPath: /etc/secrets
-          readOnly: true
         - name: robot-secrets
           mountPath: /etc/robots
           readOnly: true
@@ -208,9 +205,6 @@ spec:
       - name: proxy-secrets
         secret:
           secretName: proxy-secrets
-      - name: secrets
-        secret:
-          secretName: reqmgr2-secrets
       - name: robot-secrets
         secret:
           secretName: robot-secrets
