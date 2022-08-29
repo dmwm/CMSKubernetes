@@ -29,7 +29,7 @@ data:
     sudo cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
-    cd /home/cmsusr/dqmgui && sudo bash ./run.sh
+    cd /home/cmsusr/dqmgui && sudo bash /home/cmsusr/run.sh
 ---    
 kind: Deployment
 apiVersion: apps/v1
@@ -61,8 +61,8 @@ spec:
         fsGroup: 2000
       containers:
       - image: registry.cern.ch/cmsweb/newdqmgui #imagetag
+#      - image: msuccarm/new_dqmgui:4.0 #imagetag
         name: newdqmgui
-        command: ["./run.sh"]
         resources:
           requests:
             memory: "512Mi"

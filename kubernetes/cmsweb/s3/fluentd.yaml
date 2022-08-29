@@ -70,6 +70,12 @@ spec:
       securityContext:
         seLinuxOptions:
           type: "spc_t"
+      initContainers:
+      - name: disableipv6
+        image: ubuntu:20.04
+        command: ["/bin/bash", "-c", "sysctl -w net.ipv6.conf.all.disable_ipv6=1"]
+        securityContext:
+          privileged: true          
       containers:
       - name: fluentd
         image: gitlab-registry.cern.ch/cloud/atomic-system-containers/fluentd-elasticsearch:v2.4.0

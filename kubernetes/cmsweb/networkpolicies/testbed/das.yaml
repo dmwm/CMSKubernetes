@@ -1,0 +1,52 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: das-server-network-policy
+  namespace: das
+spec:
+  podSelector:
+    matchLabels:
+      app: das-server
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: auth
+          podSelector:
+            matchLabels:
+              app: frontend
+      ports:
+        - protocol: TCP
+          port: 8217
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: das-mongo-network-policy
+  namespace: das
+spec:
+  podSelector:
+    matchLabels:
+      app: das-mongo
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: das
+          podSelector:
+            matchLabels:
+              app: das-server
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: das
+          podSelector:
+            matchLabels:
+              app: das-mongo-exporter
+      ports:
+        - protocol: TCP
+          port: 8230

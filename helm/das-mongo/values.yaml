@@ -5,15 +5,12 @@
 replicaCount: 1
 
 environment:
-  prod: false
-  preprod: false
-  test : false
 
 image:
-  repository: cmssw/das-mongo
+  repository: registry.cern.ch/cmsweb/das-mongo
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "v4.4.2"
+  tag: "v5.0.5-static-stable"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -36,29 +33,8 @@ podSecurityContext:
 
 securityContext: {}
 
-service:
-  port: 8230
-  protocol: TCP
-  name: das
-  type: ClusterIP
-
-serviceMon:
-  port: 18230
-  protocol: TCP
-  name: das-mongo-mon
-
 ingress:
   enabled: false
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths: []
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
 
 resources:
   requests:
@@ -70,10 +46,6 @@ resources:
 
 autoscaling:
   enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
 
 nodeSelector: {}
 

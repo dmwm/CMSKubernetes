@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"net"
 	"os/exec"
+	"regexp"
 	"strings"
 )
 
@@ -63,14 +64,19 @@ type PodInfo struct {
 	Kind       string   `json:"Kind"`
 	Metadata   Metadata `json:"Metadata"`
 	Spec       Spec     `json:"Spec"`
-	Status     Status   `json:Status`
+	Status     Status   `json:"Status"`
 }
 
-func (p *PodInfo) Info(verbose int) string {
+func (p *PodInfo) Info(pat string, verbose int) string {
 	var info string
 	//     fmt.Printf("pod info %+v\n", p)
 	//     fmt.Printf("pod status %+v\n", p.Status)
 	for _, cs := range p.Status.ContainerStatuses {
+		if pat != "" {
+			if matched, err := regexp.MatchString(pat, cs.Name); err == nil && !matched {
+				continue
+			}
+		}
 		//         fmt.Println("status", cs)
 		info += fmt.Sprintf("name       : %s\n", cs.Name)
 		info += fmt.Sprintf("image      : %s\n", cs.Image)
@@ -156,14 +162,16 @@ func main() {
 	var verbose int
 	flag.IntVar(&verbose, "verbose", 0, "verbosity level")
 	var ns string
-	flag.StringVar(&ns, "ns", "", "k8s namespace")
+	flag.StringVar(&ns, "n", "", "k8s namespace")
+	var pattern string
+	flag.StringVar(&pattern, "pattern", "", "pod name pattern to show")
 	var pod string
 	flag.StringVar(&pod, "pod", "", "k8s pod")
 	flag.Parse()
 	if pod != "" && ns != "" {
 		p, err := info(pod, ns)
 		if err == nil {
-			fmt.Println(p.Info(verbose))
+			fmt.Println(p.Info(pattern, verbose))
 		} else {
 			fmt.Println("pod", pod, "error", err)
 		}
@@ -181,7 +189,11 @@ func main() {
 			for _, pod := range pods {
 				p, err := info(pod, ns)
 				if err == nil {
-					fmt.Println(p.Info(verbose))
+					//                     fmt.Println(p.Info(pattern, verbose))
+					msg := p.Info(pattern, verbose)
+					if msg != "" {
+						fmt.Println(msg)
+					}
 				} else {
 					fmt.Println("pod", pod, "error", err)
 				}

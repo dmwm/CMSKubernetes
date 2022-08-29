@@ -27,26 +27,26 @@ voms-proxy-init -voms cms -rfc \
 	echo $keys
         if [ -f $keys ]; then
             kubectl create secret generic $ns-keys-secrets \
-                --from-file=$keys --dry-run -o yaml | \
+                --from-file=$keys --dry-run=client -o yaml | \
                 kubectl apply --namespace=$ns -f -
         fi
 	
         # create secrets with our robot certificates
         kubectl create secret generic robot-secrets \
             --from-file=$robot_key --from-file=$robot_crt \
-            --dry-run -o yaml | \
+            --dry-run=client -o yaml | \
             kubectl apply --namespace=$ns -f -
 
         # create proxy secret
         if [ -f $proxy ]; then
             kubectl create secret generic proxy-secrets \
-                --from-file=$proxy --dry-run -o yaml | \
+                --from-file=$proxy --dry-run=client -o yaml | \
                 kubectl apply --namespace=$ns -f -
         fi
         # create client secret
         if [ -f $client_id ] && [ -f $client_secret ]; then
             kubectl create secret generic client-secrets \
-                --from-file=$client_id --from-file=$client_secret --dry-run -o yaml | \
+                --from-file=$client_id --from-file=$client_secret --dry-run=client -o yaml | \
                 kubectl apply --namespace=$ns -f -
         fi
         # create token secrets
@@ -61,3 +61,18 @@ voms-proxy-init -voms cms -rfc \
             echo "$now Failed to create token secrets"
         fi
    done
+
+#### proxy for ms-unmerged service
+
+   voms-proxy-init -rfc \
+        -key $robot_key \
+        -cert $robot_crt \
+        --voms cms:/cms/Role=production --valid 192:00 \
+        -out $proxy
+
+    out=$?
+    if [ $out -eq 0 ]; then
+     kubectl create secret generic proxy-secrets-ms-unmerged \
+                --from-file=$proxy --dry-run=client -o yaml | \
+                kubectl apply --namespace=dmwm -f -
+     fi

@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # overwrite proxy if it is present in /etc/proxy
-mkdir -p /data/srv/state/dbs/proxy
-mkdir -p /data/srv/current/auth/proxy
-if [ -f /etc/proxy/proxy ]; then
-    ln -s /etc/proxy/proxy /data/srv/state/dbs/proxy/proxy.cert
-    ln -s /etc/proxy/proxy /data/srv/current/auth/proxy/proxy
-fi
+#mkdir -p /data/srv/state/dbs/proxy
+#mkdir -p /data/srv/current/auth/proxy
+#if [ -f /etc/proxy/proxy ]; then
+#    ln -s /etc/proxy/proxy /data/srv/state/dbs/proxy/proxy.cert
+#    ln -s /etc/proxy/proxy /data/srv/current/auth/proxy/proxy
+#fi
 
 # run monitoring script
 if [ -f /data/monitor.sh ]; then

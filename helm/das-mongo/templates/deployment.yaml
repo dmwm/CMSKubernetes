@@ -3,15 +3,12 @@ kind: Deployment
 metadata:
   name: {{ include "das-mongo.fullname" . }}
   labels:
-    {{- include "das-mongo.labels" . | nindent 4 }}
-  namespace: das
+    app: das-mongo
 spec:
-  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
-      {{- include "das-mongo.selectorLabels" . | nindent 6 }}
+      app: das-mongo
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -19,19 +16,10 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "das-mongo.selectorLabels" . | nindent 8 }}
-        {{- if .Values.environment.preprod}}
-        env: k8s-preprod
-        {{- end }}
-        {{- if .Values.environment.prod}}
-        env: k8s-prod
-        {{- end }}
-        {{- if .Values.environment.test}}
-        env: k8s
-        {{- end }}
+        app: das-mongo
+        env: k8s-{{.Values.environment}}
     spec:
- 
-      {{- with .Values.imagePullSecrets }}
+       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -42,17 +30,15 @@ spec:
         - name: {{ .Chart.Name }}
           tty: true
           stdin: true
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-           - containerPort: {{ .Values.service.port }}
-             name: {{ .Values.service.name }}
-             protocol: {{ .Values.service.protocol }}
-           - containerPort: {{ .Values.serviceMon.port }}
-             name: {{ .Values.serviceMon.name }}
-             protocol: {{ .Values.serviceMon.protocol }}
+           - containerPort: 8230
+             protocol: TCP
+             name: das
+           - containerPort: 18230
+             protocol: TCP
+             name: das-mongo-mon                  
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:

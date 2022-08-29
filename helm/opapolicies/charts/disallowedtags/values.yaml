@@ -1,0 +1,4 @@
+exemptImages:
+- cmssw/nginx
+tags:
+- latest

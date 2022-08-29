@@ -1,0 +1,77 @@
+digraph G {
+
+	nodesep=0.1;
+	fontname="Helvetica,Arial,sans-serif"
+	node [fontname="Helvetica,Arial,sans-serif"]
+	edge [fontname="Helvetica,Arial,sans-serif"]
+	node [shape=box, style=filled, color=white]
+
+	subgraph cluster_0 {
+		style=filled;
+		color=lightcyan;
+		node [style=filled, color=white, shape=box];
+		auth_proxy_server [label="auth-proxy-server", margin="0.1,0.2"]
+		scitokens_proxy_server [label="scitokens-proxy-server", margin="0.1,0.2"]
+		x509_proxy_server [label="x509-proxy-server", margin="0.1,0.2"]
+		label = " \nNamespace: auth";
+		labeljust="c"
+		margin=20;
+	}
+
+	subgraph cluster_1 {
+	    style=filled;
+		color=lightcyan;
+		node [style=filled, shape=box];
+		label = "Namespace: dmwm";
+		labelloc=b;
+		labeljust="c"
+		margin=20;
+		
+        ms_monitor[label="ms_monitor", labeljust="c"]
+        ms_output[label="ms_output", labeljust="c"]
+        ms_rulecleaner[label="ms_rulecleaner", labeljust="c"]
+        ms_transferor[label="ms_transferor", labeljust="c"]
+        ms_unmer_t1[label="ms_unmer_t1", labeljust="c"]
+        ms_unmer_t2t3[label="ms_unmer_t2t3", labeljust="c"]
+        ms_unmer_t2t3us[label="ms_unmer_t2t3us", labeljust="c"]
+        reqmgr2[label="reqmgr2", labeljust="c"]
+        reqmon[label="reqmon", labeljust="c"]
+        wmstats[label="wmstats", labeljust="c"]
+        workqueue[label="workqueue", labeljust="c"]
+		ms_output_mongo[label="ms_output_mongo", labeljust="c"]
+	
+
+		subgraph cluster_5 {
+			label=""
+			allow_label1[color=lightcyan, margin=0, label="Allow Ingress Traffic"]
+			tick1[shape=circle, style=filled, color=darkgreen, fontcolor=white label=<&#10004;>]
+		}
+
+	}
+	subgraph cluster_4 {
+		color=white
+		allow_label[color=white, margin=0, label="Allow Ingress Traffic"]
+		tick[shape=circle, style=filled, color=darkgreen, fontcolor=white label=<&#10004;>]
+	}
+	
+	
+	auth_proxy_server -> tick [minlen=4, constraint=false]
+	scitokens_proxy_server -> tick
+	x509_proxy_server -> tick
+	
+	tick -> ms_monitor[constraint=false]
+	tick -> ms_output
+	tick -> ms_rulecleaner
+	tick -> ms_transferor
+	tick -> ms_unmer_t1
+	tick -> ms_unmer_t2t3
+	tick -> ms_unmer_t2t3us
+	tick -> reqmgr2
+	tick -> reqmon
+	tick -> wmstats
+	tick -> workqueue
+
+	ms_output -> tick1 -> ms_output_mongo
+
+
+}

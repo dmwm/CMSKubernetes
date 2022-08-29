@@ -13,6 +13,6 @@ ARG CGO_ENABLED=0
 RUN git clone https://github.com/vkuznet/k8snodemon && cd k8snodemon && \
     git checkout tags/$TAG -b build && make && cp k8snodemon /build
 
-FROM alpine:3.15
+FROM alpine:3.16
 RUN mkdir -p /data
 COPY --from=go-builder /build/k8snodemon /data/

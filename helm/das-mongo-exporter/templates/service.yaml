@@ -1,15 +1,12 @@
-apiVersion: v1
 kind: Service
+apiVersion: v1
 metadata:
-  name: {{ include "das-mongo-exporter.fullname" . }}
-  labels:
-    {{- include "das-mongo-exporter.labels" . | nindent 4 }}
+  name: das-mongo-exporter
+  namespace: das
 spec:
-  type: {{ .Values.service.type }}
-  ports:
-  - port: {{ .Values.service.port }}
-    targetPort: {{ .Values.service.port}}
-    name: {{ .Values.service.name }}
-    protocol: {{ .Values.service.protocol }}
   selector:
-    {{- include "das-mongo-exporter.selectorLabels" . | nindent 4 }}
+    app: das-mongo-exporter
+  ports:
+    - port: 18230
+      targetPort: 18230
+      name: das-mongo-p

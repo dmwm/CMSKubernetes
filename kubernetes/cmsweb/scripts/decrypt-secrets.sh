@@ -40,7 +40,11 @@ echo "Key file: $SOPS_AGE_KEY_FILE"
 
 if [[ $encrypted_file == *.encrypted ]]; then
   DIR="$(dirname "$encrypted_file")"
-  sops -d $encrypted_file > $DIR/$(basename $encrypted_file .encrypted)
+  if [[ $encrypted_file == *.json* ]]; then
+    sops --output-type json -d $encrypted_file > $DIR/$(basename $encrypted_file .encrypted)
+  else
+    sops -d $encrypted_file > $DIR/$(basename $encrypted_file .encrypted)
+  fi
   ls -lrt $DIR
 fi
 rm -rf $tmpDir

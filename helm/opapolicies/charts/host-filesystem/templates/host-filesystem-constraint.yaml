@@ -1,0 +1,13 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPHostFilesystem
+metadata:
+  name: host-filesystem
+spec:
+  match:
+    kinds:
+    - apiGroups:
+      - ''
+      kinds:
+      - Pod
+  parameters:
+    allowedHostPaths:  {{- toYaml .Values.allowedHostPaths | nindent 12 }}

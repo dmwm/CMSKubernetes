@@ -91,11 +91,11 @@ spec:
         name: t0reqmon
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "200m"
+            memory: "4Gi"
+            cpu: "1"
           limits:
-            memory: "3Gi"
-            cpu: "1000m"
+            memory: "8Gi"
+            cpu: "3"
         livenessProbe:
           exec:
             command:

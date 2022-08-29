@@ -1,0 +1,76 @@
+{{- $environment := .Values.environment | default dict }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ .Release.Name }}
+  namespace: default
+  labels:
+    k8s-app: fluentd-logging
+    version: v1
+    kubernetes.io/cluster-service: "true"
+spec:
+  selector:
+    matchLabels:
+      k8s-app: fluentd-logging
+  updateStrategy:
+    # when updating, restart all pods
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 100%
+  template:
+    metadata:
+      labels:
+        k8s-app: fluentd-logging
+        version: v1
+        kubernetes.io/cluster-service: "true"
+      annotations:
+        # update on configmap change
+        checksum/config-map: f9a2d5c985cd5eaabdb7cb08f20a5efff98c13111c29c079076cc25e8794c229
+    spec:
+      serviceAccount: fluentd
+      serviceAccountName: fluentd
+      securityContext:
+      {{- toYaml .Values.securityContext | nindent 8 }}
+      initContainers:
+      - name: disableipv6
+        image: ubuntu:20.04
+        command: ["/bin/bash", "-c", "sysctl -w net.ipv6.conf.all.disable_ipv6=1"]
+        securityContext:
+          privileged: true          
+      containers:
+      - name: fluentd
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        command: ["/bin/sh", "-c", "/etc/fluent/config.d/install-plugins.sh"]
+        env:
+          - name: FLUENTD_ARGS
+            value: --no-supervisor
+          - name: OUTPUT_PRODUCER
+            value: magnum
+          - name: OUTPUT_ENDPOINT
+            value: http://monit-logs.cern.ch:10012/
+        resources:
+        {{- toYaml .Values.resources | nindent 12 }}
+        volumeMounts:
+        - name: s3-data
+          mountPath: /var/log/fluent/s3
+        - name: varlog
+          mountPath: /var/log
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+        - name: etcfluentd
+          mountPath: /etc/fluent/config.d/
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: s3-data
+        emptyDir:
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: etcfluentd
+        configMap:
+          name: fluentd
+          defaultMode: 0777

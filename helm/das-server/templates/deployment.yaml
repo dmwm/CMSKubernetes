@@ -1,13 +1,13 @@
+{{- $environment := .Values.environment | default dict }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "das-server.fullname" . }}
   labels:
-    {{- include "das-server.labels" . | nindent 4 }}
-  namespace: das
+    app: das-server
 spec:
   {{- if not .Values.autoscaling.enabled }}
-  {{- if or .Values.environment.prod .Values.environment.preprod}}
+  {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
   replicas: {{ .Values.replicaCount.prod }}
   {{- else }}
   replicas: {{ .Values.replicaCount.test }}
@@ -15,7 +15,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "das-server.selectorLabels" . | nindent 6 }}
+      app: das-server
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -23,16 +23,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "das-server.selectorLabels" . | nindent 8 }}
-        {{- if .Values.environment.preprod}}
-        env: k8s-preprod
-        {{- end }}
-        {{- if .Values.environment.prod}}
-        env: k8s-prod
-        {{- end }}
-        {{- if .Values.environment.test}}
-        env: k8s
-        {{- end }}
+        app: das-server
+        env: k8s-{{.Values.environment}}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -43,25 +35,27 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
+          args:
+          - /data/das2go
+          - -config
+          - /etc/secrets/dasconfig.json          
           env:
           {{- toYaml .Values.image.env | nindent 10 }}
-          args: 
-          {{- toYaml .Values.image.args | nindent 10 }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-           - containerPort: {{ .Values.service.port }}
-             name: {{ .Values.service.name }}
-             protocol: {{ .Values.service.protocol }}
-           - containerPort: {{ .Values.serviceMon.port }}
-             name: {{ .Values.serviceMon.name }}
-             protocol: {{ .Values.serviceMon.protocol }}
+           - containerPort: 8217
+             name: das
+             protocol: TCP
+           - containerPort: 18217
+             name: das-mon
+             protocol: TCP
           livenessProbe:
           {{- toYaml .Values.livenessProbe | nindent 12 }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+          {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
           - name: proxy-secrets
             mountPath: /etc/proxy
@@ -75,23 +69,23 @@ spec:
           - name: hmac-secrets
             mountPath: /etc/hmac
             readOnly: true
-         {{- if or .Values.environment.prod .Values.environment.preprod }}
+          - name: token-secrets
+            mountPath: /etc/token
+            readOnly: true
+          {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
           - name: logs
             mountPath: /data/logs
-         {{- end }}
+          {{- end }}
         - image: {{ .Values.imageExporter.path }}
           name: {{ .Values.imageExporter.name }}
           resources:
           {{- toYaml .Values.imageExporterResources | nindent 12 }}
-          env:
-          {{- toYaml .Values.imageExporter.env | nindent 10 }}
-          args: 
-          {{- toYaml .Values.imageExporter.args | nindent 10 }}
+          args:
+          - /data/das2go_exporter
+          - -address
+          - ":18217"
+          {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
           volumeMounts:
-          - name: proxy-secrets
-            mountPath: /etc/proxy
-            readOnly: true
-{{- if or .Values.environment.prod .Values.environment.preprod }}
           - name: logs
             mountPath: /data/logs
         - image: {{ .Values.imagePromtail.path }}
@@ -99,7 +93,9 @@ spec:
           resources:
           {{- toYaml .Values.imagePromtailResources | nindent 12 }}
           args:
-          {{- toYaml .Values.imagePromtail.args | nindent 10 }}
+          - /data/promtail
+          - -config.file
+          - /etc/secrets/promtail-config.yaml
           volumeMounts:
           - name: promtail-secrets
             mountPath: /etc/secrets
@@ -107,7 +103,10 @@ spec:
             mountPath: /data/logs
         - name: {{ .Values.imageFilebeat.name}}
           image: {{ .Values.imageFilebeat.path }}
-          args: {{ .Values.imageFilebeat.args }}
+          args: [
+            "-c", "/etc/filebeat.yml",
+            "-e",
+          ]
           env:
           {{- toYaml .Values.imageFilebeat.env | nindent 10 }}
           resources:
@@ -126,7 +125,9 @@ spec:
           - name: varlibdockercontainers
             mountPath: /var/lib/docker/containers
             readOnly: true
-{{- end }}
+          securityContext:
+            allowPrivilegeEscalation: false
+          {{- end }}
       initContainers:
       {{- toYaml .Values.initContainers | nindent 6 }}
       volumes:
@@ -142,13 +143,21 @@ spec:
       - name: hmac-secrets
         secret:
           secretName: hmac-secrets
-    {{- if or .Values.environment.prod .Values.environment.preprod }}
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+      {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
       - name: logs
         persistentVolumeClaim:
-          claimName: logs-cephfs-claim-das
+          {{- if eq (toString $environment) "preprod" }}
+          claimName: logs-cephfs-claim-preprod-das
+          {{- end }}
+          {{- if eq (toString $environment) "prod" }}
+          claimName: logs-cephfs-claim-prod-das
+          {{- end }}
       - name: promtail-secrets
         configMap:
-          name: {{ include "das-server.fullname" . }}-promtail 
+          name: das-server-promtail
       - name: varlog
         hostPath:
           path: /var/log
@@ -158,8 +167,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: {{ include "das-server.fullname" . }}-filebeat-config
+          name: das-server-filebeat-config
       - name: data
-        emptyDir: {}       
+        emptyDir: {}
       {{- end }}
-

@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: '{{ include "crabserver.fullname" . }}-filebeat-config'
+  name: crabserver-filebeat-config
   namespace: crab
   labels:
     k8s-app: filebeat
@@ -11,30 +11,89 @@ data:
     - type: log
       enabled: true
       paths:
-        - /data/srv/logs/crabserver/*${MY_POD_NAME}*.log
+        - /data/srv/logs/crabserver/crabserver-*${MY_POD_NAME}*.log
       ignore_older: 1h
       scan_frequency: 10s
       backoff: 5s
       max_backoff: 10s
+      processors:
+        - add_fields:
+            target: logtype
+            fields:
+              name: cherrypylog
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/crabserver/CRAB-*${MY_POD_NAME}*.log
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+      processors:
+        - add_fields:
+            target: logtype
+            fields:
+              name: crablog
     output.console:
       codec.format:
-        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        string: '%{[message]} - Podname=${MY_POD_NAME} Type=%{[logtype][name]}'
         pretty: false
     queue.mem:
       events: 65536
     logging.metrics.enabled: false
-
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: crabserver-filebeat-monit-config
+  namespace: crab
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/crabserver/crabserver-*${MY_POD_NAME}*.log
+      file_identity.path:
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+      include_lines:
+        - '^\[.+?\] crabserver-'
+      tags: ["crabhttpcall"]
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/crabserver/CRAB-*${MY_POD_NAME}*.log
+      file_identity.path:
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+      include_lines:
+        - 'MeasureTime:seconds - '
+        - 'MeasureSize:bytes - '
+      tags: ["crabrest"]
+    output.logstash:
+      hosts: ["logstash:5044"]
+      compression_level: 3
+      bulk_max_size: 4096
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
 ---
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: {{ include "crabserver.fullname" . }}
+  name: crabserver
   labels:
     app: crabserver
   namespace: crab
 data:
   setup-certs-and-run.sh: |
     #!/bin/bash
+
     sudo cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security

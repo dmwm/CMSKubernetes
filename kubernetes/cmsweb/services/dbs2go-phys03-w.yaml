@@ -61,6 +61,10 @@ spec:
         prometheus.io/path: "/dbs/prod/phys03/DBSWriter/metrics"
         prometheus.io/port: "9255"
     spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 2000
       containers:
       - image: registry.cern.ch/cmsweb/dbs2go #imagetag
         name: dbs2go-phys03-w
@@ -68,6 +72,8 @@ spec:
         env:
         - name: X509_USER_PROXY
           value: /etc/proxy/proxy
+        - name: TNS_ADMIN
+          value: /etc/tnsnames.ora          
         command:
         - /data/run.sh
         resources:
@@ -107,9 +113,14 @@ spec:
           readOnly: true
         - name: token-secrets
           mountPath: /etc/token
-          readOnly: true          
+          readOnly: true
+        - name: tnsnames
+          mountPath: /etc/tnsnames.ora
+          subPath: tnsnames.ora          
 #PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/dbs
+        securityContext:
+          allowPrivilegeEscalation: false
 #PROD#- name: dbs2go-phys03-w-filebeat
 #PROD#  image: docker.elastic.co/beats/filebeat:7.12.0
 #PROD#  args: [
@@ -140,6 +151,8 @@ spec:
 #PROD#  - name: varlibdockercontainers
 #PROD#    mountPath: /var/lib/docker/containers
 #PROD#    readOnly: true
+#PROD#  securityContext:
+#PROD#    allowPrivilegeEscalation: false
       volumes:
       - name: proxy-secrets
         secret:
@@ -151,8 +164,11 @@ spec:
         secret:
           secretName: hmac-secrets
       - name: secrets
+        secret:
+          secretName: dbs2go-phys03-w-secrets
+      - name: tnsnames
         configMap:
-          name: dbs2go-phys03-w-config
+          name: tnsnames-config
       - name: token-secrets
         secret:
           secretName: token-secrets          

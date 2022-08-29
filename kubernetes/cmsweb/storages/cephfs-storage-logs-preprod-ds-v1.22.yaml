@@ -331,3 +331,39 @@ spec:
   storageClassName: ""
   volumeName: cmskv-share
 ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: dqm-share-testbed
+  namespace: dqm
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 22G
+  csi:
+    driver: cephfs.manila.csi.openstack.org
+    volumeHandle: d4554eee-5b92-4af6-8d73-cbb4c536bac1
+    nodeStageSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    nodePublishSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    volumeAttributes:
+      shareID: d4554eee-5b92-4af6-8d73-cbb4c536bac1
+      shareAccessID: f6a5c6cd-3465-4418-858f-174e07b65d4b
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-dqm
+  namespace: dqm
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 22G
+  storageClassName: ""
+  volumeName: dqm-share-testbed

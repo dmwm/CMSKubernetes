@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG2205d
+VER=HG2208d
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend dmwmmon"

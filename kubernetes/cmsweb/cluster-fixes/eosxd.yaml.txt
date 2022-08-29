@@ -1,0 +1,40 @@
+eosxd:
+  affinity: {}
+  enabled: true
+  global: {}
+  image:
+    pullPolicy: IfNotPresent
+    repository: registry.cern.ch/magnum/eosd
+    tag: 4.8.51-1.2
+  keytab: ""
+  mounts:
+    ams: null
+    atlas: null
+    cms: null
+    experiment:
+      public: null
+    lhcb: null
+    media: null
+    project:
+      project-i00: a e j g v k q y
+      project-i01: l h b p s f w n o
+      project-i02: d c i r m t u x z
+    theory:
+      public: null
+    user:
+      home-i00: d l n t z
+      home-i01: a g j k w
+      home-i02: h o r s y
+      home-i03: b e m v x
+      home-i04: c f i p q u
+    web:
+      media: null
+    workspace:
+      public: null
+  nodeSelector: {}
+  priorityClassName: system-cluster-critical
+  resources: {}
+  tolerations:
+  - operator: Exists
+  updateStrategy:
+    type: RollingUpdate

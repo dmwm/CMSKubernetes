@@ -2,7 +2,7 @@
 
 For sending rucio datasets information data to MONIT.
 
-Analytix cluster 3.2, spark3 and python3.6 will be used. Base image already contains sqoop.
+Analytix cluster 3.2, spark3 and python3.9 will be used. Base image already contains sqoop.
 
 Installs:
 
@@ -10,7 +10,9 @@ Installs:
 - Only src/python/CMSMonitoring cluster of dmwm/CMSMonitoring repo and creates its zip for Spark job to submit
 - dmwm/CMSSpark
 
-#### How to build and push
+##### Image built by GH workflow in CMSSpark repository
+
+#### [DEPRECATED] How to build and push
 
 ```shell
 # docker image prune -a OR docker system prune -f -a

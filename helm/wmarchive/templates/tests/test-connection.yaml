@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "wmarchive.fullname" . }}:{{ .Values.service.port }}']
+      args: wmarchive:8200
   restartPolicy: Never

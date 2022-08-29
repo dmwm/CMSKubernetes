@@ -11,12 +11,17 @@
 ##H Deployments:
 ##H   cluster    create openstack cluster
 ##H   services   deploy services cluster
+##H   default_services   deploy services cluster
 ##H   frontend   deploy frontend cluster
 ##H   daemonset  deploy cluster's daemonsets
+##H   aps	 deploy auth-proxy-servers as frontends
 ##H   ingress    deploy ingress controller
-##H   monitoring deploy monitoring components
+##H   monitoring_frontend deploy monitoring components in frontend services
+##H   monitoring_backend deploy monitoring components as backend services
+##H   monitoring_aps deploy monitoring components in aps clusters
 ##H   crons      deploy crons components
 ##H   secrets    create secrets files
+##H   storages   create storages
 ##H
 ##H Envrionments:
 ##H   CMSWEB_CLUSTER            defines name of the cluster to be created (default cmsweb)
@@ -77,6 +82,21 @@ if [ "$env_prefix" != "k8s-preprod" ] && [  "$env_prefix" != "k8s-prod" ]; then
     if [[ "$cluster_name" == *"cmsweb-test7"* ]] ; then
                 env_prefix="test7"
     fi
+    if [[ "$cluster_name" == *"cmsweb-test8"* ]] ; then
+                env_prefix="test8"
+    fi
+    if [[ "$cluster_name" == *"cmsweb-test9"* ]] ; then
+                env_prefix="test9"
+    fi
+    if [[ "$cluster_name" == *"cmsweb-test10"* ]] ; then
+                env_prefix="test10"
+    fi
+    if [[ "$cluster_name" == *"cmsweb-test11"* ]] ; then
+                env_prefix="test11"
+    fi
+    if [[ "$cluster_name" == *"cmsweb-test12"* ]] ; then
+                env_prefix="test12"
+    fi
     env_prefix="k8s-$env_prefix"
 fi
     echo "#### env_prefix = $env_prefix"
@@ -94,18 +114,20 @@ cmsweb_ns="auth default crab das dbs dmwm dqm http ruciocm tzero wma"
 # services for cmsweb cluster, adjust if necessary
 #cmsweb_ing="ing-srv"
 #cmsweb_ing="ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tzero ing-exitcodes"
-cmsweb_ing="ing-crab ing-dbs ing-das ing-dmwm ing-http ing-tzero ing-exitcodes ing-wma"
+cmsweb_ing="ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-ruciocm ing-tzero ing-wma"
 cmsweb_ds="frontend-ds"
 
 cmsweb_aps="auth-proxy-server scitokens-proxy-server x509-proxy-server aps-filebeat sps-filebeat xps-filebeat"
 
+default_services="cert-manager cmskv exitcodes httpgo httpsgo imagebot podmanager rucio-con-mon k8snodemon"
 
 #cmsweb_srvs="httpgo httpsgo frontend acdcserver couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
 
-cmsweb_srvs="httpgo httpsgo frontend cert-manager crabcache crabserver das-server das-mongo das-mongo-exporter dbs dbsmigration dbs2go reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmgr2ms-rulecleaner reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes wmarchive imagebot"
+cmsweb_srvs="cert-manager cmskv crabserver das-exporter das-mongo das-mongo-exporter das-server dbs dbsmigration dbs2go exitcodes frontend httpgo httpsgo imagebot ms-output-mongo newdqmgui podmanager reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmgr2ms-rulecleaner reqmgr2ms-unmerged reqmon reqmon-tasks rucio-con-mon t0_reqmon t0_reqmon-tasks t0wmadatasvc k8snodemon  workqueue wmarchive"
 
 # list of DBS instances
 dbs_instances="migrate  global-r global-w phys03-r phys03-w"
+dbs2go_instances="global-m global-migration global-r global-w phys03-m phys03-migration phys03-r phys03-w"
 
 # define help
 if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ] || [ "$1" == "" ]; then
@@ -151,8 +173,7 @@ if [ "$deployment" == "services" ]; then
     #cmsweb_ing="ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tzero ing-exitcodes"
     cmsweb_ing="ing-crab ing-dbs ing-das ing-dmwm ing-http ing-tzero ing-exitcodes ing-wma"
 
-    #cmsweb_srvs="httpgo httpsgo acdcserver couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
-    cmsweb_srvs="httpgo httpsgo cert-manager crabcache crabserver das-server das-mongo das-mongo-exporter dbs dbsmigration dbs2go reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmgr2ms-rulecleaner reqmon reqmon-tasks t0_reqmon t0_reqmon-tasks t0wmadatasvc workqueue exitcodes wmarchive imagebot"
+    cmsweb_srvs="cert-manager cmskv crabserver das-exporter das-mongo das-mongo-exporter das-server dbs dbsmigration dbs2go exitcodes httpgo httpsgo imagebot ms-output-mongo newdqmgui podmanager reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmgr2ms-rulecleaner reqmgr2ms-unmerged reqmon reqmon-tasks rucio-con-mon t0_reqmon t0_reqmon-tasks t0wmadatasvc k8snodemon  workqueue wmarchive"
 
     echo "+++ deploy services: $cmsweb_srvs"
     echo "+++ deploy ingress : $cmsweb_ing"
@@ -298,16 +319,20 @@ cleanup()
     echo "--- delete pods"
     for srv in $cmsweb_srvs; do
         # special case for DBS instances
-        if [ "$srv" == "dbs" ] || [ "$srv" == "dbs2go" ] ; then
+        if [ "$srv" == "dbs" ]  ; then
             for inst in $dbs_instances; do
                 if [ -f $sdir/${srv}-${inst}.yaml ]; then
                     kubectl delete -f $sdir/${srv}-${inst}.yaml
                 fi
             done
-        else
-            if [ -f $sdir/${srv}.yaml ]; then
+        elif [ "$srv" == "dbs2go" ] ; then
+            for inst in $dbs2go_instances; do
+                if [ -f $sdir/${srv}-${inst}.yaml ]; then
+                    kubectl delete -f $sdir/${srv}-${inst}.yaml
+                fi
+            done
+        elif [ -f $sdir/${srv}.yaml ]; then
                 kubectl delete -f $sdir/${srv}.yaml
-            fi
         fi
     done
 
@@ -415,23 +440,23 @@ deploy_secrets()
         # create secrets with our robot certificates
         kubectl create secret generic robot-secrets \
             --from-file=$robot_key --from-file=$robot_crt \
-            --dry-run -o yaml | \
+            --dry-run=client -o yaml | \
             kubectl apply --namespace=$ns -f -
       
         # create hmac secrets
-        kubectl create secret generic hmac-secrets  --from-file=$hmac  --dry-run -o yaml |   kubectl apply --namespace=$ns -f -
+        kubectl create secret generic hmac-secrets  --from-file=$hmac  --dry-run=client -o yaml |   kubectl apply --namespace=$ns -f -
 
 
 
         # create client secret
         if [ -f $client_id ] && [ -f $client_secret ]; then
             kubectl create secret generic client-secrets \
-                --from-file=$client_id --from-file=$client_secret --dry-run -o yaml | \
+                --from-file=$client_id --from-file=$client_secret --dry-run=client -o yaml | \
                 kubectl apply --namespace=$ns -f -
         fi
         if [ -f $proxy ]; then
             kubectl create secret generic proxy-secrets \
-                --from-file=$proxy --dry-run -o yaml | \
+                --from-file=$proxy --dry-run=client -o yaml | \
                 kubectl apply --namespace=$ns -f -
         fi
 
@@ -461,7 +486,7 @@ deploy_secrets()
             local osrv=$srv
             srv=`echo $srv | sed -e "s,_,,g"`
             local files=""
-
+            secret_check="false"
 ### Substitution for APS/XPS/SPS client secrets in config.json	    
     if [ "$srv" == "auth-proxy-server" ] || [ "$srv" == "x509-proxy-server" ] || [ "$srv" == "scitokens-proxy-server" ] ; then
        if [ -d $secretdir ] && [ -n "`ls $secretdir`" ] && [ -f $secretdir/client.secrets ]; then
@@ -500,9 +525,10 @@ deploy_secrets()
                 done
             fi
             # special case for DBS instances
-            if [ "$srv" == "dbs" ]; then
+            if [ "$srv" == "dbs" ] ; then
+                secret_check="true"
                 if [ -f $conf/dbs/DBSSecrets.py ]; then
-		        files="--from-file=$conf/dbs/DBSSecrets.py"
+   		             files="--from-file=$conf/dbs/DBSSecrets.py"
                 fi
                 if [ -f $conf/dbs/NATSSecrets.py ]; then
                         files="$files --from-file=$conf/dbs/NATSSecrets.py"
@@ -521,41 +547,53 @@ deploy_secrets()
                         continue
                     fi
                     kubectl create secret generic ${srv}-${inst}-secrets \
-                        $files $dbsfiles --dry-run -o yaml | \
+                        $files $dbsfiles --dry-run=client -o yaml | \
                         kubectl apply --namespace=$ns -f -
                 done
-            elif [ "$srv" == "dbs2go" ]; then
-                if [ -f $conf/$srv-$inst/dbfile ]; then
-                    files="--from-file=$conf/$srv-$inst/dbfile"
-                fi
-                if [ -f $conf/$srv-$inst/migration_dbfile ]; then
-                    files="$files --from-file=$conf/$srv-$inst/migration_dbfile"
-                fi
-                for inst in $dbs_instances; do
+                # Deleting configmap for tnsnames in dbs namespace
+                kubectl delete cm tnsnames-config --namespace=$ns
+                # Creating configmap for tnsnames in dbs namespace
+                kubectl create cm tnsnames-config \
+                    --from-file=$conf/tnsnames/tnsnames.ora --dry-run=client -o yaml | \
+                    kubectl apply --namespace=$ns -f -
+            fi
+
+            if [ "$srv" == "dbs2go" ]; then
+                secret_check="true"
+                for inst in $dbs2go_instances; do
                     local dbsfiles=""
                     if [ -d "$secretdir-$inst" ] && [ -n "`ls $secretdir-$inst`" ]; then
                         for fconf in $secretdir-$inst/*; do
                             dbsfiles="$dbsfiles --from-file=$fconf"
                         done
+
                     fi
                     # proceed only if service namespace matches the loop one
                     local srv_ns=`grep namespace $sdir/${osrv}-${inst}.yaml | grep $ns`
                     if [ -z "$srv_ns" ] ; then
                         continue
                     fi
-                    kubectl create cm ${srv}-${inst}-config \
-                        $files $dbsfiles --dry-run -o yaml | \
+                    kubectl create secret generic ${srv}-${inst}-secrets \
+                        $dbsfiles --dry-run=client -o yaml | \
                         kubectl apply --namespace=$ns -f -
                 done
-            else
-                # proceed only if service namespace matches the loop one
-                local srv_ns=`grep namespace $sdir/${osrv}.yaml | grep $ns`
-                if [ -z "$srv_ns" ] ; then
-                    continue
-                fi
-                kubectl create secret generic ${srv}-secrets \
-                    $files --dry-run -o yaml | \
+                # Deleting configmap for tnsnames in dbs namespace
+                kubectl delete cm tnsnames-config --namespace=$ns
+                # Creating configmap for tnsnames in dbs namespace
+                kubectl create cm tnsnames-config \
+                    --from-file=$conf/tnsnames/tnsnames.ora --dry-run=client -o yaml | \
                     kubectl apply --namespace=$ns -f -
+            fi
+            
+            local srv_ns=`grep namespace $sdir/${osrv}.yaml | grep $ns`
+            if [ -z "$srv_ns" ] ; then
+               continue
+            fi
+            if [ "$secret_check" == "false" ]; then
+                kubectl create secret generic ${srv}-secrets \
+                $files --dry-run=client -o yaml | \
+                kubectl apply --namespace=$ns -f -
+
             fi
         done
 
@@ -575,7 +613,7 @@ deploy_secrets()
                     continue
                 fi
                 kubectl create secret generic ${srv}-secrets \
-                    $files --dry-run -o yaml | \
+                    $files --dry-run=client -o yaml | \
                     kubectl apply --namespace=$ns -f -
         done
         for srv in $cmsweb_aps; do
@@ -594,7 +632,7 @@ deploy_secrets()
                     continue
                 fi
                 kubectl create secret generic ${srv}-secrets \
-                    $files --dry-run -o yaml | \
+                    $files --dry-run=client -o yaml | \
                     kubectl apply --namespace=$ns -f -
         done
     done
@@ -602,7 +640,7 @@ deploy_secrets()
     # create ingress secrets file, it requires tls.key/tls.crt files
 
     kubectl create secret generic ing-secrets \
-        --from-file=$tls_key --from-file=$tls_crt --dry-run -o yaml | \
+        --from-file=$tls_key --from-file=$tls_crt --dry-run=client -o yaml | \
         kubectl apply -f -
 
     # perform clean-up
@@ -776,7 +814,34 @@ deploy_storages()
         kubectl label node $n failure-domain.beta.kubernetes.io/zone=nova --overwrite
         kubectl label node $n failure-domain.beta.kubernetes.io/region=cern --overwrite
     done
-    #kubectl apply -f storages/cinder-storage.yaml
+    #Deploy storage for testbed cluster
+    if [[ "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]]; then
+       kubectl apply -f storages/cephfs-storage-logs-preprod-ds-v1.22.yaml
+       kubectl apply -f storages/cephfs-storage-dqm-preprod-v1.22.yaml
+       kubectl apply -f storages/dqm-cvmfs.yaml
+       kubectl apply -f storages/cephfs-storage-filebeat-v1.22.yaml
+       kubectl apply -f storages/cephfs-storage-filebeatcrab-v1.22.yaml
+       kubectl apply -f storages/cephfs-storage-msoutput-preprod-v1.22.yaml
+       kubectl apply -f storages/cephfs-storage-ruciocm-ds-v1.22.yaml
+    fi
+    # Deploy storage for production cluster
+    if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod" ]]; then
+       if [[ "$cmsweb_hostname" == "cmsweb.cern.ch" ]]; then
+          kubectl apply -f storages/cephfs-storage-cmsweb-v1.22.yaml
+          kubectl apply -f storages/cephfs-storage-filebeat-v1.22.yaml	  
+       elif [[ "$cmsweb_hostname" == "cmsweb-prod.cern.ch" ]]; then
+          kubectl apply -f storages/cephfs-storage-cmsweb-prod-v1.22.yaml
+          kubectl apply -f storages/cephfs-storage-filebeat-v1.22.yaml
+       else
+          kubectl apply -f storages/cephfs-storage-logs-prod-ds-v1.22.yaml
+          kubectl apply -f storages/cephfs-storage-dqm-prod-v1.22.yaml
+          kubectl apply -f storages/dqm-cvmfs.yaml
+          kubectl apply -f storages/cephfs-storage-filebeatcrab-v1.22.yaml
+          kubectl apply -f storages/cephfs-storage-msoutput-prod-v1.22.yaml
+          kubectl apply -f storages/cephfs-storage-ruciocm-ds-v1.22.yaml
+       fi
+    fi
+
 }
 
 # deploy cluster roles
@@ -867,6 +932,10 @@ deploy_ingress()
     echo "+++ deploy $cmsweb_ing"
     echo "+++ use CMSWEB_HOSTNAME=$cmsweb_hostname"
     ips=`host $cmsweb_hostname_frontend | awk '{ORS=","; print $4}' | rev | cut -c2- | rev`
+    ips_cmsweb=`host cmsweb-prod.cern.ch | awk '{ORS=","; print $4}' | rev | cut -c2- | rev`
+    
+    ips=$ips,$ips_cmsweb
+
     echo "+++ use CMSWEB IPs: $ips"
     tmpDir=/tmp/$USER/ingress
     mkdir -p $tmpDir
@@ -908,12 +977,36 @@ deploy_crons()
     done
 }
 
+deploy_default_services()
+{
+    echo
+    echo "+++ deploy services: $default_services"
+    for srv in $default_services; do
+         if [ -f $sdir/${srv}.yaml ]; then
+                if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]] ; then
+                        cat $sdir/${srv}.yaml | \
+                        sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
+                        sed -e "s,replicas: 2 #PROD#,replicas: ,g" | \
+                        sed -e "s,#PROD#,$prod_prefix,g" | \
+                        sed -e "s,k8s #k8s#,$env_prefix,g" | \
+                        sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
+                        sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
+                        kubectl apply -f -
+                else
+                        sed -e "s,k8s #k8s#,$env_prefix,g" | \
+                        kubectl apply -f $sdir/${srv}.yaml
+                fi
+         fi
+    done
+}
+
+
 deploy_services()
 {
     echo
     echo "+++ deploy services: $cmsweb_srvs"
     for srv in $cmsweb_srvs; do
-        if [ "$srv" == "dbs" ] || [ "$srv" == "dbs2go" ] ; then
+        if [ "$srv" == "dbs" ] ; then
             for inst in $dbs_instances; do
                 if [ -f "$sdir/${srv}-${inst}.yaml" ]; then
                     #kubectl apply -f "$sdir/${srv}-${inst}.yaml"
@@ -931,8 +1024,25 @@ deploy_services()
                       fi
                 fi
             done
-        else
-            if [ -f $sdir/${srv}.yaml ]; then
+        elif [ "$srv" == "dbs2go" ] ; then
+            for inst in $dbs2go_instances; do
+                if [ -f "$sdir/${srv}-${inst}.yaml" ]; then
+                    #kubectl apply -f "$sdir/${srv}-${inst}.yaml"
+                      if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]] ; then
+                            cat $sdir/${srv}-${inst}.yaml | \
+                            sed -e "s,replicas: 1 #PROD#,replicas: ,g" | \
+                            sed -e "s,#PROD#,$prod_prefix,g" | \
+                            sed -e "s,k8s #k8s#,$env_prefix,g" | \
+                            sed -e "s,logs-cephfs-claim,logs-cephfs-claim$logs_prefix,g" | \
+                            sed -e "s, #imagetag,$cmsweb_image_tag,g" | \
+                            kubectl apply -f -
+                      else
+                            sed -e "s,k8s #k8s#,$env_prefix,g" | \
+                      kubectl apply -f $sdir/${srv}-${inst}.yaml
+                      fi
+                fi
+            done
+        elif [ -f $sdir/${srv}.yaml ]; then
                 #kubectl apply -f $sdir/${srv}.yaml 
                 if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod"  ||  "$CMSWEB_ENV" == "preproduction"  ||  "$CMSWEB_ENV" == "preprod" ]] ; then
                         cat $sdir/${srv}.yaml | \
@@ -947,7 +1057,6 @@ deploy_services()
                         sed -e "s,k8s #k8s#,$env_prefix,g" | \
                         kubectl apply -f $sdir/${srv}.yaml
                 fi
-            fi
         fi
     done
 }
@@ -965,7 +1074,7 @@ create()
         openstack --os-project-name "$project" coe cluster list
     elif [ "$deployment" == "secrets" ]; then
         deploy_ns
-	deploy_crons
+      	deploy_crons
         deploy_roles
         deploy_secrets
     elif [ "$deployment" == "ingress" ]; then
@@ -983,6 +1092,10 @@ create()
     elif [ "$deployment" == "monitoring_aps" ]; then
         deployment=aps
         deploy_monitoring
+    elif [ "$deployment" == "storages" ]; then
+        deploy_storages
+    elif [ "$deployment" == "default_services" ]; then 
+        deploy_default_services
     else
         deploy_ns
         deploy_secrets

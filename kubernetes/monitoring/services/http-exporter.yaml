@@ -42,6 +42,6 @@ spec:
           - "monitoring"
           - -verbose
           name: http-sub
-          image: registry.cern.ch/cmsmonitoring/http-exporter:20220420
+          image: registry.cern.ch/cmsmonitoring/http-exporter:20220605
           ports:
           - containerPort: 18000

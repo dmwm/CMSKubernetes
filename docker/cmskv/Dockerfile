@@ -18,7 +18,7 @@ WORKDIR $WDIR/cmskv
 RUN git checkout tags/$TAG -b build && make
 
 # for musl C-libary and smallest base image we will use alpine
-FROM alpine:3.15
+FROM alpine:3.16
 RUN mkdir -p /data/
 ENV PATH $PATH:/data
 COPY --from=go-builder /data/cmskv/cmskv /data/

@@ -1,0 +1,44 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: das-exporter
+  name: {{ include "das-exporter.fullname" . }}
+spec:
+  selector:
+    matchLabels:
+      app: das-exporter
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: das-exporter
+        env: k8s-{{.Values.environment}}
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18217"
+    spec:
+      containers:
+      - image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        name: {{ .Chart.Name }}
+        resources:
+        {{- toYaml .Values.resources | nindent 12 }}
+        env:
+          - name: X509_USER_PROXY
+            value: "/etc/proxy/proxy"
+        command:
+        - /data/das2go_exporter
+        - -address
+        - ":18217"
+        ports:
+        - containerPort: 18217
+          protocol: TCP
+          name: das-exporter
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets

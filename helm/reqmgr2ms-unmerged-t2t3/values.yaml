@@ -1,13 +1,14 @@
 # Default values for reqmgr2ms-unmer-t2t3.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+
 replicaCount: 1
 
 image:
-  repository: cmssw/reqmgr2ms-unmerged
+  repository: registry.cern.ch/cmsweb/reqmgr2ms-unmerged
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "HG2108h-v3"
+  tag: "HG2208d"
   name: ms-unmer-t2t3
   command:
   - /bin/bash
@@ -18,19 +19,12 @@ nameOverride: "ms-unmer-t2t3"
 fullnameOverride: "ms-unmer-t2t3"
 
 environment:
-  prod: false
-  preprod: false
-  test : false
 
 
 serviceAccount:
   # Specifies whether a service account should be created
   create: false
   # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
 
 lifecycle:
   postStart:
@@ -66,18 +60,6 @@ imageFilebeatSecurityContext:
 securityContext: 
   privileged: true
 
-service:
-  type: ClusterIP
-  port: 8242
-  protocol: TCP
-  name: ms-unmer-t2t3
-
-serviceMon:
-  port: 18242
-  protocol: TCP
-  name: unmerged-mon
-
-
 resources:
   requests:
     memory: "256Mi"
@@ -105,6 +87,7 @@ imageFilebeatResources:
   requests:
     memory: "50Mi"
     cpu: "50m"
+
 
 ingress:
   enabled: false

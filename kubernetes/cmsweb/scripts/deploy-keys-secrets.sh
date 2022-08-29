@@ -14,6 +14,6 @@ echo "Creating key secrets in namespace: $ns"
 echo $secret_file
 if [ -f $secret_file ]; then
     kubectl create secret generic $ns-keys-secrets \
-    --from-file=$secret_file --dry-run -o yaml | \
+    --from-file=$secret_file --dry-run=client -o yaml | \
     kubectl apply --namespace=$ns -f -
 fi

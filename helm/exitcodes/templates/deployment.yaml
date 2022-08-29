@@ -3,14 +3,12 @@ kind: Deployment
 metadata:
   name: {{ include "exitcodes.fullname" . }}
   labels:
-    {{- include "exitcodes.labels" . | nindent 4 }}
+    app: exitcodes
 spec:
-  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
-      {{- include "exitcodes.selectorLabels" . | nindent 6 }}
+      app: exitcodes
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,7 +16,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "exitcodes.selectorLabels" . | nindent 8 }}
+        app: exitcodes
+        env: k8s-{{.Values.environment}}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -35,7 +34,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: 9201
               protocol: TCP
           livenessProbe:
             {{ .Values.livenessProbe | toYaml | indent 12 | trim}}

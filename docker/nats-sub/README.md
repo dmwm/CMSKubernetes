@@ -1,5 +1,13 @@
 #### How to build and push
 
+**Note**
+
+Build by github wf action in dmwm/CMSMonitoring repository
+
+---
+
+**Warning [DEGRADED]**
+
 ```shell
 # docker image prune -a OR docker system prune -f -a
 docker_registry=registry.cern.ch/cmsmonitoring

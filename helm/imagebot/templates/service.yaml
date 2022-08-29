@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: imagebot
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8111
+    protocol: TCP
+    name: http
+    nodePort: 30111
+  type: NodePort
+  selector:
+    app: imagebot

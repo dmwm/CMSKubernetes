@@ -13,7 +13,7 @@ spec:
           serviceAccountName: kerberos-account
           containers:
           - name: kerberos
-            image: registry.cern.ch/cmsmonitoring/kerberos:20220421
+            image: registry.cern.ch/cmsmonitoring/kerberos:20220605
             args:
             - /bin/sh
             - -c

@@ -1,0 +1,14 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sContainerRequests
+metadata:
+  name: containerrequests
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    excludedNamespaces:
+      - "auth"
+  parameters:
+    cpu: {{ .Values.requests.cpu }}
+    memory: {{ .Values.requests.memory }}

@@ -1,0 +1,42 @@
+enabled: true
+disabled: false
+
+isEnabled:
+ allowedrepos: false
+ replicalimits: false
+ capabilities: false
+ containerlimits: false
+ containerrequests: false
+ containerresourceratios: false
+ containerresources: false
+ disallowanonymous: false
+ requiredprobes: false
+ host-namespaces: false
+ automount-serviceaccount-token: false
+ block-endpoint-edit-default-role: false
+ block-nodeport-services: false
+ block-wildcard-ingress: false
+ disallowedtags: false
+ externalip: false
+ httpsonly: false
+ imagedigests: false
+ noupdateserviceaccount: false
+ poddisruptionbudget: false
+ requiredannotations: false
+ requiredlabels: false
+ uniqueingresshost: false
+ uniqueserviceselector: false
+ allow-privilege-escalation: false
+ apparmor: false
+ flexvolume-drivers: false
+ forbidden-sysctls: false
+ fsgroup: false
+ host-filesystem: false
+ host-network ports: false
+ privileged-containers: false
+ proc-mount: false
+ read-only-root-filesystem: false
+ seccomp: false
+ selinux: false
+ users: false
+ volumes: false

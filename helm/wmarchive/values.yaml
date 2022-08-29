@@ -7,15 +7,12 @@ replicaCount:
   test: 1
 
 environment:
-  prod: false
-  preprod: false
-  test : false
 
 image:
-  repository: cmssw/wmarchive
+  repository: registry.cern.ch/cmsweb/wmarchive
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "v00.08.70"
+  tag: "20220404-stable"
   args:
     - /data/run.sh
 
@@ -48,17 +45,6 @@ podSecurityContext:
 imageFilebeatSecurityContext:
   allowPrivilegeEscalation: false
 
-service:
-  type: ClusterIP
-  port: 8200
-  protocol: TCP
-  name: wma
-
-serviceMon:
-  port: 18200
-  protocol: TCP
-  name: wma-mon
-
 livenessProbe:
   httpGet:
     path: /wmarchive/data
@@ -78,10 +64,6 @@ resources:
 imageFilebeat:
   name: wmarchive-filebeat
   path: docker.elastic.co/beats/filebeat:7.12.0
-  args: [
-    "-c", "/etc/filebeat.yml",
-    "-e",
-  ]
   env:
   - name: MY_POD_NAME
     valueFrom:

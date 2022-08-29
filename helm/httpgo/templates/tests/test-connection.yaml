@@ -3,7 +3,7 @@ kind: Pod
 metadata:
   name: "{{ include "httpgo.fullname" . }}-test-connection"
   labels:
-    {{- include "httpgo.labels" . | nindent 4 }}
+    app: httpgo
   annotations:
     "helm.sh/hook": test
 spec:
@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "httpgo.fullname" . }}:{{ .Values.service.port }}']
+      args: ['httpgo:8888']
   restartPolicy: Never

@@ -79,8 +79,8 @@ spec:
             memory: "512Mi"
             cpu: "200m"
           limits:
-            memory: "3Gi"
-            cpu: "1000m"
+            memory: "5Gi"
+            cpu: "1500m"
         livenessProbe:
           exec:
             command:

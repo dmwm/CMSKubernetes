@@ -1,15 +1,13 @@
-apiVersion: v1
 kind: Service
+apiVersion: v1
 metadata:
-  name: {{ include "exitcodes.fullname" . }}
-  labels:
-    {{- include "exitcodes.labels" . | nindent 4 }}
+  name: exitcodes
+  namespace: http
 spec:
-  type: {{ .Values.service.type }}
+  type: ClusterIP
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
+  - port: 9201
+    protocol: TCP
+    name: http
   selector:
-    {{- include "exitcodes.selectorLabels" . | nindent 4 }}
+    app: exitcodes

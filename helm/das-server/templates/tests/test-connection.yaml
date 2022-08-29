@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "das-server.fullname" . }}:{{ .Values.service.port }}']
+      args: ['das-server:8217']
   restartPolicy: Never

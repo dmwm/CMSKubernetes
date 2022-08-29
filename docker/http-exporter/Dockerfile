@@ -12,6 +12,6 @@ RUN mkdir /build
 ARG CGO_ENABLED=0
 RUN go mod tidy && go build -o /build/http_exporter -ldflags="-s -w -extldflags -static" http_exporter.go
 
-FROM alpine:3.15.4
+FROM alpine:3.16
 RUN mkdir /data
 COPY --from=go-builder /build/http_exporter /data/

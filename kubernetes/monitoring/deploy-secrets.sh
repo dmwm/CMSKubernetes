@@ -14,6 +14,7 @@
 ##H        keytab-secrets
 ##H        krb5cc-secrets
 ##H        log-clustering-secrets
+##H        cmsmon-mongo-secrets
 ##H        nats-secrets
 ##H        prometheus-secrets
 ##H        promxy-secrets
@@ -105,6 +106,19 @@ elif [ "$secret" == "log-clustering-secrets" ]; then
     # cmsmonit keytab
     cmsmonit_f=`ls $sdir/cmsmonit-keytab/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmonit-keytab | sed "s, $,,g"`
     files="${log_f} ${cmsmonit_f}"
+elif [ "$secret" == "cmsmon-mongo-secrets" ]; then
+    mongo_envs="MONGO_ROOT_USERNAME MONGO_ROOT_PASSWORD MONGO_USERNAME MONGO_PASSWORD MONGO_USERS_LIST"
+    literals=""
+    for mongo_env in $mongo_envs; do
+        temp_env_val=`grep $mongo_env $sdir/cmsmon-mongo-secrets/secrets | awk '{print $2}'`
+        literals="--from-literal=${mongo_env}=${temp_env_val} ${literals}"
+    done
+    cmsmonit_f="--from-file=${sdir}/cmsmonit-keytab/keytab"
+    mongo_f=`ls $sdir/cmsmon-mongo-secrets/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmon-mongo-secrets | sed "s, $,,g"`
+    files="${mongo_f} ${cmsmonit_f} ${literals}"
+    # Double quoted literals variable in "kubectl create secret generic" only provide first literal because of unknown issue ...
+    #   because of this we embed literals in files variable
+    unset literals
 elif [ "$secret" == "condor-cpu-eff-secrets" ]; then
     files=`ls $sdir/cmsmonit-keytab/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmonit-keytab | sed "s, $,,g"`
 elif [ "$secret" == "es-wma-secrets" ]; then
@@ -128,7 +142,7 @@ elif [ "$secret" == "rucio-daily-stats-secrets" ]; then
     sqoop_f=`ls $sdir/sqoop/ | grep cmsr | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/sqoop | sed "s, $,,g"`
     rucio_f=`ls $sdir/rucio/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/rucio | sed "s, $,,g"`
     amq_creds_f=`ls $sdir/cms-rucio-dailystats/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cms-rucio-dailystats | sed "s, $,,g"`
-    cmsmonit_f=`ls $sdir/cmsmonit-keytab/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmonit-keytab | sed "s, $,,g"`
+    cmsmonit_f="--from-file=${sdir}/cmsmonit-keytab/keytab"
     files="${sqoop_f} ${rucio_f} ${amq_creds_f} ${cmsmonit_f}"
 elif [ "$secret" == "sqoop-secrets" ]; then
     s_files=`ls $sdir/sqoop/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/sqoop | sed "s, $,,g"`

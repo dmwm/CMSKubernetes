@@ -1,19 +1,15 @@
-apiVersion: v1
 kind: Service
+apiVersion: v1
 metadata:
-  name: {{ include "t0wmadatasvc.fullname" . }}
-  labels:
-    {{- include "t0wmadatasvc.labels" . | nindent 4 }}
+  name: t0wmadatasvc
+  namespace: tzero
 spec:
-  type: {{ .Values.service.type }}
-  ports:
-  - port: {{ .Values.service.port }}
-    targetPort: {{ .Values.service.port}}
-    name: {{ .Values.service.name }}
-    protocol: {{ .Values.service.protocol }}
-  - port: {{ .Values.serviceMon.port }}
-    protocol: {{ .Values.serviceMon.protocol }}
-    name: {{ .Values.serviceMon.name }}
-    targetPort: {{ .Values.serviceMon.port}}
   selector:
-    {{- include "t0wmadatasvc.selectorLabels" . | nindent 4 }}
+    app: t0wmadatasvc
+  ports:
+    - port: 8308
+      targetPort: 8308
+      name: t0wmadatasvc
+    - port: 18308
+      targetPort: 18308
+      name: t0wmadsvc-mon

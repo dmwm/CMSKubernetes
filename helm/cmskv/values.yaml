@@ -1,0 +1,46 @@
+# Default values for cmskv.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount:
+  prod: 3
+  test: 1
+
+image:
+  repository: registry.cern.ch/cmsweb/cmskv
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "20220404-stable"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+
+environment:
+
+podSecurityContext: {}
+
+securityContext: {}
+
+autoscaling: {}
+
+resources:
+  requests:
+    memory: "100Mi"
+    cpu: "200m"
+  limits:
+    memory: "3Gi"
+    cpu: "4000m"        
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+ingress:
+  enabled: false

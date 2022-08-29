@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: '{{ include "t0reqmon.fullname" . }}-filebeat-config'
+  name: t0reqmon-filebeat-config
   namespace: tzero
   labels:
     k8s-app: filebeat
@@ -27,16 +27,16 @@ data:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: {{ include "t0reqmon.fullname" . }}
+  name: t0reqmon
   labels:
     app: t0reqmon
   namespace: tzero
 data:
   setup-certs-and-run.sh: |
     #!/bin/bash
+
     sudo cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
     #su  -c "cd /data && /data/run.sh" --preserve-environment _t0_reqmon
     cd /data && /data/run.sh
----

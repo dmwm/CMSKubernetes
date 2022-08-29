@@ -1,6 +1,6 @@
 [epel]
-name=Extra Packages for Enterprise Linux [20220401]
-baseurl=http://linuxsoft.cern.ch/internal/yumsnapshot/20220401/epel/7/x86_64
+name=Extra Packages for Enterprise Linux [20220601]
+baseurl=http://linuxsoft.cern.ch/internal/yumsnapshot/20220601/epel/7/x86_64
 enabled=1
 gpgcheck=1
 gpgkey=http://linuxsoft.cern.ch/epel/RPM-GPG-KEY-EPEL-7
