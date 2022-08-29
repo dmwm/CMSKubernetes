@@ -1,5 +1,12 @@
 ---
 apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: reqmgr2-sa
+  namespace: dmwm
+---
+
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: reqmgr2-filebeat-config
@@ -79,7 +86,7 @@ spec:
         prometheus.io/scrape: 'true'
         prometheus.io/port: "18240"
         vault.hashicorp.com/agent-inject: 'true'
-        vault.hashicorp.com/role: 'reqmgr2-secrets'
+        vault.hashicorp.com/role: 'reqmgr2-role'
         vault.hashicorp.com/secret-volume-path: '/etc/secrets'
         vault.hashicorp.com/agent-inject-secret-config.py: 'cmsweb/data/reqmgr2-secrets'
         vault.hashicorp.com/agent-inject-template-config.py: |
@@ -92,6 +99,7 @@ spec:
           {{ .Data.data.ReqMgr2Secrets }}
           {{- end -}}
     spec:
+      serviceAccountName: reqmgr2-sa
       # use hostNetwork to allow communication between reqmgr2/reqmon/workqueue and couch
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
@@ -139,6 +147,9 @@ spec:
         volumeMounts:
         - name: proxy-secrets
           mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
           readOnly: true
         - name: robot-secrets
           mountPath: /etc/robots
@@ -198,6 +209,9 @@ spec:
       - name: proxy-secrets
         secret:
           secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: reqmgr2-secrets
       - name: robot-secrets
         secret:
           secretName: robot-secrets
