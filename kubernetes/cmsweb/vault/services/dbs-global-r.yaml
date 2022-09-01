@@ -5,7 +5,7 @@ data:
     - type: log
       enabled: true
       paths:
-        - /data/srv/logs/reqmgr2/*${MY_POD_NAME}*.log
+        - /data/srv/logs/dbs/*${MY_POD_NAME}*.log
       ignore_older: 1h
       scan_frequency: 10s
       backoff: 5s
@@ -21,24 +21,27 @@ kind: ConfigMap
 metadata:
   labels:
     k8s-app: filebeat
-  name: reqmgr2-filebeat-config
-  namespace: dmwm
+  name: dbs-global-r-filebeat-config
+  namespace: dbs
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: reqmgr2
-  namespace: dmwm
+  name: dbs-global-r
+  namespace: dbs
 spec:
   ports:
-  - name: reqmgr2
-    port: 8246
-    targetPort: 8246
-  - name: reqmgr2-mon
-    port: 18240
-    targetPort: 18240
+  - name: dbs-global-r
+    port: 8252
+    targetPort: 8252
+  - name: dbs-gr-mon
+    port: 18252
+    targetPort: 18252
+  - name: dbs-gr-cpy-mon
+    port: 19252
+    targetPort: 19252
   selector:
-    app: reqmgr2
+    app: dbs-global-r
 ---
 apiVersion: v1
 data:
@@ -48,89 +51,92 @@ data:
     sudo cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
-    #su  -c "cd /data && /data/run.sh" --preserve-environment _reqmgr2
+    #su  -c "cd /data && /data/run.sh" --preserve-environment _dbs
     cd /data && /data/run.sh
 kind: ConfigMap
 metadata:
   labels:
-    app: reqmgr2
-  name: reqmgr2
-  namespace: dmwm
+    app: dbs-global-r
+  name: dbs-global-r
+  namespace: dbs
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: reqmgr2
-  name: reqmgr2
-  namespace: dmwm
+    app: dbs-global-r
+  name: dbs-global-r
+  namespace: dbs
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: reqmgr2
+      app: dbs-global-r
   template:
     metadata:
       annotations:
-        prometheus.io/port: '18240'
+        prometheus.io/port: '18252'
         prometheus.io/scrape: 'true'
         vault.hashicorp.com/agent-inject: 'true'
-        vault.hashicorp.com/agent-inject-secret-ReqMgr2Secrets.py: cmsweb/data/reqmgr2-secrets
-        vault.hashicorp.com/agent-inject-secret-config.py: cmsweb/data/reqmgr2-secrets
-        vault.hashicorp.com/agent-inject-template-ReqMgr2Secrets.py: |-
-          {{- with secret "cmsweb/data/reqmgr2-secrets" -}}
-          {{ .Data.data.ReqMgr2Secrets }}
+        vault.hashicorp.com/agent-inject-secret-DBSGlobalReader.py: cmsweb/data/dbs-global-r-secrets
+        vault.hashicorp.com/agent-inject-template-DBSGlobalReader.py: |-
+          {{- with secret "cmsweb/data/dbs-global-r-secrets" -}}
+          {{ .Data.data.DBSGlobalReader }}
           {{- end -}}
-        vault.hashicorp.com/agent-inject-template-config.py: |-
-          {{- with secret "cmsweb/data/reqmgr2-secrets" -}}
-          {{ .Data.data.config }}
-          {{- end -}}
-        vault.hashicorp.com/role: reqmgr2-role
+        vault.hashicorp.com/role: dbs-global-r-role
         vault.hashicorp.com/secret-volume-path: /etc/secrets
       labels:
-        app: reqmgr2
+        app: dbs-global-r
         env: k8s
+        job: dbs-global-r
     spec:
       containers:
       - command:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
-        image: registry.cern.ch/cmsweb/reqmgr2
-        lifecycle:
-          postStart:
-            exec:
-              command:
-              - bash
-              - -c
-              - sudo chmod 0777 /data/srv/logs/reqmgr2; sudo chown _reqmgr2:_reqmgr2
-                /data/srv/logs/reqmgr2
+        image: registry.cern.ch/cmsweb/dbs
         livenessProbe:
           exec:
             command:
             - cmsweb-ping
-            - --url=http://localhost:8246/reqmgr2/data/info
+            - --url=http://localhost:8252/dbs/prod/global/DBSReader/
             - --authz=/etc/hmac/hmac
             - -verbose
             - '0'
-          initialDelaySeconds: 120
-          periodSeconds: 30
-          successThreshold: 1
+          failureThreshold: 3
+          initialDelaySeconds: 60
+          periodSeconds: 20
           timeoutSeconds: 10
-        name: reqmgr2
+        name: dbs-global-r
         ports:
-        - containerPort: 8246
-          name: reqmgr2
+        - containerPort: 8252
+          name: dbs-global-r
           protocol: TCP
-        - containerPort: 18240
-          name: reqmgr2-mon
+        - containerPort: 18252
+          name: dbs-gr-mon
           protocol: TCP
+        - containerPort: 19252
+          name: dbs-gr-cpy-mon
+          protocol: TCP
+        readinessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - --url=http://localhost:8252/dbs/prod/global/DBSReader/
+            - --authz=/etc/hmac/hmac
+            - -verbose
+            - '0'
+          failureThreshold: 3
+          initialDelaySeconds: 60
+          periodSeconds: 20
+          timeoutSeconds: 10
         resources:
           limits:
-            cpu: 1000m
-            memory: 3Gi
+            cpu: 2000m
+            memory: 15Gi
           requests:
-            cpu: 200m
-            memory: 512Mi
+            cpu: 300m
+            memory: 1000Mi
         securityContext:
           privileged: true
         volumeMounts:
@@ -155,7 +161,7 @@ spec:
         fsGroup: 2000
         runAsGroup: 1000
         runAsUser: 1000
-      serviceAccountName: reqmgr2-sa
+      serviceAccountName: dbs-global-r-sa
       volumes:
       - name: proxy-secrets
         secret:
@@ -170,7 +176,7 @@ spec:
           path: /etc/grid-security
         name: etc-grid-security
       - configMap:
-          name: reqmgr2
+          name: dbs-global-r
         name: setup-certs-and-run
       - name: token-secrets
         secret:
@@ -179,5 +185,5 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: reqmgr2-sa
-  namespace: dmwm
+  name: dbs-global-r-sa
+  namespace: dbs

@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: das-mongo
+  namespace: das
+spec:
+  ports:
+  - name: das
+    port: 8230
+    targetPort: 8230
+  - name: das-mongo-mon
+    port: 18230
+    targetPort: 18230
+  selector:
+    app: das-mongo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: das-mongo
+  name: das-mongo
+  namespace: das
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: das-mongo
+  template:
+    metadata:
+      annotations:
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/agent-inject-secret-dasmap: cmsweb/data/das-mongo-secrets
+        vault.hashicorp.com/agent-inject-secret-frontend: cmsweb/data/das-mongo-secrets
+        vault.hashicorp.com/agent-inject-secret-mongodb.conf: cmsweb/data/das-mongo-secrets
+        vault.hashicorp.com/agent-inject-template-dasmap: |-
+          {{- with secret "cmsweb/data/das-mongo-secrets" -}}
+          {{ .Data.data.dasmap }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-frontend: |-
+          {{- with secret "cmsweb/data/das-mongo-secrets" -}}
+          {{ .Data.data.frontend }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-mongodb.conf: |-
+          {{- with secret "cmsweb/data/das-mongo-secrets" -}}
+          {{ .Data.data.mongodb }}
+          {{- end -}}
+        vault.hashicorp.com/role: das-mongo-role
+        vault.hashicorp.com/secret-volume-path: /etc/secrets
+      labels:
+        app: das-mongo
+        env: k8s
+    spec:
+      containers:
+      - image: registry.cern.ch/cmsweb/das-mongo
+        name: das-mongo
+        ports:
+        - containerPort: 8230
+          name: das
+          protocol: TCP
+        - containerPort: 18230
+          name: das-mongo-mon
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 4000m
+            memory: 6Gi
+          requests:
+            cpu: 2000m
+            memory: 3000Mi
+        stdin: true
+        tty: true
+        volumeMounts: []
+      securityContext:
+        runAsGroup: 0
+        runAsUser: 0
+      serviceAccountName: das-mongo-sa
+      volumes: []
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: das-mongo-sa
+  namespace: das

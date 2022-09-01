@@ -1,0 +1,125 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dqmgui
+  namespace: dqm
+spec:
+  ports:
+  - name: dqmgui-dev
+    port: 8060
+    targetPort: 8060
+  - name: dqmgui-relval
+    port: 8081
+    targetPort: 8081
+  - name: dqmgui-offline
+    port: 8080
+    targetPort: 8080
+  - name: dqmgui-mon
+    port: 18060
+    targetPort: 18060
+  selector:
+    app: dqmgui
+---
+apiVersion: v1
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+
+    cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    su  -c "cd /data && /data/run.sh" --preserve-environment _dqmgui
+kind: ConfigMap
+metadata:
+  labels:
+    app: dqmgui
+  name: dqmgui
+  namespace: dqm
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dqmgui
+  name: dqmgui
+  namespace: dqm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dqmgui
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: 'true'
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/agent-inject-secret-GoogleAPI.py: cmsweb/data/dqmgui-secrets
+        vault.hashicorp.com/agent-inject-template-GoogleAPI.py: |-
+          {{- with secret "cmsweb/data/dqmgui-secrets" -}}
+          {{ .Data.data.GoogleAPI }}
+          {{- end -}}
+        vault.hashicorp.com/role: dqmgui-role
+        vault.hashicorp.com/secret-volume-path: /etc/secrets
+      labels:
+        app: dqmgui
+        env: k8s
+    spec:
+      containers:
+      - command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        image: cmssw/dqmgui
+        name: dqmgui
+        ports:
+        - containerPort: 8060
+          name: dqmgui-dev
+          protocol: TCP
+        - containerPort: 8081
+          name: dqmgui-relval
+          protocol: TCP
+        - containerPort: 8080
+          name: dqmgui-offline
+          protocol: TCP
+        - containerPort: 18060
+          name: dqmgui-mon
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 3Gi
+          requests:
+            cpu: 300m
+            memory: 256Mi
+        securityContext:
+          privileged: true
+        stdin: true
+        tty: true
+        volumeMounts:
+        - mountPath: /etc/proxy
+          name: proxy-secrets
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - mountPath: /opt/setup-certs-and-run
+          name: setup-certs-and-run
+      securityContext:
+        runAsGroup: 0
+        runAsUser: 0
+      serviceAccountName: dqmgui-sa
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - hostPath:
+          path: /etc/grid-security
+        name: etc-grid-security
+      - configMap:
+          name: dqmgui
+        name: setup-certs-and-run
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dqmgui-sa
+  namespace: dqm

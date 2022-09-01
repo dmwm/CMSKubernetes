@@ -1,0 +1,181 @@
+apiVersion: v1
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/logs/das.log*${MY_POD_NAME}*
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+kind: ConfigMap
+metadata:
+  labels:
+    k8s-app: filebeat
+  name: das-server-filebeat-config
+  namespace: das
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: das-server
+  namespace: das
+spec:
+  ports:
+  - name: das
+    port: 8217
+    targetPort: 8217
+  - name: das-mon
+    port: 18217
+    targetPort: 18217
+  selector:
+    app: das-server
+---
+apiVersion: v1
+data:
+  promtail-config.yaml: |
+    server:
+      http_listen_port: 9080
+      grpc_listen_port: 0
+
+    positions:
+      filename: /tmp/positions.yaml
+
+    clients:
+      - url: http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
+
+    scrape_configs:
+    - job_name: das-server
+      static_configs:
+      - targets:
+          - das-logs
+        labels:
+          job: das-logs
+          __path__: /data/logs/das.log*
+kind: ConfigMap
+metadata:
+  labels:
+    app: das-server-promtail
+  name: das-server-promtail
+  namespace: das
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: das-server
+  name: das-server
+  namespace: das
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: das-server
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: '18217'
+        prometheus.io/scrape: 'true'
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/agent-inject-secret-dasconfig.json: cmsweb/data/das-server-secrets
+        vault.hashicorp.com/agent-inject-template-dasconfig.json: |-
+          {{- with secret "cmsweb/data/das-server-secrets" -}}
+          {{ .Data.data.dasconfig }}
+          {{- end -}}
+        vault.hashicorp.com/role: das-server-role
+        vault.hashicorp.com/secret-volume-path: /etc/secrets
+      labels:
+        app: das-server
+        env: k8s
+    spec:
+      containers:
+      - args:
+        - /data/das2go
+        - -config
+        - /etc/secrets/dasconfig.json
+        env:
+        - name: X509_USER_PROXY
+          value: /etc/proxy/proxy
+        image: registry.cern.ch/cmsweb/das-server
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /das
+            port: 8217
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        name: das-server
+        ports:
+        - containerPort: 8217
+          name: das
+          protocol: TCP
+        - containerPort: 18217
+          name: das-mon
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 4000m
+            memory: 3Gi
+          requests:
+            cpu: 200m
+            memory: 100Mi
+        volumeMounts:
+        - mountPath: /etc/proxy
+          name: proxy-secrets
+          readOnly: true
+        - mountPath: /etc/robots
+          name: robot-secrets
+          readOnly: true
+        - mountPath: /etc/hmac
+          name: hmac-secrets
+          readOnly: true
+        - mountPath: /etc/token
+          name: token-secrets
+          readOnly: true
+      - args:
+        - /data/das2go_exporter
+        - -address
+        - :18217
+        image: registry.cern.ch/cmsweb/exporters:20210628-static
+        name: das-server-exporter
+        resources:
+          requests:
+            cpu: 50m
+            memory: 50Mi
+      initContainers:
+      - command:
+        - sh
+        - -c
+        - until nslookup das-mongo.das; do echo "Waiting for das-mongo"; sleep 10;
+          done;
+        image: busybox:1.28
+        name: checkcouchdb
+      serviceAccountName: das-server-sa
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: das-server-sa
+  namespace: das

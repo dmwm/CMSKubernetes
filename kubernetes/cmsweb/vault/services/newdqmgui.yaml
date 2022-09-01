@@ -1,0 +1,148 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: newdqmgui
+  namespace: dqm
+spec:
+  ports:
+  - name: newdqmgui
+    port: 8889
+    targetPort: 8889
+  - name: newdqmgui-mon
+    port: 18889
+    targetPort: 18889
+  selector:
+    app: newdqmgui
+---
+apiVersion: v1
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+
+    sudo cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    cd /home/cmsusr/dqmgui && sudo bash /home/cmsusr/run.sh
+kind: ConfigMap
+metadata:
+  labels:
+    app: newdqmgui
+  name: newdqmgui
+  namespace: dqm
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: newdqmgui
+  name: newdqmgui
+  namespace: dqm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: newdqmgui
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: '18889'
+        prometheus.io/scrape: 'true'
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/role: newdqmgui-role
+        vault.hashicorp.com/secret-volume-path: /etc/secrets
+      labels:
+        app: newdqmgui
+        env: k8s
+    spec:
+      containers:
+      - command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        image: registry.cern.ch/cmsweb/newdqmgui
+        name: newdqmgui
+        ports:
+        - containerPort: 8889
+          name: newdqmgui
+          protocol: TCP
+        - containerPort: 18889
+          name: newdqmgui-mon
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 3Gi
+          requests:
+            cpu: 200m
+            memory: 512Mi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /dev/fuse
+          name: fuse
+        - mountPath: /etc/proxy
+          name: proxy-secrets
+          readOnly: true
+        - mountPath: /etc/robots
+          name: robot-secrets
+          readOnly: true
+        - mountPath: /etc/hmac
+          name: hmac-secrets
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - mountPath: /opt/setup-certs-and-run
+          name: setup-certs-and-run
+        - mountPath: /etc/token
+          name: token-secrets
+          readOnly: true
+        - mountPath: /eos
+          mountPropagation: HostToContainer
+          name: eos
+        - mountPath: /tmp/krb
+          name: eos-krb
+        - mountPath: /cvmfs/cms.cern.ch
+          name: cms-pvc
+      securityContext:
+        fsGroup: 2000
+        runAsGroup: 1000
+        runAsUser: 1000
+      serviceAccountName: newdqmgui-sa
+      volumes:
+      - hostPath:
+          path: /dev/fuse
+        name: fuse
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - hostPath:
+          path: /etc/grid-security
+        name: etc-grid-security
+      - configMap:
+          name: newdqmgui
+        name: setup-certs-and-run
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+      - hostPath:
+          path: /var/eos
+        name: eos
+      - name: eos-krb
+        secret:
+          secretName: eos-krb
+      - name: cms-pvc
+        persistentVolumeClaim:
+          claimName: csi-cvmfs-cms-pvc
+          readOnly: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: newdqmgui-sa
+  namespace: dqm

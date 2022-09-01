@@ -1,0 +1,156 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: imagebot
+  name: imagebot-sa
+  namespace: http
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app: imagebot
+  name: imagebot
+  namespace: http
+rules:
+- apiGroups:
+  - ''
+  - apps
+  resources:
+  - deployments
+  - namespaces
+  - pods
+  verbs:
+  - get
+  - list
+  - apply
+  - create
+  - update
+  - delete
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: imagebot
+  name: imagebot
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: imagebot
+subjects:
+- kind: ServiceAccount
+  name: imagebot-sa
+  namespace: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: imagebot
+  namespace: http
+spec:
+  ports:
+  - name: http
+    nodePort: 30111
+    port: 8111
+    protocol: TCP
+  selector:
+    app: imagebot
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: imagebot
+  name: imagebot
+  namespace: http
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: imagebot
+  template:
+    metadata:
+      annotations:
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/agent-inject-secret-CERN_CA.crt: cmsweb/data/imagebot-secrets
+        vault.hashicorp.com/agent-inject-secret-CERN_CA1.crt: cmsweb/data/imagebot-secrets
+        vault.hashicorp.com/agent-inject-secret-CERN_Grid_CA.crt: cmsweb/data/imagebot-secrets
+        vault.hashicorp.com/agent-inject-secret-CERN_Root_CA2.crt: cmsweb/data/imagebot-secrets
+        vault.hashicorp.com/agent-inject-secret-config.json: cmsweb/data/imagebot-secrets
+        vault.hashicorp.com/agent-inject-secret-file.json.formatted: cmsweb/data/imagebot-secrets
+        vault.hashicorp.com/agent-inject-secret-tls.crt: cmsweb/data/imagebot-secrets
+        vault.hashicorp.com/agent-inject-secret-tls.key: cmsweb/data/imagebot-secrets
+        vault.hashicorp.com/agent-inject-template-CERN_CA.crt: |-
+          {{- with secret "cmsweb/data/imagebot-secrets" -}}
+          {{ .Data.data.CERN_CA }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-CERN_CA1.crt: |-
+          {{- with secret "cmsweb/data/imagebot-secrets" -}}
+          {{ .Data.data.CERN_CA1 }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-CERN_Grid_CA.crt: |-
+          {{- with secret "cmsweb/data/imagebot-secrets" -}}
+          {{ .Data.data.CERN_Grid_CA }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-CERN_Root_CA2.crt: |-
+          {{- with secret "cmsweb/data/imagebot-secrets" -}}
+          {{ .Data.data.CERN_Root_CA2 }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-config.json: |-
+          {{- with secret "cmsweb/data/imagebot-secrets" -}}
+          {{ .Data.data.config }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-file.json.formatted: |-
+          {{- with secret "cmsweb/data/imagebot-secrets" -}}
+          {{ .Data.data.file }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-tls.crt: |-
+          {{- with secret "cmsweb/data/imagebot-secrets" -}}
+          {{ .Data.data.tls }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-tls.key: |-
+          {{- with secret "cmsweb/data/imagebot-secrets" -}}
+          {{ .Data.data.tls }}
+          {{- end -}}
+        vault.hashicorp.com/role: imagebot-role
+        vault.hashicorp.com/secret-volume-path: /etc/secrets
+      labels:
+        app: imagebot
+        env: k8s
+    spec:
+      containers:
+      - args:
+        - /data/imagebot
+        - -config
+        - /etc/secrets/config.json
+        image: registry.cern.ch/cmsweb/imagebot
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /imagebot/status
+            port: 8111
+          initialDelaySeconds: 120
+          periodSeconds: 60
+        name: imagebot
+        ports:
+        - containerPort: 8111
+        resources:
+          limits:
+            cpu: 300m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 64Mi
+        volumeMounts:
+        - mountPath: /etc/token
+          name: token-secrets
+          readOnly: true
+      serviceAccountName: imagebot-sa
+      volumes:
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
