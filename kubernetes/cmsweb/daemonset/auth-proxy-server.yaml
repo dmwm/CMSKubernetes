@@ -45,7 +45,7 @@ spec:
         prometheus.io/scrape: 'true'
         prometheus.io/port: "9091"
     spec:
-      serviceAccountName: auth-proxy-server
+      serviceAccountName: auth-proxy-server-sa
       terminationGracePeriodSeconds: 60
       hostNetwork: true
       # this daemonset will be applied to all nodes which will have role=autha label
@@ -181,7 +181,7 @@ metadata:
   name: auth-proxy-server
 subjects:
 - kind: ServiceAccount
-  name: auth-proxy-server
+  name: auth-proxy-server-sa
   namespace: auth
 roleRef:
   kind: ClusterRole
@@ -207,7 +207,7 @@ rules:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: auth-proxy-server
+  name: auth-proxy-server-sa
   namespace: auth
   labels:
     k8s-app: auth-proxy-server

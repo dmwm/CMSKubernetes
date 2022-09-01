@@ -49,7 +49,7 @@ spec:
         prometheus.io/scrape: 'true'
         prometheus.io/port: "18443"
     spec:
-      serviceAccountName: frontend
+      serviceAccountName: frontend-ds-sa
       terminationGracePeriodSeconds: 60
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
@@ -188,7 +188,7 @@ metadata:
   name: frontend
 subjects:
 - kind: ServiceAccount
-  name: frontend
+  name: frontend-ds-sa
   namespace: auth
 roleRef:
   kind: ClusterRole
@@ -214,7 +214,7 @@ rules:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: frontend
+  name: frontend-ds-sa
   namespace: auth
   labels:
     k8s-app: frontend

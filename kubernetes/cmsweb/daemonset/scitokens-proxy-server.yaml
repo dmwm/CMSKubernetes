@@ -49,7 +49,7 @@ spec:
         prometheus.io/scrape: 'true'
         prometheus.io/port: "9093"
     spec:
-      serviceAccountName: scitokens-proxy-server
+      serviceAccountName: scitokens-proxy-server-sa
       terminationGracePeriodSeconds: 60
       dnsPolicy: ClusterFirstWithHostNet
       hostNetwork: true
@@ -191,7 +191,7 @@ metadata:
   name: scitokens-proxy-server
 subjects:
 - kind: ServiceAccount
-  name: scitokens-proxy-server
+  name: scitokens-proxy-server-sa
   namespace: auth
 roleRef:
   kind: ClusterRole
@@ -217,7 +217,7 @@ rules:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: scitokens-proxy-server
+  name: scitokens-proxy-server-sa
   namespace: auth
   labels:
     k8s-app: scitokens-proxy-server

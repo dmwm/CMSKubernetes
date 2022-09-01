@@ -49,7 +49,7 @@ spec:
         prometheus.io/scrape: 'true'
         prometheus.io/port: "9092"
     spec:
-      serviceAccountName: x509-proxy-server
+      serviceAccountName: x509-proxy-server-sa
       terminationGracePeriodSeconds: 60
       dnsPolicy: ClusterFirstWithHostNet
       hostNetwork: true
@@ -191,7 +191,7 @@ metadata:
   name: x509-proxy-server
 subjects:
 - kind: ServiceAccount
-  name: x509-proxy-server
+  name: x509-proxy-server-sa
   namespace: auth
 roleRef:
   kind: ClusterRole
@@ -217,7 +217,7 @@ rules:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: x509-proxy-server
+  name: x509-proxy-server-sa
   namespace: auth
   labels:
     k8s-app: x509-proxy-server
