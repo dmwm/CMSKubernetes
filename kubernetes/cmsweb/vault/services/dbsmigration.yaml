@@ -5,7 +5,7 @@ data:
     - type: log
       enabled: true
       paths:
-        - /data/srv/logs/reqmgr2/*${MY_POD_NAME}*.log
+        - /data/srv/logs/dbsmigration/*${MY_POD_NAME}*.log
       ignore_older: 1h
       scan_frequency: 10s
       backoff: 5s
@@ -21,116 +21,97 @@ kind: ConfigMap
 metadata:
   labels:
     k8s-app: filebeat
-  name: reqmgr2-filebeat-config
-  namespace: dmwm
+  name: dbsmigration-filebeat-config
+  namespace: dbs
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: reqmgr2
-  namespace: dmwm
+  name: dbsmigration
+  namespace: dbs
 spec:
   ports:
-  - name: reqmgr2
-    port: 8246
-    targetPort: 8246
-  - name: reqmgr2-mon
-    port: 18240
-    targetPort: 18240
+  - name: dbsmigration
+    port: 8251
+    targetPort: 8251
+  - name: dbsmig-mon
+    port: 18251
+    targetPort: 18251
+  - name: dbsmig-cpy-mon
+    port: 19251
+    targetPort: 19251
   selector:
-    app: reqmgr2
+    app: dbsmigration
 ---
 apiVersion: v1
 data:
   setup-certs-and-run.sh: |
     #!/bin/bash
-
     sudo cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
-    #su  -c "cd /data && /data/run.sh" --preserve-environment _reqmgr2
+    #su  -c "cd /data && /data/run.sh" --preserve-environment _dbsmigration
     cd /data && /data/run.sh
 kind: ConfigMap
 metadata:
   labels:
-    app: reqmgr2
-  name: reqmgr2
-  namespace: dmwm
+    app: dbsmigration
+  name: dbsmigration
+  namespace: dbs
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: reqmgr2
-  name: reqmgr2
-  namespace: dmwm
+    app: dbsmigration
+  name: dbsmigration
+  namespace: dbs
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: reqmgr2
+      app: dbsmigration
   template:
     metadata:
       annotations:
-        prometheus.io/port: '18240'
+        prometheus.io/port: '18251'
         prometheus.io/scrape: 'true'
         vault.hashicorp.com/agent-inject: 'true'
-        vault.hashicorp.com/agent-inject-secret-ReqMgr2Secrets.py: cmsweb/data/reqmgr2-secrets
-        vault.hashicorp.com/agent-inject-secret-config.py: cmsweb/data/reqmgr2-secrets
-        vault.hashicorp.com/agent-inject-template-ReqMgr2Secrets.py: |-
-          {{- with secret "cmsweb/data/reqmgr2-secrets" -}}
-          {{ .Data.data.ReqMgr2Secrets }}
+        vault.hashicorp.com/agent-inject-secret-Migration.py: cmsweb/data/dbsmigration-secrets
+        vault.hashicorp.com/agent-inject-template-Migration.py: |-
+          {{- with secret "cmsweb/data/dbsmigration-secrets" -}}
+          {{ .Data.data.Migration }}
           {{- end -}}
-        vault.hashicorp.com/agent-inject-template-config.py: |-
-          {{- with secret "cmsweb/data/reqmgr2-secrets" -}}
-          {{ .Data.data.config }}
-          {{- end -}}
-        vault.hashicorp.com/role: reqmgr2-role
+        vault.hashicorp.com/role: dbsmigration-role
         vault.hashicorp.com/secret-volume-path: /etc/secrets
       labels:
-        app: reqmgr2
+        app: dbsmigration
         env: k8s
+        job: dbsmigration
     spec:
       containers:
       - command:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
-        image: registry.cern.ch/cmsweb/reqmgr2
-        lifecycle:
-          postStart:
-            exec:
-              command:
-              - bash
-              - -c
-              - sudo chmod 0777 /data/srv/logs/reqmgr2; sudo chown _reqmgr2:_reqmgr2
-                /data/srv/logs/reqmgr2
-        livenessProbe:
-          exec:
-            command:
-            - cmsweb-ping
-            - --url=http://localhost:8246/reqmgr2/data/info
-            - --authz=/etc/hmac/hmac
-            - -verbose
-            - '0'
-          initialDelaySeconds: 120
-          periodSeconds: 30
-          successThreshold: 1
-          timeoutSeconds: 10
-        name: reqmgr2
+        image: registry.cern.ch/cmsweb/dbsmigration
+        name: dbsmigration
         ports:
-        - containerPort: 8246
-          name: reqmgr2
+        - containerPort: 8251
+          name: dbsmigration
           protocol: TCP
-        - containerPort: 18240
-          name: reqmgr2-mon
+        - containerPort: 18251
+          name: dbsmig-mon
+          protocol: TCP
+        - containerPort: 19251
+          name: dbsmig-cpy-mon
           protocol: TCP
         resources:
           limits:
-            cpu: 1000m
-            memory: 3Gi
+            cpu: 800m
+            memory: 10Gi
           requests:
-            cpu: 200m
-            memory: 512Mi
+            cpu: 100m
+            memory: 256Mi
         securityContext:
           privileged: true
         volumeMounts:
@@ -155,7 +136,7 @@ spec:
         fsGroup: 2000
         runAsGroup: 1000
         runAsUser: 1000
-      serviceAccountName: reqmgr2-sa
+      serviceAccountName: dbsmigration-sa
       volumes:
       - name: proxy-secrets
         secret:
@@ -170,7 +151,7 @@ spec:
           path: /etc/grid-security
         name: etc-grid-security
       - configMap:
-          name: reqmgr2
+          name: dbsmigration
         name: setup-certs-and-run
       - name: token-secrets
         secret:
@@ -179,5 +160,5 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: reqmgr2-sa
-  namespace: dmwm
+  name: dbsmigration-sa
+  namespace: dbs

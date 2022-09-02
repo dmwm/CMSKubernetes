@@ -5,7 +5,7 @@ data:
     - type: log
       enabled: true
       paths:
-        - /data/srv/logs/reqmgr2/*${MY_POD_NAME}*.log
+        - /data/srv/logs/reqmgr2ms/*${MY_POD_NAME}*.log
       ignore_older: 1h
       scan_frequency: 10s
       backoff: 5s
@@ -21,116 +21,113 @@ kind: ConfigMap
 metadata:
   labels:
     k8s-app: filebeat
-  name: reqmgr2-filebeat-config
+  name: ms-monitor-filebeat-config
   namespace: dmwm
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: reqmgr2
+  name: ms-monitor
   namespace: dmwm
 spec:
   ports:
-  - name: reqmgr2
-    port: 8246
-    targetPort: 8246
-  - name: reqmgr2-mon
-    port: 18240
-    targetPort: 18240
+  - name: ms-monitor
+    port: 8248
+    targetPort: 8248
+  - name: ms-monitor-mon
+    port: 18248
+    targetPort: 18248
   selector:
-    app: reqmgr2
+    app: ms-monitor
 ---
 apiVersion: v1
 data:
   setup-certs-and-run.sh: |
     #!/bin/bash
-
     sudo cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
-    #su  -c "cd /data && /data/run.sh" --preserve-environment _reqmgr2
+    #su  -c "cd /data && /data/run.sh" --preserve-environment _reqmgr2ms
     cd /data && /data/run.sh
 kind: ConfigMap
 metadata:
   labels:
-    app: reqmgr2
-  name: reqmgr2
+    app: ms-monitor
+  name: ms-monitor
   namespace: dmwm
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: reqmgr2
-  name: reqmgr2
+    app: ms-monitor
+  name: ms-monitor
   namespace: dmwm
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: reqmgr2
+      app: ms-monitor
   template:
     metadata:
       annotations:
-        prometheus.io/port: '18240'
+        prometheus.io/port: '18248'
         prometheus.io/scrape: 'true'
         vault.hashicorp.com/agent-inject: 'true'
-        vault.hashicorp.com/agent-inject-secret-ReqMgr2Secrets.py: cmsweb/data/reqmgr2-secrets
-        vault.hashicorp.com/agent-inject-secret-config.py: cmsweb/data/reqmgr2-secrets
-        vault.hashicorp.com/agent-inject-template-ReqMgr2Secrets.py: |-
-          {{- with secret "cmsweb/data/reqmgr2-secrets" -}}
-          {{ .Data.data.ReqMgr2Secrets }}
+        vault.hashicorp.com/agent-inject-secret-ReqMgr2MSSecrets.py: cmsweb/data/reqmgr2ms-monitor-secrets
+        vault.hashicorp.com/agent-inject-secret-config-monitor.py: cmsweb/data/reqmgr2ms-monitor-secrets
+        vault.hashicorp.com/agent-inject-template-ReqMgr2MSSecrets.py: |-
+          {{- with secret "cmsweb/data/reqmgr2ms-monitor-secrets" -}}
+          {{ .Data.data.ReqMgr2MSSecrets }}
           {{- end -}}
-        vault.hashicorp.com/agent-inject-template-config.py: |-
-          {{- with secret "cmsweb/data/reqmgr2-secrets" -}}
-          {{ .Data.data.config }}
+        vault.hashicorp.com/agent-inject-template-config-monitor.py: |-
+          {{- with secret "cmsweb/data/reqmgr2ms-monitor-secrets" -}}
+          {{ .Data.data.config-monitor }}
           {{- end -}}
-        vault.hashicorp.com/role: reqmgr2-role
+        vault.hashicorp.com/role: reqmgr2ms-monitor-role
         vault.hashicorp.com/secret-volume-path: /etc/secrets
       labels:
-        app: reqmgr2
+        app: ms-monitor
         env: k8s
     spec:
       containers:
       - command:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
-        image: registry.cern.ch/cmsweb/reqmgr2
+        image: registry.cern.ch/cmsweb/reqmgr2ms
         lifecycle:
           postStart:
             exec:
               command:
               - bash
               - -c
-              - sudo chmod 0777 /data/srv/logs/reqmgr2; sudo chown _reqmgr2:_reqmgr2
-                /data/srv/logs/reqmgr2
+              - sudo chmod 0777 /data/srv/logs/reqmgr2ms; sudo chown _reqmgr2ms:_reqmgr2ms
+                /data/srv/logs/reqmgr2ms
         livenessProbe:
           exec:
             command:
             - cmsweb-ping
-            - --url=http://localhost:8246/reqmgr2/data/info
+            - --url=http://localhost:8248/ms-monitor/data/status
             - --authz=/etc/hmac/hmac
             - -verbose
             - '0'
           initialDelaySeconds: 120
-          periodSeconds: 30
-          successThreshold: 1
-          timeoutSeconds: 10
-        name: reqmgr2
+          periodSeconds: 10
+        name: ms-monitor
         ports:
-        - containerPort: 8246
-          name: reqmgr2
+        - containerPort: 8248
+          name: ms-monitor
           protocol: TCP
-        - containerPort: 18240
-          name: reqmgr2-mon
+        - containerPort: 18248
+          name: ms-monitor-mon
           protocol: TCP
         resources:
           limits:
             cpu: 1000m
             memory: 3Gi
           requests:
-            cpu: 200m
-            memory: 512Mi
+            cpu: 100m
+            memory: 256Mi
         securityContext:
           privileged: true
         volumeMounts:
@@ -155,7 +152,7 @@ spec:
         fsGroup: 2000
         runAsGroup: 1000
         runAsUser: 1000
-      serviceAccountName: reqmgr2-sa
+      serviceAccountName: reqmgr2ms-monitor-sa
       volumes:
       - name: proxy-secrets
         secret:
@@ -170,7 +167,7 @@ spec:
           path: /etc/grid-security
         name: etc-grid-security
       - configMap:
-          name: reqmgr2
+          name: ms-monitor
         name: setup-certs-and-run
       - name: token-secrets
         secret:
@@ -179,5 +176,5 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: reqmgr2-sa
+  name: reqmgr2ms-monitor-sa
   namespace: dmwm

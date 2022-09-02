@@ -1,0 +1,221 @@
+apiVersion: v1
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/frontend/*${MY_POD_NAME}*
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+kind: ConfigMap
+metadata:
+  labels:
+    k8s-app: filebeat
+  name: sps-s3-filebeat-config
+  namespace: auth
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: scitokens-proxy-server
+  name: scitokens-proxy-server
+  namespace: auth
+spec:
+  selector:
+    matchLabels:
+      app: scitokens-proxy-server
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: '9093'
+        prometheus.io/scrape: 'true'
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/agent-inject-secret-CERN_CA.crt: cmsweb/data/scitokens-proxy-server-secrets
+        vault.hashicorp.com/agent-inject-secret-CERN_CA1.crt: cmsweb/data/scitokens-proxy-server-secrets
+        vault.hashicorp.com/agent-inject-secret-CERN_Grid_CA.crt: cmsweb/data/scitokens-proxy-server-secrets
+        vault.hashicorp.com/agent-inject-secret-config.json: cmsweb/data/scitokens-proxy-server-secrets
+        vault.hashicorp.com/agent-inject-secret-hmac: cmsweb/data/scitokens-proxy-server-secrets
+        vault.hashicorp.com/agent-inject-secret-issuer.pem: cmsweb/data/scitokens-proxy-server-secrets
+        vault.hashicorp.com/agent-inject-secret-issuer_public.jwks: cmsweb/data/scitokens-proxy-server-secrets
+        vault.hashicorp.com/agent-inject-secret-openid-configuration: cmsweb/data/scitokens-proxy-server-secrets
+        vault.hashicorp.com/agent-inject-secret-tls.crt: cmsweb/data/scitokens-proxy-server-secrets
+        vault.hashicorp.com/agent-inject-secret-tls.key: cmsweb/data/scitokens-proxy-server-secrets
+        vault.hashicorp.com/agent-inject-secret-well-known: cmsweb/data/scitokens-proxy-server-secrets
+        vault.hashicorp.com/agent-inject-template-CERN_CA.crt: |-
+          {{- with secret "cmsweb/data/scitokens-proxy-server-secrets" -}}
+          {{ .Data.data.CERN_CA }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-CERN_CA1.crt: |-
+          {{- with secret "cmsweb/data/scitokens-proxy-server-secrets" -}}
+          {{ .Data.data.CERN_CA1 }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-CERN_Grid_CA.crt: |-
+          {{- with secret "cmsweb/data/scitokens-proxy-server-secrets" -}}
+          {{ .Data.data.CERN_Grid_CA }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-config.json: |-
+          {{- with secret "cmsweb/data/scitokens-proxy-server-secrets" -}}
+          {{ .Data.data.config }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-hmac: |-
+          {{- with secret "cmsweb/data/scitokens-proxy-server-secrets" -}}
+          {{ .Data.data.hmac }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-issuer.pem: |-
+          {{- with secret "cmsweb/data/scitokens-proxy-server-secrets" -}}
+          {{ .Data.data.issuer }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-issuer_public.jwks: |-
+          {{- with secret "cmsweb/data/scitokens-proxy-server-secrets" -}}
+          {{ .Data.data.issuer_public }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-openid-configuration: |-
+          {{- with secret "cmsweb/data/scitokens-proxy-server-secrets" -}}
+          {{ .Data.data.openid-configuration }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-tls.crt: |-
+          {{- with secret "cmsweb/data/scitokens-proxy-server-secrets" -}}
+          {{ .Data.data.tls }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-tls.key: |-
+          {{- with secret "cmsweb/data/scitokens-proxy-server-secrets" -}}
+          {{ .Data.data.tls }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-well-known: |-
+          {{- with secret "cmsweb/data/scitokens-proxy-server-secrets" -}}
+          {{ .Data.data.well-known }}
+          {{- end -}}
+        vault.hashicorp.com/role: scitokens-proxy-server-role
+        vault.hashicorp.com/secret-volume-path: /etc/secrets
+      labels:
+        app: scitokens-proxy-server
+        env: k8s
+    spec:
+      containers:
+      - args:
+        - /data/auth-proxy-server
+        - -config=/etc/secrets/config.json
+        - -scitokens
+        env:
+        - name: X509_USER_PROXY
+          value: /etc/proxy/proxy
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        image: registry.cern.ch/cmsweb/auth-proxy-server
+        name: scitokens-proxy-server
+        ports:
+        - containerPort: 8843
+          name: https
+        - containerPort: 9093
+          name: metrics
+        resources:
+          limits:
+            cpu: 4000m
+            memory: 10Gi
+          requests:
+            cpu: 30m
+            memory: 50Mi
+        volumeMounts:
+        - mountPath: /etc/proxy
+          name: proxy-secrets
+          readOnly: true
+        - mountPath: /www
+          name: www-htdocs
+        - mountPath: /etc/grid-security/hostcert.pem
+          name: hostcert
+        - mountPath: /etc/grid-security/hostkey.pem
+          name: hostkey
+        - mountPath: /etc/token
+          name: token-secrets
+          readOnly: true
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      initContainers:
+      - command:
+        - sh
+        - -c
+        - cp -r /www/* /tmp/htdocs
+        image: registry.cern.ch/cmsweb/htdocs:0.0.2
+        name: htdocs
+        volumeMounts:
+        - mountPath: /tmp/htdocs
+          name: www-htdocs
+      nodeSelector:
+        role: auth
+      priorityClassName: system-node-critical
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccountName: scitokens-proxy-server-sa
+      terminationGracePeriodSeconds: 60
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - emptyDir: {}
+        name: www-htdocs
+      - hostPath:
+          path: /etc/grid-security/hostcert.pem
+        name: hostcert
+      - hostPath:
+          path: /etc/grid-security/hostkey.pem
+        name: hostkey
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: scitokens-proxy-server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: scitokens-proxy-server
+subjects:
+- kind: ServiceAccount
+  name: scitokens-proxy-server-sa
+  namespace: auth
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    k8s-app: scitokens-proxy-server
+  name: scitokens-proxy-server
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - namespaces
+  - pods
+  verbs:
+  - get
+  - watch
+  - list
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    k8s-app: scitokens-proxy-server
+  name: scitokens-proxy-server-sa
+  namespace: auth

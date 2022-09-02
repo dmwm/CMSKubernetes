@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: k8snodemon-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: k8snodemon
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: k8snodemon-sa
+  namespace: default
+---
+apiVersion: v1
+data:
+  setup-and-run.sh: |
+    #!/bin/sh
+
+    source /etc/secrets/env.sh
+    appid=`env | grep OS_APPLICATION_CREDENTIAL_ID | awk '{split($0,a,"="); print a[2]}'`
+    secret=`env | grep OS_APPLICATION_CREDENTIAL_SECRET | awk '{split($0,a,"="); print a[2]}'`
+    endpoint=`env | grep OS_AUTH_URL | awk '{split($0,a,"="); print a[2]}'`
+    name=`env | grep OS_APP_NAME | awk '{split($0,a,"="); print a[2]}'`
+    project=`env | grep OS_PROJECT_NAME | awk '{split($0,a,"="); print a[2]}'`
+    while true; do
+       /data/k8snodemon -endpoint=$endpoint -appid=$appid -password=$secret -k8s -name=$name -project=$project
+       sleep 10
+    done
+kind: ConfigMap
+metadata:
+  labels:
+    app: k8snodemon
+  name: k8snodemon
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: k8snodemon
+  name: k8snodemon
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8snodemon
+  template:
+    metadata:
+      annotations:
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/agent-inject-secret-env.sh: cmsweb/data/k8snodemon-secrets
+        vault.hashicorp.com/agent-inject-template-env.sh: |-
+          {{- with secret "cmsweb/data/k8snodemon-secrets" -}}
+          {{ .Data.data.env }}
+          {{- end -}}
+        vault.hashicorp.com/role: k8snodemon-role
+        vault.hashicorp.com/secret-volume-path: /etc/secrets
+      labels:
+        app: k8snodemon
+    spec:
+      containers:
+      - command:
+        - /bin/sh
+        - /opt/setup-and-run.sh
+        image: registry.cern.ch/cmsweb/k8snodemon
+        name: k8snodemon
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 3Gi
+          requests:
+            cpu: 300m
+            memory: 256Mi
+        volumeMounts:
+        - mountPath: /opt
+          name: setup-and-run
+        - mountPath: /etc/token
+          name: token-secrets
+          readOnly: true
+      serviceAccountName: k8snodemon-sa
+      volumes:
+      - configMap:
+          name: k8snodemon
+        name: setup-and-run
+      - name: token-secrets
+        secret:
+          secretName: token-secrets

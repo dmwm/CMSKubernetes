@@ -5,7 +5,7 @@ data:
     - type: log
       enabled: true
       paths:
-        - /data/srv/logs/reqmgr2/*${MY_POD_NAME}*.log
+        - /data/srv/logs/t0_reqmon/*${MY_POD_NAME}*.log
       ignore_older: 1h
       scan_frequency: 10s
       backoff: 5s
@@ -21,24 +21,24 @@ kind: ConfigMap
 metadata:
   labels:
     k8s-app: filebeat
-  name: reqmgr2-filebeat-config
-  namespace: dmwm
+  name: t0reqmon-filebeat-config
+  namespace: tzero
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: reqmgr2
-  namespace: dmwm
+  name: t0reqmon
+  namespace: tzero
 spec:
   ports:
-  - name: reqmgr2
-    port: 8246
-    targetPort: 8246
-  - name: reqmgr2-mon
-    port: 18240
-    targetPort: 18240
+  - name: t0reqmon
+    port: 8243
+    targetPort: 8243
+  - name: t0reqmon-mon
+    port: 18243
+    targetPort: 18243
   selector:
-    app: reqmgr2
+    app: t0reqmon
 ---
 apiVersion: v1
 data:
@@ -48,94 +48,82 @@ data:
     sudo cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
-    #su  -c "cd /data && /data/run.sh" --preserve-environment _reqmgr2
+    #su  -c "cd /data && /data/run.sh" --preserve-environment _t0_reqmon
     cd /data && /data/run.sh
 kind: ConfigMap
 metadata:
   labels:
-    app: reqmgr2
-  name: reqmgr2
-  namespace: dmwm
+    app: t0reqmon
+  name: t0reqmon
+  namespace: tzero
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: reqmgr2
-  name: reqmgr2
-  namespace: dmwm
+    app: t0reqmon
+  name: t0reqmon
+  namespace: tzero
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: reqmgr2
+      app: t0reqmon
   template:
     metadata:
       annotations:
-        prometheus.io/port: '18240'
+        prometheus.io/port: '18243'
         prometheus.io/scrape: 'true'
         vault.hashicorp.com/agent-inject: 'true'
-        vault.hashicorp.com/agent-inject-secret-ReqMgr2Secrets.py: cmsweb/data/reqmgr2-secrets
-        vault.hashicorp.com/agent-inject-secret-config.py: cmsweb/data/reqmgr2-secrets
-        vault.hashicorp.com/agent-inject-template-ReqMgr2Secrets.py: |-
-          {{- with secret "cmsweb/data/reqmgr2-secrets" -}}
-          {{ .Data.data.ReqMgr2Secrets }}
-          {{- end -}}
+        vault.hashicorp.com/agent-inject-secret-config.py: cmsweb/data/t0_reqmon-secrets
         vault.hashicorp.com/agent-inject-template-config.py: |-
-          {{- with secret "cmsweb/data/reqmgr2-secrets" -}}
+          {{- with secret "cmsweb/data/t0_reqmon-secrets" -}}
           {{ .Data.data.config }}
           {{- end -}}
-        vault.hashicorp.com/role: reqmgr2-role
+        vault.hashicorp.com/role: t0_reqmon-role
         vault.hashicorp.com/secret-volume-path: /etc/secrets
       labels:
-        app: reqmgr2
+        app: t0reqmon
         env: k8s
     spec:
       containers:
       - command:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
-        image: registry.cern.ch/cmsweb/reqmgr2
-        lifecycle:
-          postStart:
-            exec:
-              command:
-              - bash
-              - -c
-              - sudo chmod 0777 /data/srv/logs/reqmgr2; sudo chown _reqmgr2:_reqmgr2
-                /data/srv/logs/reqmgr2
+        image: registry.cern.ch/cmsweb/t0_reqmon
         livenessProbe:
           exec:
             command:
             - cmsweb-ping
-            - --url=http://localhost:8246/reqmgr2/data/info
+            - --url=http://localhost:8243/t0_reqmon/data/info
             - --authz=/etc/hmac/hmac
             - -verbose
             - '0'
-          initialDelaySeconds: 120
-          periodSeconds: 30
-          successThreshold: 1
-          timeoutSeconds: 10
-        name: reqmgr2
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        name: t0reqmon
         ports:
-        - containerPort: 8246
-          name: reqmgr2
+        - containerPort: 8243
+          name: t0reqmon
           protocol: TCP
-        - containerPort: 18240
-          name: reqmgr2-mon
+        - containerPort: 18243
+          name: t0reqmon-mon
           protocol: TCP
         resources:
           limits:
-            cpu: 1000m
-            memory: 3Gi
+            cpu: '3'
+            memory: 8Gi
           requests:
-            cpu: 200m
-            memory: 512Mi
+            cpu: '1'
+            memory: 4Gi
         securityContext:
           privileged: true
         volumeMounts:
         - mountPath: /etc/proxy
           name: proxy-secrets
+          readOnly: true
+        - mountPath: /etc/secrets
+          name: secrets
           readOnly: true
         - mountPath: /etc/robots
           name: robot-secrets
@@ -155,11 +143,14 @@ spec:
         fsGroup: 2000
         runAsGroup: 1000
         runAsUser: 1000
-      serviceAccountName: reqmgr2-sa
+      serviceAccountName: t0_reqmon-sa
       volumes:
       - name: proxy-secrets
         secret:
           secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: t0reqmon-secrets
       - name: robot-secrets
         secret:
           secretName: robot-secrets
@@ -170,7 +161,7 @@ spec:
           path: /etc/grid-security
         name: etc-grid-security
       - configMap:
-          name: reqmgr2
+          name: t0reqmon
         name: setup-certs-and-run
       - name: token-secrets
         secret:
@@ -179,5 +170,5 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: reqmgr2-sa
-  namespace: dmwm
+  name: t0_reqmon-sa
+  namespace: tzero

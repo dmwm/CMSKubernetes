@@ -1,0 +1,165 @@
+apiVersion: v1
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/dbs/*${MY_POD_NAME}*
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+kind: ConfigMap
+metadata:
+  labels:
+    k8s-app: filebeat
+  name: dbs2go-global-m-filebeat-config
+  namespace: dbs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dbs2go-global-m
+  namespace: dbs
+spec:
+  ports:
+  - name: dbs
+    port: 9257
+    targetPort: 9257
+  - name: dbs-mon
+    port: 19257
+    targetPort: 19257
+  selector:
+    app: dbs2go-global-m
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dbs2go-global-m
+  name: dbs2go-global-m
+  namespace: dbs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dbs2go-global-m
+  template:
+    metadata:
+      annotations:
+        prometheus.io/path: /dbs/prod/global/DBSMigrate/metrics
+        prometheus.io/port: '9257'
+        prometheus.io/scrape: 'true'
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/agent-inject-secret-dbfile: cmsweb/data/dbs2go-global-m-secrets
+        vault.hashicorp.com/agent-inject-secret-dbsconfig.json: cmsweb/data/dbs2go-global-m-secrets
+        vault.hashicorp.com/agent-inject-secret-lexicon.json: cmsweb/data/dbs2go-global-m-secrets
+        vault.hashicorp.com/agent-inject-secret-migration_dbfile: cmsweb/data/dbs2go-global-m-secrets
+        vault.hashicorp.com/agent-inject-secret-parameters.json: cmsweb/data/dbs2go-global-m-secrets
+        vault.hashicorp.com/agent-inject-template-dbfile: |-
+          {{- with secret "cmsweb/data/dbs2go-global-m-secrets" -}}
+          {{ .Data.data.dbfile }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-dbsconfig.json: |-
+          {{- with secret "cmsweb/data/dbs2go-global-m-secrets" -}}
+          {{ .Data.data.dbsconfig }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-lexicon.json: |-
+          {{- with secret "cmsweb/data/dbs2go-global-m-secrets" -}}
+          {{ .Data.data.lexicon }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-migration_dbfile: |-
+          {{- with secret "cmsweb/data/dbs2go-global-m-secrets" -}}
+          {{ .Data.data.migration_dbfile }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-parameters.json: |-
+          {{- with secret "cmsweb/data/dbs2go-global-m-secrets" -}}
+          {{ .Data.data.parameters }}
+          {{- end -}}
+        vault.hashicorp.com/role: dbs2go-global-m-role
+        vault.hashicorp.com/secret-volume-path: /etc/secrets
+      labels:
+        app: dbs2go-global-m
+        env: k8s
+    spec:
+      containers:
+      - command:
+        - /data/run.sh
+        env:
+        - name: X509_USER_PROXY
+          value: /etc/proxy/proxy
+        - name: TNS_ADMIN
+          value: /etc/tnsnames.ora
+        image: registry.cern.ch/cmsweb/dbs2go
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            httpHeaders:
+            - name: Accept
+              value: application/json
+            path: /dbs/prod/global/DBSMigrate/healthz
+            port: 9257
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        name: dbs2go-global-m
+        ports:
+        - containerPort: 9257
+          name: dbs
+          protocol: TCP
+        - containerPort: 19257
+          name: dbs-mon
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 3000m
+            memory: 500Mi
+          requests:
+            cpu: 200m
+            memory: 100Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+        volumeMounts:
+        - mountPath: /etc/proxy
+          name: proxy-secrets
+          readOnly: true
+        - mountPath: /etc/robots
+          name: robot-secrets
+          readOnly: true
+        - mountPath: /etc/hmac
+          name: hmac-secrets
+          readOnly: true
+        - mountPath: /etc/tnsnames.ora
+          name: tnsnames
+          subPath: tnsnames.ora
+      securityContext:
+        fsGroup: 2000
+        runAsGroup: 1000
+        runAsUser: 1000
+      serviceAccountName: dbs2go-global-m-sa
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - configMap:
+          name: tnsnames-config
+        name: tnsnames
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dbs2go-global-m-sa
+  namespace: dbs
