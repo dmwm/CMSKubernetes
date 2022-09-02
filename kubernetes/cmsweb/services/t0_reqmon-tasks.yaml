@@ -76,11 +76,11 @@ spec:
         name: t0reqmon-tasks
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "200m"
+            memory: "750Mi"
+            cpu: "300m"
           limits:
-            memory: "5Gi"
-            cpu: "1500m"
+            memory: "3Gi"
+            cpu: "1000m"
         livenessProbe:
           exec:
             command:
