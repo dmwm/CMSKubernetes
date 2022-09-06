@@ -1,0 +1,273 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: cmsmon-agg
+  namespace: cron-hdfs
+spec:
+  selector:
+    app: cmsmon-agg
+  type: NodePort
+  ports:
+    - name: port-1 # spark.driver.port
+      nodePort: 32501
+      port: 5001
+      protocol: TCP
+      targetPort: 5001
+    - name: port-2 # spark.driver.blockManager.port
+      nodePort: 32502
+      port: 5101
+      protocol: TCP
+      targetPort: 5101
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: cmsmon-crab-pop
+  namespace: cron-hdfs
+spec:
+  selector:
+    app: cmsmon-crab-pop
+  type: NodePort
+  ports:
+    - name: port-1 # spark.driver.port
+      nodePort: 32503
+      port: 5001
+      protocol: TCP
+      targetPort: 5001
+    - name: port-2 # spark.driver.blockManager.port
+      nodePort: 32504
+      port: 5101
+      protocol: TCP
+      targetPort: 5101
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: cmsmon-crab-uu
+  namespace: cron-hdfs
+spec:
+  selector:
+    app: cmsmon-crab-uu
+  type: NodePort
+  ports:
+    - name: port-1 # spark.driver.port
+      nodePort: 32505
+      port: 5001
+      protocol: TCP
+      targetPort: 5001
+    - name: port-2 # spark.driver.blockManager.port
+      nodePort: 32506
+      port: 5101
+      protocol: TCP
+      targetPort: 5101
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: cmsmon-eos-data
+  namespace: cron-hdfs
+spec:
+  selector:
+    app: cmsmon-eos-data
+  type: NodePort
+  ports:
+    - name: port-1 # spark.driver.port
+      nodePort: 32507
+      port: 5001
+      protocol: TCP
+      targetPort: 5001
+    - name: port-2 # spark.driver.blockManager.port
+      nodePort: 32508
+      port: 5101
+      protocol: TCP
+      targetPort: 5101
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: cmsmon-gen-crsg
+  namespace: cron-hdfs
+spec:
+  selector:
+    app: cmsmon-gen-crsg
+  type: NodePort
+  ports:
+    - name: port-1 # spark.driver.port
+      nodePort: 32509
+      port: 5001
+      protocol: TCP
+      targetPort: 5001
+    - name: port-2 # spark.driver.blockManager.port
+      nodePort: 32510
+      port: 5101
+      protocol: TCP
+      targetPort: 5101
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: cmsmon-hpc-cms
+  namespace: cron-hdfs
+spec:
+  selector:
+    app: cmsmon-hpc-cms
+  type: NodePort
+  ports:
+    - name: port-1 # spark.driver.port
+      nodePort: 32511
+      port: 5001
+      protocol: TCP
+      targetPort: 5001
+    - name: port-2 # spark.driver.blockManager.port
+      nodePort: 32512
+      port: 5101
+      protocol: TCP
+      targetPort: 5101
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: cmsmon-hpc-usage
+  namespace: cron-hdfs
+spec:
+  selector:
+    app: cmsmon-hpc-usage
+  type: NodePort
+  ports:
+    - name: port-1 # spark.driver.port
+      nodePort: 32513
+      port: 5001
+      protocol: TCP
+      targetPort: 5001
+    - name: port-2 # spark.driver.blockManager.port
+      nodePort: 32514
+      port: 5101
+      protocol: TCP
+      targetPort: 5101
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: cmsmon-hs06-cputime
+  namespace: cron-hdfs
+spec:
+  selector:
+    app: cmsmon-hs06-cputime
+  type: NodePort
+  ports:
+    - name: port-1 # spark.driver.port
+      nodePort: 32515
+      port: 5001
+      protocol: TCP
+      targetPort: 5001
+    - name: port-2 # spark.driver.blockManager.port
+      nodePort: 32516
+      port: 5101
+      protocol: TCP
+      targetPort: 5101
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: cmsmon-rucio-daily
+  namespace: cron-hdfs
+spec:
+  selector:
+    app: cmsmon-rucio-daily
+  type: NodePort
+  ports:
+    - name: port-1 # spark.driver.port
+      nodePort: 32517
+      port: 5001
+      protocol: TCP
+      targetPort: 5001
+    - name: port-2 # spark.driver.blockManager.port
+      nodePort: 32518
+      port: 5101
+      protocol: TCP
+      targetPort: 5101
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: cmsmon-rucio-data-ds
+  namespace: cron-hdfs
+spec:
+  selector:
+    app: cmsmon-rucio-data-ds
+  type: NodePort
+  ports:
+    - name: port-1 # spark.driver.port
+      nodePort: 32519
+      port: 5001
+      protocol: TCP
+      targetPort: 5001
+    - name: port-2 # spark.driver.blockManager.port
+      nodePort: 32520
+      port: 5101
+      protocol: TCP
+      targetPort: 5101
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: cmsmon-rucio-data-la
+  namespace: cron-hdfs
+spec:
+  selector:
+    app: cmsmon-rucio-data-la
+  type: NodePort
+  ports:
+    - name: port-1 # spark.driver.port
+      nodePort: 32521
+      port: 5001
+      protocol: TCP
+      targetPort: 5001
+    - name: port-2 # spark.driver.blockManager.port
+      nodePort: 32522
+      port: 5101
+      protocol: TCP
+      targetPort: 5101
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: cmsmon-rucio-data-tm
+  namespace: cron-hdfs
+spec:
+  selector:
+    app: cmsmon-rucio-data-tm
+  type: NodePort
+  ports:
+    - name: port-1 # spark.driver.port
+      nodePort: 32523
+      port: 5001
+      protocol: TCP
+      targetPort: 5001
+    - name: port-2 # spark.driver.blockManager.port
+      nodePort: 32524
+      port: 5101
+      protocol: TCP
+      targetPort: 5101
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: cmsmon-rucio-ds-sum
+  namespace: cron-hdfs
+spec:
+  selector:
+    app: cmsmon-rucio-ds-sum
+  type: NodePort
+  ports:
+    - name: port-1 # spark.driver.port
+      nodePort: 32525
+      port: 5001
+      protocol: TCP
+      targetPort: 5001
+    - name: port-2 # spark.driver.blockManager.port
+      nodePort: 32526
+      port: 5101
+      protocol: TCP
+      targetPort: 5101
+---
