@@ -232,11 +232,11 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: cmsmon-rucio-data-tm
+  name: cmsmon-rucio-spark2mng
   namespace: cron-hdfs
 spec:
   selector:
-    app: cmsmon-rucio-data-tm
+    app: cmsmon-rucio-spark2mng
   type: NodePort
   ports:
     - name: port-1 # spark.driver.port
