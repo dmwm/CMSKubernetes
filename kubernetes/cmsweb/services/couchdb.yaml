@@ -56,6 +56,7 @@ spec:
         runAsGroup: 0
       containers:
       - image: registry.cern.ch/cmsweb/couchdb #imagetag
+        imagePullPolicy: Always
         name: couchdb
         tty: true
         stdin: true
