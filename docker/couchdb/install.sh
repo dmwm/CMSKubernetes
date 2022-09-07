@@ -13,10 +13,16 @@ SERVER=cmsrep.cern.ch
 
 cd $WDIR
 git clone https://github.com/dmwm/deployment.git cfg
+
 mkdir $WDIR/srv
 
 cd $WDIR/cfg
 git reset --hard $VER
+# adjust couchdb/deploy script to use credentials
+COUCH_USER=${COUCH_USER:-developer}
+COUCH_PASS=${COUCH_PASS:-test}
+sed -i -e "s,local COUCH_USER=.*,local COUCH_USER=${COUCH_USER},g" \
+       -e "s,local COUCH_PASS=.*,local COUCH_PASS=${COUCH_PASS},g" couchdb/deploy
 
 # adjust deploy script to use k8s host name
 cmsk8s_prod=${CMSK8S:-https://cmsweb.cern.ch}

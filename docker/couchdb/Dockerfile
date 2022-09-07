@@ -1,4 +1,4 @@
-FROM cmssw/cmsweb:20210628
+FROM cmssw/cmsweb:20220601-stable
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
@@ -19,6 +19,10 @@ WORKDIR ${WDIR}
 # pass env variable to the build
 ARG CMSK8S
 ENV CMSK8S=$CMSK8S
+ARG COUCH_USER
+ENV COUCH_USER=$COUCH_USER
+ARG COUCH_PASS
+ENV COUCH_PASS=$COUCH_PASS
 
 # install
 RUN $WDIR/install.sh
