@@ -43,6 +43,9 @@ ENV PATH="${WDIR}:${PATH}"
 #RUN go get github.com/gesellix/couchdb-prometheus-exporter/lib
 #RUN go get github.com/gesellix/couchdb-prometheus-exporter
 
+# adjust manage script to have clean start
+RUN sed -i -e "s,start | restart,restart,g" -e "s,* ),start )\n    start\n    ;;\n\n  * ),g" /data/srv/current/config/couchdb/manage
+
 # add necessary scripts
 ADD run.sh $WDIR/run.sh
 ADD monitor.sh $WDIR/monitor.sh
