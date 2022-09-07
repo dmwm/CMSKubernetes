@@ -81,6 +81,14 @@ for srv in "workqueue" "reqmon" "reqmgr2"; do
     fi
 done
 
+# adjust couch_creds file if it is empty
+chmod +w /data/srv/current/auth/couchdb/couch_creds
+cat > /data/srv/current/auth/couchdb/couch_creds << EOF
+COUCH_USER=${COUCH_USER}
+COUCH_PASS=${COUCH_PASS}
+EOF
+chmod -w /data/srv/current/auth/couchdb/couch_creds
+
 # Adjust ServerMonitor to be specific
 sed -i -e "s#ServerMonitor/2.0#ServerMonitor-couchdb#g" /data/srv/current/config/admin/ServerMonitor
 
