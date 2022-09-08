@@ -76,4 +76,5 @@ if [ -f /data/monitor.sh ]; then
 fi
 
 # start cron daemon
-sudo /usr/sbin/crond -n
+#sudo /usr/sbin/crond -n
+tail -f /data/srv/logs/couchdb/couch.log
