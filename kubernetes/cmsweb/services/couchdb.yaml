@@ -60,13 +60,13 @@ spec:
         name: couchdb
         tty: true
         stdin: true
-        lifecycle:
-          postStart:
-            exec:
-              command:
-              - bash
-              - -c
-              - sudo chmod 0777 /data/srv/state/couchdb/database; sudo chown _couchdb:_couchdb /data/srv/state/couchdb/database
+#        lifecycle:
+#          postStart:
+#            exec:
+#              command:
+#              - bash
+#              - -c
+#              - sudo chmod 0777 /data/srv/state/couchdb/database; sudo chown _couchdb:_couchdb /data/srv/state/couchdb/database
         resources:
           requests:
             memory: "512Mi"
