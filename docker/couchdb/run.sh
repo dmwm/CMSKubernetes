@@ -9,6 +9,13 @@ if [ -f /etc/secrets/robotkey.pem ]; then
     sudo chown $USER.$USER /data/srv/current/auth/$srv/dmwm-service-cert.pem
 fi
 
+if [ ! -d /etc/grid-security ]; then
+    mkdir -p /etc/grid-security
+fi
+if [ -f /etc/secrets/couch_creds ]; then
+    export COUCH_CREDS=/etc/secrets/couch_creds
+fi
+
 # overwrite proxy if it is present in /etc/proxy
 if [ -f /etc/proxy/proxy ]; then
     export X509_USER_PROXY=/etc/proxy/proxy
