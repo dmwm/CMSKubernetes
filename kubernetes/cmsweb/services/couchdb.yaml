@@ -28,6 +28,7 @@ data:
     cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
+    export COUCH_CREDS=/etc/secrets/couch_creds
     su  -c "cd /data && /data/run.sh" --preserve-environment _couchdb
 ---
 kind: Deployment
@@ -60,9 +61,6 @@ spec:
         name: couchdb
         tty: true
         stdin: true
-        env:
-        - name: COUCH_CREDS
-          value: /etc/secrets/couch_creds
 #        lifecycle:
 #          postStart:
 #            exec:
