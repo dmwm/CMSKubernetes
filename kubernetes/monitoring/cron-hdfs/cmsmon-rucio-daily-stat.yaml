@@ -1,0 +1,88 @@
+# cron4rucio_datasets_daily_stats.sh for k8s
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cmsmon-rucio-daily-stat
+  namespace: cron-hdfs
+  labels:
+    app: cmsmon-rucio-daily-stat
+data:
+  run.sh: |
+    #!/bin/bash
+    # Get env variables, since cron's process environment is different than shell's one
+    . /etc/environment
+    # Run and print all results(except for Spark logs) to stdout
+    /data/CMSSpark/bin/cron4rucio_datasets_daily_stats.sh \
+      --keytab /etc/secrets/keytab \
+      --amq /etc/secrets/amq-creds.json \
+      --cmsmonitoring /data/CMSMonitoring.zip \
+      --stomp /data/stomp-v700.zip \
+      --p1=5001 --p2=5101 --host=$MY_NODE_NAME --wdir=$WDIR 2>&1
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cmsmon-rucio-daily-stat
+  namespace: cron-hdfs
+spec:
+  # Run cron job every day at 8am, only once for any failure
+  schedule: "0 8 * * *"
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            app: cmsmon-rucio-daily-stat
+        spec:
+          restartPolicy: Never
+          hostname: cmsmon-rucio-daily-stat
+          containers:
+            - name: cmsmon-rucio-daily-stat
+              image: registry.cern.ch/cmsmonitoring/cmsmon-hdfs:20220904
+              imagePullPolicy: Always
+              args:
+                - /bin/bash
+                - -c
+                - export >/etc/environment; /data/cronjob/run.sh
+              env:
+                - name: MY_NODE_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: spec.nodeName
+              ports:
+                - containerPort: 5001 # spark.driver.port
+                  name: port-1
+                - containerPort: 5101 # spark.driver.blockManager.port
+                  name: port-2
+              resources:
+                limits:
+                  cpu: 2000m
+                  memory: 6Gi
+                requests:
+                  cpu: 500m
+                  memory: 750Mi
+              stdin: true
+              tty: true
+              volumeMounts:
+                - name: cmsmon-rucio-daily-stat-secrets
+                  mountPath: /etc/secrets
+                  readOnly: true
+                - name: eos # EOS access
+                  mountPath: /eos
+                  mountPropagation: HostToContainer
+                - name: cronjobs-configmap
+                  mountPath: /data/cronjob
+          volumes:
+            - name: cmsmon-rucio-daily-stat-secrets
+              secret:
+                secretName: cmsmon-rucio-daily-stat-secrets
+            - name: eos
+              hostPath:
+                path: /var/eos
+            - name: cronjobs-configmap
+              configMap:
+                name: cmsmon-rucio-daily-stat
+                defaultMode: 0555 # rx

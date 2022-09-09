@@ -1,0 +1,84 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cmsmon-crab-uu
+  namespace: cron-hdfs
+  labels:
+    app: cmsmon-crab-uu
+data:
+  run.sh: |
+    #!/bin/bash
+    # Get env variables, since cron's process environment is different than shell's one
+    . /etc/environment
+    # Run and print all results(except for Spark logs) to stdout
+    /data/CMSSpark/bin/cron4crab_unique_users.sh \
+      --keytab /etc/secrets/keytab --output /eos/user/c/cmsmonit/www/crab_uu \
+      --p1=5001 --p2=5101 --host=$MY_NODE_NAME --wdir=$WDIR 2>&1
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cmsmon-crab-uu
+  namespace: cron-hdfs
+spec:
+  schedule: "02 15 27 * *"
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            app: cmsmon-crab-uu
+        spec:
+          restartPolicy: Never
+          hostname: cmsmon-crab-uu
+          containers:
+            - name: cmsmon-crab-uu
+              image: registry.cern.ch/cmsmonitoring/cmsmon-hdfs:20220904
+              imagePullPolicy: Always
+              args:
+                - /bin/bash
+                - -c
+                - export >/etc/environment; /data/cronjob/run.sh
+              env:
+                - name: MY_NODE_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: spec.nodeName
+              ports:
+                - containerPort: 5001 # spark.driver.port
+                  name: port-1
+                - containerPort: 5101 # spark.driver.blockManager.port
+                  name: port-2
+              resources:
+                limits:
+                  cpu: 2000m
+                  memory: 6Gi
+                requests:
+                  cpu: 500m
+                  memory: 750Mi
+              stdin: true
+              tty: true
+              volumeMounts:
+                - name: cmsmon-crab-uu-secrets
+                  mountPath: /etc/secrets
+                  readOnly: true
+                - name: eos # EOS access
+                  mountPath: /eos
+                  mountPropagation: HostToContainer
+                - name: cronjobs-configmap
+                  mountPath: /data/cronjob
+          volumes:
+            - name: cmsmon-crab-uu-secrets
+              secret:
+                secretName: cmsmon-crab-uu-secrets
+            - name: eos
+              hostPath:
+                path: /var/eos
+            - name: cronjobs-configmap
+              configMap:
+                name: cmsmon-crab-uu
+                defaultMode: 0555 # rx
+
