@@ -7,6 +7,8 @@ RUN pip install CMSCouchapp
 ENV WDIR=/data
 ENV USER=_couchdb
 
+RUN mkdir -p /etc/grid-security
+
 # add new user
 RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
 # add user to sudoers file

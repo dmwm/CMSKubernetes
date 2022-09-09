@@ -9,9 +9,6 @@ if [ -f /etc/secrets/robotkey.pem ]; then
     sudo chown $USER.$USER /data/srv/current/auth/$srv/dmwm-service-cert.pem
 fi
 
-if [ ! -d /etc/grid-security ]; then
-    mkdir -p /etc/grid-security
-fi
 if [ -f /etc/secrets/couch_creds ]; then
     export COUCH_CREDS=/etc/secrets/couch_creds
 fi

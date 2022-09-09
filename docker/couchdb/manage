@@ -37,7 +37,12 @@ CFGDIR=$(cd $(dirname $0) && pwd)
 LOGDIR=$TOP/logs/$ME
 STATEDIR=$TOP/state/$ME
 KEYFILE=$ROOT/auth/$ME/hmackey.ini
-COUCH_CREDS=$ROOT/auth/$ME/couch_creds
+if [ -f /etc/secrets/couch_creds ]; then
+    # k8s setup
+    COUCH_CREDS=/etc/secrets/couch_creds
+else
+    COUCH_CREDS=$ROOT/auth/$ME/couch_creds
+fi
 EXCEPTIONS="wmstats"
 
 COLOR_OK="\\033[0;32m"
