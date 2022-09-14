@@ -24,8 +24,10 @@ spec:
       containers:
       - image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         name: workqueue
+        {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
         resources:
         {{- toYaml .Values.resources | nindent 12 }}
+        {{- end }}
         livenessProbe:
         {{- toYaml .Values.livenessProbe | nindent 12 }}
         ports:
