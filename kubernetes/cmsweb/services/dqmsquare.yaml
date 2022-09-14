@@ -62,7 +62,7 @@ spec:
           - name: robot-secrets
             mountPath: /etc/robots
  #PROD#   - name: dqmgui
- #PROD#     mountPath: /tmp/share
+ #PROD#     mountPath: /cinder/dqmsquare
       volumes:
       - name: dqm-square-mirror-pvc
         persistentVolumeClaim:
