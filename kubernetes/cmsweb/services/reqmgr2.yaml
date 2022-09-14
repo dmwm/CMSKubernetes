@@ -96,13 +96,13 @@ spec:
               - bash
               - -c
               - sudo chmod 0777 /data/srv/logs/reqmgr2; sudo chown _reqmgr2:_reqmgr2 /data/srv/logs/reqmgr2
-        resources:
-          requests:
-            memory: "2Gi"
-            cpu: "200m"
-          limits:
-            memory: "4Gi"
-            cpu: "1000m"
+#PROD#  resources:
+#PROD#    requests:
+#PROD#      memory: "2Gi"
+#PROD#      cpu: "200m"
+#PROD#    limits:
+#PROD#      memory: "4Gi"
+#PROD#      cpu: "1000m"
         livenessProbe:
           exec:
             command:

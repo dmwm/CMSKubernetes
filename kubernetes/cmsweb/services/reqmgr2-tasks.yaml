@@ -70,13 +70,13 @@ spec:
       containers:
       - image: registry.cern.ch/cmsweb/reqmgr2 #imagetag
         name: reqmgr2-tasks
-        resources:
-          requests:
-            memory: "1Gi"
-            cpu: "400m"
-          limits:
-            memory: "5Gi"
-            cpu: "1000m"
+#PROD#  resources:
+#PROD#    requests:
+#PROD#      memory: "1Gi"
+#PROD#      cpu: "400m"
+#PROD#    limits:
+#PROD#      memory: "5Gi"
+#PROD#      cpu: "1000m"
         livenessProbe:
           exec:
             command:
