@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-dqmgui 
+spec:
+  storageClassName: sc-cinder-volume-claim
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: 10Gi
+  csi:
+    driver: cinder.csi.openstack.org
+    fsType: ext4
+    # This is how csi-cinder knows how to find the volume.
+    volumeHandle: f613ca10-7708-477a-b613-83db9fb0e09d
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dqmgui
+  namespace: dqm 
+spec:
+  # The class must be the same as in the PV
+  storageClassName: sc-cinder-volume-claim
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      # same for storage
+      storage: 10Gi
