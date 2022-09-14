@@ -61,6 +61,8 @@ spec:
             name: dqm-square-mirror-pvc
           - name: robot-secrets
             mountPath: /etc/robots
+ #PROD#   - name: dqmgui
+ #PROD#     mountPath: /tmp/share
       volumes:
       - name: dqm-square-mirror-pvc
         persistentVolumeClaim:
@@ -69,6 +71,9 @@ spec:
       - name: robot-secrets
         secret:
           secretName: robot-secrets
+#PROD#- name: dqmgui
+#PROD#  persistentVolumeClaim:
+#PROD#    claimName: dqmgui
 ---
 kind: Deployment
 apiVersion: apps/v1
