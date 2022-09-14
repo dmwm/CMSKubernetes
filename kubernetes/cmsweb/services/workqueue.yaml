@@ -85,13 +85,13 @@ spec:
       containers:
       - image: registry.cern.ch/cmsweb/workqueue #imagetag
         name: workqueue
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "3Gi"
-            cpu: "1500m"
+#PROD#  resources:
+#PROD#    requests:
+#PROD#      memory: "512Mi"
+#PROD#      cpu: "500m"
+#PROD#    limits:
+#PROD#      memory: "3Gi"
+#PROD#      cpu: "1500m"
         livenessProbe:
           exec:
             command:
