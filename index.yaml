@@ -1164,6 +1164,16 @@ entries:
   reqmgr2:
   - apiVersion: v2
     appVersion: HG2208d
+    created: "2022-09-14T12:53:36.475122374Z"
+    description: A Helm chart for Kubernetes
+    digest: dad44b9448e3f875bfea503d917c89258d03d8047a60bb2aa4143aa8974dbb49
+    name: reqmgr2
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/reqmgr2-0.1.4/reqmgr2-0.1.4.tgz
+    version: 0.1.4
+  - apiVersion: v2
+    appVersion: HG2208d
     created: "2022-08-17T11:20:06.041073556Z"
     description: A Helm chart for Kubernetes
     digest: 9e2dd01d529139e883873b600aded0a622c7bb779ebc73b5e6c3f1b974e3ad36
@@ -1195,6 +1205,16 @@ entries:
   reqmgr2-tasks:
   - apiVersion: v2
     appVersion: HG2208d
+    created: "2022-09-14T12:53:36.681994672Z"
+    description: A Helm chart for Kubernetes
+    digest: 5dafa94b1e7cd0fbb65b570d27a0d6c63bfbd0fffdc8344bab6df74ff2d84cfb
+    name: reqmgr2-tasks
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/reqmgr2-tasks-0.1.7/reqmgr2-tasks-0.1.7.tgz
+    version: 0.1.7
+  - apiVersion: v2
+    appVersion: HG2208d
     created: "2022-08-17T12:10:03.144632994Z"
     description: A Helm chart for Kubernetes
     digest: 461b34b1084cbd7c7aed345b3aaae5495aaed543756fd9681419bbdd16011046
@@ -1214,6 +1234,16 @@ entries:
     - https://github.com/dmwm/CMSKubernetes/releases/download/reqmgr2-tasks-0.1.1/reqmgr2-tasks-0.1.1.tgz
     version: 0.1.1
   reqmgr2ms-monitor:
+  - apiVersion: v2
+    appVersion: HG2208d
+    created: "2022-09-14T12:53:36.905978673Z"
+    description: A Helm chart for Kubernetes
+    digest: 853bfc24936ff5904e68ee72dc9e81469306fcee46c7c1501f78b21e05b41a96
+    name: reqmgr2ms-monitor
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/reqmgr2ms-monitor-0.1.3/reqmgr2ms-monitor-0.1.3.tgz
+    version: 0.1.3
   - apiVersion: v2
     appVersion: HG2208d
     created: "2022-08-24T08:42:23.488496753Z"
@@ -1237,6 +1267,16 @@ entries:
   reqmgr2ms-output:
   - apiVersion: v2
     appVersion: HG2208d
+    created: "2022-09-14T12:53:37.075302125Z"
+    description: A Helm chart for Kubernetes
+    digest: 6da028f5c31df51f35642a3a07b8e7e8a3389a39ff3ed1069dbafdf1849e4e0f
+    name: reqmgr2ms-output
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/reqmgr2ms-output-0.1.3/reqmgr2ms-output-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
+    appVersion: HG2208d
     created: "2022-08-24T09:31:42.943605646Z"
     description: A Helm chart for Kubernetes
     digest: 4f551406c9a94f83bbf3ddfd12b2290fa4c5c4dc557d39e4e2a2963e48409ff7
@@ -1256,6 +1296,16 @@ entries:
     - https://github.com/dmwm/CMSKubernetes/releases/download/reqmgr2ms-output-0.1.1/reqmgr2ms-output-0.1.1.tgz
     version: 0.1.1
   reqmgr2ms-rulecleaner:
+  - apiVersion: v2
+    appVersion: HG2208d
+    created: "2022-09-14T12:53:37.265708596Z"
+    description: A Helm chart for Kubernetes
+    digest: a8bd32f1364977c8df4b9d3f3cd442c6d161f35314c3782778e043042e92e23c
+    name: reqmgr2ms-rulecleaner
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/reqmgr2ms-rulecleaner-0.1.3/reqmgr2ms-rulecleaner-0.1.3.tgz
+    version: 0.1.3
   - apiVersion: v2
     appVersion: HG2208d
     created: "2022-08-24T09:31:43.104556998Z"
@@ -1279,6 +1329,16 @@ entries:
   reqmgr2ms-transferor:
   - apiVersion: v2
     appVersion: HG2208d
+    created: "2022-09-14T12:53:37.455757467Z"
+    description: A Helm chart for Kubernetes
+    digest: db5cd3e833ba6f308716568b20dae2863ce397dbeb4f18d402396db873f255a3
+    name: reqmgr2ms-transferor
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/reqmgr2ms-transferor-0.1.3/reqmgr2ms-transferor-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
+    appVersion: HG2208d
     created: "2022-08-24T09:31:43.25414528Z"
     description: A Helm chart for Kubernetes
     digest: 4af75e8b3efed7713e8e8181ddc3b0d6f8e1c98610aa030602599481a82fe449
@@ -1298,6 +1358,16 @@ entries:
     - https://github.com/dmwm/CMSKubernetes/releases/download/reqmgr2ms-transferor-0.1.1/reqmgr2ms-transferor-0.1.1.tgz
     version: 0.1.1
   reqmgr2ms-unmerged-t1:
+  - apiVersion: v2
+    appVersion: HG2208d
+    created: "2022-09-14T12:53:37.661180551Z"
+    description: A Helm chart for Kubernetes
+    digest: 1833e378de2720f84490817b838d4cd312e3ae64c5e8cabb74c5a9389ee6a57f
+    name: reqmgr2ms-unmerged-t1
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/reqmgr2ms-unmerged-t1-0.1.3/reqmgr2ms-unmerged-t1-0.1.3.tgz
+    version: 0.1.3
   - apiVersion: v2
     appVersion: HG2208d
     created: "2022-08-24T10:08:34.082986577Z"
@@ -1321,6 +1391,16 @@ entries:
   reqmgr2ms-unmerged-t2t3:
   - apiVersion: v2
     appVersion: HG2208d
+    created: "2022-09-14T12:53:37.853324524Z"
+    description: A Helm chart for Kubernetes
+    digest: 00469287bfcfe826f652476287fd36596ed19fc60621fb8ce937cf2057d84426
+    name: reqmgr2ms-unmerged-t2t3
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/reqmgr2ms-unmerged-t2t3-0.1.3/reqmgr2ms-unmerged-t2t3-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
+    appVersion: HG2208d
     created: "2022-08-24T10:18:19.147544013Z"
     description: A Helm chart for Kubernetes
     digest: 12711f4d56d90ab2409a63adf963f7ef341d52aabe2ed583d0223d2ec5e460c2
@@ -1342,6 +1422,16 @@ entries:
   reqmgr2ms-unmerged-t2t3us:
   - apiVersion: v2
     appVersion: HG2208d
+    created: "2022-09-14T12:53:38.524771327Z"
+    description: A Helm chart for Kubernetes
+    digest: 45a861877bfb2cd774e1d915d49909165d6329f57b771441441c674ec61bb272
+    name: reqmgr2ms-unmerged-t2t3us
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/reqmgr2ms-unmerged-t2t3us-0.1.3/reqmgr2ms-unmerged-t2t3us-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
+    appVersion: HG2208d
     created: "2022-08-24T10:18:19.289766325Z"
     description: A Helm chart for Kubernetes
     digest: 9bcce6a39fede05f6ffa02fa39d1e517351f1522447d31b6cba62c4702ce994f
@@ -1361,6 +1451,16 @@ entries:
     - https://github.com/dmwm/CMSKubernetes/releases/download/reqmgr2ms-unmerged-t2t3us-0.1.1/reqmgr2ms-unmerged-t2t3us-0.1.1.tgz
     version: 0.1.1
   reqmon:
+  - apiVersion: v2
+    appVersion: HG2208d
+    created: "2022-09-14T12:53:38.871899338Z"
+    description: A Helm chart for Kubernetes
+    digest: b851d46e1e6d650ca548b17b920703501059e0dac84bee84daf2710840131e85
+    name: reqmon
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/reqmon-0.1.6/reqmon-0.1.6.tgz
+    version: 0.1.6
   - apiVersion: v2
     appVersion: HG2208d
     created: "2022-08-17T11:20:06.215969306Z"
@@ -1412,6 +1512,16 @@ entries:
     - https://github.com/dmwm/CMSKubernetes/releases/download/reqmon-0.1.1/reqmon-0.1.1.tgz
     version: 0.1.1
   reqmon-tasks:
+  - apiVersion: v2
+    appVersion: HG2208d
+    created: "2022-09-14T12:53:39.049275498Z"
+    description: A Helm chart for Kubernetes
+    digest: 94082ed9eb259598adbe261316e2a99199598d181333e720f02b82e6e13321ed
+    name: reqmon-tasks
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/reqmon-tasks-0.1.6/reqmon-tasks-0.1.6.tgz
+    version: 0.1.6
   - apiVersion: v2
     appVersion: HG2208d
     created: "2022-08-17T11:50:44.561452173Z"
@@ -1717,6 +1827,16 @@ entries:
   t0reqmon:
   - apiVersion: v2
     appVersion: HG2208d
+    created: "2022-09-14T12:53:39.237797367Z"
+    description: A Helm chart for Kubernetes
+    digest: a04a7fa9a8e4768b40352849fa834982d378b640ab7ef9db201dd57984bdc603
+    name: t0reqmon
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/t0reqmon-0.1.5/t0reqmon-0.1.5.tgz
+    version: 0.1.5
+  - apiVersion: v2
+    appVersion: HG2208d
     created: "2022-08-15T13:25:58.399578969Z"
     description: A Helm chart for Kubernetes
     digest: 4d3365e19a5c566dec8738ee2044a67d06490e5ff4a929824b514074cf5c6d59
@@ -1758,6 +1878,16 @@ entries:
   t0reqmon-tasks:
   - apiVersion: v2
     appVersion: HG2208d
+    created: "2022-09-14T12:53:39.397826011Z"
+    description: A Helm chart for Kubernetes
+    digest: aa5fad6c82c1e5ce5d1542b65b60c57b11dde2dea9b936cb0f0f3297bde2e688
+    name: t0reqmon-tasks
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/t0reqmon-tasks-0.1.3/t0reqmon-tasks-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
+    appVersion: HG2208d
     created: "2022-08-15T13:46:34.764133141Z"
     description: A Helm chart for Kubernetes
     digest: d36cc084d1c851012e8cd3c4c7f6801b38ead7f0f0bd5c2d6a0a89da5977bd79
@@ -1777,6 +1907,16 @@ entries:
     - https://github.com/dmwm/CMSKubernetes/releases/download/t0reqmon-tasks-0.1.1/t0reqmon-tasks-0.1.1.tgz
     version: 0.1.1
   t0wmadatasvc:
+  - apiVersion: v2
+    appVersion: HG2208d
+    created: "2022-09-14T12:53:39.584903678Z"
+    description: A Helm chart for Kubernetes
+    digest: 616675c6d7e8609b40b3d95abb648e76fc2a22c5764c982133de920bb6746b1c
+    name: t0wmadatasvc
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/t0wmadatasvc-0.1.3/t0wmadatasvc-0.1.3.tgz
+    version: 0.1.3
   - apiVersion: v2
     appVersion: HG2208d
     created: "2022-08-16T08:03:58.897105825Z"
@@ -1841,6 +1981,16 @@ entries:
   workqueue:
   - apiVersion: v2
     appVersion: HG2208d
+    created: "2022-09-14T12:53:39.772591447Z"
+    description: A Helm chart for Kubernetes
+    digest: fa96a6e888bb3007fba47f7b18967f920de46ddbfc599f8fe4267125fee9737e
+    name: workqueue
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/workqueue-0.1.3/workqueue-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
+    appVersion: HG2208d
     created: "2022-08-17T11:20:06.37663875Z"
     description: A Helm chart for Kubernetes
     digest: 37a9161f9e34bd7aac8f6b80322d9e33ddc490eb6deffc39e84c5280983497b4
@@ -1870,4 +2020,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
     version: 0.1.1
-generated: "2022-08-24T10:18:19.290107331Z"
+generated: "2022-09-14T12:53:39.772902747Z"
