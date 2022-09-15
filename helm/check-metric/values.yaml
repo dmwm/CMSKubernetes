@@ -15,20 +15,6 @@ nameOverride: ""
 fullnameOverride: ""
 
 args:
-  dbs: 
-  - /data/check-metric
-  - -url
-  - "http://prometheus-service.monitoring.svc.cluster.local:8080"
-  - -metric
-  - "dbsmigration_process_open_fds,dbs_migrate_exporter_process_open_fds,dbs_global_exporter_process_open_fds,dbs_globalW_exporter_process_open_fds,dbs_phys03R_exporter_process_open_fds,dbs_phys03W_exporter_process_open_fds"
-  - -value
-  - "1000,1000,1000,1000,1000,1000"
-  - -kubectl
-  - "/data/kubectl"
-  - -interval
-  - "60"
-  - verbose
-  - "2"
   wmarchive:
   - /data/check-metric
   - -url

@@ -20,9 +20,7 @@ spec:
       - image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         name: {{ .Chart.Name }}
         args:
-        {{- if eq .Release.Namespace "dbs"}}
-        {{- toYaml .Values.args.dbs | nindent 10 }}
-        {{-  else if eq .Release.Namespace "wma"}}
+        {{- if eq .Release.Namespace "wma"}}
         {{- toYaml .Values.args.wmarchive | nindent 10 }}
         {{- end }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
