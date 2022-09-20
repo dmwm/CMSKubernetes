@@ -11,6 +11,17 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/auth-proxy-server-0.1.1/auth-proxy-server-0.1.1.tgz
     version: 0.1.1
+  check-metric:
+  - apiVersion: v2
+    appVersion: 20220404-stable
+    created: "2022-09-20T13:55:54.620272474Z"
+    description: A Helm chart for Kubernetes
+    digest: 1bb70c4a33048238ba4eeaa608d5915ae9a93ea4c8a5c0d6a3c43c44beb06ac1
+    name: check-metric
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/check-metric-0.1.0/check-metric-0.1.0.tgz
+    version: 0.1.0
   cmskv:
   - apiVersion: v2
     appVersion: 20220404-stable
@@ -2020,4 +2031,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
     version: 0.1.1
-generated: "2022-09-14T12:53:39.772902747Z"
+generated: "2022-09-20T13:55:54.621005975Z"
