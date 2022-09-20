@@ -1,0 +1,28 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: check-metric
+  name: check-metric
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: check-metric
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: check-metric
+    spec:
+      serviceAccountName: check-metric-sa
+      containers:
+      - image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        name: {{ .Chart.Name }}
+        args:
+        {{- if eq .Release.Namespace "wma"}}
+        {{- toYaml .Values.args.wmarchive | nindent 10 }}
+        {{- end }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        resources:
+        {{- toYaml .Values.resources | nindent 12 }}
