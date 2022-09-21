@@ -6,7 +6,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 8888 # the port here is matching port used in registry.cern.ch/cmsweb/httppy cotainer
+  - port: 8080 # the port here is matching port used in registry.cern.ch/cmsweb/httppy cotainer
     protocol: TCP
     name: http
   selector:
@@ -35,7 +35,7 @@ spec:
         livenessProbe:
           httpGet:
             path: /healthz
-            port: 8888
+            port: 8080
           initialDelaySeconds: 3
           periodSeconds: 3
         resources:
@@ -53,7 +53,7 @@ spec:
             exec:
               command: ["/bin/sh", "-c", "ls"]
         ports:
-        - containerPort: 8888
+        - containerPort: 8080
 #        volumeMounts:
 #        - name: testvolume
 #          mountPath: /tmp/share
