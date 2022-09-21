@@ -23,5 +23,5 @@ def application(environ, start_response):
     return cherrypy.tree(environ, start_response)
 
 if __name__ == '__main__':
-#     cherrypy.config.update({'server.thread_pool': 2, 'server.socket_timeout': 0})
+    cherrypy.config.update({'server.thread_pool': 20, 'server.socket_timeout': 0, 'server.socket_host': '0.0.0.0'})
     cherrypy.quickstart(HelloWorld())
