@@ -30,8 +30,9 @@ spec:
         app: httppy
     spec:
       containers:
-      - image: registry.cern.ch/cmsweb/httppy
+      - image: registry.cern.ch/cmsweb/httppy:v2
         name: httppy
+        imagePullPolicy: Always
         livenessProbe:
           httpGet:
             path: /healthz
@@ -45,19 +46,5 @@ spec:
           limits:
             memory: "3Gi"
             cpu: "1000m"
-        # here is an example how to run post command
-        tty: true
-        stdin: true
-        lifecycle:
-          postStart:
-            exec:
-              command: ["/bin/sh", "-c", "ls"]
         ports:
         - containerPort: 8080
-#        volumeMounts:
-#        - name: testvolume
-#          mountPath: /tmp/share
-#      volumes:
-#      - name: testvolume
-#        persistentVolumeClaim:
-#          claimName: cinder-volume-claim          
