@@ -44,172 +44,21 @@ spec:
             name: dqmsecret
         resources:
           requests:
-            memory: "100Mi"
-            cpu: "200m"
-          limits:
             memory: "1Gi"
             cpu: "400m"
-        ports:
-          - containerPort: 8084
-            protocol: TCP
-            name: dqmsquare
-          - containerPort: 18084
-            protocol: TCP
-            name: dqmsquare-mon
-        volumeMounts:
-          - mountPath: /cephfs/testbed
-            name: dqm-square-mirror-pvc
-          - name: robot-secrets
-            mountPath: /etc/robots
- #PROD#   - name: dqmgui
- #PROD#     mountPath: /cinder/dqmsquare
-      volumes:
-      - name: dqm-square-mirror-pvc
-        persistentVolumeClaim:
-          claimName: dqm-square-mirror-pvc
-          readOnly: false
-      - name: robot-secrets
-        secret:
-          secretName: robot-secrets
-#PROD#- name: dqmgui
-#PROD#  persistentVolumeClaim:
-#PROD#    claimName: dqmgui
----
-kind: Deployment
-apiVersion: apps/v1
-metadata: 
-  name: dqm-square-mirror-parser
-  namespace: dqm
-  labels:
-    app: dqm-square-mirror-parser
-spec:
-  selector:
-    matchLabels:
-      app: dqm-square-mirror-parser
-  replicas: 1
-  template: # This is the pod template
-    metadata:
-      labels:
-        app: dqm-square-mirror-parser
-    spec:
-      securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
-      containers:
-      - name: dqm-square-mirror-parser
-        image: registry.cern.ch/cmsweb/dqmsquare_mirror #imagetag
-        command: ["./dqmsquare_k8_wrapper.sh", "parser"]
-        args: []
-        resources:
-          requests:
-            memory: "100Mi"
-            cpu: "200m"
           limits:
-            memory: "1Gi"
-            cpu: "400m"
-        volumeMounts:
-          - mountPath: /cephfs/testbed
-            name: dqm-square-mirror-pvc
-      volumes:
-      - name: dqm-square-mirror-pvc
-        persistentVolumeClaim:
-          claimName: dqm-square-mirror-pvc
-          readOnly: false
----
-kind: Deployment
-apiVersion: apps/v1
-metadata: 
-  name: dqm-square-mirror-robber
-  namespace: dqm
-  labels:
-    app: dqm-square-mirror-robber
-spec:
-  selector:
-    matchLabels:
-      app: dqm-square-mirror-robber
-  replicas: 1
-  template: # This is the pod template
-    metadata:
-      labels:
-        app: dqm-square-mirror-robber
-    spec:
-      securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
-      containers:
-      - name: dqm-square-mirror-robber
-        image: registry.cern.ch/cmsweb/dqmsquare_mirror #imagetag
-        command: ["./dqmsquare_k8_wrapper.sh", "robber"]
-        args: []
-        envFrom:
-        - secretRef:
-            name: dqmsecret
-        resources:
-          requests:
             memory: "2Gi"
-            cpu: "400m"
-          limits:
-            memory: "4Gi"
             cpu: "800m"
         volumeMounts:
-          - mountPath: /cephfs/testbed
-            name: dqm-square-mirror-pvc
           - name: robot-secrets
             mountPath: /etc/robots
+          - name: dqmgui
+            mountPath: /cinder/dqmsquare
       volumes:
-      - name: dqm-square-mirror-pvc
-        persistentVolumeClaim:
-          claimName: dqm-square-mirror-pvc
-          readOnly: false
       - name: robot-secrets
         secret:
           secretName: robot-secrets
----
-kind: Deployment
-apiVersion: apps/v1
-metadata: 
-  name: dqm-square-mirror-robber-oldruns
-  namespace: dqm
-  labels:
-    app: dqm-square-mirror-robber-oldruns
-spec:
-  selector:
-    matchLabels:
-      app: dqm-square-mirror-robber-oldruns
-  replicas: 1
-  template: # This is the pod template
-    metadata:
-      labels:
-        app: dqm-square-mirror-robber-oldruns
-    spec:
-      securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
-      containers:
-      - name: dqm-square-mirror-robber-oldruns
-        image: registry.cern.ch/cmsweb/dqmsquare_mirror #imagetag
-        command: ["./dqmsquare_k8_wrapper.sh", "robber_oldruns"]
-        args: []
-        envFrom:
-        - secretRef:
-            name: dqmsecret
-        resources:
-          requests:
-            memory: "2Gi"
-            cpu: "400m"
-          limits:
-            memory: "4Gi"
-            cpu: "800m"
-        volumeMounts:
-          - mountPath: /cephfs/testbed
-            name: dqm-square-mirror-pvc
-          - name: robot-secrets
-            mountPath: /etc/robots
-      volumes:
-      - name: dqm-square-mirror-pvc
+      - name: dqmgui
         persistentVolumeClaim:
-          claimName: dqm-square-mirror-pvc
-          readOnly: false
-      - name: robot-secrets
-        secret:
-          secretName: robot-secrets
+          claimName: dqmgui
+
