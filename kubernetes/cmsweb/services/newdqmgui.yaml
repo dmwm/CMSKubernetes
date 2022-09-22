@@ -106,8 +106,6 @@ spec:
         - name: eos
           mountPath: /eos
           mountPropagation: HostToContainer
-        - name: eos-krb
-          mountPath: /tmp/krb
         - mountPath: /cvmfs/cms.cern.ch
           name: cms-pvc                    
 #PROD#  - name: logs
@@ -142,9 +140,6 @@ spec:
       - name: eos
         hostPath:
           path: /var/eos
-      - name: eos-krb
-        secret:
-          secretName: eos-krb          
       - name: cms-pvc
         persistentVolumeClaim:
           claimName: csi-cvmfs-cms-pvc
