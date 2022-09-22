@@ -1,0 +1,4 @@
+allowedCapabilities: 
+- NET_BIND_SERVICE
+requiredDropCapabilities: 
+- all

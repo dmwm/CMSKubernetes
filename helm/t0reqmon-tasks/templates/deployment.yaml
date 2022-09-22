@@ -1,100 +1,94 @@
+{{- $environment := .Values.environment | default dict }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "t0reqmon-tasks.fullname" . }}
   labels:
-    {{- include "t0reqmon-tasks.labels" . | nindent 4 }}
-  namespace: tzero
+    app: t0reqmon-tasks
+  name: {{ .Release.Name }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount}}     
-  {{- end }}
   selector:
     matchLabels:
-      {{- include "t0reqmon-tasks.selectorLabels" . | nindent 6 }}
+      app: t0reqmon-tasks
+  replicas: 1
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
-        {{- include "t0reqmon-tasks.selectorLabels" . | nindent 8 }}
-        {{- if .Values.environment.preprod}}
-        env: k8s-preprod
-        {{- end }}
-        {{- if .Values.environment.prod}}
-        env: k8s-prod
-        {{- end }}
-        {{- if .Values.environment.test}}
-        env: k8s
-        {{- end }}
+        app: t0reqmon-tasks
+        env: k8s-{{.Values.environment}}
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18243"
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "t0reqmon-tasks.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          command:
-          {{- toYaml .Values.image.command | nindent 10 }}
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-          livenessProbe:
-          {{- toYaml .Values.livenessProbe | nindent 12 }}
-          volumeMounts:
-          - name: proxy-secrets
-            mountPath: /etc/proxy
-            readOnly: true
-          - name: secrets
-            mountPath: /etc/secrets
-            readOnly: true
-          - name: robot-secrets
-            mountPath: /etc/robots
-            readOnly: true
-          - name: hmac-secrets
-            mountPath: /etc/hmac
-            readOnly: true
-          - mountPath: /host/etc/grid-security
-            name: etc-grid-security
-            readOnly: true
-          - name: setup-certs-and-run
-            mountPath: /opt/setup-certs-and-run
-{{- if or .Values.environment.prod .Values.environment.preprod }}
-          - name: logs
-            mountPath: /data/srv/logs/t0_reqmon
-        - name: {{ .Values.imageFilebeat.name }}
-          image: {{ .Values.imageFilebeat.name }}
-          args:
-          {{- toYaml .Values.imageFilebeat.args | nindent 10 }}
-          env:
-          {{- toYaml .Values.imageFilebeat.env | nindent 10 }}
-          resources:
-          {{- toYaml .Values.imageFilebeatResources | nindent 12 }}
-          volumeMounts:
-          - name: logs
-            mountPath: /data/srv/logs/t0_reqmon
-          - name: config
-            mountPath: /etc/filebeat.yml
-            readOnly: true
-            subPath: filebeat.yml
-          - name: data
-            mountPath: /usr/share/filebeat/data
-          - name: varlog
-            mountPath: /var/log
-          - name: varlibdockercontainers
-            mountPath: /var/lib/docker/containers
-            readOnly: true
-          securityContext:
-          {{- toYaml .Values.imageFilebeatSecurityContext | nindent 12 }}
-{{- end }}
+      - image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        name: t0reqmon-tasks
+        {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+        resources:
+        {{- toYaml .Values.resources | nindent 12 }}
+        {{- end }}
+        livenessProbe:
+        {{- toYaml .Values.livenessProbe | nindent 12 }}
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true
+        {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+        - name: logs
+          mountPath: /data/srv/logs/t0_reqmon
+        {{- end }}
+        securityContext:
+          privileged: true
+        {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+      - name: t0reqmon-tasks-filebeat
+        image: {{ .Values.imageFilebeat.path}}
+        args: [
+          "-c", "/etc/filebeat.yml",
+          "-e",
+        ]
+        env:
+        {{- toYaml .Values.imageFilebeat.env | nindent 10 }}
+        resources:
+        {{- toYaml .Values.imageFilebeatResources | nindent 12 }}
+        volumeMounts:
+        - name: logs
+          mountPath: /data/srv/logs/t0_reqmon
+        - name: config
+          mountPath: /etc/filebeat.yml
+          readOnly: true
+          subPath: filebeat.yml
+        - name: data
+          mountPath: /usr/share/filebeat/data
+        - name: varlog
+          mountPath: /var/log
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+        securityContext:
+          allowPrivilegeEscalation: false
+        {{- end }}
       volumes:
       - name: proxy-secrets
         secret:
@@ -110,19 +104,22 @@ spec:
           secretName: hmac-secrets
       - name: etc-grid-security
         hostPath:
-            path: /etc/grid-security
+          path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: {{ include "t0reqmon-tasks.fullname" . }}
-{{- if or .Values.environment.prod .Values.environment.preprod }}
+          name: t0reqmon-tasks
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+      {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }} 
       - name: logs
         persistentVolumeClaim:
-{{- if .Values.environment.preprod }}
-            claimName: logs-cephfs-claim-preprod-tzero
-{{- end }}
-{{- if .Values.environment.prod }}
-            claimName: logs-cephfs-claim-prod-tzero
-{{- end }}
+        {{- if eq (toString $environment) "preprod" }}
+          claimName: logs-cephfs-claim-preprod-tzero
+          {{- end }}
+          {{- if eq (toString $environment) "prod" }}
+          claimName: logs-cephfs-claim-prod-tzero
+        {{- end }}
       - name: varlog
         hostPath:
           path: /var/log
@@ -132,7 +129,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: {{ include "t0reqmon-tasks.fullname" . }}-filebeat-config
+          name: t0reqmon-tasks-filebeat-config
       - name: data
         emptyDir: {}
-{{- end }}
+      {{- end }}

@@ -1,0 +1,100 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: cmsmon-rucio-mon-goweb
+  namespace: datasetmon
+spec:
+  selector:
+    app: cmsmon-rucio-mon-goweb
+  type: NodePort
+  ports:
+    - port: 8080
+      nodePort: 31280
+      targetPort: 8080
+      name: web
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cmsmon-rucio-mon-goweb
+  namespace: datasetmon
+  labels:
+    app: cmsmon-rucio-mon-goweb
+data:
+  config.json: |
+    {
+        "port": 8080,
+        "verbose": 1,
+        "env_file": "/etc/secrets/client_env",
+        "read_timeout": 10,
+        "write_timeout": 10,
+        "mongo_connection_timeout": 100,
+        "prod_lock_accounts": [
+            "transfer_ops",
+            "wma_prod",
+            "wmcore_output",
+            "wmcore_transferor",
+            "crab_tape_recall",
+            "sync"
+        ],
+        "collection_names": {
+            "datasets": "datasets",
+            "detailed_datasets": "detailed_datasets",
+            "short_url": "short_url",
+            "datasource_timestamp": "source_timestamp"
+        }
+    }
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: cmsmon-rucio-mon-goweb
+  name: cmsmon-rucio-mon-goweb
+  namespace: datasetmon
+spec:
+  selector:
+    matchLabels:
+      app: cmsmon-rucio-mon-goweb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cmsmon-rucio-mon-goweb
+    spec:
+      containers:
+      - name: cmsmon-rucio-mon-goweb
+        image: registry.cern.ch/cmsmonitoring/cmsmon-rucio-mon-goweb:rgo-0.0.1
+        imagePullPolicy: Always
+        args:
+          - /data/rucio-dataset-monitoring
+          - -config
+          - /data/etc/config.json
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+          name: web
+        env:
+        - name: GIN_MODE
+          value: release
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 2Gi
+          requests:
+            cpu: 250m
+            memory: 250Mi
+        volumeMounts:
+        - name: cmsmon-mongo-secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: configmap-config-json
+          mountPath: /data/etc
+      volumes:
+      - name: cmsmon-mongo-secrets
+        secret:
+          secretName: cmsmon-mongo-secrets
+          defaultMode: 0444
+      - name: configmap-config-json
+        configMap:
+          name: cmsmon-rucio-mon-goweb

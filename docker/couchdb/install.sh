@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG2207i
+VER=HG2209d
 REPO="comp"
 AREA=/data/cfg/admin
 # for couchdb we need to install cmsweb service packages
@@ -13,10 +13,16 @@ SERVER=cmsrep.cern.ch
 
 cd $WDIR
 git clone https://github.com/dmwm/deployment.git cfg
+
 mkdir $WDIR/srv
 
 cd $WDIR/cfg
 git reset --hard $VER
+# adjust couchdb/deploy script to use credentials
+COUCH_USER=${COUCH_USER:-developer}
+COUCH_PASS=${COUCH_PASS:-test}
+sed -i -e "s,local COUCH_USER=.*,local COUCH_USER=${COUCH_USER},g" \
+       -e "s,local COUCH_PASS=.*,local COUCH_PASS=${COUCH_PASS},g" couchdb/deploy
 
 # adjust deploy script to use k8s host name
 cmsk8s_prod=${CMSK8S:-https://cmsweb.cern.ch}
@@ -74,6 +80,14 @@ for srv in "workqueue" "reqmon" "reqmgr2"; do
         rm $fname
     fi
 done
+
+# adjust couch_creds file if it is empty
+chmod +w /data/srv/current/auth/couchdb/couch_creds
+cat > /data/srv/current/auth/couchdb/couch_creds << EOF
+COUCH_USER=${COUCH_USER}
+COUCH_PASS=${COUCH_PASS}
+EOF
+chmod -w /data/srv/current/auth/couchdb/couch_creds
 
 # Adjust ServerMonitor to be specific
 sed -i -e "s#ServerMonitor/2.0#ServerMonitor-couchdb#g" /data/srv/current/config/admin/ServerMonitor

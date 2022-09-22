@@ -1,0 +1,14 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: imagebot
+  name: imagebot
+subjects:
+  - kind: ServiceAccount
+    name: imagebot-account
+    namespace: http
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: imagebot

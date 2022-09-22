@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: monitor
+  namespace: ruciocm
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8400
+    protocol: TCP
+    name: http
+  selector:
+    app: monitor  

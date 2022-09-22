@@ -1,0 +1,169 @@
+apiVersion: v1
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/dbs/*${MY_POD_NAME}*.log
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+kind: ConfigMap
+metadata:
+  labels:
+    k8s-app: filebeat
+  name: dbs-phys03-w-filebeat-config
+  namespace: dbs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dbs-phys03-w
+  namespace: dbs
+spec:
+  ports:
+  - name: dbs-phys03-w
+    port: 8255
+    targetPort: 8255
+  - name: dbs-pw-mon
+    port: 18255
+    targetPort: 18255
+  - name: dbs-pw-cpy-mon
+    port: 19255
+    targetPort: 19255
+  selector:
+    app: dbs-phys03-w
+---
+apiVersion: v1
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+
+    sudo cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    #su  -c "cd /data && /data/run.sh" --preserve-environment _dbs
+    cd /data && /data/run.sh
+kind: ConfigMap
+metadata:
+  labels:
+    app: dbs-phys03-w
+  name: dbs-phys03-w
+  namespace: dbs
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dbs-phys03-w
+  name: dbs-phys03-w
+  namespace: dbs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dbs-phys03-w
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: '18255'
+        prometheus.io/scrape: 'true'
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/agent-inject-secret-DBSPhys03Writer.py: cmsweb/data/dbs-phys03-w-secrets
+        vault.hashicorp.com/agent-inject-template-DBSPhys03Writer.py: |-
+          {{- with secret "cmsweb/data/dbs-phys03-w-secrets" -}}
+          {{ .Data.data.DBSPhys03Writer }}
+          {{- end -}}
+        vault.hashicorp.com/role: dbs-phys03-w-role
+        vault.hashicorp.com/secret-volume-path: /etc/secrets
+      labels:
+        app: dbs-phys03-w
+        env: k8s
+        job: dbs-phys03-w
+    spec:
+      containers:
+      - command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        image: registry.cern.ch/cmsweb/dbs
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - --url=http://localhost:8255/dbs/prod/phys03/DBSWriter/
+            - --authz=/etc/hmac/hmac
+            - -verbose
+            - '0'
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        name: dbs-phys03-w
+        ports:
+        - containerPort: 8255
+          name: dbs-phys03-w
+          protocol: TCP
+        - containerPort: 18255
+          name: dbs-pw-mon
+          protocol: TCP
+        - containerPort: 19255
+          name: dbs-pw-cpy-mon
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 10Gi
+          requests:
+            cpu: 300m
+            memory: 500Mi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /etc/proxy
+          name: proxy-secrets
+          readOnly: true
+        - mountPath: /etc/robots
+          name: robot-secrets
+          readOnly: true
+        - mountPath: /etc/hmac
+          name: hmac-secrets
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - mountPath: /opt/setup-certs-and-run
+          name: setup-certs-and-run
+      securityContext:
+        fsGroup: 2000
+        runAsGroup: 1000
+        runAsUser: 1000
+      serviceAccountName: dbs-phys03-w-sa
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - hostPath:
+          path: /etc/grid-security
+        name: etc-grid-security
+      - configMap:
+          name: dbs-phys03-w
+        name: setup-certs-and-run
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dbs-phys03-w-sa
+  namespace: dbs

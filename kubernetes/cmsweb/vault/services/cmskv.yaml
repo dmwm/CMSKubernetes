@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cmskv
+  namespace: http
+spec:
+  ports:
+  - name: cmskv
+    port: 9212
+    targetPort: 9212
+  - name: cmskv-mon
+    port: 19212
+    targetPort: 19212
+  selector:
+    app: cmskv
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cmskv
+  name: cmskv
+  namespace: http
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cmskv
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: '19212'
+        prometheus.io/scrape: 'true'
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/agent-inject-secret-config.json: cmsweb/data/cmskv-secrets
+        vault.hashicorp.com/agent-inject-template-config.json: |-
+          {{- with secret "cmsweb/data/cmskv-secrets" -}}
+          {{ .Data.data.config }}
+          {{- end -}}
+        vault.hashicorp.com/role: cmskv-role
+        vault.hashicorp.com/secret-volume-path: /etc/secrets
+      labels:
+        app: cmskv
+        env: k8s
+    spec:
+      containers:
+      - args:
+        - /data/run.sh
+        image: registry.cern.ch/cmsweb/cmskv
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /cmskv/info
+            port: 9212
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        name: cmskv
+        ports:
+        - containerPort: 9212
+          name: cmskv
+          protocol: TCP
+        - containerPort: 19212
+          name: cmskv-mon
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 4000m
+            memory: 3Gi
+          requests:
+            cpu: 200m
+            memory: 100Mi
+        volumeMounts:
+        - mountPath: /etc/token
+          name: token-secrets
+          readOnly: true
+      serviceAccountName: cmskv-sa
+      volumes:
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cmskv-sa
+  namespace: http

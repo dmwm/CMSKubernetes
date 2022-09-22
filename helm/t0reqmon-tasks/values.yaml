@@ -1,27 +1,19 @@
-# Default values for t0_reqmon.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-shareProcessNamespace: true
 
-replicaCount: 1
+replicaCount:
+  prod: 1
+  test: 1
 
 image:
-  repository: cmssw/t0_reqmon
+  repository: registry.cern.ch/cmsweb/t0_reqmon
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "HG2108h-v3"
-  command:
-  - /bin/bash
-  - /opt/setup-certs-and-run/setup-certs-and-run.sh
+  tag: "HG2208d"
 
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
 environment:
-  prod: false
-  preprod: false
-  test : false
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -36,16 +28,12 @@ podAnnotations:
   prometheus.io/scrape: 'true'
   prometheus.io/port: "18243"
 
-securityContext: 
-  privileged: true
 
 podSecurityContext:
   runAsUser: 1000
   runAsGroup: 1000
   fsGroup: 2000
 
-imageFilebeatSecurityContext:
-  allowPrivilegeEscalation: false
 
 livenessProbe:
   exec:
@@ -58,21 +46,13 @@ livenessProbe:
   initialDelaySeconds: 120
   periodSeconds: 10
 
-service:
-  type: ClusterIP
-  port: 8243
-  protocol: TCP
-  name: t0reqmon
-
-
 resources:
   requests:
-    memory: "512Mi"
-    cpu: "200m"
+    memory: "4Gi"
+    cpu: "1"
   limits:
-    memory: "3Gi"
-    cpu: "1000m"
-
+    memory: "8Gi"
+    cpu: "3"
 
 imageFilebeat:
   name: t0reqmon-filebeat
@@ -96,22 +76,9 @@ imageFilebeatResources:
 ingress:
   enabled: false
   annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths: []
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
 
 autoscaling:
   enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
 
 nodeSelector: {}
 

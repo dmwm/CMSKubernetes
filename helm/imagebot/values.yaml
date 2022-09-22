@@ -1,0 +1,52 @@
+# Default values for imagebot.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+environment:
+
+replicaCount: 1
+
+image:
+  repository: registry.cern.ch/cmsweb/imagebot
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "20220404-stable"
+
+imagePullSecrets: []
+
+serviceAccount:
+  create: true
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+
+ingress:
+  enabled: false
+
+livenessProbe:
+  httpGet:
+    path: /imagebot/status
+    port: 8111
+  initialDelaySeconds: 120
+  periodSeconds: 60
+  
+resources:
+  requests:
+    memory: "64Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "300m"
+
+
+autoscaling:
+  enabled: false
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

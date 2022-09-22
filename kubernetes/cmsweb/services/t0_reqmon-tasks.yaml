@@ -74,13 +74,13 @@ spec:
       containers:
       - image: registry.cern.ch/cmsweb/t0_reqmon #imagetag
         name: t0reqmon-tasks
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "200m"
-          limits:
-            memory: "5Gi"
-            cpu: "1500m"
+#PROD#  resources:
+#PROD#    requests:
+#PROD#      memory: "750Mi"
+#PROD#      cpu: "300m"
+#PROD#    limits:
+#PROD#      memory: "3Gi"
+#PROD#      cpu: "1000m"
         livenessProbe:
           exec:
             command:

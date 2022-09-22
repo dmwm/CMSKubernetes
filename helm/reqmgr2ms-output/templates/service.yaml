@@ -1,19 +1,16 @@
-apiVersion: v1
 kind: Service
+apiVersion: v1
 metadata:
-  name: {{ include "reqmgr2ms-output.fullname" . }}
-  labels:
-    {{- include "reqmgr2ms-output.labels" . | nindent 4 }}
+  name: ms-output
+  namespace: dmwm
 spec:
-  type: {{ .Values.service.type }}
-  ports:
-  - port: {{ .Values.service.port }}
-    targetPort: {{ .Values.service.port}}
-    name: {{ .Values.service.name }}
-    protocol: {{ .Values.service.protocol }}
-  - port: {{ .Values.serviceMon.port }}
-    protocol: {{ .Values.serviceMon.protocol }}
-    name: {{ .Values.serviceMon.name }}
-    targetPort: {{ .Values.serviceMon.port}}
   selector:
-    {{- include "reqmgr2ms-output.selectorLabels" . | nindent 4 }}
+    app: ms-output
+  ports:
+    - port: 8245
+      targetPort: 8245
+      name: ms-output
+    - port: 18245
+      targetPort: 18245
+      name: ms-output-mon
+---

@@ -1,0 +1,149 @@
+apiVersion: v1
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/dbs/*${MY_POD_NAME}*
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+kind: ConfigMap
+metadata:
+  labels:
+    k8s-app: filebeat
+  name: dbs2go-phys03-migration-filebeat-config
+  namespace: dbs
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dbs2go-phys03-migration
+  name: dbs2go-phys03-migration
+  namespace: dbs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dbs2go-phys03-migration
+  template:
+    metadata:
+      annotations:
+        prometheus.io/path: /dbs/prod/phys03/DBSMigration/metrics
+        prometheus.io/port: '9251'
+        prometheus.io/scrape: 'true'
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/agent-inject-secret-dbfile: cmsweb/data/dbs2go-phys03-migration-secrets
+        vault.hashicorp.com/agent-inject-secret-dbsconfig.json: cmsweb/data/dbs2go-phys03-migration-secrets
+        vault.hashicorp.com/agent-inject-secret-lexicon.json: cmsweb/data/dbs2go-phys03-migration-secrets
+        vault.hashicorp.com/agent-inject-secret-migration_dbfile: cmsweb/data/dbs2go-phys03-migration-secrets
+        vault.hashicorp.com/agent-inject-secret-parameters.json: cmsweb/data/dbs2go-phys03-migration-secrets
+        vault.hashicorp.com/agent-inject-template-dbfile: |-
+          {{- with secret "cmsweb/data/dbs2go-phys03-migration-secrets" -}}
+          {{ .Data.data.dbfile }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-dbsconfig.json: |-
+          {{- with secret "cmsweb/data/dbs2go-phys03-migration-secrets" -}}
+          {{ .Data.data.dbsconfig }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-lexicon.json: |-
+          {{- with secret "cmsweb/data/dbs2go-phys03-migration-secrets" -}}
+          {{ .Data.data.lexicon }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-migration_dbfile: |-
+          {{- with secret "cmsweb/data/dbs2go-phys03-migration-secrets" -}}
+          {{ .Data.data.migration_dbfile }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-parameters.json: |-
+          {{- with secret "cmsweb/data/dbs2go-phys03-migration-secrets" -}}
+          {{ .Data.data.parameters }}
+          {{- end -}}
+        vault.hashicorp.com/role: dbs2go-phys03-migration-role
+        vault.hashicorp.com/secret-volume-path: /etc/secrets
+      labels:
+        app: dbs2go-phys03-migration
+        env: k8s
+    spec:
+      containers:
+      - command:
+        - /data/run.sh
+        env:
+        - name: X509_USER_PROXY
+          value: /etc/proxy/proxy
+        - name: TNS_ADMIN
+          value: /etc/tnsnames.ora
+        image: registry.cern.ch/cmsweb/dbs2go
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            httpHeaders:
+            - name: Accept
+              value: application/json
+            path: /dbs/prod/phys03/DBSMigration/healthz
+            port: 9251
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        name: dbs2go-phys03-migration
+        ports:
+        - containerPort: 9251
+          name: dbs
+          protocol: TCP
+        - containerPort: 19251
+          name: dbs-mon
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 4000m
+            memory: 1000Mi
+          requests:
+            cpu: 200m
+            memory: 100Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+        volumeMounts:
+        - mountPath: /etc/proxy
+          name: proxy-secrets
+          readOnly: true
+        - mountPath: /etc/robots
+          name: robot-secrets
+          readOnly: true
+        - mountPath: /etc/hmac
+          name: hmac-secrets
+          readOnly: true
+        - mountPath: /etc/tnsnames.ora
+          name: tnsnames
+          subPath: tnsnames.ora
+      securityContext:
+        fsGroup: 2000
+        runAsGroup: 1000
+        runAsUser: 1000
+      serviceAccountName: dbs2go-phys03-migration-sa
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - configMap:
+          name: tnsnames-config
+        name: tnsnames
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dbs2go-phys03-migration-sa
+  namespace: dbs

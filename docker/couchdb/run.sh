@@ -9,6 +9,10 @@ if [ -f /etc/secrets/robotkey.pem ]; then
     sudo chown $USER.$USER /data/srv/current/auth/$srv/dmwm-service-cert.pem
 fi
 
+if [ -f /etc/secrets/couch_creds ]; then
+    export COUCH_CREDS=/etc/secrets/couch_creds
+fi
+
 # overwrite proxy if it is present in /etc/proxy
 if [ -f /etc/proxy/proxy ]; then
     export X509_USER_PROXY=/etc/proxy/proxy
@@ -76,4 +80,5 @@ if [ -f /data/monitor.sh ]; then
 fi
 
 # start cron daemon
-sudo /usr/sbin/crond -n
+#sudo /usr/sbin/crond -n
+tail -f /data/srv/logs/couchdb/couch.log

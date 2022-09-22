@@ -1,0 +1,3 @@
+apiVersion: v3
+name: privileged-containers
+version: 0.0.1

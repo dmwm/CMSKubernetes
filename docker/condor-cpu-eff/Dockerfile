@@ -1,6 +1,8 @@
-FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-20220606
+FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-latest
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
+# tag to use
+ARG CMSSPARK_TAG=0.0.0
 # set working directory
 ENV WDIR=/data
 WORKDIR $WDIR
@@ -18,7 +20,7 @@ ENV PYSPARK_PYTHON=/cvmfs/sft.cern.ch/lcg/releases/Python/3.9.6-b0f98/x86_64-cen
 ENV PYSPARK_DRIVER_PYTHON=/usr/bin/python
 
 RUN pip install --no-cache-dir pandas pyspark click && \
-    git clone https://github.com/dmwm/CMSSpark.git && \
+    git clone https://github.com/dmwm/CMSSpark.git && cd CMSSpark && git checkout tags/$CMSSPARK_TAG -b build && cd .. && \
     hadoop-set-default-conf.sh analytix && source hadoop-setconf.sh analytix 3.2 spark3
 
 WORKDIR $WDIR

@@ -1,0 +1,168 @@
+apiVersion: v1
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/t0wmadatasvc/*${MY_POD_NAME}*.log
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+kind: ConfigMap
+metadata:
+  labels:
+    k8s-app: filebeat
+  name: t0wmadatasvc-filebeat-config
+  namespace: tzero
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: t0wmadatasvc
+  namespace: tzero
+spec:
+  ports:
+  - name: t0wmadatasvc
+    port: 8308
+    targetPort: 8308
+  - name: t0wmadsvc-mon
+    port: 18308
+    targetPort: 18308
+  selector:
+    app: t0wmadatasvc
+---
+apiVersion: v1
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+
+    sudo cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    #su  -c "cd /data && /data/run.sh" --preserve-environment _t0wmadatasvc
+    cd /data && /data/run.sh
+kind: ConfigMap
+metadata:
+  labels:
+    app: t0wmadatasvc
+  name: t0wmadatasvc
+  namespace: tzero
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: t0wmadatasvc
+  name: t0wmadatasvc
+  namespace: tzero
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: t0wmadatasvc
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: '18308'
+        prometheus.io/scrape: 'true'
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/agent-inject-secret-t0auth.py: cmsweb/data/t0wmadatasvc-secrets
+        vault.hashicorp.com/agent-inject-template-t0auth.py: |-
+          {{- with secret "cmsweb/data/t0wmadatasvc-secrets" -}}
+          {{ .Data.data.t0auth }}
+          {{- end -}}
+        vault.hashicorp.com/role: t0wmadatasvc-role
+        vault.hashicorp.com/secret-volume-path: /etc/secrets
+      labels:
+        app: t0wmadatasvc
+        env: k8s
+    spec:
+      containers:
+      - command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        image: registry.cern.ch/cmsweb/t0wmadatasvc
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - --url=http://localhost:8308/t0wmadatasvc/replayone/hello
+            - --authz=/etc/hmac/hmac
+            - -verbose
+            - '0'
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        name: t0wmadatasvc
+        ports:
+        - containerPort: 8308
+          name: t0wmadatasvc
+          protocol: TCP
+        - containerPort: 18308
+          name: t0wmadsvc-mon
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+          requests:
+            cpu: 50m
+            memory: 256Mi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /etc/proxy
+          name: proxy-secrets
+          readOnly: true
+        - mountPath: /etc/robots
+          name: robot-secrets
+          readOnly: true
+        - mountPath: /etc/hmac
+          name: hmac-secrets
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - mountPath: /opt/setup-certs-and-run
+          name: setup-certs-and-run
+        - mountPath: /etc/token
+          name: token-secrets
+          readOnly: true
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsUser: 1000
+      serviceAccountName: t0wmadatasvc-sa
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - hostPath:
+          path: /etc/grid-security
+        name: etc-grid-security
+      - configMap:
+          name: t0wmadatasvc
+        name: setup-certs-and-run
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: t0wmadatasvc-sa
+  namespace: tzero

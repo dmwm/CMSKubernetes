@@ -1,0 +1,174 @@
+apiVersion: v1
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/dbs/*${MY_POD_NAME}*.log
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+kind: ConfigMap
+metadata:
+  labels:
+    k8s-app: filebeat
+  name: dbs-migrate-filebeat-config
+  namespace: dbs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dbs-migrate
+  namespace: dbs
+spec:
+  ports:
+  - name: dbs-migrate
+    port: 8257
+    targetPort: 8257
+  - name: dbs-mig-mon
+    port: 18257
+    targetPort: 18257
+  - name: dbs-mig-cpy-mon
+    port: 19257
+    targetPort: 19257
+  selector:
+    app: dbs-migrate
+---
+apiVersion: v1
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+    sudo cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    #su  -c "cd /data && /data/run.sh" --preserve-environment _dbs
+    cd /data && /data/run.sh
+kind: ConfigMap
+metadata:
+  labels:
+    app: dbs-migrate
+  name: dbs-migrate
+  namespace: dbs
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dbs-migrate
+  name: dbs-migrate
+  namespace: dbs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dbs-migrate
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: '18257'
+        prometheus.io/scrape: 'true'
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/agent-inject-secret-DBSMigrate.py: cmsweb/data/dbs-migrate-secrets
+        vault.hashicorp.com/agent-inject-template-DBSMigrate.py: |-
+          {{- with secret "cmsweb/data/dbs-migrate-secrets" -}}
+          {{ .Data.data.DBSMigrate }}
+          {{- end -}}
+        vault.hashicorp.com/role: dbs-migrate-role
+        vault.hashicorp.com/secret-volume-path: /etc/secrets
+      labels:
+        app: dbs-migrate
+        env: k8s
+        job: dbs-migrate
+    spec:
+      containers:
+      - command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        image: registry.cern.ch/cmsweb/dbs
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - --url=http://localhost:8257/dbs/prod/global/DBSMigrate/
+            - --authz=/etc/hmac/hmac
+            - -verbose
+            - '0'
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        name: dbs-migrate
+        ports:
+        - containerPort: 8257
+          name: dbs-migrate
+          protocol: TCP
+        - containerPort: 18257
+          name: dbs-mig-mon
+          protocol: TCP
+        - containerPort: 19257
+          name: dbs-mig-cpy-mon
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 800m
+            memory: 10Gi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /etc/proxy
+          name: proxy-secrets
+          readOnly: true
+        - mountPath: /etc/robots
+          name: robot-secrets
+          readOnly: true
+        - mountPath: /etc/hmac
+          name: hmac-secrets
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - mountPath: /opt/setup-certs-and-run
+          name: setup-certs-and-run
+        - mountPath: /etc/token
+          name: token-secrets
+          readOnly: true
+      securityContext:
+        fsGroup: 2000
+        runAsGroup: 1000
+        runAsUser: 1000
+      serviceAccountName: dbs-migrate-sa
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - hostPath:
+          path: /etc/grid-security
+        name: etc-grid-security
+      - configMap:
+          name: dbs-migrate
+        name: setup-certs-and-run
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dbs-migrate-sa
+  namespace: dbs

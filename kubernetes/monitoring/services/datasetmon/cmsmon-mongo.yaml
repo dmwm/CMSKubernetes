@@ -1,0 +1,117 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  namespace: datasetmon
+  labels:
+    app: mongodb
+spec:
+  clusterIP: None
+  selector:
+    app: mongodb
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb
+  namespace: datasetmon
+spec:
+  serviceName: mongodb
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      namespace: datasetmon
+      labels:
+        app: mongodb
+        selector: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: registry.cern.ch/cmsmonitoring/cmsmon-mongo:5.0.9
+        args: [ "--tlsAllowInvalidHostnames","--dbpath","/data/db","--profile","2","--slowms","9","--slowOpSampleRate","0.5"]
+        livenessProbe:
+          exec:
+            command:
+              - mongo
+              - --disableImplicitSessions
+              - --eval
+              - "db.adminCommand('ping')"
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 6
+        readinessProbe:
+          exec:
+            command:
+              - mongo
+              - --disableImplicitSessions
+              - --eval
+              - "db.adminCommand('ping')"
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 6
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 4Gi
+          requests:
+            cpu: 250m
+            memory: 200Mi
+        env:
+          - name: MONGO_ROOT_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: cmsmon-mongo-secrets
+                key: MONGO_ROOT_USERNAME
+                optional: false
+          - name: MONGO_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: cmsmon-mongo-secrets
+                key: MONGO_ROOT_PASSWORD
+                optional: false
+          - name: MONGO_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: cmsmon-mongo-secrets
+                key: MONGO_USERNAME
+                optional: false
+          - name: MONGO_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: cmsmon-mongo-secrets
+                key: MONGO_PASSWORD
+                optional: false
+          - name: MONGO_USERS_LIST
+            valueFrom:
+              secretKeyRef:
+                name: cmsmon-mongo-secrets
+                key: MONGO_USERS_LIST
+                optional: false
+          - name: MONGO_INITDB_ROOT_USERNAME_FILE # Required by MongoDB
+            value: /etc/secrets/MONGO_INITDB_ROOT_USERNAME_FILE
+          - name: MONGO_INITDB_ROOT_PASSWORD_FILE # Required by MongoDB
+            value: /etc/secrets/MONGO_INITDB_ROOT_PASSWORD_FILE
+        volumeMounts:
+        - name: cmsmon-mongo-secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: cmsmon-mongo-data
+          mountPath: /data/db
+      volumes:
+        - name: cmsmon-mongo-secrets
+          secret:
+            secretName: cmsmon-mongo-secrets
+            defaultMode: 0444
+        - name: cmsmon-mongo-data
+          emptyDir: {}
+
+# References
+#  - https://devopscube.com/deploy-mongodb-kubernetes/
+#  - https://phoenixnap.com/kb/kubernetes-mongodb

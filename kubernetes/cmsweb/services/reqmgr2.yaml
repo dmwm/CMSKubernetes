@@ -96,13 +96,13 @@ spec:
               - bash
               - -c
               - sudo chmod 0777 /data/srv/logs/reqmgr2; sudo chown _reqmgr2:_reqmgr2 /data/srv/logs/reqmgr2
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "200m"
-          limits:
-            memory: "3Gi"
-            cpu: "1000m"
+#PROD#  resources:
+#PROD#    requests:
+#PROD#      memory: "2Gi"
+#PROD#      cpu: "200m"
+#PROD#    limits:
+#PROD#      memory: "4Gi"
+#PROD#      cpu: "1000m"
         livenessProbe:
           exec:
             command:
@@ -112,7 +112,9 @@ spec:
             - -verbose
             - "0"
           initialDelaySeconds: 120
-          periodSeconds: 10
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 10
         ports:
         - containerPort: 8246
           protocol: TCP

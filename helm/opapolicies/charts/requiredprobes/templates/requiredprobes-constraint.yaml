@@ -1,0 +1,12 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredProbes
+metadata:
+  name: requiredprobes
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+  parameters:
+    probes: {{- toYaml .Values.requiredProbes.probes | nindent 12}}
+    probeTypes: {{- toYaml .Values.requiredProbes.probeTypes | nindent 12 }}

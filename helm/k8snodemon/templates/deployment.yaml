@@ -1,0 +1,46 @@
+{{- $environment := .Values.environment | default dict }}
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: k8snodemon
+  name: k8snodemon
+spec:
+  selector:
+    matchLabels:
+      app: k8snodemon
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: k8snodemon
+        env: k8s-{{.Values.environment}}
+    spec:
+      serviceAccountName: k8snodemon
+      containers:
+      - image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        name: k8snodemon
+        resources:
+        {{- toYaml .Values.resources | nindent 12 }}
+        command:
+        - /bin/sh
+        - /opt/setup-and-run.sh
+        volumeMounts:
+        - name: setup-and-run
+          mountPath: /opt
+        - name: k8snodemon-secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true          
+      volumes:
+      - name: setup-and-run
+        configMap:
+          name: k8snodemon
+      - name: k8snodemon-secrets
+        secret:
+          secretName: k8snodemon-secrets
+      - name: token-secrets
+        secret:
+          secretName: token-secrets

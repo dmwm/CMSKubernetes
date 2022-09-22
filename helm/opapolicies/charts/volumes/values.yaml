@@ -1,0 +1,8 @@
+volumes:
+- configMap
+- emptyDir
+- projected
+- secret
+- downwardAPI
+- persistentVolumeClaim
+- flexVolume

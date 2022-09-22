@@ -1,0 +1,3 @@
+allowedRepo: 
+- "registry.cern.ch"
+- "cmssw/"

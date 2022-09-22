@@ -115,7 +115,10 @@ elif [ "$secret" == "cmsmon-mongo-secrets" ]; then
     done
     cmsmonit_f="--from-file=${sdir}/cmsmonit-keytab/keytab"
     mongo_f=`ls $sdir/cmsmon-mongo-secrets/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmon-mongo-secrets | sed "s, $,,g"`
-    files="${mongo_f} ${cmsmonit_f}"
+    files="${mongo_f} ${cmsmonit_f} ${literals}"
+    # Double quoted literals variable in "kubectl create secret generic" only provide first literal because of unknown issue ...
+    #   because of this we embed literals in files variable
+    unset literals
 elif [ "$secret" == "condor-cpu-eff-secrets" ]; then
     files=`ls $sdir/cmsmonit-keytab/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmonit-keytab | sed "s, $,,g"`
 elif [ "$secret" == "es-wma-secrets" ]; then

@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: '{{ include "workqueue.fullname" . }}-filebeat-config'
+  name: workqueue-filebeat-config
   namespace: dmwm
   labels:
     k8s-app: filebeat
@@ -27,7 +27,7 @@ data:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: {{ include "workqueue.fullname" . }}
+  name: workqueue
   labels:
     app: workqueue
   namespace: dmwm
@@ -39,4 +39,4 @@ data:
     ls -lahZ /etc/grid-security
     #su  -c "cd /data && /data/run.sh" --preserve-environment _workqueue
     cd /data && /data/run.sh
----    
+---

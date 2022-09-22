@@ -1,7 +1,8 @@
 FROM python:3.9 as builder
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
-
+# tag to use
+ARG CMSSPARK_TAG=0.0.0
 ENV WDIR=/data
 WORKDIR $WDIR
 
@@ -19,9 +20,9 @@ RUN apt-get update -y && \
 #   zip file will be used to send specific CMSMonitoring folder to Spark workers with '--py-files'.
     svn export https://github.com/dmwm/CMSMonitoring.git/branches/master/src/python/CMSMonitoring && \
     zip -r CMSMonitoring.zip CMSMonitoring/* && \
-    git clone https://github.com/dmwm/CMSSpark.git
+    git clone https://github.com/dmwm/CMSSpark.git && cd CMSSpark && git checkout tags/$CMSSPARK_TAG -b build && cd ..
 
-FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-20220606
+FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-latest
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 ENV WDIR=/data
@@ -31,7 +32,7 @@ ENV PATH="${PATH}:/usr/hdp/hadoop/bin/hadoop:/usr/hdp/spark3/bin:/usr/hdp/sqoop/
 # CMSMonitoring folder is in WDIR
 ENV PYTHONPATH "${PYTHONPATH}:${WDIR}:${WDIR}/CMSSpark/src/python"
 
-# LCG101 uses this cvmfs python
+# LCG102 uses this cvmfs python
 ENV PYSPARK_PYTHON=/cvmfs/sft.cern.ch/lcg/releases/Python/3.9.6-b0f98/x86_64-centos7-gcc8-opt/bin/python3
 
 # Local

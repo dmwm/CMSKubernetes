@@ -1,0 +1,246 @@
+apiVersion: v1
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/crabserver/crabserver-*${MY_POD_NAME}*.log
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+      processors:
+        - add_fields:
+            target: logtype
+            fields:
+              name: cherrypylog
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/crabserver/CRAB-*${MY_POD_NAME}*.log
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+      processors:
+        - add_fields:
+            target: logtype
+            fields:
+              name: crablog
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME} Type=%{[logtype][name]}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+kind: ConfigMap
+metadata:
+  labels:
+    k8s-app: filebeat
+  name: crabserver-filebeat-config
+  namespace: crab
+---
+apiVersion: v1
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/crabserver/crabserver-*${MY_POD_NAME}*.log
+      file_identity.path:
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+      include_lines:
+        - '^\[.+?\] crabserver-'
+      tags: ["crabhttpcall"]
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/crabserver/CRAB-*${MY_POD_NAME}*.log
+      file_identity.path:
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+      include_lines:
+        - 'MeasureTime:seconds - '
+        - 'MeasureSize:bytes - '
+      tags: ["crabrest"]
+    output.logstash:
+      hosts: ["logstash:5044"]
+      compression_level: 3
+      bulk_max_size: 4096
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+kind: ConfigMap
+metadata:
+  labels:
+    k8s-app: filebeat
+  name: crabserver-filebeat-monit-config
+  namespace: crab
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: crabserver
+  namespace: crab
+spec:
+  ports:
+  - name: crabserver
+    port: 8270
+    targetPort: 8270
+  - name: crabserver-mon
+    port: 18270
+    targetPort: 18270
+  selector:
+    app: crabserver
+---
+apiVersion: v1
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+
+    sudo cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    #su  -c "cd /data && /data/run.sh" --preserve-environment  _crabserver
+    cd /data && /data/run.sh
+kind: ConfigMap
+metadata:
+  labels:
+    app: crabserver
+  name: crabserver
+  namespace: crab
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: crabserver
+  name: crabserver
+  namespace: crab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crabserver
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: '18270'
+        prometheus.io/scrape: 'true'
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/agent-inject-secret-CRABServerAuth.py: cmsweb/data/crabserver-secrets
+        vault.hashicorp.com/agent-inject-secret-config.py: cmsweb/data/crabserver-secrets
+        vault.hashicorp.com/agent-inject-template-CRABServerAuth.py: |-
+          {{- with secret "cmsweb/data/crabserver-secrets" -}}
+          {{ .Data.data.CRABServerAuth }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-config.py: |-
+          {{- with secret "cmsweb/data/crabserver-secrets" -}}
+          {{ .Data.data.config }}
+          {{- end -}}
+        vault.hashicorp.com/role: crabserver-role
+        vault.hashicorp.com/secret-volume-path: /etc/secrets
+      labels:
+        app: crabserver
+        env: k8s
+    spec:
+      containers:
+      - command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        image: registry.cern.ch/cmsweb/crabserver
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - 'cmsweb-ping --url=http://localhost:8270/crabserver/prod/info --authz=/etc/hmac/hmac
+              -verbose 0 | egrep "^[2-4]"
+
+              '
+          failureThreshold: 3
+          initialDelaySeconds: 120
+          periodSeconds: 60
+          timeoutSeconds: 60
+        name: crabserver
+        ports:
+        - containerPort: 8270
+          name: crabserver
+          protocol: TCP
+        - containerPort: 18270
+          name: crabserver-mon
+          protocol: TCP
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - 'cmsweb-ping --url=http://localhost:8270/crabserver/prod/info --authz=/etc/hmac/hmac
+              -verbose 0 | egrep "^[2-4]"
+
+              '
+          periodSeconds: 60
+          timeoutSeconds: 60
+        resources:
+          limits:
+            cpu: 1500m
+            memory: 3Gi
+          requests:
+            cpu: 200m
+            memory: 256Mi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /etc/proxy
+          name: proxy-secrets
+          readOnly: true
+        - mountPath: /etc/robots
+          name: robot-secrets
+          readOnly: true
+        - mountPath: /etc/hmac
+          name: hmac-secrets
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - mountPath: /opt/setup-certs-and-run
+          name: setup-certs-and-run
+        - mountPath: /etc/token
+          name: token-secrets
+          readOnly: true
+      securityContext:
+        fsGroup: 2000
+        runAsGroup: 1000
+        runAsUser: 1000
+      serviceAccountName: crabserver-sa
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - hostPath:
+          path: /etc/grid-security
+        name: etc-grid-security
+      - configMap:
+          name: crabserver
+        name: setup-certs-and-run
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: crabserver-sa
+  namespace: crab

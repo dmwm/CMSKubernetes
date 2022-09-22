@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: '{{ include "reqmgr2ms-unmerged-t1.fullname" . }}-filebeat-config'
+  name: ms-unmer-t1-filebeat-config
   namespace: dmwm
   labels:
     k8s-app: filebeat
@@ -27,7 +27,7 @@ data:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: {{ include "reqmgr2ms-unmerged-t1.fullname" . }}
+  name: ms-unmer-t1
   labels:
     app: ms-unmer-t1
   namespace: dmwm

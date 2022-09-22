@@ -1,19 +1,15 @@
-apiVersion: v1
 kind: Service
+apiVersion: v1
 metadata:
-  name: {{ include "reqmgr2ms-unmerged-t2t3.fullname" . }}
-  labels:
-    {{- include "reqmgr2ms-unmerged-t2t3.labels" . | nindent 4 }}
+  name: ms-unmer-t2t3
+  namespace: dmwm
 spec:
-  type: {{ .Values.service.type }}
-  ports:
-  - port: {{ .Values.service.port }}
-    targetPort: {{ .Values.service.port}}
-    name: {{ .Values.service.name }}
-    protocol: {{ .Values.service.protocol }}
-  - port: {{ .Values.serviceMon.port }}
-    protocol: {{ .Values.serviceMon.protocol }}
-    name: {{ .Values.serviceMon.name }}
-    targetPort: {{ .Values.serviceMon.port}}
   selector:
-    {{- include "reqmgr2ms-unmerged-t2t3.selectorLabels" . | nindent 4 }}
+    app: ms-unmer-t2t3
+  ports:
+    - port: 8242
+      targetPort: 8242
+      name: ms-unmer-t2t3
+    - port: 18242
+      targetPort: 18242
+      name: unmerged-mon

@@ -50,7 +50,7 @@ spec:
              name: das
              protocol: TCP
            - containerPort: 18217
-             name: das
+             name: das-mon
              protocol: TCP
           livenessProbe:
           {{- toYaml .Values.livenessProbe | nindent 12 }}

@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: '{{ include "t0wmadatasvc.fullname" . }}-filebeat-config'
+  name: t0wmadatasvc-filebeat-config
   namespace: tzero
   labels:
     k8s-app: filebeat
@@ -27,7 +27,7 @@ data:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: {{ include "t0wmadatasvc.fullname" . }}
+  name: t0wmadatasvc
   labels:
     app: t0wmadatasvc
   namespace: tzero

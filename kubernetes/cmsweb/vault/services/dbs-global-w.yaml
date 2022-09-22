@@ -1,0 +1,171 @@
+apiVersion: v1
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/dbs/*${MY_POD_NAME}*.log
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+kind: ConfigMap
+metadata:
+  labels:
+    k8s-app: filebeat
+  name: dbs-global-w-filebeat-config
+  namespace: dbs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dbs-global-w
+  namespace: dbs
+spec:
+  ports:
+  - name: dbs-global-w
+    port: 8253
+    targetPort: 8253
+  - name: dbs-gw-mon
+    port: 18253
+    targetPort: 18253
+  - name: dbs-gw-cpy-mon
+    port: 19253
+    targetPort: 19253
+  selector:
+    app: dbs-global-w
+---
+apiVersion: v1
+data:
+  setup-certs-and-run.sh: "#!/bin/bash\nsudo cp /host/etc/grid-security/* /etc/grid-security\n\
+    echo 'INFO Files in /etc/grid-security'\nls -lahZ /etc/grid-security\n#su  -c\
+    \ \"cd /data && /data/run.sh\" --preserve-environment _dbs\ncd /data && /data/run.sh\
+    \     \n"
+kind: ConfigMap
+metadata:
+  labels:
+    app: dbs-global-w
+  name: dbs-global-w
+  namespace: dbs
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dbs-global-w
+  name: dbs-global-w
+  namespace: dbs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dbs-global-w
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: '18253'
+        prometheus.io/scrape: 'true'
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/agent-inject-secret-DBSGlobalWriter.py: cmsweb/data/dbs-global-w-secrets
+        vault.hashicorp.com/agent-inject-template-DBSGlobalWriter.py: |-
+          {{- with secret "cmsweb/data/dbs-global-w-secrets" -}}
+          {{ .Data.data.DBSGlobalWriter }}
+          {{- end -}}
+        vault.hashicorp.com/role: dbs-global-w-role
+        vault.hashicorp.com/secret-volume-path: /etc/secrets
+      labels:
+        app: dbs-global-w
+        env: k8s
+        job: dbs-global-w
+    spec:
+      containers:
+      - command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        image: registry.cern.ch/cmsweb/dbs
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - --url=http://localhost:8253/dbs/prod/global/DBSWriter/
+            - --authz=/etc/hmac/hmac
+            - -verbose
+            - '0'
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        name: dbs-global-w
+        ports:
+        - containerPort: 8253
+          name: dbs-global-w
+          protocol: TCP
+        - containerPort: 18253
+          name: dbs-gw-mon
+          protocol: TCP
+        - containerPort: 19253
+          name: dbs-gw-cpy-mon
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 10Gi
+          requests:
+            cpu: 300m
+            memory: 500Mi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /etc/proxy
+          name: proxy-secrets
+          readOnly: true
+        - mountPath: /etc/robots
+          name: robot-secrets
+          readOnly: true
+        - mountPath: /etc/hmac
+          name: hmac-secrets
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - mountPath: /opt/setup-certs-and-run
+          name: setup-certs-and-run
+        - mountPath: /etc/token
+          name: token-secrets
+          readOnly: true
+      securityContext:
+        fsGroup: 2000
+        runAsGroup: 1000
+        runAsUser: 1000
+      serviceAccountName: dbs-global-w-sa
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - hostPath:
+          path: /etc/grid-security
+        name: etc-grid-security
+      - configMap:
+          name: dbs-global-w
+        name: setup-certs-and-run
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dbs-global-w-sa
+  namespace: dbs

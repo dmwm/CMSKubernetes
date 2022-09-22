@@ -1,0 +1,199 @@
+apiVersion: v1
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/frontend/*${MY_POD_NAME}*.txt
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+kind: ConfigMap
+metadata:
+  labels:
+    k8s-app: filebeat
+  name: frontend-filebeat-config
+  namespace: auth
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: frontend
+  name: frontend
+  namespace: auth
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: '18443'
+        prometheus.io/scrape: 'true'
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/agent-inject-secret-backends.txt: cmsweb/data/frontend-ds-secrets
+        vault.hashicorp.com/agent-inject-secret-filebeat.yaml: cmsweb/data/frontend-ds-secrets
+        vault.hashicorp.com/agent-inject-secret-gitlab_token.txt: cmsweb/data/frontend-ds-secrets
+        vault.hashicorp.com/agent-inject-secret-hostcert.pem: cmsweb/data/frontend-ds-secrets
+        vault.hashicorp.com/agent-inject-secret-hostkey.pem: cmsweb/data/frontend-ds-secrets
+        vault.hashicorp.com/agent-inject-secret-logstash.conf: cmsweb/data/frontend-ds-secrets
+        vault.hashicorp.com/agent-inject-secret-sitedbread.py: cmsweb/data/frontend-ds-secrets
+        vault.hashicorp.com/agent-inject-template-backends.txt: |-
+          {{- with secret "cmsweb/data/frontend-ds-secrets" -}}
+          {{ .Data.data.backends }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-filebeat.yaml: |-
+          {{- with secret "cmsweb/data/frontend-ds-secrets" -}}
+          {{ .Data.data.filebeat }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-gitlab_token.txt: |-
+          {{- with secret "cmsweb/data/frontend-ds-secrets" -}}
+          {{ .Data.data.gitlab_token }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-hostcert.pem: |-
+          {{- with secret "cmsweb/data/frontend-ds-secrets" -}}
+          {{ .Data.data.hostcert }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-hostkey.pem: |-
+          {{- with secret "cmsweb/data/frontend-ds-secrets" -}}
+          {{ .Data.data.hostkey }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-logstash.conf: |-
+          {{- with secret "cmsweb/data/frontend-ds-secrets" -}}
+          {{ .Data.data.logstash }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-template-sitedbread.py: |-
+          {{- with secret "cmsweb/data/frontend-ds-secrets" -}}
+          {{ .Data.data.sitedbread }}
+          {{- end -}}
+        vault.hashicorp.com/role: frontend-ds-role
+        vault.hashicorp.com/secret-volume-path: /etc/secrets
+      labels:
+        app: frontend
+        env: k8s
+    spec:
+      containers:
+      - env:
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        image: registry.cern.ch/cmsweb/frontend
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        name: frontend
+        ports:
+        - containerPort: 80
+          name: http
+        - containerPort: 443
+          name: https
+        - containerPort: 8443
+          name: services
+        - containerPort: 18443
+          name: monitoring
+        resources:
+          limits:
+            cpu: 4000m
+            memory: 20Gi
+          requests:
+            cpu: 30m
+            memory: 50Mi
+        volumeMounts:
+        - mountPath: /etc/proxy
+          name: proxy-secrets
+          readOnly: true
+        - mountPath: /etc/robots
+          name: robot-secrets
+          readOnly: true
+        - mountPath: /etc/hmac
+          name: hmac-secrets
+          readOnly: true
+        - mountPath: /etc/grid-security/hostcert.pem
+          name: hostcert
+        - mountPath: /etc/grid-security/hostkey.pem
+          name: hostkey
+        - mountPath: /etc/token
+          name: token-secrets
+          readOnly: true
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      nodeSelector:
+        role: auth
+      serviceAccountName: frontend-ds-sa
+      terminationGracePeriodSeconds: 60
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - hostPath:
+          path: /etc/grid-security/hostcert.pem
+        name: hostcert
+      - hostPath:
+          path: /etc/grid-security/hostkey.pem
+        name: hostkey
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: frontend
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: frontend
+subjects:
+- kind: ServiceAccount
+  name: frontend-ds-sa
+  namespace: auth
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    k8s-app: frontend
+  name: frontend
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - namespaces
+  - pods
+  verbs:
+  - get
+  - watch
+  - list
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    k8s-app: frontend
+  name: frontend-ds-sa
+  namespace: auth

@@ -1,19 +1,16 @@
-apiVersion: v1
 kind: Service
+apiVersion: v1
 metadata:
-  name: {{ include "reqmgr2ms-monitor.fullname" . }}
-  labels:
-    {{- include "reqmgr2ms-monitor.labels" . | nindent 4 }}
+  name: ms-monitor
+  namespace: dmwm
 spec:
-  type: {{ .Values.service.type }}
-  ports:
-  - port: {{ .Values.service.port }}
-    targetPort: {{ .Values.service.port}}
-    name: {{ .Values.service.name }}
-    protocol: {{ .Values.service.protocol }}
-  - port: {{ .Values.serviceMon.port }}
-    protocol: {{ .Values.serviceMon.protocol }}
-    name: {{ .Values.serviceMon.name }}
-    targetPort: {{ .Values.serviceMon.port}}
   selector:
-    {{- include "reqmgr2ms-monitor.selectorLabels" . | nindent 4 }}
+    app: ms-monitor
+  ports:
+    - port: 8248
+      targetPort: 8248
+      name: ms-monitor
+    - port: 18248
+      targetPort: 18248
+      name: ms-monitor-mon
+---
