@@ -31,3 +31,11 @@ spec:
             name: autodqm
             port:
               number: 8083
+      - path: /dqm/offline-new
+        pathType: Prefix
+        backend:
+          service:
+            name: newdqmgui
+            port:
+              number: 8889
+
