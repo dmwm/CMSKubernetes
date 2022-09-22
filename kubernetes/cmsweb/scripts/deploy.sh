@@ -110,7 +110,7 @@ ddir=daemonset
 
 # cmsweb service namespaces
 #cmsweb_ns=`grep namespace $sdir/* | awk '{print $3}' | sort | uniq | grep -v default | grep -v phedex | grep -v couchdb | grep -v dqm | grep -v auth | grep -v mongodb | grep -v udp | grep -v tfaas`
-cmsweb_ns="auth default crab das dbs dmwm dqm http ruciocm tzero wma"
+cmsweb_ns="auth default couchdb crab das dbs dmwm dqm http ruciocm tzero wma"
 # services for cmsweb cluster, adjust if necessary
 #cmsweb_ing="ing-srv"
 #cmsweb_ing="ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tzero ing-exitcodes"
@@ -123,7 +123,7 @@ default_services="cert-manager cmskv exitcodes httpgo httpsgo imagebot podmanage
 
 #cmsweb_srvs="httpgo httpsgo frontend acdcserver couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
 
-cmsweb_srvs="cert-manager cmskv crabserver das-exporter das-mongo das-mongo-exporter das-server dbs dbsmigration dbs2go exitcodes frontend httpgo httpsgo imagebot ms-output-mongo newdqmgui podmanager reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmgr2ms-rulecleaner reqmgr2ms-unmerged reqmon reqmon-tasks rucio-con-mon t0_reqmon t0_reqmon-tasks t0wmadatasvc k8snodemon  workqueue wmarchive"
+cmsweb_srvs="cert-manager cmskv couchdb crabserver das-exporter das-mongo das-mongo-exporter das-server dbs dbsmigration dbs2go exitcodes frontend httpgo httpsgo imagebot ms-output-mongo newdqmgui podmanager reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmgr2ms-rulecleaner reqmgr2ms-unmerged reqmon reqmon-tasks rucio-con-mon t0_reqmon t0_reqmon-tasks t0wmadatasvc k8snodemon  workqueue wmarchive"
 
 # list of DBS instances
 dbs_instances="migrate  global-r global-w phys03-r phys03-w"
