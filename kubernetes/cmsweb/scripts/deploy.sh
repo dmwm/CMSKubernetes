@@ -173,7 +173,7 @@ if [ "$deployment" == "services" ]; then
     #cmsweb_ing="ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tzero ing-exitcodes"
     cmsweb_ing="ing-crab ing-dbs ing-das ing-dmwm ing-http ing-tzero ing-exitcodes ing-wma"
 
-    cmsweb_srvs="cert-manager cmskv crabserver das-exporter das-mongo das-mongo-exporter das-server dbs dbsmigration dbs2go exitcodes httpgo httpsgo imagebot ms-output-mongo newdqmgui podmanager reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmgr2ms-rulecleaner reqmgr2ms-unmerged reqmon reqmon-tasks rucio-con-mon t0_reqmon t0_reqmon-tasks t0wmadatasvc k8snodemon  workqueue wmarchive"
+    cmsweb_srvs="cert-manager cmskv crabserver couchdb das-exporter das-mongo das-mongo-exporter das-server dbs dbsmigration dbs2go exitcodes httpgo httpsgo imagebot ms-output-mongo newdqmgui podmanager reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmgr2ms-rulecleaner reqmgr2ms-unmerged reqmon reqmon-tasks rucio-con-mon t0_reqmon t0_reqmon-tasks t0wmadatasvc k8snodemon  workqueue wmarchive"
 
     echo "+++ deploy services: $cmsweb_srvs"
     echo "+++ deploy ingress : $cmsweb_ing"
