@@ -89,6 +89,7 @@ if [ "$srv" == "auth-proxy-server" ] || [ "$srv" == "x509-proxy-server" ] || [ "
         export COUCHDB_USER=$(grep COUCHDB_USER $secretdir/client.secrets | head -n1 | awk '{print $2}')
         export COUCHDB_PASSWORD=$(grep COUCHDB_PASSWORD $secretdir/client.secrets | head -n1 | awk '{print $2}')
         if [ -f $secretdir/config.json ]; then
+            sed -i "s/TEST_CLUSTER_NAME/$cluster_name/" $secretdir/config.json
             if [ -n "${IAM_CLIENT_ID}" ]; then
                 sed -i -e "s,IAM_CLIENT_ID,$IAM_CLIENT_ID,g" $secretdir/config.json
             fi
