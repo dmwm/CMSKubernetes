@@ -1,0 +1,80 @@
+image:
+  pullPolicy: Always
+
+# deploys Job instead of CronJob
+test:
+  enabled: true
+
+cronjob:
+  repository: registry.cern.ch/cmsmonitoring/cmsmon-hdfs:v0.3.6
+  crons:
+    "0":
+      name: cmsmon-rucio-daily
+      schedule: "07 08 * * *"
+      command: /data/CMSSpark/bin/cron4rucio_daily.sh
+      args: |-
+        --keytab /etc/secrets/keytab --output /cms/rucio_daily
+    "1":
+      name: cmsmon-crab-pop
+      eosEnabled: true
+      testFlagExists: true
+      schedule: "30 20 04 * *"
+      command: /data/CMSSpark/bin/cron4crab_popularity.sh
+      args: |-
+        --keytab /etc/secrets/keytab --output /eos/user/c/cmsmonit/www/crabPop/data 
+    "2":
+      name: cmsmon-crab-uu
+      eosEnabled: true
+      testFlagExists: true
+      schedule: "02 15 27 * *"
+      command: /data/CMSSpark/bin/cron4crab_unique_users.sh
+      args: |-
+        --keytab /etc/secrets/keytab --output /eos/user/c/cmsmonit/www/crab_uu
+    "3":
+      name: cmsmon-eos-data
+      eosEnabled: true
+      testFlagExists: true
+      schedule: "10 17 24 * *"
+      command: /data/CMSSpark/bin/cron4eos_dataset.sh
+      args: |-
+        --keytab /etc/secrets/keytab --output /eos/user/c/cmsmonit/www/EOS/data
+    "4":
+      name: cmsmon-gen-crsg
+      eosEnabled: true
+      testFlagExists: true
+      schedule: "00 14 05 * *"
+      command: /data/CMSSpark/bin/cron4gen_crsg_plots.sh
+      args: |-
+        --keytab /etc/secrets/keytab --output /eos/user/c/cmsmonit/www/EventCountPlots
+    "5":
+      name: cmsmon-hpc-cms
+      eosEnabled: true
+      testFlagExists: true
+      schedule: "00 15 03 * *"
+      command: /data/CMSSpark/bin/cron4hpc_at_cms.sh
+      args: |-
+        --keytab /etc/secrets/keytab --output /eos/user/c/cmsmonit/www/hpc
+    "6":
+      name: cmsmon-hpc-usage
+      eosEnabled: true
+      testFlagExists: true
+      schedule: "43 13 * * *"
+      command: /data/CMSSpark/bin/cron4hpc_usage.sh
+      args: |-
+        --keytab /etc/secrets/keytab --output /eos/user/c/cmsmonit/www/hpc_usage --url https://cmsdatapop.web.cern.ch/cmsdatapop/hpc_usage
+    "7":
+      name: cmsmon-hs06-cputime
+      eosEnabled: true
+      testFlagExists: true
+      schedule: "30 14 19 * *"
+      command: /data/CMSSpark/bin/cron4hs06_cputime_plot.sh
+      args: |-
+        --keytab /etc/secrets/keytab --output /eos/user/c/cmsmonit/www/hs06cputime
+    "8":
+      name: cmsmon-rucio-daily-stat
+      eosEnabled: true
+      testFlagExists: true
+      schedule: "0 8 * * *"
+      command: /data/CMSSpark/bin/cron4rucio_datasets_daily_stats.sh
+      args: |-
+        --keytab /etc/secrets/keytab --amq /etc/secrets/amq-creds.json --cmsmonitoring /data/CMSMonitoring.zip --stomp /data/stomp-v700.zip

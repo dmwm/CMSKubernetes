@@ -1,0 +1,17 @@
+Display running pods:
+kubectl get pods -n cron-hdfs
+
+Show the logs:
+kubectl logs <pod_name> -n cron-hdfs
+
+Show command and arguments:
+kubectl describe pod <pod_name> -n cron-hdfs
+
+Connect to the container:
+kubectl exec --stdin --tty <pod_name> -n cron-hdfs -- /bin/bash 
+
+List the charts:
+helm list
+
+Uninstall the chart:
+helm uninstall <NAME>
