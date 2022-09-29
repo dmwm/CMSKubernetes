@@ -4,6 +4,38 @@
 
 replicaCount: 1
 
+dbs:
+  metrics:
+  - "dbsmigration_total_connections,dbs_migrate_total_connections,dbs_global_total_connections,dbs_globalW_total_connections,dbs_phys03R_total_connections,dbs_phys03W_total_connections,dbs2go_total_connections,dbs2go_global_migrate_total_connections,dbs2go_global_migration_total_connections,dbs2go_phys03_migrate_total_connections,dbs2go_phys03_migration_total_connections,dbs2go_phys03_reader_total_connections,dbs2go_phys03_writer_total_connections"  
+  values:
+  - "1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000"
+dmwm:
+  metrics:
+  - "reqmgr2_total_connections,ms_ruleCleaner_total_connections,ms_transferor_total_connections,ms_monitor_total_connections,ms_output_total_connections,ms_unmerged_total_connections,wmstats_total_connections"
+  values:
+  - "1000,1000,1000,1000,1000,1000,1000"
+tzero:
+  metrics:
+  - "t0reqmon_exporter_total_connections,t0wmadatasvc_exporter_total_connections"
+  values:
+  - "1000,1000"  
+wma:
+  metrics:
+  - "wma_exporter_total_connections"
+  values:
+  - "1000"
+crab:
+  metrics:
+  - "crabserver_total_connections"
+  values: 
+  - "1000"
+http:
+ metrics:
+ - "http_requests_total"
+ values:
+ - "1000"
+
+
 image:
   repository: registry.cern.ch/cmsweb/check-metric
   pullPolicy: Always
@@ -13,22 +45,6 @@ image:
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
-
-args:
-  wmarchive:
-  - /data/check-metric
-  - -url
-  - "http://prometheus-service.monitoring.svc.cluster.local:8080"
-  - -metric
-  - "wma_exporter_total_connections"
-  - -value
-  - "1000"
-  - -kubectl
-  - "/data/kubectl"
-  - -interval
-  - "60"
-  - verbose
-  - "2"
 
 serviceAccount:
   # Specifies whether a service account should be created
