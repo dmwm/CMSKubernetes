@@ -39,6 +39,8 @@ spec:
         - /data/loki
         - -config.file
         - /etc/secrets/loki-config.yaml
+        - -log.level
+        - warn
         ports:
         - containerPort: 3100
         volumeMounts:
