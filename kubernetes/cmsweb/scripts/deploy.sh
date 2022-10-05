@@ -434,6 +434,15 @@ deploy_secrets()
     # create secrets in all available namespaces
     local namespaces="$cmsweb_ns"
     for ns in $namespaces; do
+
+    keys=$certificates/$ns-keys.txt
+    echo $keys
+        if [ -f $keys ]; then
+            kubectl create secret generic $ns-keys-secrets \
+                --from-file=$keys --dry-run=client -o yaml | \
+                kubectl apply --namespace=$ns -f -
+        fi
+
         echo "---"
         echo "Create secrets in namespace: $ns"
 
