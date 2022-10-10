@@ -2,7 +2,7 @@
 # helper script to deploy WMCore Services()"reqmgr2ms-output" "reqmgr2ms-rulecleaner" "reqmgr2ms-transferor" "reqmgr2ms-unmerged-t1" "reqmgr2ms-unmerged-t2t3" "reqmgr2ms-unmerged-t2t3us" "reqmgr2" "reqmgr2-tasks" "reqmon" "reqmon-tasks" "workqueue" "t0_reqmon" "t0_reqmon-tasks" "t0wmadatasvc" with given tag to k8s infrastructure
 
 if [ $# -lt 2 ]; then
-     echo "The required parameters are missing. Please use deploy-srv.sh <tag> <env> "
+     echo "The required parameters are missing. Please use deploy-srv-wmcore.sh <tag> <env> "
      exit 1;
 fi
 
