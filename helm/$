@@ -1,0 +1,63 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: check-metric
+  name: check-metric
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: check-metric
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: check-metric
+    spec:
+      serviceAccountName: check-metric-sa
+      containers:
+      - image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        name: {{ .Chart.Name }}
+        args:
+          - -metric
+        {{- if eq .Release.Namespace "dbs"}}
+          {{- toYaml .Values.dbs.metrics | nindent 10}}
+          - -metric
+          {{- toYaml .Values.dbs.values | nindent 10}}
+        {{- else if eq .Release.Namespace "dmwm"}}
+          {{- toYaml .Values.dmwm.metrics | nindent 10}}
+          - -metric
+          {{- toYaml .Values.dmwm.values | nindent 10}}
+        {{- else if eq .Release.Namespace "wma"}}
+          {{- toYaml .Values.wma.metrics | nindent 10}}
+          - -metric
+          {{- toYaml .Values.wma.values | nindent 10}}
+        {{- else if eq .Release.Namespace "http"}}
+          {{- toYaml .Values.http.metrics | nindent 10}}
+          - -metric
+          {{- toYaml .Values.http.values | nindent 10}}
+        {{- else if eq .Release.Namespace "tzero"}}
+          {{- toYaml .Values.tzero.metrics | nindent 10}}
+          - -metric
+          {{- toYaml .Values.tzero.values | nindent 10}}
+
+        {{- else }}
+          - "NULL"
+         {{- end }}
+          - -url
+          - "http://prometheus-service.monitoring.svc.cluster.local:8080"
+          - -metric
+          - "{{ .Release.Name }}_total_connections"
+          - -value
+          - "1000"
+          - -kubectl
+          - "/data/kubectl"
+          - -interval
+          - "60"
+          - verbose
+          - "2"
+
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        resources:
+        {{- toYaml .Values.resources | nindent 12 }}

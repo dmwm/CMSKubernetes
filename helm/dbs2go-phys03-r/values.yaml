@@ -1,0 +1,141 @@
+# Default values for dbs-phys03-r.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 
+  prod: 5
+  test: 1
+
+image:
+  repository: cmssw/dbs
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "HG2108h-v3"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+environment:
+  prod: false
+  preprod: false
+  test : false
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: 
+  prometheus.io/scrape: 'true'
+  prometheus.io/port: "18254"
+# prometheus.io/port: "19254"
+
+securityContext: 
+  privileged: true
+
+podSecurityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 2000
+
+imageFilebeatSecurityContext:
+  allowPrivilegeEscalation: false
+
+service: 
+  port: 8254
+  name: dbs-phys03-r
+  protocol: TCP
+  type: ClusterIP
+
+serviceMon: 
+  port: 18254 
+  name: dbs-pr-mon
+  protocol: TCP
+
+serviceCpyMon:
+  port: 19254
+  name: dbs-pr-cpy-mon 
+  protocol: TCP
+
+livenessProbe:
+  exec:
+    command:
+    - cmsweb-ping
+    - "--url=http://localhost:8254/dbs/prod/phys03/DBSReader/"
+    - "--authz=/etc/hmac/hmac"
+    - -verbose
+    - "0"
+  initialDelaySeconds: 120
+  periodSeconds: 10
+
+livenessProbePreProd:
+  exec:
+    command:
+    - cmsweb-ping
+    - "--url=http://localhost:8254/dbs/int/phys03/DBSReader/"
+    - "--authz=/etc/hmac/hmac"
+    - -verbose
+    - "0"
+  initialDelaySeconds: 120
+  periodSeconds: 10
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths: []
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+resources:
+  requests:
+    memory: "500Mi"
+    cpu: "300m"
+  limits:
+    memory: "10Gi"
+    cpu: "2000m"
+
+command:
+- /bin/bash
+- /opt/setup-certs-and-run/setup-certs-and-run.sh
+
+imageFilebeat:
+  name: dbs-phys03-r-filebeat
+  path: docker.elastic.co/beats/filebeat:7.12.0
+  args: [
+  "-c", "/etc/filebeat.yml",
+  "-e",
+  ]
+  env:
+  - name: MY_POD_NAME
+    valueFrom:
+      fieldRef:
+        apiVersion: v1
+        fieldPath: metadata.name
+
+imageFilebeatResources:
+  requests:
+    memory: "50Mi"
+    cpu: "50m"
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
