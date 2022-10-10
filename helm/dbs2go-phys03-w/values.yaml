@@ -7,7 +7,7 @@ replicaCount:
    test: 1
 
 image:
-  repository: cmssw/dbs
+  repository: cmssw/dbs2go
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "HG2108h-v3"
@@ -35,7 +35,7 @@ serviceAccount:
 
 podAnnotations: 
   prometheus.io/scrape: 'true'
-  prometheus.io/port: "18255"
+  prometheus.io/port: "9255"
 # prometheus.io/port: "19255"
 #
 
@@ -73,23 +73,13 @@ livenessProbePreProd:
   periodSeconds: 10
 
 service: 
-  port: 8255
-  name: dbs-phys03-w
+  port: 9255
+  name: dbs2go-phys03-w
   protocol: TCP
   type: ClusterIP
 
-serviceMon: 
-  port: 18255 
-  name: dbs-pw-mon
-  protocol: TCP
-
-serviceCpyMon:
-  port: 19255
-  name: dbs-pw-cpy-mon 
-  protocol: TCP
-
 imageFilebeat:
-  name: dbs-phys03-w-filebeat
+  name: dbs2go-phys03-w-filebeat
   path: docker.elastic.co/beats/filebeat:7.12.0
   args: [
   "-c", "/etc/filebeat.yml",
@@ -122,11 +112,11 @@ ingress:
 
 resources:
   requests:
-    memory: "500Mi"
-    cpu: "300m"
+    memory: "100Mi"
+    cpu: "200m"
   limits:
-    memory: "10Gi"
-    cpu: "2000m"
+    memory: "8000Mi"
+    cpu: "8000m"
 
 
 autoscaling:
