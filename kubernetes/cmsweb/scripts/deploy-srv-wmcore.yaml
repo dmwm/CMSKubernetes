@@ -1,7 +1,7 @@
 #!/bin/bash
 # helper script to deploy WMCore Services()"reqmgr2ms-output" "reqmgr2ms-rulecleaner" "reqmgr2ms-transferor" "reqmgr2ms-unmerged-t1" "reqmgr2ms-unmerged-t2t3" "reqmgr2ms-unmerged-t2t3us" "reqmgr2" "reqmgr2-tasks" "reqmon" "reqmon-tasks" "workqueue" "t0_reqmon" "t0_reqmon-tasks" "t0wmadatasvc" with given tag to k8s infrastructure
 
-if [ $# -lt 2 ]; then
+if [ $# -lt 1 ]; then
      echo "The required parameters are missing. Please use deploy-srv-wmcore.sh <tag> <env> "
      exit 1;
 fi
@@ -9,7 +9,7 @@ fi
 cluster_name=`kubectl config get-clusters | grep -v NAME`
 check=true
 
-if [ $# -ne 3 ]; then
+if [ $# -ne 2 ]; then
 	if [[ "$cluster_name" == *"testbed"* ]] ; then
 		env="preprod"
 	fi
@@ -61,7 +61,7 @@ echo ${srv[*]}
 
 cmsweb_image_tag=:$1
 
-if [ $# == 3 ]; then
+if [ $# == 2 ]; then
 	env=$2
 fi
 
