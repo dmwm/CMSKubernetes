@@ -3,7 +3,8 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 RUN apt-get update
 RUN apt-get install -y curl libcurl4 libcurl4-openssl-dev python3-pycurl pip
 RUN ln -s /usr/bin/python3 /usr/bin/python
-RUN pip install reqmgr2ms-unmerged
+ENV TAG=2.1.4rc3
+RUN pip install reqmgr2ms-unmerged==$TAG
 ENV WDIR=/data
 WORKDIR $WDIR
 CMD ["python3"]
