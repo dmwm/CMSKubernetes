@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "dbs-global-r.fullname" . }}
+  name: {{ include "dbs2go-global-r.fullname" . }}
   labels:
-    {{- include "dbs-global-r.labels" . | nindent 4 }}
+    {{- include "dbs2go-global-r.labels" . | nindent 4 }}
   namespace: dbs
 spec:
   {{- if not .Values.autoscaling.enabled }}
@@ -15,7 +15,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "dbs-global-r.selectorLabels" . | nindent 6 }}
+      {{- include "dbs2go-global-r.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -23,7 +23,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "dbs-global-r.selectorLabels" . | nindent 8 }}
+        {{- include "dbs2go-global-r.selectorLabels" . | nindent 8 }}
         {{- if .Values.environment.preprod}}
         env: k8s-preprod
         {{- end }}
@@ -33,31 +33,27 @@ spec:
         {{- if .Values.environment.test}}
         env: k8s
         {{- end }}
-        job: dbs-global-r
+        job: dbs2go-global-r
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "dbs-global-r.serviceAccountName" . }}
+      #serviceAccountName: {{ include "dbs2go-global-r.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          {{- toYaml .Values.env | nindent 10 }}
           securityContext:
            {{- toYaml .Values.securityContext | nindent 12 }}
           ports:
            - containerPort: {{ .Values.service.port }}
              name: {{ .Values.service.name }}
              protocol: {{ .Values.service.protocol }}
-           - containerPort: {{ .Values.serviceMon.port }}
-             name: {{ .Values.serviceMon.name }}
-             protocol: {{ .Values.serviceMon.protocol }}
-           - containerPort: {{ .Values.serviceCpyMon.port }}
-             name: {{ .Values.serviceCpyMon.name }}
-             protocol: {{ .Values.serviceCpyMon.protocol }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           command:
@@ -77,11 +73,14 @@ spec:
           - name: hmac-secrets
             mountPath: /etc/hmac
             readOnly: true
-          - mountPath: /host/etc/grid-security
-            name: etc-grid-security
-            readOnly: true
           - name: setup-certs-and-run
             mountPath: /opt/setup-certs-and-run
+          - name: token-secrets
+            mountPath: /etc/token
+            readOnly: true
+          - name: tnsnames
+            mountPath: /etc/tnsnames.ora
+            subPath: tnsnames.ora          
 {{- if or .Values.environment.prod .Values.environment.preprod }}
           - name: logs
             mountPath: /data/srv/logs/dbs
@@ -116,7 +115,7 @@ spec:
           secretName: proxy-secrets
       - name: secrets
         secret:
-          secretName: dbs-global-r-secrets
+          secretName: dbs2go-global-r-secrets
       - name: robot-secrets
         secret:
           secretName: robot-secrets
@@ -128,7 +127,7 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: {{ include "dbs-global-r.fullname" . }}
+          name: {{ include "dbs2go-global-r.fullname" . }}
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: logs
         persistentVolumeClaim:
@@ -147,7 +146,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: {{ include "dbs-global-r.fullname" . }}-filebeat-config
+          name: {{ include "dbs2go-global-r.fullname" . }}-filebeat-config
       - name: data
         emptyDir: {}       
 {{- end }}

@@ -1,5 +1,5 @@
 apiVersion: v2
-name: dbs-phys03-w
+name: dbs2go-phys03-w
 description: A Helm chart for Kubernetes
 
 # A chart can be either an 'application' or a 'library' chart.

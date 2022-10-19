@@ -1,4 +1,4 @@
-# Default values for dbs-phys03-r.
+# Default values for dbs2go-phys03-r.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -7,7 +7,7 @@ replicaCount:
   test: 1
 
 image:
-  repository: cmssw/dbs
+  repository: registry.cern.ch/cmsweb/dbs2go
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "HG2108h-v3"
@@ -15,6 +15,12 @@ image:
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
+
+env:
+- name: X509_USER_PROXY
+  value: /etc/proxy/proxy
+- name: TNS_ADMIN
+  value: /etc/tnsnames.ora
 
 environment:
   prod: false
@@ -32,7 +38,8 @@ serviceAccount:
 
 podAnnotations: 
   prometheus.io/scrape: 'true'
-  prometheus.io/port: "18254"
+  prometheus.io/path: "/dbs/prod/phys03/DBSReader/metrics"
+  prometheus.io/port: "9254"
 # prometheus.io/port: "19254"
 
 securityContext: 
@@ -47,40 +54,28 @@ imageFilebeatSecurityContext:
   allowPrivilegeEscalation: false
 
 service: 
-  port: 8254
-  name: dbs-phys03-r
+  port: 9254
+  name: dbs2go-phys03-r
   protocol: TCP
   type: ClusterIP
 
-serviceMon: 
-  port: 18254 
-  name: dbs-pr-mon
-  protocol: TCP
-
-serviceCpyMon:
-  port: 19254
-  name: dbs-pr-cpy-mon 
-  protocol: TCP
-
 livenessProbe:
-  exec:
-    command:
-    - cmsweb-ping
-    - "--url=http://localhost:8254/dbs/prod/phys03/DBSReader/"
-    - "--authz=/etc/hmac/hmac"
-    - -verbose
-    - "0"
+  httpGet:
+    path: /dbs/prod/phys03/DBSReader/healthz
+    port: 9254
+  httpHeaders:
+  - name: Accept
+    value: application/json
   initialDelaySeconds: 120
   periodSeconds: 10
 
 livenessProbePreProd:
-  exec:
-    command:
-    - cmsweb-ping
-    - "--url=http://localhost:8254/dbs/int/phys03/DBSReader/"
-    - "--authz=/etc/hmac/hmac"
-    - -verbose
-    - "0"
+  httpGet:
+    path: /dbs/preprod/phys03/DBSReader/healthz
+    port: 9254
+  httpHeaders:
+  - name: Accept
+    value: application/json
   initialDelaySeconds: 120
   periodSeconds: 10
 
@@ -98,18 +93,17 @@ ingress:
   #      - chart-example.local
 resources:
   requests:
-    memory: "500Mi"
-    cpu: "300m"
+    memory: "100Mi"
+    cpu: "200m"
   limits:
-    memory: "10Gi"
-    cpu: "2000m"
+    memory: "500Mi"
+    cpu: "4000m"
 
 command:
-- /bin/bash
-- /opt/setup-certs-and-run/setup-certs-and-run.sh
+- /data/run.sh
 
 imageFilebeat:
-  name: dbs-phys03-r-filebeat
+  name: dbs2go-phys03-r-filebeat
   path: docker.elastic.co/beats/filebeat:7.12.0
   args: [
   "-c", "/etc/filebeat.yml",

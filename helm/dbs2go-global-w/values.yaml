@@ -1,9 +1,9 @@
-# Default values for dbs-global-w.
+# Default values for dbs2go-global-w.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 replicaCount:
-  prod: 5
+  prod: 3
   test: 1
 
 environment:
@@ -12,18 +12,18 @@ environment:
   test : false
 
 image:
-  repository: cmssw/dbs
+  repository: registry.cern.ch/cmsweb/dbs2go
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "HG2108h-v3"
 
 resources:
   requests:
-    memory: "500Mi"
-    cpu: "300m"
+    memory: "100Mi"
+    cpu: "200m"
   limits:
-    memory: "10Gi"
-    cpu: "2000m"
+    memory: "8000Mi"
+    cpu: "8000m"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -38,13 +38,19 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
+env:
+- name: X509_USER_PROXY
+  value: /etc/proxy/proxy
+- name: TNS_ADMIN
+  value: /etc/tnsnames.ora
+
 podAnnotations: 
   prometheus.io/scrape: 'true'
-  prometheus.io/port: "18253"
+  prometheus.io/port: "9253"
+  prometheus.io/path: "/dbs/prod/global/DBSWriter/metrics"
 
 securityContext: 
-  privileged: true
-
+  allowPrivilegeEscalation: false
 podSecurityContext:
   runAsUser: 1000
   runAsGroup: 1000
@@ -55,46 +61,32 @@ imageFilebeatSecurityContext:
   
 
 command:
-- /bin/bash
-- /opt/setup-certs-and-run/setup-certs-and-run.sh
+- /data/run.sh
 
 livenessProbe:
-  exec:
-    command:
-    - cmsweb-ping
-    - "--url=http://localhost:8253/dbs/prod/global/DBSWriter/"
-    - "--authz=/etc/hmac/hmac"
-    - -verbose
-    - "0"
+  httpGet:
+    path: /dbs/prod/global/DBSWriter/healthz
+    port: 9253
+  httpHeaders:
+  - name: Accept
+    value: application/json
   initialDelaySeconds: 120
   periodSeconds: 10
 
 livenessProbePreProd:
-  exec:
-    command:
-    - cmsweb-ping
-    - "--url=http://localhost:8253/dbs/int/global/DBSWriter/"
-    - "--authz=/etc/hmac/hmac"
-    - -verbose
-    - "0"
+  httpGet:
+    path: /dbs/prod/global/DBSWriter/healthz
+    port: 9253
+  httpHeaders:
+  - name: Accept
+    value: application/json
   initialDelaySeconds: 120
   periodSeconds: 10
+
 #ports
-
 service: 
-  port: 8253
+  port: 9253
   name: dbs-global-w
-  protocol: TCP
-  type: ClusterIP
-
-serviceMon: 
-  port: 18253 
-  name: dbs-gw-mon 
-  protocol: TCP
-
-serviceCpyMon:
-  port: 19253 
-  name: dbs-gw-cpy-mon 
   protocol: TCP
 
 #imageFilebeat

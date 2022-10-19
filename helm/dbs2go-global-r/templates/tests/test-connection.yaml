@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: "{{ include "dbs-global-r.fullname" . }}-test-connection"
+  name: "{{ include "dbs2go-global-r.fullname" . }}-test-connection"
   labels:
-    {{- include "dbs-global-r.labels" . | nindent 4 }}
+    {{- include "dbs2go-global-r.labels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": test
 spec:
@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "dbs-global-r.fullname" . }}:{{ .Values.service.port }}']
+      args: ['{{ include "dbs2go-global-r.fullname" . }}:{{ .Values.service.port }}']
   restartPolicy: Never

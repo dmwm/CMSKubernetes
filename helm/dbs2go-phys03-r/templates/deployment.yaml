@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "dbs-phys03-r.fullname" . }}
+  name: {{ include "dbs2go-phys03-r.fullname" . }}
   labels:
-    {{- include "dbs-phys03-r.labels" . | nindent 4 }}
+    {{- include "dbs2go-phys03-r.labels" . | nindent 4 }}
   namespace: dbs
 spec:
   {{- if not .Values.autoscaling.enabled }}
@@ -15,7 +15,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "dbs-phys03-r.selectorLabels" . | nindent 6 }}
+      {{- include "dbs2go-phys03-r.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -23,7 +23,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "dbs-phys03-r.selectorLabels" . | nindent 8 }}
+        {{- include "dbs2go-phys03-r.selectorLabels" . | nindent 8 }}
         {{- if .Values.environment.preprod}}
         env: k8s-preprod
         {{- end }}
@@ -33,13 +33,13 @@ spec:
         {{- if .Values.environment.test}}
         env: k8s
         {{- end }}
-        job: dbs-phys03-r
+        job: dbs2go-phys03-r
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "dbs-phys03-r.serviceAccountName" . }}
+      serviceAccountName: {{ include "dbs2go-phys03-r.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -48,16 +48,12 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+          {{- toYaml .Values.env | nindent 10 }}
           ports:
            - containerPort: {{ .Values.service.port }}
              name: {{ .Values.service.name }}
              protocol: {{ .Values.service.protocol }}
-           - containerPort: {{ .Values.serviceMon.port }}
-             name: {{ .Values.serviceMon.name }}
-             protocol: {{ .Values.serviceMon.protocol }}
-           - containerPort: {{ .Values.serviceCpyMon.port }}
-             name: {{ .Values.serviceCpyMon.name }}
-             protocol: {{ .Values.serviceCpyMon.protocol }}
           livenessProbe:
           {{- if .Values.environment.prod}}
           {{- toYaml .Values.livenessProbe | nindent 12 }}
@@ -81,11 +77,12 @@ spec:
           - name: hmac-secrets
             mountPath: /etc/hmac
             readOnly: true
-          - mountPath: /host/etc/grid-security
-            name: etc-grid-security
+          - name: token-secrets
+            mountPath: /etc/token
             readOnly: true
-          - name: setup-certs-and-run
-            mountPath: /opt/setup-certs-and-run
+          - name: tnsnames
+            mountPath: /etc/tnsnames.ora
+            subPath: tnsnames.ora
           {{- if or .Values.environment.prod .Values.environment.preprod }}
           - name: logs
             mountPath: /data/srv/logs/dbs
@@ -120,7 +117,7 @@ spec:
           secretName: proxy-secrets
       - name: secrets
         secret:
-          secretName: dbs-phys03-r-secrets
+          secretName: dbs2go-phys03-r-secrets
       - name: robot-secrets
         secret:
           secretName: robot-secrets
@@ -132,7 +129,7 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: {{ include "dbs-phys03-r.fullname" . }}
+          name: {{ include "dbs2go-phys03-r.fullname" . }}
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: logs
         persistentVolumeClaim:
@@ -151,7 +148,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: {{ include "dbs-phys03-r.fullname" . }}-filebeat-config
+          name: {{ include "dbs2go-phys03-r.fullname" . }}-filebeat-config
       - name: data
         emptyDir: {}
 {{- end }}

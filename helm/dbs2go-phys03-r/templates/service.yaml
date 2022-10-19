@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "dbs-phys03-r.fullname" . }}
+  name: {{ include "dbs2go-phys03-r.fullname" . }}
   labels:
-    {{- include "dbs-phys03-r.labels" . | nindent 4 }}
+    {{- include "dbs2go-phys03-r.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -11,13 +11,5 @@ spec:
     targetPort: {{ .Values.service.port}}
     name: {{ .Values.service.name }}
     protocol: {{ .Values.service.protocol }}
-  - port: {{ .Values.serviceMon.port }}
-    protocol: {{ .Values.serviceMon.protocol }}
-    name: {{ .Values.serviceMon.name }}
-    targetPort: {{ .Values.serviceMon.port}}
-  - port: {{ .Values.serviceCpyMon.port }}
-    protocol: {{ .Values.serviceCpyMon.protocol }}
-    name: {{ .Values.serviceCpyMon.name }}
-    targetPort: {{ .Values.serviceCpyMon.port}}
   selector:
-    {{- include "dbs-phys03-r.selectorLabels" . | nindent 4 }}
+    {{- include "dbs2go-phys03-r.selectorLabels" . | nindent 4 }}

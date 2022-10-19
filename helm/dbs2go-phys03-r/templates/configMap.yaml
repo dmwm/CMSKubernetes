@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: '{{ include "dbs-phys03-r.fullname" . }}-filebeat-config'
+  name: '{{ include "dbs2go-phys03-r.fullname" . }}-filebeat-config'
   namespace: dbs
   labels:
     k8s-app: filebeat
@@ -11,7 +11,7 @@ data:
     - type: log
       enabled: true
       paths:
-        - /data/srv/logs/dbs/*${MY_POD_NAME}*.log
+        - /data/srv/logs/dbs/*${MY_POD_NAME}*
       ignore_older: 1h
       scan_frequency: 10s
       backoff: 5s
@@ -23,20 +23,3 @@ data:
     queue.mem:
       events: 65536
     logging.metrics.enabled: false
----
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: {{ include "dbs-phys03-r.fullname" . }}
-  labels:
-    app: dbs-phys03-r
-  namespace: dbs
-data:
-  setup-certs-and-run.sh: |
-    #!/bin/bash
-    sudo cp /host/etc/grid-security/* /etc/grid-security
-    echo 'INFO Files in /etc/grid-security'
-    ls -lahZ /etc/grid-security
-    #su  -c "cd /data && /data/run.sh" --preserve-environment _dbs
-    cd /data && /data/run.sh
----

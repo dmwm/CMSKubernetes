@@ -1,4 +1,4 @@
-# Default values for dbs-global-r.
+# Default values for dbs2go-global-r.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -11,15 +11,19 @@ environment:
   preprod: false
   test : false
 
+env:
+- name: X509_USER_PROXY
+  value: /etc/proxy/proxy
+- name: TNS_ADMIN
+  value: /etc/tnsnames.ora    
+
 image:
-  repository: cmssw/dbs
+  repository: registry.cern.ch/cmsweb/dbs2go
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "HG2108h-v3"
   command:
-  - /bin/bash
-  - /opt/setup-certs-and-run/setup-certs-and-run.sh
-
+  - /data/run.sh
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -35,10 +39,11 @@ serviceAccount:
 
 podAnnotations: 
   prometheus.io/scrape: 'true'
-  prometheus.io/port: "18252"
+  prometheus.io/port: "9252"
+  prometheus.io/path: "/dbs/prod/global/DBSReader/metrics"
 
 securityContext: 
-  privileged: true
+  allowPrivilegeEscalation: false
 
 podSecurityContext:
   runAsUser: 1000
@@ -49,45 +54,33 @@ imageFilebeatSecurityContext:
   allowPrivilegeEscalation: false
 
 livenessProbe:
-  exec:
-    command:
-  exec:
-    command:
-    - /bin/sh
-    - -c
-    - |
-    - cmsweb-ping --url=http://localhost:8252/dbs/prod/global/DBSReader/datasets?dataset=/ZMM*/*/* --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
-  initialDelaySeconds: 60
+  httpGet:
+    path: /dbs/prod/global/DBSReader/healthz
+    port: 9252
+  httpHeaders:
+  - name: Accept
+    value: application/json
+  initialDelaySeconds: 120
   periodSeconds: 10
 
 service: 
-  port: 8252
-  name: dbs-global-r
+  port: 9252
+  name: dbs2go-global-r
   protocol: TCP
   type: ClusterIP
 
-serviceMon: 
-  port: 18252 
-  name: dbs-gr-mon 
-  protocol: TCP
-
-serviceCpyMon:
-  port: 19252 
-  name: dbs-gr-cpy-mon 
-  protocol: TCP
-
 resources:
   requests:
-    memory: "1000Mi"
-    cpu: "300m"
+    memory: "100Mi"
+    cpu: "200m"
   limits:
-    memory: "10Gi"
-    cpu: "2000m"
+    memory: "500Mi"
+    cpu: "4000m"
 
 #imageFilebeat values
 
 imageFilebeat:
-  name: dbs-global-r-filebeat
+  name: dbs2go-global-r-filebeat
   path: docker.elastic.co/beats/filebeat:7.12.0
   env:
   - name: MY_POD_NAME

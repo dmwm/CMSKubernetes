@@ -1,24 +1,29 @@
-# Default values for dbs-phys03-w.
+# Default values for dbs2go-phys03-w.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 replicaCount: 
-   prod: 5
+   prod: 3
    test: 1
 
 image:
-  repository: cmssw/dbs2go
+  repository: registry.cern.ch/cmsweb/dbs2go
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "HG2108h-v3"
   command:
-  - /bin/bash
-  - /opt/setup-certs-and-run/setup-certs-and-run.sh
+  - /data/run.sh
 
 environment:
   prod: false
   preprod: false
   test : false
+
+env:
+- name: X509_USER_PROXY
+  value: /etc/proxy/proxy
+- name: TNS_ADMIN
+  value: /etc/tnsnames.ora
 
 imagePullSecrets: []
 nameOverride: ""
@@ -36,11 +41,10 @@ serviceAccount:
 podAnnotations: 
   prometheus.io/scrape: 'true'
   prometheus.io/port: "9255"
-# prometheus.io/port: "19255"
-#
+  prometheus.io/path: "/dbs/prod/phys03/DBSWriter/metrics"
 
 securityContext: 
-  privileged: true
+  allowPrivilegeEscalation: false
 
 podSecurityContext:
   runAsUser: 1000
@@ -51,24 +55,22 @@ imageFilebeatSecurityContext:
   allowPrivilegeEscalation: false
 
 livenessProbe:
-  exec:
-    command:
-    - cmsweb-ping
-    - "--url=http://localhost:8255/dbs/prod/phys03/DBSWriter/"
-    - "--authz=/etc/hmac/hmac"
-    - -verbose
-    - "0"
+  httpGet:
+    path: /dbs/prod/phys03/DBSWriter/healthz
+    port: 9255
+  httpHeaders:
+  - name: Accept
+    value: application/json
   initialDelaySeconds: 120
   periodSeconds: 10
 
 livenessProbePreProd:
-  exec:
-    command:
-    - cmsweb-ping
-    - "--url=http://localhost:8255/dbs/int/phys03/DBSWriter/"
-    - "--authz=/etc/hmac/hmac"
-    - -verbose
-    - "0"
+  httpGet:
+    path: /dbs/prod/phys03/DBSWriter/healthz
+    port: 9255
+  httpHeaders:
+  - name: Accept
+    value: application/json
   initialDelaySeconds: 120
   periodSeconds: 10
 
