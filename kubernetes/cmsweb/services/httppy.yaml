@@ -30,7 +30,7 @@ spec:
         app: httppy
     spec:
       containers:
-      - image: registry.cern.ch/cmsweb/httppy:v2
+      - image: registry.cern.ch/cmsweb/httppy #imagetag
         name: httppy
         imagePullPolicy: Always
         livenessProbe:
