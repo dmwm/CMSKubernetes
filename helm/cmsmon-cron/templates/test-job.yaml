@@ -1,0 +1,66 @@
+{{- if eq true .Values.test.enabled -}}
+{{- range $i, $cron := .Values.cronjob.crons }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ $cron.name }}
+  namespace: cron-hdfs
+  labels:
+    app: {{ $cron.name }}
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: {{ $cron.name }}
+    spec:
+      restartPolicy: Never
+      hostname: {{ $cron.name }}
+      containers:
+        - name: {{ $cron.name }}
+          image: {{ $.Values.cronjob.repository }}
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          command: ["/bin/bash", "-c"]
+          args:
+            - export >/etc/environment;
+              source /etc/environment;{{ include "cmsmon-cron.run" (dict "cron" $cron "Values" $.Values) | trim | nindent 18 }}
+          env:
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          ports:
+            - containerPort: {{ add 32501 (mul 2 $i)}} # spark.driver.port
+              name: port-1
+            - containerPort: {{ add 32502 (mul 2 $i)}} # spark.driver.blockManager.port
+              name: port-2
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 6Gi
+            requests:
+              cpu: 500m
+              memory: 750Mi
+          stdin: true
+          tty: true
+          volumeMounts:
+            - name: {{ $cron.name }}-secrets
+              mountPath: /etc/secrets
+              readOnly: true
+            {{- with $cron.eosEnabled}}
+            - name: eos # EOS access
+              mountPath: /eos
+              mountPropagation: HostToContainer
+            {{- end}}
+      volumes:
+        - name: {{ $cron.name }}-secrets
+          secret:
+            secretName: {{ $cron.name }}-secrets
+        {{- with $cron.eosEnabled}}
+        - name: eos
+          hostPath:
+            path: /var/eos
+        {{- end}}
+{{- end}}
+{{- end}}
