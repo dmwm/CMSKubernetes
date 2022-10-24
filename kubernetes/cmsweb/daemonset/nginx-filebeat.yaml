@@ -50,8 +50,8 @@ spec:
       securityContext:
         seLinuxOptions:
           type: spc_t
-      serviceAccount: fluentd
-      serviceAccountName: fluentd
+      serviceAccount: fluentd-sa
+      serviceAccountName: fluentd-sa
       terminationGracePeriodSeconds: 60
       nodeSelector:
         role: ingress
@@ -114,41 +114,4 @@ spec:
           type: ""
       - name: data
         emptyDir: {}
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: nginx-filebeat
-subjects:
-- kind: ServiceAccount
-  name: nginx-filebeat
-  namespace: kube-system
-roleRef:
-  kind: ClusterRole
-  name: nginx-filebeat
-  apiGroup: rbac.authorization.k8s.io
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: nginx-filebeat
-  labels:
-    k8s-app: nginx-filebeat
-rules:
-- apiGroups: [""] # "" indicates the core API group
-  resources:
-  - namespaces
-  - pods
-  verbs:
-  - get
-  - watch
-  - list
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: nginx-filebeat
-  namespace: kube-system
-  labels:
-    k8s-app: nginx-filebeat
 ---
