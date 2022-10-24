@@ -3,8 +3,8 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: fluentd
-  namespace: default
+  name: fluentd-sa
+  namespace: kube-system
 ---
 # Source: fluentd/templates/fluentd-rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -33,15 +33,15 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 subjects:
 - kind: ServiceAccount
-  name: fluentd
-  namespace: default
+  name: fluentd-sa
+  namespace: kube-system
 ---
 # Source: fluentd/templates/fluentd-daemon.yaml
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: cmsweb-test
-  namespace: default
+  namespace: kube-system
   labels:
     k8s-app: fluentd-logging
     version: v1
@@ -65,8 +65,8 @@ spec:
         # update on configmap change
         checksum/config-map: f9a2d5c985cd5eaabdb7cb08f20a5efff98c13111c29c079076cc25e8794c229
     spec:
-      serviceAccount: fluentd
-      serviceAccountName: fluentd
+      serviceAccount: fluentd-sa
+      serviceAccountName: fluentd-sa
       securityContext:
         seLinuxOptions:
           type: "spc_t"
