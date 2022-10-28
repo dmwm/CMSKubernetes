@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: {{ .Release.Name }}
-  namespace: default
+  namespace: kube-system
   labels:
     k8s-app: fluentd-logging
     version: v1
@@ -27,8 +27,8 @@ spec:
         # update on configmap change
         checksum/config-map: f9a2d5c985cd5eaabdb7cb08f20a5efff98c13111c29c079076cc25e8794c229
     spec:
-      serviceAccount: fluentd
-      serviceAccountName: fluentd
+      serviceAccount: fluentd-sa
+      serviceAccountName: fluentd-sa
       securityContext:
       {{- toYaml .Values.securityContext | nindent 8 }}
       initContainers:

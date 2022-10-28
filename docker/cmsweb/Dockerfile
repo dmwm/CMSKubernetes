@@ -2,7 +2,7 @@ FROM registry.cern.ch/cmsweb/exporters:20210726-nonstatic as exporters-builder
 RUN mkdir -p /data
 
 
-FROM cern/cc7-base:20220601-1
+FROM cern/cc7-base:20220901-1
 
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 

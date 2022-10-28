@@ -1,0 +1,23 @@
+{{- range $i, $cron := .Values.cronjob.crons }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $cron.name }}
+  namespace: cron-hdfs
+spec:
+  selector:
+    app: {{ $cron.name }}
+  type: NodePort
+  ports:
+    - name: port-1
+      nodePort: {{ add 32501 (mul 2 $i)}}
+      port: {{ add 32501 (mul 2 $i)}}
+      protocol: TCP
+      targetPort: {{ add 32501 (mul 2 $i)}}
+    - name: port-2
+      nodePort: {{ add 32502 (mul 2 $i)}}
+      port: {{ add 32502 (mul 2 $i)}}
+      protocol: TCP
+      targetPort: {{ add 32502 (mul 2 $i)}}
+{{- end}}
