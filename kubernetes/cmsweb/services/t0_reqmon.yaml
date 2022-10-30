@@ -105,7 +105,8 @@ spec:
             - -verbose
             - "0"
           initialDelaySeconds: 60
-          periodSeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 5
         ports:
         - containerPort: 8243
           protocol: TCP
