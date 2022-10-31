@@ -98,7 +98,8 @@ spec:
             path: /wmstats2go/healthz
             port: 8360
           initialDelaySeconds: 120
-          periodSeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 5
         resources:
           requests:
             memory: "256Mi"
