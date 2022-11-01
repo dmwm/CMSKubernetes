@@ -18,10 +18,19 @@ class HelloWorld(object):
     def healthz(self):
         return "ok"
 
-def application(environ, start_response):
-    cherrypy.tree.mount(HelloWorld(), '/', None)
-    return cherrypy.tree(environ, start_response)
-
 if __name__ == '__main__':
-    cherrypy.config.update({'server.thread_pool': 20, 'server.socket_timeout': 0, 'server.socket_host': '0.0.0.0'})
-    cherrypy.quickstart(HelloWorld())
+    cherrypy.config.update({
+        'server.thread_pool': 20,
+        'server.socket_timeout': 0,
+        'server.socket_host': '0.0.0.0'
+    })
+#     cherrypy.quickstart(Main())
+    cherrypy.tree.mount(Main(), '/httppy')
+    if hasattr(cherrypy.engine, 'block'):
+        # 3.1 syntax
+        cherrypy.engine.start()
+        cherrypy.engine.block()
+    else:
+        # 3.0 syntax
+        cherrypy.server.quickstart()
+        cherrypy.engine.start()
