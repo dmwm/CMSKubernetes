@@ -3,7 +3,7 @@
 import time
 import cherrypy
 
-class HelloWorld(object):
+class Main(object):
     @cherrypy.expose
     def index(self):
         out = "CherryPy response headesr"
