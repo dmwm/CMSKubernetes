@@ -2,7 +2,7 @@ FROM registry.cern.ch/cmsweb/gfal:latest as gfal
 FROM python:3.8-bullseye
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 RUN apt-get update
-RUN apt-get install -y curl libcurl4 libcurl4-openssl-dev python3-pycurl pip
+RUN apt-get install -y curl libcurl4 libcurl4-openssl-dev python3-pycurl pip apache2-utils
 RUN ln -s /usr/bin/python3 /usr/bin/python
 COPY --from=gfal /data/miniconda /data/miniconda
 ENV WDIR=/data
@@ -17,4 +17,5 @@ RUN curl -ksLO https://raw.githubusercontent.com/dmwm/WMCore/$REQTAG/requirement
 RUN cat requirements.txt | grep -v gfal2 > req.txt
 RUN pip install -r req.txt
 RUN pip install --no-deps reqmgr2ms-unmerged==$TAG
+ADD run.sh /data/run.sh
 CMD ["python3"]
