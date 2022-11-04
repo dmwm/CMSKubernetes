@@ -77,6 +77,6 @@ done
 export PYTHONPATH=$PYTHONPATH:/etc/secrets:/data/srv/current/auth/$srv/$fname
 
 # start the service
-log=$LOGDIR/reqmgr2-%Y%m%d-`hostname -s`.log
-wmc-httpd -r -d $STATEDIR -l "|rotatelogs $log 86400" $CFGFILE
-tail -f $log
+wmc-httpd -r -d $STATEDIR -l "|rotatelogs $LOGDIR/$srv-%Y%m%d-`hostname -s`.log 86400" $CFGFILE
+sleep 10
+tail -f $LOGDIR/*.log
