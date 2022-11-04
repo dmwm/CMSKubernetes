@@ -118,6 +118,12 @@ spec:
       - name: secrets
         secret:
           secretName: dbs2go-phys03-r-secrets
+      - name: tnsnames
+        configMap:
+          name: tnsnames-config
+      - name: token-secrets
+        secret:
+          secretName: token-secrets   
       - name: robot-secrets
         secret:
           secretName: robot-secrets

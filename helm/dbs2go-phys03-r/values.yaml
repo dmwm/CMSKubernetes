@@ -63,19 +63,19 @@ livenessProbe:
   httpGet:
     path: /dbs/prod/phys03/DBSReader/healthz
     port: 9254
-  httpHeaders:
-  - name: Accept
-    value: application/json
+    httpHeaders:
+    - name: Accept
+      value: application/json
   initialDelaySeconds: 120
   periodSeconds: 10
 
 livenessProbePreProd:
   httpGet:
-    path: /dbs/preprod/phys03/DBSReader/healthz
+    path: /dbs/prod/phys03/DBSReader/healthz
     port: 9254
-  httpHeaders:
-  - name: Accept
-    value: application/json
+    httpHeaders:
+    - name: Accept
+      value: application/json
   initialDelaySeconds: 120
   periodSeconds: 10
 
