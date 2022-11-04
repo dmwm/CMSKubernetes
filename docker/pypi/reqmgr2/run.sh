@@ -21,6 +21,13 @@ if [ -f /etc/robots/robotkey.pem ]; then
     sudo chown $USER.$USER /data/srv/current/auth/$srv/dmwm-service-key.pem
     sudo chown $USER.$USER /data/srv/current/auth/$srv/dmwm-service-cert.pem
 fi
+AUTHDIR=/data/srv/current/auth/$srv
+export REQMGR_CACHE_DIR=$STATEDIR
+export WMCORE_CACHE_DIR=$STATEDIR
+if [ -e $AUTHDIR/dmwm-service-cert.pem ] && [ -e $AUTHDIR/dmwm-service-key.pem ]; then
+    export X509_USER_CERT=$AUTHDIR/dmwm-service-cert.pem
+    export X509_USER_KEY=$AUTHDIR/dmwm-service-key.pem
+fi
 
 # overwrite proxy if it is present in /etc/proxy
 if [ -f /etc/proxy/proxy ]; then
@@ -52,6 +59,8 @@ if [ -f /etc/hmac/hmac ]; then
     fi
     sudo cp /etc/hmac/hmac /data/srv/current/auth/$srv/header-auth-key
     sudo chown $USER.$USER /data/srv/current/auth/$srv/header-auth-key
+    sudo mkdir -p /auth/wmcore-auth
+    sudo ln -s /data/srv/current/auth/$srv/header-auth-key /auth/wmcore-auth/header-auth-key
 fi
 
 # use service configuration files from /etc/secrets if they are present
