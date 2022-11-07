@@ -57,9 +57,9 @@ livenessProbe:
   httpGet:
     path: /dbs/prod/global/DBSReader/healthz
     port: 9252
-  httpHeaders:
-  - name: Accept
-    value: application/json
+    httpHeaders:
+    - name: Accept
+      value: application/json
   initialDelaySeconds: 120
   periodSeconds: 10
 

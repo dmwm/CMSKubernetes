@@ -125,6 +125,12 @@ spec:
       - name: etc-grid-security
         hostPath:
             path: /etc/grid-security
+      - name: tnsnames
+        configMap:
+          name: tnsnames-config
+      - name: token-secrets
+        secret:
+          secretName: token-secrets     
       - name: setup-certs-and-run
         configMap:
           name: {{ include "dbs2go-global-r.fullname" . }}
