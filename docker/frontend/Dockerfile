@@ -35,7 +35,7 @@ RUN wget https://github.com/Lusitaniae/apache_exporter/releases/download/v0.9.0/
 
 
 # extract relevant pieces from web-builder
-FROM registry.cern.ch/cmsweb/cmsweb-base:20220601-stable
+FROM registry.cern.ch/cmsweb/cmsweb-base:20221020-stable
 ENV WDIR=/data
 ENV USER=_frontend
 ADD logstash.repo /etc/yum.repos.d/logstash.repo
