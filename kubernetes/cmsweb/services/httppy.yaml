@@ -35,7 +35,7 @@ spec:
         imagePullPolicy: Always
         livenessProbe:
           httpGet:
-            path: /healthz
+            path: /httppy/healthz
             port: 8080
           initialDelaySeconds: 3
           periodSeconds: 3
