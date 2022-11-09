@@ -65,7 +65,7 @@ EOF_ibot
 
 
 # overwrite dev/preprod backends with production one for k8s
-files="backends-prod.txt backends-preprod.txt backends-dev.txt backends-k8s.txt backends-k8s-prod.txt backends-k8s-preprod.txt"
+files="backends-k8s-prod.txt backends-k8s-preprod.txt"
 for fname in $files; do
     rm $WDIR/cfg/frontend/$fname
     ln -s $WDIR/cfg/frontend/backends.txt $WDIR/cfg/frontend/$fname
