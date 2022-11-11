@@ -73,8 +73,6 @@ spec:
           - name: hmac-secrets
             mountPath: /etc/hmac
             readOnly: true
-          - name: setup-certs-and-run
-            mountPath: /opt/setup-certs-and-run
           - name: token-secrets
             mountPath: /etc/token
             readOnly: true
@@ -131,9 +129,6 @@ spec:
       - name: token-secrets
         secret:
           secretName: token-secrets     
-      - name: setup-certs-and-run
-        configMap:
-          name: {{ include "dbs2go-global-r.fullname" . }}
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: logs
         persistentVolumeClaim:

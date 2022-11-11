@@ -21,7 +21,7 @@ image:
   repository: registry.cern.ch/cmsweb/dbs2go
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "HG2108h-v3"
+  tag: "v00.06.39-stable"
   command:
   - /data/run.sh
 imagePullSecrets: []
@@ -40,7 +40,7 @@ serviceAccount:
 podAnnotations: 
   prometheus.io/scrape: 'true'
   prometheus.io/port: "9252"
-  prometheus.io/path: "/dbs/prod/global/DBSReader/metrics"
+  prometheus.io/path: "/dbs/int/global/DBSReader/metrics"
 
 securityContext: 
   allowPrivilegeEscalation: false
@@ -55,7 +55,7 @@ imageFilebeatSecurityContext:
 
 livenessProbe:
   httpGet:
-    path: /dbs/prod/global/DBSReader/healthz
+    path: /dbs/int/global/DBSReader/healthz
     port: 9252
     httpHeaders:
     - name: Accept

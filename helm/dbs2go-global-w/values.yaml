@@ -67,9 +67,9 @@ livenessProbe:
   httpGet:
     path: /dbs/prod/global/DBSWriter/healthz
     port: 9253
-  httpHeaders:
-  - name: Accept
-    value: application/json
+    httpHeaders:
+    - name: Accept
+      value: application/json
   initialDelaySeconds: 120
   periodSeconds: 10
 
@@ -77,9 +77,9 @@ livenessProbePreProd:
   httpGet:
     path: /dbs/prod/global/DBSWriter/healthz
     port: 9253
-  httpHeaders:
-  - name: Accept
-    value: application/json
+    httpHeaders:
+    - name: Accept
+      value: application/json
   initialDelaySeconds: 120
   periodSeconds: 10
 
