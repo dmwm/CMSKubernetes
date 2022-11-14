@@ -111,8 +111,11 @@ spec:
         secret:
           secretName: hmac-secrets
       - name: secrets
+        secret:
+          secretName: {{ include "dbs2go.fullname" .}}-secrets
+      - name: tnsnames
         configMap:
-          name: {{ include "dbs2go.fullname" .}}-config
+          name: tnsnames-config
 {{- if or .Values.environment.prod .Values.environment.preprod }}
       - name: logs
         persistentVolumeClaim:

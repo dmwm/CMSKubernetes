@@ -1,3 +1,4 @@
+{{- $environment := .Values.environment | default dict }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -7,7 +8,7 @@ metadata:
   namespace: dbs
 spec:
   {{- if not .Values.autoscaling.enabled }}
-  {{- if or .Values.environment.prod .Values.environment.preprod}}
+{{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
   replicas: {{ .Values.replicaCount.prod }}
   {{- else }}
   replicas: {{ .Values.replicaCount.test }}
@@ -24,15 +25,7 @@ spec:
       {{- end }}
       labels:
         {{- include "dbs2go-global-r.selectorLabels" . | nindent 8 }}
-        {{- if .Values.environment.preprod}}
-        env: k8s-preprod
-        {{- end }}
-        {{- if .Values.environment.prod}}
-        env: k8s-prod
-        {{- end }}
-        {{- if .Values.environment.test}}
-        env: k8s
-        {{- end }}
+        env: k8s-{{.Values.environment}}
         job: dbs2go-global-r
     spec:
       {{- with .Values.imagePullSecrets }}
@@ -79,7 +72,7 @@ spec:
           - name: tnsnames
             mountPath: /etc/tnsnames.ora
             subPath: tnsnames.ora          
-{{- if or .Values.environment.prod .Values.environment.preprod }}
+{{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
           - name: logs
             mountPath: /data/srv/logs/dbs
         - name: {{ .Values.imageFilebeat.name }}
@@ -129,13 +122,13 @@ spec:
       - name: token-secrets
         secret:
           secretName: token-secrets     
-{{- if or .Values.environment.prod .Values.environment.preprod }}
+{{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
       - name: logs
         persistentVolumeClaim:
-{{- if .Values.environment.preprod }}
+{{- if eq (toString $environment) "preprod" }}
             claimName: logs-cephfs-claim-preprod-dbs
 {{- end }}
-{{- if .Values.environment.prod }}
+{{- if eq (toString $environment) "prod" }}
             claimName: logs-cephfs-claim-prod-dbs
 {{- end }}
       - name: varlog

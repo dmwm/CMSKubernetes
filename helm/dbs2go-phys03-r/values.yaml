@@ -10,7 +10,7 @@ image:
   repository: registry.cern.ch/cmsweb/dbs2go
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "HG2108h-v3"
+  tag: "v00.06.38-stable"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -23,9 +23,6 @@ env:
   value: /etc/tnsnames.ora
 
 environment:
-  prod: false
-  preprod: false
-  test : false
 
 serviceAccount:
   # Specifies whether a service account should be created

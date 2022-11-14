@@ -7,15 +7,12 @@ replicaCount:
   test: 1
 
 environment:
-  prod: false
-  preprod: false
-  test : false
 
 image:
   repository: registry.cern.ch/cmsweb/dbs2go
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "HG2108h-v3"
+  tag: "v00.06.38-stable"
 
 resources:
   requests:
@@ -59,7 +56,6 @@ podSecurityContext:
 imageFilebeatSecurityContext:
   allowPrivilegeEscalation: false
   
-
 command:
 - /data/run.sh
 

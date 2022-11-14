@@ -10,14 +10,11 @@ image:
   repository: registry.cern.ch/cmsweb/dbs2go
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "HG2108h-v3"
+  tag: "v00.06.38-stable"
   command:
   - /data/run.sh
 
 environment:
-  prod: false
-  preprod: false
-  test : false
 
 env:
 - name: X509_USER_PROXY
@@ -58,9 +55,9 @@ livenessProbe:
   httpGet:
     path: /dbs/prod/phys03/DBSWriter/healthz
     port: 9255
-  httpHeaders:
-  - name: Accept
-    value: application/json
+    httpHeaders:
+    - name: Accept
+      value: application/json
   initialDelaySeconds: 120
   periodSeconds: 10
 
@@ -68,9 +65,9 @@ livenessProbePreProd:
   httpGet:
     path: /dbs/prod/phys03/DBSWriter/healthz
     port: 9255
-  httpHeaders:
-  - name: Accept
-    value: application/json
+    httpHeaders:
+    - name: Accept
+      value: application/json
   initialDelaySeconds: 120
   periodSeconds: 10
 
