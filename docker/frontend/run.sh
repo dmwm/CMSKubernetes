@@ -137,6 +137,27 @@ sed -i -e "s,access_log,access_log_${hname},g" \
     -e "s,error_log,error_log_${hname},g" \
     /data/srv/state/frontend/server.conf
 
+### Following commands will generate authentication maps.
+
+/data/srv/current/config/frontend/mkvomsmap --key /data/srv/current/auth/proxy/proxy --cert /data/srv/current/auth/proxy/proxy -c /data/srv/current/config/frontend/mkgridmap.conf -o /data/srv/state/frontend/etc/voms-gridmap.txt --vo cms --git-token-path /data/srv/current/auth/frontend/gitlab_token.txt ; [ $? -ne 0 ] && /bin/bash /data/alerts.sh
+
+/data/srv/current/config/frontend/mkauthmap  -c /data/srv/current/config/frontend/mkauth.conf -o /data/srv/state/frontend/etc/authmap.json --cert /etc/robots/robotcert.pem --key /etc/robots/robotkey.pem --ca-cert /etc/ssl/certs/CERN-bundle.pem ; [ $? -ne 0 ] && /bin/bash /data/alerts.sh
+
+ls -l /data/srv/state/frontend/etc/authmap.json
+
+if [ -f /data/srv/state/frontend/etc/authmap.json ]; then
+  if [ -f /etc/secrets/keytab ]; then
+    export keytab=/etc/secrets/keytab
+    principal=`klist -k "$keytab" | tail -1 | awk '{print $2}'`
+    kinit $principal -k -t "$keytab" 2>&1 1>& /dev/null
+    if [ $? == 1 ]; then
+      echo "Unable to perform kinit operation for cmsweb keytab."
+      exit 1
+    fi
+    cp /eos/user/c/cmsweb/authmap.json /data/srv/state/frontend/etc/authmap.json
+  fi
+fi
+
 # run frontend server
 /data/cfg/admin/InstallDev -s start
 ps auxw | grep httpd
