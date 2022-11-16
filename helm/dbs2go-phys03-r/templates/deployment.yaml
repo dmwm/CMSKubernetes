@@ -147,7 +147,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: {{ include "dbs2go-phys03-r.fullname" . }}-filebeat-config
+          name: dbs2go-phys03-r-filebeat-config
       - name: data
         emptyDir: {}
      {{- end }}

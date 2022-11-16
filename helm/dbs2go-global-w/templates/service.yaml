@@ -5,10 +5,9 @@ metadata:
   labels:
     {{- include "dbs2go-global-w.labels" . | nindent 4 }}
 spec:
-  ports:
-  - port: {{ .Values.service.port }}
-    targetPort: {{ .Values.service.port}}
-    name: {{ .Values.service.name }}
-    protocol: {{ .Values.service.protocol }}
   selector:
-    {{- include "dbs2go-global-w.selectorLabels" . | nindent 4 }}
+    app: dbs2go-global-w
+  ports:
+    - port: 9253
+      targetPort: 9253
+      name: dbs

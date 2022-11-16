@@ -5,10 +5,9 @@ metadata:
   labels:
     {{- include "dbs2go-phys03-w.labels" . | nindent 4 }}
 spec:
-  ports:
-  - port: {{ .Values.service.port }}
-    targetPort: {{ .Values.service.port}}
-    name: {{ .Values.service.name }}
-    protocol: {{ .Values.service.protocol }}
   selector:
-    {{- include "dbs2go-phys03-w.selectorLabels" . | nindent 4 }}
+    app: dbs2go-phys03-w
+  ports:
+    - port: 9255
+      targetPort: 9255
+      name: dbs
