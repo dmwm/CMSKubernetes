@@ -1,0 +1,71 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: cert-checker
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8888 # the port here is matching port used in registry.cern.ch/cmsweb/cert-checker cotainer
+    protocol: TCP
+    name: http
+  selector:
+    app: cert-checker
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: cert-checker
+  name: cert-checker
+  namespace: http
+spec:
+  selector:
+    matchLabels:
+      app: cert-checker
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cert-checker
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8888"
+    spec:
+      containers:
+      - image: registry.cern.ch/cmsweb/cert-checker #imagetag
+        name: cert-checker
+        imagePullPolicy: Always
+        command:
+        - /data/cert-checker
+        - -cert
+        - /etc/robots/robotcert.pem
+        - -ckey
+        - /etc/robots/robotkey.pem
+        - -httpPort
+        - "8888"
+        livenessProbe:
+          httpGet:
+            path: /metrics
+            port: 8888
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "300m"
+        ports:
+        - containerPort: 8888
+        volumeMounts:
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+      volumes:
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
