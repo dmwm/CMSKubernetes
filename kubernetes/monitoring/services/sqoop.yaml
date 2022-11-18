@@ -4,36 +4,48 @@ metadata:
   name: sqoop
   namespace: sqoop
   labels:
-     app: sqoop
+    app: sqoop
 spec:
-   replicas: 1
-   selector:
-     matchLabels:
-       app: sqoop
-   template:
-      metadata:
-         labels:
-           app: sqoop
-      spec:
-        containers:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sqoop
+  template:
+    metadata:
+      labels:
+        app: sqoop
+    spec:
+      containers:
         - args:
-          - /data/sqoop/daemon.sh
-          - /data/sqoop/log
-          - "7"
-          - "7200"
-          image: registry.cern.ch/cmsmonitoring/sqoop:sqoop-0.0.8
+            - /data/sqoop/daemon.sh
+            - /data/sqoop/log
+            - "7"
+            - "7200"
+          image: registry.cern.ch/cmsmonitoring/sqoop:sqoop-0.1.0
           name: sqoop
+          env:
+            - name: CMSSQOOP_ENV
+              value: prod
+            - name: CMSSQOOP_CONFIGS
+              value: /data/sqoop/configs.json
+          # DEV TEST: secure testing which writes results to test dirs
+          # - name: CMSSQOOP_ENV
+          #   value: dev
+          # - name: CMSSQOOP_CONFIGS
+          #   value: /data/sqoop/configs-dev.json
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "sh"
+                  - "-c"
+                  - >
+                    export > /etc/environment;
           volumeMounts:
-          - name: sqoop-secrets
-            mountPath: /etc/cmsdb
-            readOnly: true
-          - name: rucio-secrets
-            mountPath: /etc/secrets
-            readOnly: true
-        volumes:
+            - name: sqoop-secrets
+              mountPath: /etc/secrets
+              readOnly: true
+      volumes:
         - name: sqoop-secrets
           secret:
             secretName: sqoop-secrets
-        - name: rucio-secrets
-          secret:
-            secretName: rucio-secrets

@@ -147,7 +147,8 @@ elif [ "$secret" == "rucio-daily-stats-secrets" ]; then
 elif [ "$secret" == "sqoop-secrets" ]; then
     s_files=`ls $sdir/sqoop/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/sqoop | sed "s, $,,g"`
     c_files=`ls $cdir/sqoop/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$cdir/sqoop | sed "s, $,,g"`
-    files="${s_files} ${c_files}"
+    rucio_f=`ls $sdir/rucio/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/rucio | sed "s, $,,g"`
+    files="${s_files} ${c_files} ${rucio_f}"
 fi
 echo "files: \"$files\""
 #echo "literals: $literals"
