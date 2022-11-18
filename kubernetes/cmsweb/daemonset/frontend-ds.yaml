@@ -104,7 +104,12 @@ spec:
           mountPath: /etc/grid-security/hostkey.pem
         - name: token-secrets
           mountPath: /etc/token
-          readOnly: true          
+          readOnly: true   
+        - name: eos
+          mountPath: /eos
+          mountPropagation: HostToContainer
+        - name: eos-krb
+          mountPath: /tmp/krb
 #PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/frontend
 #PROD#  - name: filebeat-cephfs
@@ -160,7 +165,13 @@ spec:
             path: /etc/grid-security/hostkey.pem
       - name: token-secrets
         secret:
-          secretName: token-secrets            
+          secretName: token-secrets
+      - name: eos
+        hostPath:
+          path: /var/eos
+      - name: eos-krb
+        secret:
+          secretName: eos-krb
 #PROD#- name: varlog
 #PROD#  hostPath:
 #PROD#    path: /var/log
