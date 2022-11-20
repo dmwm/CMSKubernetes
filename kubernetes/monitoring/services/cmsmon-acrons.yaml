@@ -59,7 +59,7 @@ spec:
       hostname: cmsmon-acrons
       containers:
         - name: cmsmon-acrons
-          image: registry.cern.ch/cmsmonitoring/cmsmon-hdfs:v0.3.9.test
+          image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.0.0
           imagePullPolicy: Always
           env:
             - name: MY_NODE_NAME
