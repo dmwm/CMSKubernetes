@@ -19,8 +19,8 @@ RUN apt-get update -y && \
 #   Clone only src/python/CMSMonitoring folder of CMSMonitoring repo using svn and zip it,
 #   zip file will be used to send specific CMSMonitoring folder to Spark workers with '--py-files'.
     svn export https://github.com/dmwm/CMSMonitoring.git/branches/master/src/python/CMSMonitoring && \
-    zip -r CMSMonitoring.zip CMSMonitoring/* && \
-    git clone https://github.com/dmwm/CMSSpark.git && cd CMSSpark && git checkout tags/$CMSSPARK_TAG -b build && cd ..
+    zip -r CMSMonitoring.zip CMSMonitoring/* && rm -rf CMSMonitoring && \
+    git clone https://github.com/dmwm/CMSMonitoring.git
 
 FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-latest
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
@@ -28,20 +28,19 @@ MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 ENV WDIR=/data
 ENV HADOOP_CONF_DIR=/etc/hadoop/conf
 ENV PATH="${PATH}:/usr/hdp/hadoop/bin/hadoop:/usr/hdp/spark3/bin:/usr/hdp/sqoop/bin:${WDIR}/CMSSpark/bin"
+ENV PYTHONPATH "${PYTHONPATH}:${WDIR}:${WDIR}/CMSSpark/src/python:${WDIR}/CMSMonitoring/src/python"
 
-# CMSMonitoring folder is in WDIR
-ENV PYTHONPATH "${PYTHONPATH}:${WDIR}:${WDIR}/CMSSpark/src/python"
-
-# LCG102 uses this cvmfs python
-ENV PYSPARK_PYTHON=/cvmfs/sft.cern.ch/lcg/releases/Python/3.9.6-b0f98/x86_64-centos7-gcc8-opt/bin/python3
-
-# Local
+ENV PYSPARK_PYTHON=/cvmfs/sft.cern.ch/lcg/releases/Python/3.9.12-9a1bc/x86_64-centos7-gcc8-opt/bin/python3
 ENV PYSPARK_DRIVER_PYTHON=/usr/bin/python
+ENV LC_ALL=en_US.utf-8 LANG=en_US.utf-8
 
 WORKDIR $WDIR
 
 COPY --from=builder /data $WDIR
 
 RUN mkdir -p $WDIR/logs && \
-    pip install --no-cache-dir stomp.py==7.0.0 click pyspark pandas numpy seaborn matplotlib plotly && \
+    pip install --no-cache-dir stomp.py==7.0.0 click pyspark pandas numpy schema seaborn matplotlib plotly && \
     hadoop-set-default-conf.sh analytix && source hadoop-setconf.sh analytix 3.2 spark3
+
+# Run crond
+CMD ["crond", "-n", "-s", "&"]

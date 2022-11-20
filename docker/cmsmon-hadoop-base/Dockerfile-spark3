@@ -1,5 +1,24 @@
 # cmsmon-hadoop-base:spark3
-FROM gitlab-registry.cern.ch/linuxsupport/cc7-base:latest
+FROM python:3.9 as builder
+MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
+
+# tag to use
+ENV WDIR=/data
+WORKDIR $WDIR
+
+# Create zip files of stomp.py to submit Spark workers
+RUN apt-get update -y && \
+    apt-get install -y zip subversion && \
+#   Install python stomp.py==7.0.0 module which is the latest working version with StompAMQ7
+    pip install --no-cache-dir -t stomp-v700 https://github.com/jasonrbriggs/stomp.py/archive/refs/tags/v7.0.0.zip && \
+#   Create zip file to send to Spark workers, because workers have old version of it (v3 or v4)
+    cd stomp-v700 && \
+    zip -r ../stomp-v700.zip . && \
+    cd .. && \
+    rm -rf stomp-v700
+
+# --------------------------------------------------------------------------------------------------
+FROM gitlab-registry.cern.ch/linuxsupport/cc7-base:20221101-1.x86_64
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 # Should be full such that includes minor version
@@ -56,6 +75,17 @@ RUN yum -y update && \
     cp /usr/hdp/spark3/kubernetes/dockerfiles/spark/entrypoint.sh /usr/bin/entrypoint.sh && \
     echo "32 */6 * * * root ! /usr/sbin/fetch-crl -q -r 360" >/etc/cron.d/fetch-crl-docker
 # add fetch-crl to fetch all certificates
+
+WORKDIR ${WDIR}
+ENV HADOOP_CONF_DIR=/etc/hadoop/conf
+ENV PATH="${PATH}:/usr/hdp/hadoop/bin/hadoop:/usr/hdp/spark3/bin:/usr/hdp/sqoop/bin"
+ENV PYTHONPATH "${PYTHONPATH}:${WDIR}"
+
+ENV PYSPARK_PYTHON=/cvmfs/sft.cern.ch/lcg/releases/Python/3.9.12-9a1bc/x86_64-centos7-gcc8-opt/bin/python3
+ENV PYSPARK_DRIVER_PYTHON=/usr/bin/python
+ENV LC_ALL=en_US.utf-8 LANG=en_US.utf-8
+
+COPY --from=builder /data $WDIR
 
 # start the setup
 WORKDIR ${WDIR}

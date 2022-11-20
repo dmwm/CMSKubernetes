@@ -1,5 +1,5 @@
 FROM mongo as builder
-FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-latest
+FROM registry.cern.ch/cmsmonitoring/cmsmon-hdfs:latest
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 ARG CMSSPARK_TAG=0.0.0
