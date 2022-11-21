@@ -143,7 +143,11 @@ elif [ "$secret" == "rucio-daily-stats-secrets" ]; then
     rucio_f=`ls $sdir/rucio/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/rucio | sed "s, $,,g"`
     amq_creds_f=`ls $sdir/cms-rucio-dailystats/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cms-rucio-dailystats | sed "s, $,,g"`
     cmsmonit_f="--from-file=${sdir}/cmsmonit-keytab/keytab"
-    files="${sqoop_f} ${rucio_f} ${amq_creds_f} ${cmsmonit_f}"
+    # To test, add cms-training amq creds json as different name. pem files should be in /etc/secrets directory!
+    amq_training_creds_f="--from-file=amq_broker_training.json=${sdir}/cms-training/amq_broker.json"
+    amq_training_cert="--from-file=${sdir}/cms-training/robot-training-cert.pem"
+    amq_training_key="--from-file=${sdir}/cms-training/robot-training-key.pem"
+    files="${sqoop_f} ${rucio_f} ${amq_creds_f} ${cmsmonit_f} ${amq_training_creds_f} ${amq_training_cert} ${amq_training_key}"
 elif [ "$secret" == "sqoop-secrets" ]; then
     s_files=`ls $sdir/sqoop/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/sqoop | sed "s, $,,g"`
     c_files=`ls $cdir/sqoop/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$cdir/sqoop | sed "s, $,,g"`

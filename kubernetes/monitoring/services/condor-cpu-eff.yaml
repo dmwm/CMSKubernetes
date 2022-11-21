@@ -34,9 +34,12 @@ data:
     # Condor cpu efficiency, last_n_days is 30
     # StepChain cpu efficiency, last_n_days is 15
     /bin/bash $WDIR/CMSSpark/bin/k8s_condor_cpu_efficiency.sh \
-      $CMSMONIT_WWW 30 >>/proc/$(cat /var/run/crond.pid)/fd/1 2>&1
+      --keytab /etc/secrets/keytab --output /eos/user/c/cmsmonit/www --lastndays 30 \
+      --p1 31234 --p2 31235 --host $MY_NODE_NAME --wdir $WDIR >>/proc/$(cat /var/run/crond.pid)/fd/1 2>&1
+    sleep 10
     /bin/bash $WDIR/CMSSpark/bin/k8s_stepchain_cpu_eff.sh \
-      $CMSMONIT_WWW 15 >>/proc/$(cat /var/run/crond.pid)/fd/1 2>&1
+      --keytab /etc/secrets/keytab --output /eos/user/c/cmsmonit/www --lastndays 15 \
+      --p1 31234 --p2 31235 --host $MY_NODE_NAME --wdir $WDIR >>/proc/$(cat /var/run/crond.pid)/fd/1 2>&1
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -58,15 +61,17 @@ spec:
       hostname: condor-cpu-eff
       containers:
         - name: condor-cpu-eff
-          image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.0.0
+          image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.4.0.5
           imagePullPolicy: Always
           env:
             - name: MY_NODE_NAME
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
-            - name: CMSMONIT_WWW # Define output path here
-              value: /eos/user/c/cmsmonit/www
+            - name: K8S_ENV
+              value: "prod"
+            - name: PUSHGATEWAY_URL
+              value: "pushgateway.default.svc.cluster.local:9091"
           lifecycle:
             postStart:
               exec:
@@ -80,7 +85,7 @@ spec:
           resources:
             limits:
               cpu: 2000m
-              memory: 5Gi
+              memory: 6Gi
             requests:
               cpu: 1000m
               memory: 750Mi
@@ -93,7 +98,7 @@ spec:
           stdin: true
           volumeMounts:
             - name: condor-cpu-eff-secrets
-              mountPath: /etc/condor-cpu-eff
+              mountPath: /etc/secrets
               readOnly: true
             - name: eos # EOS access
               mountPath: /eos
