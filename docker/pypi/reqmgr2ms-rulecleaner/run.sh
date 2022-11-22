@@ -4,7 +4,7 @@
 srv=`echo $USER | sed -e "s,_,,g"`
 STATEDIR=/data/srv/state/$srv
 LOGDIR=/data/srv/logs/$srv
-CONFIGFILE=${CONFIGFILE:-config-rulecleaner.py}
+CONFIGFILE=${CONFIGFILE:-config-ruleCleaner.py}
 CFGFILE=/etc/secrets/$CONFIGFILE
 
 mkdir -p /data/srv/logs/$srv
