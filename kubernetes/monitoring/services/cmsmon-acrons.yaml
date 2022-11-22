@@ -1,0 +1,116 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: cmsmon-acrons
+  namespace: hdfs
+spec:
+  selector:
+    app: cmsmon-acrons
+  type: NodePort
+  ports:
+    - name: port-0
+      nodePort: 32500
+      port: 32500
+      protocol: TCP
+      targetPort: 32500
+    - name: port-1
+      nodePort: 32501
+      port: 32501
+      protocol: TCP
+      targetPort: 32501
+    - name: port-2
+      nodePort: 32502
+      port: 32502
+      protocol: TCP
+      targetPort: 32502
+    - name: port-3
+      nodePort: 32503
+      port: 32503
+      protocol: TCP
+      targetPort: 32503
+    - name: port-4
+      nodePort: 32504
+      port: 32504
+      protocol: TCP
+      targetPort: 32504
+    - name: port-5
+      nodePort: 32505
+      port: 32505
+      protocol: TCP
+      targetPort: 32505
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cmsmon-acrons
+  namespace: hdfs
+  labels:
+    app: cmsmon-acrons
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cmsmon-acrons
+  template:
+    metadata:
+      labels:
+        app: cmsmon-acrons
+    spec:
+      hostname: cmsmon-acrons
+      containers:
+        - name: cmsmon-acrons
+          image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.0.0
+          imagePullPolicy: Always
+          env:
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: K8S_ENV
+              value: "test"
+            - name: PUSHGATEWAY_URL
+              value: "pushgateway.default.svc.cluster.local:9091"
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "sh"
+                  - "-c"
+                  - >
+                    export > /etc/environment;
+          ports:
+            - containerPort: 32500
+              name: port-0
+            - containerPort: 32501
+              name: port-1
+            - containerPort: 32502
+              name: port-2
+            - containerPort: 32503
+              name: port-3
+            - containerPort: 32504
+              name: port-4
+            - containerPort: 32505
+              name: port-5
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 6Gi
+            requests:
+              cpu: 500m
+              memory: 750Mi
+          stdin: true
+          tty: true
+          volumeMounts:
+            - name: cmsmon-acrons-secrets
+              mountPath: /etc/secrets
+              readOnly: true
+            - name: eos # EOS access
+              mountPath: /eos
+              mountPropagation: HostToContainer
+      volumes:
+        - name: cmsmon-acrons-secrets
+          secret:
+            secretName: cmsmon-acrons-secrets
+        - name: eos
+          hostPath:
+            path: /var/eos

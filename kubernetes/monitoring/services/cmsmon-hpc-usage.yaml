@@ -1,67 +1,63 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: condor-cpu-eff
+  name: hpc-usage
   namespace: hdfs
 spec:
   selector:
-    app: condor-cpu-eff
+    app: hpc-usage
   type: NodePort
   ports:
     - name: port-0 # spark.driver.port
-      nodePort: 31234
-      port: 31234
+      nodePort: 32600
+      port: 32600
       protocol: TCP
-      targetPort: 31234
+      targetPort: 32600
     - name: port-1 # spark.driver.blockManager.port
-      nodePort: 31235
-      port: 31235
+      nodePort: 32601
+      port: 32601
       protocol: TCP
-      targetPort: 31235
+      targetPort: 32601
 ---
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: condor-cpu-eff
+  name: hpc-usage
   namespace: hdfs
   labels:
-    app: condor-cpu-eff
+    app: hpc-usage
 data:
   run.sh: |
     #!/bin/bash
-    # Get env variables
     . /etc/environment
-    # Condor cpu efficiency, last_n_days is 30
-    # StepChain cpu efficiency, last_n_days is 15
-    /bin/bash $WDIR/CMSSpark/bin/k8s_condor_cpu_efficiency.sh \
-      --keytab /etc/secrets/keytab --output /eos/user/c/cmsmonit/www --lastndays 30 \
-      --p1 31234 --p2 31235 --host $MY_NODE_NAME --wdir $WDIR >>/proc/$(cat /var/run/crond.pid)/fd/1 2>&1
-    sleep 10
-    /bin/bash $WDIR/CMSSpark/bin/k8s_stepchain_cpu_eff.sh \
-      --keytab /etc/secrets/keytab --output /eos/user/c/cmsmonit/www --lastndays 15 \
-      --p1 31234 --p2 31235 --host $MY_NODE_NAME --wdir $WDIR >>/proc/$(cat /var/run/crond.pid)/fd/1 2>&1
+    /bin/bash $WDIR/CMSSpark/bin/cron4hpc_usage.sh --keytab /etc/secrets/keytab \
+      --output /eos/user/c/cmsmonit/www/hpc_usage \
+      --url https://cmsdatapop.web.cern.ch/cmsdatapop/hpc_usage \
+      --iterative \
+      --p1 32600 --p2 32601 --host $MY_NODE_NAME --wdir $WDIR \
+      >>/proc/$(cat /var/run/crond.pid)/fd/1 2>&1
 ---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: condor-cpu-eff
+  name: hpc-usage
   namespace: hdfs
   labels:
-    app: condor-cpu-eff
+    app: hpc-usage
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: condor-cpu-eff
+      app: hpc-usage
   template:
     metadata:
       labels:
-        app: condor-cpu-eff
+        app: hpc-usage
     spec:
-      hostname: condor-cpu-eff
+      hostname: hpc-usage
       containers:
-        - name: condor-cpu-eff
-          image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.4.0.5
+        - name: hpc-usage
+          image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.4.0.8
           imagePullPolicy: Always
           env:
             - name: MY_NODE_NAME
@@ -81,37 +77,37 @@ spec:
                   - >
                     export > /etc/environment;
                     chmod +x /data/cronjob/run.sh;
-                    echo "00 03 * * * /bin/bash /data/cronjob/run.sh" | crontab -;
+                    echo "10 02 * * * /bin/bash /data/cronjob/run.sh" | crontab -;
           resources:
             limits:
               cpu: 2000m
               memory: 6Gi
             requests:
-              cpu: 1000m
-              memory: 750Mi
+              cpu: 100m
+              memory: 100Mi
           ports:
-            - containerPort: 31234 # spark.driver.port
+            - containerPort: 32600
               name: port-0
-            - containerPort: 31235 # spark.driver.blockManager.port
+            - containerPort: 32601
               name: port-1
           tty: true
           stdin: true
           volumeMounts:
-            - name: condor-cpu-eff-secrets
+            - name: hpc-usage-secrets
               mountPath: /etc/secrets
               readOnly: true
             - name: eos # EOS access
               mountPath: /eos
               mountPropagation: HostToContainer
-            - name: condor-cpu-eff-configmap
+            - name: hpc-usage-configmap
               mountPath: /data/cronjob
       volumes:
-        - name: condor-cpu-eff-secrets
+        - name: hpc-usage-secrets
           secret:
-            secretName: condor-cpu-eff-secrets
+            secretName: hpc-usage-secrets
         - name: eos
           hostPath:
             path: /var/eos
-        - name: condor-cpu-eff-configmap
+        - name: hpc-usage-configmap
           configMap:
-            name: condor-cpu-eff
+            name: hpc-usage

@@ -1,8 +1,27 @@
 # cmsmon-hadoop-base:spark3
-FROM gitlab-registry.cern.ch/linuxsupport/cc7-base:latest
+# Ref: https://gitlab.cern.ch/db/cerndb-infra-hadoop-conf/-/blob/qa/docker/Dockerfile-HDP3
+FROM python:3.9 as builder
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
-# Should be full such that includes minor version
+ENV WDIR=/data
+WORKDIR $WDIR
+
+# Create zip files of stomp.py=7.0.0 to submit Spark workers
+RUN apt-get update -y && \
+    apt-get install -y zip subversion && \
+#   Install python stomp.py==7.0.0 module which is the latest working version with StompAMQ7
+    pip install --no-cache-dir -t stomp-v700 https://github.com/jasonrbriggs/stomp.py/archive/refs/tags/v7.0.0.zip && \
+#   Create zip file to send to Spark workers, because workers have old version of it (v3 or v4)
+    cd stomp-v700 && \
+    zip -r ../stomp-v700.zip . && \
+    cd .. && \
+    rm -rf stomp-v700
+
+# --------------------------------------------------------------------------------------------------
+FROM gitlab-registry.cern.ch/linuxsupport/cc7-base:20221101-1.x86_64
+MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
+
+# Should be full version
 ARG PY_VERSION=3.9.12
 
 ENV WDIR=/data
@@ -34,7 +53,7 @@ RUN yum -y update && \
         libaio-devel net-tools lsof bind-utils initscripts patch voms-devel globus-gsi-credential-devel \
         globus-gsi-cert-utils-devel globus-common-devel globus-gsi-sysconfig-devel globus-gsi-callback-devel \
         oracle-instantclient-tnsnames.ora HEP_OSlibs python-pip libffi-devel gcc bzip2-devel zlib-devel wget \
-        hadoop-bin-3.2 spark-bin-3.2 sqoop-bin-1.4 cern-hadoop-xrootd-connector cern-hadoop-config && \
+        hadoop-bin-3.2 spark-bin-3.3 sqoop-bin-1.4 cern-hadoop-xrootd-connector cern-hadoop-config && \
     yum clean all && rm -rf /var/cache/yum && \
 # Build Python3
     wget https://www.python.org/ftp/python/${PY_VERSION}/Python-${PY_VERSION}.tgz && \
@@ -49,7 +68,8 @@ RUN yum -y update && \
     cd $WDIR && \
     rm -rf Python-${PY_VERSION}.tgz Python-${PY_VERSION} && \
     unset PY_MAJOR && \
-# Python build done
+# Adapt config to use hadoop-3.2 yarn mode
+    for f in /opt/hadoop/conf/etc/*/*/yarn-site.xml ; do sed -i 's/hadoop-2.7/hadoop-3.2/g' $f ; done && \
     hadoop-set-default-conf.sh analytix && \
     source hadoop-setconf.sh analytix 3.2 spark3 && \
     touch /etc/hadoop/conf/topology.table.file && ln -s /bin/bash /usr/bin/bashs && \
@@ -57,5 +77,14 @@ RUN yum -y update && \
     echo "32 */6 * * * root ! /usr/sbin/fetch-crl -q -r 360" >/etc/cron.d/fetch-crl-docker
 # add fetch-crl to fetch all certificates
 
-# start the setup
+ENV HADOOP_CONF_DIR=/etc/hadoop/conf
+ENV PATH="${PATH}:/usr/hdp/hadoop/bin/hadoop:/usr/hdp/spark3/bin:/usr/hdp/sqoop/bin"
+ENV PYTHONPATH "${PYTHONPATH}:${WDIR}"
+
+ENV PYSPARK_PYTHON=/cvmfs/sft.cern.ch/lcg/releases/Python/3.9.12-9a1bc/x86_64-centos7-gcc8-opt/bin/python3
+ENV PYSPARK_DRIVER_PYTHON=/usr/bin/python
+ENV LC_ALL=en_US.utf-8 LANG=en_US.utf-8
+
+COPY --from=builder /data $WDIR
+
 WORKDIR ${WDIR}
