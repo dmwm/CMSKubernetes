@@ -7,6 +7,7 @@
 ##H        auth-secrets
 ##H        cern-certificates
 ##H        condor-cpu-eff-secrets
+##H        hpc-usage-secrets
 ##H        es-wma-secrets
 ##H        hdfs-secrets
 ##H        intelligence-secrets
@@ -120,6 +121,8 @@ elif [ "$secret" == "cmsmon-mongo-secrets" ]; then
     #   because of this we embed literals in files variable
     unset literals
 elif [ "$secret" == "condor-cpu-eff-secrets" ]; then
+    files=`ls $sdir/cmsmonit-keytab/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmonit-keytab | sed "s, $,,g"`
+elif [ "$secret" == "hpc-usage-secrets" ]; then
     files=`ls $sdir/cmsmonit-keytab/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmonit-keytab | sed "s, $,,g"`
 elif [ "$secret" == "es-wma-secrets" ]; then
     files=`ls $sdir/es-exporter/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/es-exporter | sed "s, $,,g"`
