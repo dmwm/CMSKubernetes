@@ -4,7 +4,8 @@
 srv=`echo $USER | sed -e "s,_,,g"`
 STATEDIR=/data/srv/state/$srv
 LOGDIR=/data/srv/logs/$srv
-CFGFILE=/etc/secrets/config-transferor.py
+CONFIGFILE=${CONFIGFILE:-config-transferor.py}
+CFGFILE=/etc/secrets/$CONFIGFILE
 
 mkdir -p /data/srv/logs/$srv
 mkdir -p /data/srv/state/$srv
@@ -65,7 +66,7 @@ fi
 
 # use service configuration files from /etc/secrets if they are present
 cdir=/data/srv/current/config/$srv
-files=`ls $cdir`
+files=`ls /etc/secrets`
 for fname in $files; do
     if [ -f /etc/secrets/$fname ]; then
         if [ -f $cdir/$fname ]; then
@@ -73,6 +74,9 @@ for fname in $files; do
         fi
         sudo cp /etc/secrets/$fname $cdir/$fname
         sudo chown $USER.$USER $cdir/$fname
+        if [ "$fname" == "$CONFIGFILE" ]; then
+            CFGFILE=$cdir/$CONFIGFILE
+        fi
     fi
 done
 files=`ls /etc/secrets`
@@ -86,6 +90,9 @@ done
 export PYTHONPATH=$PYTHONPATH:/etc/secrets:/data/srv/current/auth/$srv/$fname
 
 # start the service
+echo "Use configuration $CFGFILE"
+cat $CFGFILE
+echo "start wmc-httpd"
 wmc-httpd -r -d $STATEDIR -l "|rotatelogs $LOGDIR/$srv-%Y%m%d-`hostname -s`.log 86400" $CFGFILE
 sleep 10
 tail -f $LOGDIR/*.log

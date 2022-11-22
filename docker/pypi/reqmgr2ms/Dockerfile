@@ -3,7 +3,7 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 RUN apt-get update
 RUN apt-get install -y curl libcurl4 libcurl4-openssl-dev python3-pycurl pip apache2-utils sudo
 RUN ln -s /usr/bin/python3 /usr/bin/python
-RUN pip install reqmgr2ms-output
+RUN pip install reqmgr2ms-output dbs3-client
 RUN mkdir /etc/grid-security
 ENV WDIR=/data
 ENV USER=_reqmgr2ms

@@ -8,7 +8,7 @@ COPY --from=gfal /data/miniconda /data/miniconda
 ENV WDIR=/data
 ENV PATH $PATH:$WDIR/miniconda/bin
 ENV PYTHONPATH $WDIR/miniconda/lib/python3.8/site-packages/
-ENV TAG=2.1.4rc3
+ENV TAG=2.1.4
 ENV REQTAG=2.1.4.pre3
 WORKDIR $WDIR
 # since we install gfal via external image we'll skip it for installation
@@ -16,7 +16,7 @@ WORKDIR $WDIR
 RUN curl -ksLO https://raw.githubusercontent.com/dmwm/WMCore/$REQTAG/requirements.txt
 RUN cat requirements.txt | grep -v gfal2 > req.txt
 RUN pip install -r req.txt
-RUN pip install --no-deps reqmgr2ms-unmerged==$TAG
+RUN pip install --no-deps reqmgr2ms-unmerged==$TAG dbs3-client
 RUN mkdir /etc/grid-security
 ENV WDIR=/data
 ENV USER=_reqmgr2ms
