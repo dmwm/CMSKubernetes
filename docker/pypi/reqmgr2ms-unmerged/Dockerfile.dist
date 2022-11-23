@@ -1,14 +1,11 @@
 FROM registry.cern.ch/cmsweb/gfal:latest as gfal
-FROM python:3.8-bullseye
+FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20221123
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
-RUN apt-get update
-RUN apt-get install -y curl libcurl4 libcurl4-openssl-dev python3-pycurl pip apache2-utils sudo
-RUN ln -s /usr/bin/python3 /usr/bin/python
 COPY --from=gfal /data/miniconda /data/miniconda
 ENV WDIR=/data
 ENV PATH $PATH:$WDIR/miniconda/bin
 ENV PYTHONPATH $WDIR/miniconda/lib/python3.8/site-packages/
-ENV TAG=2.1.4rc3
+ENV TAG=2.1.4
 ENV REQTAG=2.1.4.pre3
 WORKDIR $WDIR
 # since we install gfal via external image we'll skip it for installation
@@ -16,8 +13,8 @@ WORKDIR $WDIR
 RUN curl -ksLO https://raw.githubusercontent.com/dmwm/WMCore/$REQTAG/requirements.txt
 RUN cat requirements.txt | grep -v gfal2 > req.txt
 RUN pip install -r req.txt
+ADD reqmgr2ms-unmerged-$TAG.tar.gz reqmgr2ms-unmerged-$TAG.tar.gz
 RUN pip install --no-deps reqmgr2ms-unmerged-$TAG.tar.gz
-RUN mkdir /etc/grid-security
 ENV WDIR=/data
 ENV USER=_reqmgr2ms
 RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
