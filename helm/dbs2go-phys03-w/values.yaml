@@ -1,27 +1,26 @@
-# Default values for dbs2go.
+# Default values for dbs2go-phys03-w.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 replicaCount: 
-  prod: 3
-  preprod: 3
-  test: 1
+   prod: 3
+   test: 1
 
 image:
   repository: registry.cern.ch/cmsweb/dbs2go
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "v00.06.31-stable"
-  env:
-  - name: X509_USER_PROXY
-    value: /etc/proxy/proxy
+  tag: "v00.06.38-stable"
   command:
   - /data/run.sh
 
 environment:
-  prod: false
-  preprod: false
-  test : false
+
+env:
+- name: X509_USER_PROXY
+  value: /etc/proxy/proxy
+- name: TNS_ADMIN
+  value: /etc/tnsnames.ora
 
 imagePullSecrets: []
 nameOverride: ""
@@ -38,46 +37,48 @@ serviceAccount:
 
 podAnnotations: 
   prometheus.io/scrape: 'true'
-  prometheus.io/port: "18258"
+  prometheus.io/port: "9255"
+  prometheus.io/path: "/dbs/prod/phys03/DBSWriter/metrics"
 
-podSecurityContext: {}
-#runAsGroup: 0
-# runAsUser: 0
+securityContext: 
+  allowPrivilegeEscalation: false
 
+podSecurityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 2000
 
-service: 
-  port: 8258
-  name: dbs
-  protocol: TCP
-  type: ClusterIP
-
-serviceMon: 
-  port: 18258 
-  name: dbs-mon
-  protocol: TCP
-
-resources:
-  requests:
-    memory: "100Mi"
-    cpu: "200m"
-  limits:
-    memory: "500Mi"
-    cpu: "8000m"
+imageFilebeatSecurityContext:
+  allowPrivilegeEscalation: false
 
 livenessProbe:
   httpGet:
-    path: /dbs2go/status
-    port: 8258
+    path: /dbs/prod/phys03/DBSWriter/healthz
+    port: 9255
     httpHeaders:
     - name: Accept
       value: application/json
   initialDelaySeconds: 120
   periodSeconds: 10
 
-#image Filebeat values
+livenessProbePreProd:
+  httpGet:
+    path: /dbs/prod/phys03/DBSWriter/healthz
+    port: 9255
+    httpHeaders:
+    - name: Accept
+      value: application/json
+  initialDelaySeconds: 120
+  periodSeconds: 10
+
+service: 
+  port: 9255
+  name: dbs2go-phys03-w
+  protocol: TCP
+  type: ClusterIP
 
 imageFilebeat:
-  name: dbs2go-filebeat
+  name: dbs2go-phys03-w-filebeat
   path: docker.elastic.co/beats/filebeat:7.12.0
   args: [
   "-c", "/etc/filebeat.yml",
@@ -107,6 +108,14 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
+
+resources:
+  requests:
+    memory: "100Mi"
+    cpu: "200m"
+  limits:
+    memory: "8000Mi"
+    cpu: "8000m"
 
 
 autoscaling:

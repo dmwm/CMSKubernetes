@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "dbs2go-phys03-r.fullname" . }}
+  labels:
+    {{- include "dbs2go-phys03-r.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: dbs2go-phys03-r
+  ports:
+    - port: 9254
+      targetPort: 9254
+      name: dbs
