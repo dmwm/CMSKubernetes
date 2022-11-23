@@ -21,6 +21,7 @@ if [ -f /etc/robots/robotkey.pem ]; then
     sudo cp /etc/robots/robotcert.pem /data/srv/current/auth/$srv/dmwm-service-cert.pem
     sudo chown $USER.$USER /data/srv/current/auth/$srv/dmwm-service-key.pem
     sudo chown $USER.$USER /data/srv/current/auth/$srv/dmwm-service-cert.pem
+    sudo chmod 0400 /data/srv/current/auth/$srv/dmwm-service-key.pem
 fi
 AUTHDIR=/data/srv/current/auth/$srv
 export REQMGR_CACHE_DIR=$STATEDIR
