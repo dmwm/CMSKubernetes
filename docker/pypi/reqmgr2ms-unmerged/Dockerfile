@@ -1,9 +1,6 @@
 FROM registry.cern.ch/cmsweb/gfal:latest as gfal
-FROM python:3.8-bullseye
+FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20221123
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
-RUN apt-get update
-RUN apt-get install -y curl libcurl4 libcurl4-openssl-dev python3-pycurl pip apache2-utils sudo
-RUN ln -s /usr/bin/python3 /usr/bin/python
 COPY --from=gfal /data/miniconda /data/miniconda
 ENV WDIR=/data
 ENV PATH $PATH:$WDIR/miniconda/bin
@@ -17,7 +14,6 @@ RUN curl -ksLO https://raw.githubusercontent.com/dmwm/WMCore/$REQTAG/requirement
 RUN cat requirements.txt | grep -v gfal2 > req.txt
 RUN pip install -r req.txt
 RUN pip install --no-deps reqmgr2ms-unmerged==$TAG dbs3-client
-RUN mkdir /etc/grid-security
 ENV WDIR=/data
 ENV USER=_reqmgr2ms
 RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
