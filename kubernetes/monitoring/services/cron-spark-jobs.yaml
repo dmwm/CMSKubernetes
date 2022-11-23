@@ -1,0 +1,145 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cron-spark-jobs
+  namespace: hdfs
+  labels:
+    app: cron-spark-jobs
+data:
+  crons.txt: |
+    SHELL=/bin/bash
+    B_=$WDIR/CMSSpark/bin
+    SHARED_ARGS_=" --keytab /etc/secrets/keytab --host ${MY_NODE_NAME} --wdir ${WDIR} --p1 32500 --p2 32501 "
+    SHARED_POPDB_ARGS_=" --keytab /etc/secrets/cmspopdb-keytab --host ${MY_NODE_NAME} --wdir ${WDIR} --p1 32500 --p2 32501 "
+    SOUT_=/proc/$(cat /var/run/crond.pid)/fd/1
+    #-----------------------------------------------------------------------------
+    #M  H  d  m  w Command
+    #-----------------------------------------------------------------------------
+    # MONTHLY
+    00 16 03  *  * $B_/cron4hpc_at_cms.sh $SHARED_ARGS_ --output $BASE_EOS_OUT/hpc >>$SOUT_ 2>&1
+    00 16 05  *  * $B_/cron4crab_popularity.sh $SHARED_ARGS_ --output $BASE_EOS_OUT/crabPop/data >>$SOUT_ 2>&1
+    00 16 07  *  * $B_/cron4gen_crsg_plots.sh $SHARED_ARGS_ --output $BASE_EOS_OUT/EventCountPlots >>$SOUT_ 2>&1
+    00 16 19  *  * $B_/cron4hs06_cputime_plot.sh $SHARED_ARGS_ --output $BASE_EOS_OUT/hs06cputime >>$SOUT_ 2>&1
+    00 16 24  *  * $B_/cron4eos_dataset.sh $SHARED_ARGS_ --output $BASE_EOS_OUT/EOS/data >>$SOUT_ 2>&1
+    00 16 27  *  * $B_/cron4crab_unique_users.sh $SHARED_ARGS_ --output $BASE_EOS_OUT/crab_uu >>$SOUT_ 2>&1
+    # DAILY
+    07 08  *  *  * $B_/cron4rucio_daily.sh $SHARED_POPDB_ARGS_ --output /cms/rucio_daily >>$SOUT_ 2>&1
+  test_run.sh: |
+    #!/bin/bash
+    . /etc/environment
+    SHARED_ARGS_=" --keytab /etc/secrets/keytab --host ${MY_NODE_NAME} --wdir ${WDIR} --p1 32500 --p2 32501 --test "
+    B_=$WDIR/CMSSpark/bin
+    BASE_EOS_OUT=$BASE_EOS_OUT/test
+    mkdir -p $BASE_EOS_OUT
+    # Use your kerberos user hdfs tmp location
+    export PARQUET_LOCATION="/tmp/${KERBEROS_USER}/test_parquet_eos_dataset"
+    SOUT_=/proc/$(cat /var/run/crond.pid)/fd/1
+    echo -e "< < < < < BASE OUTPUT DIRECTORY: ${BASE_EOS_OUT} > > > > >\n" >>$SOUT_ 2>&1
+    $B_/cron4rucio_daily.sh $SHARED_ARGS_ --output /tmp/cmsmonit/rucio_daily/test >>$SOUT_ 2>&1
+    $B_/cron4hpc_at_cms.sh $SHARED_ARGS_ --output $BASE_EOS_OUT/hpc >>$SOUT_ 2>&1
+    $B_/cron4crab_popularity.sh $SHARED_ARGS_ --output $BASE_EOS_OUT/crabPop/data >>$SOUT_ 2>&1
+    $B_/cron4gen_crsg_plots.sh $SHARED_ARGS_ --output $BASE_EOS_OUT/EventCountPlots >>$SOUT_ 2>&1
+    $B_/cron4hs06_cputime_plot.sh $SHARED_ARGS_ --output $BASE_EOS_OUT/hs06cputime >>$SOUT_ 2>&1
+    $B_/cron4eos_dataset.sh $SHARED_ARGS_ --output $BASE_EOS_OUT/EOS/data >>$SOUT_ 2>&1
+    $B_/cron4crab_unique_users.sh $SHARED_ARGS_ --output $BASE_EOS_OUT/crab_uu >>$SOUT_ 2>&1
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: cron-spark-jobs
+  namespace: hdfs
+spec:
+  selector:
+    app: cron-spark-jobs
+  type: NodePort
+  ports:
+    - name: port-0
+      nodePort: 32500
+      port: 32500
+      protocol: TCP
+      targetPort: 32500
+    - name: port-1
+      nodePort: 32501
+      port: 32501
+      protocol: TCP
+      targetPort: 32501
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cron-spark-jobs
+  namespace: hdfs
+  labels:
+    app: cron-spark-jobs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cron-spark-jobs
+  template:
+    metadata:
+      labels:
+        app: cron-spark-jobs
+    spec:
+      hostname: cron-spark-jobs
+      containers:
+        - name: cron-spark-jobs
+          image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.4.0.20
+          imagePullPolicy: Always
+          env:
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: K8S_ENV
+              value: "prod"
+            - name: BASE_EOS_OUT
+              value: "/eos/user/c/cmsmonit/www"
+            - name: PUSHGATEWAY_URL
+              value: "pushgateway.default.svc.cluster.local:9091"
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "sh"
+                  - "-c"
+                  - >
+                    export > /etc/environment;
+                    chmod +x /data/cronjob/test_run.sh;
+                    if [ $K8S_ENV == "prod" ]; then crontab < /data/cronjob/crons.txt && exit 0; fi;
+                    cron_time="$(date -d '+3 minute' '+%M %H %d %m *')";
+                    if [ $K8S_ENV == "test" ]; then echo "${cron_time} /bin/bash /data/cronjob/test_run.sh" | crontab -; fi;
+                    # To run test job only once using crontab
+          ports:
+            - containerPort: 32500
+              name: port-0
+            - containerPort: 32501
+              name: port-1
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 6Gi
+            requests:
+              cpu: 500m
+              memory: 750Mi
+          stdin: true
+          tty: true
+          volumeMounts:
+            - name: cron-spark-jobs-secrets
+              mountPath: /etc/secrets
+              readOnly: true
+            - name: eos # EOS access
+              mountPath: /eos
+              mountPropagation: HostToContainer
+            - name: cron-spark-jobs-configmap
+              mountPath: /data/cronjob
+      volumes:
+        - name: cron-spark-jobs-secrets
+          secret:
+            secretName: cron-spark-jobs-secrets
+        - name: eos
+          hostPath:
+            path: /var/eos
+        - name: cron-spark-jobs-configmap
+          configMap:
+            name: cron-spark-jobs
