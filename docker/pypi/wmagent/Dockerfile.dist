@@ -3,8 +3,10 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 RUN apt-get update
 RUN apt-get install -y libmariadb-dev-compat libmariadb-dev apache2-utils sudo
 ENV TAG=2.1.4
-ADD wmagent-$TAG.tar.gz wmagent-$TAG.tar.gz
-RUN pip install wmagent-$TAG.tar.gz
+ADD wmagent-$TAG.tar.gz $WORKDIR
+WORKDIR wmagent-$TAG
+RUN pip install -r requirements.txt
+RUN python3 setup.py install
 ENV WDIR=/data
 ENV USER=_wmagent
 RUN useradd ${USER} && install -o ${USER} -d ${WDIR}

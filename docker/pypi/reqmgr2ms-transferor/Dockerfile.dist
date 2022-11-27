@@ -1,8 +1,10 @@
 FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20221123
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 ENV TAG=2.1.4
-ADD reqmgr2ms-transferor-$TAG.tar.gz reqmgr2ms-transferor-$TAG.tar.gz
-RUN pip install reqmgr2ms-transferor-$TAG.tar.gz
+ADD reqmgr2ms-transferor-$TAG.tar.gz $WORKDIR
+WORKDIR reqmgr2ms-transferor-$TAG
+RUN pip install -r requirements.txt
+RUN python3 setup.py install
 ENV WDIR=/data
 ENV USER=_reqmgr2ms
 RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
