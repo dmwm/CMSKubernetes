@@ -11,11 +11,12 @@ WORKDIR $WDIR
 # since we install gfal via external image we'll skip it for installation
 # of reqmgr2ms-unmerged, but to satisfy dependencies we'll install them first
 # RUN curl -ksLO https://raw.githubusercontent.com/dmwm/WMCore/$REQTAG/requirements.txt
+# RUN cat requirements.txt | grep -v gfal2 > req.txt
+# add requirements.txt file which should exclude gfal2 package
 ADD requirements.txt $WORKDIR
-RUN cat requirements.txt | grep -v gfal2 > req.txt
 WORKDIR reqmgr2ms-unmerged-$TAG
 ADD reqmgr2ms-unmerged-$TAG.tar.gz $WORKDIR
-RUN pip install -r req.txt
+RUN pip install -r requirements.txt
 RUN python3 setup.py install
 ENV WDIR=/data
 ENV USER=_reqmgr2ms
