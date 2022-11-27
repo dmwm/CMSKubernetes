@@ -17,7 +17,7 @@ WORKDIR reqmgr2ms-unmerged-$TAG
 RUN cat requirements.txt | grep -v gfal2 > req.txt
 RUN pip install -r req.txt
 RUN pip install dbs3-client
-RUN python3 setup.py install --no-deps
+RUN python3 setup.py develop --no-deps
 ENV WDIR=/data
 ENV USER=_reqmgr2ms
 RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
