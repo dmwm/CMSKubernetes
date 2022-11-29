@@ -3,7 +3,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: t0reqmon-tasks-filebeat-config
-  namespace: tzero
+  namespace: dmwm
   labels:
     k8s-app: filebeat
 data:
@@ -31,7 +31,7 @@ metadata:
   name: t0reqmon-tasks
   labels:
     app: t0reqmon-tasks
-  namespace: tzero
+  namespace: dmwm
 data:
   setup-certs-and-run.sh: |
     #!/bin/bash
@@ -48,7 +48,7 @@ metadata:
   labels:
     app: t0reqmon-tasks
   name: t0reqmon-tasks
-  namespace: tzero
+  namespace: dmwm
 spec:
   selector:
     matchLabels:
@@ -176,7 +176,7 @@ spec:
           secretName: token-secrets          
 #PROD#- name: logs
 #PROD#  persistentVolumeClaim:
-#PROD#      claimName: logs-cephfs-claim-tzero
+#PROD#      claimName: logs-cephfs-claim-dmwm
 #PROD#- name: varlog
 #PROD#  hostPath:
 #PROD#    path: /var/log
