@@ -29,6 +29,7 @@ RUN yum -y update && \
     unset PY_MAJOR && \
     cd $WDIR && \
     pip install --no-cache-dir click pandas schema && \
+    git clone https://github.com/dmwm/CMSSpark.git && \
     git clone https://github.com/dmwm/CMSMonitoring.git && cd CMSMonitoring && git checkout tags/$CMSMONITORING_TAG -b build && cd ..
 
 WORKDIR ${WDIR}
