@@ -1,0 +1,112 @@
+# cvmfs is required for rucio apis
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: csi-cvmfs-cms
+  namespace: hdfs
+provisioner: cvmfs.csi.cern.ch
+parameters:
+  repository: cms.cern.ch
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: csi-cvmfs-cms-pvc
+  namespace: hdfs
+spec:
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: csi-cvmfs-cms
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cron-size-quotas
+  namespace: hdfs
+  labels:
+    app: cron-size-quotas
+data:
+  # Setup script for short named env variables
+  s.sh: |
+    . /etc/environment
+    export B_=$WDIR/CMSMonitoring/scripts
+    export O_=/proc/$(cat /var/run/crond.pid)/fd/1
+    export EOS_=$BASE_EOS_OUT
+  crons.txt: |
+    07      * * * * . /data/cronjob/s.sh; $B_/cron4rucio_quotas.sh $EOS_/rucio/quotas.html       >>$O_ 2>&1
+    #5-59/10 * * * * . /data/cronjob/s.sh; $B_/cron4eos_usage.sh    $EOS_/eos-path-size/size.html >>$O_ 2>&1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cron-size-quotas
+  namespace: hdfs
+  labels:
+    app: cron-size-quotas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cron-size-quotas
+  template:
+    metadata:
+      labels:
+        app: cron-size-quotas
+    spec:
+      containers:
+        - name: test
+          image: registry.cern.ch/cmsmonitoring/cmsmon-py:drpy-0.0.5
+          command: [ "crond" ]
+          args: [ "-n", "-s" ]
+          imagePullPolicy: Always
+          env:
+            - name: K8S_ENV
+              value: "prod"
+            - name: BASE_EOS_OUT
+              value: "/eos/user/c/cmsmonit/www"
+            - name: PUSHGATEWAY_URL
+              value: "pushgateway.default.svc.cluster.local:9091"
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "sh"
+                  - "-c"
+                  - >
+                    export > /etc/environment;
+                    crontab < /data/cronjob/crons.txt;
+          volumeMounts:
+            - name: cron-size-quotas-secrets
+              mountPath: /etc/secrets
+              readOnly: true
+            - name: proxy-secrets
+              mountPath: /etc/proxy
+              readOnly: true
+            - name: cron-size-quotas-configmap
+              mountPath: /data/cronjob
+            - mountPath: /cvmfs/cms.cern.ch
+              name: cms-pvc
+            - name: eos
+              mountPath: /eos
+              mountPropagation: HostToContainer
+      volumes:
+        - name: cron-size-quotas-secrets
+          secret:
+            secretName: cron-size-quotas-secrets
+        - name: proxy-secrets
+          secret:
+            secretName: proxy-secrets
+        - name: cron-size-quotas-configmap
+          configMap:
+            name: cron-size-quotas
+        - name: cms-pvc
+          persistentVolumeClaim:
+            claimName: csi-cvmfs-cms-pvc
+            readOnly: true
+        - name: eos
+          hostPath:
+            path: /var/eos
