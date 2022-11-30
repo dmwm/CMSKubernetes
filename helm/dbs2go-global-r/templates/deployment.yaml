@@ -1,0 +1,147 @@
+{{- $environment := .Values.environment | default dict }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "dbs2go-global-r.fullname" . }}
+  labels:
+    {{- include "dbs2go-global-r.labels" . | nindent 4 }}
+  namespace: dbs
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+{{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+  replicas: {{ .Values.replicaCount.prod }}
+  {{- else }}
+  replicas: {{ .Values.replicaCount.test }}
+  {{- end }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "dbs2go-global-r.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "dbs2go-global-r.selectorLabels" . | nindent 8 }}
+        env: k8s-{{.Values.environment}}
+        job: dbs2go-global-r
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      #serviceAccountName: {{ include "dbs2go-global-r.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          {{- toYaml .Values.env | nindent 10 }}
+          securityContext:
+           {{- toYaml .Values.securityContext | nindent 12 }}
+          ports:
+           - containerPort: {{ .Values.service.port }}
+             name: {{ .Values.service.name }}
+             protocol: {{ .Values.service.protocol }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          command:
+            {{- toYaml .Values.image.command | nindent 10 }}
+          livenessProbe:
+          {{- toYaml .Values.livenessProbe | nindent 12 }}
+          volumeMounts:
+          - name: proxy-secrets
+            mountPath: /etc/proxy
+            readOnly: true
+          - name: secrets
+            mountPath: /etc/secrets
+            readOnly: true
+          - name: robot-secrets
+            mountPath: /etc/robots
+            readOnly: true
+          - name: hmac-secrets
+            mountPath: /etc/hmac
+            readOnly: true
+          - name: token-secrets
+            mountPath: /etc/token
+            readOnly: true
+          - name: tnsnames
+            mountPath: /etc/tnsnames.ora
+            subPath: tnsnames.ora          
+{{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+          - name: logs
+            mountPath: /data/srv/logs/dbs
+        - name: {{ .Values.imageFilebeat.name }}
+          image: {{ .Values.imageFilebeat.path }}
+          env:
+          {{- toYaml .Values.imageFilebeat.env | nindent 10 }}
+          args:
+          {{- toYaml .Values.imageFilebeat.args | nindent 10 }}
+          resources:
+          {{- toYaml .Values.imageFilebeatResources | nindent 12 }}
+          volumeMounts:
+          - name: logs
+            mountPath: /data/srv/logs/dbs
+          - name: config
+            mountPath: /etc/filebeat.yml
+            readOnly: true
+            subPath: filebeat.yml
+          - name: data
+            mountPath: /usr/share/filebeat/data
+          - name: varlog
+            mountPath: /var/log
+          - name: varlibdockercontainers
+            mountPath: /var/lib/docker/containers
+            readOnly: true
+          securityContext:
+          {{- toYaml .Values.imageFilebeatSecurityContext | nindent 12 }}
+{{- end }}
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: dbs2go-global-r-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: etc-grid-security
+        hostPath:
+            path: /etc/grid-security
+      - name: tnsnames
+        configMap:
+          name: tnsnames-config
+      - name: token-secrets
+        secret:
+          secretName: token-secrets     
+{{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+      - name: logs
+        persistentVolumeClaim:
+{{- if eq (toString $environment) "preprod" }}
+            claimName: logs-cephfs-claim-preprod-dbs
+{{- end }}
+{{- if eq (toString $environment) "prod" }}
+            claimName: logs-cephfs-claim-prod-dbs
+{{- end }}
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: config
+        configMap:
+          defaultMode: 0640
+          name: dbs2go-global-r-filebeat-config
+      - name: data
+        emptyDir: {}       
+{{- end }}
+

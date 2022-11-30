@@ -18,4 +18,4 @@ cd ./scripts
 ./dqmgui.sh -p 8889
 
 # Start cron deamon
-sudo /usr/sbin/crond -n
+/usr/sbin/crond -n

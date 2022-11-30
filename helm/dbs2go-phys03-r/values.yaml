@@ -1,0 +1,132 @@
+# Default values for dbs2go-phys03-r.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 
+  prod: 5
+  test: 1
+
+image:
+  repository: registry.cern.ch/cmsweb/dbs2go
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "v00.06.38-stable"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+env:
+- name: X509_USER_PROXY
+  value: /etc/proxy/proxy
+- name: TNS_ADMIN
+  value: /etc/tnsnames.ora
+
+environment:
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: 
+  prometheus.io/scrape: 'true'
+  prometheus.io/path: "/dbs/prod/phys03/DBSReader/metrics"
+  prometheus.io/port: "9254"
+# prometheus.io/port: "19254"
+
+securityContext: 
+  privileged: true
+
+podSecurityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 2000
+
+imageFilebeatSecurityContext:
+  allowPrivilegeEscalation: false
+
+service: 
+  port: 9254
+  name: dbs2go-phys03-r
+  protocol: TCP
+  type: ClusterIP
+
+livenessProbe:
+  httpGet:
+    path: /dbs/prod/phys03/DBSReader/healthz
+    port: 9254
+    httpHeaders:
+    - name: Accept
+      value: application/json
+  initialDelaySeconds: 120
+  periodSeconds: 10
+
+livenessProbePreProd:
+  httpGet:
+    path: /dbs/prod/phys03/DBSReader/healthz
+    port: 9254
+    httpHeaders:
+    - name: Accept
+      value: application/json
+  initialDelaySeconds: 120
+  periodSeconds: 10
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths: []
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+resources:
+  requests:
+    memory: "100Mi"
+    cpu: "200m"
+  limits:
+    memory: "500Mi"
+    cpu: "4000m"
+
+command:
+- /data/run.sh
+
+imageFilebeat:
+  name: dbs2go-phys03-r-filebeat
+  path: docker.elastic.co/beats/filebeat:7.12.0
+  args: [
+  "-c", "/etc/filebeat.yml",
+  "-e",
+  ]
+  env:
+  - name: MY_POD_NAME
+    valueFrom:
+      fieldRef:
+        apiVersion: v1
+        fieldPath: metadata.name
+
+imageFilebeatResources:
+  requests:
+    memory: "50Mi"
+    cpu: "50m"
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

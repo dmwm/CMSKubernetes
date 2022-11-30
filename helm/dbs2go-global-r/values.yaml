@@ -1,0 +1,123 @@
+# Default values for dbs2go-global-r.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 
+  prod: 5
+  test: 1
+
+environment:
+
+env:
+- name: X509_USER_PROXY
+  value: /etc/proxy/proxy
+- name: TNS_ADMIN
+  value: /etc/tnsnames.ora    
+
+image:
+  repository: registry.cern.ch/cmsweb/dbs2go
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "v00.06.39-stable"
+  command:
+  - /data/run.sh
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: 
+  prometheus.io/scrape: 'true'
+  prometheus.io/port: "9252"
+  prometheus.io/path: "/dbs/int/global/DBSReader/metrics"
+
+securityContext: 
+  allowPrivilegeEscalation: false
+
+podSecurityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 2000
+
+imageFilebeatSecurityContext:
+  allowPrivilegeEscalation: false
+
+livenessProbe:
+  httpGet:
+    path: /dbs/int/global/DBSReader/healthz
+    port: 9252
+    httpHeaders:
+    - name: Accept
+      value: application/json
+  initialDelaySeconds: 120
+  periodSeconds: 10
+
+service: 
+  port: 9252
+  name: dbs2go-global-r
+  protocol: TCP
+  type: ClusterIP
+
+resources:
+  requests:
+    memory: "100Mi"
+    cpu: "200m"
+  limits:
+    memory: "500Mi"
+    cpu: "4000m"
+
+#imageFilebeat values
+
+imageFilebeat:
+  name: dbs2go-global-r-filebeat
+  path: docker.elastic.co/beats/filebeat:7.12.0
+  env:
+  - name: MY_POD_NAME
+    valueFrom:
+      fieldRef:
+        apiVersion: v1
+        fieldPath: metadata.name
+  args: [
+  "-c", "/etc/filebeat.yml",
+  "-e",
+  ]
+
+imageFilebeatResources:
+  requests:
+    memory: "50Mi"
+    cpu: "50m"
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths: []
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

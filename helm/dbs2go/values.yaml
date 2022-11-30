@@ -4,13 +4,14 @@
 
 replicaCount: 
   prod: 3
+  preprod: 3
   test: 1
 
 image:
-  repository: cmssw/dbs2go
+  repository: registry.cern.ch/cmsweb/dbs2go
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "v00.02.06"
+  tag: "v00.06.31-stable"
   env:
   - name: X509_USER_PROXY
     value: /etc/proxy/proxy

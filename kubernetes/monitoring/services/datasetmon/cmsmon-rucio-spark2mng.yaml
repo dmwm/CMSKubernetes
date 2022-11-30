@@ -8,7 +8,7 @@ spec:
     app: cmsmon-rucio-spark2mng
   type: NodePort
   ports:
-    - name: port-0 # spark.driver.port, cern default is 5201
+    - name: port-0 # spark.driver.port
       nodePort: 31203
       port: 31203
       protocol: TCP
@@ -27,127 +27,114 @@ metadata:
   labels:
     app: cmsmon-rucio-spark2mng
 data:
-  createindexes.js: |
-    // switch to rucio db
-    use rucio;
-    // datasets indexes
-    db.datasets.createIndex( { "_id": 1, "Dataset": 1 } );
-    db.datasets.createIndex( { "Dataset": 1 } );
-    db.datasets.createIndex( { "LastAccessMs": 1 } );
-    db.datasets.createIndex( { "Max": 1 } );
-    db.datasets.createIndex( { "Min": 1 } );
-    db.datasets.createIndex( { "Avg": 1 } );
-    db.datasets.createIndex( { "Sum": 1 } );
-    db.datasets.createIndex( { "RealSize": 1 } );
-    db.datasets.createIndex( { "TotalFileCnt": 1 } );
-    db.datasets.createIndex( { "RseType": "text", "Dataset": "text", "RSEs": "text"} );
-    // detailed_datasets indexes
-    db.detailed_datasets.createIndex( { "_id": 1, "Type": 1 } );
-    db.detailed_datasets.createIndex( { "_id": 1, "Dataset": 1 } );
-    db.detailed_datasets.createIndex( { "_id": 1, "Dataset": 1, "RSE":1 } );
-    db.detailed_datasets.createIndex( {"Dataset": 1} );
-    db.detailed_datasets.createIndex( { "Dataset": 1, "RSE":1 } );
-    db.detailed_datasets.createIndex( { "Type": "text", "Dataset": "text", "RSE": "text", "Tier": "text", "C": "text", "RseKind": "text","ProdAccts": "text"} );
-  run.sh: |
+  run_spark2hdfs.sh: |
     #!/bin/bash
-    # Get env variables, since cron's process environment is different than shell's one
     . /etc/environment
-    # Run and print all results(except for Spark logs) to stdout
-    /data/CMSSpark/bin/cron4rucio_datasets_to_mongo.sh \
-      --keytab /etc/secrets/keytab \
-      --mongohost mongodb-0.mongodb.datasetmon.svc.cluster.local \
+    echo "Starting run_spark2hdfs.sh ..."
+    /data/CMSSpark/bin/datasetmon/cron4rucio_spark2hdfs.sh \
+      --keytab /etc/secrets/keytab --hdfs /tmp/cmsmonit/prod \
+      --p1 $CMSMON_RUCIO_SPARK2MNG_SERVICE_PORT_PORT_0 \
+      --p2 $CMSMON_RUCIO_SPARK2MNG_SERVICE_PORT_PORT_1 \
+      --host $MY_NODE_NAME --wdir $WDIR
+  run_hdfs2mongo.sh: |
+    #!/bin/bash
+    . /etc/environment
+    echo "Starting run_hdfs2mongo.sh ... "
+    /data/CMSSpark/bin/datasetmon/cron4rucio_hdfs2mongo.sh \
+      --keytab /etc/secrets/keytab --hdfs /tmp/cmsmonit/prod \
+      --mongohost "mongodb-0.mongodb.datasetmon.svc.cluster.local" \
       --mongoport "27017" \
       --mongouser $MONGO_ROOT_USERNAME \
       --mongopass $MONGO_ROOT_PASSWORD \
       --mongowritedb rucio \
       --mongoauthdb admin \
-      --nodename $MY_NODE_NAME \
-      --sparkport0 $CMSMON_RUCIO_SPARK2MNG_SERVICE_PORT_PORT_0 \
-      --sparkport1 $CMSMON_RUCIO_SPARK2MNG_SERVICE_PORT_PORT_1 \
-      --sparkbindadr 0.0.0.0 \
-      --sparklocalip 127.0.0.1 \
-      --wdir $WDIR \
-      >> /proc/$(cat /var/run/crond.pid)/fd/1 2>&1
-    
-    # Create MongoDB indexes after successfull import
-    /data/mongosh --host mongodb-0.mongodb.datasetmon.svc.cluster.local \
-      --port "27017" --username $MONGO_ROOT_USERNAME --password $MONGO_ROOT_PASSWORD \
-      --authenticationDatabase admin </data/cronjob/createindexes.js
+      --wdir $WDIR
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: CronJob
 metadata:
   name: cmsmon-rucio-spark2mng
   namespace: datasetmon
-  labels:
-    app: cmsmon-rucio-spark2mng
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: cmsmon-rucio-spark2mng
-  template:
-    metadata:
-      labels:
-        app: cmsmon-rucio-spark2mng
+  # UTC
+  schedule: "30 08 * * *"
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  jobTemplate:
     spec:
-      hostname: cmsmon-rucio-spark2mng
-      containers:
-        - name: cmsmon-rucio-spark2mng
-          image: registry.cern.ch/cmsmonitoring/cmsmon-rucio-spark2mng:v0.0.0
-          imagePullPolicy: Always
-          env:
-            - name: MONGO_ROOT_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: cmsmon-mongo-secrets
-                  key: MONGO_ROOT_USERNAME
-                  optional: false
-            - name: MONGO_ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: cmsmon-mongo-secrets
-                  key: MONGO_ROOT_PASSWORD
-                  optional: false
-            - name: MY_NODE_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: spec.nodeName
-          lifecycle:
-            postStart:
-              exec:
-                command:
-                  - "sh"
-                  - "-c"
-                  - >
-                    export > /etc/environment;
-                    chmod +x /data/cronjob/run.sh;
-                    echo "30 8  * * * /bin/bash /data/cronjob/run.sh" | crontab -;
-          ports:
-            - containerPort: 31203 # spark.driver.port
-              name: port-0
-            - containerPort: 31204 # spark.driver.blockManager.port
-              name: port-1
-          resources:
-            limits:
-              cpu: 2000m
-              memory: 6Gi
-            requests:
-              cpu: 500m
-              memory: 750Mi
-          stdin: true
-          tty: true
-          volumeMounts:
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            app: cmsmon-rucio-spark2mng
+        spec:
+          restartPolicy: Never
+          hostname: cmsmon-rucio-spark2mng
+          containers:
+            - name: cmsmon-rucio-spark2mng
+              image: registry.cern.ch/cmsmonitoring/cmsmon-spark2mng:v0.4.0.14
+              imagePullPolicy: Always
+              command: [ "/bin/bash", "-c" ]
+              args:
+                - source /etc/environment;
+                  /data/cronjob/run_spark2hdfs.sh && /data/cronjob/run_hdfs2mongo.sh;
+                # Restore MongoDB (only)# : /data/cronjob/run_hdfs2mongo.sh;
+              env:
+                - name: MY_NODE_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: spec.nodeName
+                - name: MONGO_ROOT_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: cmsmon-mongo-secrets
+                      key: MONGO_ROOT_USERNAME
+                      optional: false
+                - name: MONGO_ROOT_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: cmsmon-mongo-secrets
+                      key: MONGO_ROOT_PASSWORD
+                      optional: false
+                - name: K8S_ENV
+                  value: "prod"
+                - name: PUSHGATEWAY_URL
+                  # you may give local cluster PG url i.e.: pushgateway.default.svc.cluster.local:9091
+                  value: "cms-monitoring:30091"
+              ports:
+                - containerPort: 31203 # spark.driver.port
+                  name: port-0
+                - containerPort: 31204 # spark.driver.blockManager.port
+                  name: port-1
+              lifecycle:
+                postStart:
+                  exec:
+                    command:
+                      - "sh"
+                      - "-c"
+                      - >
+                        export > /etc/environment;
+              resources:
+                limits:
+                  cpu: 2000m
+                  memory: 6Gi
+                requests:
+                  cpu: 500m
+                  memory: 750Mi
+              stdin: true
+              tty: true
+              volumeMounts:
+                - name: cmsmon-mongo-secrets
+                  mountPath: /etc/secrets
+                  readOnly: true
+                - name: cronjobs-configmap
+                  mountPath: /data/cronjob
+          volumes:
             - name: cmsmon-mongo-secrets
-              mountPath: /etc/secrets
-              readOnly: true
+              secret:
+                secretName: cmsmon-mongo-secrets
+                defaultMode: 0444
             - name: cronjobs-configmap
-              mountPath: /data/cronjob
-      volumes:
-        - name: cmsmon-mongo-secrets
-          secret:
-            secretName: cmsmon-mongo-secrets
-            defaultMode: 0444
-        - name: cronjobs-configmap
-          configMap:
-            name: cm-cmsmon-rucio-spark2mng
+              configMap:
+                name: cm-cmsmon-rucio-spark2mng
+                defaultMode: 0777

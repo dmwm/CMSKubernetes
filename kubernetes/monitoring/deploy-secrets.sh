@@ -6,7 +6,9 @@
 ##H        alertmanager-secrets
 ##H        auth-secrets
 ##H        cern-certificates
+##H        cron-spark-jobs-secrets
 ##H        condor-cpu-eff-secrets
+##H        hpc-usage-secrets
 ##H        es-wma-secrets
 ##H        hdfs-secrets
 ##H        intelligence-secrets
@@ -119,7 +121,15 @@ elif [ "$secret" == "cmsmon-mongo-secrets" ]; then
     # Double quoted literals variable in "kubectl create secret generic" only provide first literal because of unknown issue ...
     #   because of this we embed literals in files variable
     unset literals
+elif [ "$secret" == "cron-spark-jobs-secrets" ]; then
+    # file in secrets mount : keytab          -> cmsmonit-keytab
+    # file in secrets mount : cmspopdb-keytab -> cmspopdb-keytab
+    cmsmonit_k="--from-file=${sdir}/cmsmonit-keytab/keytab"
+    cmspopdb_k="--from-file=cmspopdb-keytab=${sdir}/cmspopdb-keytab/keytab"
+    files="${cmsmonit_k} ${cmspopdb_k}"
 elif [ "$secret" == "condor-cpu-eff-secrets" ]; then
+    files=`ls $sdir/cmsmonit-keytab/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmonit-keytab | sed "s, $,,g"`
+elif [ "$secret" == "hpc-usage-secrets" ]; then
     files=`ls $sdir/cmsmonit-keytab/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmonit-keytab | sed "s, $,,g"`
 elif [ "$secret" == "es-wma-secrets" ]; then
     files=`ls $sdir/es-exporter/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/es-exporter | sed "s, $,,g"`
@@ -143,7 +153,11 @@ elif [ "$secret" == "rucio-daily-stats-secrets" ]; then
     rucio_f=`ls $sdir/rucio/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/rucio | sed "s, $,,g"`
     amq_creds_f=`ls $sdir/cms-rucio-dailystats/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cms-rucio-dailystats | sed "s, $,,g"`
     cmsmonit_f="--from-file=${sdir}/cmsmonit-keytab/keytab"
-    files="${sqoop_f} ${rucio_f} ${amq_creds_f} ${cmsmonit_f}"
+    # To test, add cms-training amq creds json as different name. pem files should be in /etc/secrets directory!
+    amq_training_creds_f="--from-file=amq_broker_training.json=${sdir}/cms-training/amq_broker.json"
+    amq_training_cert="--from-file=${sdir}/cms-training/robot-training-cert.pem"
+    amq_training_key="--from-file=${sdir}/cms-training/robot-training-key.pem"
+    files="${sqoop_f} ${rucio_f} ${amq_creds_f} ${cmsmonit_f} ${amq_training_creds_f} ${amq_training_cert} ${amq_training_key}"
 elif [ "$secret" == "sqoop-secrets" ]; then
     s_files=`ls $sdir/sqoop/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/sqoop | sed "s, $,,g"`
     c_files=`ls $cdir/sqoop/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$cdir/sqoop | sed "s, $,,g"`

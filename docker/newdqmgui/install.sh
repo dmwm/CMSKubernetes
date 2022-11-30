@@ -23,6 +23,9 @@ python3 -m pip install wheel
 # Install xrootd
 python3 -m pip install xrootd --user
 
+# Install K5start
+yum -y install kstart
+
 # Clone repository
 git clone https://github.com/cms-DQM/dqmgui.git
 cd dqmgui
