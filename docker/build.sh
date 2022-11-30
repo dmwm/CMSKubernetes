@@ -81,7 +81,12 @@ for pkg in $cmssw_pkgs; do
           docker tag $repo/$pkg:$CMSK8STAG $registry/reqmgr2ms-monitor:$CMSK8STAG
           docker tag $repo/$pkg:$CMSK8STAG $registry/reqmgr2ms-rulecleaner:$CMSK8STAG
           docker tag $repo/$pkg:$CMSK8STAG $registry/reqmgr2ms-transferor:$CMSK8STAG
+          docker tag $repo/$pkg:$CMSK8STAG $registry/reqmgr2ms-unmerged:$CMSK8STAG
         fi
+        if [ "$pkg" == "workqueue" ] ; then
+          docker tag $repo/$pkg:$CMSK8STAG $registry/global-workqueue:$CMSK8STAG
+        fi
+
     else
         docker build --build-arg CMSK8S=$CMSK8S --build-arg CMSWEB_ENV=$CMSWEB_ENV  -t $repo/$pkg $pkg
     fi
@@ -100,6 +105,10 @@ for pkg in $cmssw_pkgs; do
           docker push $registry/reqmgr2ms-monitor:$CMSK8STAG
           docker push $registry/reqmgr2ms-rulecleaner:$CMSK8STAG
           docker push $registry/reqmgr2ms-transferor:$CMSK8STAG
+          docker push $registry/reqmgr2ms-unmerged:$CMSK8STAG
+        fi
+        if [ "$pkg" == "workqueue" ] ; then
+          docker push $registry/global-workqueue:$CMSK8STAG
         fi
 
     fi
@@ -117,7 +126,12 @@ for pkg in $cmssw_pkgs; do
                   docker rmi $registry/reqmgr2ms-monitor:$CMSK8STAG
                   docker rmi $registry/reqmgr2ms-rulecleaner:$CMSK8STAG
                   docker rmi $registry/reqmgr2ms-transferor:$CMSK8STAG
+                  docker rmi $registry/reqmgr2ms-unmerged:$CMSK8STAG
                 fi
+               if [ "$pkg" == "workqueue" ] ; then
+                  docker rmi $registry/global-workqueue:$CMSK8STAG
+               fi
+
     	fi
     fi
 done
