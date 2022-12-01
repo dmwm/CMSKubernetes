@@ -50,6 +50,15 @@ scrape_configs:
 #             env: "k8s"
 #             cluster: "be"
 
+  - job_name: cern-magnum-kube-state-metrics
+    honor_timestamps: true
+    scrape_interval: 1m
+    scrape_timeout: 1m
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets: [cern-magnum-kube-state-metrics.kube-system.svc.cluster.local:8080]
+
   - job_name: "nginx-ingress-controller"
     kubernetes_sd_configs:
     - role: pod
