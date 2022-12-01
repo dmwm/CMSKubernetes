@@ -6,6 +6,7 @@
 ##H        alertmanager-secrets
 ##H        auth-secrets
 ##H        cern-certificates
+##H        cron-size-quotas-secrets
 ##H        cron-spark-jobs-secrets
 ##H        condor-cpu-eff-secrets
 ##H        hpc-usage-secrets
@@ -121,6 +122,8 @@ elif [ "$secret" == "cmsmon-mongo-secrets" ]; then
     # Double quoted literals variable in "kubectl create secret generic" only provide first literal because of unknown issue ...
     #   because of this we embed literals in files variable
     unset literals
+elif [ "$secret" == "cron-size-quotas-secrets" ]; then
+    files="--from-file=${sdir}/cmsmonit-keytab/keytab"
 elif [ "$secret" == "cron-spark-jobs-secrets" ]; then
     # file in secrets mount : keytab          -> cmsmonit-keytab
     # file in secrets mount : cmspopdb-keytab -> cmspopdb-keytab
