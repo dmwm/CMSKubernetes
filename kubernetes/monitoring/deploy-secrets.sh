@@ -6,6 +6,7 @@
 ##H        alertmanager-secrets
 ##H        auth-secrets
 ##H        cern-certificates
+##H        cert-checker-secrets
 ##H        cron-size-quotas-secrets
 ##H        cron-spark-jobs-secrets
 ##H        condor-cpu-eff-secrets
@@ -166,6 +167,15 @@ elif [ "$secret" == "sqoop-secrets" ]; then
     c_files=`ls $cdir/sqoop/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$cdir/sqoop | sed "s, $,,g"`
     rucio_f=`ls $sdir/rucio/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/rucio | sed "s, $,,g"`
     files="${s_files} ${c_files} ${rucio_f}"
+elif [ "$secret" == "cert-checker-secrets" ]; then
+    robot_s="--from-file=${sdir}/robot/robotcert.pem --from-file=${sdir}/robot/robotkey.pem"
+    nats_s="--from-file=${sdir}/nats-cluster/server.pem --from-file=${sdir}/nats-cluster/server-key.pem"
+    training_s="--from-file=${sdir}/cms-training/robot-training-cert.pem --from-file=${sdir}/cms-training/robot-training-key.pem"
+    cms_mon_s="--from-file=${sdir}/cmsmon-auth/tls.crt --from-file=${sdir}/cmsmon-auth/tls.key"
+    cmsmonit_k="--from-file=cmsmonit_keytab=${sdir}/cmsmonit-keytab/keytab"
+    cmspopdb_k="--from-file=cmspopdb_keytab=${sdir}/cmspopdb-keytab/keytab"
+    sqoop_k="--from-file=sqoop_keytab=${sdir}/sqoop/keytab"
+    files="${robot_s} ${nats_s} ${training_s} ${cms_mon_s} ${cmsmonit_k} ${cmspopdb_k} ${sqoop_k}"
 fi
 echo "files: \"$files\""
 #echo "literals: $literals"
