@@ -121,7 +121,7 @@ for pkg in $cmssw_pkgs; do
     	if [ -n "$CMSK8STAG" ]; then
         	docker rmi $repo/$pkg:$CMSK8STAG
                 docker rmi $registry/$pkg:$CMSK8STAG
-                if [ "$pkg" != "reqmgr2ms" ] ; then
+                if [ "$pkg" == "reqmgr2ms" ] ; then
                   docker rmi $registry/reqmgr2ms-output:$CMSK8STAG
                   docker rmi $registry/reqmgr2ms-monitor:$CMSK8STAG
                   docker rmi $registry/reqmgr2ms-rulecleaner:$CMSK8STAG
