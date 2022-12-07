@@ -30,7 +30,7 @@ data:
       {"cert": "/etc/secrets/tls.crt", "ckey": "/etc/secrets/tls.key"},
       {"keytab": "/etc/secrets/cmsmonit_keytab"},
       {"keytab": "/etc/secrets/cmspopdb_keytab"},
-      {"keytab": "/etc/secrets/sqoop_keytab"}
+      {"keytab": "/etc/secrets/cmssqoop_keytab"}
     ]
 ---
 kind: Deployment

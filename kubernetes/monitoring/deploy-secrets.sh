@@ -1,5 +1,8 @@
 #!/bin/bash
+set -e
 ##H Usage: deploy-secrets.sh NAMESPACE SECRET-NAME <HA>
+##H
+##H Used by deploy-ha.sh script
 ##H
 ##H Available secrets:
 ##H        alerts-secrets
@@ -12,7 +15,6 @@
 ##H        condor-cpu-eff-secrets
 ##H        hpc-usage-secrets
 ##H        es-wma-secrets
-##H        hdfs-secrets
 ##H        intelligence-secrets
 ##H        karma-secrets
 ##H        keytab-secrets
@@ -32,11 +34,10 @@
 ##H        vmalert-secrets
 ##H Examples:
 ##H        deploy-secrets.sh default prometheus-secrets ha
-set -e # exit script if error occurs
 
 # help definition
 if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ] || [ "$1" == "" ]; then
-    perl -ne '/^##H/ && do { s/^##H ?//; print }' < $0
+    grep "^##H" <"$0" | sed -e "s,##H,,g"
     exit 1
 fi
 
@@ -92,6 +93,12 @@ elif [ "$secret" == "vmalert-secrets" ]; then
 elif [ "$secret" == "robot-secrets" ]; then
     files=`ls $sdir/robot/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/robot | sed "s, $,,g"`
 elif [ "$secret" == "auth-secrets" ]; then
+    _s_dir=$sdir/cmsmon-auth
+    if [ ! -e $_s_dir/hmac ] || [ ! -e $_s_dir/tls.crt  ] || [ ! -e $_s_dir/tls.key  ]; then
+        # Can be in https://gitlab.cern.ch/cmsweb-k8s-admin/k8s_admin_config, or copy from old cluster.
+        echo "Please make sure hmac, tls.crt and tls.key are copied from cms-monitoring cluster secrets. Exiting..."
+        exit 1
+    fi
     files=`ls $sdir/cmsmon-auth/ | egrep -v "config.json|secrets$" | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmon-auth | sed "s, $,,g"`
     clientID=`cat $sdir/cmsmon-auth/secrets | grep CLIENT_ID | awk '{print $2}'`
     clientSECRET=`cat $sdir/cmsmon-auth/secrets | grep CLIENT_SECRET | awk '{print $2}'`
@@ -102,13 +109,17 @@ elif [ "$secret" == "cern-certificates" ]; then
 elif [ "$secret" == "alerts-secrets" ]; then
     files=`ls $sdir/alerts/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/alerts | sed "s, $,,g"`
 elif [ "$secret" == "proxy-secrets" ]; then
-    voms-proxy-init -voms cms -rfc -out /tmp/proxy
-    files="--from-file=/tmp/proxy"
+    unset temp_proxy _robot_crt _robot_key
+    temp_proxy=/tmp/$USER/proxy
+    _robot_crt=$sdir/robot/robotcert.pem
+    _robot_key=$sdir/robot/robotkey.pem
+    voms-proxy-init -voms cms -rfc --key $_robot_key --cert $_robot_crt -valid 95:50 --out "$temp_proxy"
+    files="--from-file=${temp_proxy}"
 elif [ "$secret" == "log-clustering-secrets" ]; then
     # creds.json
     log_f=`ls $sdir/log-clustering/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/log-clustering | sed "s, $,,g"`
     # cmsmonit keytab
-    cmsmonit_f=`ls $sdir/cmsmonit-keytab/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmonit-keytab | sed "s, $,,g"`
+    cmsmonit_f="--from-file=${sdir}/cmsmonit-keytab/keytab"
     files="${log_f} ${cmsmonit_f}"
 elif [ "$secret" == "cmsmon-mongo-secrets" ]; then
     mongo_envs="MONGO_ROOT_USERNAME MONGO_ROOT_PASSWORD MONGO_USERNAME MONGO_PASSWORD MONGO_USERS_LIST"
@@ -132,17 +143,15 @@ elif [ "$secret" == "cron-spark-jobs-secrets" ]; then
     cmspopdb_k="--from-file=cmspopdb-keytab=${sdir}/cmspopdb-keytab/keytab"
     files="${cmsmonit_k} ${cmspopdb_k}"
 elif [ "$secret" == "condor-cpu-eff-secrets" ]; then
-    files=`ls $sdir/cmsmonit-keytab/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmonit-keytab | sed "s, $,,g"`
+    files="--from-file=${sdir}/cmsmonit-keytab/keytab"
 elif [ "$secret" == "hpc-usage-secrets" ]; then
     files=`ls $sdir/cmsmonit-keytab/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmonit-keytab | sed "s, $,,g"`
 elif [ "$secret" == "es-wma-secrets" ]; then
     files=`ls $sdir/es-exporter/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/es-exporter | sed "s, $,,g"`
-elif [ "$secret" == "hdfs-secrets" ]; then
-    files=`ls $sdir/kerberos/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/kerberos | sed "s, $,,g"`
 elif [ "$secret" == "keytab-secrets" ]; then
-    files=`ls $sdir/kerberos/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/kerberos | sed "s, $,,g"`
+    files="--from-file=${sdir}/cmssqoop-keytab/keytab --from-file=${sdir}/kerberos/krb5cc"
 elif [ "$secret" == "krb5cc-secrets" ]; then
-    files=`ls $sdir/kerberos/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/kerberos | sed "s, $,,g"`
+    files="--from-file=${sdir}/cmssqoop-keytab/keytab --from-file=${sdir}/kerberos/krb5cc"
 elif [ "$secret" == "nats-secrets" ]; then
     files=`ls $sdir/nats/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/nats | sed "s, $,,g"`
 elif [ "$secret" == "redash-secrets" ]; then
@@ -163,19 +172,20 @@ elif [ "$secret" == "rucio-daily-stats-secrets" ]; then
     amq_training_key="--from-file=${sdir}/cms-training/robot-training-key.pem"
     files="${sqoop_f} ${rucio_f} ${amq_creds_f} ${cmsmonit_f} ${amq_training_creds_f} ${amq_training_cert} ${amq_training_key}"
 elif [ "$secret" == "sqoop-secrets" ]; then
+    cmssqoop_f="--from-file=${sdir}/cmssqoop-keytab/keytab"
     s_files=`ls $sdir/sqoop/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/sqoop | sed "s, $,,g"`
     c_files=`ls $cdir/sqoop/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$cdir/sqoop | sed "s, $,,g"`
     rucio_f=`ls $sdir/rucio/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/rucio | sed "s, $,,g"`
-    files="${s_files} ${c_files} ${rucio_f}"
+    files="${cmssqoop_f} ${s_files} ${c_files} ${rucio_f}"
 elif [ "$secret" == "cert-checker-secrets" ]; then
     robot_s="--from-file=${sdir}/robot/robotcert.pem --from-file=${sdir}/robot/robotkey.pem"
     nats_s="--from-file=${sdir}/nats-cluster/server.pem --from-file=${sdir}/nats-cluster/server-key.pem"
     training_s="--from-file=${sdir}/cms-training/robot-training-cert.pem --from-file=${sdir}/cms-training/robot-training-key.pem"
-    cms_mon_s="--from-file=${sdir}/cmsmon-auth/tls.crt --from-file=${sdir}/cmsmon-auth/tls.key"
+    cms_monitoring_s="--from-file=${sdir}/cmsmon-auth/tls.crt --from-file=${sdir}/cmsmon-auth/tls.key"
     cmsmonit_k="--from-file=cmsmonit_keytab=${sdir}/cmsmonit-keytab/keytab"
     cmspopdb_k="--from-file=cmspopdb_keytab=${sdir}/cmspopdb-keytab/keytab"
-    sqoop_k="--from-file=sqoop_keytab=${sdir}/sqoop/keytab"
-    files="${robot_s} ${nats_s} ${training_s} ${cms_mon_s} ${cmsmonit_k} ${cmspopdb_k} ${sqoop_k}"
+    cmssqoop_k="--from-file=cmssqoop_keytab=${sdir}/cmssqoop-keytab/keytab"
+    files="${robot_s} ${nats_s} ${training_s} ${cms_monitoring_s} ${cmsmonit_k} ${cmspopdb_k} ${cmssqoop_k}"
 fi
 echo "files: \"$files\""
 #echo "literals: $literals"
