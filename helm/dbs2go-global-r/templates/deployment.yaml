@@ -2,9 +2,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "dbs2go-global-r.fullname" . }}
+  name: dbs2go-global-r
   labels:
-    {{- include "dbs2go-global-r.labels" . | nindent 4 }}
+    app: dbs2go-global-r
   namespace: dbs
 spec:
   {{- if not .Values.autoscaling.enabled }}
@@ -16,7 +16,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "dbs2go-global-r.selectorLabels" . | nindent 6 }}
+      app: dbs2go-global-r
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -24,7 +24,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "dbs2go-global-r.selectorLabels" . | nindent 8 }}
+        app: dbs2go-global-r
         env: k8s-{{.Values.environment}}
         job: dbs2go-global-r
     spec:
@@ -32,7 +32,6 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      #serviceAccountName: {{ include "dbs2go-global-r.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
