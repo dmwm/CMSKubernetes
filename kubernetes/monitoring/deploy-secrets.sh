@@ -9,7 +9,7 @@ set -e
 ##H        alertmanager-secrets
 ##H        auth-secrets
 ##H        cern-certificates
-##H        cert-checker-secrets
+##H        certcheck-secrets
 ##H        cron-size-quotas-secrets
 ##H        cron-spark-jobs-secrets
 ##H        condor-cpu-eff-secrets
@@ -177,7 +177,7 @@ elif [ "$secret" == "sqoop-secrets" ]; then
     c_files=`ls $cdir/sqoop/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$cdir/sqoop | sed "s, $,,g"`
     rucio_f=`ls $sdir/rucio/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/rucio | sed "s, $,,g"`
     files="${cmssqoop_f} ${s_files} ${c_files} ${rucio_f}"
-elif [ "$secret" == "cert-checker-secrets" ]; then
+elif [ "$secret" == "certcheck-secrets" ]; then
     robot_s="--from-file=${sdir}/robot/robotcert.pem --from-file=${sdir}/robot/robotkey.pem"
     nats_s="--from-file=${sdir}/nats-cluster/server.pem --from-file=${sdir}/nats-cluster/server-key.pem"
     training_s="--from-file=${sdir}/cms-training/robot-training-cert.pem --from-file=${sdir}/cms-training/robot-training-key.pem"

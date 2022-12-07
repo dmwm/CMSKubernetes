@@ -2,7 +2,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: cert-checker
+  name: http-exporter-certcheck
   namespace: http
 spec:
   type: ClusterIP
@@ -11,15 +11,15 @@ spec:
       protocol: TCP
       name: http
   selector:
-    app: cert-checker
+    app: http-exporter-certcheck
 ---
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: cert-checker
+  name: http-exporter-certcheck
   namespace: http
   labels:
-    app: cert-checker
+    app: http-exporter-certcheck
 data:
   configs.json: |
     [
@@ -37,18 +37,18 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   labels:
-    app: cert-checker
-  name: cert-checker
+    app: http-exporter-certcheck
+  name: http-exporter-certcheck
   namespace: http
 spec:
   selector:
     matchLabels:
-      app: cert-checker
+      app: http-exporter-certcheck
   replicas: 1
   template:
     metadata:
       labels:
-        app: cert-checker
+        app: http-exporter-certcheck
         env: k8s #k8s#
       annotations:
         prometheus.io/scrape: 'true'
@@ -56,8 +56,8 @@ spec:
         prometheus.io/port: "8888"
     spec:
       containers:
-        - image: registry.cern.ch/cmsmonitoring/cert-checker #imagetag
-          name: cert-checker
+        - image: registry.cern.ch/cmsmonitoring/cert-checker:20221207
+          name: http-exporter-certcheck
           imagePullPolicy: Always
           command:
             - /data/cert-checker
@@ -86,18 +86,18 @@ spec:
             - name: robot-secrets
               mountPath: /etc/robots
               readOnly: true
-            - name: cert-checker-secrets
+            - name: certcheck-secrets
               mountPath: /etc/secrets
               readOnly: true
-            - name: cert-checker-configmap
+            - name: http-exporter-certcheck-configmap
               mountPath: /etc/config
       volumes:
         - name: robot-secrets
           secret:
             secretName: robot-secrets
-        - name: cert-checker-secrets
+        - name: certcheck-secrets
           secret:
-            secretName: cert-checker-secrets
-        - name: cert-checker-configmap
+            secretName: certcheck-secrets
+        - name: http-exporter-certcheck-configmap
           configMap:
-            name: cert-checker
+            name: http-exporter-certcheck

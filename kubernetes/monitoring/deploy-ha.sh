@@ -1,7 +1,16 @@
 #!/bin/bash
 # shellcheck disable=SC2181
 set -e
-##H Usage: deploy.sh HA ACTION
+##H Usage: deploy-ha.sh HA ACTION
+##H
+##H Examples:
+##H    --- If CMSKubernetes, cmsmon-configs and secrets repos are in same directory ---
+##H    deploy-ha.sh ha2 status
+##H    deploy-ha.sh ha2 deploy-secrets
+##H    deploy-ha.sh ha1 deploy-all
+##H    deploy-ha.sh ha2 clean-services
+##H    --- Else ---
+##H    export SECRETS_D=$SOMEDIR/secrets; export CONFIGS_D=$SOMEDIR/cmsmon-configs; deploy-ha.sh ha1 status
 ##H
 ##H Arguments: HA should be 'ha[0-9]', ACTION should be one of the defined actions
 ##H Attention: this script depends on deploy-secrets.sh
@@ -21,8 +30,8 @@ set -e
 ##H Environments:
 ##H   KEY                defines name of the ssh key-pair to be used (default cloud)
 ##H   OS_PROJECT_NAME    defines name of the OpenStack project (default "CMS Web")
-##H   SECRETS_DIR        defines secrets repository local path. (default CMSKubernetes parent dir)
-##H   CMSMON_CONF_DIR    defines cmsmon-configs repository local path. (default CMSKubernetes parent dir)
+##H   SECRETS_D           defines secrets repository local path. (default CMSKubernetes parent dir)
+##H   CONFIGS_D           defines cmsmon-configs repository local path. (default CMSKubernetes parent dir)
 
 unset script_dir ha action project cluster keypair sdir cdir deploy_secrets_sh
 script_dir="$(cd "$(dirname "$0")" && pwd)"
@@ -39,8 +48,8 @@ action=$2
 
 project=${OS_PROJECT_NAME:-"CMS Web"}
 keypair=${KEY:-"cloud"}
-sdir=${SECRETS_DIR:-"${script_dir}/../../../secrets"}
-cdir=${CMSMON_CONF_DIR:-"${script_dir}/../../../cmsmon-configs"}
+sdir=${SECRETS_D:-"${script_dir}/../../../secrets"}
+cdir=${CONFIGS_D:-"${script_dir}/../../../cmsmon-configs"}
 
 # deploy-secrets.sh temporary file
 deploy_secrets_sh="$script_dir"/__temp-deploy-secrets__.sh
@@ -52,8 +61,7 @@ if [[ -z $ha || -z $action || $ha != ha*[0-9] ]]; then
 fi
 
 echo "will continue with following values:"
-echo "HA:${ha}, project:${project}, action: ${action}, keypair: ${keypair}"
-sleep 5
+echo "HA:${ha}, project:${project}, action: ${action}, keypair: ${keypair}, secrets:${sdir}, cmsmon-configs:${cdir}"
 
 # ------------------------------------------ CONFIG CHECKS ----------------------------------------
 # Check prometheus configs
@@ -64,12 +72,12 @@ function check_configs_prometheus() {
     fi
     # Prometheus conf should be in same directory with rules to check correctly
     cp "$cdir"/prometheus/ha/prometheus.yaml "$cdir"/prometheus/__prometheus__.yaml
-    promtool check config "$cdir"/prometheus/__prometheus__.yaml
+    /cvmfs/cms.cern.ch/cmsmon/promtool check config "$cdir"/prometheus/__prometheus__.yaml
     if [ $? -ne 0 ]; then
         echo "Fail to validate prometheus config file"
         exit 1
     fi
-    promtool check rules "$cdir"/prometheus/*.rules
+    /cvmfs/cms.cern.ch/cmsmon/promtool check rules "$cdir"/prometheus/*.rules
     if [ $? -ne 0 ]; then
         echo "Fail to validate prometheus rules"
         exit 1
@@ -84,12 +92,12 @@ function check_configs_am() {
         echo "Please provide ${cdir}/alertmanager/alertmanager.yaml file"
         exit 1
     fi
-    amtool check-config "$cdir"/alertmanager/alertmanager.yaml
+    /cvmfs/cms.cern.ch/cmsmon/amtool check-config "$cdir"/alertmanager/alertmanager.yaml
     if [ $? -ne 0 ]; then
         echo "Fail to validate alertmanager config file"
         exit 1
     fi
-    amtool config routes show --config.file="${cdir}"/alertmanager/alertmanager.yaml
+    /cvmfs/cms.cern.ch/cmsmon/amtool config routes show --config.file="${cdir}"/alertmanager/alertmanager.yaml
 }
 
 # Check status of the cluster
@@ -121,8 +129,8 @@ function test_vm() {
 function create_temp_deploy_secrets_sh() {
     echo "secrets dir: ${sdir}, cmsmon-configs dir: ${cdir}"
     #
-    if [ ! -e "$script_dir"/deploy-secrets.sh ]; then
-        echo "deploy-secrets.sh does not exist in script directory: ${script_dir}"
+    if [ ! -e "$script_dir"/deploy-secrets.sh ] || [ ! -d "$sdir" ] || [ ! -d "$cdir" ]; then
+        echo "Please check if [deploy-secrets.sh:${script_dir}], [secrets:${sdir}], [cmsmon-configs:${cdir}] exist"
         exit 1
     fi
     #
@@ -150,18 +158,20 @@ function deploy_secrets() {
     "$deploy_secrets_sh" http krb5cc-secrets "$ha"
     "$deploy_secrets_sh" http proxy-secrets
     "$deploy_secrets_sh" http robot-secrets
+    "$deploy_secrets_sh" http certcheck-secrets
     #
     rm_temp_deploy_secrets_sh
 }
 function clean_secrets() {
-    kubectl delete secret prometheus-secrets -n default
-    kubectl delete secret alertmanager-secrets -n default
-    kubectl delete secret karma-secrets -n default
-    kubectl delete secret es-wma-secrets -n http
-    kubectl delete secret keytab-secrets -n http
-    kubectl delete secret krb5cc-secrets -n http
-    kubectl delete secret proxy-secrets -n http
-    kubectl delete secret robot-secrets-n http
+    kubectl -n default --ignore-not-found=true delete secret prometheus-secrets
+    kubectl -n default --ignore-not-found=true delete secret alertmanager-secrets
+    kubectl -n default --ignore-not-found=true delete secret karma-secrets
+    kubectl -n http --ignore-not-found=true delete secret es-wma-secrets
+    kubectl -n http --ignore-not-found=true delete secret keytab-secrets
+    kubectl -n http --ignore-not-found=true delete secret krb5cc-secrets
+    kubectl -n http --ignore-not-found=true delete secret proxy-secrets
+    kubectl -n http --ignore-not-found=true delete secret robot-secrets
+    kubectl -n http --ignore-not-found=true delete secret certcheck-secrets
 }
 
 function deploy_services() {
@@ -173,27 +183,29 @@ function deploy_services() {
     #
     kubectl apply -f services/ha/httpgo.yaml -n default
     kubectl apply -f services/ha/kube-eagle.yaml -n default
-    kubectl apply -f services/karma.yaml -n default
     #
     kubectl apply -f services/ha/victoria-metrics.yaml -n default
     kubectl apply -f services/ha/alertmanager-"${ha}".yaml -n default
     kubectl apply -f services/ha/prometheus-"${ha}".yaml -n default
     kubectl apply -f services/pushgateway.yaml -n default
+    kubectl apply -f services/karma.yaml -n default
+    #
     find "${script_dir}"/services/ -name "*-exp*.yaml" | awk '{print "kubectl apply -f "$1""}' | /bin/sh
 }
 function clean_services() {
-    kubectl delete -f crons/cron-proxy.yaml -n http
-    kubectl delete -f crons/cron-kerberos.yaml -n http
+    kubectl -n http --ignore-not-found=true delete -f crons/cron-proxy.yaml
+    kubectl -n http --ignore-not-found=true delete -f crons/cron-kerberos.yaml
     #
-    kubectl delete -f services/ha/httpgo.yaml -n default
-    kubectl delete -f services/ha/kube-eagle.yaml -n default
-    kubectl delete -f services/karma.yaml -n default
+    kubectl -n default --ignore-not-found=true delete -f services/ha/httpgo.yaml
+    kubectl -n default --ignore-not-found=true delete -f services/ha/kube-eagle.yaml
     #
-    kubectl delete -f services/ha/victoria-metrics.yaml -n default
-    kubectl delete -f services/ha/alertmanager-"${ha}".yaml -n default
-    kubectl delete -f services/ha/prometheus-"${ha}".yaml -n default
-    kubectl delete -f services/pushgateway.yaml -n default
-    find "${script_dir}"/services/ -name "*-exp*.yaml" | awk '{print "kubectl delete -f "$1""}' | /bin/sh
+    kubectl -n default --ignore-not-found=true delete -f services/ha/victoria-metrics.yaml
+    kubectl -n default --ignore-not-found=true delete -f services/ha/alertmanager-"${ha}".yaml
+    kubectl -n default --ignore-not-found=true delete -f services/ha/prometheus-"${ha}".yaml
+    kubectl -n default --ignore-not-found=true delete -f services/pushgateway.yaml
+    kubectl -n default --ignore-not-found=true delete -f services/karma.yaml
+    #
+    find "${script_dir}"/services/ -name "*-exp*.yaml" | awk '{print "kubectl --ignore-not-found=true delete -f "$1""}' | /bin/sh
 }
 
 # Deploy cinder volumes for default namespace
@@ -208,11 +220,11 @@ function clean_storages() {
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ MAIN ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 namespaces="http"
 deploy_all() {
-for _ns in $namespaces; do
-    if ! kubectl get ns | grep -q $_ns; then
-        kubectl create namespace $_ns
-    fi
-done
+    for _ns in $namespaces; do
+        if ! kubectl get ns | grep -q $_ns; then
+            kubectl create namespace $_ns
+        fi
+    done
     deploy_storages
     sleep 5
     deploy_secrets
@@ -226,7 +238,7 @@ clean_all() {
     clean_storages
     for _ns in $namespaces; do
         if kubectl get ns | grep -q $_ns; then
-            kubectl delete namespace $_ns
+            kubectl --ignore-not-found=true delete namespace $_ns
         fi
     done
 
@@ -234,7 +246,7 @@ clean_all() {
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Main routine, perform action requested on command line.
-case ${1:-status} in
+case ${action:-help} in
 "deploy-all")       deploy_all                            ;;
 "deploy-secrets")   deploy_secrets                        ;;
 "deploy-services")  deploy_services                       ;;
