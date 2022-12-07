@@ -149,10 +149,13 @@ function rm_temp_deploy_secrets_sh() {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 function deploy_secrets() {
     create_temp_deploy_secrets_sh
-    #
+    # default
+    "$deploy_secrets_sh" default proxy-secrets
+    "$deploy_secrets_sh" default robot-secrets
     "$deploy_secrets_sh" default prometheus-secrets "$ha"
     "$deploy_secrets_sh" default alertmanager-secrets "$ha"
     "$deploy_secrets_sh" default karma-secrets "$ha"
+    # http
     "$deploy_secrets_sh" http es-wma-secrets "$ha"
     "$deploy_secrets_sh" http keytab-secrets "$ha"
     "$deploy_secrets_sh" http krb5cc-secrets "$ha"
@@ -163,9 +166,13 @@ function deploy_secrets() {
     rm_temp_deploy_secrets_sh
 }
 function clean_secrets() {
+    # default
+    kubectl -n default --ignore-not-found=true delete secret proxy-secrets
+    kubectl -n default --ignore-not-found=true delete secret robot-secrets
     kubectl -n default --ignore-not-found=true delete secret prometheus-secrets
     kubectl -n default --ignore-not-found=true delete secret alertmanager-secrets
     kubectl -n default --ignore-not-found=true delete secret karma-secrets
+    # http
     kubectl -n http --ignore-not-found=true delete secret es-wma-secrets
     kubectl -n http --ignore-not-found=true delete secret keytab-secrets
     kubectl -n http --ignore-not-found=true delete secret krb5cc-secrets
@@ -177,34 +184,33 @@ function clean_secrets() {
 function deploy_services() {
     check_configs_prometheus
     check_configs_am
-    #
-    kubectl apply -f crons/cron-proxy.yaml -n http
-    kubectl apply -f crons/cron-kerberos.yaml -n http
-    #
+    # default
+    kubectl apply -f crons/cron-proxy.yaml -n default
     kubectl apply -f services/ha/httpgo.yaml -n default
     kubectl apply -f services/ha/kube-eagle.yaml -n default
-    #
     kubectl apply -f services/ha/victoria-metrics.yaml -n default
     kubectl apply -f services/ha/alertmanager-"${ha}".yaml -n default
     kubectl apply -f services/ha/prometheus-"${ha}".yaml -n default
     kubectl apply -f services/pushgateway.yaml -n default
     kubectl apply -f services/karma.yaml -n default
-    #
+    # http
+    kubectl apply -f crons/cron-proxy.yaml -n http
+    kubectl apply -f crons/cron-kerberos.yaml -n http
     find "${script_dir}"/services/ -name "*-exp*.yaml" | awk '{print "kubectl apply -f "$1""}' | /bin/sh
 }
 function clean_services() {
-    kubectl -n http --ignore-not-found=true delete -f crons/cron-proxy.yaml
-    kubectl -n http --ignore-not-found=true delete -f crons/cron-kerberos.yaml
-    #
+    # default
+    kubectl -n default --ignore-not-found=true delete -f crons/cron-proxy.yaml
     kubectl -n default --ignore-not-found=true delete -f services/ha/httpgo.yaml
     kubectl -n default --ignore-not-found=true delete -f services/ha/kube-eagle.yaml
-    #
     kubectl -n default --ignore-not-found=true delete -f services/ha/victoria-metrics.yaml
     kubectl -n default --ignore-not-found=true delete -f services/ha/alertmanager-"${ha}".yaml
     kubectl -n default --ignore-not-found=true delete -f services/ha/prometheus-"${ha}".yaml
     kubectl -n default --ignore-not-found=true delete -f services/pushgateway.yaml
     kubectl -n default --ignore-not-found=true delete -f services/karma.yaml
-    #
+    # http
+    kubectl -n http --ignore-not-found=true delete -f crons/cron-proxy.yaml
+    kubectl -n http --ignore-not-found=true delete -f crons/cron-kerberos.yaml
     find "${script_dir}"/services/ -name "*-exp*.yaml" | awk '{print "kubectl --ignore-not-found=true delete -f "$1""}' | /bin/sh
 }
 
