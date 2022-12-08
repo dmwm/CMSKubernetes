@@ -16,7 +16,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      app: dbs2go-global-r
+      app: dbs2go-global-w
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -24,7 +24,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        app: dbs2go-global-r
+        app: dbs2go-global-w
         env: k8s-{{.Values.environment}}
         job: dbs2go-global-w
     spec:
