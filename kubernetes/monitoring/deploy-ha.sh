@@ -182,7 +182,8 @@ function clean_secrets() {
 }
 
 function deploy_services() {
-    check_configs_prometheus
+    # Fails because of /etc/proxy/proxy tls conf
+    # check_configs_prometheus
     check_configs_am
     # default
     kubectl apply -f crons/cron-proxy.yaml -n default

@@ -20,6 +20,7 @@ if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == 
     exit 0
 fi
 echo "Creating cluster => NameSpace: ${namespace} , Name: ${name} , Template: ${template}"
+echo "Check if EOS enabled! HA clusters do not need but others may need."
 
 sleep 10
 
@@ -27,10 +28,14 @@ openstack --os-project-name "$namespace" coe cluster create "$name" \
     --keypair cloud \
     --cluster-template "$template" \
     --master-count 1 \
-    --node-count 2 \
-    --flavor m2.large \
     --master-flavor m2.large \
+    --node-count 3 \
+    --flavor m2.xlarge \
     --merge-labels \
+    --labels cinder_csi_enabled="true" \
+    --labels logging_include_internal="true" \
+    --labels logging_http_destination="http://monit-logs.cern.ch:10012/" \
+    --labels logging_installer=helm \
     --labels eos_enabled="false" \
     --labels monitoring_enabled="true" \
     --labels logging_producer="cmswebk8s" \
@@ -39,4 +44,15 @@ openstack --os-project-name "$namespace" coe cluster create "$name" \
     --labels keystone_auth_enabled="true" \
     --labels logging_type="http"
 
-# How to delete: openstack coe cluster delete "name of the cluster"
+# Ref: https://cms-http-group.docs.cern.ch/k8s_cluster/cmsweb-deployment/
+#                -- Helpful commands --
+# openstack flavor list
+# openstack coe cluster delete "name of the cluster"
+# openstack coe cluster template list
+# ./deploy-ha.sh ha1 deploy-all
+# openstack coe cluster list
+# openstack coe cluster config "name of the cluster"
+# openstack server set --property landb-alias=YOUR-CLUSTER-ALIAS--load-0- [MINION-0]
+# openstack server set --property landb-alias=YOUR-CLUSTER-ALIAS--load-1- [MINION-1]
+# openstack server set --property landb-alias=YOUR-CLUSTER-ALIAS--load-2- [MINION-2]
+# k get volumeattachment
