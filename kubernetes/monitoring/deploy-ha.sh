@@ -22,18 +22,16 @@ set -e
 ##H   clean-secrets    cleanup secrets
 ##H   clean-storages   cleanup storages
 ##H   status           check status of all cluster
-##H   test             perform integration tests using VM
+##H   test             perform integration tests using VictoriaMetrics
 ##H   deploy-all       deploy everything
 ##H   deploy-secrets   deploy secrets
 ##H   deploy-services  deploy services
 ##H
 ##H Environments:
-##H   KEY                defines name of the ssh key-pair to be used (default cloud)
-##H   OS_PROJECT_NAME    defines name of the OpenStack project (default "CMS Web")
-##H   SECRETS_D           defines secrets repository local path. (default CMSKubernetes parent dir)
-##H   CONFIGS_D           defines cmsmon-configs repository local path. (default CMSKubernetes parent dir)
+##H   SECRETS_D        defines secrets repository local path. (default CMSKubernetes parent dir)
+##H   CONFIGS_D        defines cmsmon-configs repository local path. (default CMSKubernetes parent dir)
 
-unset script_dir ha action project cluster keypair sdir cdir deploy_secrets_sh
+unset script_dir ha action cluster sdir cdir deploy_secrets_sh
 script_dir="$(cd "$(dirname "$0")" && pwd)"
 
 # help definition
@@ -46,8 +44,6 @@ fi
 ha=$(echo "$1" | awk '{print tolower($0)}')
 action=$2
 
-project=${OS_PROJECT_NAME:-"CMS Web"}
-keypair=${KEY:-"cloud"}
 sdir=${SECRETS_D:-"${script_dir}/../../../secrets"}
 cdir=${CONFIGS_D:-"${script_dir}/../../../cmsmon-configs"}
 
@@ -61,7 +57,7 @@ if [[ -z $ha || -z $action || $ha != ha*[0-9] ]]; then
 fi
 
 echo "will continue with following values:"
-echo "HA:${ha}, project:${project}, action: ${action}, keypair: ${keypair}, secrets:${sdir}, cmsmon-configs:${cdir}"
+echo "HA:${ha}, OS_PROJECT_NAME:${OS_PROJECT_NAME}, action: ${action}, secrets:${sdir}, cmsmon-configs:${cdir}"
 
 # ------------------------------------------ CONFIG CHECKS ----------------------------------------
 # Check prometheus configs
@@ -186,17 +182,17 @@ function deploy_services() {
     # check_configs_prometheus
     check_configs_am
     # default
-    kubectl apply -f crons/cron-proxy.yaml -n default
-    kubectl apply -f services/ha/httpgo.yaml -n default
-    kubectl apply -f services/ha/kube-eagle.yaml -n default
-    kubectl apply -f services/ha/victoria-metrics.yaml -n default
-    kubectl apply -f services/ha/alertmanager-"${ha}".yaml -n default
-    kubectl apply -f services/ha/prometheus-"${ha}".yaml -n default
-    kubectl apply -f services/pushgateway.yaml -n default
-    kubectl apply -f services/karma.yaml -n default
+    kubectl -n default apply -f crons/cron-proxy.yaml
+    kubectl -n default apply -f services/ha/httpgo.yaml
+    kubectl -n default apply -f services/ha/kube-eagle.yaml
+    kubectl -n default apply -f services/ha/victoria-metrics.yaml
+    kubectl -n default apply -f services/ha/alertmanager-"${ha}".yaml
+    kubectl -n default apply -f services/ha/prometheus-"${ha}".yaml
+    kubectl -n default apply -f services/pushgateway.yaml
+    kubectl -n default apply -f services/karma.yaml
     # http
-    kubectl apply -f crons/cron-proxy.yaml -n http
-    kubectl apply -f crons/cron-kerberos.yaml -n http
+    kubectl -n http apply -f crons/cron-proxy.yaml
+    kubectl -n http apply -f crons/cron-kerberos.yaml
     find "${script_dir}"/services/ -name "*-exp*.yaml" | awk '{print "kubectl apply -f "$1""}' | /bin/sh
 }
 function clean_services() {
