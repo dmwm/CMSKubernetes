@@ -1,4 +1,4 @@
-FROM cmssw/cmsweb:20200504 as builder
+FROM cmssw/cmsweb:20221130-stable as builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 # add environment
@@ -66,7 +66,7 @@ RUN make
 ENV PATH="${WDIR}/TFaaS/src/Go:${PATH}"
 
 # final image
-FROM cern/cc7-base:20200504-1.x86_64
+FROM cern/cc7-base:20221130-stable-1.x86_64
 RUN mkdir -p /data/lib
 COPY --from=builder /data/TFaaS/src/Go /data/
 COPY --from=builder /data/lib /data/lib

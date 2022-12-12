@@ -19,7 +19,7 @@ Installs:
 ```shell
 # docker image prune -a OR docker system prune -f -a
 docker_registry=registry.cern.ch/cmsmonitoring
-image_tag=20220904
-docker build -t "${docker_registry}/cmsmon-hdfs:${image_tag}" .
-docker push "${docker_registry}/cmsmon-hdfs:${image_tag}"
+image_tag=v0.0.0.test
+docker build -t "${docker_registry}/cmsmon-spark:${image_tag}" .
+docker push "${docker_registry}/cmsmon-spark:${image_tag}"
 ```

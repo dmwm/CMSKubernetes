@@ -1,14 +1,18 @@
-FROM cern/cc7-base:20220601-1
+FROM gitlab-registry.cern.ch/linuxsupport/cc7-base:latest
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
+
+# Should be full such that includes minor version
+ARG PY_VERSION=3.9.13
+ARG CMSMONITORING_TAG=0.0.0
+
+ENV PYTHONPATH="${PYTHONPATH}:${WDIR}:${WDIR}/CMSMonitoring/src/python"
+ENV LC_ALL=en_US.utf-8 LANG=en_US.utf-8
 
 ENV WDIR=/data
 WORKDIR $WDIR
 
-# Should be full such that includes minor version
-ARG PY_VERSION=3.9.13
-
 RUN yum -y update && \
-    yum install -y python-pip gcc openssl-devel bzip2-devel libffi-devel zlib-devel wget make && \
+    yum install -y python-pip gcc openssl-devel bzip2-devel libffi-devel zlib-devel wget make git && \
     yum clean all && rm -rf /var/cache/yum && \
     wget https://www.python.org/ftp/python/${PY_VERSION}/Python-${PY_VERSION}.tgz && \
     tar -xvf Python-${PY_VERSION}.tgz && \
@@ -22,7 +26,10 @@ RUN yum -y update && \
     python3 -m pip install --upgrade pip && \
     cd $WDIR && \
     rm -rf Python-${PY_VERSION}.tgz Python-${PY_VERSION} && \
-    unset PY_MAJOR
+    unset PY_MAJOR && \
+    cd $WDIR && \
+    pip install --no-cache-dir click pandas schema && \
+    git clone https://github.com/dmwm/CMSSpark.git && \
+    git clone https://github.com/dmwm/CMSMonitoring.git && cd CMSMonitoring && git checkout tags/$CMSMONITORING_TAG -b build && cd ..
 
-# start the setup
 WORKDIR ${WDIR}

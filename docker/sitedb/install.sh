@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG2211a
+VER=HG2212d
 REPO="comp"
 AREA=/data/cfg/admin
 PKGS="admin backend sitedb"

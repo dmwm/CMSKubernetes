@@ -53,6 +53,8 @@ spec:
           - name: prometheus-secrets
             mountPath: /etc/prometheus
             readOnly: true
+          - name: proxy-secrets
+            mountPath: /etc/proxy
         volumes:
         - name: prometheus-secrets
           secret:
@@ -61,3 +63,6 @@ spec:
           persistentVolumeClaim:
             claimName: prom-volume-claim
 #             claimName: prometheus-volume-claim
+        - name: proxy-secrets
+          secret:
+            secretName: proxy-secrets
