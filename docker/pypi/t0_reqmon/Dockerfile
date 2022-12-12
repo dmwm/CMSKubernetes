@@ -1,7 +1,7 @@
 FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20221129
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 ENV TAG=2.1.4
-RUN pip install t0_reqmon==$TAG
+RUN pip install reqmon==$TAG
 ENV WDIR=/data
 ENV USER=_t0_reqmon
 RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
