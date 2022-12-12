@@ -72,7 +72,7 @@ spec:
           hostname: spark2mng
           containers:
             - name: spark2mng
-              image: registry.cern.ch/cmsmonitoring/spark2mng:rgo-0.0.1
+              image: registry.cern.ch/cmsmonitoring/spark2mng:rgo-0.0.7
               imagePullPolicy: Always
               command: [ "/bin/bash", "-c" ]
               args:
