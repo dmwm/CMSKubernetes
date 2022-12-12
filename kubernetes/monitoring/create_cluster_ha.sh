@@ -45,5 +45,5 @@ openstack --os-project-name "$namespace" coe cluster create "$name" \
     --labels logging_type="http"
 
 # Ref: https://cms-http-group.docs.cern.ch/k8s_cluster/cmsweb-deployment/
-#                -- Helpful commands --
-# READ the DOC: https://cmsmonit-docs.web.cern.ch/k8s/cluster_upgrades/
+#
+# READ the DOC: https://cmsmonit-docs.web.cern.ch/k8s/cluster_upgrades/#ha1

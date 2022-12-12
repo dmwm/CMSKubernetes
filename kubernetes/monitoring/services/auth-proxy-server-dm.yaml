@@ -29,7 +29,7 @@ spec:
     metadata:
       labels:
         app: auth-proxy-server
-        env: k8s-mon
+        env: k8s-dmmon
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/port: "9091"
@@ -57,7 +57,7 @@ spec:
         - containerPort: 9091
           name: metrics
         volumeMounts:
-        - name: auth-secrets
+        - name: dm-auth-secrets
           mountPath: /etc/secrets
         - name: proxy-secrets
           mountPath: /etc/proxy
@@ -67,9 +67,9 @@ spec:
         - name: hostkey
           mountPath: /etc/grid-security/hostkey.pem
       volumes:
-      - name: auth-secrets
+      - name: dm-auth-secrets
         secret:
-          secretName: auth-secrets
+          secretName: dm-auth-secrets
       - name: proxy-secrets
         secret:
           secretName: proxy-secrets
