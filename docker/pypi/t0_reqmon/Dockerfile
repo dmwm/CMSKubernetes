@@ -9,4 +9,5 @@ RUN echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 USER ${USER}
 RUN sudo chown -R $USER.$USER $WDIR
 WORKDIR $WDIR
+RUN sed -i -e "s,srv=.*,srv=t0_reqmon,g" run.sh
 CMD ["python3"]
