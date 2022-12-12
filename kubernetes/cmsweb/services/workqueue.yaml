@@ -83,7 +83,7 @@ spec:
         runAsGroup: 1000
         fsGroup: 2000
       containers:
-      - image: registry.cern.ch/cmsweb/workqueue #imagetag
+      - image: registry.cern.ch/cmsweb/global-workqueue #imagetag
         name: workqueue
 #PROD#  resources:
 #PROD#    requests:
