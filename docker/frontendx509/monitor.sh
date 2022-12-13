@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # determine which port httpd server uses
-aport=`cat /data/srv/state/frontend8443/server.conf | grep Listen | grep 80 | awk '{print $2}'`
+aport=`cat /data/srv/state/frontendx509/server.conf | grep Listen | grep 80 | awk '{print $2}'`
 suri="http://localhost:$aport/server-status/?auto"
 echo "Start apache_exporter with $suri"
 nohup apache_exporter --scrape_uri $suri --telemetry.address ":18443" 2>&1 1>& apache_exporter.log < /dev/null &
@@ -17,12 +17,12 @@ filebeat.inputs:
 - type: log
   enabled: true
   paths:
-    - /data/srv/logs/frontend8443/access_log_${NAME}*.txt
+    - /data/srv/logs/frontendx509/access_log_${NAME}*.txt
   file_identity.path:
   scan_frequency: 10s
   backoff: 5s
   max_backoff: 10s
-  tags: ["frontend8443"]
+  tags: ["frontendx509"]
 # disable internal monitoring, uncomment line below, default is true
 # logging.metrics.enabled: false
 # change loggin metrics interval, when logging.metrics is enabled

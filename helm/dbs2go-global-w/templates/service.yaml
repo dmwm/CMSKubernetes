@@ -1,9 +1,8 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "dbs2go-global-w.fullname" . }}
-  labels:
-    {{- include "dbs2go-global-w.labels" . | nindent 4 }}
+  name: dbs2go-global-w
+  namespace: dbs
 spec:
   selector:
     app: dbs2go-global-w

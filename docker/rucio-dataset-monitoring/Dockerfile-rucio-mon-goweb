@@ -2,13 +2,14 @@ FROM golang:latest as go-builder
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 # tag to use
-ENV CMSMON_TAG=rgo-0.0.0
+ARG CMSMON_TAG=rgo-0.0.0
 ENV WDIR=/data
 
 # build
 WORKDIR $GOPATH/src/github.com/dmwm
 RUN git clone https://github.com/dmwm/CMSMonitoring.git && cd CMSMonitoring && git checkout tags/$CMSMON_TAG -b build
-WORKDIR $GOPATH/src/github.com/dmwm/CMSMonitoring/src/go/rucio-dataset-monitoring
+WORKDIR $GOPATH/src/github.com/dmwm/CMSMonitoring/rucio-dataset-monitoring
+
 RUN mkdir -p $WDIR && make && cp -r rucio-dataset-monitoring static config.json $WDIR
 
 FROM gcr.io/distroless/base

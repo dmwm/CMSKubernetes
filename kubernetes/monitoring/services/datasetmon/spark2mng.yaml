@@ -1,11 +1,11 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: cmsmon-rucio-spark2mng
+  name: spark2mng
   namespace: datasetmon
 spec:
   selector:
-    app: cmsmon-rucio-spark2mng
+    app: spark2mng
   type: NodePort
   ports:
     - name: port-0 # spark.driver.port
@@ -22,16 +22,16 @@ spec:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: cm-cmsmon-rucio-spark2mng
+  name: cm-spark2mng
   namespace: datasetmon
   labels:
-    app: cmsmon-rucio-spark2mng
+    app: spark2mng
 data:
   run_spark2hdfs.sh: |
     #!/bin/bash
     . /etc/environment
     echo "Starting run_spark2hdfs.sh ..."
-    /data/CMSSpark/bin/datasetmon/cron4rucio_spark2hdfs.sh \
+    /data/CMSMonitoring/rucio-dataset-monitoring/spark/cron4rucio_spark2hdfs.sh \
       --keytab /etc/secrets/keytab --hdfs /tmp/cmsmonit/prod \
       --p1 $CMSMON_RUCIO_SPARK2MNG_SERVICE_PORT_PORT_0 \
       --p2 $CMSMON_RUCIO_SPARK2MNG_SERVICE_PORT_PORT_1 \
@@ -40,7 +40,7 @@ data:
     #!/bin/bash
     . /etc/environment
     echo "Starting run_hdfs2mongo.sh ... "
-    /data/CMSSpark/bin/datasetmon/cron4rucio_hdfs2mongo.sh \
+    /data/CMSMonitoring/rucio-dataset-monitoring/spark/cron4rucio_hdfs2mongo.sh \
       --keytab /etc/secrets/keytab --hdfs /tmp/cmsmonit/prod \
       --mongohost "mongodb-0.mongodb.datasetmon.svc.cluster.local" \
       --mongoport "27017" \
@@ -53,7 +53,7 @@ data:
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: cmsmon-rucio-spark2mng
+  name: spark2mng
   namespace: datasetmon
 spec:
   # UTC
@@ -66,13 +66,13 @@ spec:
       template:
         metadata:
           labels:
-            app: cmsmon-rucio-spark2mng
+            app: spark2mng
         spec:
           restartPolicy: Never
-          hostname: cmsmon-rucio-spark2mng
+          hostname: spark2mng
           containers:
-            - name: cmsmon-rucio-spark2mng
-              image: registry.cern.ch/cmsmonitoring/cmsmon-spark2mng:v0.4.0.14
+            - name: spark2mng
+              image: registry.cern.ch/cmsmonitoring/spark2mng:rgo-0.0.7
               imagePullPolicy: Always
               command: [ "/bin/bash", "-c" ]
               args:
@@ -136,5 +136,5 @@ spec:
                 defaultMode: 0444
             - name: cronjobs-configmap
               configMap:
-                name: cm-cmsmon-rucio-spark2mng
+                name: cm-spark2mng
                 defaultMode: 0777

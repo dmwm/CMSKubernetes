@@ -1,10 +1,10 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG2212b
+VER=HG2301a
 REPO="comp"
 AREA=/data/cfg/admin
-PKGS="admin backend frontend8443"
+PKGS="admin backend frontendx509"
 SERVER=cmsrep.cern.ch
 
 cd $WDIR
@@ -27,20 +27,20 @@ sed -i -e "s,https://cmsweb.cern.ch,$cmsk8s_prod,g" \
     -e "s,https://cmsweb-testbed.cern.ch,$cmsk8s_prep,g" \
     -e "s,https://cmsweb-dev.cern.ch,$cmsk8s_dev,g" \
     -e "s,https://\`hostname -f\`,$cmsk8s_priv,g" \
-    frontend8443/deploy
+    frontendx509/deploy
 
 if [[ "$CMSWEB_ENV" == "production"  ||  "$CMSWEB_ENV" == "prod" ]] ; then
-	cp $WDIR/cfg/frontend8443/backends-k8s-prod.txt $WDIR/cfg/frontend8443/backends.txt
+	cp $WDIR/cfg/frontendx509/backends-k8s-prod.txt $WDIR/cfg/frontendx509/backends.txt
 else
-        cp $WDIR/cfg/frontend8443/backends-k8s-preprod.txt $WDIR/cfg/frontend8443/backends.txt
+        cp $WDIR/cfg/frontendx509/backends-k8s-preprod.txt $WDIR/cfg/frontendx509/backends.txt
 fi
 
 
 # overwrite dev/preprod backends with production one for k8s
 files="backends-prod.txt backends-preprod.txt backends-dev.txt backends-k8s.txt backends-k8s-prod.txt backends-k8s-preprod.txt"
 for fname in $files; do
-    rm $WDIR/cfg/frontend8443/$fname
-    ln -s $WDIR/cfg/frontend8443/backends.txt $WDIR/cfg/frontend8443/$fname
+    rm $WDIR/cfg/frontendx509/$fname
+    ln -s $WDIR/cfg/frontendx509/backends.txt $WDIR/cfg/frontendx509/$fname
 done
 
 # we do not use InstallDev script directly since we want to capture the status of
@@ -49,9 +49,9 @@ cd $WDIR
 curl -sO http://cmsrep.cern.ch/cmssw/repos/bootstrap.sh
 sh -x ./bootstrap.sh -architecture $ARCH -path $WDIR/tmp/$VER/sw -repository $REPO -server $SERVER setup
 
-cat $WDIR/cfg/frontend8443/deploy | egrep -v "80|443" > $WDIR/cfg/frontend8443/deploy.new
-mv $WDIR/cfg/frontend8443/deploy $WDIR/cfg/frontend8443/deploy.orig
-mv $WDIR/cfg/frontend8443/deploy.new $WDIR/cfg/frontend8443/deploy
+cat $WDIR/cfg/frontendx509/deploy | egrep -v "80|443" > $WDIR/cfg/frontendx509/deploy.new
+mv $WDIR/cfg/frontendx509/deploy $WDIR/cfg/frontendx509/deploy.orig
+mv $WDIR/cfg/frontendx509/deploy.new $WDIR/cfg/frontendx509/deploy
 $WDIR/cfg/Deploy -A $ARCH -R comp@$VER -r comp=$REPO -t $VER -w $SERVER -s prep $WDIR/srv "$PKGS"
 if [ $? -ne 0 ]; then
     cat $WDIR/srv/.deploy/*-prep.log
