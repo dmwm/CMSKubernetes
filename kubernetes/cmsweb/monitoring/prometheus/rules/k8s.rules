@@ -177,3 +177,28 @@ groups:
     annotations:
       summary: "Kubernetes API server latency (instance {{ $labels.instance }})"
       description: "Kubernetes API server has a 99th percentile latency of {{ $value }} seconds for {{ $labels.verb }} {{ $labels.resource }}.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+ 
+#enlist the pods and the reason why they restarted
+  - alert: PodRestartReason
+    expr: kube_pod_container_status_last_terminated_reason{namespace="dmwm"} == 1
+    for: 10m
+    labels:
+      severity: warning
+      tag: cmsweb
+      host: "{{ $labels.host }}"
+      kind: dmwm
+    annotations:
+      summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} ({{ $labels.container }}) is restarting because it had the following issue: {{ $labels.reason }} "
+
+# The inner increase(kube_pod_container_status_restarts_total[10m]) calculates the number of container restarts during the last 10 minutes. 
+# The outer sum(...) by (container) is used solely for removing all the labels except the container label from the result.
+# Then the result is compared to zero with > 0. This filters out containers with zero restarts during the last 10 minutes. 
+  - alert: PodRestarts
+    expr: (sum(increase(kube_pod_container_status_restarts_total{namespace="dmwm"}[10m])) BY (container)) > 0
+    labels:
+      severity: warning
+      tag: cmsweb
+      host: "{{ $labels.host }}"
+      kind: dmwm
+    annotations:
+      summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} ({{ $labels.container }})is restarting."
