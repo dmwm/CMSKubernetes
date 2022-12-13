@@ -5,7 +5,6 @@
 ##H   help        show this help
 ##H   version     get current version of the service
 ##H   status      show current service's status
-##H   sysboot     start server from crond if not running
 ##H   restart     (re)start the service
 ##H   start       (re)start the service
 ##H   stop        stop the service
