@@ -1,8 +1,9 @@
-FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20221129
+FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20221212
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 ENV TAG=2.1.4
 RUN pip install reqmgr2ms-output==$TAG
 RUN sed -i -e "s,-config.py,-config-output.py,g" /data/run.sh
+RUN sed -i -e "s,-config.py,-config-output.py,g" /data/manage
 ENV WDIR=/data
 ENV USER=_reqmgr2ms
 RUN useradd ${USER} && install -o ${USER} -d ${WDIR}

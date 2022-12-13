@@ -1,4 +1,4 @@
-FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20221129
+FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20221212
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 RUN pip install reqmgr2ms-output
 ENV WDIR=/data
