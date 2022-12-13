@@ -39,6 +39,11 @@ if [ -f /etc/proxy/proxy ]; then
         rm /data/srv/state/$srv/proxy/proxy.cert
     fi
     ln -s /etc/proxy/proxy /data/srv/state/$srv/proxy/proxy.cert
+    if [ -f /data/srv/state/$srv/proxy/proxy.key ]; then
+        rm /data/srv/state/$srv/proxy/proxy.key
+    fi
+    sudo cp /etc/proxy/proxy /data/srv/state/reqmgr2ms/proxy/proxy.key
+    sudo chmod 400 /data/srv/state/reqmgr2ms/proxy/proxy.key
     mkdir -p /data/srv/current/auth/proxy
     if [ -f /data/srv/current/auth/proxy/proxy ]; then
         rm /data/srv/current/auth/proxy/proxy
