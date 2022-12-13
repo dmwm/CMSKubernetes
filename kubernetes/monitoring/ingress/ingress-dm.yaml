@@ -1,0 +1,35 @@
+# Preps:
+#   - kubectl label node cms-dm-monit-xxxxxx-node-1 role=ingress --overwrite
+#   - deploy ingress first and wait to see "ADDRESS" is filled : k get ingress -A
+#   - After deployments of auth-proxy-server, check "k get endpoints -n auth" has enpoint for that deployment
+#
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress
+  namespace: auth
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "route"
+    nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+spec:
+  tls:
+  - hosts:
+      - cms-dm-monitoring.cern.ch
+    secretName: dm-auth-secrets
+  rules:
+  - host: cms-dm-monitoring.cern.ch
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: auth-proxy-server
+            port:
+              number: 443

@@ -45,14 +45,5 @@ openstack --os-project-name "$namespace" coe cluster create "$name" \
     --labels logging_type="http"
 
 # Ref: https://cms-http-group.docs.cern.ch/k8s_cluster/cmsweb-deployment/
-#                -- Helpful commands --
-# openstack flavor list
-# openstack coe cluster delete "name of the cluster"
-# openstack coe cluster template list
-# openstack coe cluster list
-# openstack coe cluster config "name of the cluster"
-# openstack server set --property landb-alias=YOUR-CLUSTER-ALIAS--load-0- [MINION-0]
-# openstack server set --property landb-alias=YOUR-CLUSTER-ALIAS--load-1- [MINION-1]
-# openstack server set --property landb-alias=YOUR-CLUSTER-ALIAS--load-2- [MINION-2]
-# Check /eos/cms is there
-# k create -f https://gitlab.cern.ch/kubernetes/automation/charts/cern/raw/master/eosxd/examples/eos-client-example.yaml
+#
+# READ the DOC: https://cmsmonit-docs.web.cern.ch/k8s/cluster_upgrades/#cron
