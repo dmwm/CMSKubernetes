@@ -184,6 +184,9 @@ groups:
     for: 10m
     labels:
       severity: warning
+      tag: cmsweb
+      host: "{{ $labels.host }}"
+      kind: dmwm
     annotations:
       summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} ({{ $labels.container }}) is restarting because it had the following issue: {{ $labels.reason }} "
 
@@ -194,5 +197,8 @@ groups:
     expr: (sum(increase(kube_pod_container_status_restarts_total{namespace="dmwm"}[10m])) BY (container)) > 0
     labels:
       severity: warning
+      tag: cmsweb
+      host: "{{ $labels.host }}"
+      kind: dmwm
     annotations:
       summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} ({{ $labels.container }})is restarting."
