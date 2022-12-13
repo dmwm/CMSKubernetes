@@ -8,4 +8,5 @@ RUN mkdir /etc/grid-security
 COPY --from=cmsweb-base /etc/grid-security/certificates /etc/grid-security/certificates
 RUN pip install dbs3-client
 ADD run.sh /data/run.sh
+ADD manage /data/manage
 WORKDIR /data
