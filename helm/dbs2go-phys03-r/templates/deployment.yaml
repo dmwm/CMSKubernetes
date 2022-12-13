@@ -2,9 +2,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "dbs2go-phys03-r.fullname" . }}
+  name: dbs2go-phys03-r
   labels:
-    {{- include "dbs2go-phys03-r.labels" . | nindent 4 }}
+    app: dbs2go-phys03-r
   namespace: dbs
 spec:
   {{- if not .Values.autoscaling.enabled }}
@@ -16,7 +16,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "dbs2go-phys03-r.selectorLabels" . | nindent 6 }}
+      app: dbs2go-phys03-r
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -24,7 +24,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "dbs2go-phys03-r.selectorLabels" . | nindent 8 }}
+        app: dbs2go-phys03-r
         env: k8s-{{.Values.environment}}
         job: dbs2go-phys03-r
     spec:
@@ -32,7 +32,6 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "dbs2go-phys03-r.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -108,6 +107,12 @@ spec:
       - name: proxy-secrets
         secret:
           secretName: proxy-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
       - name: secrets
         secret:
           secretName: dbs2go-phys03-r-secrets
@@ -117,18 +122,6 @@ spec:
       - name: token-secrets
         secret:
           secretName: token-secrets   
-      - name: robot-secrets
-        secret:
-          secretName: robot-secrets
-      - name: hmac-secrets
-        secret:
-          secretName: hmac-secrets
-      - name: etc-grid-security
-        hostPath:
-            path: /etc/grid-security
-      - name: setup-certs-and-run
-        configMap:
-          name: {{ include "dbs2go-phys03-r.fullname" . }}
       {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
       - name: logs
         persistentVolumeClaim:

@@ -2,9 +2,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "dbs2go-phys03-w.fullname" . }}
+  name: dbs2go-phys03-w
   labels:
-    {{- include "dbs2go-phys03-w.labels" . | nindent 4 }}
+    app: dbs2go-phys03-w
   namespace: dbs
 spec:
   {{- if not .Values.autoscaling.enabled }}
@@ -16,7 +16,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "dbs2go-phys03-w.selectorLabels" . | nindent 6 }}
+      app: dbs2go-phys03-w
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -24,7 +24,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "dbs2go-phys03-w.selectorLabels" . | nindent 8 }}
+        app: dbs2go-phys03-w
         env: k8s-{{.Values.environment}}
         job: dbs2go-phys03-w
     spec:
@@ -32,7 +32,6 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "dbs2go-phys03-w.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
