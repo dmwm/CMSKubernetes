@@ -1,7 +1,7 @@
 
 
 ### build image
-docker build -t cmssw/frontend8443 .
+docker build -t cmssw/frontendx509 .
 
 ### list images
 docker images
@@ -13,17 +13,17 @@ docker ps --no-trunc -aq
 docker rm -f `docker ps --no-trunc -aq`
 
 ### run given image
-docker run --rm -h `hostname -f` -v /tmp/vk:/etc/secrets -i -t cmssw/frontend8443 /bin/bash
+docker run --rm -h `hostname -f` -v /tmp/vk:/etc/secrets -i -t cmssw/frontendx509 /bin/bash
 
 ### remove existing image
-docker rmi cmssw/frontend8443
+docker rmi cmssw/frontendx509
 
 ### inspect running container
 docker ps # find docker id
 docker inspect <docker_id> | grep IPAddress
 
 ### push image to docker.com
-docker push cmssw/frontend8443
+docker push cmssw/frontendx509
 
 ### references
 https://stackoverflow.com/questions/18497688/run-a-docker-image-as-a-container#18498313
