@@ -39,7 +39,7 @@ FROM registry.cern.ch/cmsweb/cmsweb-base:20221130-stable
 ENV WDIR=/data
 ENV USER=_frontendx509
 ADD logstash.repo /etc/yum.repos.d/logstash.repo
-RUN rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch && yum install -y perl filebeat python-pip python3 && yum clean all && rm -rf /var/cache/yum && pip install requests && useradd ${USER} && install -o ${USER} -d ${WDIR} && echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch && yum install -y perl filebeat python3-pip python3  && pip3 install setuptools -U && yum clean all && rm -rf /var/cache/yum && pip3 install requests && useradd ${USER} && install -o ${USER} -d ${WDIR} && echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 #Get alert manager
 RUN curl -ksLO https://github.com/prometheus/alertmanager/releases/download/v0.24.0/alertmanager-0.24.0.linux-amd64.tar.gz
