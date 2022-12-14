@@ -65,4 +65,6 @@ done
 export PYTHONPATH=$PYTHONPATH:/etc/secrets:$AUTHDIR/$fname
 
 # start the service
-nohup wmc-httpd -r -d $STATEDIR -l "|rotatelogs $LOGDIR/$srv-%Y%m%d-`hostname -s`.log 86400" $CFGFILE &
+wmc-httpd -r -d $STATEDIR -l "|rotatelogs $LOGDIR/$srv-%Y%m%d-`hostname -s`.log 86400" $CFGFILE
+# hack to keep the container running
+tail -f /etc/hosts
