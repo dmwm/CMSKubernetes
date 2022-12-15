@@ -1,4 +1,4 @@
-FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20221213
+FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20221215
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 ENV TAG=2.1.4
 RUN pip install global-workqueue==$TAG

@@ -1,4 +1,4 @@
-FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20221213
+FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20221215
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 RUN apt-get update
 RUN apt-get install -y libmariadb-dev-compat libmariadb-dev apache2-utils sudo
