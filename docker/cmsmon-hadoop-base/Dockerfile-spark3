@@ -18,7 +18,7 @@ RUN apt-get update -y && \
     rm -rf stomp-v700
 
 # --------------------------------------------------------------------------------------------------
-FROM gitlab-registry.cern.ch/linuxsupport/cc7-base:20221101-1.x86_64
+FROM gitlab-registry.cern.ch/linuxsupport/cc7-base:20221201-1.x86_64
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 # Should be full version

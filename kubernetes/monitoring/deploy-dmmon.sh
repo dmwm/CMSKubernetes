@@ -1,16 +1,15 @@
 #!/bin/bash
 # shellcheck disable=SC2181
 set -e
-##H Usage: deploy-cron.sh ACTION
+##H Usage: deploy-dmmon.sh ACTION
 ##H
 ##H Examples:
 ##H    --- If CMSKubernetes, cmsmon-configs and secrets repos are in same directory ---
-##H    deploy-cron.sh status
-##H    deploy-cron.sh deploy-secrets
-##H    deploy-cron.sh deploy-all
-##H    deploy-cron.sh clean-services
+##H    deploy-dmmon.sh status
+##H    deploy-dmmon.sh deploy-secrets
+##H    deploy-dmmon.sh deploy-all
 ##H    --- Else ---
-##H    export SECRETS_D=$SOMEDIR/secrets; export CONFIGS_D=$SOMEDIR/cmsmon-configs; deploy-cron.sh status
+##H    export SECRETS_D=$SOMEDIR/secrets; export CONFIGS_D=$SOMEDIR/cmsmon-configs; deploy-dmmon.sh status
 ##H
 ##H Attention: this script depends on deploy-secrets.sh
 ##H
@@ -94,61 +93,54 @@ function rm_temp_deploy_secrets_sh() {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 function deploy_secrets() {
     create_temp_deploy_secrets_sh
-    # hdfs
-    "$deploy_secrets_sh" hdfs proxy-secrets
-    "$deploy_secrets_sh" hdfs robot-secrets
-    "$deploy_secrets_sh" hdfs rucio-daily-stats-secrets
-    "$deploy_secrets_sh" hdfs condor-cpu-eff-secrets
-    "$deploy_secrets_sh" hdfs hpc-usage-secrets
-    "$deploy_secrets_sh" hdfs cron-size-quotas-secrets
-    "$deploy_secrets_sh" hdfs cron-spark-jobs-secrets
-    # sqoop
-    "$deploy_secrets_sh" sqoop sqoop-secrets
+    # auth
+    "$deploy_secrets_sh" auth proxy-secrets
+    "$deploy_secrets_sh" auth robot-secrets
+    "$deploy_secrets_sh" auth cern-certificates
+    "$deploy_secrets_sh" auth dm-auth-secrets
+    # datasetmon
+    "$deploy_secrets_sh" datasetmon cmsmon-mongo-secrets
     #
     rm_temp_deploy_secrets_sh
 }
 function clean_secrets() {
     # hdfs
-    kubectl -n hdfs --ignore-not-found=true delete secret proxy-secrets
-    kubectl -n hdfs --ignore-not-found=true delete secret robot-secrets
-    kubectl -n hdfs --ignore-not-found=true delete secret rucio-daily-stats-secrets
-    kubectl -n hdfs --ignore-not-found=true delete secret condor-cpu-eff-secrets
-    kubectl -n hdfs --ignore-not-found=true delete secret hpc-usage-secrets
-    kubectl -n hdfs --ignore-not-found=true delete secret cron-size-quotas-secrets
-    kubectl -n hdfs --ignore-not-found=true delete secret cron-spark-jobs-secrets
-    # sqoop
-    kubectl -n sqoop --ignore-not-found=true delete secret sqoop-secrets
+    kubectl -n auth --ignore-not-found=true delete secret proxy-secrets
+    kubectl -n auth --ignore-not-found=true delete secret robot-secrets
+    kubectl -n auth --ignore-not-found=true delete secret cern-certificates
+    kubectl -n auth --ignore-not-found=true delete secret dm-auth-secrets
+    # datasetmon
+    kubectl -n datasetmon --ignore-not-found=true delete secret cmsmon-mongo-secrets
 }
 
 function deploy_services() {
+    # auth
+    # [ingress]: Don't forget to delete "cern-magnum-ingress-nginx-admission" ValidatingWebhookConfiguration
+    kubectl -n auth apply -f ingress/ingress-dm.yaml
+    kubectl -n auth apply -f services/auth-proxy-server-dm.yaml
+    kubectl -n auth apply -f crons/cron-proxy.yaml
     # default
-    kubectl -n default apply -f services/pushgateway.yaml
-    # hdfs
-    kubectl -n hdfs apply -f crons/cron-proxy.yaml
-    kubectl -n hdfs apply -f services/cmsmon-hpc-usage.yaml
-    kubectl -n hdfs apply -f services/cmsmon-rucio-ds.yaml
-    kubectl -n hdfs apply -f services/condor-cpu-eff.yaml
-    kubectl -n hdfs apply -f services/cron-size-quotas.yaml
-    kubectl -n hdfs apply -f services/cron-spark-jobs.yaml
-    # sqoop
-    kubectl -n sqoop apply -f services/sqoop.yaml
+    kubectl -n default apply -f services/httpgo.yaml
+    # datasetmon
+    kubectl -n datasetmon apply -f services/datasetmon/cmsmon-mongo.yaml
+    kubectl -n datasetmon apply -f services/datasetmon/rucio-mon-goweb.yaml
+    kubectl -n datasetmon apply -f services/datasetmon/spark2mng.yaml
 }
 function clean_services() {
     # default
-    kubectl -n default --ignore-not-found=true delete -f services/pushgateway.yaml
-    # hdfs
-    kubectl -n hdfs --ignore-not-found=true delete -f crons/cron-proxy.yaml
-    kubectl -n hdfs --ignore-not-found=true delete -f services/cmsmon-hpc-usage.yaml
-    kubectl -n hdfs --ignore-not-found=true delete -f services/cmsmon-rucio-ds.yaml
-    kubectl -n hdfs --ignore-not-found=true delete -f services/condor-cpu-eff.yaml
-    kubectl -n hdfs --ignore-not-found=true delete -f services/cron-size-quotas.yaml
-    kubectl -n hdfs --ignore-not-found=true delete -f services/cron-spark-jobs.yaml
-    # sqoop
-    kubectl -n sqoop --ignore-not-found=true delete -f services/sqoop.yaml
+    kubectl -n auth --ignore-not-found=true delete -f ingress/ingress-dm.yaml
+    kubectl -n auth --ignore-not-found=true delete -f services/auth-proxy-server-dm.yaml
+    kubectl -n auth --ignore-not-found=true delete -f crons/cron-proxy.yaml
+    # default
+    kubectl -n default --ignore-not-found=true delete -f services/httpgo.yaml
+    # datasetmon
+    kubectl -n datasetmon --ignore-not-found=true delete -f services/datasetmon/cmsmon-mongo.yaml
+    kubectl -n datasetmon --ignore-not-found=true delete -f services/datasetmon/rucio-mon-goweb.yaml
+    kubectl -n datasetmon --ignore-not-found=true delete -f services/datasetmon/spark2mng.yaml
 }
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ MAIN ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-namespaces="hdfs sqoop"
+namespaces="auth datasetmon"
 deploy_all() {
     for _ns in $namespaces; do
         if ! kubectl get ns | grep -q "$_ns"; then

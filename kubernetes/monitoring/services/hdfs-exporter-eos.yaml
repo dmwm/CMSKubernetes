@@ -24,6 +24,8 @@ data:
     #!/bin/sh
     export PATH="/usr/hdp/hadoop/bin:/usr/bin:/bin"
     export KRB5CCNAME=/etc/secrets/krb5cc
+    # In case, to remove all sqoop cron jobs
+    crontab -r
     /data/hdfs_exporter -path /project/monitoring/archive/eos-report/logs/cms -pattern json -timeoffset 172800 -verbose 1
 ---
 apiVersion: apps/v1
@@ -45,7 +47,7 @@ spec:
       spec:
         containers:
         - name: hdfs-exporter-eos
-          image: registry.cern.ch/cmsmonitoring/sqoop:sqoop-0.0.8
+          image: registry.cern.ch/cmsmonitoring/sqoop:sqoop-0.1.5
           command:
           - /bin/sh
           - /data/setup-and-run/setup-and-run.sh
