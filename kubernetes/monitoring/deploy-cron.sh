@@ -102,6 +102,7 @@ function deploy_secrets() {
     "$deploy_secrets_sh" hdfs hpc-usage-secrets
     "$deploy_secrets_sh" hdfs cron-size-quotas-secrets
     "$deploy_secrets_sh" hdfs cron-spark-jobs-secrets
+    "$deploy_secrets_sh" hdfs log-clustering-secrets
     # sqoop
     "$deploy_secrets_sh" sqoop sqoop-secrets
     #
@@ -116,6 +117,7 @@ function clean_secrets() {
     kubectl -n hdfs --ignore-not-found=true delete secret hpc-usage-secrets
     kubectl -n hdfs --ignore-not-found=true delete secret cron-size-quotas-secrets
     kubectl -n hdfs --ignore-not-found=true delete secret cron-spark-jobs-secrets
+    kubectl -n hdfs --ignore-not-found=true delete secret log-clustering-secrets
     # sqoop
     kubectl -n sqoop --ignore-not-found=true delete secret sqoop-secrets
 }
@@ -130,6 +132,7 @@ function deploy_services() {
     kubectl -n hdfs apply -f services/condor-cpu-eff.yaml
     kubectl -n hdfs apply -f services/cron-size-quotas.yaml
     kubectl -n hdfs apply -f services/cron-spark-jobs.yaml
+    kubectl -n hdfs apply -f services/log-clustering.yaml
     # sqoop
     kubectl -n sqoop apply -f services/sqoop.yaml
 }
@@ -143,6 +146,7 @@ function clean_services() {
     kubectl -n hdfs --ignore-not-found=true delete -f services/condor-cpu-eff.yaml
     kubectl -n hdfs --ignore-not-found=true delete -f services/cron-size-quotas.yaml
     kubectl -n hdfs --ignore-not-found=true delete -f services/cron-spark-jobs.yaml
+    kubectl -n hdfs --ignore-not-found=true delete -f services/log-clustering.yaml
     # sqoop
     kubectl -n sqoop --ignore-not-found=true delete -f services/sqoop.yaml
 }
