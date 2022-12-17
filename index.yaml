@@ -1919,6 +1919,17 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/scitokens-proxy-server-0.1.1/scitokens-proxy-server-0.1.1.tgz
     version: 0.1.1
+  speedbump:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2022-12-17T06:34:46.718501574Z"
+    description: A Helm chart for Kubernetes
+    digest: b7e8f4dfbf9d22c3fbd376d931ca8bc47f7523f5a112c04ab19e0154b4352a0b
+    name: speedbump
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/speedbump-0.1.0/speedbump-0.1.0.tgz
+    version: 0.1.0
   t0reqmon:
   - apiVersion: v2
     appVersion: HG2208d
@@ -2115,4 +2126,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
     version: 0.1.1
-generated: "2022-12-13T02:57:40.646200757Z"
+generated: "2022-12-17T06:34:46.718937903Z"
