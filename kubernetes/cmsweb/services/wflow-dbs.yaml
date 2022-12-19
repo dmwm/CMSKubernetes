@@ -1,0 +1,75 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: wflow-dbs
+  namespace: dmwm
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8888 # the port here is matching port used in registry.cern.ch/cmsweb/wflow-dbs cotainer
+    protocol: TCP
+    name: dmwm
+    nodePort: 30123
+  type: NodePort
+  selector:
+    app: wflow-dbs
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: wflow-dbs
+  name: wflow-dbs
+  namespace: dmwm
+spec:
+  selector:
+    matchLabels:
+      app: wflow-dbs
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wflow-dbs
+    spec:
+      containers:
+      - image: registry.cern.ch/cmsweb/wflow-dbs #imagetag
+        name: wflow-dbs
+        imagePullPolicy: Always
+        command:
+        - /data/wflow-dbs
+        - -webConfig
+        - /etc/secrets/server.json
+        env:
+        - name: X509_USER_PROXY
+          value: /etc/proxy/proxy
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8888
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 8888
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        securityContext:
+          privileged: true
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: wflow-dbs-secrets
