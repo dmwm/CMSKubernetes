@@ -44,7 +44,7 @@ spec:
           value: /etc/proxy/proxy
         livenessProbe:
           httpGet:
-            path: /healthz
+            path: /wflow-dbs/healthz
             port: 8888
           initialDelaySeconds: 3
           periodSeconds: 3
