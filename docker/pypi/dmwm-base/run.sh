@@ -64,6 +64,12 @@ done
 
 export PYTHONPATH=$PYTHONPATH:/etc/secrets:$AUTHDIR/$fname
 
+# backward compatible changes for RPM based deployment location of aux files
+if [ -d /usr/local/data ] && [ "$USER" == "_reqmgr2" ]; then
+   sudo mkdir -p /data/srv/current/apps/reqmgr2
+   sudo ln -s /usr/local/data /data/srv/current/apps/reqmgr2
+fi
+
 # start the service
 wmc-httpd -r -d $STATEDIR -l "|rotatelogs $LOGDIR/$srv-%Y%m%d-`hostname -s`.log 86400" $CFGFILE
 # hack to keep the container running
