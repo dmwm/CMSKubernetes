@@ -29,7 +29,7 @@ args:
   square-period: 0 #Period of the latency square wave.
   triangle-amplitude: 0 #Amplitude of the latency triangle wave.
   triangle-period: 0 #Period of the latency triangle wave.
-  localhost: 80 #TCP proxy destination in host:post format.
+  destination: "localhost:80" #TCP proxy destination in host:post format.
   
 serviceAccount:
   # Specifies whether a service account should be created
