@@ -1,3 +1,16 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: log-clustering
+  namespace: hdfs
+  labels:
+    app: log-clustering
+data:
+  run.sh: |
+    # Ports will be K8s host ports. Be careful while setting them, they can conflict!
+    cd /data/log-clustering; ./run_spark workflow/workflow.py 15001 15002 15003 --fout=/data/data.json --creds=/etc/secrets/creds.json \
+    >>/proc/$(cat /var/run/crond.pid)/fd/1 2>&1
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -16,20 +29,32 @@ spec:
            app: log-clustering
       spec:
         # we should keep host network here to avoid latency problems with
-        # HDFS, w/o hostNetwork the workflow is timeout on HDFS nodes
+        # HDFS, w/o hostNetwork the workflow is timeout on HDFS nodes. Be careful with the internal spark ports.
         hostNetwork: true
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-        - args:
-          - crond
-          - -n
-          image: registry.cern.ch/cmsmonitoring/log-clustering:20220421
-          name: log-clustering
+        - name: log-clustering
+          image: registry.cern.ch/cmsmonitoring/log-clustering:20221217
+          imagePullPolicy: Always
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "sh"
+                  - "-c"
+                  - >
+                    chmod +x /data/cronjob/run.sh;
+                    echo "0 * * * * /bin/bash /data/cronjob/run.sh" | crontab -;
           volumeMounts:
           - name: log-clustering-secrets
             mountPath: /etc/secrets
             readOnly: true
+          - name: log-clustering-configmap
+            mountPath: /data/cronjob
         volumes:
         - name: log-clustering-secrets
           secret:
             secretName: log-clustering-secrets
+        - name: log-clustering-configmap
+          configMap:
+            name: log-clustering
