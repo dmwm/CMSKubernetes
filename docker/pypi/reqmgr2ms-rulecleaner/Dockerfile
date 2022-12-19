@@ -1,4 +1,4 @@
-FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20221215
+FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20221219
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 ENV TAG=2.1.4
 RUN pip install reqmgr2ms-rulecleaner==$TAG
