@@ -18,7 +18,7 @@ RUN apt-get update -y && \
     rm -rf stomp-v700
 
 # --------------------------------------------------------------------------------------------------
-FROM gitlab-registry.cern.ch/linuxsupport/cc7-base:20221101-1.x86_64
+FROM gitlab-registry.cern.ch/linuxsupport/cc7-base:20221201-1.x86_64
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 # Should be full version
@@ -52,7 +52,7 @@ RUN yum -y update && \
         libXi libXinerama libXft-devel libXrender libXpm libXpm-devel libXext-devel mesa-libGLU-devel libaio \
         libaio-devel net-tools lsof bind-utils initscripts patch voms-devel globus-gsi-credential-devel \
         globus-gsi-cert-utils-devel globus-common-devel globus-gsi-sysconfig-devel globus-gsi-callback-devel \
-        oracle-instantclient-tnsnames.ora HEP_OSlibs python-pip libffi-devel gcc bzip2-devel zlib-devel wget \
+        oracle-instantclient-tnsnames.ora HEP_OSlibs python-pip libffi-devel gcc bzip2-devel zlib-devel wget sqlite-devel \
         hadoop-bin-3.2 spark-bin-3.3 sqoop-bin-1.4 cern-hadoop-xrootd-connector cern-hadoop-config && \
     yum clean all && rm -rf /var/cache/yum && \
 # Build Python3
