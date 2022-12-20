@@ -1922,6 +1922,16 @@ entries:
   speedbump:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2022-12-20T12:42:38.980999138Z"
+    description: A Helm chart for Kubernetes
+    digest: 3eeae30e307909de2d5e7316555aabb02649e41d082b363efaa8808ec1adba1e
+    name: speedbump
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/speedbump-0.1.1/speedbump-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2022-12-17T06:34:46.718501574Z"
     description: A Helm chart for Kubernetes
     digest: b7e8f4dfbf9d22c3fbd376d931ca8bc47f7523f5a112c04ab19e0154b4352a0b
@@ -2126,4 +2136,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
     version: 0.1.1
-generated: "2022-12-17T06:34:46.718937903Z"
+generated: "2022-12-20T12:42:38.981321042Z"
