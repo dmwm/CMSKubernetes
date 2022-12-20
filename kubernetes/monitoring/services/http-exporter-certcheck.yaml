@@ -23,11 +23,11 @@ metadata:
 data:
   configs.json: |
     [
-      {"cert": "/etc/secrets/robotcert.pem", "ckey": "/etc/secrets/robotkey.pem"},
-      {"cert": "/etc/secrets/server.pem", "ckey": "/etc/secrets/server-key.pem"},
+      {"cert": "/etc/secrets/cmsmonit_cert", "ckey": "/etc/secrets/cmsmonit_key"},
+      {"cert": "/etc/secrets/cms_nats_cert", "ckey": "/etc/secrets/cms_nats_key"},
+      {"cert": "/etc/secrets/cms_monitoring_cert", "ckey": "/etc/secrets/cms_monitoring_key"},
+      {"cert": "/etc/secrets/cms_dm_monitoring_cert", "ckey": "/etc/secrets/cms_dm_monitoring_key"},
       {"cert": "/etc/secrets/robot-training-cert.pem", "ckey": "/etc/secrets/robot-training-key.pem"},
-      {"cert": "/etc/secrets/tls.crt", "ckey": "/etc/secrets/tls.key"},
-      {"cert": "/etc/secrets/tls.crt", "ckey": "/etc/secrets/tls.key"},
       {"keytab": "/etc/secrets/cmsmonit_keytab"},
       {"keytab": "/etc/secrets/cmspopdb_keytab"},
       {"keytab": "/etc/secrets/cmssqoop_keytab"}

@@ -10,26 +10,26 @@ set -e
 ##H        auth-secrets
 ##H        cern-certificates
 ##H        certcheck-secrets
+##H        cmsmon-mongo-secrets
+##H        condor-cpu-eff-secrets
 ##H        cron-size-quotas-secrets
 ##H        cron-spark-jobs-secrets
-##H        condor-cpu-eff-secrets
-##H        hpc-usage-secrets
+##H        dm-auth-secrets
 ##H        es-wma-secrets
+##H        hpc-usage-secrets
 ##H        intelligence-secrets
 ##H        karma-secrets
 ##H        keytab-secrets
 ##H        krb5cc-secrets
 ##H        log-clustering-secrets
-##H        cmsmon-mongo-secrets
 ##H        nats-secrets
 ##H        prometheus-secrets
 ##H        promxy-secrets
 ##H        proxy-secrets
 ##H        redash-secrets
 ##H        robot-secrets
-##H        rumble-secrets
-##H        rucio-secrets
 ##H        rucio-daily-stats-secrets
+##H        rumble-secrets
 ##H        sqoop-secrets
 ##H        vmalert-secrets
 ##H Examples:
@@ -170,8 +170,6 @@ elif [ "$secret" == "redash-secrets" ]; then
     files=`ls $sdir/redash/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/redash | sed "s, $,,g"`
 elif [ "$secret" == "rumble-secrets" ]; then
     files=`ls $sdir/rumble/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/rumble | sed "s, $,,g"`
-elif [ "$secret" == "rucio-secrets" ]; then
-    files=`ls $sdir/rucio/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/rucio | sed "s, $,,g"`
 elif [ "$secret" == "rucio-daily-stats-secrets" ]; then
     # Grep cmsr to grep cmsr_string file only, since sqoop keytab conflicts with cmsmon keytab
     sqoop_f=`ls $sdir/sqoop/ | grep cmsr | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/sqoop | sed "s, $,,g"`
@@ -190,14 +188,23 @@ elif [ "$secret" == "sqoop-secrets" ]; then
     rucio_f=`ls $sdir/rucio/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/rucio | sed "s, $,,g"`
     files="${cmssqoop_f} ${s_files} ${c_files} ${rucio_f}"
 elif [ "$secret" == "certcheck-secrets" ]; then
-    robot_s="--from-file=${sdir}/robot/robotcert.pem --from-file=${sdir}/robot/robotkey.pem"
-    nats_s="--from-file=${sdir}/nats-cluster/server.pem --from-file=${sdir}/nats-cluster/server-key.pem"
-    training_s="--from-file=${sdir}/cms-training/robot-training-cert.pem --from-file=${sdir}/cms-training/robot-training-key.pem"
-    cms_monitoring_s="--from-file=${sdir}/cmsmon-auth/tls.crt --from-file=${sdir}/cmsmon-auth/tls.key"
+    robot_s="--from-file=cmsmonit_cert=${sdir}/robot/robotcert.pem"
+    robot_s="--from-file=cmsmonit_key=${sdir}/robot/robotkey.pem ${robot_s}"
+    #
+    nats_s="--from-file=cms_nats_cert=${sdir}/nats-cluster/server.pem"
+    nats_s="--from-file=cms_nats_key=${sdir}/nats-cluster/server-key.pem ${nats_s}"
+    #
+    cms_monitoring_s="--from-file=cms_monitoring_cert=${sdir}/cmsmon-auth/tls.crt"
+    cms_monitoring_s="--from-file=cms_monitoring_key=${sdir}/cmsmon-auth/tls.key ${cms_monitoring_s}"
+    #
+    cms_dm_monitoring_s="--from-file=cms_dm_monitoring_cert=${sdir}/cms-dm-monitoring-auth/tls.crt"
+    cms_dm_monitoring_s="--from-file=cms_dm_monitoring_key=${sdir}/cms-dm-monitoring-auth/tls.key ${cms_dm_monitoring_s}"
+    #
     cmsmonit_k="--from-file=cmsmonit_keytab=${sdir}/cmsmonit-keytab/keytab"
     cmspopdb_k="--from-file=cmspopdb_keytab=${sdir}/cmspopdb-keytab/keytab"
     cmssqoop_k="--from-file=cmssqoop_keytab=${sdir}/cmssqoop-keytab/keytab"
-    files="${robot_s} ${nats_s} ${training_s} ${cms_monitoring_s} ${cmsmonit_k} ${cmspopdb_k} ${cmssqoop_k}"
+    training_s="--from-file=${sdir}/cms-training/robot-training-cert.pem --from-file=${sdir}/cms-training/robot-training-key.pem"
+    files="${robot_s} ${nats_s} ${cms_monitoring_s} ${cms_dm_monitoring_s} ${cmsmonit_k} ${cmspopdb_k} ${cmssqoop_k} ${training_s}"
 fi
 echo "files: \"$files\""
 #echo "literals: $literals"
