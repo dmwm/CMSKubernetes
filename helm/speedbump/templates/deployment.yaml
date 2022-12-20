@@ -36,8 +36,8 @@ spec:
             - containerPort: 2000
           args:
           {{- range $key, $value := .Values.args }}
-            {{- if eq ($key| toString) "localhost" }}
-            - {{ $key }}:{{ $value }}            
+            {{- if eq ($key| toString) "destination" }}
+            - {{ $value }}            
             {{- else if eq ($key| toString) "version"  }} 
             - --{{ $key }}
             {{- else if or (eq ($value| toString) "0") ( not $value) }}
