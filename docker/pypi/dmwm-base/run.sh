@@ -9,6 +9,9 @@ CONFIGDIR=/data/srv/current/config/$srv
 CONFIGFILE=${CONFIGFILE:-config.py}
 CFGFILE=/etc/secrets/$CONFIGFILE
 
+### permission update to workaround issues with mounting logs volume
+sudo chown -R $USER.$USER /data
+
 mkdir -p $LOGDIR
 mkdir -p $STATEDIR
 mkdir -p $AUTHDIR
