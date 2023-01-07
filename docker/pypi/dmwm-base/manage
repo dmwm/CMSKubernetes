@@ -36,8 +36,10 @@ export X509_USER_KEY=$AUTHDIR/dmwm-service-key.pem
 export X509_USER_CERT=$AUTHDIR/dmwm-service-cert.pem
 export REQMGR_CACHE_DIR=$STATEDIR
 export WMCORE_CACHE_DIR=$STATEDIR
-export WMAGENT_CONFIG=$CFGFILE
-export RUCIO_HOME=$CFGDIR
+
+# by default Rucio relies on /opt/rucio/etc/config.cfg
+# if necessary we may setup RUCIO_HOME which should provide this location
+# but in k8s we mount rucio config.cfg under /opt/rucio/etc area
 
 usage()
 {
