@@ -9,17 +9,37 @@
 ##H   start       (re)start the service
 ##H   stop        stop the service
 
-srv=`echo $USER | sed -e "s,_,,g" | sed -e "s,t0req,t0_req,g"`
+# common settings to prettify output
 echo_e=-e
-LOGDIR=/data/srv/logs/$srv
-CFGFILE=/data/srv/current/config/$srv/config.py
-STATEDIR=/data/srv/state/$srv
 COLOR_OK="\\033[0;32m"
 COLOR_WARN="\\033[0;31m"
 COLOR_NORMAL="\\033[0;39m"
+
+# service settings
+srv=`echo $USER | sed -e "s,_,,g" | sed -e "s,t0req,t0_req,g"`
+LOGDIR=/data/srv/logs/$srv
+AUTHDIR=/data/srv/current/auth/$srv
+STATEDIR=/data/srv/state/$srv
+CFGDIR=/data/srv/current/config/$srv
+CFGFILE=$CFGDIR/config.py
+# some MS services uses different config naming convention, therefore we'll
+# adjust CFGFILE assingment
+for c in monitor output ruleCleaner transferor unmerged; do
+    if [ -f $CFGDIR/config-${c}.py ]; then
+        CFGFILE=$CFGDIR/config-${c}.py
+    fi
+done
+
+# necessary env settings for all WM services
 export PYTHONPATH=$PYTHONPATH:/etc/secrets:/data/srv/current/config/$srv
-export X509_USER_CERT=/data/srv/state/$srv/proxy/proxy.cert
-export X509_USER_KEY=/data/srv/state/$srv/proxy/proxy.key
+export X509_USER_KEY=$AUTHDIR/dmwm-service-key.pem
+export X509_USER_CERT=$AUTHDIR/dmwm-service-cert.pem
+export REQMGR_CACHE_DIR=$STATEDIR
+export WMCORE_CACHE_DIR=$STATEDIR
+
+# by default Rucio relies on /opt/rucio/etc/config.cfg
+# if necessary we may setup RUCIO_HOME which should provide this location
+# but in k8s we mount rucio config.cfg under /opt/rucio/etc area
 
 usage()
 {
