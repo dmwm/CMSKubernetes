@@ -1,4 +1,4 @@
-FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20230106
+FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20230110
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 ENV TAG=2.1.4
 RUN pip install reqmgr2ms-pielup==$TAG
