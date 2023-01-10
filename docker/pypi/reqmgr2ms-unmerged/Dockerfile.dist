@@ -5,14 +5,13 @@ COPY --from=gfal /data/miniconda /data/miniconda
 ENV WDIR=/data
 ENV PATH $PATH:$WDIR/miniconda/bin
 ENV PYTHONPATH $WDIR/miniconda/lib/python3.8/site-packages/
-ENV TAG=2.1.4
-ENV REQTAG=2.1.4.pre3
+ENV TAG=X.Y.Z
 WORKDIR $WDIR
 ADD reqmgr2ms-unmerged-$TAG.tar.gz $WORKDIR
 WORKDIR reqmgr2ms-unmerged-$TAG
 # since we install gfal via external image we'll skip it for installation
 # of reqmgr2ms-unmerged, but to satisfy dependencies we'll install them first
-# RUN curl -ksLO https://raw.githubusercontent.com/dmwm/WMCore/$REQTAG/requirements.txt
+# RUN curl -ksLO https://raw.githubusercontent.com/dmwm/WMCore/$TAG/requirements.txt
 # add requirements.txt file which should exclude gfal2 package
 RUN cat requirements.txt | grep -v gfal2 > req.txt
 RUN pip install -r req.txt

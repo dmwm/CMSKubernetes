@@ -1,6 +1,6 @@
 FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20221129
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
-ENV TAG=2.1.4
+ENV TAG=X.Y.Z
 ADD reqmgr2ms-output-$TAG.tar.gz $WORKDIR
 WORKDIR reqmgr2ms-output-$TAG
 RUN pip install -r requirements.txt
