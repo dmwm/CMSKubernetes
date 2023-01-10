@@ -2,7 +2,7 @@ FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20221129
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 RUN apt-get update
 RUN apt-get install -y libmariadb-dev-compat libmariadb-dev apache2-utils sudo
-ENV TAG=2.1.4
+ENV TAG=X.Y.Z
 ADD wmagent-$TAG.tar.gz $WORKDIR
 WORKDIR wmagent-$TAG
 RUN pip install -r requirements.txt

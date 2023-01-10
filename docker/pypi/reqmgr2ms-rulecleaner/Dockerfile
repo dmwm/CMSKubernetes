@@ -1,6 +1,6 @@
 FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20230110
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
-ENV TAG=2.1.4
+ENV TAG=X.Y.Z
 RUN pip install reqmgr2ms-rulecleaner==$TAG
 RUN sed -i -e "s,-config.py,-config-ruleCleaner.py,g" /data/run.sh
 RUN sed -i -e "s,config.py,config-ruleCleaner.py,g" /data/manage
