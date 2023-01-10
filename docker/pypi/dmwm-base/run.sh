@@ -40,7 +40,8 @@ fi
 # overwrite header-auth key file with one from secrets
 if [ -f /etc/hmac/hmac ]; then
     sudo cp /etc/hmac/hmac $AUTHDIR/../wmcore-auth/header-auth-key
-    sudo chown 0600 $USER.$USER $AUTHDIR/../wmcore-auth/header-auth-key
+    sudo chown $USER.$USER $AUTHDIR/../wmcore-auth/header-auth-key
+    sudo chmod 0600 $AUTHDIR/../wmcore-auth/header-auth-key
 fi
 
 # use service configuration files from /etc/secrets if they are present
