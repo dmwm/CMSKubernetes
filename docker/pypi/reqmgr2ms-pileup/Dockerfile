@@ -1,7 +1,7 @@
 FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20230110
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 ENV TAG=X.Y.Z
-RUN pip install reqmgr2ms-pielup==$TAG
+RUN pip install reqmgr2ms-pileup==$TAG
 #RUN sed -i -e "s,-config.py,-config-pielup.py,g" /data/run.sh
 #RUN sed -i -e "s,config.py,config-pielup.py,g" /data/manage
 ENV WDIR=/data
