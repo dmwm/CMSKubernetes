@@ -33,8 +33,8 @@ data:
     echo "Starting run_spark2hdfs.sh ..."
     /data/CMSMonitoring/rucio-dataset-monitoring/spark/cron4rucio_spark2hdfs.sh \
       --keytab /etc/secrets/keytab --hdfs /tmp/cmsmonit/prod \
-      --p1 $CMSMON_RUCIO_SPARK2MNG_SERVICE_PORT_PORT_0 \
-      --p2 $CMSMON_RUCIO_SPARK2MNG_SERVICE_PORT_PORT_1 \
+      --p1 $SPARK2MNG_SERVICE_PORT_PORT_0 \
+      --p2 $SPARK2MNG_SERVICE_PORT_PORT_1 \
       --host $MY_NODE_NAME --wdir $WDIR
   run_hdfs2mongo.sh: |
     #!/bin/bash
@@ -57,7 +57,7 @@ metadata:
   namespace: datasetmon
 spec:
   # UTC
-  schedule: "30 08 * * *"
+  schedule: "30 07 * * *"
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 1
   jobTemplate:
@@ -72,7 +72,7 @@ spec:
           hostname: spark2mng
           containers:
             - name: spark2mng
-              image: registry.cern.ch/cmsmonitoring/spark2mng:rgo-0.0.7
+              image: registry.cern.ch/cmsmonitoring/spark2mng:rgo-0.0.10
               imagePullPolicy: Always
               command: [ "/bin/bash", "-c" ]
               args:

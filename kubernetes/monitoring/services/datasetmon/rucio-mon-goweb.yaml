@@ -29,6 +29,7 @@ data:
         "read_timeout": 10,
         "write_timeout": 10,
         "mongo_connection_timeout": 100,
+        "base_endpoint": "main",
         "prod_lock_accounts": [
             "transfer_ops",
             "wma_prod",
@@ -64,7 +65,7 @@ spec:
     spec:
       containers:
       - name: rucio-mon-goweb
-        image: registry.cern.ch/cmsmonitoring/rucio-mon-goweb:rgo-0.0.7
+        image: registry.cern.ch/cmsmonitoring/rucio-mon-goweb:rgo-0.0.12
         imagePullPolicy: Always
         args:
           - /data/rucio-dataset-monitoring
