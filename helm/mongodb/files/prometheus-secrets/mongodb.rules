@@ -1,0 +1,124 @@
+groups:
+- name: mongodb
+  rules:
+
+  - alert: MongoDB replicaset member is down (State is Startup)
+    expr: mongodb_rs_members_state == 0
+    for: 2m
+    labels:
+      severity: high
+      tag: mongodb-k8s-cluster
+      service: mongodb-k8s
+      host: "{{ $labels.member_idx }}"
+      kind: mongodb
+      action: Please check MongoDB on {{ $labels.member_idx }}
+    annotations:
+      summary: "mongodb replica member with hostname {{ $labels.member_idx }} ( {{ $labels.member_state }} ) is down (State is Startup)"
+      description: "Replica member with hostname {{ $labels.member_idx }} has been down for more than 2m (State is Startup)"
+
+  - alert: MongoDB replicaset member is down (State is Recovering)
+    expr: mongodb_rs_members_state == 3
+    for: 2m
+    labels:
+      severity: high
+      tag: mongodb-k8s-cluster
+      service: mongodb-k8s
+      host: "{{ $labels.member_idx }}"
+      kind: mongodb
+      action: Please check MongoDB on {{ $labels.member_idx }}
+    annotations:
+      summary: "mongodb replica member with hostname {{ $labels.member_idx }} ( {{ $labels.member_state }} ) is down (State is Recovering)"
+      description: "Replica member with hostname {{ $labels.member_idx }} has been down for more than 2m (State is Recovering)"
+
+  - alert: MongoDB replicaset member is down (State is Startup2)
+    expr: mongodb_rs_members_state == 5
+    for: 2m
+    labels:
+      severity: high
+      tag: mongodb-k8s-cluster
+      service: mongodb-k8s
+      host: "{{ $labels.member_idx }}"
+      kind: mongodb
+      action: Please check MongoDB on {{ $labels.member_idx }}
+    annotations:
+      summary: "mongodb replica member with hostname {{ $labels.member_idx }} ( {{ $labels.member_state }} ) is down (State is Startup2)"
+      description: "Replica member with hostname {{ $labels.member_idx }} has been down for more than 2m (State is Startup2)"
+
+  - alert: MongoDB replicaset member is down (State is Unknown)
+    expr: mongodb_rs_members_state == 6
+    for: 2m
+    labels:
+      severity: high
+      tag: mongodb-k8s-cluster
+      service: mongodb-k8s
+      host: "{{ $labels.member_idx }}"
+      kind: mongodb
+      action: Please check MongoDB on {{ $labels.member_idx }}
+    annotations:
+      summary: "mongodb replica member with hostname {{ $labels.member_idx }} ( {{ $labels.member_state }} ) is down (State is Unknown)"
+      description: "Replica member with hostname {{ $labels.member_idx }} has been down for more than 2m (State is Unknown)"
+
+  - alert: MongoDB replicaset member is down (State is Down)
+    expr: mongodb_rs_members_state == 8
+    for: 2m
+    labels:
+      severity: high
+      tag: mongodb-k8s-cluster
+      service: mongodb-k8s
+      host: "{{ $labels.member_idx }}"
+      kind: mongodb
+      action: Please check MongoDB on {{ $labels.member_idx }}
+    annotations:
+      summary: "mongodb replica member with hostname {{ $labels.member_idx }} ( {{ $labels.member_state }} ) is down (State is Down)"
+      description: "Replica member with hostname {{ $labels.member_idx }} has been down for more than 2m (State is Down)"
+
+  - alert: MongoDB replicaset member is down (State is Rollback)
+    expr: mongodb_rs_members_state == 9
+    for: 2m
+    labels:
+      severity: high
+      tag: mongodb-k8s-cluster
+      service: mongodb-k8s
+      host: "{{ $labels.member_idx }}"
+      kind: mongodb
+      action: Please check MongoDB on {{ $labels.member_idx }}
+    annotations:
+      summary: "mongodb replica member with hostname {{ $labels.member_idx }} ( {{ $labels.member_state }} ) is down (State is Rollback)"
+      description: "Replica member with hostname {{ $labels.member_idx }} has been down for more than 2m (State is Rollback)"
+
+  - alert: MongoDB replicaset member is down (State is Removed)
+    expr: mongodb_rs_members_state == 10
+    for: 2m
+    labels:
+      severity: high
+      tag: mongodb-k8s-cluster
+      service: mongodb-k8s
+      host: "{{ $labels.member_idx }}"
+      kind: mongodb
+      action: Please check MongoDB on {{ $labels.member_idx }}
+    annotations:
+      summary: "mongodb replica member with hostname {{ $labels.member_idx }} ( {{ $labels.member_state }} ) is down (State is Removed)"
+      description: "Replica member with hostname {{ $labels.member_idx }} has been down for more than 2m (State is Removed)"
+
+  #- alert: MongodbVirtualMemoryUsage
+  #    expr: (sum(mongodb_ss_mem_virtual) BY (instance) / sum(mongodb_ss_mem_resident) BY (instance)) > 3
+  #    for: 2m
+  #    labels:
+  #      severity: warning
+  #    annotations:
+  #      summary: MongoDB virtual memory usage (instance {{ $labels.instance }})
+  #      description: "High memory usage\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  #- alert: MongoDB K8S Node has high memory consumption
+  #    expr: ((eagle_node_resource_usage_memory_bytes)  BY (node)) / ((eagle_node_resource_allocatable_memory_bytes)  BY (node)) > 0.85
+  #    for: 2m
+  #    labels:
+  #      severity: high
+  #      tag: mongodb-k8s-cluster
+  #      service: mongodb-k8s
+  #      host: "{{ $labels.node }}"
+  #      kind: mongodb
+  #      action: Please check node {{ $labels.node }} for high memory consumption.
+  #    annotations:
+  #        summary: MongoDB node has high memory usage (node {{ $labels.node }})
+  #        description: "High memory in MongoDB K8S Node usage\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

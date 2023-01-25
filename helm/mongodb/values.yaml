@@ -1,0 +1,56 @@
+quickSetting:
+  namespace: default
+  env: test-rs
+  image:
+    mongodb: registry.cern.ch/cmsweb/cmsmongo
+  pvc:
+    storageClassName: cpio1
+    accessMode: ReadWriteOnce
+    storageSize: 1Ti
+    mongodbMountPath: "/mnt/NFS1/cluster5/defacement-detection-test-deployment-with-helm/"
+monitoring:
+  jobName: "mongodb-exporter"
+db:
+  rsname: "cms-rs"
+  nodeHostname: nodeHostname
+  clusterName: mongodb
+  env: k8s-mongo
+  auth:
+    password: password
+    keyfile: keyfile
+  service:
+    port: 27017
+  pod:
+    resources:
+      requests:
+        ephemeralStorage: "1Gi"
+        cpu: "100m"
+        memory: "1Gi"
+      limits:
+        ephemeralStorage: "2Gi"
+        cpu: "200m"
+        memory: "2Gi"
+  probes:
+    livenessProbe:
+      initialDelaySeconds: 90
+      periodSeconds: 12
+      timeoutSeconds: 5
+      failureThreshold: 10
+  instance0:
+    pvName: "provisioned-storage-mongodb-0"
+    serviceName: mongodb-0-service
+    podName: mongodb-0
+    mongoId: "mongo-0"
+    nodePort: 32001
+  instance1:
+    pvName: "provisioned-storage-mongodb-1"
+    serviceName: mongodb-1-service
+    podName: mongodb-1
+    mongoId: "mongo-1"
+    nodePort: 32002
+  instance2:
+    pvName: "provisioned-storage-mongodb-2"
+    serviceName: mongodb-2-service
+    podName: mongodb-2
+    mongoId: "mongo-2"
+    nodePort: 32003
