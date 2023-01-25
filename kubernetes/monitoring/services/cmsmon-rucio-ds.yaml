@@ -34,7 +34,7 @@ data:
     . /etc/environment
     # For test, change to "--amq /etc/secrets/amq_broker_training.json" and put "--test" param
     # Run and print all results(except for Spark logs) to stdout
-    /data/CMSSpark/bin/cron4rucio_datasets_daily_stats.sh \
+    /data/CMSSpark/bin/cron4rucio_datasets_stats.sh \
       --keytab /etc/secrets/keytab \
       --cmsr /etc/secrets/cmsr_cstring \
       --rucio /etc/secrets/rucio \
