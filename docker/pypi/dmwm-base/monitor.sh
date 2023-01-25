@@ -8,7 +8,7 @@ for p in $configs; do
     if [ -n "$pid" ]; then
         app=`grep ^main.application /etc/secrets/${p}.py | sed -e 's,#.*,,g' | awk '{split($0,a,"="); print a[2]}' | sed -e "s, ,,g" -e 's,",,g'`
         prefix=process_exporter_${app}
-        port=`grep main.port /etc/secrets/config.py | sed -e 's,#.*,,g' | awk '{split($0,a,"="); print a[2]}' | sed -e "s, ,,g"`
+        port=`grep main.port /etc/secrets/${p}.py | sed -e 's,#.*,,g' | awk '{split($0,a,"="); print a[2]}' | sed -e "s, ,,g"`
         address=":1${port}"
         echo "Start ${prefix} on ${address}"
         nohup process_exporter -pid $pid -prefix $prefix -address "$address" 2>&1 1>& ${prefix}.log < /dev/null &
