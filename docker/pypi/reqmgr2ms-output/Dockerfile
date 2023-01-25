@@ -1,4 +1,4 @@
-FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20230123
+FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20230125
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 ENV TAG=X.Y.Z
 RUN pip install reqmgr2ms-output==$TAG
