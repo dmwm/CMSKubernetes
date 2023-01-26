@@ -55,7 +55,7 @@ if [ $# -ne 2 ]; then
         fi
 	
 fi
-srv=( "reqmgr2ms-output" "reqmgr2ms-rulecleaner" "reqmgr2ms-transferor" "reqmgr2ms-unmerged-t1" "reqmgr2ms-unmerged-t2t3" "reqmgr2ms-unmerged-t2t3us" "reqmgr2" "reqmgr2-tasks" "reqmon" "reqmon-tasks" "workqueue" "t0_reqmon" "t0_reqmon-tasks" "t0wmadatasvc")
+srv=( "reqmgr2ms-output" "reqmgr2ms-rulecleaner" "reqmgr2ms-transferor" "reqmgr2ms-unmerged-t1" "reqmgr2ms-unmerged-t2t3" "reqmgr2ms-unmerged-t2t3us" "reqmgr2" "reqmgr2-tasks" "reqmon" "reqmon-tasks" "workqueue" "t0_reqmon" "t0_reqmon-tasks" )
 echo ${srv[*]}
 
 
@@ -140,6 +140,16 @@ if [[ "$cluster_name"  == *"cmsweb-test11" ]] ; then
         check=false
         fi
 fi
+if [[ "$cluster_name"  == *"cmsweb-test12" ]] ; then
+        if [[ "$env" != "test12" ]] ; then
+        check=false
+        fi
+fi
+if [[ "$cluster_name"  == *"cmsweb-test13" ]] ; then
+        if [[ "$env" != "test13" ]] ; then
+        check=false
+        fi
+fi
 
 if [[ $check == false ]] ; then
 
@@ -171,15 +181,11 @@ do
         echo "Using Environment: $cmsweb_env"
 
         # replace imagetag with real value and deploy new service
-        if [ "$cmsweb_env" == "k8s-prod" ] ; then
+        if [ "$cmsweb_env" == "k8s-prod" || "$cmsweb_env" == "k8s-preprod" ] ; then
 
          cat $i.yaml | sed -e "s,1 #PROD#,,g" | sed -e "s,#PROD#,      ,g" |  sed -e "s,logs-cephfs-claim,$cmsweb_log,g" | sed -e "s, #imagetag,$cmsweb_image_tag,g" | sed -e "s,k8s #k8s#,$cmsweb_env,g" > $i.yaml.new
          cat $i.yaml | sed -e "s,1 #PROD#,,g" | sed -e "s,#PROD#,      ,g" |  sed -e "s,logs-cephfs-claim,$cmsweb_log,g" | sed -e "s, #imagetag,$cmsweb_image_tag,g" | sed -e "s,k8s #k8s#,$cmsweb_env,g" | kubectl apply -f -
 
-        elif  [ "$cmsweb_env" == "k8s-preprod" ] ; then
- 
-          cat $i.yaml | sed -e "s, #imagetag,$cmsweb_image_tag,g" | sed -e "s,k8s #k8s#,$cmsweb_env,g"  > $i.yaml.new
-          cat $i.yaml | sed -e "s, #imagetag,$cmsweb_image_tag,g" | sed -e "s,k8s #k8s#,$cmsweb_env,g"  | kubectl apply -f -
         else 
         cat $i.yaml | sed -e "s, #imagetag,$cmsweb_image_tag,g" | sed -e "s,k8s #k8s#,$cmsweb_env,g"  > $i.yaml.new
         cat $i.yaml | sed -e "s, #imagetag,$cmsweb_image_tag,g" | sed -e "s,k8s #k8s#,$cmsweb_env,g"  | kubectl apply -f -
