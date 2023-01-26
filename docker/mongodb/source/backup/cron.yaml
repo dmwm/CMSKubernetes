@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backup-cron
+spec:
+  schedule: "5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: mongo-backup
+            image: registry.cern.ch/cmsweb/mongo-backup
+            env:
+            - name: VOLUME_NAME
+              value: pvc-name
+            - name: SNAPSHOT_NAME
+              value: mongodb_prod_snapshot
+            args:
+            - /bin/sh
+            - -c
+            - /root/backup.sh
+            volumeMounts:
+            - name: openstack-secrets
+              mountPath: /sec
+          restartPolicy: Never
+          volumes:
+          - name: openstack-secrets
+            secret:
+              secretName: openstack-secrets
