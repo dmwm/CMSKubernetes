@@ -728,6 +728,17 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/mongo-replicaset-1.0.0/mongo-replicaset-1.0.0.tgz
     version: 1.0.0
+  mongodb:
+  - apiVersion: v2
+    appVersion: 1.0.1
+    created: "2023-01-26T16:10:08.909315703Z"
+    description: A Helm chart for launching a MongoDB ReplicaSet with 3 instances
+    digest: c929901ea0018fa59fe429886304cab717a02be5589f708673dc2f8e94bb9d58
+    name: mongodb
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/mongodb-1.0.1/mongodb-1.0.1.tgz
+    version: 1.0.1
   ms-output-mongo:
   - apiVersion: v2
     appVersion: 1.16.0
@@ -2137,4 +2148,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
     version: 0.1.1
-generated: "2023-01-26T03:11:31.496843622Z"
+generated: "2023-01-26T16:10:08.909609801Z"
