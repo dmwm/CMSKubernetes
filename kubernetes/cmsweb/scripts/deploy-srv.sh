@@ -53,6 +53,12 @@ if [ $# -ne 3 ]; then
         if [[ "$cluster_name" == *"cmsweb-test11" ]] ; then
                 env="test11"
         fi
+        if [[ "$cluster_name" == *"cmsweb-test12" ]] ; then
+                env="test12"
+        fi
+        if [[ "$cluster_name" == *"cmsweb-test13" ]] ; then
+                env="test13"
+        fi
 	
 fi
 srv=$1
@@ -134,6 +140,16 @@ if [[ "$cluster_name"  == *"cmsweb-test10" ]] ; then
 fi
 if [[ "$cluster_name"  == *"cmsweb-test11" ]] ; then
         if [[ "$env" != "test11" ]] ; then
+        check=false
+        fi
+fi
+if [[ "$cluster_name"  == *"cmsweb-test12" ]] ; then
+        if [[ "$env" != "test12" ]] ; then
+        check=false
+        fi
+fi
+if [[ "$cluster_name"  == *"cmsweb-test13" ]] ; then
+        if [[ "$env" != "test13" ]] ; then
         check=false
         fi
 fi
