@@ -53,6 +53,13 @@ if [ $# -ne 2 ]; then
         if [[ "$cluster_name" == *"cmsweb-test11" ]] ; then
                 env="test11"
         fi
+        if [[ "$cluster_name" == *"cmsweb-test12" ]] ; then
+                env="test12"
+        fi
+        if [[ "$cluster_name" == *"cmsweb-test13" ]] ; then
+                env="test13"
+        fi
+
 	
 fi
 srv=( "reqmgr2ms-output" "reqmgr2ms-rulecleaner" "reqmgr2ms-transferor" "reqmgr2ms-unmerged-t1" "reqmgr2ms-unmerged-t2t3" "reqmgr2ms-unmerged-t2t3us" "reqmgr2" "reqmgr2-tasks" "reqmon" "reqmon-tasks" "workqueue" "t0_reqmon" "t0_reqmon-tasks" )
