@@ -114,7 +114,7 @@ cmsweb_ns="auth default couchdb crab das dbs dmwm dqm http ruciocm tzero wma"
 # services for cmsweb cluster, adjust if necessary
 #cmsweb_ing="ing-srv"
 #cmsweb_ing="ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tzero ing-exitcodes"
-cmsweb_ing="ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-ruciocm ing-tzero ing-wma"
+cmsweb_ing="ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-dqm-offline ing-http ing-ruciocm ing-tzero ing-wma"
 cmsweb_ds="frontend-ds"
 
 cmsweb_aps="auth-proxy-server scitokens-proxy-server x509-proxy-server aps-filebeat sps-filebeat xps-filebeat"
@@ -171,7 +171,7 @@ if [ "$deployment" == "services" ]; then
     # services for cmsweb cluster, adjust if necessary
     #cmsweb_ing="ing-srv"
     #cmsweb_ing="ing-couchdb ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-http ing-phedex ing-tzero ing-exitcodes"
-    cmsweb_ing="ing-crab ing-dbs ing-das ing-dmwm ing-http ing-tzero ing-exitcodes ing-wma"
+    cmsweb_ing="ing-crab ing-dbs ing-das ing-dmwm ing-http ing-tzero ing-exitcodes ing-wma ing-dqm ing-dqm-offline"
 
     cmsweb_srvs="cert-manager cmskv crabserver couchdb das-exporter das-mongo das-mongo-exporter das-server dbs dbsmigration dbs2go exitcodes httpgo httpsgo imagebot ms-output-mongo newdqmgui podmanager reqmgr2 reqmgr2-tasks reqmgr2ms-monitor reqmgr2ms-output reqmgr2ms-transferor reqmgr2ms-rulecleaner reqmgr2ms-unmerged reqmon reqmon-tasks rucio-con-mon t0_reqmon t0_reqmon-tasks t0wmadatasvc k8snodemon  workqueue wmarchive"
 
