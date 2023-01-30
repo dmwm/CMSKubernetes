@@ -11,14 +11,14 @@ dbs:
   - "1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000"
 dmwm:
   metrics:
-  - "reqmgr2_total_connections,ms_ruleCleaner_total_connections,ms_transferor_total_connections,ms_monitor_total_connections,ms_output_total_connections,ms_unmerged_total_connections,wmstats_total_connections"
+  - "t0reqmon_exporter_total_connections,reqmgr2_total_connections,ms_ruleCleaner_total_connections,ms_transferor_total_connections,ms_monitor_total_connections,ms_output_total_connections,ms_unmerged_total_connections,wmstats_total_connections"
   values:
-  - "1000,1000,1000,1000,1000,1000,1000"
+  - "1000,1000,1000,1000,1000,1000,1000,1000"
 tzero:
   metrics:
-  - "t0reqmon_exporter_total_connections,t0wmadatasvc_exporter_total_connections"
+  - "t0wmadatasvc_exporter_total_connections"
   values:
-  - "1000,1000"  
+  - "1000"  
 wma:
   metrics:
   - "wma_exporter_total_connections"
