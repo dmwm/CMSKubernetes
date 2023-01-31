@@ -64,14 +64,33 @@ for fname in $files; do
 done
 sleep 5
 
-# start the service
-export CRYPTOGRAPHY_ALLOW_OPENSSL_102=true
-/data/srv/current/config/$srv/manage start 'I did read documentation'
 
 # run monitoring script
 if [ -f /data/monitor.sh ]; then
-    /data/monitor.sh
+    /data/monitor.sh &
 fi
 
-# start cron daemon
-sudo /usr/sbin/crond -n
+if [ "$CRABSERVER_LOGSTDOUT" == "t" ]; then
+    # create fifo for crabserver logs
+    mkfifo /data/srv/state/crabserver/crabserver-fifo
+    # Run cat on named pipe to prevent crabserver deadlock because no reader attach
+    # to pipe. It is safe because only single process can read from pipe at the time
+    cat /data/srv/state/crabserver/crabserver-fifo &
+
+    # start the service
+    export CRYPTOGRAPHY_ALLOW_OPENSSL_102=true
+    /data/srv/current/config/$srv/manage start2 'I did read documentation'
+
+    # cat fifo forever to read logs
+    while true;
+    do
+        cat /data/srv/state/crabserver/crabserver-fifo
+    done
+else
+    # start the service
+    export CRYPTOGRAPHY_ALLOW_OPENSSL_102=true
+    /data/srv/current/config/$srv/manage start 'I did read documentation'
+
+    # start cron daemon
+    sudo /usr/sbin/crond -n
+fi
