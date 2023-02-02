@@ -62,7 +62,6 @@ spec:
           image: registry.cern.ch/cmsmonitoring/cmsmon-py:drpy-0.0.5
           command: [ "crond" ]
           args: [ "-n", "-s" ]
-          imagePullPolicy: Always
           env:
             - name: K8S_ENV
               value: "prod"

@@ -10,6 +10,10 @@ rm -f /usr/bin/pip && ln -s /usr/bin/python3 /usr/bin/pip
 
 #### How to build and push
 
+Build by GH wf: https://github.com/dmwm/CMSMonitoring/blob/master/.github/workflows/build-cmsmon-py.yml
+
+**Manually:**
+
 ```shell
 # docker image prune -a OR docker system prune -f -a
 docker_registry=registry.cern.ch/cmsmonitoring

@@ -37,7 +37,6 @@ spec:
       containers:
       - image: registry.cern.ch/cmsweb/auth-proxy-server:0.2.46
         name: auth-proxy-server
-        imagePullPolicy: Always
         args:
           - /data/auth-proxy-server
           - -config=/etc/secrets/config.json

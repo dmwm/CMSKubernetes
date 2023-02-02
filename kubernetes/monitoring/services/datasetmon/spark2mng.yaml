@@ -73,7 +73,6 @@ spec:
           containers:
             - name: spark2mng
               image: registry.cern.ch/cmsmonitoring/spark2mng:rgo-0.0.10
-              imagePullPolicy: Always
               command: [ "/bin/bash", "-c" ]
               args:
                 - source /etc/environment;
