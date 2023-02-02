@@ -6,7 +6,7 @@ ARG PY_VERSION=3.9.13
 ARG CMSMONITORING_TAG=0.0.0
 ENV WDIR=/data
 
-ENV PYTHONPATH="${PYTHONPATH}:${WDIR}:${WDIR}/CMSMonitoring/src/python"
+ENV PYTHONPATH="${PYTHONPATH}:${WDIR}:${WDIR}/CMSMonitoring/src/python:${WDIR}/CMSSpark/src/python"
 ENV LC_ALL=en_US.utf-8 LANG=en_US.utf-8
 
 WORKDIR $WDIR
@@ -28,7 +28,7 @@ RUN yum -y update && \
     rm -rf Python-${PY_VERSION}.tgz Python-${PY_VERSION} && \
     unset PY_MAJOR && \
     cd $WDIR && \
-    pip install --no-cache-dir click pandas schema && \
+    pip install --no-cache-dir click pandas schema stomp.py==7.0.0 && \
     git clone https://github.com/dmwm/CMSSpark.git && \
     git clone https://github.com/dmwm/CMSMonitoring.git && cd CMSMonitoring && git checkout tags/$CMSMONITORING_TAG -b build && cd ..
 
