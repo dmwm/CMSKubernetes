@@ -61,8 +61,7 @@ spec:
       hostname: condor-cpu-eff
       containers:
         - name: condor-cpu-eff
-          image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.4.0.22
-          imagePullPolicy: Always
+          image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.4.0.26
           env:
             - name: MY_NODE_NAME
               valueFrom:

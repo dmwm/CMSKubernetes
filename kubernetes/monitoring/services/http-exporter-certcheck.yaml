@@ -58,7 +58,6 @@ spec:
       containers:
         - image: registry.cern.ch/cmsmonitoring/cert-checker:20221207
           name: http-exporter-certcheck
-          imagePullPolicy: Always
           command:
             - /data/cert-checker
             - -config

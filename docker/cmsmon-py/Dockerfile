@@ -4,11 +4,11 @@ MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 # Should be full such that includes minor version
 ARG PY_VERSION=3.9.13
 ARG CMSMONITORING_TAG=0.0.0
+ENV WDIR=/data
 
 ENV PYTHONPATH="${PYTHONPATH}:${WDIR}:${WDIR}/CMSMonitoring/src/python"
 ENV LC_ALL=en_US.utf-8 LANG=en_US.utf-8
 
-ENV WDIR=/data
 WORKDIR $WDIR
 
 RUN yum -y update && \
