@@ -43,13 +43,17 @@ git config --global user.name dummy
 # 4. hack init.sh to point PYTHONPATH to the GH repos when $RUN_FROM_GH is True
 CRABServerInitDir=${CRABServerDir}/etc/profile.d/
 cd ${CRABServerInitDir}
+# set aside current PYTHONPATH definitio
 cat init.sh | grep -v PYTHONPATH > new-init.sh
+# insert our own path in GH mode
 cat << EOF >> new-init.sh
 if [ "\$RUN_FROM_GH" = "True" ]; then
   export PYTHONPATH=/data/repos/CRABServer/src/python:/data/repos/WMCore/src/python/:\$PYTHONPATH
 else
 EOF
+# add back the original PYTHONPATH in the "else" claud (and indent)
 cat init.sh | grep PYTHONPATH | sed "s/\[/  \[/" >> new-init.sh
+# close the if block and overwrite original init.sh
 echo "fi" >> new-init.sh
 mv new-init.sh init.sh
 
