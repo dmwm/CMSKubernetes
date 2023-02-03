@@ -40,6 +40,12 @@ git remote add wa https://github.com/novicecpp/WMCore.git
 git config --global user.email dummy@nowhere
 git config --global user.name dummy
 
+# add links to make UI work in GH mode when REST runs with /data/repos as root
+mkdir /data/repos/data
+ln -s /data/repos/CRABServer/src/html /data/repos/data/html
+ln -s /data/repos/CRABServer/src/script /data/repos/data/script
+ln -s /data/repos/CRABServer/src/css /data/repos/data/css
+
 # 4. hack init.sh to point PYTHONPATH to the GH repos when $RUN_FROM_GH is True
 CRABServerInitDir=${CRABServerDir}/etc/profile.d/
 cd ${CRABServerInitDir}
