@@ -1,4 +1,4 @@
-FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20230125
+FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20230206
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 ENV TAG=X.Y.Z
 RUN pip install reqmgr2ms-pileup==$TAG
