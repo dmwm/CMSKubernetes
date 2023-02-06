@@ -76,7 +76,7 @@ fi
 
 # start monitor.sh script
 if [ -f /data/monitor.sh ]; then
-    monitor.sh
+    /data/monitor.sh
 fi
 
 # start the service
