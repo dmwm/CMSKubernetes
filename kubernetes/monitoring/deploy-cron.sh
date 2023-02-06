@@ -101,6 +101,7 @@ function deploy_secrets() {
     "$deploy_secrets_sh" hdfs condor-cpu-eff-secrets
     "$deploy_secrets_sh" hdfs hpc-usage-secrets
     "$deploy_secrets_sh" hdfs cron-size-quotas-secrets
+    "$deploy_secrets_sh" hdfs cms-eos-mon-secrets
     "$deploy_secrets_sh" hdfs cron-spark-jobs-secrets
     "$deploy_secrets_sh" hdfs log-clustering-secrets
     # sqoop
@@ -116,6 +117,7 @@ function clean_secrets() {
     kubectl -n hdfs --ignore-not-found=true delete secret condor-cpu-eff-secrets
     kubectl -n hdfs --ignore-not-found=true delete secret hpc-usage-secrets
     kubectl -n hdfs --ignore-not-found=true delete secret cron-size-quotas-secrets
+    kubectl -n hdfs --ignore-not-found=true delete secret cms-eos-mon-secrets
     kubectl -n hdfs --ignore-not-found=true delete secret cron-spark-jobs-secrets
     kubectl -n hdfs --ignore-not-found=true delete secret log-clustering-secrets
     # sqoop
