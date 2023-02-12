@@ -80,7 +80,7 @@ spec:
             name: ms-unmer-t2t3
             port:
               number: 8242
-      - path: /ms-pileup/data
+      - path: /ms-pileup
         pathType: Prefix
         backend:
           service:
