@@ -1,6 +1,6 @@
 [slc7-cernonly]
-name=CentOS-7 - CERN Only [20221101]
-baseurl=http://linuxsoft.cern.ch/internal/yumsnapshot/20221101/cern/centos/7/cernonly/x86_64
+name=CentOS-7 - CERN Only [20230201]
+baseurl=http://linuxsoft.cern.ch/internal/yumsnapshot/20230201/cern/centos/7/cernonly/x86_64
 enabled=1
 gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-cern
