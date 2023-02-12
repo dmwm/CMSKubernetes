@@ -168,7 +168,7 @@ spec:
       serviceAccountName: prometheus-adapter
       containers:
       - name: prometheus-adapter
-        image: "directxman12/k8s-prometheus-adapter-amd64:v0.6.0"
+        image: "registry.cern.ch/magnum/prometheus-adapter:v0.9.1"
         imagePullPolicy: IfNotPresent
         args:
         - /adapter
