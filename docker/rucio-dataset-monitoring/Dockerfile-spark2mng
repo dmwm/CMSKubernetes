@@ -1,5 +1,5 @@
 # spark2mng
-FROM mongo as builder
+FROM mongo:5.0.14 as builder
 FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-latest
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 

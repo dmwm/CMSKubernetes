@@ -72,7 +72,7 @@ spec:
           hostname: spark2mng
           containers:
             - name: spark2mng
-              image: registry.cern.ch/cmsmonitoring/spark2mng:rgo-0.0.10
+              image: registry.cern.ch/cmsmonitoring/spark2mng:rgo-0.0.17
               command: [ "/bin/bash", "-c" ]
               args:
                 - source /etc/environment;
@@ -98,7 +98,7 @@ spec:
                 - name: K8S_ENV
                   value: "prod"
                 - name: PUSHGATEWAY_URL
-                  # you may give local cluster PG url i.e.: pushgateway.default.svc.cluster.local:9091
+                  # value: pushgateway.default.svc.cluster.local:9091
                   value: "cms-monitoring:30091"
               ports:
                 - containerPort: 31203 # spark.driver.port
