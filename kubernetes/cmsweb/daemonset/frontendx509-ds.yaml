@@ -77,7 +77,7 @@ spec:
               apiVersion: v1
               fieldPath: metadata.name
         ports:
-        - containerPort: 80
+        - containerPort: 8080
           name: http
         - containerPort: 8443
           name: services
