@@ -34,11 +34,11 @@ spec:
   selector:
     app: ms-pileup
   ports:
-    - port: 8249
-      targetPort: 8249
+    - port: 8241
+      targetPort: 8241
       name: ms-pileup
-    - port: 18249
-      targetPort: 18249
+    - port: 18241
+      targetPort: 18241
       name: ms-pileup-mon
 ---
 kind: ConfigMap
@@ -76,7 +76,7 @@ spec:
         env: k8s #k8s#
       annotations:
         prometheus.io/scrape: 'true'
-        prometheus.io/port: "18249"
+        prometheus.io/port: "18241"
     spec:
       # use hostNetwork to allow communication between reqmgr2ms/reqmon/workqueue and couch
 #       hostNetwork: true
@@ -106,7 +106,7 @@ spec:
           exec:
             command:
             - cmsweb-ping
-            - "--url=http://localhost:8249/ms-pileup/data/status"
+            - "--url=http://localhost:8241/ms-pileup/data/status"
             - "--authz=/etc/hmac/hmac"
             - -verbose
             - "0"
@@ -114,10 +114,10 @@ spec:
           periodSeconds: 30
           timeoutSeconds: 5
         ports:
-        - containerPort: 8249
+        - containerPort: 8241
           protocol: TCP
           name: ms-pileup
-        - containerPort: 18249
+        - containerPort: 18241
           protocol: TCP
           name: ms-pileup-mon
         command:
