@@ -86,4 +86,4 @@ spec:
           service:
             name: ms-pileup
             port:
-              number: 8249
+              number: 8241
