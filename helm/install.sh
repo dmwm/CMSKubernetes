@@ -37,24 +37,24 @@ echo "Key file: $SOPS_AGE_KEY_FILE"
 
 #ls -1  $repository/ | while read file; mkdir -p $OLDPWD/$srv/templates/secrets/ && touch $OLDPWD/$srv/templates/secrets/${file}.dec.yaml; do sops -d --pgp $SOPS_AGE_KEY_FILE $repository/$file > $OLDPWD/$srv/templates/secrets/${file}.dec.yaml; done
 echo $PWD
-mkdir -p $srv/secrets/
+mkdir -p $srv/templates/secrets/
 secretsFiles=`ls -1  $repository/`
 echo $secretsFiles
 for file in $secretsFiles
 do
   echo $file
-  touch secrets/${file}.dec.yaml;
+  touch templates/secrets/${file}.dec.yaml;
   echo "created the file.."
   if [[ $file == *.encrypted ]]; then
     DIR="$(dirname "$file")"
     if [[ $encrypted_file == *.json* ]]; then
-      sops ---config <(echo '') --output-type json -d $repository/$file > $srv/secrets/${file};
+      sops ---config <(echo '') --output-type json -d $repository/$file > $srv/templates/secrets/${file};
     else
-      sops --config <(echo '') -d $repository/$file > $srv/secrets/${file};
+      sops --config <(echo '') -d $repository/$file > $srv/templates/secrets/${file};
     fi
     ls -lrt $DIR
     else 
-      touch $srv/secrets/${file};
+      touch $srv/templates/secrets/${file};
       cp $repository/$file $srv/templates/secrets/${file};
     fi  
 done
