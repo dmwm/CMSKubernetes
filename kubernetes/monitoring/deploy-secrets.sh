@@ -22,7 +22,6 @@ set -e
 ##H        karma-secrets
 ##H        keytab-secrets
 ##H        krb5cc-secrets
-##H        log-clustering-secrets
 ##H        nats-secrets
 ##H        prometheus-secrets
 ##H        promxy-secrets
@@ -128,12 +127,6 @@ elif [ "$secret" == "proxy-secrets" ]; then
     _robot_key=$sdir/robot/robotkey.pem
     voms-proxy-init -voms cms -rfc --key $_robot_key --cert $_robot_crt -valid 95:50 --out "$temp_proxy"
     files="--from-file=${temp_proxy}"
-elif [ "$secret" == "log-clustering-secrets" ]; then
-    # creds.json
-    log_f=`ls $sdir/log-clustering/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/log-clustering | sed "s, $,,g"`
-    # cmsmonit keytab
-    cmsmonit_f="--from-file=${sdir}/cmsmonit-keytab/keytab"
-    files="${log_f} ${cmsmonit_f}"
 elif [ "$secret" == "cmsmon-mongo-secrets" ]; then
     mongo_envs="MONGO_ROOT_USERNAME MONGO_ROOT_PASSWORD MONGO_USERNAME MONGO_PASSWORD MONGO_USERS_LIST"
     literals=""
