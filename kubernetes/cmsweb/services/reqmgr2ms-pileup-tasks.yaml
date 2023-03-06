@@ -39,7 +39,7 @@ spec:
       name: ms-pileup-tasks
     - port: 18361
       targetPort: 18361
-      name: ms-pileup-tasks-mon
+      name: msp-tasks-mon
 ---
 kind: ConfigMap
 apiVersion: v1
@@ -119,7 +119,7 @@ spec:
           name: ms-pileup-tasks
         - containerPort: 18361
           protocol: TCP
-          name: ms-pileup-tasks-mon
+          name: msp-tasks-mon
         command:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
