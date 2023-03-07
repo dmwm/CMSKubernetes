@@ -106,7 +106,7 @@ spec:
           exec:
             command:
             - cmsweb-ping
-            - "--url=http://localhost:8361/ms-pileup-tasks/data/status"
+            - "--url=http://localhost:8361/ms-pileup-tasks/data/info"
             - "--authz=/etc/hmac/hmac"
             - -verbose
             - "0"
