@@ -19,6 +19,7 @@ RUN git checkout tags/$TAG -b build && cd src/go && make && cp wmarchive /data/
 
 # for musl C-libary and smallest base image we will use alpine
 FROM alpine:3.16
+RUN apk add sudo
 RUN mkdir -p /data/
 ENV PATH $PATH:/data
 COPY --from=go-builder /data/wmarchive /data/
