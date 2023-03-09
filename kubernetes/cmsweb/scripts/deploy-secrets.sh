@@ -69,7 +69,7 @@ secretdir=$conf/$srv
 osrv=$srv
 srv=$(echo $srv | sed -e "s,_,,g")
 files=""
-
+secretfiles=""
 ### Substitution for APS/XPS/SPS client secrets in config.json
 if [ "$srv" == "auth-proxy-server" ] || [ "$srv" == "x509-proxy-server" ] || [ "$srv" == "scitokens-proxy-server" ]; then
     for fname in $secretdir/*; do
@@ -132,6 +132,7 @@ if [ -d $secretdir ] && [ -n "$(ls $secretdir)" ]; then
         fi
         if [[ ! $files == *$fname* ]]; then
             files="$files --from-file=$fname"
+            secretfiles="$secretfiles $fname"
         fi
     done
 fi
@@ -144,15 +145,21 @@ if [ "$ns" == "dbs" ]; then
     done
     if [ -f $conf/dbs/DBSSecrets.py ]; then
         files="$files --from-file=$conf/dbs/DBSSecrets.py"
+        secretfiles="$secretfiles DBSSecrets.py"
     fi
     if [ -f $conf/dbs/NATSSecrets.py ]; then
         files="$files --from-file=$conf/dbs/NATSSecrets.py"
+        secretfiles="$secretfiles NATSSecrets.py"
+
     fi
 fi
 
 kubectl create secret generic ${srv}-secrets \
     $files --dry-run=client -o yaml |
     kubectl apply --namespace=$ns -f -
+
+    echo $secretfiles
+    rm -rf $secretfiles
 export SOPS_AGE_KEY_FILE=$sopskey
 echo
 echo "+++ list secrets"
