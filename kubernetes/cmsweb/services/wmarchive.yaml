@@ -52,10 +52,11 @@ metadata:
   namespace: wma
 data:
   setup-certs-and-run.sh: |
-   #!/bin/bash
+   #!/bin/sh
+   sudo mkdir -p /etc/grid-security
    sudo cp /host/etc/grid-security/* /etc/grid-security
    echo 'INFO Files in /etc/grid-security'
-   ls -lahZ /etc/grid-security
+   ls -lah /etc/grid-security
    #su  -c "cd /data && /data/run.sh" --preserve-environment _wmarchive
    cd /data && /data/run.sh
 ---
@@ -83,12 +84,13 @@ spec:
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
-        fsGroup: 1000
+        fsGroup: 2000
       containers:
       - image: registry.cern.ch/cmsweb/wmarchive #imagetag
         name: wmarchive
-        args:
-          - /data/run.sh
+        command:
+        - /bin/sh
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
         livenessProbe:
           httpGet:
             path: /wmarchive/data
