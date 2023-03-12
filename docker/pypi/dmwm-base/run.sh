@@ -74,12 +74,13 @@ if [ -d /usr/local/data ] && [ "$USER" == "_reqmgr2" ]; then
    sudo ln -s /usr/local/data /data/srv/current/apps/reqmgr2
 fi
 
+# start the service
+wmc-httpd -r -d $STATEDIR -l "|rotatelogs $LOGDIR/$srv-%Y%m%d-`hostname -s`.log 86400" $CFGFILE
+
 # start monitor.sh script
 if [ -f /data/monitor.sh ]; then
     /data/monitor.sh
 fi
 
-# start the service
-wmc-httpd -r -d $STATEDIR -l "|rotatelogs $LOGDIR/$srv-%Y%m%d-`hostname -s`.log 86400" $CFGFILE
 # hack to keep the container running
 tail -f /etc/hosts
