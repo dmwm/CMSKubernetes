@@ -58,6 +58,7 @@ data:
    echo 'INFO Files in /etc/grid-security'
    ls -lah /etc/grid-security
    #su  -c "cd /data && /data/run.sh" --preserve-environment _wmarchive
+   sudo chown -R wmarchive:wmarchive /data/srv/logs/wmarchive
    cd /data && /data/run.sh
 ---
 kind: Deployment
