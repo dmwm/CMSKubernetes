@@ -1,0 +1,99 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: cpueff-goweb
+  namespace: cpueff
+spec:
+  selector:
+    app: cpueff-goweb
+  type: NodePort
+  ports:
+    - port: 8080
+      nodePort: 31380
+      targetPort: 8080
+      name: web
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cpueff-goweb
+  namespace: cpueff
+  labels:
+    app: cpueff-goweb
+data:
+  config.json: |
+    {
+        "port": 8080,
+        "verbose": 1,
+        "env_file": "/etc/secrets/client_env",
+        "read_timeout": 600,
+        "write_timeout": 600,
+        "mongo_connection_timeout": 600,
+        "base_endpoint": "cpueff",
+        "collection_names": {
+            "sc_task": "sc_task",
+            "sc_task_cmsrun": "sc_task_cmsrun",
+            "sc_task_cmsrun_jobtype": "sc_task_cmsrun_jobtype",
+            "sc_task_cmsrun_jobtype_site": "sc_task_cmsrun_jobtype_site",
+            "condor_main": "condor_main",
+            "condor_detailed": "condor_detailed",
+            "short_url": "short_url",
+            "datasource_timestamp": "source_timestamp"
+        }
+    }
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: cpueff-goweb
+  name: cpueff-goweb
+  namespace: cpueff
+spec:
+  selector:
+    matchLabels:
+      app: cpueff-goweb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cpueff-goweb
+    spec:
+      containers:
+      - name: cpueff-goweb
+        image: registry.cern.ch/cmsmonitoring/cpueff-goweb:cpueff-0.0.0
+        # image: golang
+        # command: [ "sleep" ]
+        # args: [ "infinity" ]
+        args:
+          - /data/cpueff-goweb
+          - -config
+          - /data/etc/config.json
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+          name: web
+        env:
+        - name: GIN_MODE
+          value: release
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 2Gi
+          requests:
+            cpu: 250m
+            memory: 250Mi
+        volumeMounts:
+        - name: cpueff-mongo-secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: configmap-config-json
+          mountPath: /data/etc
+      volumes:
+      - name: cpueff-mongo-secrets
+        secret:
+          secretName: cpueff-mongo-secrets
+          defaultMode: 0444
+      - name: configmap-config-json
+        configMap:
+          name: cpueff-goweb

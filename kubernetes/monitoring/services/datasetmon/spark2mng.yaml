@@ -33,8 +33,7 @@ data:
     echo "Starting run_spark2hdfs.sh ..."
     /data/CMSMonitoring/rucio-dataset-monitoring/spark/cron4rucio_spark2hdfs.sh \
       --keytab /etc/secrets/keytab --hdfs /tmp/cmsmonit/prod \
-      --p1 $SPARK2MNG_SERVICE_PORT_PORT_0 \
-      --p2 $SPARK2MNG_SERVICE_PORT_PORT_1 \
+      --p1 31203 --p2 31204 \
       --host $MY_NODE_NAME --wdir $WDIR
   run_hdfs2mongo.sh: |
     #!/bin/bash
