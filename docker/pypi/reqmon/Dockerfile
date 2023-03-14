@@ -1,4 +1,4 @@
-FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20230312
+FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20230314
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 ENV TAG=X.Y.Z
 RUN pip install reqmon==$TAG
