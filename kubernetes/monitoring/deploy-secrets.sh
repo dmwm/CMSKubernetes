@@ -13,6 +13,7 @@ set -e
 ##H        cms-eos-mon-secrets
 ##H        cmsmon-mongo-secrets
 ##H        condor-cpu-eff-secrets
+##H        cpueff-mongo-secrets
 ##H        cron-size-quotas-secrets
 ##H        cron-spark-jobs-secrets
 ##H        dm-auth-secrets
@@ -144,8 +145,17 @@ elif [ "$secret" == "cmsmon-mongo-secrets" ]; then
     cmsmonit_f="--from-file=${sdir}/cmsmonit-keytab/keytab"
     mongo_f=`ls $sdir/cmsmon-mongo-secrets/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmon-mongo-secrets | sed "s, $,,g"`
     files="${mongo_f} ${cmsmonit_f} ${literals}"
-    # Double quoted literals variable in "kubectl create secret generic" only provide first literal because of unknown issue ...
-    #   because of this we embed literals in files variable
+    unset literals
+elif [ "$secret" == "cpueff-mongo-secrets" ]; then
+    mongo_envs="MONGO_ROOT_USERNAME MONGO_ROOT_PASSWORD MONGO_USERNAME MONGO_PASSWORD MONGO_USERS_LIST"
+    literals=""
+    for mongo_env in $mongo_envs; do
+        temp_env_val=$(grep "$mongo_env" $sdir/cpueff-mongo-secrets/secrets | awk '{print $2}')
+        literals="--from-literal=${mongo_env}=${temp_env_val} ${literals}"
+    done
+    cmsmonit_f="--from-file=${sdir}/cmsmonit-keytab/keytab"
+    mongo_f=$(ls $sdir/cpueff-mongo-secrets/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cpueff-mongo-secrets | sed "s, $,,g")
+    files="${mongo_f} ${cmsmonit_f} ${literals}"
     unset literals
 elif [ "$secret" == "cron-size-quotas-secrets" ]; then
     files="--from-file=${sdir}/cmsmonit-keytab/keytab"

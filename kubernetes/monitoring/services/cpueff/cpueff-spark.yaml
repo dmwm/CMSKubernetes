@@ -1,0 +1,210 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: cpueff-spark
+  namespace: cpueff
+spec:
+  selector:
+    app: cpueff-spark
+  type: NodePort
+  ports:
+    - name: port-0 # spark.driver.port
+      nodePort: 31205
+      port: 31205
+      protocol: TCP
+      targetPort: 31205
+    - name: port-1 # spark.driver.blockManager.port
+      nodePort: 31206
+      port: 31206
+      protocol: TCP
+      targetPort: 31206
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-cpueff-spark
+  namespace: cpueff
+  labels:
+    app: cpueff-spark
+data:
+  run_spark2mongo.sh: |
+    #!/bin/bash
+    export MONGO_WRITE_DB="cpueff"
+    export MONGO_AUTH_DB="admin"
+    export MONGO_HOST="mongodb-0.mongodb.cpueff.svc.cluster.local"
+    export MONGO_PORT="27017"                   
+    . /etc/environment
+    echo "Starting run_spark2mongo.sh ..."
+        /data/CMSMonitoring/cpueff-goweb/spark/cron4cpueff_goweb.sh \
+      --keytab /etc/secrets/keytab --p1 31205 --p2 31206 --host $MY_NODE_NAME --wdir $WDIR
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cpueff-spark
+  namespace: cpueff
+spec:
+  # UTC
+  schedule: "30 05 * * *"
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            app: cpueff-spark
+        spec:
+          restartPolicy: Never
+          hostname: cpueff-spark
+          containers:
+            - name: cpueff-spark
+              image: registry.cern.ch/cmsmonitoring/cpueff-spark:cpueff-0.0.0
+              command: [ "/bin/bash", "-c" ]
+              args:
+                - source /etc/environment;
+                  /data/cronjob/run_spark2mongo.sh;
+              env:
+                - name: MY_NODE_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: spec.nodeName
+                - name: MONGO_ROOT_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: cpueff-mongo-secrets
+                      key: MONGO_ROOT_USERNAME
+                      optional: false
+                - name: MONGO_ROOT_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: cpueff-mongo-secrets
+                      key: MONGO_ROOT_PASSWORD
+                      optional: false
+                - name: K8S_ENV
+                  value: "prod"
+                - name: PUSHGATEWAY_URL
+                  # value: pushgateway.default.svc.cluster.local:9091
+                  value: "cms-monitoring:30091"
+              ports:
+                - containerPort: 31205 # spark.driver.port
+                  name: port-0
+                - containerPort: 31206 # spark.driver.blockManager.port
+                  name: port-1
+              lifecycle:
+                postStart:
+                  exec:
+                    command:
+                      - "sh"
+                      - "-c"
+                      - >
+                        export > /etc/environment;
+              resources:
+                limits:
+                  cpu: 2000m
+                  memory: 6Gi
+                requests:
+                  cpu: 500m
+                  memory: 750Mi
+              stdin: true
+              tty: true
+              volumeMounts:
+                - name: cpueff-mongo-secrets
+                  mountPath: /etc/secrets
+                  readOnly: true
+                - name: cronjobs-configmap
+                  mountPath: /data/cronjob
+          volumes:
+            - name: cpueff-mongo-secrets
+              secret:
+                secretName: cpueff-mongo-secrets
+                defaultMode: 0444
+            - name: cronjobs-configmap
+              configMap:
+                name: cm-cpueff-spark
+                defaultMode: 0777
+
+#---
+#apiVersion: apps/v1
+#kind: Deployment
+#metadata:
+#  name: cpueff-spark
+#  namespace: cpueff
+#  labels:
+#    app: cpueff-spark
+#spec:
+#  replicas: 1
+#  selector:
+#    matchLabels:
+#      app: cpueff-spark
+#  template:
+#    metadata:
+#      labels:
+#        app: cpueff-spark
+#    spec:
+#      hostname: cpueff-spark
+#      containers:
+#        - name: cpueff-spark
+#          image: registry.cern.ch/cmsmonitoring/cpueff-spark:cpueff-0.0.0
+#          command: [ "sleep" ]
+#          args: [ "infinity" ]
+#          env:
+#            - name: MY_NODE_NAME
+#              valueFrom:
+#                fieldRef:
+#                  fieldPath: spec.nodeName
+#            - name: MONGO_ROOT_USERNAME
+#              valueFrom:
+#                secretKeyRef:
+#                  name: cpueff-mongo-secrets
+#                  key: MONGO_ROOT_USERNAME
+#                  optional: false
+#            - name: MONGO_ROOT_PASSWORD
+#              valueFrom:
+#                secretKeyRef:
+#                  name: cpueff-mongo-secrets
+#                  key: MONGO_ROOT_PASSWORD
+#                  optional: false
+#            - name: K8S_ENV
+#              value: "prod"
+#            - name: PUSHGATEWAY_URL
+#              # value: pushgateway.default.svc.cluster.local:9091
+#              value: "cms-monitoring:30091"
+#          ports:
+#            - containerPort: 31205 # spark.driver.port
+#              name: port-0
+#            - containerPort: 31206 # spark.driver.blockManager.port
+#              name: port-1
+#          lifecycle:
+#            postStart:
+#              exec:
+#                command:
+#                  - "sh"
+#                  - "-c"
+#                  - >
+#                    export > /etc/environment;
+#          resources:
+#            limits:
+#              cpu: 2000m
+#              memory: 6Gi
+#            requests:
+#              cpu: 500m
+#              memory: 750Mi
+#          stdin: true
+#          tty: true
+#          volumeMounts:
+#            - name: cpueff-mongo-secrets
+#              mountPath: /etc/secrets
+#              readOnly: true
+#            - name: cronjobs-configmap
+#              mountPath: /data/cronjob
+#      volumes:
+#        - name: cpueff-mongo-secrets
+#          secret:
+#            secretName: cpueff-mongo-secrets
+#            defaultMode: 0444
+#        - name: cronjobs-configmap
+#          configMap:
+#            name: cm-cpueff-spark
+#            defaultMode: 0777

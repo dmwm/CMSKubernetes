@@ -1,0 +1,17 @@
+FROM golang:latest as go-builder
+MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
+
+# tag to use
+ARG CMSMON_TAG=cpueff-0.0.0
+ENV WDIR=/data
+
+# build
+WORKDIR $GOPATH/src/github.com/dmwm
+RUN git clone https://github.com/dmwm/CMSMonitoring.git && cd CMSMonitoring && git checkout tags/$CMSMON_TAG -b build
+WORKDIR $GOPATH/src/github.com/dmwm/CMSMonitoring/cpueff-goweb
+
+RUN mkdir -p $WDIR && make && cp -r cpueff-goweb static config.json $WDIR
+
+FROM gcr.io/distroless/base
+COPY --from=go-builder /data /data/
+WORKDIR /data
