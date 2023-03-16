@@ -1,9 +1,10 @@
-FROM cmssw/exporters:latest as exporters
+FROM registry.cern.ch/cmsweb/exporters:latest as exporters
+FROM registry.cern.ch/cmsweb/cmsweb-base:latest as cmsweb-base
 FROM golang:latest as go-builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 # tag to use
-ENV TAG=v00.08.76
+ENV TAG=v00.08.77
 
 ENV WDIR=/data
 ENV USER=wmarchive
@@ -19,6 +20,7 @@ RUN git checkout tags/$TAG -b build && cd src/go && make && cp wmarchive /data/
 
 # for musl C-libary and smallest base image we will use alpine
 FROM alpine:3.16
+RUN apk add sudo
 RUN mkdir -p /data/
 ENV PATH $PATH:/data
 COPY --from=go-builder /data/wmarchive /data/
@@ -28,6 +30,7 @@ COPY --from=go-builder /data/run.sh /data/
 
 COPY --from=exporters /data/process_exporter /data/
 COPY --from=exporters /data/process_monitor.sh /data/
+COPY --from=cmsweb-base /etc/grid-security /etc/grid-security
 
 ENV USER=wmarchive
 #RUN adduser -D -u 1000 -h ${WDIR} ${USER}

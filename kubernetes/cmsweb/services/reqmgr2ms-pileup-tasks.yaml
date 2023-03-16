@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ms-pileup-filebeat-config
+  name: ms-pileup-tasks-fb-config
   namespace: dmwm
   labels:
     k8s-app: filebeat
@@ -28,25 +28,25 @@ data:
 kind: Service
 apiVersion: v1
 metadata:
-  name: ms-pileup
+  name: ms-pileup-tasks
   namespace: dmwm
 spec:
   selector:
-    app: ms-pileup
+    app: ms-pileup-tasks
   ports:
-    - port: 8241
-      targetPort: 8241
-      name: ms-pileup
-    - port: 18241
-      targetPort: 18241
-      name: ms-pileup-mon
+    - port: 8361
+      targetPort: 8361
+      name: ms-pileup-tasks
+    - port: 18361
+      targetPort: 18361
+      name: msp-tasks-mon
 ---
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: ms-pileup
+  name: ms-pileup-tasks
   labels:
-    app: ms-pileup
+    app: ms-pileup-tasks
   namespace: dmwm
 data:
   setup-certs-and-run.sh: |
@@ -61,22 +61,22 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   labels:
-    app: ms-pileup
-  name: ms-pileup
+    app: ms-pileup-tasks
+  name: ms-pileup-tasks
   namespace: dmwm
 spec:
   selector:
     matchLabels:
-      app: ms-pileup
+      app: ms-pileup-tasks
   replicas: 1
   template:
     metadata:
       labels:
-        app: ms-pileup
+        app: ms-pileup-tasks
         env: k8s #k8s#
       annotations:
         prometheus.io/scrape: 'true'
-        prometheus.io/port: "18241"
+        prometheus.io/port: "18361"
     spec:
       # use hostNetwork to allow communication between reqmgr2ms/reqmon/workqueue and couch
 #       hostNetwork: true
@@ -87,7 +87,7 @@ spec:
         fsGroup: 2000
       containers:
       - image: registry.cern.ch/cmsweb/reqmgr2ms-pileup #imagetag
-        name: ms-pileup
+        name: ms-pileup-tasks
         lifecycle:
           postStart:
             exec:
@@ -106,7 +106,7 @@ spec:
           exec:
             command:
             - cmsweb-ping
-            - "--url=http://localhost:8241/ms-pileup/data/info"
+            - "--url=http://localhost:8361/ms-pileup-tasks/data/info"
             - "--authz=/etc/hmac/hmac"
             - -verbose
             - "0"
@@ -114,12 +114,12 @@ spec:
           periodSeconds: 30
           timeoutSeconds: 5
         ports:
-        - containerPort: 8241
+        - containerPort: 8361
           protocol: TCP
-          name: ms-pileup
-        - containerPort: 18241
+          name: ms-pileup-tasks
+        - containerPort: 18361
           protocol: TCP
-          name: ms-pileup-mon
+          name: msp-tasks-mon
         command:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
@@ -151,7 +151,7 @@ spec:
 #PROD#    mountPath: /data/srv/logs/reqmgr2ms
         securityContext:
           privileged: true
-#PROD#- name: ms-pileup-filebeat
+#PROD#- name: ms-pileup-tasks-fb
 #PROD#  image: docker.elastic.co/beats/filebeat:7.12.0
 #PROD#  args: [
 #PROD#    "-c", "/etc/filebeat.yml",
@@ -192,7 +192,7 @@ spec:
           secretName: proxy-secrets
       - name: secrets
         secret:
-          secretName: reqmgr2ms-pileup-secrets
+          secretName: reqmgr2ms-pileup-tasks-secrets
       - name: robot-secrets
         secret:
           secretName: robot-secrets
@@ -204,7 +204,7 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: ms-pileup
+          name: ms-pileup-tasks
       - name: token-secrets
         secret:
           secretName: token-secrets          
@@ -220,6 +220,6 @@ spec:
 #PROD#- name: config
 #PROD#  configMap:
 #PROD#    defaultMode: 0640
-#PROD#    name: ms-pileup-filebeat-config
+#PROD#    name: ms-pileup-tasks-fb-config
 #PROD#- name: data
 #PROD#  emptyDir: {}

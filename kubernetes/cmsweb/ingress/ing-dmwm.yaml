@@ -80,3 +80,17 @@ spec:
             name: ms-unmer-t2t3
             port:
               number: 8242
+      - path: /ms-pileup
+        pathType: Prefix
+        backend:
+          service:
+            name: ms-pileup
+            port:
+              number: 8241
+      - path: /ms-pileup-tasks
+        pathType: Prefix
+        backend:
+          service:
+            name: ms-pileup-tasks
+            port:
+              number: 8361
