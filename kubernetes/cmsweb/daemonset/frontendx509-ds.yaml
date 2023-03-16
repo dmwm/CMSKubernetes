@@ -60,7 +60,7 @@ spec:
         livenessProbe:
           httpGet:
             path: /
-            port: 8443
+            port: 8080
           initialDelaySeconds: 120
           periodSeconds: 10
         resources:
