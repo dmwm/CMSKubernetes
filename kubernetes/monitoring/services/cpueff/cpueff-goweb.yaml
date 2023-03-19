@@ -81,7 +81,7 @@ spec:
     spec:
       containers:
       - name: cpueff-goweb
-        image: registry.cern.ch/cmsmonitoring/cpueff-goweb:cpueff-0.0.6
+        image: registry.cern.ch/cmsmonitoring/cpueff-goweb:cpueff-0.0.7
         # image: golang
         # command: [ "sleep" ]
         # args: [ "infinity" ]
