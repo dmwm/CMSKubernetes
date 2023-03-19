@@ -11,7 +11,7 @@ spec:
     - port: 8080
       nodePort: 31380
       targetPort: 8080
-      name: web
+      name: http
 ---
 kind: ConfigMap
 apiVersion: v1
@@ -24,12 +24,13 @@ data:
   config.json: |
     {
         "port": 8080,
-        "verbose": 1,
+        "is_test": false,
+        "verbose": 0,
         "env_file": "/etc/secrets/client_env",
         "read_timeout": 600,
         "write_timeout": 600,
         "mongo_connection_timeout": 600,
-        "base_endpoint": "cpueff",
+        "base_endpoint": "web/cpueff",
         "collection_names": {
             "sc_task": "sc_task",
             "sc_task_cmsrun": "sc_task_cmsrun",
@@ -37,8 +38,27 @@ data:
             "sc_task_cmsrun_jobtype_site": "sc_task_cmsrun_jobtype_site",
             "condor_main": "condor_main",
             "condor_detailed": "condor_detailed",
+            "condor_tiers": "condor_tiers",
             "short_url": "short_url",
             "datasource_timestamp": "source_timestamp"
+        },
+        "external_links": {
+            "str_start_date": "[[__START_DATE__]]",
+            "str_end_date": "[[__END_DATE__]]",
+            "str_workflow": "[[__WORKFLOW__]]",
+            "str_wmagent_request_name": "[[__WMAGENT_REQUEST_NAME__]]",
+            "str_site": "[[__SITE__]]",
+            "str_job_type": "[[__JOB_TYPE__]]",
+            "str_task_name": "[[__TASK_NAME__]]",
+            "str_task_name_prefix": "[[__TASK_NAME_PREFIX__]]",
+            "link_monte_carlo_management": "<a href=\"https://cms-pdmv.cern.ch/mcm/requests?prepid=[[__WORKFLOW__]]\" target=\"_blank\" >McM</a>",
+            "link_dmytro_prod_mon": "<a href=\"https://dmytro.web.cern.ch/dmytro/cmsprodmon/workflows.php?prep_id=task_[[__WORKFLOW__]]\" target=\"_blank\">PMon</a>",
+            "link_unified_report": "<a href=\"https://cms-unified.web.cern.ch/cms-unified/report/[[__WMAGENT_REQUEST_NAME__]]\" target=\"_blank\">Unified</a>",
+            "link_es_cms": "<a href=\"https://es-cms.cern.ch/kibana/app/kibana#/discover?_g=(refreshInterval:(pause:!t,value:0),time:(from:'[[__START_DATE__]]T00:00:00.000Z',to:'[[__END_DATE__]]T00:00:00.000Z'))&_a=(columns:!(RequestCpus,CpuEff,CpuTimeHr,WallClockHr,Site,RequestMemory,RequestMemory_Eval,CpuEffOutlier,Tier),index:'cms-20*',interval:auto,query:(language:lucene,query:'Tier:%2FT1%7CT2%2F%20AND%20Workflow:%22[[__WORKFLOW__]]%22%20AND%20WMAgent_RequestName:%22[[__WMAGENT_REQUEST_NAME__]]%22%20AND%20CpuEffOutlier:0%20AND%20Status:Completed%20AND%20JobFailed:0'),sort:!(RecordTime,desc))\" target=\"_blank\">ES_T1T2</a>",
+            "link_es_cms_with_site": "<a href=\"https://es-cms.cern.ch/kibana/app/kibana#/discover?_g=(refreshInterval:(pause:!t,value:0),time:(from:'[[__START_DATE__]]T00:00:00.000Z',to:'[[__END_DATE__]]T00:00:00.000Z'))&_a=(columns:!(RequestCpus,CpuEff,CpuTimeHr,WallClockHr,Site,RequestMemory,RequestMemory_Eval,CpuEffOutlier),index:'cms-20*',interval:auto,query:(language:lucene,query:'Tier:%2FT1%7CT2%2F%20AND%20Site:%22[[__SITE__]]%22%20AND%20Workflow:%22[[__WORKFLOW__]]%22%20AND%20WMAgent_RequestName:%22[[__WMAGENT_REQUEST_NAME__]]%22%20AND%20CpuEffOutlier:0%20AND%20Status:Completed%20AND%20JobFailed:0'),sort:!(RecordTime,desc))\" target=\"_blank\">ES_T1T2</a>",
+            "link_reqmgr": "<a href=\"https://cmsweb.cern.ch/reqmgr2/fetch?rid=[[__TASK_NAME_PREFIX__]]\" target=\"_blank\">RegMgr</a>",
+            "link_es_wmarchive": "<a href=\"https://monit-opensearch.cern.ch/dashboards/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:'[[__START_DATE__]]T00:00:00.000Z',to:'[[__END_DATE__]]T00:00:00.000Z'))&_a=(columns:!(data.meta_data.jobtype,data.meta_data.jobstate,data.task,data.Campaign,data.PrepID,data.meta_data.fwjr_id,data.meta_data.host),filters:!(),index:'60770470-8326-11ea-88fc-cfaa9841e350',interval:auto,query:(language:lucene,query:'data.meta_data.jobstate:%22success%22%20%20AND%20data.task:%22[[__TASK_NAME__]]%22'),sort:!(!(metadata.timestamp,desc)))\" target=\"_blank\">WMArchive</a>",
+            "link_es_wmarchive_jobtype": "<a href=\"https://monit-opensearch.cern.ch/dashboards/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:'[[__START_DATE__]]T00:00:00.000Z',to:'[[__END_DATE__]]T00:00:00.000Z'))&_a=(columns:!(data.meta_data.jobtype,data.meta_data.jobstate,data.task,data.Campaign,data.PrepID,data.meta_data.fwjr_id,data.meta_data.host),filters:!(),index:'60770470-8326-11ea-88fc-cfaa9841e350',interval:auto,query:(language:lucene,query:'data.meta_data.jobtype:%22[[__JOB_TYPE__]]%22%20AND%20data.meta_data.jobstate:%22success%22%20%20AND%20data.task:%22[[__TASK_NAME__]]%22'),sort:!(!(metadata.timestamp,desc)))\" target=\"_blank\">WMArchive</a>"
         }
     }
 ---
@@ -61,7 +81,7 @@ spec:
     spec:
       containers:
       - name: cpueff-goweb
-        image: registry.cern.ch/cmsmonitoring/cpueff-goweb:cpueff-0.0.0
+        image: registry.cern.ch/cmsmonitoring/cpueff-goweb:cpueff-0.0.6
         # image: golang
         # command: [ "sleep" ]
         # args: [ "infinity" ]
@@ -72,7 +92,7 @@ spec:
         ports:
         - containerPort: 8080
           protocol: TCP
-          name: web
+          name: http
         env:
         - name: GIN_MODE
           value: release
