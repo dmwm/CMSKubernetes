@@ -32,13 +32,14 @@ data:
     export MONGO_WRITE_DB="cpueff"
     export MONGO_AUTH_DB="admin"
     export MONGO_HOST="mongodb-0.mongodb.cpueff.svc.cluster.local"
-    export MONGO_PORT="27017"                   
+    export MONGO_PORT="27017"
     . /etc/environment
     echo "Starting run_spark2mongo.sh ..."
-        /data/CMSMonitoring/cpueff-goweb/spark/cron4cpueff_goweb.sh \
+    /data/CMSMonitoring/cpueff-goweb/spark/cron4cpueff_goweb.sh \
       --keytab /etc/secrets/keytab --p1 31205 --p2 31206 --host $MY_NODE_NAME --wdir $WDIR
 ---
-apiVersion: batch/v1
+#apiVersion: batch/v1
+apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
   name: cpueff-spark
@@ -60,7 +61,7 @@ spec:
           hostname: cpueff-spark
           containers:
             - name: cpueff-spark
-              image: registry.cern.ch/cmsmonitoring/cpueff-spark:cpueff-0.0.0
+              image: registry.cern.ch/cmsmonitoring/cpueff-spark:cpueff-0.0.4
               command: [ "/bin/bash", "-c" ]
               args:
                 - source /etc/environment;
