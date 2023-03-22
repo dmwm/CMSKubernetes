@@ -15,7 +15,7 @@ ARG CGO_ENABLED=0
 WORKDIR $WDIR/CMSMonitoring
 RUN git checkout tags/$CMSMON_TAG -b build && cd src/go/intelligence && make
 
-FROM alpine:3.16
+FROM alpine:3.17
 RUN mkdir /data
 COPY --from=go-builder /data/CMSMonitoring/src/go/intelligence/intelligence /data
 ENV PATH $PATH:/data

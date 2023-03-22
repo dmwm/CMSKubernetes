@@ -27,7 +27,7 @@ RUN curl -ksLO https://github.com/prometheus/alertmanager/releases/download/v0.2
 RUN tar xfz alertmanager-0.24.0.linux-amd64.tar.gz && mv alertmanager-0.24.0.linux-amd64/amtool $WDIR/ && rm -rf alertmanager-0.24.0.linux-amd64*
 
 
-FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark2-20220821
+FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark2-20230321
 # Do not use spark3, it requires additional settings
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 

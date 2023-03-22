@@ -44,7 +44,7 @@ spec:
           - "monitoring"
           - -verbose
           name: http-exporter-mcm
-          image: registry.cern.ch/cmsmonitoring/http-exporter:20220605
+          image: registry.cern.ch/cmsmonitoring/http-exporter:20230321
           ports:
           - containerPort: 18006
           volumeMounts:
