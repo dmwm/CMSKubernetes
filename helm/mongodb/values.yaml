@@ -12,7 +12,10 @@ monitoring:
   jobName: "mongodb-exporter"
 db:
   rsname: "cms-rs"
-  nodeHostname: nodeHostname
+  nodeHostname: 
+    one: nodeHostName1
+    two: nodeHostName2
+    three: nodeHostName3
   clusterName: mongodb
   env: k8s-mongo
   auth:

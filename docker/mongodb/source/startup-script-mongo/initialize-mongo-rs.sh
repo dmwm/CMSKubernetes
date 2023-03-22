@@ -2,7 +2,7 @@
 
 echo "Executing initialize-mongo-rs.sh"
 
-mongo --eval "mongodb = ['$NODE_HOSTNAME:32001', '$NODE_HOSTNAME:32002', '$NODE_HOSTNAME:32003'], rsname = '$RS_NAME'" --shell << EOL
+mongo --eval "mongodb = ['$NODE_HOSTNAME_ONE:32001', '$NODE_HOSTNAME_TWO:32002', '$NODE_HOSTNAME_THREE:32003'], rsname = '$RS_NAME'" --shell << EOL
 cfg = {
         _id: rsname,
         members:
