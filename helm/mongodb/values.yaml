@@ -2,7 +2,7 @@ quickSetting:
   namespace: default
   env: test-rs
   image:
-    mongodb: registry.cern.ch/cmsweb/cmsmongo
+    mongodb: registry.cern.ch/cmsweb/cmsmongo:HG2303b
   pvc:
     storageClassName: cpio1
     accessMode: ReadWriteOnce

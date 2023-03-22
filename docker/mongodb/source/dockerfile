@@ -1,4 +1,4 @@
-FROM mongo
+FROM mongo:5.0.15
 WORKDIR /root
 ENV MONGODB_ID mongo-0
 
