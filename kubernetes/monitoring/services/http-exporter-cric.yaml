@@ -42,7 +42,7 @@ spec:
           - "monitoring"
           - -verbose
           name: http-exporter-cric
-          image: registry.cern.ch/cmsmonitoring/http-exporter:20220605
+          image: registry.cern.ch/cmsmonitoring/http-exporter:20230321
           ports:
           - containerPort: 18004
           env:
