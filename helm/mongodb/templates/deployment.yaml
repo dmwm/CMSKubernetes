@@ -15,19 +15,19 @@ spec:
       protocol: TCP
   selector:
     defacementComponent: {{.Values.db.instance0.podName}}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: mongodb-lb
-spec:
-  selector:
-    env: {{.Values.quickSetting.env}}
-  ports:
-    - protocol: TCP
-      port: 27017
-      targetPort: 27017
-  type: LoadBalancer
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: mongodb-lb
+#spec:
+#  selector:
+#    env: {{.Values.quickSetting.env}}
+#  ports:
+#    - protocol: TCP
+#      port: 27017
+#      targetPort: 27017
+#  type: LoadBalancer
 ---
 apiVersion: apps/v1
 kind: Deployment
