@@ -98,7 +98,6 @@ function deploy_secrets() {
     "$deploy_secrets_sh" hdfs proxy-secrets
     "$deploy_secrets_sh" hdfs robot-secrets
     "$deploy_secrets_sh" hdfs rucio-daily-stats-secrets
-    "$deploy_secrets_sh" hdfs condor-cpu-eff-secrets
     "$deploy_secrets_sh" hdfs hpc-usage-secrets
     "$deploy_secrets_sh" hdfs cron-size-quotas-secrets
     "$deploy_secrets_sh" hdfs cms-eos-mon-secrets
@@ -113,7 +112,6 @@ function clean_secrets() {
     kubectl -n hdfs --ignore-not-found=true delete secret proxy-secrets
     kubectl -n hdfs --ignore-not-found=true delete secret robot-secrets
     kubectl -n hdfs --ignore-not-found=true delete secret rucio-daily-stats-secrets
-    kubectl -n hdfs --ignore-not-found=true delete secret condor-cpu-eff-secrets
     kubectl -n hdfs --ignore-not-found=true delete secret hpc-usage-secrets
     kubectl -n hdfs --ignore-not-found=true delete secret cron-size-quotas-secrets
     kubectl -n hdfs --ignore-not-found=true delete secret cms-eos-mon-secrets
@@ -129,7 +127,6 @@ function deploy_services() {
     kubectl -n hdfs apply -f crons/cron-proxy.yaml
     kubectl -n hdfs apply -f services/cmsmon-hpc-usage.yaml
     kubectl -n hdfs apply -f services/cmsmon-rucio-ds.yaml
-    kubectl -n hdfs apply -f services/condor-cpu-eff.yaml
     kubectl -n hdfs apply -f services/cron-size-quotas.yaml
     kubectl -n hdfs apply -f services/cron-spark-jobs.yaml
     # sqoop
@@ -142,7 +139,6 @@ function clean_services() {
     kubectl -n hdfs --ignore-not-found=true delete -f crons/cron-proxy.yaml
     kubectl -n hdfs --ignore-not-found=true delete -f services/cmsmon-hpc-usage.yaml
     kubectl -n hdfs --ignore-not-found=true delete -f services/cmsmon-rucio-ds.yaml
-    kubectl -n hdfs --ignore-not-found=true delete -f services/condor-cpu-eff.yaml
     kubectl -n hdfs --ignore-not-found=true delete -f services/cron-size-quotas.yaml
     kubectl -n hdfs --ignore-not-found=true delete -f services/cron-spark-jobs.yaml
     # sqoop

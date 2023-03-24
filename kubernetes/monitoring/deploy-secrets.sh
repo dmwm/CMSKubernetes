@@ -12,7 +12,6 @@ set -e
 ##H        certcheck-secrets
 ##H        cms-eos-mon-secrets
 ##H        cmsmon-mongo-secrets
-##H        condor-cpu-eff-secrets
 ##H        cpueff-mongo-secrets
 ##H        cron-size-quotas-secrets
 ##H        cron-spark-jobs-secrets
@@ -160,8 +159,6 @@ elif [ "$secret" == "cron-spark-jobs-secrets" ]; then
     files="${cmsmonit_k} ${cmspopdb_k}"
 elif [ "$secret" == "cms-eos-mon-secrets" ]; then
     files="--from-file=${sdir}/cms-eos-mon/amq_broker.json"
-elif [ "$secret" == "condor-cpu-eff-secrets" ]; then
-    files="--from-file=${sdir}/cmsmonit-keytab/keytab"
 elif [ "$secret" == "hpc-usage-secrets" ]; then
     files=`ls $sdir/cmsmonit-keytab/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmonit-keytab | sed "s, $,,g"`
 elif [ "$secret" == "es-wma-secrets" ]; then
