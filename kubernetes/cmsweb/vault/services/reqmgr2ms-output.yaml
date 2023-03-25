@@ -153,14 +153,6 @@ spec:
         - mountPath: /etc/token
           name: token-secrets
           readOnly: true
-      initContainers:
-      - command:
-        - sh
-        - -c
-        - until nslookup ms-output-mongo.dmwm; do echo "Waiting for ms-output-mongo";
-          sleep 10; done;
-        image: busybox:1.28
-        name: checkmongodb
       securityContext:
         fsGroup: 2000
         runAsGroup: 1000
