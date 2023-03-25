@@ -15,19 +15,19 @@ spec:
       protocol: TCP
   selector:
     defacementComponent: {{.Values.db.instance0.podName}}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: mongodb-lb
-spec:
-  selector:
-    env: {{.Values.quickSetting.env}}
-  ports:
-    - protocol: TCP
-      port: 27017
-      targetPort: 27017
-  type: LoadBalancer
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: mongodb-lb
+#spec:
+#  selector:
+#    env: {{.Values.quickSetting.env}}
+#  ports:
+#    - protocol: TCP
+#      port: 27017
+#      targetPort: 27017
+#  type: LoadBalancer
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -65,8 +65,12 @@ spec:
           env:
             - name: "RS_NAME"
               value: {{.Values.db.rsname}}
-            - name: "NODE_HOSTNAME"
-              value: {{.Values.db.nodeHostname}}
+            - name: "NODE_HOSTNAME_ONE"
+              value: {{.Values.db.nodeHostname.one}}
+            - name: "NODE_HOSTNAME_TWO"
+              value: {{.Values.db.nodeHostname.two}}
+            - name: "NODE_HOSTNAME_THREE"
+              value: {{.Values.db.nodeHostname.three}}
             - name: "MONGODB_ID"
               value: {{.Values.db.instance0.mongoId | quote}}
             - name: "MONGODB_ADMIN_PASSWORD"

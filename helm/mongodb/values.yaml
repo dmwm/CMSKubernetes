@@ -2,7 +2,7 @@ quickSetting:
   namespace: default
   env: test-rs
   image:
-    mongodb: registry.cern.ch/cmsweb/cmsmongo
+    mongodb: registry.cern.ch/cmsweb/cmsmongo:HG2303b
   pvc:
     storageClassName: cpio1
     accessMode: ReadWriteOnce
@@ -12,7 +12,10 @@ monitoring:
   jobName: "mongodb-exporter"
 db:
   rsname: "cms-rs"
-  nodeHostname: nodeHostname
+  nodeHostname: 
+    one: nodeHostName1
+    two: nodeHostName2
+    three: nodeHostName3
   clusterName: mongodb
   env: k8s-mongo
   auth:
