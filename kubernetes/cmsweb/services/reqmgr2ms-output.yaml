@@ -183,10 +183,6 @@ spec:
 #PROD#    readOnly: true
 #PROD#  securityContext:
 #PROD#    allowPrivilegeEscalation: false
-      initContainers:
-      - name: checkmongodb
-        image: busybox:1.28
-        command: ['sh', '-c', 'until nslookup ms-output-mongo.dmwm; do echo "Waiting for ms-output-mongo"; sleep 10; done;']
       volumes:
       - name: rucio-secrets
         secret:
