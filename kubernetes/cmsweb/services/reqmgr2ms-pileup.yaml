@@ -54,6 +54,7 @@ data:
     sudo cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
+    mkdir -p /data/srv/logs/reqmgr2ms
     #su  -c "cd /data && /data/run.sh" --preserve-environment _reqmgr2ms
     cd /data && /data/run.sh
 ---    
