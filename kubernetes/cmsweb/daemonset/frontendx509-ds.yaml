@@ -60,7 +60,7 @@ spec:
         livenessProbe:
           httpGet:
             path: /
-            port: 8443
+            port: 8080
           initialDelaySeconds: 120
           periodSeconds: 10
         resources:
@@ -77,6 +77,8 @@ spec:
               apiVersion: v1
               fieldPath: metadata.name
         ports:
+        - containerPort: 8080
+          name: http
         - containerPort: 8443
           name: services
         - containerPort: 18443
