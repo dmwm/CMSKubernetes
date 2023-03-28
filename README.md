@@ -10,11 +10,12 @@ Dockerfile and aux files required to build docker image for that service
 area contains several projects for deploying cmsweb service to k8s.
 Even though some of them are obsolete now we still keep them around for
 the reference.
-  - [kubernetes/cmsweb-nginx](https://github.com/dmwm/CMSKubernetes/tree/master/kubernetes/cmsweb-nginx)
-  area contains all documentation about **current cmsweb k8s deployment**. It is
-  based on usage of nginx middleware.
+  - [kubernetes/cmsweb](https://github.com/dmwm/CMSKubernetes/tree/master/kubernetes/cmsweb)
+  area contains all documentation about **current cmsweb k8s deployment**. 
+   <!---
   - [kubernetes/traefik](https://github.com/dmwm/CMSKubernetes/tree/master/kubernetes/cmsweb-nginx)
   area contains previous cmsweb deployment using traefik middleware
+    --->
   - [kubernetes/k8s-whoami](https://github.com/dmwm/CMSKubernetes/tree/master/kubernetes/whoami)
   area contains all files required for simple k8s whoami service based on
   traefik middleware
