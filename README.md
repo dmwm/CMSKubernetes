@@ -15,20 +15,21 @@ the reference.
   based on usage of nginx middleware.
   - [kubernetes/traefik](https://github.com/dmwm/CMSKubernetes/tree/master/kubernetes/cmsweb-nginx)
   area contains previous cmsweb deployment using traefik middleware
-  - [kubernetes/k8s-whoami](https://github.com/dmwm/CMSKubernetes/tree/master/kubernetes/k8s-whoami)
+  - [kubernetes/k8s-whoami](https://github.com/dmwm/CMSKubernetes/tree/master/kubernetes/whoami)
   area contains all files required for simple k8s whoami service based on
   traefik middleware
+  <!---
   - [kubernetes/k8s-whoami-nginx](https://github.com/dmwm/CMSKubernetes/tree/master/kubernetes/k8s-whoami-nginx)
   area contains all files required for simple k8s whoami service based on nginx
   middleware
+  --->
   - [kubernetes/rucio](https://github.com/dmwm/CMSKubernetes/tree/master/kubernetes/rucio)
-  area contains all files required for Rucio deployment
+  area contains all files required for Rucio deployment.
   - [kuberentes/tfaas](https://github.com/dmwm/CMSKubernetes/tree/master/kubernetes/tfaas)
   provides all files for [TFaaS](https://github.com/vkuznet/TFaaS) k8s setup
   - [kubernetes/cmsmon](https://github.com/dmwm/CMSKubernetes/tree/master/kubernetes/cmsmon)
   contains files for cmsmon service on k8s
-  - [kubernetes/Prometheus](https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/Prometheus.md)
-  provides recipe how to deploy Prometheus service on k8s
+  - [kubernetes/monitoring](https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/monitoring)
+  presents the CMS Monitoring cluster architecture and contains all the relevant files for the deployment of a monitoring cluster.
 
-- [helm](https://github.com/dmwm/CMSKubernetes/tree/master/helm) area contains
-helm files for Rucio
+- [helm](https://github.com/dmwm/CMSKubernetes/tree/master/helm) area contains helm files for all the cmsweb services.
