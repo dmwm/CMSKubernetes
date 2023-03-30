@@ -1,3 +1,4 @@
+environment: test
 quickSetting:
   namespace: default
   env: test-rs
@@ -12,12 +13,18 @@ monitoring:
   jobName: "mongodb-exporter"
 db:
   rsname: "cms-rs"
-  nodeHostname: 
-    one: nodeHostName1
-    two: nodeHostName2
-    three: nodeHostName3
   clusterName: mongodb
   env: k8s-mongo
+#ensuring different explicit node names for prod and preprod cluster
+  nodeName:
+    prod:
+      one: cms-mongo-prod-node-0.cern.ch
+      two: cms-mongo-prod-node-1.cern.ch
+      three: cms-mongo-prod-node-2.cern.ch
+    preprod:
+      one: cms-mongo-preprod-node-0.cern.ch
+      two: cms-mongo-preprod-node-1.cern.ch
+      three: cms-mongo-preprod-node-2.cern.ch
   auth:
     password: password
     keyfile: keyfile
