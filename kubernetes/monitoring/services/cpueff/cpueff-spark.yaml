@@ -46,7 +46,7 @@ metadata:
   namespace: cpueff
 spec:
   # UTC
-  schedule: "30 05 * * *"
+  schedule: "00 06 * * *"
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 1
   jobTemplate:
@@ -61,7 +61,7 @@ spec:
           hostname: cpueff-spark
           containers:
             - name: cpueff-spark
-              image: registry.cern.ch/cmsmonitoring/cpueff-spark:cpueff-0.0.10
+              image: registry.cern.ch/cmsmonitoring/cpueff-spark:cpueff-0.0.11
               command: [ "/bin/bash", "-c" ]
               args:
                 - source /etc/environment;
