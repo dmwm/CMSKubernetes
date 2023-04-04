@@ -32,14 +32,14 @@ spec:
     spec:
       containers:
       - name: cpueff-goweb
-        image: registry.cern.ch/cmsmonitoring/cpueff-goweb:cpueff-0.0.11
+        image: registry.cern.ch/cmsmonitoring/cpueff-goweb:cpueff-0.0.12
         # image: golang
         # command: [ "sleep" ]
         # args: [ "infinity" ]
         args:
           - /data/cpueff-goweb
           - -config
-          - /data/cpueff-goweb/config.json
+          - /data/config.json
         ports:
         - containerPort: 8080
           protocol: TCP
