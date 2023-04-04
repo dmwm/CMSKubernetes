@@ -740,6 +740,16 @@ entries:
     version: 1.0.0
   mongodb:
   - apiVersion: v2
+    appVersion: 1.0.4
+    created: "2023-04-04T07:24:46.597192399Z"
+    description: A Helm chart for launching a MongoDB ReplicaSet with 3 instances
+    digest: 1e750e8dbbfdb2c1650c7487844ee77a763949c910207b2ca29a05a9b587215c
+    name: mongodb
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/mongodb-1.0.4/mongodb-1.0.4.tgz
+    version: 1.0.4
+  - apiVersion: v2
     appVersion: 1.0.3
     created: "2023-03-27T08:34:12.386780185Z"
     description: A Helm chart for launching a MongoDB ReplicaSet with 3 instances
@@ -2168,4 +2178,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
     version: 0.1.1
-generated: "2023-03-27T08:34:12.387394508Z"
+generated: "2023-04-04T07:24:46.597658927Z"
