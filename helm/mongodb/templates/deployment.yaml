@@ -1,3 +1,4 @@
+{{- $environment := .Values.environment | default dict }}
 ---
 apiVersion: v1
 kind: Service
@@ -65,12 +66,22 @@ spec:
           env:
             - name: "RS_NAME"
               value: {{.Values.db.rsname}}
+          {{- if  (eq (toString $environment) "prod") }}
             - name: "NODE_HOSTNAME_ONE"
-              value: {{.Values.db.nodeHostname.one}}
+              value: {{.Values.db.nodeName.prod.one}}
             - name: "NODE_HOSTNAME_TWO"
-              value: {{.Values.db.nodeHostname.two}}
+              value: {{.Values.db.nodeName.prod.two}}
             - name: "NODE_HOSTNAME_THREE"
-              value: {{.Values.db.nodeHostname.three}}
+              value: {{.Values.db.nodeName.prod.three}}
+           {{- end }}
+           {{- if  (eq (toString $environment) "preprod")}}
+            - name: "NODE_HOSTNAME_ONE"
+              value: {{.Values.db.nodeName.preprod.one}}
+            - name: "NODE_HOSTNAME_TWO"
+              value: {{.Values.db.nodeName.preprod.two}}
+            - name: "NODE_HOSTNAME_THREE"
+              value: {{.Values.db.nodeName.preprod.three}}
+            {{- end }}
             - name: "MONGODB_ID"
               value: {{.Values.db.instance0.mongoId | quote}}
             - name: "MONGODB_ADMIN_PASSWORD"
