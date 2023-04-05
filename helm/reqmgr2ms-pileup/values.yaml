@@ -1,0 +1,59 @@
+environment:
+
+replicaCount: 1
+
+image:
+  repository: cmssw/reqmgr2ms
+  tag: latest
+  pullPolicy: IfNotPresent
+  livenessProbe:
+    exec:
+      command:
+      - cmsweb-ping
+      - "--url=http://localhost:8241/ms-pileup/data/info"
+      - "--authz=/etc/hmac/hmac"
+      - -verbose
+      - "0"
+    initialDelaySeconds: 120
+    periodSeconds: 30
+    timeoutSeconds: 5
+  command:
+  - /bin/bash
+  - /opt/setup-certs-and-run/setup-certs-and-run.sh
+  lifecycle:
+    postStart:
+      exec:
+        command:
+        - bash
+        - -c
+        - sudo chmod 0777 /data/srv/logs/reqmgr2ms; sudo chown _reqmgr2ms:_reqmgr2ms /data/srv/logs/reqmgr2ms
+
+service:
+  type: ClusterIP
+  port: 8241
+  protocol: TCP
+  name: ms-pileup
+
+serviceMon:
+  type: ClusterIP
+  port: 18241
+  protocol: TCP
+  name: ms-pileup-mon
+
+filebeat:
+  image:
+    repository: docker.elastic.co/beats/filebeat
+    tag: 7.16.2
+    env:
+     - name: MY_POD_NAME
+       valueFrom:
+         fieldRef:
+           apiVersion: v1
+           fieldPath: metadata.name
+    pullPolicy: IfNotPresent
+    resources:
+      requests:
+        memory: "50Mi"
+        cpu: "50m"
+    securityContext:
+      allowPrivilegeEscalation: false
