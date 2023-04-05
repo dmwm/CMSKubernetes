@@ -20,7 +20,7 @@ the reference.
   contains files for cmsmon service on k8s.
   - [kubernetes/monitoring](https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/monitoring)
   presents the CMS Monitoring cluster architecture and contains all the relevant files for the deployment of a monitoring cluster.
-    - [kubernetes/traefik](https://github.com/dmwm/CMSKubernetes/tree/master/kubernetes/legacy) 
+  - [kubernetes/traefik](https://github.com/dmwm/CMSKubernetes/tree/master/kubernetes/legacy) 
     contains the legacy code of cmsweb.
   - [kubernetes/whoami](https://github.com/dmwm/CMSKubernetes/tree/master/kubernetes/whoami)
   area contains all details of end-to-end deployment of cluster running two services httpgo and its httpsgo counterpart.
