@@ -35,7 +35,7 @@ SOPS=$(command -v sops) || installSops ||  { err=$?; echo "`sops` command is not
 [[ -e $SOPS ]] || installSops || { err=$?; echo "$SOPS is not executable"; exit $err; }
 
 # check if sops is the expected version:
-[[ $($SOPS --version) =~ sops[[:blank:]]+3\.7\.[2,3]+.* ]] || installSops || { err=$?; echo "$SOPS is not the expected version"; exit $err; }
+[[ $($SOPS --version) =~ sops[[:blank:]]+3\.[7-9]+\.[0-9]+.* ]] || installSops || { err=$?; echo "$SOPS is not the expected version"; exit $err; }
 
 # cmsweb configuration area
 echo "+++ cluster name: $cluster_name"
