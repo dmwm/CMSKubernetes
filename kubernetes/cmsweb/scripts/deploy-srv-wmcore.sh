@@ -62,7 +62,7 @@ if [ $# -ne 2 ]; then
 
 	
 fi
-srv=( "reqmgr2ms-output" "reqmgr2ms-rulecleaner" "reqmgr2ms-transferor" "reqmgr2ms-unmerged-t1" "reqmgr2ms-unmerged-t2t3" "reqmgr2ms-unmerged-t2t3us" "reqmgr2" "reqmgr2-tasks" "reqmon" "reqmon-tasks" "workqueue" "t0_reqmon" "t0_reqmon-tasks" )
+srv=( "reqmgr2ms-output" "reqmgr2ms-rulecleaner" "reqmgr2ms-transferor" "reqmgr2ms-unmerged-t1" "reqmgr2ms-unmerged-t2t3" "reqmgr2ms-unmerged-t2t3us" "reqmgr2ms-pileup" "reqmgr2ms-pileup-tasks" "reqmgr2" "reqmgr2-tasks" "reqmon" "reqmon-tasks" "workqueue" "t0_reqmon" "t0_reqmon-tasks" )
 echo ${srv[*]}
 
 
