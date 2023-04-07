@@ -18,14 +18,15 @@ fi
 mkdir -p $tmpDir
 cd $tmpDir
 
-if [ -z "$(command -v sops)" ]; then
+SOPS=$(command -v sops)  || {
     # download soap in tmp area
     wget -O sops https://github.com/mozilla/sops/releases/download/v3.7.2/sops-v3.7.2.linux.amd64
     chmod u+x sops
     mkdir -p $HOME/bin
     echo "Download and install sops under $HOME/bin"
     cp ./sops $HOME/bin
-fi
+    SOPS="$HOME/bin/sops"
+}
 
 # cmsweb configuration area
 echo "+++ cluster name: $cluster_name"
@@ -75,9 +76,9 @@ if [ "$srv" == "auth-proxy-server" ] || [ "$srv" == "x509-proxy-server" ] || [ "
     for fname in $secretdir/*; do
         if [[ $fname == *.encrypted ]]; then
             if [[ $fname == *.json* ]]; then
-                $HOME/bin/sops --output-type json -d $fname > $secretdir/$(basename $fname .encrypted)
+                $SOPS --output-type json -d $fname > $secretdir/$(basename $fname .encrypted)
             else
-                $HOME/bin/sops -d $fname > $secretdir/$(basename $fname .encrypted)
+                $SOPS -d $fname > $secretdir/$(basename $fname .encrypted)
             fi
         fi
     done
@@ -123,9 +124,9 @@ if [ -d $secretdir ] && [ -n "$(ls $secretdir)" ]; then
 	fi
         if [[ $fname == *.encrypted ]]; then
             if [[ $fname == *.json* ]]; then
-                $HOME/bin/sops --output-type json -d $fname > $secretdir/$(basename $fname .encrypted)
+                $SOPS --output-type json -d $fname > $secretdir/$(basename $fname .encrypted)
             else
-                $HOME/bin/sops -d $fname > $secretdir/$(basename $fname .encrypted)
+                $SOPS -d $fname > $secretdir/$(basename $fname .encrypted)
             fi
             fname=$secretdir/$(basename $fname .encrypted)
             echo "Decrypted file $fname"
@@ -140,7 +141,7 @@ fi
 if [ "$ns" == "dbs" ]; then
     for fname in $conf/dbs/*; do
         if [[ $fname == *.encrypted ]]; then
-            $HOME/bin/sops -d $fname >$conf/dbs/$(basename $fname .encrypted)
+            $SOPS -d $fname >$conf/dbs/$(basename $fname .encrypted)
         fi
     done
     if [ -f $conf/dbs/DBSSecrets.py ]; then
