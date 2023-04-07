@@ -18,7 +18,7 @@ fi
 mkdir -p $tmpDir
 cd $tmpDir
 
-SOPS=$(command -v sops)  || {
+installSops() {
     # download soap in tmp area
     wget -O sops https://github.com/mozilla/sops/releases/download/v3.7.2/sops-v3.7.2.linux.amd64
     chmod u+x sops
@@ -27,6 +27,15 @@ SOPS=$(command -v sops)  || {
     cp ./sops $HOME/bin
     SOPS="$HOME/bin/sops"
 }
+
+# check if sops is set at the current machine's path:
+SOPS=$(command -v sops) || installSops ||  { err=$?; echo "`sops` command not setup"; exit $err; }
+
+# check if sops is executable:
+[[ -e $SOPS ]] || installSops || { err=$?; echo "`sops` command not executable"; exit $err; }
+
+# check if sops is the expected version:
+[[ $($SOPS --version) =~ sops[[:blank:]]+3\.7\.[2,3]+.* ]] || installSops || { err=$?; echo "`sops` command not expected version"; exit $err; }
 
 # cmsweb configuration area
 echo "+++ cluster name: $cluster_name"
