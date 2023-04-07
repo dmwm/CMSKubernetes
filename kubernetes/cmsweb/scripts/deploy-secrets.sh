@@ -29,13 +29,13 @@ installSops() {
 }
 
 # check if sops is set at the current machine's path:
-SOPS=$(command -v sops) || installSops ||  { err=$?; echo "`sops` command not setup"; exit $err; }
+SOPS=$(command -v sops) || installSops ||  { err=$?; echo "`sops` command is not properly setup"; exit $err; }
 
 # check if sops is executable:
-[[ -e $SOPS ]] || installSops || { err=$?; echo "`sops` command not executable"; exit $err; }
+[[ -e $SOPS ]] || installSops || { err=$?; echo "$SOPS is not executable"; exit $err; }
 
 # check if sops is the expected version:
-[[ $($SOPS --version) =~ sops[[:blank:]]+3\.7\.[2,3]+.* ]] || installSops || { err=$?; echo "`sops` command not expected version"; exit $err; }
+[[ $($SOPS --version) =~ sops[[:blank:]]+3\.7\.[2,3]+.* ]] || installSops || { err=$?; echo "$SOPS is not the expected version"; exit $err; }
 
 # cmsweb configuration area
 echo "+++ cluster name: $cluster_name"
