@@ -8,62 +8,97 @@ fi
 
 namespaces="auth default crab das dbs dmwm http tzero wma dqm rucio ruciocm"
 
+
 certificates=$1
+
+proxy=/tmp/$USER/proxy
+proxy_dmwm=/tmp/$USER/proxy_dmwm
+proxy_crab=/tmp/$USER/proxy_crab
 
 robot_key=$certificates/robotkey.pem
 robot_crt=$certificates/robotcert.pem
-client_id=$certificates/client_id
-client_secret=$certificates/client_secret
 
-proxy=/tmp/$USER/proxy
+touch $proxy_dmwm
+touch $proxy_crab
+
+
 token=/tmp/$USER/token
 
 voms-proxy-init -voms cms -rfc \
-        --key $robot_key --cert $robot_crt --out $proxy
-    for ns in $namespaces; do
-        echo "---"
-        echo "Create certificates secrets in namespace: $ns"
-	keys=$certificates/$ns-keys.txt
-	echo $keys
-        if [ -f $keys ]; then
-            kubectl create secret generic $ns-keys-secrets \
-                --from-file=$keys --dry-run=client -o yaml | \
-                kubectl apply --namespace=$ns -f -
-        fi
-	
-        # create secrets with our robot certificates
-        kubectl create secret generic robot-secrets \
-            --from-file=$robot_key --from-file=$robot_crt \
-            --dry-run=client -o yaml | \
-            kubectl apply --namespace=$ns -f -
+        --key $certificates/robotkey.pem --cert $certificates/robotcert.pem --out $proxy
 
-        # create proxy secret
-        if [ -f $proxy ]; then
-            kubectl create secret generic proxy-secrets \
-                --from-file=$proxy --dry-run=client -o yaml | \
-                kubectl apply --namespace=$ns -f -
-        fi
-        # create client secret
-        if [ -f $client_id ] && [ -f $client_secret ]; then
-            kubectl create secret generic client-secrets \
-                --from-file=$client_id --from-file=$client_secret --dry-run=client -o yaml | \
-                kubectl apply --namespace=$ns -f -
-        fi
-        # create token secrets
-	curl -s -d grant_type=client_credentials -d scope="profile" -u ${client_id}:${client_secret} https://cms-auth.web.cern.ch/token | jq -r '.access_token' > $token
-        now=$(date +'%Y%m%d %H:%M')
-        if [ -f $token ]; then
-            kubectl create secret generic token-secrets \
-               --from-file=$token --dry-run=client -o yaml | \
-               kubectl apply --namespace=$ns -f -
-            echo "$now Token created."
-        else
-            echo "$now Failed to create token secrets"
-        fi
-   done
+voms-proxy-init -voms cms -rfc \
+        --key $certificates/robotkey_dmwm.pem --cert $certificates/robotcert_dmwm.pem --out $proxy_dmwm
+
+voms-proxy-init -voms cms -rfc \
+        --key $certificates/robotkey_crab.pem --cert $certificates/robotcert_crab.pem --out $proxy_crab
+
+for ns in $namespaces; do
+    echo "---"
+    echo "Create certificates secrets in namespace: $ns"
+    keys=$certificates/$ns-keys.txt
+    echo $keys
+    if [ -f $keys ]; then
+        kubectl create secret generic $ns-keys-secrets \
+            --from-file=$keys --dry-run=client -o yaml | \
+            kubectl apply --namespace=$ns -f -
+    fi
+
+    # create secrets with our robot certificates
+    case "$ns" in
+        "crab")
+            robot_key=$certificates/robotkey_crab.pem
+            robot_crt=$certificates/robotcert_crab.pem
+            proxy=$proxy_crab
+            ;;
+        "dmwm")
+            robot_key=$certificates/robotkey_dmwm.pem
+            robot_crt=$certificates/robotcert_dmwm.pem
+            proxy=$proxy_dmwm
+            ;;
+        *)
+            robot_key=$certificates/robotkey.pem
+            robot_crt=$certificates/robotcert.pem
+            proxy=$proxy
+            ;;
+    esac
+
+    #create robot secrets
+    kubectl create secret generic robot-secrets \
+        --from-file=$robot_key --from-file=$robot_crt \
+        --dry-run=client -o yaml | \
+        kubectl apply --namespace=$ns -f -
+
+    # create proxy secret
+    if [ -f $proxy ]; then
+        kubectl create secret generic proxy-secrets \
+            --from-file=$proxy --dry-run=client -o yaml | \
+            kubectl apply --namespace=$ns -f -
+    fi
+
+    # create client secret
+    if [ -f $certificates/client_id ] && [ -f $certificates/client_secret ]; then
+        kubectl create secret generic client-secrets \
+            --from-file=$certificates/client_id --from-file=$certificates/client_secret --dry-run=client -o yaml | \
+            kubectl apply --namespace=$ns -f -
+    fi
+
+    # create token secrets
+    curl -s -d grant_type=client_credentials -d scope="profile" -u ${certificates/client_id}:${certificates/client_secret} https://cms-auth.web.cern.ch/token | jq -r '.access_token' > $token
+    now=$(date +'%Y%m%d %H:%M')
+    if [ -f $token ]; then
+        kubectl create secret generic token-secrets \
+           --from-file=$token --dry-run=client -o yaml | \
+           kubectl apply --namespace=$ns -f -
+        echo "$now Token created."
+     else
+        echo "$now Failed to create token secrets"
+     fi
+ done
+
 
 #### proxy for ms-unmerged service
-
+   proxy=/tmp/$USER/proxy
    voms-proxy-init -rfc \
         -key $robot_key \
         -cert $robot_crt \
