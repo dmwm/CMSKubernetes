@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # start couchdb exporter
-nohup couchdb-prometheus-exporter -telemetry.address=":9984" 2>&1 1>& couchdb_exporter.log < /dev/null &
+COUCH_CONFIG=/data/srv/current/auth/couchdb/couchdb_config.ini
+nohup couchdb-prometheus-exporter -telemetry.address=":9984" -logtostderr=true \
+      --config=$COUCH_CONFIG -databases.views=false 2>&1 1>& couchdb_exporter.log < /dev/null &
 
 # run filebeat
 if [ -f /etc/secrets/filebeat.yaml ] && [ -f /usr/bin/filebeat ]; then

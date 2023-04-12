@@ -71,6 +71,17 @@ for fname in $files; do
     fi
 done
 
+if [ -f /data/srv/current/auth/$srv/couch_creds ]; then
+    # also create the ini configuration for prometheus exporter
+    cp /data/srv/current/auth/$srv/couch_creds /data/srv/current/auth/$srv/couchdb_config.ini
+    sed -i "s+COUCH_USER+couchdb.username+" /data/srv/current/auth/$srv/couchdb_config.ini
+    sed -i "s+COUCH_PASS+couchdb.password+" /data/srv/current/auth/$srv/couchdb_config.ini
+else
+  # create empty file
+  touch /data/srv/current/auth/$srv/couchdb_config.ini
+fi
+
+
 # start the service
 /data/srv/current/config/$srv/manage start 'I did read documentation'
 
