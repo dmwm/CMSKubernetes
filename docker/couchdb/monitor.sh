@@ -1,7 +1,16 @@
 #!/bin/bash
 
 # start couchdb exporter
-nohup couchdb-prometheus-exporter -telemetry.address=":9984" 2>&1 1>& couchdb_exporter.log < /dev/null &
+COUCH_CONFIG=/data/srv/current/auth/couchdb/couchdb_config.ini
+# test if file is not zero size
+if [ -s "${COUCH_CONFIG}" ]; then
+    sudo cp /etc/secrets/$fname /data/srv/current/auth/$srv/$fname
+    sudo chown $USER.$USER /data/srv/current/auth/$srv/$fname
+    nohup couchdb-prometheus-exporter -telemetry.address=":9984" -logtostderr=true \
+      --config=$COUCH_CONFIG -databases.views=false 2>&1 1>& couchdb_exporter.log < /dev/null &
+else
+    echo "ERROR: couchdb_config.ini file is empty and prometheus exporter cannot be started!"
+fi
 
 # run filebeat
 if [ -f /etc/secrets/filebeat.yaml ] && [ -f /usr/bin/filebeat ]; then
