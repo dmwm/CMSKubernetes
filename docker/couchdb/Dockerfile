@@ -1,4 +1,4 @@
-FROM couchdb
+FROM couchdb:3.2.2
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 RUN apt-get update && apt-get install -y vim less sudo wget unzip python pip
@@ -50,7 +50,7 @@ RUN mkdir -p /data/srv/current/config/couchdb \
     && ln -s /etc/secrets/local.ini /data/srv/current/config/couchdb/local.ini
 ADD manage /data/srv/current/config/couchdb/manage
 ADD couchdb-logrotate.conf /data/srv/current/config/couchdb/couchdb-logrotate.conf
-ADD monitoring.ini /data/srv/current/config/couchdb/monitoring.ini
+
 ENV PATH="/opt/couchdb/bin:/usr/local/bin/:${PATH}"
 
 # setup final environment
