@@ -81,7 +81,7 @@ for ns in $namespaces; do
 
     #create robot secrets
     kubectl create secret generic robot-secrets \
-        --from-file=robotkey=$robot_key --from-file=robotcert=$robot_crt \
+        --from-file=robotkey.pem=$robot_key --from-file=robotcert.pem=$robot_crt \
         --dry-run=client -o yaml | \
         kubectl apply --namespace=$ns -f -
 
