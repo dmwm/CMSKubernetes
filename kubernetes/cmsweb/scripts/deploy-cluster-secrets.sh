@@ -14,12 +14,14 @@ certificates=$1
 proxy=/tmp/$USER/proxy
 proxy_dmwm=/tmp/$USER/proxy_dmwm
 proxy_crab=/tmp/$USER/proxy_crab
+proxy_msunmer=/tmp/$USER/proxy_msunmer
 
 robot_key=$certificates/robotkey.pem
 robot_crt=$certificates/robotcert.pem
 
 touch $proxy_dmwm
 touch $proxy_crab
+touch $proxy_msunmer
 
 
 token=/tmp/$USER/token
@@ -54,7 +56,21 @@ for ns in $namespaces; do
         "dmwm")
             robot_key=$certificates/robotkey_dmwm.pem
             robot_crt=$certificates/robotcert_dmwm.pem
-            proxy=$proxy_dmwm
+           
+            ##proxy for ms-unmerged service
+            voms-proxy-init -rfc \
+            -key $robot_key \
+            -cert $robot_crt \
+            --voms cms:/cms/Role=production --valid 192:00 \
+            --out $proxy_msunmer
+            
+            out=$?
+           
+            if [ $out -eq 0 ]; then
+                kubectl create secret generic proxy-secrets-ms-unmerged \
+                --from-file=proxy=$proxy_msunmer --dry-run=client -o yaml | \
+                kubectl apply --namespace=dmwm -f -
+            fi
             ;;
         *)
             robot_key=$certificates/robotkey.pem
@@ -65,14 +81,14 @@ for ns in $namespaces; do
 
     #create robot secrets
     kubectl create secret generic robot-secrets \
-        --from-file=$robot_key --from-file=$robot_crt \
+        --from-file=robotkey=$robot_key --from-file=robotcert=$robot_crt \
         --dry-run=client -o yaml | \
         kubectl apply --namespace=$ns -f -
 
     # create proxy secret
     if [ -f $proxy ]; then
         kubectl create secret generic proxy-secrets \
-            --from-file=$proxy --dry-run=client -o yaml | \
+            --from-file=proxy=$proxy --dry-run=client -o yaml | \
             kubectl apply --namespace=$ns -f -
     fi
 
@@ -97,17 +113,3 @@ for ns in $namespaces; do
  done
 
 
-#### proxy for ms-unmerged service
-   proxy=/tmp/$USER/proxy
-   voms-proxy-init -rfc \
-        -key $robot_key \
-        -cert $robot_crt \
-        --voms cms:/cms/Role=production --valid 192:00 \
-        -out $proxy
-
-    out=$?
-    if [ $out -eq 0 ]; then
-     kubectl create secret generic proxy-secrets-ms-unmerged \
-                --from-file=$proxy --dry-run=client -o yaml | \
-                kubectl apply --namespace=dmwm -f -
-     fi
