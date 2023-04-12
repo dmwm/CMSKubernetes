@@ -78,6 +78,7 @@ if [ -f /data/srv/current/auth/$srv/couch_creds ]; then
     sed -i "s+COUCH_PASS+couchdb.password+" /data/srv/current/auth/$srv/couchdb_config.ini
 else
   # create empty file
+  echo "ERROR: couch_creds file has not been found and prometheus exporter cannot run!"
   touch /data/srv/current/auth/$srv/couchdb_config.ini
 fi
 
