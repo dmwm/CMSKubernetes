@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: filebeat-crab
+  name: filebeat-crab
+  namespace: crab
+spec:
+  selector:
+    matchLabels:
+      app: filebeat-crab
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: filebeat-crab
+    spec:
+      containers:
+      - args:
+        {{- toYaml .Values.deamonset.args | nindent 10 }}
+        env:
+        {{- toYaml .Values.deamonset.env | nindent 10 }}
+        image: {{ .Values.deamonset.path }}
+        imagePullPolicy: {{ .Values.deamonset.policy }}
+        name: {{ .Values.deamonset.name }}
+        resources:
+        {{- toYaml .Values.deamonset.resources | nindent 12 }}
+        volumeMounts:
+        - mountPath: /var/log/pods
+          name: varlogpods
+          readOnly: true
+        - mountPath: /var/log/containers
+          name: varlogcontainers
+          readOnly: true
+        - mountPath: /etc/filebeat.yml
+          name: config
+          subPath: filebeat.yml
+        - mountPath: /data
+          name: data
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - hostPath:
+          path: /var/log/pods
+          type: ""
+        name: varlogpods
+      - hostPath:
+          path: /var/log/containers
+          type: ""
+        name: varlogcontainers
+      - emptyDir: {}
+        name: data
+      - configMap:
+          defaultMode: 416
+          name: filebeat-crab-config
+        name: config
