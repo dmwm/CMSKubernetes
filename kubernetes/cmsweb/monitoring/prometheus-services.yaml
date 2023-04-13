@@ -51,6 +51,10 @@ data:
       - job_name: 'crabserver-service'
         static_configs:
             - targets: ['crabserver.crab.svc.cluster.local:18270']
+      - job_name: 'crabserver-processes'
+        metrics_path: '/crabserver/metrics'
+        static_configs:
+            - targets: ['crabserver.crab.svc.cluster.local:8270']
       - job_name: 'couchdb-service'
         static_configs:
             - targets: ['couchdb.couchdb.svc.cluster.local:9984']
