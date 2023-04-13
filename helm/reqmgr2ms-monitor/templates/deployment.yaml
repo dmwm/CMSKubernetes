@@ -67,6 +67,9 @@ spec:
           mountPath: /opt/setup-certs-and-run
         - name: token-secrets
           mountPath: /etc/token
+          readOnly: true
+        - name: rucio-secrets
+          mountPath: /opt/rucio/etc
           readOnly: true         
         {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}  
         - name: logs
@@ -103,6 +106,9 @@ spec:
           allowPrivilegeEscalation: false
         {{- end }}
       volumes:
+      - name: rucio-secrets
+        secret:
+          secretName: rucio-secrets
       - name: proxy-secrets
         secret:
           secretName: proxy-secrets

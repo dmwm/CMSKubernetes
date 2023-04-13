@@ -48,6 +48,9 @@ spec:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
         volumeMounts:
+        - name: rucio-secrets
+          mountPath: /opt/rucio/etc
+          readOnly: true
         - name: proxy-secrets-ms-unmerged
           mountPath: /etc/proxy
           readOnly: true
@@ -103,6 +106,9 @@ spec:
           allowPrivilegeEscalation: false
         {{- end }}
       volumes:
+      - name: rucio-secrets
+        secret:
+          secretName: rucio-secrets
       - name: proxy-secrets-ms-unmerged
         secret:
           secretName: proxy-secrets-ms-unmerged
