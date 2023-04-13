@@ -43,7 +43,7 @@ spec:
   selector:
     matchLabels:
       app: crabserver
-  replicas: 1 #PROD# 5
+  replicas: 1 #PROD# 8
   template:
     metadata:
       labels:
