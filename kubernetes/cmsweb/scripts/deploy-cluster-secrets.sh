@@ -11,21 +11,28 @@ namespaces="auth default crab das dbs dmwm http tzero wma dqm rucio ruciocm"
 
 certificates=$1
 
+#ensuring that this directory exists before writing files to it
+mkdir -p /tmp/$USER 
+
+#creating temporary files to write different proxies and token
 proxy=/tmp/$USER/proxy
 proxy_dmwm=/tmp/$USER/proxy_dmwm
 proxy_crab=/tmp/$USER/proxy_crab
 proxy_msunmer=/tmp/$USER/proxy_msunmer
 
-robot_key=$certificates/robotkey.pem
-robot_crt=$certificates/robotcert.pem
-
 touch $proxy_dmwm
 touch $proxy_crab
 touch $proxy_msunmer
 
-
 token=/tmp/$USER/token
 
+robot_key=$certificates/robotkey.pem
+robot_crt=$certificates/robotcert.pem
+
+#ensuring that these files get removed in the end
+trap 'rm -f $proxy $proxy_dmwm $proxy_crab $proxy_msunmer $token' EXIT 
+
+#voms-proxy-init command generates a proxy with the VOMS information included in an X.509 non critical extension
 voms-proxy-init -voms cms -rfc \
         --key $certificates/robotkey.pem --cert $certificates/robotcert.pem --out $proxy
 
