@@ -5,15 +5,15 @@ replicaCount: 1
 image:
   repository: registry.cern.ch/cmsweb/reqmgr2ms-pileup
   tag: latest
-  pullPolicy: IfNotPresent
-  annotations:
+  annotations: 
     prometheus.io/scrape: 'true'
-    prometheus.io/port: "18241"
+    prometheus.io/port: "18361"
+  pullPolicy: IfNotPresent
   livenessProbe:
     exec:
       command:
       - cmsweb-ping
-      - "--url=http://localhost:8241/ms-pileup/data/info"
+      - "--url=http://localhost:8361/ms-pileup-tasks/data/info"
       - "--authz=/etc/hmac/hmac"
       - -verbose
       - "0"
@@ -40,15 +40,15 @@ image:
 
 service:
   type: ClusterIP
-  port: 8241
+  port: 8361
   protocol: TCP
-  name: ms-pileup
+  name: ms-pileup-tasks
 
 serviceMon:
   type: ClusterIP
-  port: 18241
+  port: 18361
   protocol: TCP
-  name: ms-pileup-mon
+  name: msp-tasks-mon
 
 filebeat:
   image:

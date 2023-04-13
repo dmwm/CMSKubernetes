@@ -2,29 +2,29 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ms-pileup
+  name: ms-pileup-tasks
   namespace: {{ .Release.Namespace }}
   labels:
-    app: ms-pileup
+    app: ms-pileup-tasks
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: ms-pileup
+      app: ms-pileup-tasks
   template:
     metadata:
       labels:
-        app: ms-pileup
+        app: ms-pileup-tasks
         env: k8s
       annotations:
-        {{- toYaml .Values.image.annotations | nindent 8 }}
+      {{- toYaml .Values.image.annotations | nindent 8 }}
     spec:
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 2000
       containers:
-        - name: reqmgr2ms-pileup
+        - name: reqmgr2ms-pileup-tasks
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
@@ -32,7 +32,7 @@ spec:
           {{- toYaml .Values.image.resources | nindent 12 }}
           {{- end }}
           lifecycle:
-          {{- toYaml .Values.image.lifecycle | nindent 12 }}
+          {{- toYaml .Values.image.lifecycle | nindent 12 }}           
           command:
           {{- toYaml .Values.image.command | nindent 10 }}
           livenessProbe:
@@ -75,7 +75,7 @@ spec:
           securityContext:
             privileged: true
 {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
-        - name: ms-pileup-filebeat
+        - name: ms-pileup-tasks-filebeat
           image: docker.elastic.co/beats/filebeat:7.10.2
           imagePullPolicy: IfNotPresent
           args: [
@@ -112,7 +112,7 @@ spec:
           secretName: proxy-secrets
       - name: secrets
         secret:
-          secretName: reqmgr2ms-pileup-secrets
+          secretName: reqmgr2ms-pileup-tasks-secrets
       - name: robot-secrets
         secret:
           secretName: robot-secrets
@@ -124,7 +124,7 @@ spec:
             path: /etc/grid-security
       - name: setup-certs-and-run
         configMap:
-          name: ms-pileup
+          name: ms-pileup-tasks
       - name: token-secrets
         secret:
           secretName: token-secrets      
@@ -148,7 +148,7 @@ spec:
       - name: config
         configMap:
           defaultMode: 0640
-          name: ms-pileup-filebeat-config
+          name: ms-pileup-tasks-fb-config
       - name: data
         emptyDir: {}
 {{- end }}
