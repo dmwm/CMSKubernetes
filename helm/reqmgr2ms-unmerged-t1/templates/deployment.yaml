@@ -130,8 +130,6 @@ spec:
       - name: token-secrets
         secret:
           secretName: token-secrets          
-      - name: logs
-        persistentVolumeClaim:
         {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }} 
       - name: logs
         persistentVolumeClaim:

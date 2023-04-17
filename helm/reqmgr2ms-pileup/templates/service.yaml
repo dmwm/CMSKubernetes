@@ -7,9 +7,9 @@ spec:
   selector:
     app: ms-pileup
   ports:
-  - containerPort: {{ .Values.service.port }}
+  - targetPort: {{ .Values.service.port }}
     name: {{ .Values.service.name }}
-    protocol: {{ .Values.service.protocol }}
-  - containerPort: {{ .Values.serviceMon.port }}
+    port: {{.Values.service.port }} 
+  - targetPort: {{ .Values.serviceMon.port }}
     name: {{ .Values.serviceMon.name }}
-    protocol: {{ .Values.serviceMon.protocol }}
+    port: {{ .Values.serviceMon.port }}

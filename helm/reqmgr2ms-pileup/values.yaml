@@ -4,7 +4,7 @@ replicaCount: 1
 
 image:
   repository: registry.cern.ch/cmsweb/reqmgr2ms-pileup
-  tag: latest
+  tag: "2.2.0.2"
   pullPolicy: IfNotPresent
   annotations:
     prometheus.io/scrape: 'true'
@@ -35,7 +35,7 @@ image:
       memory: "250Mi"
       cpu: "100m"
     limits:
-      memroy: "750Mi"
+      memory: "750Mi"
       cpu: "1000m"
 
 service:
