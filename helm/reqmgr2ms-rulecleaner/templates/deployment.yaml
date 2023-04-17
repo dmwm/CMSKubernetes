@@ -43,11 +43,14 @@ spec:
           name: ms-rulecleaner
         - containerPort: 18244
           protocol: TCP
-          name: ms-rulecleaner-mon
+          name: rulecleaner-mon
         command:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
         volumeMounts:
+        - name: rucio-secrets
+          mountPath: /opt/rucio/etc
+          readOnly: true
         - name: proxy-secrets
           mountPath: /etc/proxy
           readOnly: true
@@ -103,6 +106,9 @@ spec:
           allowPrivilegeEscalation: false
         {{- end }}
       volumes:
+      - name: rucio-secrets
+        secret:
+          secretName: rucio-secrets
       - name: proxy-secrets
         secret:
           secretName: proxy-secrets

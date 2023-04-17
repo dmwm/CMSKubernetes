@@ -43,7 +43,7 @@ spec:
           name: ms-transferor
         - containerPort: 18247
           protocol: TCP
-          name: ms-transferor-mon
+          name: ms-transfer-mon
         command:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh

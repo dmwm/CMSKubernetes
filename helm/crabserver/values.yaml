@@ -3,17 +3,20 @@
 # Declare variables to be passed into your templates.
 
 replicaCount: 
-  prod: 5
+  prod: 8
   test: 1
 
 image:
-  repository: registry.cern.ch/cmsweb/crabserver
+  path: registry.cern.ch/cmsweb/crabserver
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "v3.220727"
+  tag: "v3.230221"
   command:
   - /bin/bash
   - /opt/setup-certs-and-run/setup-certs-and-run.sh
+  env:
+  - name: CRABSERVER_LOGSTDOUT
+    value: "t"
 
 environment:
 
@@ -65,24 +68,35 @@ resources:
     memory: 256Mi
 
 
-imageFilebeat:
-  name: crabserver-filebeat
-  path: docker.elastic.co/beats/filebeat:7.12.0
-  args: [
-  "-c", "/etc/filebeat.yml",
-  "-e",
-  ]
+deamonset:
+  name: filebeat
+  path: docker.elastic.co/beats/filebeat:8.5.1
+  policy: IfNotPresent
+  args:
+  - bash
+  - -c
+  - filebeat -c /etc/filebeat.yml --path.data /data/filebeat/${MY_NODE_NAME}/data -e
   env: 
-  - name: MY_POD_NAME
+  - name: MY_NODE_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: spec.nodeName
+  - name: NODE_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: spec.nodeName
+  - name: MY_NAMESPACE
     valueFrom:
       fieldRef:
         apiVersion: v1
-        fieldPath: metadata.name
-
-imageFilebeatResources:
-  requests:
-    memory: "50Mi"
-    cpu: "50m"
+        fieldPath: metadata.namespace
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "200m"
+    limits: 
+      cpu: "1"
+      memory: "1Gi"
 
 
 livenessProbe:

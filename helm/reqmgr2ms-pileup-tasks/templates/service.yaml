@@ -1,0 +1,15 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: ms-pileup-tasks
+  namespace: dmwm
+spec:
+  selector:
+    app: ms-pileup-tasks
+  ports:
+  - targetPort: {{ .Values.service.port }}
+    name: {{ .Values.service.name }}
+    port: {{.Values.service.port }}
+  - targetPort: {{ .Values.serviceMon.port }}
+    name: {{ .Values.serviceMon.name }}
+    port: {{ .Values.serviceMon.port }}

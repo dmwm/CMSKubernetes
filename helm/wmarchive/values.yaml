@@ -13,8 +13,9 @@ image:
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "20220404-stable"
-  args:
-    - /data/run.sh
+  command:
+  - /bin/sh
+  - /opt/setup-certs-and-run/setup-certs-and-run.sh
 
 imagePullSecrets: []
 nameOverride: ""

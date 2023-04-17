@@ -48,6 +48,9 @@ spec:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
         volumeMounts:
+        - name: rucio-secrets
+          mountPath: /opt/rucio/etc
+          readOnly: true
         - name: proxy-secrets
           mountPath: /etc/proxy
           readOnly: true
@@ -102,11 +105,10 @@ spec:
         securityContext:
           allowPrivilegeEscalation: false
         {{- end }}
-      initContainers:
-      - name: checkmongodb
-        image: busybox:1.28
-        command: ['sh', '-c', 'until nslookup ms-output-mongo.dmwm; do echo "Waiting for ms-output-mongo"; sleep 10; done;']
       volumes:
+      - name: rucio-secrets
+        secret:
+          secretName: rucio-secrets
       - name: proxy-secrets
         secret:
           secretName: proxy-secrets

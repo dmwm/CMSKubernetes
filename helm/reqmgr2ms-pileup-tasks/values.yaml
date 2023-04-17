@@ -1,0 +1,69 @@
+environment:
+
+replicaCount: 1
+
+image:
+  repository: registry.cern.ch/cmsweb/reqmgr2ms-pileup
+  tag: "2.2.0.2"
+  annotations: 
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: "18361"
+  pullPolicy: IfNotPresent
+  livenessProbe:
+    exec:
+      command:
+      - cmsweb-ping
+      - "--url=http://localhost:8361/ms-pileup-tasks/data/info"
+      - "--authz=/etc/hmac/hmac"
+      - -verbose
+      - "0"
+    initialDelaySeconds: 120
+    periodSeconds: 30
+    timeoutSeconds: 5
+  command:
+  - /bin/bash
+  - /opt/setup-certs-and-run/setup-certs-and-run.sh
+  lifecycle:
+    postStart:
+      exec:
+        command:
+        - bash
+        - -c
+        - sudo chmod 0777 /data/srv/logs/reqmgr2ms; sudo chown _reqmgr2ms:_reqmgr2ms /data/srv/logs/reqmgr2ms
+  resources:
+    requests:
+      memory: "250Mi"
+      cpu: "100m"
+    limits:
+      memory: "750Mi"
+      cpu: "1000m"
+
+service:
+  type: ClusterIP
+  port: 8361
+  protocol: TCP
+  name: ms-pileup-tasks
+
+serviceMon:
+  type: ClusterIP
+  port: 18361
+  protocol: TCP
+  name: msp-tasks-mon
+
+filebeat:
+  image:
+    repository: docker.elastic.co/beats/filebeat
+    tag: 7.12.0
+    env:
+     - name: MY_POD_NAME
+       valueFrom:
+         fieldRef:
+           apiVersion: v1
+           fieldPath: metadata.name
+    pullPolicy: IfNotPresent
+    resources:
+      requests:
+        memory: "50Mi"
+        cpu: "50m"
+    securityContext:
+      allowPrivilegeEscalation: false

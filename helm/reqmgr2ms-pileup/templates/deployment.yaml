@@ -1,0 +1,154 @@
+{{- $environment := .Values.environment | default dict }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-pileup
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: ms-pileup
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: ms-pileup
+  template:
+    metadata:
+      labels:
+        app: ms-pileup
+        env: k8s
+      annotations:
+        {{- toYaml .Values.image.annotations | nindent 8 }}
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 2000
+      containers:
+        - name: reqmgr2ms-pileup
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+          resources:
+          {{- toYaml .Values.image.resources | nindent 12 }}
+          {{- end }}
+          lifecycle:
+          {{- toYaml .Values.image.lifecycle | nindent 12 }}
+          command:
+          {{- toYaml .Values.image.command | nindent 10 }}
+          livenessProbe:
+          {{- toYaml .Values.image.livenessProbe | nindent 12 }}
+          ports:
+          - containerPort: {{ .Values.service.port }}
+            name: {{ .Values.service.name }}
+            protocol: {{ .Values.service.protocol }}
+          - containerPort: {{ .Values.serviceMon.port }}
+            name: {{ .Values.serviceMon.name }}
+            protocol: {{ .Values.serviceMon.protocol }}
+          volumeMounts:
+          - name: rucio-secrets
+            mountPath: /opt/rucio/etc
+            readOnly: true
+          - name: proxy-secrets
+            mountPath: /etc/proxy
+            readOnly: true
+          - name: secrets
+            mountPath: /etc/secrets
+            readOnly: true
+          - name: robot-secrets
+            mountPath: /etc/robots
+            readOnly: true
+          - name: hmac-secrets
+            mountPath: /etc/hmac
+            readOnly: true
+          - mountPath: /host/etc/grid-security
+            name: etc-grid-security
+            readOnly: true
+          - name: setup-certs-and-run
+            mountPath: /opt/setup-certs-and-run
+          - name: token-secrets
+            mountPath: /etc/token
+            readOnly: true   
+            {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}       
+          - name: logs
+            mountPath: /data/srv/logs/reqmgr2ms
+            {{- end }}
+          securityContext:
+            privileged: true
+{{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+        - name: ms-pileup-filebeat
+          image: docker.elastic.co/beats/filebeat:7.10.2
+          imagePullPolicy: IfNotPresent
+          args: [
+          "-c", "/etc/filebeat.yml",
+          "-e",
+          ]
+          env:
+          {{- toYaml .Values.filebeat.image.env | nindent 10 }}
+          resources:
+          {{- toYaml .Values.filebeat.image.resources | nindent 12 }}
+          volumeMounts:
+          - name: logs
+            mountPath: /data/srv/logs/reqmgr2ms
+          - name: config
+            mountPath: /etc/filebeat.yml
+            readOnly: true
+            subPath: filebeat.yml
+          - name: data
+            mountPath: /usr/share/filebeat/data
+          - name: varlog
+            mountPath: /var/log
+          - name: varlibdockercontainers
+            mountPath: /var/lib/docker/containers
+            readOnly: true
+          securityContext:
+        {{- toYaml .Values.filebeat.image.securityContext | nindent 12 }}
+{{- end }}
+      volumes:
+      - name: rucio-secrets
+        secret:
+          secretName: rucio-secrets
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: reqmgr2ms-pileup-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: etc-grid-security
+        hostPath:
+            path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: ms-pileup
+      - name: token-secrets
+        secret:
+          secretName: token-secrets      
+{{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+      - name: logs
+        persistentVolumeClaim:
+{{- if eq (toString $environment) "preprod" }}
+            claimName: logs-cephfs-claim-preprod-dmwm
+{{- end }}
+{{- if eq (toString $environment) "prod" }}
+            claimName: logs-cephfs-claim-prod-dmwm
+{{- end }}
+{{- end }}
+{{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}    
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: config
+        configMap:
+          defaultMode: 0640
+          name: ms-pileup-filebeat-config
+      - name: data
+        emptyDir: {}
+{{- end }}
