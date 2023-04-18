@@ -77,6 +77,10 @@ scrape_configs:
     scrape_timeout: 110s
     static_configs:
       - targets: ['quota-exporter.http.svc.cluster.local:18000']
+  - job_name: 'crabserver-processes'
+    metrics_path: '/crabserver/metrics'
+    static_configs:
+        - targets: ['crabserver.crab.svc.cluster.local:8270']
 #   - job_name: "dbsmigration-service"
 #     static_configs:
 #         - targets: ["dbsmigration.dbs.svc.cluster.local:18251", "dbsmigration.dbs.svc.cluster.local:19251"]
