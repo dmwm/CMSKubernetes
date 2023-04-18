@@ -14,7 +14,7 @@ metadata:
 #    nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
 spec:
   rules:
-  - host: cmsweb-k8s-prodsrv.cern.ch
+  - host: cmsweb-srv.cern.ch
     http:
       paths:
       - path: /reqmgr2
