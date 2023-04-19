@@ -94,3 +94,10 @@ spec:
             name: ms-pileup-tasks
             port:
               number: 8361
+      - path: /t0_reqmon
+        pathType: Prefix
+        backend:
+          service:
+            name: t0reqmon
+            port: 
+              number: 8243
