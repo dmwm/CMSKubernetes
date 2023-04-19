@@ -18,7 +18,7 @@ RUN apt-get update -y && \
     rm -rf stomp-v700
 
 # --------------------------------------------------------------------------------------------------
-FROM gitlab-registry.cern.ch/linuxsupport/cc7-base:20230307-1.x86_64
+FROM gitlab-registry.cern.ch/linuxsupport/cc7-base:20230401-1.x86_64
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 # Should be full version
@@ -73,7 +73,7 @@ RUN yum -y update && \
     hadoop-set-default-conf.sh analytix && \
     source hadoop-setconf.sh analytix 3.2 spark3 && \
     touch /etc/hadoop/conf/topology.table.file && ln -s /bin/bash /usr/bin/bashs && \
-    cp /usr/hdp/spark3/kubernetes/dockerfiles/spark/entrypoint.sh /usr/bin/entrypoint.sh && \
+    cp /usr/hdp/spark/kubernetes/dockerfiles/spark/entrypoint.sh /usr/bin/entrypoint.sh && \
     echo "32 */6 * * * root ! /usr/sbin/fetch-crl -q -r 360" >/etc/cron.d/fetch-crl-docker
 # add fetch-crl to fetch all certificates
 

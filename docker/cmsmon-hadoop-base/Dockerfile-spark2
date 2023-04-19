@@ -1,5 +1,5 @@
 # cmsmon-hadoop-base:spark2-YYYYMMDD
-FROM gitlab-registry.cern.ch/linuxsupport/cc7-base:20230307-1
+FROM gitlab-registry.cern.ch/linuxsupport/cc7-base:20230401-1
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 ENV WDIR=/data
@@ -45,7 +45,7 @@ RUN yum -y update && \
     hadoop-set-default-conf.sh analytix && \
     source hadoop-setconf.sh analytix 2.7 spark2 && \
     touch /etc/hadoop/conf/topology.table.file && ln -s /bin/bash /usr/bin/bashs && \
-    cp /usr/hdp/spark/kubernetes/dockerfiles/spark/entrypoint.sh /usr/bin/entrypoint.sh && \
+    cp /usr/hdp/spark2/kubernetes/dockerfiles/spark/entrypoint.sh /usr/bin/entrypoint.sh && \
     echo "32 */6 * * * root ! /usr/sbin/fetch-crl -q -r 360" > /etc/cron.d/fetch-crl-docker
 # add fetch-crl to fetch all certificates
 
