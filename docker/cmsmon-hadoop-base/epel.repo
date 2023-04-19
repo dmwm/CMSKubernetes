@@ -1,8 +1,8 @@
 [epel]
-name=Extra Packages for Enterprise Linux [20230201]
-baseurl=http://linuxsoft.cern.ch/internal/yumsnapshot/20230201/epel/7/x86_64
+name=Extra Packages for Enterprise Linux 7 - $basearch
+baseurl=http://linuxsoft.cern.ch/epel/7/$basearch
 enabled=1
 gpgcheck=1
-gpgkey=http://linuxsoft.cern.ch/epel/RPM-GPG-KEY-EPEL-7
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7
 exclude=koji,python2-koji,fail2ban*,gearmand,libgearmand,collectd*,puppet,puppet-server,facter,mcollective*,hiera,puppet-agent
 priority=20
