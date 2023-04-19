@@ -17,13 +17,6 @@ spec:
   - host: cmsweb-srv.cern.ch
     http:
       paths:
-      - path: /t0_reqmon
-        pathType: Prefix
-        backend:
-          service:
-            name: t0reqmon
-            port: 
-              number: 8243
       - path: /t0wmadatasvc
         pathType: Prefix
         backend:
