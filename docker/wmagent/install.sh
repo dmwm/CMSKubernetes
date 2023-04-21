@@ -2,7 +2,7 @@
 
 ### This script is used to create a WMAgent Docker image and is based
 ### on deploy-wmagent.sh.
-### 
+###
 ### It downloads a CMSWEB deployment tag and then uses the Deploy script
 ### with the arguments provided in the command line to create the image
 ###
@@ -10,11 +10,16 @@
 ### applied when the agent container is started. Configuration changes are made
 ### when the container is started with run.sh.
 ###
+### Have a single parameter, taken as a first argument at runtime - The WMA_TAG
+###
 
 set -x
 
-WMA_TAG=1.2.8
-DEPLOY_TAG=HG1909e
+WMA_TAG=$1
+WMA_TAG_REG="^[0-9]+\.[0-9]+\.[0-9]{1,2}(\.[0-9]{1,2})?$"
+[[ $WMA_TAG =~ $WMA_TAG_REG ]] || { echo "WMA_TAG: $WMA_TAG does not match requered expression: $WMA_TAG_REG"; echo "EXIT with Error 1"  ; exit 1 ;}
+
+DEPLOY_TAG=master
 WMA_ARCH=slc7_amd64_gcc630
 REPO="comp=comp"
 
@@ -79,8 +84,10 @@ echo "Done!" && echo
 ###
 echo "*** Downloading utilitarian scripts ***"
 cd /data/admin/wmagent
-wget -nv https://raw.githubusercontent.com/amaltaro/scripts/master/checkProxy.py -O checkProxy.py
+wget -nv https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/checkProxy.py -O checkProxy.py
 wget -nv https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/restartComponent.sh -O restartComponent.sh
+wget -nv https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/renew_proxy.sh -O renew_proxy.sh
+chmod +x renew_proxy.sh restartComponent.sh
 echo "Done!" && echo
 
 # remove the "install" subdirs, these will be mounted from the host
