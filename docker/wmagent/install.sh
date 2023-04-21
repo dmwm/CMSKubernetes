@@ -56,8 +56,8 @@ mkdir -p $DEPLOY_DIR || true
 cd $BASE_DIR
 rm -rf deployment deployment.zip deployment-${DEPLOY_TAG};
 
-set -e 
-wget -nv -O deployment.zip --no-check-certificate https://github.com/dmwm/deployment/archive/$DEPLOY_TAG.zip
+set -e
+wget -nv -O deployment.zip --no-check-certificate https://github.com/dmwm/deployment/archive/refs/heads/${DEPLOY_TAG}.zip
 unzip -q deployment.zip
 cd deployment-$DEPLOY_TAG
 set +e 
