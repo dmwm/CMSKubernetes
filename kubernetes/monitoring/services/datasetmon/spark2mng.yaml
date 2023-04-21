@@ -71,7 +71,7 @@ spec:
           hostname: spark2mng
           containers:
             - name: spark2mng
-              image: registry.cern.ch/cmsmonitoring/spark2mng:rgo-0.0.17
+              image: registry.cern.ch/cmsmonitoring/spark2mng:rgo-0.0.23
               command: [ "/bin/bash", "-c" ]
               args:
                 - source /etc/environment;

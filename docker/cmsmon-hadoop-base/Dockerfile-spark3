@@ -53,7 +53,7 @@ RUN yum -y update && \
         libaio-devel net-tools lsof bind-utils initscripts patch voms-devel globus-gsi-credential-devel \
         globus-gsi-cert-utils-devel globus-common-devel globus-gsi-sysconfig-devel globus-gsi-callback-devel \
         oracle-instantclient-tnsnames.ora HEP_OSlibs python-pip libffi-devel gcc bzip2-devel zlib-devel wget sqlite-devel \
-        hadoop-bin-3.2 spark-bin-3.3 sqoop-bin-1.4 cern-hadoop-xrootd-connector cern-hadoop-config && \
+        hadoop-bin-3.2 spark-bin-3.4 sqoop-bin-1.4 cern-hadoop-xrootd-connector cern-hadoop-config && \
     yum clean all && rm -rf /var/cache/yum && \
 # Build Python3
     wget https://www.python.org/ftp/python/${PY_VERSION}/Python-${PY_VERSION}.tgz && \
@@ -73,7 +73,7 @@ RUN yum -y update && \
     hadoop-set-default-conf.sh analytix && \
     source hadoop-setconf.sh analytix 3.2 spark3 && \
     touch /etc/hadoop/conf/topology.table.file && ln -s /bin/bash /usr/bin/bashs && \
-    cp /usr/hdp/spark/kubernetes/dockerfiles/spark/entrypoint.sh /usr/bin/entrypoint.sh && \
+    cp /usr/hdp/spark-3.4/kubernetes/dockerfiles/spark/entrypoint.sh /usr/bin/entrypoint.sh && \
     echo "32 */6 * * * root ! /usr/sbin/fetch-crl -q -r 360" >/etc/cron.d/fetch-crl-docker
 # add fetch-crl to fetch all certificates
 
