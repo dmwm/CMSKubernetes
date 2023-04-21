@@ -4,16 +4,16 @@ Requires Docker to be installed an agent VM (vocmsXXXX) running a schedd.
 
 Default build options are defined in `install.sh`. Builds a Docker image via standard deployment scripts. The image only contains things common to all agents. 
 ```
-WMA_TAG=1.2.8
-DEPLOY_TAG=HG1909e
+WMA_TAG=2.2.0.2
+DEPLOY_TAG=master
 WMA_ARCH=slc7_amd64_gcc630
 REPO="comp=comp"
 ```
 
 Run options are defined in `run.sh`. A JobSubmitter patch from PR 9453 is required if you want to run workflows. Configures things unique to an agent running in a container, initializes the agent config and databases
 ```
-WMA_TAG=1.2.8
-DEPLOY_TAG=HG1909e
+WMA_TAG=2.2.0.2
+DEPLOY_TAG=master
 TEAMNAME=testbed-erik
 CENTRAL_SERVICES=esg-dmwm-dev1.cern.ch
 AG_NUM=0
@@ -25,7 +25,8 @@ PATCHES="9453"
 Building the image
 
 ```
-docker build --network=host .
+WMA_TAG=2.2.0.2
+docker build --network=host --build-arg WMA_TAG=$WMA_TAG -t wmagent:$WMA_TAG .
 ```
 
 Running a WMAgent container
