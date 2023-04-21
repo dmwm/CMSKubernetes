@@ -41,7 +41,7 @@ spec:
           - -port
           - ":18000"
           name: es-exporter-wma
-          image: registry.cern.ch/cmsmonitoring/cmsmon-alerts:go-0.5.39
+          image: registry.cern.ch/cmsmonitoring/cmsmon-alerts:go-0.6.0
           ports:
           - containerPort: 18000
           volumeMounts:
