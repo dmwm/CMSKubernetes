@@ -156,7 +156,8 @@ elif [ "$secret" == "cron-spark-jobs-secrets" ]; then
     # file in secrets mount : cmspopdb-keytab -> cmspopdb-keytab
     cmsmonit_k="--from-file=${sdir}/cmsmonit-keytab/keytab"
     cmspopdb_k="--from-file=cmspopdb-keytab=${sdir}/cmspopdb-keytab/keytab"
-    files="${cmsmonit_k} ${cmspopdb_k}"
+    test_tenant_secret="--from-file=${sdir}/es-cms-opensearch/test_tenant_secret"
+    files="${cmsmonit_k} ${cmspopdb_k} ${test_tenant_secret}"
 elif [ "$secret" == "cms-eos-mon-secrets" ]; then
     files="--from-file=${sdir}/cms-eos-mon/amq_broker.json"
 elif [ "$secret" == "hpc-usage-secrets" ]; then
