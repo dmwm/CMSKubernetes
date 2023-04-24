@@ -19,6 +19,9 @@ data:
     export O_=/proc/$(cat /var/run/crond.pid)/fd/1
     export EOS_=$BASE_EOS_OUT
   crons.txt: |
+    # WEEKLY
+    # each Monday at 10 AM
+    00 10 * * 1 . /data/cronjob/s.sh; $B_/cron4wma_agent_count.sh $A_ --conf /etc/secrets/test_tenant_secret >>$O_ 2>&1
     # MONTHLY
     00 16 03  *  * . /data/cronjob/s.sh; $B_/cron4hpc_at_cms.sh        $A_ --output $EOS_/hpc                >>$O_ 2>&1
     00 16 05  *  * . /data/cronjob/s.sh; $B_/cron4crab_popularity.sh   $A_ --output $EOS_/crabPop/data       >>$O_ 2>&1
