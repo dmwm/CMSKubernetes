@@ -22,21 +22,24 @@ WMA_TAG_REG="^[0-9]+\.[0-9]+\.[0-9]{1,2}(\.[0-9]{1,2})?$"
 BASE_DIR=`pwd`/srv
 DEPLOY_DIR=$BASE_DIR/wmagent/$WMA_TAG
 CURRENT_DIR=$BASE_DIR/wmagent/current
-MANAGE_DIR=$BASE_DIR/wmagent/current/config/wmagent/
+INSTALL_DIR=$CURRENT_DIR/install
+CONFIG_DIR=$CURRENT_DIR/config
+MANAGE_DIR=$CONFIG_DIR/wmagent/
 ADMIN_DIR=$BASE_DIR/admin/wmagent
-ENV_FILE=$BASE_DIR/admin/wmagent/env.sh
+ENV_FILE=$ADMIN_DIR/env.sh
 CERTS_DIR=$BASE_DIR/certs/
-
-# Set up required directories
-mkdir -p $ADMIN_DIR $CERTS_DIR
-chmod 755 $CERTS_DIR
 
 echo "Starting new agent deployment with the following data:"
 echo " - WMAgent version : $WMA_TAG"
 echo
 
+# Set up required directories
 mkdir -p $DEPLOY_DIR || true
 ln -s $DEPLOY_DIR $CURRENT_DIR
+
+mkdir -p $ADMIN_DIR $CERTS_DIR $MANAGE_DIR
+chmod 755 $CERTS_DIR
+
 
 cd $BASE_DIR
 
@@ -52,7 +55,8 @@ fi
 
 # Installing the wmagent package from pypi:
 echo "Start installing wmagent:$WMA_TAG at $DEPLOY_DIR"
-pip install wmagent==$WMA_TAG -t $DEPLOY_DIR || { err=$?; echo "Failed to install wmagent:$WMA_TAG at $DEPLOY_DIR" ; exit $err ; }
+# pip install wmagent==$WMA_TAG --prefix=$DEPLOY_DIR || { err=$?; echo "Failed to install wmagent:$WMA_TAG at $DEPLOY_DIR" ; exit $err ; }
+pip install wmagent==$WMA_TAG || { err=$?; echo "Failed to install wmagent:$WMA_TAG at $DEPLOY_DIR" ; exit $err ; }
 echo "Done!" && echo
 
 # ### Enabling couch watchdog; couchdb fix for file descriptors
@@ -77,9 +81,9 @@ echo "Done!" && echo
 # echo "*** Removing install subdirs ***"
 # rmdir -v /data/srv/wmagent/current/install/*
 
-# remove the "config" subdirs, these will be mounted from the host
-echo "*** Removing config subdirs ***"
-rm -rfv /data/srv/wmagent/current/config/*
+# # remove the "config" subdirs, these will be mounted from the host
+# echo "*** Removing config subdirs ***"
+# rm -rfv /data/srv/wmagent/current/config/*
 
 echo "Docker build finished!!" && echo
 echo "Have a nice day!" && echo
