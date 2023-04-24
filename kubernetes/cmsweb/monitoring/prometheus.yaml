@@ -27,12 +27,18 @@ spec:
               mountPath: /etc/prometheus
             - name: prometheus-storage-volume
               mountPath: /prometheus/
+            - name: proxy-secrets
+              mountPath: /etc/proxy
+              readOnly: true
       volumes:
         - name: prometheus-secrets
           secret:
             secretName: prometheus-secrets
         - name: prometheus-storage-volume
           emptyDir: {}
+        - name: proxy-secrets
+          secret:
+            secretName: proxy-secrets
 ---
 apiVersion: v1
 kind: Service
