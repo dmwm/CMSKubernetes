@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ### This script is used to create a WMAgent Docker image and is based on deploy-wmagent.sh
-### It simply deploys the agent based on WMAgent version tag provided at runtime.
+### It simply deploys the agent based on the WMAgent version/tag provided at runtime.
 ### * Patches can be applied when the agent container is started.
 ### * Configuration changes are made when the container is started with `run.sh`.
 ###
@@ -10,7 +10,41 @@
 
 pythonLib=$(python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
 
-WMA_TAG=$1
+help(){
+    echo -e $1
+    cat <<EOF
+
+The basic WMAgent deployment script for Docker image creation:
+Usage: install.sh -v <wmagent_tag>
+
+      -v <wmagent_tag>    The WMAgent version/tag to be used for the Docker image creation
+
+Example: ./install.sh -v 2.2.0.2
+
+EOF
+}
+
+usage(){
+    help $1
+    exit 1
+}
+
+WMA_TAG=None
+
+### Searching for the mandatory -v argument:
+while getopts ":v:" opt; do
+    case ${opt} in
+        v) WMA_TAG=$OPTARG ;;
+        h) help; exit $? ;;
+        \? )
+            msg="Invalid Option: -$OPTARG"
+            usage "$msg" ;;
+        : )
+            msg="Invalid Option: -$OPTARG requires an argument"
+            usage "$msg" ;;
+    esac
+done
+
 WMA_TAG_REG="^[0-9]+\.[0-9]+\.[0-9]{1,2}(\.[0-9]{1,2})?$"
 [[ $WMA_TAG =~ $WMA_TAG_REG ]] || { echo "WMA_TAG: $WMA_TAG does not match requered expression: $WMA_TAG_REG"; echo "EXIT with Error 1"  ; exit 1 ;}
 

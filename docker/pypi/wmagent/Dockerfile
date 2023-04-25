@@ -42,7 +42,7 @@ ADD install.sh ${WMA_ROOT_DIR}/install.sh
 ADD run.sh ${WMA_ROOT_DIR}/run.sh
 
 # Install the requested WMA_TAG.
-RUN ${WMA_ROOT_DIR}/install.sh ${WMA_TAG}
+RUN ${WMA_ROOT_DIR}/install.sh -v ${WMA_TAG}
 RUN chown -R ${WMA_USER}:${WMA_GID} ${WMA_ROOT_DIR}
 
 # Switch to the runtime directory and user

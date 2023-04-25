@@ -34,6 +34,23 @@ git clone https://github.com/dmwm/CMSKubernetes.git
 WMA_TAG=2.2.0.2
 docker build --network=host --progress=plain --build-arg WMA_TAG=$WMA_TAG -t wmagent:$WMA_TAG /data/CMSKubernetes/docker/pypi/wmagent/ 2>&1 |tee /data/build-wma.log
 ```
+**Partial output:**
+```
+...
+#4 [ 1/13] FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20230314@sha256:71cf3825ed9acf4e84f36753365f363cfd53d933b4abf3c31ef828828e7bdf83
+#4 DONE 0.0s
+...
+#14 0.110 =======================================================
+#14 0.110 Starting new agent deployment with the following data:
+#14 0.110 -------------------------------------------------------
+#14 0.111  - WMAgent version         : 2.2.0.2
+#14 0.113  - Python verson           : Python 3.8.16
+#14 0.114  - Python Module Path      : /usr/local/lib/python3.8/site-packages
+#14 0.114 =======================================================
+...
+#18 naming to docker.io/library/wmagent:2.2.0.2 done
+#18 DONE 3.3s
+```
 
 ## Running a WMAgent container
 It is a must that only one WMAgent container should be running on a singe agent VM. It is partially guarantied by setting all the host mounts as `private` (see the `:Z` mount options bellow).
@@ -68,6 +85,24 @@ wmagent:$WMA_TAG \
 -c cmsweb-testbed.cern.ch`
 ```
 
+**Partial output:**
+```
+=======================================================
+Starting WMAgent with the following initial data:
+-------------------------------------------------------
+ - WMAgent Version            : 2.2.0.2
+ - WMAgent TeamName           : testbed-vocms0192
+ - WMAgent Number             : 0
+ - WMAgent CentralServices    : cmsweb-testbed.cern.ch
+ - WMAgent Host               : vocms0192.cern.ch
+ - WMAgent Config             : /data/srv/wmagent/current/config
+ - WMAgent Relational DB type : oracle
+ - Python verson              : Python 3.8.16
+ - Python Module Path         : /usr/local/lib/python3.8/site-packages
+=======================================================
+
+```
+
 ## Stopping the WMAgent container
 In order to stop the WMAgent container one just needs to kill it, the `--rm` option at `docker run` commands assures we leave no leftover containers.
 
@@ -86,7 +121,7 @@ cmst1
 
 docker container ps
 CONTAINER ID   IMAGE             COMMAND                CREATED       STATUS       PORTS     NAMES
-78d7e1baa3df   wmagent:2.2.0.2   "./run.sh -f oracle"   2 hours ago   Up 2 hours             WMAgent_
+78d7e1baa3df   wmagent:2.2.0.2   "./run.sh -f oracle ..."   2 hours ago   Up 2 hours             WMAgent_vocms0192.cern.ch
 
 hostname=`hostname -f`
 docker exec -it WMAgent_$hostname /bin/bash

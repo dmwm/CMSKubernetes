@@ -3,7 +3,7 @@
 ### This script is used to start the WMAgent services inside a Docker container
 ### * All agent related configuration parameters are fetched as named arguments
 ###   at runtime and used to (re)generate the agent configuration files.
-### * All credentials and schedd caches are accessed via host mount points
+### * All service credentials and schedd caches are accessed via host mount points
 ### * The agent's hostname && HTCondor configuration are taken from the host
 
 WMCoreVersion=$(python -c "from WMCore import __version__ as WMCoreVersion; print(WMCoreVersion)")
@@ -69,59 +69,59 @@ while getopts ":t:n:c:f:h" opt; do
 done
 
 
-# TODO: To fix properly fetching the hostname from the actual running node instead of the container itself
+# The container hostname must be properly fetch from the host and passed as `docker run --hostname=$hostname`
 HOSTNAME=`hostname -f`
 
 echo
 echo "======================================================="
 echo "Starting WMAgent with the following initial data:"
 echo "-------------------------------------------------------"
-echo " - WMAgent Version         : $WMA_TAG"
-echo " - WMAgent TeamName        : $TEAMNAME"
-echo " - WMAgent Number          : $AGENT_NUMBER"
-echo " - WMAgent CentralServices : $CENTRAL_SERVICES"
-echo " - WMAgent Host            : $HOSTNAME"
-echo " - WMAgent Config          : $CONFIG_DIR"
-echo " - Python verson           : $(python --version)"
-echo " - Python Module Path      : $pythonLib"
+echo " - WMAgent Version            : $WMA_TAG"
+echo " - WMAgent TeamName           : $TEAMNAME"
+echo " - WMAgent Number             : $AGENT_NUMBER"
+echo " - WMAgent CentralServices    : $CENTRAL_SERVICES"
+echo " - WMAgent Host               : $HOSTNAME"
+echo " - WMAgent Config             : $CONFIG_DIR"
+echo " - WMAgent Relational DB type : $FLAVOR"
+echo " - Python verson              : $(python --version)"
+echo " - Python Module Path         : $pythonLib"
 echo "======================================================="
 echo
+
+
+basic_checks() {
+  echo
+  echo -n "Performing basic setup checks..."
+  echo
+
+  errMsg=" FAILED!\n Could not find $ADMIN_DIR."
+  [[ -d $ADMIN_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
+
+  errMsg="  FAILED!\n Could not find $ADMIN_DIR/WMAgent.secrets."
+  [[ -f $ADMIN_DIR/WMAgent.secrets ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
+
+  errMsg= " FAILED!\n Could not find $ENV_FILE."
+  [[ -e $ENV_FILE ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
+
+  errMsg= " FAILED!\n Could not find $CONFIG_DIR mount point."
+  [[ -d $CONFIG_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
+
+  errMsg= " FAILED!\n Could not find $INSTALL_DIR mount point."
+  [[ -d $INSTALL_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
+
+  errMsg= " FAILED!\n Could not find $CERTS_DIR mount point."
+  [[ -d $CERTS_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
+}
+
+# check_mounts() {
+
+# }
 
 while true; do sleep 10; done
 
 # set -x
 
 ### Runs some basic checks before actually starting the deployment procedure
-basic_checks()
-{
-  echo -n "Checking whether this node has the very basic setup for the agent deployment..."
-  set -e
-  if [ ! -d $ADMIN_DIR ]; then
-    echo -e "  FAILED!\n Could not find $ADMIN_DIR."
-    exit 5
-  elif [ ! -f $ADMIN_DIR/WMAgent.secrets ]; then
-    echo -e "  FAILED!\n Could not find $ADMIN_DIR/WMAgent.secrets."
-    exit 6
-  elif [ ! -f $ENV_FILE ]; then
-    echo -e "\n  Could not find $ENV_FILE, but I'm downloading it now."
-    wget -nv https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/env.sh -O $ENV_FILE
-  fi
-  echo -n "Checking the config and install directories are set up"
-  if [ ! -f $CONFIG_DIR/.dockerinit ]; then
-    init_config_dir
-  fi
-  if [ ! -f $INSTALL_DIR/.dockerinit ]; then
-    init_install_dir
-  fi
-  if [ ! -d $CERTS_DIR ]; then
-    echo -e "  FAILED!\n Could not find $CERTS_DIR"
-    exit 7
-  else
-    check_certs
-  fi
-
-  set +e
-}
 
 check_certs()
 {
@@ -206,20 +206,6 @@ init_config_dir() {
   # keep track of bind mounted config dir initialization
   touch $CONFIG_DIR/.dockerinit 
 }
-
-# not parsing command line arguments for now
-#for arg; do
-#  case $arg in
-#    -h) help ;;
-#    -w) WMA_TAG=$2; shift; shift ;;
-#    -d) DEPLOY_TAG=$2; shift; shift ;;
-#    -t) TEAMNAME=$2; shift; shift ;;
-#    -p) PATCHES=$2; shift; shift ;;
-#    -n) AG_NUM=$2; shift; shift ;;
-#    -c) CENTRAL_SERVICES=$2; shift; shift ;;
-#    -*) usage ;;
-#  esac
-#done
 
 if [[ -z $WMA_TAG ]] || [[ -z $DEPLOY_TAG ]] || [[ -z $TEAMNAME ]]; then
   usage
