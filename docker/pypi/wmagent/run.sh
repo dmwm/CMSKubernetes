@@ -1,5 +1,11 @@
 #!/bin/bash
 
+### This script is used to start the WMAgent services inside a Docker container
+### * All agent related configuration parameters are fetched as named arguments
+###   at runtime and used to (re)generate the agent configuration files.
+### * All credentials and schedd caches are accessed via host mount points
+### * The agent's hostname && HTCondor configuration are taken from the host
+
 WMCoreVersion=$(python -c "from WMCore import __version__ as WMCoreVersion; print(WMCoreVersion)")
 pythonLib=$(python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
 
@@ -63,20 +69,8 @@ while getopts ":t:n:c:f:h" opt; do
 done
 
 
-# set -x
 # TODO: To fix properly fetching the hostname from the actual running node instead of the container itself
 HOSTNAME=`hostname -f`
-MY_IP=`host $HOSTNAME | awk '{print $4}'`
-
-BASE_DIR=`pwd`/srv
-DEPLOY_DIR=$BASE_DIR/wmagent/$WMA_TAG
-CURRENT_DIR=$BASE_DIR/wmagent/current
-INSTALL_DIR=$CURRENT_DIR/install
-CONFIG_DIR=$CURRENT_DIR/config
-MANAGE_DIR=$CONFIG_DIR/wmagent/
-ADMIN_DIR=$BASE_DIR/admin/wmagent
-ENV_FILE=$ADMIN_DIR/env.sh
-CERTS_DIR=$BASE_DIR/certs/
 
 echo
 echo "======================================================="
@@ -95,23 +89,7 @@ echo
 
 while true; do sleep 10; done
 
-
-
-
-
-### Usage function: print the usage of the script
-usage()
-{
-  perl -ne '/^### Usage:/ && do { s/^### ?//; print }' < $0
-  exit 1
-}
-
-### Help function: print help for this script
-help()
-{
-  perl -ne '/^###/ && do { s/^### ?//; print }' < $0
-  exit 0
-}
+# set -x
 
 ### Runs some basic checks before actually starting the deployment procedure
 basic_checks()
@@ -128,7 +106,7 @@ basic_checks()
     echo -e "\n  Could not find $ENV_FILE, but I'm downloading it now."
     wget -nv https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/env.sh -O $ENV_FILE
   fi
-  echo -n "Checking the config and install directories are set up"  
+  echo -n "Checking the config and install directories are set up"
   if [ ! -f $CONFIG_DIR/.dockerinit ]; then
     init_config_dir
   fi

@@ -1,45 +1,37 @@
 #!/bin/bash
 
-### This script is used to create a WMAgent Docker image and is based
-### on deploy-wmagent.sh.
+### This script is used to create a WMAgent Docker image and is based on deploy-wmagent.sh
+### It simply deploys the agent based on WMAgent version tag provided at runtime.
+### * Patches can be applied when the agent container is started.
+### * Configuration changes are made when the container is started with `run.sh`.
 ###
-### It downloads a CMSWEB deployment tag and then uses the Deploy script
-### with the arguments provided in the command line to create the image
-###
-### It simply deploys the agent based on WMAgent version tag. Patches can be
-### applied when the agent container is started. Configuration changes are made
-### when the container is started with run.sh.
-###
-### Have a single parameter, taken as a first argument at runtime - The WMA_TAG
-###
+### It takes a single parameter as first (and only) argument at runtime - The WMA_TAG
+### Example: install.sh 2.2.0.2
 
-set -x
+pythonLib=$(python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
 
 WMA_TAG=$1
 WMA_TAG_REG="^[0-9]+\.[0-9]+\.[0-9]{1,2}(\.[0-9]{1,2})?$"
 [[ $WMA_TAG =~ $WMA_TAG_REG ]] || { echo "WMA_TAG: $WMA_TAG does not match requered expression: $WMA_TAG_REG"; echo "EXIT with Error 1"  ; exit 1 ;}
 
-BASE_DIR=`pwd`/srv
-DEPLOY_DIR=$BASE_DIR/wmagent/$WMA_TAG
-CURRENT_DIR=$BASE_DIR/wmagent/current
-INSTALL_DIR=$CURRENT_DIR/install
-CONFIG_DIR=$CURRENT_DIR/config
-MANAGE_DIR=$CONFIG_DIR/wmagent/
-ADMIN_DIR=$BASE_DIR/admin/wmagent
-ENV_FILE=$ADMIN_DIR/env.sh
-CERTS_DIR=$BASE_DIR/certs/
-
-echo "Starting new agent deployment with the following data:"
-echo " - WMAgent version : $WMA_TAG"
 echo
+echo "======================================================="
+echo "Starting new agent deployment with the following data:"
+echo "-------------------------------------------------------"
+echo " - WMAgent version         : $WMA_TAG"
+echo " - Python verson           : $(python --version)"
+echo " - Python Module Path      : $pythonLib"
+echo "======================================================="
+echo
+
+set -x
 
 # Set up required directories
 mkdir -p $DEPLOY_DIR || true
 ln -s $DEPLOY_DIR $CURRENT_DIR
 
-mkdir -p $ADMIN_DIR $CERTS_DIR $MANAGE_DIR
+mkdir -p $ADMIN_DIR $CERTS_DIR $MANAGE_DIR $INSTALL_DIR
 chmod 755 $CERTS_DIR
-
 
 cd $BASE_DIR
 
@@ -53,7 +45,13 @@ else
   exit 1
 fi
 
-# Installing the wmagent package from pypi:
+# Installing the wmagent package from pypi
+# First upgrade pip to the latest version:
+echo "Upgrading pip to the latest vestion:"
+pip install wheel
+pip install --upgrade pip
+echo
+
 echo "Start installing wmagent:$WMA_TAG at $DEPLOY_DIR"
 # pip install wmagent==$WMA_TAG --prefix=$DEPLOY_DIR || { err=$?; echo "Failed to install wmagent:$WMA_TAG at $DEPLOY_DIR" ; exit $err ; }
 pip install wmagent==$WMA_TAG || { err=$?; echo "Failed to install wmagent:$WMA_TAG at $DEPLOY_DIR" ; exit $err ; }
