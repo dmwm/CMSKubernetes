@@ -75,3 +75,19 @@ In order to stop the WMAgent container one just needs to kill it, the `--rm` opt
 ```
 for cont in `docker container list -q`; do docker kill $cont; done
 ```
+
+##Connecting to the container
+
+First login at the VM and from there connect to the container:
+**Login sequence:**
+```
+ssh vocms****
+cmst1
+
+docker container ps
+CONTAINER ID   IMAGE             COMMAND                CREATED       STATUS       PORTS     NAMES
+78d7e1baa3df   wmagent:2.2.0.2   "./run.sh -f oracle"   2 hours ago   Up 2 hours             WMAgent_
+
+hostname=`hostname -f`
+docker exec -it WMAgent_$hostname /bin/bash
+```
