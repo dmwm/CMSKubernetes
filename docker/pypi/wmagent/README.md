@@ -80,9 +80,9 @@ docker run --network=host --rm --hostname=$hostname --name="WMAgent_$hostname" \
 -v /data/admin/wmagent/WMAgent.secrets:/data/admin/wmagent/WMAgent.secrets:Z \
 wmagent:$WMA_TAG \
 -f oracle \
--t testbed-vocms0192` \
+-t testbed-vocms0192 \
 -n 0 \
--c cmsweb-testbed.cern.ch`
+-c cmsweb-testbed.cern.ch
 ```
 
 **Partial output:**

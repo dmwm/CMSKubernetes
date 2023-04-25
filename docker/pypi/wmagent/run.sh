@@ -49,8 +49,7 @@ CENTRAL_SERVICES=cmsweb-testbed.cern.ch
 AGENT_NUMBER=0
 FLAVOR=mysql
 
-
-### Searching for the mandatory and optional arguments:
+### Argument parsing:
 # export OPTIND=1
 while getopts ":t:n:c:f:h" opt; do
     case ${opt} in

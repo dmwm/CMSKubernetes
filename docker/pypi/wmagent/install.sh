@@ -31,7 +31,7 @@ usage(){
 
 WMA_TAG=None
 
-### Searching for the mandatory -v argument:
+### Argument parsing:
 while getopts ":v:" opt; do
     case ${opt} in
         v) WMA_TAG=$OPTARG ;;

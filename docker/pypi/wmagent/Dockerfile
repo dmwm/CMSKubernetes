@@ -3,7 +3,7 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 # Install basic OS package dependencies
 RUN apt-get update
-RUN apt-get install -y libmariadb-dev-compat libmariadb-dev apache2-utils hostname net-tools
+RUN apt-get install -y libmariadb-dev-compat libmariadb-dev apache2-utils hostname net-tools iputils-ping
 
 # WMA_TAG to be passed at build time through `--build-arg WMA_TAG=<WMA_TAG>`. Default: None
 ARG WMA_TAG=None
@@ -67,6 +67,8 @@ alias foldersize="du -h --max-depth=1 | sort -hr"
 # Better curl command
 alias scurl='curl -k --cert ${CERT_DIR}/servicecert.pem --key ${CERT_DIR}/servicekey.pem'
 
+# set WMAgent docker specific bash prompt:
+export PS1="(WMAgent.dock) [\u@\h:\w]\$ "
 EOF
 
 # Define the entrypoint. All the run.sh paramters should be passed at runtime.
