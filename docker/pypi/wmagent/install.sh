@@ -52,9 +52,10 @@ echo
 echo "======================================================="
 echo "Starting new agent deployment with the following data:"
 echo "-------------------------------------------------------"
-echo " - WMAgent version         : $WMA_TAG"
-echo " - Python verson           : $(python --version)"
-echo " - Python Module Path      : $pythonLib"
+echo " - WMAgent version            : $WMA_TAG"
+echo " - WMAgent user               : $WMA_USER"
+echo " - Python verson              : $(python --version)"
+echo " - Python Module Path         : $pythonLib"
 echo "======================================================="
 echo
 
@@ -116,6 +117,31 @@ echo "Done!" && echo
 # # remove the "config" subdirs, these will be mounted from the host
 # echo "*** Removing config subdirs ***"
 # rm -rfv /data/srv/wmagent/current/config/*
+
+###
+# Add WMA_USER's runtime aliases:
+###
+cat <<EOF >> /home/${WMA_USER}/.bashrc
+
+alias lll="ls -lathr"
+alias ls="ls --color=auto"
+alias ll='ls -l --color=auto'
+
+alias condorq='condor_q -format "%i." ClusterID -format "%s " ProcId -format " %i " JobStatus  -format " %d " ServerTime-EnteredCurrentStatus -format "%s" UserLog -format " %s\n" DESIRED_Sites'
+alias condorqrunning='condor_q -constraint JobStatus==2 -format "%i." ClusterID -format "%s " ProcId -format " %i " JobStatus  -format " %d " ServerTime-EnteredCurrentStatus -format "%s" UserLog -format " %s\n" DESIRED_Sites'
+alias agentenv='source $ENV_FILE'
+alias magane=\$manage
+
+# Aliases for Tier0-Ops.
+alias runningagent="ps aux | egrep 'couch|wmcore|mysql|beam'"
+alias foldersize="du -h --max-depth=1 | sort -hr"
+
+# Better curl command
+alias scurl='curl -k --cert ${CERT_DIR}/servicecert.pem --key ${CERT_DIR}/servicekey.pem'
+
+# set WMAgent docker specific bash prompt:
+export PS1="(WMAgent.dock) [\u@\h:\w]\$ "
+EOF
 
 echo "Docker build finished!!" && echo
 echo "Have a nice day!" && echo

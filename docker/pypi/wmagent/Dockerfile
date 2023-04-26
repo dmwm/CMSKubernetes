@@ -49,27 +49,5 @@ RUN chown -R ${WMA_USER}:${WMA_GID} ${WMA_ROOT_DIR}
 WORKDIR ${WMA_ROOT_DIR}
 USER ${WMA_USER}
 
-# Add WMA_USER's runtime aliases:
-RUN cat <<EOF >> ~/.bashrc
-
-alias lll="ls -lathr"
-alias ls="ls --color=auto"
-alias ll='ls -l --color=auto'
-
-alias condorq='condor_q -format "%i." ClusterID -format "%s " ProcId -format " %i " JobStatus  -format " %d " ServerTime-EnteredCurrentStatus -format "%s" UserLog -format " %s\n" DESIRED_Sites'
-alias condorqrunning='condor_q -constraint JobStatus==2 -format "%i." ClusterID -format "%s " ProcId -format " %i " JobStatus  -format " %d " ServerTime-EnteredCurrentStatus -format "%s" UserLog -format " %s\n" DESIRED_Sites'
-alias agentenv='source $ENV_FILE'
-
-# Aliases for Tier0-Ops.
-alias runningagent="ps aux | egrep 'couch|wmcore|mysql|beam'"
-alias foldersize="du -h --max-depth=1 | sort -hr"
-
-# Better curl command
-alias scurl='curl -k --cert ${CERT_DIR}/servicecert.pem --key ${CERT_DIR}/servicekey.pem'
-
-# set WMAgent docker specific bash prompt:
-export PS1="(WMAgent.dock) [\u@\h:\w]\$ "
-EOF
-
 # Define the entrypoint. All the run.sh paramters should be passed at runtime.
 ENTRYPOINT ["./run.sh"]
