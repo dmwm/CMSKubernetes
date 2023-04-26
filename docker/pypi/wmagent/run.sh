@@ -73,7 +73,7 @@ HOSTNAME=`hostname -f`
 
 echo
 echo "======================================================="
-echo "Starting WMAgent with the following initial data:"
+echo "Starting WMAgent with the following initialisation data:"
 echo "-------------------------------------------------------"
 echo " - WMAgent Version            : $WMA_TAG"
 echo " - WMAgent user               : $WMA_USER"
@@ -91,6 +91,7 @@ echo
 
 basic_checks() {
   echo
+  echo "-------------------------------------------------------"
   echo -n "Performing basic setup checks..."
   echo
 
@@ -100,24 +101,32 @@ basic_checks() {
   errMsg="  FAILED!\n Could not find $ADMIN_DIR/WMAgent.secrets."
   [[ -f $ADMIN_DIR/WMAgent.secrets ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
 
-  errMsg= " FAILED!\n Could not find $ENV_FILE."
+  errMsg=" FAILED!\n Could not find $ENV_FILE."
   [[ -e $ENV_FILE ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
 
-  errMsg= " FAILED!\n Could not find $CONFIG_DIR mount point."
+  errMsg=" FAILED!\n Could not find $CONFIG_DIR mount point."
   [[ -d $CONFIG_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
 
-  errMsg= " FAILED!\n Could not find $INSTALL_DIR mount point."
+  errMsg=" FAILED!\n Could not find $INSTALL_DIR mount point."
   [[ -d $INSTALL_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
 
-  errMsg= " FAILED!\n Could not find $CERTS_DIR mount point."
+  errMsg=" FAILED!\n Could not find $CERTS_DIR mount point."
   [[ -d $CERTS_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
+  echo "-------------------------------------------------------"
 }
 
 # check_mounts() {
-
 # }
 
+main(){
+    basic_checks
+}
+
+main
+echo "-------------------------------------------------------"
+echo "Start sleeping now ...zzz..."
 while true; do sleep 10; done
+echo "-------------------------------------------------------"
 
 # set -x
 
@@ -268,16 +277,16 @@ echo "Done!"
 #cd -
 #echo "Done!" && echo
 
-# By default, it will only work for official WMCore patches in the general path
-echo -e "\n*** Applying agent patches ***"
-if [ "x$PATCHES" != "x" ]; then
-  cd $CURRENT_DIR
-  for pr in $PATCHES; do
-    wget -nv https://github.com/dmwm/WMCore/pull/$pr.patch -O - | patch -d apps/wmagent/lib/python2*/site-packages/ -p 3
-  done
-cd -
-fi
-echo "Done!" && echo
+# # By default, it will only work for official WMCore patches in the general path
+# echo -e "\n*** Applying agent patches ***"
+# if [ "x$PATCHES" != "x" ]; then
+#   cd $CURRENT_DIR
+#   for pr in $PATCHES; do
+#     wget -nv https://github.com/dmwm/WMCore/pull/$pr.patch -O - | patch -d apps/wmagent/lib/python2*/site-packages/ -p 3
+#   done
+# cd -
+# fi
+# echo "Done!" && echo
 
 echo -e "\n*** Activating the agent ***"
 cd $MANAGE_DIR

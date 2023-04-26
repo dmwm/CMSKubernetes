@@ -69,9 +69,13 @@ The install and config dirs will be initialized the first time you execute run.s
 
 **Run command:**
 ```
+ssh vocms****
+
+cmst1
+
 WMA_TAG=2.2.0.2
-hostname=`hostname -f`
-docker run --network=host --rm --hostname=$hostname --name="WMAgent_$hostname" \
+
+docker run --network=host --rm --hostname=`hostname -f` --name=wmagent \
 -v /data/certs:/data/certs:Z \
 -v /etc/condor:/etc/condor:Z \
 -v /tmp:/tmp:Z \
@@ -100,6 +104,14 @@ Starting WMAgent with the following initial data:
  - Python verson              : Python 3.8.16
  - Python Module Path         : /usr/local/lib/python3.8/site-packages
 =======================================================
+```
+## Checking container status
+```
+ssh vocms****
+
+docker container ps
+CONTAINER ID   IMAGE             COMMAND                CREATED       STATUS       PORTS     NAMES
+78d7e1baa3df   wmagent:2.2.0.2   "./run.sh -f oracle ..."   2 hours ago   Up 2 hours             wmagent
 
 ```
 
@@ -108,7 +120,7 @@ In order to stop the WMAgent container one just needs to kill it, the `--rm` opt
 
 **Shutdown command:**
 ```
-for cont in `docker container list -q`; do docker kill $cont; done
+docker kill wmagent
 ```
 
 ##Connecting to the container
@@ -116,13 +128,5 @@ for cont in `docker container list -q`; do docker kill $cont; done
 First login at the VM and from there connect to the container:
 **Login sequence:**
 ```
-ssh vocms****
-cmst1
-
-docker container ps
-CONTAINER ID   IMAGE             COMMAND                CREATED       STATUS       PORTS     NAMES
-78d7e1baa3df   wmagent:2.2.0.2   "./run.sh -f oracle ..."   2 hours ago   Up 2 hours             WMAgent_vocms0192.cern.ch
-
-hostname=`hostname -f`
-docker exec -it WMAgent_$hostname /bin/bash
+docker exec -it wmagent /bin/bash
 ```

@@ -49,14 +49,14 @@ WMA_TAG_REG="^[0-9]+\.[0-9]+\.[0-9]{1,2}(\.[0-9]{1,2})?$"
 [[ $WMA_TAG =~ $WMA_TAG_REG ]] || { echo "WMA_TAG: $WMA_TAG does not match requered expression: $WMA_TAG_REG"; echo "EXIT with Error 1"  ; exit 1 ;}
 
 echo
-echo "======================================================="
-echo "Starting new agent deployment with the following data:"
-echo "-------------------------------------------------------"
+echo "======================================================================="
+echo "Starting new WMAgent deployment with the following initialisation data:"
+echo "-----------------------------------------------------------------------"
 echo " - WMAgent version            : $WMA_TAG"
 echo " - WMAgent user               : $WMA_USER"
 echo " - Python verson              : $(python --version)"
 echo " - Python Module Path         : $pythonLib"
-echo "======================================================="
+echo "======================================================================="
 echo
 
 set -x
@@ -91,6 +91,15 @@ echo "Start installing wmagent:$WMA_TAG at $DEPLOY_DIR"
 # pip install wmagent==$WMA_TAG --prefix=$DEPLOY_DIR || { err=$?; echo "Failed to install wmagent:$WMA_TAG at $DEPLOY_DIR" ; exit $err ; }
 pip install wmagent==$WMA_TAG || { err=$?; echo "Failed to install wmagent:$WMA_TAG at $DEPLOY_DIR" ; exit $err ; }
 echo "Done!" && echo
+
+# TODO: Here we need to
+#    * copy/download all the confg && deploy files from https://raw.githubusercontent.com/dmwm/deployment/master/wmagentpy3
+#    * preserve  it in a directory outside the host mounted area so that at
+#      first/initial container start it could be copied from here instead of downloading it from github on every restart
+#    * create the wmagent->wmagentpy3 soft link
+
+# TODO: Same as above for the WMAgent.secrets templates
+
 
 # ### Enabling couch watchdog; couchdb fix for file descriptors
 # echo "*** Enabling couch watchdog ***"
