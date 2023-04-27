@@ -16,16 +16,16 @@ ENV WMA_ROOT_DIR=/data
 
 # Basic WMAgent directory structure passed to all scripts through env variables:
 # NOTE: Those should be static and depend only on $WMA_BASE_DIR
-ENV BASE_DIR=$WMA_ROOT_DIR/srv
-ENV ADMIN_DIR=$WMA_ROOT_DIR/admin/wmagent
-ENV CERTS_DIR=$WMA_ROOT_DIR/certs
+ENV WMA_BASE_DIR=$WMA_ROOT_DIR/srv
+ENV WMA_ADMIN_DIR=$WMA_ROOT_DIR/admin/wmagent
+ENV WMA_CERTS_DIR=$WMA_ROOT_DIR/certs
 
-ENV DEPLOY_DIR=$BASE_DIR/wmagent/$WMA_TAG
-ENV CURRENT_DIR=$BASE_DIR/wmagent/current
-ENV INSTALL_DIR=$CURRENT_DIR/install
-ENV CONFIG_DIR=$CURRENT_DIR/config
-ENV MANAGE_DIR=$CONFIG_DIR/wmagent
-ENV ENV_FILE=$ADMIN_DIR/env.sh
+ENV WMA_DEPLOY_DIR=$WMA_BASE_DIR/wmagent/$WMA_TAG
+ENV WMA_CURRENT_DIR=$WMA_BASE_DIR/wmagent/current
+ENV WMA_INSTALL_DIR=$WMA_CURRENT_DIR/install
+ENV WMA_CONFIG_DIR=$WMA_CURRENT_DIR/config
+ENV WMA_MANAGE_DIR=$WMA_CONFIG_DIR/wmagent
+ENV WMA_ENV_FILE=$WMA_ADMIN_DIR/env.sh
 
 # Setting up users and previleges
 RUN groupadd -g ${WMA_GID} ${WMA_GROUP}

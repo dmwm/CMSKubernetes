@@ -43,7 +43,12 @@ usage(){
 }
 
 # Setup defaults:
-WMA_TAG=$WMCoreVersion
+[[ $WMA_TAG == $WMCoreVersion ]] || {
+    echo "WARNING: Container WMA_TAG: $WAM_TAG and actual WMCoreVersion: $WMCoreVersion mismatch."
+    echo "WARNING: Assuming  WMA_TAG=$WMCoreVersion"
+    WMA_TAG=$WMCoreVersion
+}
+
 TEAMNAME=testbed-vocms0192
 CENTRAL_SERVICES=cmsweb-testbed.cern.ch
 AGENT_NUMBER=0
@@ -76,15 +81,15 @@ echo "======================================================="
 echo "Starting WMAgent with the following initialisation data:"
 echo "-------------------------------------------------------"
 echo " - WMAgent Version            : $WMA_TAG"
-echo " - WMAgent user               : $WMA_USER"
+echo " - WMAgent User               : $WMA_USER"
+echo " - WMAgent Root path          : $WMA_ROOT_DIR"
+echo " - WMAgent Host               : $HOSTNAME"
 echo " - WMAgent TeamName           : $TEAMNAME"
 echo " - WMAgent Number             : $AGENT_NUMBER"
 echo " - WMAgent CentralServices    : $CENTRAL_SERVICES"
-echo " - WMAgent Host               : $HOSTNAME"
-echo " - WMAgent Config             : $CONFIG_DIR"
 echo " - WMAgent Relational DB type : $FLAVOR"
-echo " - Python verson              : $(python --version)"
-echo " - Python Module Path         : $pythonLib"
+echo " - Python  Verson             : $(python --version)"
+echo " - Python  Module path        : $pythonLib"
 echo "======================================================="
 echo
 
@@ -95,23 +100,24 @@ basic_checks() {
   echo -n "Performing basic setup checks..."
   echo
 
-  errMsg=" FAILED!\n Could not find $ADMIN_DIR."
-  [[ -d $ADMIN_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
+  local errMsg
+  errMsg="FAILED!\n Could not find $WMA_ADMIN_DIR."
+  [[ -d $WMA_ADMIN_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
 
-  errMsg="  FAILED!\n Could not find $ADMIN_DIR/WMAgent.secrets."
-  [[ -f $ADMIN_DIR/WMAgent.secrets ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
+  errMsg="FAILED!\n Could not find $WMA_ADMIN_DIR/WMAgent.secrets."
+  [[ -f $WMA_ADMIN_DIR/WMAgent.secrets ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
 
-  errMsg=" FAILED!\n Could not find $ENV_FILE."
-  [[ -e $ENV_FILE ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
+  errMsg="FAILED!\n Could not find $WMA_ENV_FILE."
+  [[ -e $WMA_ENV_FILE ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
 
-  errMsg=" FAILED!\n Could not find $CONFIG_DIR mount point."
-  [[ -d $CONFIG_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
+  errMsg="FAILED!\n Could not find $WMA_CONFIG_DIR mount point."
+  [[ -d $WMA_CONFIG_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
 
-  errMsg=" FAILED!\n Could not find $INSTALL_DIR mount point."
-  [[ -d $INSTALL_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
+  errMsg="FAILED!\n Could not find $WMA_INSTALL_DIR mount point."
+  [[ -d $WMA_INSTALL_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
 
-  errMsg=" FAILED!\n Could not find $CERTS_DIR mount point."
-  [[ -d $CERTS_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
+  errMsg="FAILED!\n Could not find $WMA_CERTS_DIR mount point."
+  [[ -d $WMA_CERTS_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
   echo "-------------------------------------------------------"
 }
 
@@ -135,7 +141,7 @@ echo "-------------------------------------------------------"
 check_certs()
 {
   echo -ne "\nChecking whether the certificates and proxy are in place ..."
-  if [ ! -f $CERTS_DIR/myproxy.pem ] || [ ! -f $CERTS_DIR/servicecert.pem ] || [ ! -f $CERTS_DIR/servicekey.pem ]; then
+  if [ ! -f $WMA_CERTS_DIR/myproxy.pem ] || [ ! -f $WMA_CERTS_DIR/servicecert.pem ] || [ ! -f $WMA_CERTS_DIR/servicekey.pem ]; then
     echo -e "\n  ... nope, trying to copy them from another node, you might be prompted for the cmst1 password."
     set -e
     if [[ "$IAM" == cmst1 ]]; then
@@ -144,9 +150,9 @@ check_certs()
       scp cmsdataops@cmsgwms-submit3:/data/certs/* /data/certs/
     fi
     set +e
-    chmod 600 $CERTS_DIR/*
+    chmod 600 $WMA_CERTS_DIR/*
   else
-    chmod 600 $CERTS_DIR/*
+    chmod 600 $WMA_CERTS_DIR/*
   fi
   echo -e "  OK!\n"
 }
@@ -178,15 +184,15 @@ init_install_dir() {
 
   # create the install directory during run, when install dir is bind mounted
   echo "Making the required install directories"
-  mkdir -p $INSTALL_DIR/{wmagent,reqmgr,workqueue,mysql,couchdb}
-  mkdir -p $INSTALL_DIR/wmagent/Docker/{WMRuntime,etc}
+  mkdir -p $WMA_INSTALL_DIR/{wmagent,reqmgr,workqueue,mysql,couchdb}
+  mkdir -p $WMA_INSTALL_DIR/wmagent/Docker/{WMRuntime,etc}
   # grab two scripts that need to be available on the bind mounted install directory
   # TODO: grab these in a more sane way
-  cp -fv /data/srv/wmagent/current/sw/slc7_amd64_gcc630/cms/wmagent/*/etc/submit.sh $INSTALL_DIR/wmagent/Docker/etc
-  cp -fv /data/srv/wmagent/current/sw/slc7_amd64_gcc630/cms/wmagent/*/lib/python2.7/site-packages/WMCore/WMRuntime/Unpacker.py $INSTALL_DIR/wmagent/Docker/WMRuntime
+  cp -fv /data/srv/wmagent/current/sw/slc7_amd64_gcc630/cms/wmagent/*/etc/submit.sh $WMA_INSTALL_DIR/wmagent/Docker/etc
+  cp -fv /data/srv/wmagent/current/sw/slc7_amd64_gcc630/cms/wmagent/*/lib/python2.7/site-packages/WMCore/WMRuntime/Unpacker.py $WMA_INSTALL_DIR/wmagent/Docker/WMRuntime
 
   # keep track of bind mounted install dir initialization
-  touch $INSTALL_DIR/.dockerinit
+  touch $WMA_INSTALL_DIR/.dockerinit
 }
 
 init_config_dir() {
@@ -213,7 +219,7 @@ init_config_dir() {
   cp -f $rucio_config $root/$cfgversion/config/rucio/etc/
   
   # keep track of bind mounted config dir initialization
-  touch $CONFIG_DIR/.dockerinit 
+  touch $WMA_CONFIG_DIR/.dockerinit 
 }
 
 if [[ -z $WMA_TAG ]] || [[ -z $DEPLOY_TAG ]] || [[ -z $TEAMNAME ]]; then
@@ -223,7 +229,7 @@ fi
 
 basic_checks
 
-source $ENV_FILE;
+source $WMA_ENV_FILE;
 
 ### Are we using Oracle or MySQL
 MATCH_ORACLE_USER=`cat $WMAGENT_SECRETS_LOCATION | grep ORACLE_USER | sed s/ORACLE_USER=//`
@@ -269,10 +275,10 @@ echo -e "\n*** Removing the current crontab ***"
 /usr/bin/crontab -r;
 echo "Done!"
 
-#cd $BASE_DIR/deployment-$DEPLOY_TAG
+#cd $WMA_BASE_DIR/deployment-$DEPLOY_TAG
 # XXX: update the PR number below, if needed :-)
 #echo -e "\n*** Applying database schema patches ***"
-#cd $CURRENT_DIR
+#cd $WMA_CURRENT_DIR
 #  wget -nv https://github.com/dmwm/WMCore/pull/8315.patch -O - | patch -d apps/wmagent/bin -p 2
 #cd -
 #echo "Done!" && echo
@@ -280,7 +286,7 @@ echo "Done!"
 # # By default, it will only work for official WMCore patches in the general path
 # echo -e "\n*** Applying agent patches ***"
 # if [ "x$PATCHES" != "x" ]; then
-#   cd $CURRENT_DIR
+#   cd $WMA_CURRENT_DIR
 #   for pr in $PATCHES; do
 #     wget -nv https://github.com/dmwm/WMCore/pull/$pr.patch -O - | patch -d apps/wmagent/lib/python2*/site-packages/ -p 3
 #   done
@@ -289,12 +295,12 @@ echo "Done!"
 # echo "Done!" && echo
 
 echo -e "\n*** Activating the agent ***"
-cd $MANAGE_DIR
+cd $WMA_MANAGE_DIR
 ./manage activate-agent
 echo "Done!" && echo
 
 echo "*** Starting services ***"
-cd $MANAGE_DIR
+cd $WMA_MANAGE_DIR
 ./manage start-services
 echo "Done!" && echo
 sleep 5
@@ -305,7 +311,7 @@ echo "Done!" && echo
 sleep 5
 
 echo "*** Checking if couchdb migration is needed ***"
-echo -e "\n[query_server_config]\nos_process_limit = 50" >> $CURRENT_DIR/config/couchdb/local.ini
+echo -e "\n[query_server_config]\nos_process_limit = 50" >> $WMA_CURRENT_DIR/config/couchdb/local.ini
 if [ "$DATA1" = true ]; then
 ./manage stop-services
 sleep 5
@@ -315,8 +321,8 @@ mv /data1/database/ /data1/database_old/
 FINAL_MSG="5) Remove the old database when possible (/data1/database_old/)"
 fi
 rsync --remove-source-files -avr /data/srv/wmagent/current/install/couchdb/database /data1
-sed -i "s+database_dir = .*+database_dir = /data1/database+" $CURRENT_DIR/config/couchdb/local.ini
-sed -i "s+view_index_dir = .*+view_index_dir = /data1/database+" $CURRENT_DIR/config/couchdb/local.ini
+sed -i "s+database_dir = .*+database_dir = /data1/database+" $WMA_CURRENT_DIR/config/couchdb/local.ini
+sed -i "s+view_index_dir = .*+view_index_dir = /data1/database+" $WMA_CURRENT_DIR/config/couchdb/local.ini
 ./manage start-services
 fi
 echo "Done!" && echo
@@ -327,33 +333,33 @@ echo "Done!" && echo
 echo "*** Tweaking configuration ***"
 echo "*** Making agent configuration changes needed for Docker ***"
 # make this a docker agent
-sed -i "s+Agent.isDocker = False+Agent.isDocker = True+" $MANAGE_DIR/config.py
+sed -i "s+Agent.isDocker = False+Agent.isDocker = True+" $WMA_MANAGE_DIR/config.py
 # update the location of submit.sh for docker
-sed -i "s+config.JobSubmitter.submitScript.*+config.JobSubmitter.submitScript = '$CURRENT_DIR/install/wmagent/Docker/etc/submit.sh'+" $MANAGE_DIR/config.py
+sed -i "s+config.JobSubmitter.submitScript.*+config.JobSubmitter.submitScript = '$WMA_CURRENT_DIR/install/wmagent/Docker/etc/submit.sh'+" $WMA_MANAGE_DIR/config.py
 # replace all tags with current
-sed -i "s+v$WMA_TAG+current+" $MANAGE_DIR/config.py
+sed -i "s+v$WMA_TAG+current+" $WMA_MANAGE_DIR/config.py
 
 echo "*** Making other agent configuration changes ***"
-sed -i "s+REPLACE_TEAM_NAME+$TEAMNAME+" $MANAGE_DIR/config.py
-sed -i "s+Agent.agentNumber = 0+Agent.agentNumber = $AG_NUM+" $MANAGE_DIR/config.py
+sed -i "s+REPLACE_TEAM_NAME+$TEAMNAME+" $WMA_MANAGE_DIR/config.py
+sed -i "s+Agent.agentNumber = 0+Agent.agentNumber = $AG_NUM+" $WMA_MANAGE_DIR/config.py
 if [[ "$TEAMNAME" == relval ]]; then
-sed -i "s+config.TaskArchiver.archiveDelayHours = 24+config.TaskArchiver.archiveDelayHours = 336+" $MANAGE_DIR/config.py
+sed -i "s+config.TaskArchiver.archiveDelayHours = 24+config.TaskArchiver.archiveDelayHours = 336+" $WMA_MANAGE_DIR/config.py
 elif [[ "$TEAMNAME" == *testbed* ]] || [[ "$TEAMNAME" == *dev* ]]; then
 GLOBAL_DBS_URL=https://cmsweb-testbed.cern.ch/dbs/int/global/DBSReader
-sed -i "s+DBSInterface.globalDBSUrl = 'https://cmsweb.cern.ch/dbs/prod/global/DBSReader'+DBSInterface.globalDBSUrl = '$GLOBAL_DBS_URL'+" $MANAGE_DIR/config.py
-sed -i "s+DBSInterface.DBSUrl = 'https://cmsweb.cern.ch/dbs/prod/global/DBSReader'+DBSInterface.DBSUrl = '$GLOBAL_DBS_URL'+" $MANAGE_DIR/config.py
+sed -i "s+DBSInterface.globalDBSUrl = 'https://cmsweb.cern.ch/dbs/prod/global/DBSReader'+DBSInterface.globalDBSUrl = '$GLOBAL_DBS_URL'+" $WMA_MANAGE_DIR/config.py
+sed -i "s+DBSInterface.DBSUrl = 'https://cmsweb.cern.ch/dbs/prod/global/DBSReader'+DBSInterface.DBSUrl = '$GLOBAL_DBS_URL'+" $WMA_MANAGE_DIR/config.py
 fi
 
 if [[ "$HOSTNAME" == *fnal.gov ]]; then
-sed -i "s+forceSiteDown = \[\]+forceSiteDown = \[$FORCEDOWN\]+" $MANAGE_DIR/config.py
+sed -i "s+forceSiteDown = \[\]+forceSiteDown = \[$FORCEDOWN\]+" $WMA_MANAGE_DIR/config.py
 else
-sed -i "s+forceSiteDown = \[\]+forceSiteDown = \[$FORCEDOWN\]+" $MANAGE_DIR/config.py
+sed -i "s+forceSiteDown = \[\]+forceSiteDown = \[$FORCEDOWN\]+" $WMA_MANAGE_DIR/config.py
 fi
 echo "Done!" && echo
 
 ### Populating resource-control
 echo "*** Populating resource-control ***"
-cd $MANAGE_DIR
+cd $WMA_MANAGE_DIR
 if [[ "$TEAMNAME" == relval* || "$TEAMNAME" == *testbed* ]]; then
 echo "Adding only T1 and T2 sites to resource-control..."
 ./manage execute-agent wmagent-resource-control --add-T1s --plugin=SimpleCondorPlugin --pending-slots=50 --running-slots=50 --down
@@ -380,7 +386,7 @@ echo "Done!" && echo
 
 ### Upload WMAgentConfig to AuxDB
 echo "*** Upload WMAgentConfig to AuxDB ***"
-cd $MANAGE_DIR
+cd $WMA_MANAGE_DIR
 ./manage execute-agent wmagent-upload-config $agentExtraConfig
 echo "Done!" && echo
 

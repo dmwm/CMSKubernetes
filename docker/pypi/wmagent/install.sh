@@ -52,31 +52,32 @@ echo
 echo "======================================================================="
 echo "Starting new WMAgent deployment with the following initialisation data:"
 echo "-----------------------------------------------------------------------"
-echo " - WMAgent version            : $WMA_TAG"
-echo " - WMAgent user               : $WMA_USER"
-echo " - Python verson              : $(python --version)"
-echo " - Python Module Path         : $pythonLib"
+echo " - WMAgent Version            : $WMA_TAG"
+echo " - WMAgent User               : $WMA_USER"
+echo " - WMAgent Root path          : $WMA_ROOT_DIR"
+echo " - Python  Verson             : $(python --version)"
+echo " - Python  Module path        : $pythonLib"
 echo "======================================================================="
 echo
 
 set -x
 
 # Set up required directories
-mkdir -p $DEPLOY_DIR || true
-ln -s $DEPLOY_DIR $CURRENT_DIR
+mkdir -p ${WMA_DEPLOY_DIR} || true
+ln -s ${WMA_DEPLOY_DIR} $WMA_CURRENT_DIR
 
-mkdir -p $ADMIN_DIR $CERTS_DIR $MANAGE_DIR $INSTALL_DIR
-chmod 755 $CERTS_DIR
+mkdir -p $WMA_ADMIN_DIR $WMA_CERTS_DIR $WMA_MANAGE_DIR $WMA_INSTALL_DIR
+chmod 755 $WMA_CERTS_DIR
 
-cd $BASE_DIR
+cd $WMA_BASE_DIR
 
 # Download the environment file
-wget -nv https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/env.sh -O $ENV_FILE
+wget -nv https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/env.sh -O $WMA_ENV_FILE
 
-if [[ -f $ENV_FILE ]]; then
-  source $ENV_FILE
+if [[ -f $WMA_ENV_FILE ]]; then
+  source $WMA_ENV_FILE
 else
-  echo -e "\n  Could not find $ENV_FILE, exiting."
+  echo -e "\n  Could not find $WMA_ENV_FILE, exiting."
   exit 1
 fi
 
@@ -87,9 +88,9 @@ pip install wheel
 pip install --upgrade pip
 echo
 
-echo "Start installing wmagent:$WMA_TAG at $DEPLOY_DIR"
-# pip install wmagent==$WMA_TAG --prefix=$DEPLOY_DIR || { err=$?; echo "Failed to install wmagent:$WMA_TAG at $DEPLOY_DIR" ; exit $err ; }
-pip install wmagent==$WMA_TAG || { err=$?; echo "Failed to install wmagent:$WMA_TAG at $DEPLOY_DIR" ; exit $err ; }
+echo "Start installing wmagent:$WMA_TAG at $WMA_DEPLOY_DIR"
+# pip install wmagent==$WMA_TAG --prefix=$WMA_DEPLOY_DIR || { err=$?; echo "Failed to install wmagent:$WMA_TAG at $WMA_DEPLOY_DIR" ; exit $err ; }
+pip install wmagent==$WMA_TAG || { err=$?; echo "Failed to install wmagent:$WMA_TAG at $WMA_DEPLOY_DIR" ; exit $err ; }
 echo "Done!" && echo
 
 # TODO: Here we need to
@@ -103,16 +104,16 @@ echo "Done!" && echo
 
 # ### Enabling couch watchdog; couchdb fix for file descriptors
 # echo "*** Enabling couch watchdog ***"
-# sed -i "s+RESPAWN_TIMEOUT=0+RESPAWN_TIMEOUT=5+" $CURRENT_DIR/sw*/$WMA_ARCH/external/couchdb*/*/bin/couchdb
-# sed -i "s+exec 1>&-+exec 1>$CURRENT_DIR/install/couchdb/logs/stdout.log+" $CURRENT_DIR/sw*/$WMA_ARCH/external/couchdb*/*/bin/couchdb
-# sed -i "s+exec 2>&-+exec 2>$CURRENT_DIR/install/couchdb/logs/stderr.log+" $CURRENT_DIR/sw*/$WMA_ARCH/external/couchdb*/*/bin/couchdb
+# sed -i "s+RESPAWN_TIMEOUT=0+RESPAWN_TIMEOUT=5+" $WMA_CURRENT_DIR/sw*/$WMA_ARCH/external/couchdb*/*/bin/couchdb
+# sed -i "s+exec 1>&-+exec 1>$WMA_CURRENT_DIR/install/couchdb/logs/stdout.log+" $WMA_CURRENT_DIR/sw*/$WMA_ARCH/external/couchdb*/*/bin/couchdb
+# sed -i "s+exec 2>&-+exec 2>$WMA_CURRENT_DIR/install/couchdb/logs/stderr.log+" $WMA_CURRENT_DIR/sw*/$WMA_ARCH/external/couchdb*/*/bin/couchdb
 # echo "Done!" && echo
 
 ###
 # set scripts and specific cronjobs
 ###
 echo "*** Downloading utilitarian scripts ***"
-cd $ADMIN_DIR
+cd $WMA_ADMIN_DIR
 wget -nv https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/checkProxy.py -O checkProxy.py
 wget -nv https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/restartComponent.sh -O restartComponent.sh
 wget -nv https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/renew_proxy.sh -O renew_proxy.sh
@@ -138,7 +139,7 @@ alias ll='ls -l --color=auto'
 
 alias condorq='condor_q -format "%i." ClusterID -format "%s " ProcId -format " %i " JobStatus  -format " %d " ServerTime-EnteredCurrentStatus -format "%s" UserLog -format " %s\n" DESIRED_Sites'
 alias condorqrunning='condor_q -constraint JobStatus==2 -format "%i." ClusterID -format "%s " ProcId -format " %i " JobStatus  -format " %d " ServerTime-EnteredCurrentStatus -format "%s" UserLog -format " %s\n" DESIRED_Sites'
-alias agentenv='source $ENV_FILE'
+alias agentenv='source $WMA_ENV_FILE'
 alias magane=\$manage
 
 # Aliases for Tier0-Ops.
