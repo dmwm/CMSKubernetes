@@ -2,7 +2,7 @@ FROM registry.cern.ch/cmsweb/exporters:20210726-nonstatic as exporters-builder
 RUN mkdir -p /data
 
 
-FROM cern/cc7-base:20221101-1
+FROM cern/cc7-base:20230426-1
 
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
@@ -43,6 +43,8 @@ RUN yum install -y cern-get-certificate fetch-crl \
     spark spark-bin cern-hadoop-client cern-hadoop-xrootd-connector \
     && yum clean all && rm -rf /var/cache/yum
 
+#RUN yum info CERN-CA-certs
+#RUN update-ca-trust
 #RUN pip install --upgrade pip setuptools
 RUN cp /usr/hdp/spark/kubernetes/dockerfiles/spark/entrypoint.sh /usr/bin/entrypoint.sh && touch /etc/hadoop/conf/topology.table.file && ln -s /bin/bash /usr/bin/bashs
 
