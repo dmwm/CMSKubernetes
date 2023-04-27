@@ -55,8 +55,8 @@ AGENT_NUMBER=0
 FLAVOR=mysql
 
 # Find the current WMAgent Docker image BuildId:
-# NOTE: The $WMA_BUILD_ID is exported only from $WMA_USER/.bashrc not from the Dockerfile ENV command
-[[ -n $WMA_BUILD_ID ]] || WMA_BUILD_ID=$(cat $WMA_ROOT_DIR/.dockerBuildId) || { echo "ERROR: Cuold not find/set WMA_UILD_ID"; exit 1 ; }
+# NOTE: The $WMA_BUILD_ID is exported only from $WMA_USER/.bashrc but not from the Dockerfile ENV command
+[[ -n $WMA_BUILD_ID ]] || WMA_BUILD_ID=$(cat $WMA_ROOT_DIR/.dockerBuildId) || { echo "ERROR: Cuold not find/set WMA_UILD_ID"; exit 1 ;}
 
 
 ### Argument parsing:

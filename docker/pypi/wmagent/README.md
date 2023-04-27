@@ -76,8 +76,8 @@ cmst1
 WMA_TAG=2.2.0.2
 
 docker run --network=host --rm --hostname=`hostname -f` --name=wmagent \
--v /data/certs:/data/certs:Z \
--v /etc/condor:/etc/condor:Z \
+-v /data/certs:/data/certs:Z,ro \
+-v /etc/condor:/etc/condor:Z,ro \
 -v /tmp:/tmp:Z \
 -v /data/srv/wmagent/current/install:/data/srv/wmagent/current/install:Z \
 -v /data/srv/wmagent/current/config:/data/srv/wmagent/current/config:Z \
@@ -121,6 +121,25 @@ In order to stop the WMAgent container one just needs to kill it, the `--rm` opt
 **Shutdown command:**
 ```
 docker kill wmagent
+```
+
+## Enforce container reinitialisation at the host:
+The WMAgent needs to preserve its configuration and initialisation data permanently at the host. For the purpose we use Host to Docker bind mounts.
+Once a specific WMAgent image has been run for the first time it leaves a small set of .dockerInit files at all places where permanent data(like config files and job caches) at the host is preserved.
+On any further restart of the container, hence the WMAgent itself, we do not go through all the initialisation steps again if we find the
+relevnat .dockerInit file and the $WMA_BUILD_ID hash contained there matches the $WMA_BUILD_ID of the currently starting container.
+In order for one to enforce reinitialisation steps to be performed one needs to delete all .dockerInit fieles and restart the wmagent container.
+
+**NOTE: This reintialisation may result in losing previous job caches and database records**
+**Reintialisation command:**
+```
+ssh vocms***
+docker kill wmagent
+sudo find /data -name .dockerInit -delete
+docker run --network=host --rm --hostname=`hostname -f` --name=wmagent ...
+...
+wmagent:$WMA_TAG
+...
 ```
 
 ##Connecting to the container

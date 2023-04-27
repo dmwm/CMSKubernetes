@@ -141,7 +141,7 @@ alias condorq='condor_q -format "%i." ClusterID -format "%s " ProcId -format " %
 alias condorqrunning='condor_q -constraint JobStatus==2 -format "%i." ClusterID -format "%s " ProcId -format " %i " JobStatus  -format " %d " ServerTime-EnteredCurrentStatus -format "%s" UserLog -format " %s\n" DESIRED_Sites'
 alias agentenv='source $WMA_ENV_FILE'
 agentenv
-alias magane=\$manage
+alias manage=\$manage
 
 # Aliases for Tier0-Ops.
 alias runningagent="ps aux | egrep 'couch|wmcore|mysql|beam'"
