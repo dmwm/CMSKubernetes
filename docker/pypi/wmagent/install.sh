@@ -60,77 +60,65 @@ echo " - Python  Module path        : $pythonLib"
 echo "======================================================================="
 echo
 
-set -x
 
-# Set up required directories
+# Installing the wmagent package from pypi
+stepMsg="Installing wmagent:$WMA_TAG at $WMA_DEPLOY_DIR"
+echo "-----------------------------------------------------------------------"
+echo "Start $stepMsg"
+
+# First upgrade pip to the latest version:
+pip install wheel
+pip install --upgrade pip
+
+# Second deploy the package. Interrupt on error:
+pip install wmagent==$WMA_TAG || { err=$?; echo "Failed to install wmagent:$WMA_TAG at $WMA_DEPLOY_DIR" ; exit $err ; }
+echo "Done $stepMsg!" && echo
+
+
+# Setup required directories
+stepMsg="Creating required directory structure in the WMAgent image"
+echo "-----------------------------------------------------------------------"
+echo "Start $stepMsg"
 mkdir -p ${WMA_DEPLOY_DIR} || true
-ln -s ${WMA_DEPLOY_DIR} $WMA_CURRENT_DIR
+ln -s ${WMA_DEPLOY_DIR%/deploy} $WMA_CURRENT_DIR
 
-mkdir -p $WMA_ADMIN_DIR $WMA_CERTS_DIR $WMA_MANAGE_DIR $WMA_INSTALL_DIR
+mkdir -p $WMA_ADMIN_DIR $WMA_HOSTADMIN_DIR $WMA_CERTS_DIR $WMA_MANAGE_DIR $WMA_INSTALL_DIR
 chmod 755 $WMA_CERTS_DIR
 
 cd $WMA_BASE_DIR
+echo "Done $stepMsg!" && echo
 
+stepMsg="Downloading all files required for the containder intialisation at the host"
+echo "-----------------------------------------------------------------------"
+echo "Start $stepMsg"
 # Download the environment file
-wget -nv https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/env.sh -O $WMA_ENV_FILE
+wget -nv -O $WMA_ENV_FILE https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/env.sh
 
-if [[ -f $WMA_ENV_FILE ]]; then
-  source $WMA_ENV_FILE
-else
-  echo -e "\n  Could not find $WMA_ENV_FILE, exiting."
-  exit 1
-fi
+# Download config and manage scripts for the initial deployment:
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/deployment/master/wmagentpy3/manage
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/deployment/master/wmagentpy3/local.ini
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/deployment/master/wmagentpy3/my.cnf
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/deployment/master/wmagentpy3/rucio.cfg
 
-# Installing the wmagent package from pypi
-# First upgrade pip to the latest version:
-echo "Upgrading pip to the latest vestion:"
-pip install wheel
-pip install --upgrade pip
-echo
+# Download WMAgent.secrets templates:
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/WMAgent.production
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/WMAgent.testbed
 
-echo "Start installing wmagent:$WMA_TAG at $WMA_DEPLOY_DIR"
-# pip install wmagent==$WMA_TAG --prefix=$WMA_DEPLOY_DIR || { err=$?; echo "Failed to install wmagent:$WMA_TAG at $WMA_DEPLOY_DIR" ; exit $err ; }
-pip install wmagent==$WMA_TAG || { err=$?; echo "Failed to install wmagent:$WMA_TAG at $WMA_DEPLOY_DIR" ; exit $err ; }
-echo "Done!" && echo
-
-# TODO: Here we need to
-#    * copy/download all the confg && deploy files from https://raw.githubusercontent.com/dmwm/deployment/master/wmagentpy3
-#    * preserve  it in a directory outside the host mounted area so that at
-#      first/initial container start it could be copied from here instead of downloading it from github on every restart
-#    * create the wmagent->wmagentpy3 soft link
-
-# TODO: Same as above for the WMAgent.secrets templates
-
-
-# ### Enabling couch watchdog; couchdb fix for file descriptors
-# echo "*** Enabling couch watchdog ***"
-# sed -i "s+RESPAWN_TIMEOUT=0+RESPAWN_TIMEOUT=5+" $WMA_CURRENT_DIR/sw*/$WMA_ARCH/external/couchdb*/*/bin/couchdb
-# sed -i "s+exec 1>&-+exec 1>$WMA_CURRENT_DIR/install/couchdb/logs/stdout.log+" $WMA_CURRENT_DIR/sw*/$WMA_ARCH/external/couchdb*/*/bin/couchdb
-# sed -i "s+exec 2>&-+exec 2>$WMA_CURRENT_DIR/install/couchdb/logs/stderr.log+" $WMA_CURRENT_DIR/sw*/$WMA_ARCH/external/couchdb*/*/bin/couchdb
-# echo "Done!" && echo
-
-###
-# set scripts and specific cronjobs
-###
-echo "*** Downloading utilitarian scripts ***"
-cd $WMA_ADMIN_DIR
-wget -nv https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/checkProxy.py -O checkProxy.py
-wget -nv https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/restartComponent.sh -O restartComponent.sh
-wget -nv https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/renew_proxy.sh -O renew_proxy.sh
-chmod +x renew_proxy.sh restartComponent.sh
-echo "Done!" && echo
-
-# # remove the "install" subdirs, these will be mounted from the host
-# echo "*** Removing install subdirs ***"
-# rmdir -v /data/srv/wmagent/current/install/*
-
-# # remove the "config" subdirs, these will be mounted from the host
-# echo "*** Removing config subdirs ***"
-# rm -rfv /data/srv/wmagent/current/config/*
+# Download utilitarian scripts:
+wget -nv -P $WMA_ADMIN_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/checkProxy.py
+wget -nv -P $WMA_ADMIN_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/restartComponent.sh
+wget -nv -P $WMA_ADMIN_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/renew_proxy.sh
+chmod +x $WMA_ADMIN_DIR/renew_proxy.sh $WMA_ADMIN_DIR/restartComponent.sh
+echo "Done $stepMsg!" && echo
 
 ###
 # Add WMA_USER's runtime aliases:
 ###
+
+stepMsg="Creating all runtime aliases for the WMA_USER"
+echo "-----------------------------------------------------------------------"
+echo "Start $stepMsg"
+set -x
 cat <<EOF >> /home/${WMA_USER}/.bashrc
 
 alias lll="ls -lathr"
@@ -140,6 +128,7 @@ alias ll='ls -l --color=auto'
 alias condorq='condor_q -format "%i." ClusterID -format "%s " ProcId -format " %i " JobStatus  -format " %d " ServerTime-EnteredCurrentStatus -format "%s" UserLog -format " %s\n" DESIRED_Sites'
 alias condorqrunning='condor_q -constraint JobStatus==2 -format "%i." ClusterID -format "%s " ProcId -format " %i " JobStatus  -format " %d " ServerTime-EnteredCurrentStatus -format "%s" UserLog -format " %s\n" DESIRED_Sites'
 alias agentenv='source $WMA_ENV_FILE'
+agentenv
 alias magane=\$manage
 
 # Aliases for Tier0-Ops.
@@ -151,9 +140,39 @@ alias scurl='curl -k --cert ${CERT_DIR}/servicecert.pem --key ${CERT_DIR}/servic
 
 # set WMAgent docker specific bash prompt:
 export PS1="(WMAgent.dock) [\u@\h:\w]\$ "
+
 EOF
 
-echo "Docker build finished!!" && echo
+set +x
+echo "Done $stepMsg!" && echo
+
+echo "-----------------------------------------------------------------------"
+echo "WMAgent contaner build finished!!" && echo
 echo "Have a nice day!" && echo
+echo "======================================================================="
 
 exit 0
+
+
+
+# if [[ -f $WMA_ENV_FILE ]]; then
+#   source $WMA_ENV_FILE
+# else
+#   echo -e "\n  Could not find $WMA_ENV_FILE, exiting."
+#   exit 1
+# fi
+
+# TODO: Here we need to
+#    * copy/download all the confg && deploy files from https://raw.githubusercontent.com/dmwm/deployment/master/wmagentpy3
+#    * preserve  it in a directory outside the host mounted area so that at
+#      first/initial container start it could be copied from here instead of downloading it from github on every restart
+#    * create the wmagent->wmagentpy3 soft link
+
+# TODO: Same as above for the WMAgent.secrets templates
+
+# ### Enabling couch watchdog; couchdb fix for file descriptors
+# echo "*** Enabling couch watchdog ***"
+# sed -i "s+RESPAWN_TIMEOUT=0+RESPAWN_TIMEOUT=5+" $WMA_CURRENT_DIR/sw*/$WMA_ARCH/external/couchdb*/*/bin/couchdb
+# sed -i "s+exec 1>&-+exec 1>$WMA_CURRENT_DIR/install/couchdb/logs/stdout.log+" $WMA_CURRENT_DIR/sw*/$WMA_ARCH/external/couchdb*/*/bin/couchdb
+# sed -i "s+exec 2>&-+exec 2>$WMA_CURRENT_DIR/install/couchdb/logs/stderr.log+" $WMA_CURRENT_DIR/sw*/$WMA_ARCH/external/couchdb*/*/bin/couchdb
+# echo "Done!" && echo

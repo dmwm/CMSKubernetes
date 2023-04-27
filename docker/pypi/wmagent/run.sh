@@ -104,25 +104,57 @@ basic_checks() {
   errMsg="FAILED!\n Could not find $WMA_ADMIN_DIR."
   [[ -d $WMA_ADMIN_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
 
-  errMsg="FAILED!\n Could not find $WMA_ADMIN_DIR/WMAgent.secrets."
-  [[ -f $WMA_ADMIN_DIR/WMAgent.secrets ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
+  errMsg="FAILED!\n Could not find $WMA_HOSTADMIN_DIR/WMAgent.secrets file"
+  [[ -f $WMA_HOSTADMIN_DIR/WMAgent.secrets ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
 
   errMsg="FAILED!\n Could not find $WMA_ENV_FILE."
   [[ -e $WMA_ENV_FILE ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
 
-  errMsg="FAILED!\n Could not find $WMA_CONFIG_DIR mount point."
+  errMsg="FAILED!\n Could not find $WMA_CONFIG_DIR mount point"
   [[ -d $WMA_CONFIG_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
 
-  errMsg="FAILED!\n Could not find $WMA_INSTALL_DIR mount point."
+  errMsg="FAILED!\n Could not find $WMA_INSTALL_DIR mount point"
   [[ -d $WMA_INSTALL_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
 
-  errMsg="FAILED!\n Could not find $WMA_CERTS_DIR mount point."
+  errMsg="FAILED!\n Could not find $WMA_CERTS_DIR mount point"
   [[ -d $WMA_CERTS_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
   echo "-------------------------------------------------------"
 }
 
 # check_mounts() {
 # }
+
+#local_deploy() {
+# TODO: Here we should identify the type (prod/test) and flavour(mysql/oracle) of the agent and then:
+#       * Merge the WMAgent secrets files from host and templates
+#       * call check certs and all other authentications
+#
+# NOTE: On every step to check the .dockerInit file contend and compare
+#       * the current container Id with the already intialised one: if we want reinitailsation on every container kill/start
+#       * the current image Id with the already initialised one: if we want reinitialisation only on image refresh (New WMAgent deployment).
+#}
+
+# host_deploy(){
+# TODO: Here to execute all local config and manage copy opertaions from image deploy area to container and host
+#       * creation of all config directories if missing at the mount point
+#          * call init_install_dir
+#          * call init_config_dir
+#       * override the manage at the host  mount  point with file from the image deployment area
+#       * exit if previous step fails
+#       * copy/override all config files if agent have never been initialised
+#       * run manage so that the agent gets initialised if never have been before.
+#       * create/touch a .dockerInit file containing the current container Id and imageId
+#         (the unique hash id to be used not the contaner name)
+#
+# NOTE: On every step to check the .dockerInit file contend and compare
+#       * the current container Id with the already intialised one: if we want reinitailsation on every container kill/start
+#       * the current image Id with the already initialised one: if we want reinitialisation only on image refresh (New WMAgent deployment).
+#}
+
+# check_database() {
+# TODO: Here to check all databases - relational and CouchDB
+#       * call check_oracle
+#}
 
 main(){
     basic_checks
@@ -217,9 +249,9 @@ init_config_dir() {
 
   local rucio_config=$root/$cfgversion/config/wmagent/rucio.cfg
   cp -f $rucio_config $root/$cfgversion/config/rucio/etc/
-  
+
   # keep track of bind mounted config dir initialization
-  touch $WMA_CONFIG_DIR/.dockerinit 
+  touch $WMA_CONFIG_DIR/.dockerinit
 }
 
 if [[ -z $WMA_TAG ]] || [[ -z $DEPLOY_TAG ]] || [[ -z $TEAMNAME ]]; then

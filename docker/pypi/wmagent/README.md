@@ -81,7 +81,7 @@ docker run --network=host --rm --hostname=`hostname -f` --name=wmagent \
 -v /tmp:/tmp:Z \
 -v /data/srv/wmagent/current/install:/data/srv/wmagent/current/install:Z \
 -v /data/srv/wmagent/current/config:/data/srv/wmagent/current/config:Z \
--v /data/admin/wmagent/WMAgent.secrets:/data/admin/wmagent/WMAgent.secrets:Z \
+-v /data/admin/wmagent:/data/admin/wmagent/hostadmin:Z \
 wmagent:$WMA_TAG \
 -f oracle \
 -t testbed-vocms0192 \
