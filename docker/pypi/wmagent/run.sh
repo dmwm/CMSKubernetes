@@ -54,6 +54,11 @@ CENTRAL_SERVICES=cmsweb-testbed.cern.ch
 AGENT_NUMBER=0
 FLAVOR=mysql
 
+# Find the current WMAgent Docker image BuildId:
+# NOTE: The $WMA_BUILD_ID is exported only from $WMA_USER/.bashrc not from the Dockerfile ENV command
+[[ -n $WMA_BUILD_ID ]] || WMA_BUILD_ID=$(cat $WMA_ROOT_DIR/.dockerBuildId) || { echo "ERROR: Cuold not find/set WMA_UILD_ID"; exit 1 ; }
+
+
 ### Argument parsing:
 # export OPTIND=1
 while getopts ":t:n:c:f:h" opt; do
@@ -93,38 +98,48 @@ echo " - Python  Module path        : $pythonLib"
 echo "======================================================="
 echo
 
-
-basic_checks() {
-  echo
-  echo "-------------------------------------------------------"
-  echo -n "Performing basic setup checks..."
-  echo
-
-  local errMsg
-  errMsg="FAILED!\n Could not find $WMA_ADMIN_DIR."
-  [[ -d $WMA_ADMIN_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
-
-  errMsg="FAILED!\n Could not find $WMA_HOSTADMIN_DIR/WMAgent.secrets file"
-  [[ -f $WMA_HOSTADMIN_DIR/WMAgent.secrets ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
-
-  errMsg="FAILED!\n Could not find $WMA_ENV_FILE."
-  [[ -e $WMA_ENV_FILE ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
-
-  errMsg="FAILED!\n Could not find $WMA_CONFIG_DIR mount point"
-  [[ -d $WMA_CONFIG_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
-
-  errMsg="FAILED!\n Could not find $WMA_INSTALL_DIR mount point"
-  [[ -d $WMA_INSTALL_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
-
-  errMsg="FAILED!\n Could not find $WMA_CERTS_DIR mount point"
-  [[ -d $WMA_CERTS_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ; }
-  echo "-------------------------------------------------------"
+_check_mounts() {
+    # An auxiliay function to check if a given mountpoint is among the actually
+    # bind mounted volumes from the host
+    # :param $1: The mountpoint to be checked
+    # :return: true/false
+    local mounts=$(mount |grep -E "(/data|/etc/condor|/tmp)" |awk '{print $3}')
+    local mountPoint=$(realpath $1 2>/dev/null)
+    [[ " $mounts " =~  ^.*[[:space:]]+$mountPoint[[:space:]]+.*$  ]] &&  return 0 ||  return 1
 }
 
-# check_mounts() {
-# }
+basic_checks() {
 
-#local_deploy() {
+    local stepMsg="Performing basic setup checks..."
+    echo "-------------------------------------------------------"
+    echo "Start: $stepMsg"
+    echo
+
+    local errMsg=""
+    errMsg="ERROR: Could not find $WMA_ENV_FILE."
+    [[ -e $WMA_ENV_FILE ]] || { err=$?; echo -e "$errMsg"; exit $err ;}
+
+    errMsg="ERROR: Could not find $WMA_ADMIN_DIR."
+    [[ -d $WMA_ADMIN_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ;}
+
+    errMsg="ERROR: Could not find $WMA_HOSTADMIN_DIR mount point"
+    [[ -d $WMA_HOSTADMIN_DIR ]] && _check_mounts $WMA_HOSTADMIN_DIR || { err=$?; echo -e "$errMsg"; exit $err ;}
+
+    errMsg="ERROR: Could not find $WMA_CONFIG_DIR mount point"
+    [[ -d $WMA_CONFIG_DIR ]] && _check_mounts $WMA_CONFIG_DIR || { err=$?; echo -e "$errMsg"; exit $err ;}
+
+    errMsg="ERROR: Could not find $WMA_INSTALL_DIR mount point"
+    [[ -d $WMA_INSTALL_DIR ]] && _check_mounts $WMA_INSTALL_DIR || { err=$?; echo -e "$errMsg"; exit $err ;}
+
+    errMsg="ERROR: Could not find $WMA_CERTS_DIR mount point"
+    [[ -d $WMA_CERTS_DIR ]] && _check_mounts $WMA_CERTS_DIR || { err=$?; echo -e "$errMsg"; exit $err ;}
+    echo "Done: $stepMsg"
+    echo "-------------------------------------------------------"
+    echo
+}
+
+
+local_deploy() {
 # TODO: Here we should identify the type (prod/test) and flavour(mysql/oracle) of the agent and then:
 #       * Merge the WMAgent secrets files from host and templates
 #       * call check certs and all other authentications
@@ -132,9 +147,15 @@ basic_checks() {
 # NOTE: On every step to check the .dockerInit file contend and compare
 #       * the current container Id with the already intialised one: if we want reinitailsation on every container kill/start
 #       * the current image Id with the already initialised one: if we want reinitialisation only on image refresh (New WMAgent deployment).
-#}
+    local stepMsg="Performing local Docker image initialisation steps"
+    echo "-------------------------------------------------------"
+    echo "Start: $stepMsg"
+    true
+    echo "Done: $stepMsg"
+    echo "-------------------------------------------------------"
+}
 
-# host_deploy(){
+host_deploy(){
 # TODO: Here to execute all local config and manage copy opertaions from image deploy area to container and host
 #       * creation of all config directories if missing at the mount point
 #          * call init_install_dir
@@ -149,18 +170,88 @@ basic_checks() {
 # NOTE: On every step to check the .dockerInit file contend and compare
 #       * the current container Id with the already intialised one: if we want reinitailsation on every container kill/start
 #       * the current image Id with the already initialised one: if we want reinitialisation only on image refresh (New WMAgent deployment).
+    local stepMsg="Performing Docker image to Host initialisation steps"
+    echo "-------------------------------------------------------"
+    echo "Start: $stepMsg"
+    [[ `cat $WMA_INSTALL_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
+        true  && echo $WMA_BUILD_ID > $WMA_INSTALL_DIR/.dockerInit
+    }
+
+    [[ `cat $WMA_CONFIG_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
+        true  && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/.dockerInit
+    }
+
+    [[ `cat $WMA_HOSTADMIN_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
+        true  && echo $WMA_BUILD_ID > $WMA_HOSTADMIN_DIR/.dockerInit
+    }
+
+    echo "Done: $stepMsg"
+    echo "-------------------------------------------------------"
+}
+
+check_databases() {
+# TODO: Here to check all databases - relational and CouchDB
+#       * call check_oracle or check_sql or similar
+#       * call check_couchdb
+    true
+}
+
+DOCKER_INIT_LIST="$WMA_INSTALL_DIR/.dockerInit $WMA_CONFIG_DIR/.dockerInit $WMA_HOSTADMIN_DIR/.dockerInit"
+check_docker_init() {
+    # A function to check all previously populated */.dockerInit files
+    # from all previous steps and compare them with the /data/.dockerBuildId
+    # if all do not match we cannot continue - we consider configuration/version
+    # mismatch between the host and the container
+
+    local stepMsg="Performing checks for successful Docker initialisation steps..."
+    echo "-------------------------------------------------------"
+    echo "Start: $stepMsg"
+    local dockerInitId=""
+    local dockerInitIdValues=""
+    for initFile in $DOCKER_INIT_LIST; do
+        dockerInitIdValues="$dockerInitIdValues $(cat $initFile 2>&1)"
+    done
+    dockerInitId=$(for id in $dockerInitIdValues; do echo $id; done |sort|uniq)
+    echo "WMA_BUILD_ID:$WMA_BUILD_ID"
+    echo "dockerInitId:$dockerInitId"
+    [[ $dockerInitId == $WMA_BUILD_ID ]] && { echo "OK";  return 0 ;} || { echo "ERROR";  return 1 ;}
+
+}
+
+# agent_activate() {
 #}
 
-# check_database() {
-# TODO: Here to check all databases - relational and CouchDB
-#       * call check_oracle
+# services_start() {
 #}
+
+# agent_init() {
+#}
+
+# agent_tweakconfig() {
+#
+
+# agent_resource_control() {
+#}
+
+# agent_upload_config(){
+#}
+
+# set_crontabs() {
+#}
+
 
 main(){
     basic_checks
+    check_docker_init || {
+        host_deploy
+        local_deploy
+        check_docker_init || { err=$?; echo -e "ERROR: DockerBuild - HostConfiguration version missmatch"; exit $err ; }
+    }
+    check_databases
 }
 
 main
+
 echo "-------------------------------------------------------"
 echo "Start sleeping now ...zzz..."
 while true; do sleep 10; done

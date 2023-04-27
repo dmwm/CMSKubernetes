@@ -73,7 +73,7 @@ pip install --upgrade pip
 # Second deploy the package. Interrupt on error:
 pip install wmagent==$WMA_TAG || { err=$?; echo "Failed to install wmagent:$WMA_TAG at $WMA_DEPLOY_DIR" ; exit $err ; }
 echo "Done $stepMsg!" && echo
-
+echo "-------------------------------------------------------"
 
 # Setup required directories
 stepMsg="Creating required directory structure in the WMAgent image"
@@ -87,6 +87,7 @@ chmod 755 $WMA_CERTS_DIR
 
 cd $WMA_BASE_DIR
 echo "Done $stepMsg!" && echo
+echo "-------------------------------------------------------"
 
 stepMsg="Downloading all files required for the containder intialisation at the host"
 echo "-----------------------------------------------------------------------"
@@ -110,11 +111,22 @@ wget -nv -P $WMA_ADMIN_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/
 wget -nv -P $WMA_ADMIN_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/renew_proxy.sh
 chmod +x $WMA_ADMIN_DIR/renew_proxy.sh $WMA_ADMIN_DIR/restartComponent.sh
 echo "Done $stepMsg!" && echo
+echo "-------------------------------------------------------"
+
+
+stepMsg="Generating and preserving current build id"
+echo "-----------------------------------------------------------------------"
+echo "Start $stepMsg"
+echo $RANDOM |sha256sum |awk '{print $1}' > $WMA_ROOT_DIR/.dockerBuildId
+echo "WMA_BUILD_ID:`cat $WMA_ROOT_DIR/.dockerBuildId`"
+echo "WMA_BUILD_ID preserved at: $WMA_ROOT_DIR/.dockerBuildId "
+echo "Done $stepMsg!" && echo
+echo "-------------------------------------------------------"
+
 
 ###
 # Add WMA_USER's runtime aliases:
 ###
-
 stepMsg="Creating all runtime aliases for the WMA_USER"
 echo "-----------------------------------------------------------------------"
 echo "Start $stepMsg"
@@ -123,7 +135,7 @@ cat <<EOF >> /home/${WMA_USER}/.bashrc
 
 alias lll="ls -lathr"
 alias ls="ls --color=auto"
-alias ll='ls -l --color=auto'
+alias ll='ls -la --color=auto'
 
 alias condorq='condor_q -format "%i." ClusterID -format "%s " ProcId -format " %i " JobStatus  -format " %d " ServerTime-EnteredCurrentStatus -format "%s" UserLog -format " %s\n" DESIRED_Sites'
 alias condorqrunning='condor_q -constraint JobStatus==2 -format "%i." ClusterID -format "%s " ProcId -format " %i " JobStatus  -format " %d " ServerTime-EnteredCurrentStatus -format "%s" UserLog -format " %s\n" DESIRED_Sites'
@@ -140,11 +152,13 @@ alias scurl='curl -k --cert ${CERT_DIR}/servicecert.pem --key ${CERT_DIR}/servic
 
 # set WMAgent docker specific bash prompt:
 export PS1="(WMAgent.dock) [\u@\h:\w]\$ "
+export WMA_BUILD_ID=\$(cat $WMA_ROOT_DIR/.dockerBuildId)
 
 EOF
 
 set +x
 echo "Done $stepMsg!" && echo
+echo "-------------------------------------------------------"
 
 echo "-----------------------------------------------------------------------"
 echo "WMAgent contaner build finished!!" && echo
