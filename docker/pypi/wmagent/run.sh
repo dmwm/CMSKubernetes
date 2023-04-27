@@ -105,7 +105,7 @@ _check_mounts() {
     # :return: true/false
     local mounts=$(mount |grep -E "(/data|/etc/condor|/tmp)" |awk '{print $3}')
     local mountPoint=$(realpath $1 2>/dev/null)
-    [[ " $mounts " =~  ^.*[[:space:]]+$mountPoint[[:space:]]+.*$  ]] &&  return 0 ||  return 1
+    [[ " $mounts " =~  ^.*[[:space:]]+$mountPoint[[:space:]]+.*$  ]] && return $(true) || return $(false)
 }
 
 basic_checks() {
@@ -139,7 +139,8 @@ basic_checks() {
 }
 
 
-local_deploy() {
+deploy_to_container() {
+# This function does all the needed Host to Docker image modifications at Runtime
 # TODO: Here we should identify the type (prod/test) and flavour(mysql/oracle) of the agent and then:
 #       * Merge the WMAgent secrets files from host and templates
 #       * call check certs and all other authentications
@@ -155,7 +156,8 @@ local_deploy() {
     echo "-------------------------------------------------------"
 }
 
-host_deploy(){
+deploy_to_host(){
+# This function does all the needed Docker image to Host modifications at Runtime
 # TODO: Here to execute all local config and manage copy opertaions from image deploy area to container and host
 #       * creation of all config directories if missing at the mount point
 #          * call init_install_dir
@@ -173,14 +175,25 @@ host_deploy(){
     local stepMsg="Performing Docker image to Host initialisation steps"
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
+
+    # Check if the host has all needed components' logs and job cache areas
+    # TODO: purge job cache if -p run option has been set
     [[ `cat $WMA_INSTALL_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
-        true  && echo $WMA_BUILD_ID > $WMA_INSTALL_DIR/.dockerInit
+        mkdir -p $WMA_INSTALL_DIR/{wmagent,mysql,couchdb} && echo $WMA_BUILD_ID > $WMA_INSTALL_DIR/.dockerInit
+        # local componentList="wmagent mysql couchdb"
+        # local errVal=0
+        # for component in $componentList; do
+        #     [[ -d $WMA_INSTALL_DIR/$component ]] || mkdir -p $WMA_INSTALL_DIR/$component || let errVal+=1
+        # done
+        # [[ $errVal -eq 0 ]] && echo $WMA_BUILD_ID > $WMA_INSTALL_DIR/.dockerInit
     }
 
+    # Check if the host has all config files and copy them if missing
     [[ `cat $WMA_CONFIG_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
-        true  && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/.dockerInit
+        true && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/.dockerInit
     }
 
+    # Check if the host has a basic WMAgent.secrets file and copy a template if missing
     [[ `cat $WMA_HOSTADMIN_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
         true  && echo $WMA_BUILD_ID > $WMA_HOSTADMIN_DIR/.dockerInit
     }
@@ -212,9 +225,9 @@ check_docker_init() {
         dockerInitIdValues="$dockerInitIdValues $(cat $initFile 2>&1)"
     done
     dockerInitId=$(for id in $dockerInitIdValues; do echo $id; done |sort|uniq)
-    echo "WMA_BUILD_ID:$WMA_BUILD_ID"
-    echo "dockerInitId:$dockerInitId"
-    [[ $dockerInitId == $WMA_BUILD_ID ]] && { echo "OK";  return 0 ;} || { echo "ERROR";  return 1 ;}
+    echo "WMA_BUILD_ID: $WMA_BUILD_ID"
+    echo "dockerInitId: $dockerInitId"
+    [[ $dockerInitId == $WMA_BUILD_ID ]] && { echo "OK"; return $(true) ;} || { echo "ERROR"; return $(false) ;}
 
 }
 
@@ -243,10 +256,10 @@ check_docker_init() {
 main(){
     basic_checks
     check_docker_init || {
-        host_deploy
-        local_deploy
+        deploy_to_host
         check_docker_init || { err=$?; echo -e "ERROR: DockerBuild - HostConfiguration version missmatch"; exit $err ; }
     }
+    deploy_to_container
     check_databases
 }
 

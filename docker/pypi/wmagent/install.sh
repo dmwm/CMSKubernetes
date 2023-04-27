@@ -123,6 +123,12 @@ echo "WMA_BUILD_ID preserved at: $WMA_ROOT_DIR/.dockerBuildId "
 echo "Done $stepMsg!" && echo
 echo "-------------------------------------------------------"
 
+stepMsg="Replace the current /data/manage script coming from 'dmwm-base' image with a symlink link"
+echo "-----------------------------------------------------------------------"
+echo "Start $stepMsg"
+[[ -f /data/manage ]] && rm -f /data/manage && ln -s $WMA_MANAGE_DIR/manage /data/manage
+echo "Done $stepMsg!" && echo
+echo "-------------------------------------------------------"
 
 ###
 # Add WMA_USER's runtime aliases:

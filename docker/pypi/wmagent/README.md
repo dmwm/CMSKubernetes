@@ -74,19 +74,22 @@ ssh vocms****
 cmst1
 
 WMA_TAG=2.2.0.2
-
-docker run --network=host --rm --hostname=`hostname -f` --name=wmagent \
+dockerOpts=" \
+--network=host --rm --hostname=`hostname -f` --name=wmagent \
 -v /data/certs:/data/certs:Z,ro \
 -v /etc/condor:/etc/condor:Z,ro \
 -v /tmp:/tmp:Z \
 -v /data/srv/wmagent/current/install:/data/srv/wmagent/current/install:Z \
 -v /data/srv/wmagent/current/config:/data/srv/wmagent/current/config:Z \
 -v /data/admin/wmagent:/data/admin/wmagent/hostadmin:Z \
-wmagent:$WMA_TAG \
+"
+wmaOpts=" \
 -f oracle \
 -t testbed-vocms0192 \
 -n 0 \
--c cmsweb-testbed.cern.ch
+-c cmsweb-testbed.cern.ch"
+
+docker run $dockerOpts wmagent:$WMA_TAG $wmaOpts
 ```
 
 **Partial output:**
@@ -104,6 +107,7 @@ Starting WMAgent with the following initial data:
  - Python verson              : Python 3.8.16
  - Python Module Path         : /usr/local/lib/python3.8/site-packages
 =======================================================
+...
 ```
 ## Checking container status
 ```
@@ -133,12 +137,38 @@ In order for one to enforce reinitialisation steps to be performed one needs to 
 **NOTE: This reintialisation may result in losing previous job caches and database records**
 **Reintialisation command:**
 ```
-ssh vocms***
 docker kill wmagent
+
 sudo find /data -name .dockerInit -delete
-docker run --network=host --rm --hostname=`hostname -f` --name=wmagent ...
+
+docker run $dockerOpts wmagent:$WMA_TAG $wmaOpts
+```
+
+**Partial output:**
+```
+=======================================================
+Starting WMAgent with the following initialisation data:
+-------------------------------------------------------
+ - WMAgent Version            : 2.2.0.2
 ...
-wmagent:$WMA_TAG
+=======================================================
+-------------------------------------------------------
+Start: Performing checks for successful Docker initialisation steps...
+WMA_BUILD_ID: 110b443165e3b5a4ba569b8a1ab063a616132602e55ba06b0c3e89a01e643f31
+dockerInitId: /data/admin/wmagent/hostadmin/.dockerInit:
+...
+ERROR
+-------------------------------------------------------
+Start: Performing Docker image to Host initialisation steps
+...
+Done: Performing Docker image to Host initialisation steps
+-------------------------------------------------------
+-------------------------------------------------------
+Start: Performing checks for successful Docker initialisation steps...
+WMA_BUILD_ID: 110b443165e3b5a4ba569b8a1ab063a616132602e55ba06b0c3e89a01e643f31
+dockerInitId: 110b443165e3b5a4ba569b8a1ab063a616132602e55ba06b0c3e89a01e643f31
+OK
+-------------------------------------------------------
 ...
 ```
 
@@ -148,4 +178,6 @@ First login at the VM and from there connect to the container:
 **Login sequence:**
 ```
 docker exec -it wmagent /bin/bash
+...
+(WMAgent.dock) [cmst1@vocms***:/data/srv/wmagent/current]$
 ```
