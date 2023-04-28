@@ -146,7 +146,7 @@ basic_checks() {
     echo
 }
 
-_check_wmasecrets(){
+_parse_wmasecrets(){
     # Auxiliary function to provide basic parsing of the WMAgent.secrets file
     # :param $1: path to WMAgent.secrets file
     local errVal=0
@@ -235,7 +235,7 @@ deploy_to_host(){
             cp -f $WMA_DEPLOY_DIR/WMAgent.$agentType $WMA_HOSTADMIN_DIR/WMAgent.secrets
         fi
         echo "$FUNCNAME: checking $WMA_HOSTADMIN_DIR/WMAgent.secrets"
-        if (_check_wmasecrets $WMA_HOSTADMIN_DIR/WMAgent.secrets); then
+        if (_parse_wmasecrets $WMA_HOSTADMIN_DIR/WMAgent.secrets); then
             echo $WMA_BUILD_ID > $WMA_HOSTADMIN_DIR/.dockerInit
         else
             echo "ERROR: We found a blank WMAgent.secrets file temlate at the current host!"
@@ -246,6 +246,19 @@ deploy_to_host(){
 
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
+}
+
+check_wmasecrets(){
+    # Check if the the current WMAgent.secrets file is the same as the one from the latest agent inititialisation
+    echo "$FUNCNAME: Checking for changes in the WMAgent.secrets file"
+    touch $WMA_HOSTADMIN_DIR/.WMAgent.secrets.md5
+    if [[ `md5sum  $WMA_HOSTADMIN_DIR/WMAgent.secrets |awk '{print$1}'` == `cat $WMA_HOSTADMIN_DIR/.WMAgent.secrets.md5` ]]; then
+        echo "$FUNCNAME: No change fund."
+    else
+        echo "$FUNCNAME: WARNING: Wrong checksum for WMAgent.secrets file. Restarting agent initialisation."
+        rm -f $WMA_HOSTADMIN_DIR/.dockerInit
+        rm -f $WMA_CONFIG_DIR/.dockerInit
+    fi
 }
 
 deploy_to_container() {
@@ -261,11 +274,16 @@ deploy_to_container() {
     echo "Start: $stepMsg"
 
     # Copy the WMAgent.secrets file from the host admin area to container admin area where $manage is about to search it
-    echo "$FUNCNAME: Copying the host WMAgent.secrets file into the container admin area"
+    # DONE: To preserve the md5sum of the initially deployed WMAegnt.secrets file from
+    #       the host, so if we find out that it has been eddited, all the reinitialisation
+    #       steps to be repeated upon container restart.
+    echo "$FUNCNAME: Try Copying the host WMAgent.secrets file into the container admin area"
     if [[ `cat $WMA_HOSTADMIN_DIR/.dockerInit` == $WMA_BUILD_ID ]]; then
         cp -f $WMA_HOSTADMIN_DIR/WMAgent.secrets $WMA_ADMIN_DIR/
+        md5sum $WMA_HOSTADMIN_DIR/WMAgent.secrets |awk '{print $1}' > $WMA_HOSTADMIN_DIR/.WMAgent.secrets.md5
+        echo "$FUNCNAME: Done"
     else
-        echo "$FUNCNAME: ERROR: Stale WMAgent.secrets file detected."
+        echo "$FUNCNAME: Not intialised WMAgent.secrets file. Sciping the current step."
         return $(false)
     fi
 
@@ -277,11 +295,11 @@ deploy_to_container() {
 
     # Double checking the final result:
     echo "$FUNCNAME: Double checking the final WMAgent.secrets file"
-    (_check_wmasecrets $WMA_ADMIN_DIR/WMAgent.secrets) || return $(false)
+    (_parse_wmasecrets $WMA_ADMIN_DIR/WMAgent.secrets) || return $(false)
 
     # Checking Certificates and proxy;
-    echo "$FUNCNAME: Checking "
-    
+    echo "$FUNCNAME: Checking Certificates and Proxy"
+
 
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
@@ -309,13 +327,17 @@ check_docker_init() {
         $WMA_CONFIG_DIR/rucio/.dockerInit
         $WMA_HOSTADMIN_DIR/.dockerInit
         "
+    touch $DOCKER_INIT_LIST
     local stepMsg="Performing checks for successful Docker initialisation steps..."
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
     local dockerInitId=""
     local dockerInitIdValues=""
+    local idValue=""
     for initFile in $DOCKER_INIT_LIST; do
-        dockerInitIdValues="$dockerInitIdValues $(cat $initFile 2>&1)"
+        idValue=$(cat $initFile 2>&1)
+        [[ -z $idValue ]] && idValue=$(realpath $initFile)
+        dockerInitIdValues="$dockerInitIdValues $idValue"
     done
     dockerInitId=$(for id in $dockerInitIdValues; do echo $id; done |sort|uniq)
     echo "WMA_BUILD_ID: $WMA_BUILD_ID"
@@ -348,7 +370,9 @@ agent_activate() {
     local stepMsg="Performing $FUNCNAME"
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
-    true
+    [[ `cat $WMA_CONFIG_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
+        echo "$FUNCNAME: triggered."
+    }
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
 }
@@ -357,7 +381,9 @@ agent_init() {
     local stepMsg="Performing $FUNCNAME"
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
-    true
+    [[ `cat $WMA_CONFIG_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
+        echo "$FUNCNAME: triggered."
+    }
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
 }
@@ -366,7 +392,9 @@ agent_tweakconfig() {
     local stepMsg="Performing $FUNCNAME"
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
-    true
+    [[ `cat $WMA_CONFIG_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
+        echo "$FUNCNAME: triggered."
+    }
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
 }
@@ -375,7 +403,9 @@ agent_resource_control() {
     local stepMsg="Performing $FUNCNAME"
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
-    true
+    [[ `cat $WMA_CONFIG_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
+        echo "$FUNCNAME: triggered."
+    }
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
 }
@@ -414,6 +444,7 @@ set_crontabs() {
 
 main(){
     basic_checks
+    check_wmasecrets
     check_docker_init || {
         (deploy_to_host)         || { err=$?; echo "ERROR: deploy_to_host"; exit $err ;}
         (deploy_to_container)    || { err=$?; echo "ERROR: deploy_to_container"; exit $err ;}
