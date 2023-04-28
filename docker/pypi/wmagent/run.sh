@@ -78,7 +78,7 @@ while getopts ":t:n:c:f:h" opt; do
 done
 
 # Check runtime arguments:
-TEAMNAME_REG="(^production$|^testbed-.*$)"
+TEAMNAME_REG="(^production$|^testbed-.*$|^relval.*$)"
 [[ $TEAMNAME =~ $TEAMNAME_REG ]] || { echo "TEAMNAME: $TEAMNAME does not match requered expression: $TEAMNAME_REG"; echo "EXIT with Error 1"  ; exit 1 ;}
 
 FLAVOR_REG="(^oracle$|^mysql$)"
@@ -149,12 +149,10 @@ basic_checks() {
 deploy_to_container() {
 # This function does all the needed Host to Docker image modifications at Runtime
 # TODO: Here we should identify the type (prod/test) and flavour(mysql/oracle) of the agent and then:
-#       * Merge the WMAgent secrets files from host and templates
+#       * Copy WMAgent.secrets files from host and the container - it will be needed only once during the initialisation step
 #       * call check certs and all other authentications
 #
-# NOTE: On every step to check the .dockerInit file contend and compare
-#       * the current container Id with the already intialised one: if we want reinitailsation on every container kill/start
-#       * the current image Id with the already initialised one: if we want reinitialisation only on image refresh (New WMAgent deployment).
+# NOTE: On every step to check the .dockerInit file contend and compare similarly to deploy_to_host
     local stepMsg="Performing local Docker image initialisation steps"
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
@@ -182,20 +180,19 @@ _check_wmasecrets(){
 
 deploy_to_host(){
     # This function does all the needed Docker image to Host modifications at Runtime
-    # TODO: Here to execute all local config and manage copy opertaions from image deploy area to container and host
+    # DONE: Here to execute all local config and manage/copy opertaions from the image deploy area of the container to the host
     #       * creation of all config directories if missing at the mount point
     #          * reimplement init_install_dir
     #          * reimplement init_config_dir
-    #       * override the manage at the host  mount  point with the manage file from the image deployment area
-    #       * exit if previous step fails
+    #       * copy/override the manage file at the host mount point with the manage file from the image deployment area
     #       * copy/override all config files if the agent have never been initialised
-    #       * run manage so that the agent gets initialised if never have been before.
-    #       * create/touch a .dockerInit file containing the current container Id and imageId
-    #         (the unique hash id to be used not the contaner name)
+    #       * create/touch a .dockerInit file containing the wMA_BUILD_ID of the current docker image
+    #         * eventually the docker container Id may be considered in the future as well (the unique hash id to be used not the contaner name)
     #
-    # NOTE: On every step to check the .dockerInit file contend and compare
-    #       * the current container Id with the already intialised one: if we want reinitailsation on every container kill/start
-    #       * the current image Id with the already initialised one: if we want reinitialisation only on image refresh (New WMAgent deployment).
+    # NOTE: On every step we need to check the .dockerInit file content. There are two level of comparision we can make:
+    #       * the current container Id with the already intialised one: if we want reinitailisation on every container kill/start
+    #       * the current image Id with the already initialised one: if we want reinitialisation only on docker image rebuild (New WMAgent deployment).
+    #       THE implementation considers the later - reinitialisation on container rebuild
     local stepMsg="Performing Docker image to Host initialisation steps"
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
@@ -249,8 +246,10 @@ deploy_to_host(){
     echo "$FUNCNAME: WMAgent.secrets"
     [[ `cat $WMA_HOSTADMIN_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
         if [[ ! -f $WMA_HOSTADMIN_DIR/WMAgent.secrets ]]; then
-            echo "$FUNCNAME: copying $WMA_DEPLOY_DIR/WMAgent.${TEAMNAME%%-*} to $WMA_HOSTADMIN_DIR/WMAgent.secrets"
-            cp -f $WMA_DEPLOY_DIR/WMAgent.${TEAMNAME%%-*} $WMA_HOSTADMIN_DIR/WMAgent.secrets
+            # NOTE: we consider production templates for relval agents
+            local agentType=${TEAMNAME%%-*} && agentType=${agentType/relval*/production}
+            echo "$FUNCNAME: copying $WMA_DEPLOY_DIR/WMAgent.$agentType to $WMA_HOSTADMIN_DIR/WMAgent.secrets"
+            cp -f $WMA_DEPLOY_DIR/WMAgent.$agentType $WMA_HOSTADMIN_DIR/WMAgent.secrets
         fi
         echo "$FUNCNAME: checking $WMA_HOSTADMIN_DIR/WMAgent.secrets"
         if (_check_wmasecrets $WMA_HOSTADMIN_DIR/WMAgent.secrets); then
