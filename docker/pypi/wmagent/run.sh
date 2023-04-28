@@ -87,6 +87,7 @@ FLAVOR_REG="(^oracle$|^mysql$)"
 
 # The container hostname must be properly fetch from the host and passed as `docker run --hostname=$hostname`
 HOSTNAME=`hostname -f`
+HOSTIP=`hostname -i`
 
 echo
 echo "======================================================="
@@ -145,22 +146,6 @@ basic_checks() {
     echo
 }
 
-
-deploy_to_container() {
-# This function does all the needed Host to Docker image modifications at Runtime
-# TODO: Here we should identify the type (prod/test) and flavour(mysql/oracle) of the agent and then:
-#       * Copy WMAgent.secrets files from host and the container - it will be needed only once during the initialisation step
-#       * call check certs and all other authentications
-#
-# NOTE: On every step to check the .dockerInit file contend and compare similarly to deploy_to_host
-    local stepMsg="Performing local Docker image initialisation steps"
-    echo "-------------------------------------------------------"
-    echo "Start: $stepMsg"
-    true
-    echo "Done: $stepMsg"
-    echo "-------------------------------------------------------"
-}
-
 _check_wmasecrets(){
     # Auxiliary function to provide basic parsing of the WMAgent.secrets file
     # :param $1: path to WMAgent.secrets file
@@ -168,7 +153,7 @@ _check_wmasecrets(){
     local value=""
     local secretsFile=$1
     # All variables need to be fetched in lowercase through: ${var,,}
-    local badValuesReg="(update-me|updateme|<update-me>|<updateme>|fix-me|fixme|<fix-me>|<fixme>|127\.0\.0\.1|^$)"
+    local badValuesReg="(update-me|updateme|<update-me>|<updateme>|fix-me|fixme|<fix-me>|<fixme>|^$)"
     local varsToCheck=`awk -F\= '{print $1}' $secretsFile | grep -v ^#`
     for var in $varsToCheck
     do
@@ -210,9 +195,7 @@ deploy_to_host(){
     }
 
     # Check if the host has all config files and copy them if missing
-    # NOTE: The final config/.dockerInit to be set after full agent initialisation during `agent_upload_config`
-    # [[ `cat $WMA_CONFIG_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
-    #    true && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/.dockerInit ;}
+    # NOTE: The final config/.dockerInit is to be set after full agent initialisation during `agent_upload_config`
     local serviceList="wmagent mysql couchdb rucio"
     local config_mysql=my.cnf
     local config_couchdb=local.ini
@@ -257,9 +240,48 @@ deploy_to_host(){
         else
             echo "ERROR: We found a blank WMAgent.secrets file temlate at the current host!"
             echo "ERROR: Please update it properly before reinitialising the WMagent container!"
-            exit 1
+            return $(false)
         fi
     }
+
+    echo "Done: $stepMsg"
+    echo "-------------------------------------------------------"
+}
+
+deploy_to_container() {
+    # This function does all the needed Host to Docker image modifications at Runtime
+    # TODO: Here we should identify the type (prod/test) and flavour(mysql/oracle) of the agent and then:
+    #       * Copy WMAgent.secrets files from host and the container - it will be needed only once during the initialisation step
+    #       * call check certs and all other authentications
+    #
+    # NOTE: On every step to check the .dockerInit file contend and compare similarly to deploy_to_host
+    #       but do NOT update it
+    local stepMsg="Performing local Docker image initialisation steps"
+    echo "-------------------------------------------------------"
+    echo "Start: $stepMsg"
+
+    # Copy the WMAgent.secrets file from the host admin area to container admin area where $manage is about to search it
+    echo "$FUNCNAME: Copying the host WMAgent.secrets file into the container admin area"
+    if [[ `cat $WMA_HOSTADMIN_DIR/.dockerInit` == $WMA_BUILD_ID ]]; then
+        cp -f $WMA_HOSTADMIN_DIR/WMAgent.secrets $WMA_ADMIN_DIR/
+    else
+        echo "$FUNCNAME: ERROR: Stale WMAgent.secrets file detected."
+        return $(false)
+    fi
+
+    # Update WMagent.secrets file:
+    echo "$FUNCNAME: Updating WMAgent.secrets file with the current host's details"
+    sed -i "s+MYSQL_USER=+MYSQL_USER=$WMA_USER+" $WMA_ADMIN_DIR/WMAgent.secrets
+    sed -i "s+COUCH_USER=+COUCH_USER=$WMA_USER+" $WMA_ADMIN_DIR/WMAgent.secrets
+    sed -i "s+COUCH_HOST=127.0.0.1+COUCH_HOST=$HOSTIP+" $WMA_ADMIN_DIR/WMAgent.secrets
+
+    # Double checking the final result:
+    echo "$FUNCNAME: Double checking the final WMAgent.secrets file"
+    (_check_wmasecrets $WMA_ADMIN_DIR/WMAgent.secrets) || return $(false)
+
+    # Checking Certificates and proxy;
+    echo "$FUNCNAME: Checking "
+    
 
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
