@@ -73,7 +73,7 @@ pip install --upgrade pip
 # Second deploy the package. Interrupt on error:
 pip install wmagent==$WMA_TAG || { err=$?; echo "Failed to install wmagent:$WMA_TAG at $WMA_DEPLOY_DIR" ; exit $err ; }
 echo "Done $stepMsg!" && echo
-echo "-------------------------------------------------------"
+echo "-----------------------------------------------------------------------"
 
 # Setup required directories
 stepMsg="Creating required directory structure in the WMAgent image"
@@ -87,7 +87,7 @@ chmod 755 $WMA_CERTS_DIR
 
 cd $WMA_BASE_DIR
 echo "Done $stepMsg!" && echo
-echo "-------------------------------------------------------"
+echo "-----------------------------------------------------------------------"
 
 stepMsg="Downloading all files required for the containder intialisation at the host"
 echo "-----------------------------------------------------------------------"
@@ -111,8 +111,7 @@ wget -nv -P $WMA_ADMIN_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/
 wget -nv -P $WMA_ADMIN_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/renew_proxy.sh
 chmod +x $WMA_ADMIN_DIR/renew_proxy.sh $WMA_ADMIN_DIR/restartComponent.sh
 echo "Done $stepMsg!" && echo
-echo "-------------------------------------------------------"
-
+echo "-----------------------------------------------------------------------"
 
 stepMsg="Generating and preserving current build id"
 echo "-----------------------------------------------------------------------"
@@ -121,14 +120,14 @@ echo $RANDOM |sha256sum |awk '{print $1}' > $WMA_ROOT_DIR/.dockerBuildId
 echo "WMA_BUILD_ID:`cat $WMA_ROOT_DIR/.dockerBuildId`"
 echo "WMA_BUILD_ID preserved at: $WMA_ROOT_DIR/.dockerBuildId "
 echo "Done $stepMsg!" && echo
-echo "-------------------------------------------------------"
+echo "-----------------------------------------------------------------------"
 
 stepMsg="Replace the current /data/manage script coming from 'dmwm-base' image with a symlink link"
 echo "-----------------------------------------------------------------------"
 echo "Start $stepMsg"
 [[ -f /data/manage ]] && rm -f /data/manage && ln -s $WMA_MANAGE_DIR/manage /data/manage
 echo "Done $stepMsg!" && echo
-echo "-------------------------------------------------------"
+echo "-----------------------------------------------------------------------"
 
 ###
 # Add WMA_USER's runtime aliases:
@@ -164,7 +163,7 @@ EOF
 
 set +x
 echo "Done $stepMsg!" && echo
-echo "-------------------------------------------------------"
+echo "-----------------------------------------------------------------------"
 
 echo "-----------------------------------------------------------------------"
 echo "WMAgent contaner build finished!!" && echo

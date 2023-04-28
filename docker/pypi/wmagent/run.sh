@@ -77,6 +77,13 @@ while getopts ":t:n:c:f:h" opt; do
     esac
 done
 
+# Check runtime arguments:
+TEAMNAME_REG="(^production$|^testbed-.*$)"
+[[ $TEAMNAME =~ $TEAMNAME_REG ]] || { echo "TEAMNAME: $TEAMNAME does not match requered expression: $TEAMNAME_REG"; echo "EXIT with Error 1"  ; exit 1 ;}
+
+FLAVOR_REG="(^oracle$|^mysql$)"
+[[ $FLAVOR =~ $FLAVOR_REG ]] || { echo "FLAVOR: $FLAVOR does not match requered expression: $FLAVOR_REG"; echo "EXIT with Error 1"  ; exit 1 ;}
+
 
 # The container hostname must be properly fetch from the host and passed as `docker run --hostname=$hostname`
 HOSTNAME=`hostname -f`
@@ -156,46 +163,90 @@ deploy_to_container() {
     echo "-------------------------------------------------------"
 }
 
+_check_wmasecrets(){
+    return $(true)
+}
+
 deploy_to_host(){
-# This function does all the needed Docker image to Host modifications at Runtime
-# TODO: Here to execute all local config and manage copy opertaions from image deploy area to container and host
-#       * creation of all config directories if missing at the mount point
-#          * call init_install_dir
-#          * call init_config_dir
-#       * override the manage at the host  mount  point with file from the image deployment area
-#       * exit if previous step fails
-#       * copy/override all config files if agent have never been initialised
-#       * run manage so that the agent gets initialised if never have been before.
-#       * create/touch a .dockerInit file containing the current container Id and imageId
-#         (the unique hash id to be used not the contaner name)
-#
-# NOTE: On every step to check the .dockerInit file contend and compare
-#       * the current container Id with the already intialised one: if we want reinitailsation on every container kill/start
-#       * the current image Id with the already initialised one: if we want reinitialisation only on image refresh (New WMAgent deployment).
+    # This function does all the needed Docker image to Host modifications at Runtime
+    # TODO: Here to execute all local config and manage copy opertaions from image deploy area to container and host
+    #       * creation of all config directories if missing at the mount point
+    #          * reimplement init_install_dir
+    #          * reimplement init_config_dir
+    #       * override the manage at the host  mount  point with the manage file from the image deployment area
+    #       * exit if previous step fails
+    #       * copy/override all config files if the agent have never been initialised
+    #       * run manage so that the agent gets initialised if never have been before.
+    #       * create/touch a .dockerInit file containing the current container Id and imageId
+    #         (the unique hash id to be used not the contaner name)
+    #
+    # NOTE: On every step to check the .dockerInit file contend and compare
+    #       * the current container Id with the already intialised one: if we want reinitailsation on every container kill/start
+    #       * the current image Id with the already initialised one: if we want reinitialisation only on image refresh (New WMAgent deployment).
     local stepMsg="Performing Docker image to Host initialisation steps"
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
 
     # Check if the host has all needed components' logs and job cache areas
     # TODO: purge job cache if -p run option has been set
+    echo "$FUNCNAME: install"
     [[ `cat $WMA_INSTALL_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
         mkdir -p $WMA_INSTALL_DIR/{wmagent,mysql,couchdb} && echo $WMA_BUILD_ID > $WMA_INSTALL_DIR/.dockerInit
-        # local componentList="wmagent mysql couchdb"
         # local errVal=0
-        # for component in $componentList; do
-        #     [[ -d $WMA_INSTALL_DIR/$component ]] || mkdir -p $WMA_INSTALL_DIR/$component || let errVal+=1
+        # for service in $serviceList; do
+        #     [[ -d $WMA_INSTALL_DIR/$service ]] || mkdir -p $WMA_INSTALL_DIR/$service && echo $WMA_BUILD_ID > $WMA_INSTALL_DIR/$service/.dockerInit
         # done
         # [[ $errVal -eq 0 ]] && echo $WMA_BUILD_ID > $WMA_INSTALL_DIR/.dockerInit
     }
 
     # Check if the host has all config files and copy them if missing
-    [[ `cat $WMA_CONFIG_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
-        true && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/.dockerInit
-    }
+    # NOTE: The final config/.dockerInit to be set after full agent initialisation during `agent_upload_config`
+    # [[ `cat $WMA_CONFIG_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
+    #    true && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/.dockerInit ;}
+    local serviceList="wmagent mysql couchdb rucio"
+    local config_mysql=my.cnf
+    local config_couchdb=local.ini
+    local config_wmagent=manage
+    local config_rucio=rucio.cfg
+    for service in $serviceList; do
+        [[ `cat $WMA_CONFIG_DIR/$service/.dockerInit` == $WMA_BUILD_ID ]] && continue
+        echo "$FUNCNAME: config service=$service"
+        local errVal=0
+        local config=config_$service && config=${!config}        # expanding to the proper config name
+        if [[ $service = "rucio" ]]
+        then
+            [[ -d $WMA_CONFIG_DIR/$service/etc ]] || mkdir -p $WMA_CONFIG_DIR/$service/etc ; let errVal+=$?
+            cp -f $WMA_DEPLOY_DIR/${config} $WMA_CONFIG_DIR/$service/etc/ ; let errVal+=$?
+        else
+            [[ -d $WMA_CONFIG_DIR/$service ]] || mkdir -p $WMA_CONFIG_DIR/$service ; let errVal+=$?
+            cp -f $WMA_DEPLOY_DIR/${config} $WMA_CONFIG_DIR/$service/ ; let errVal+=$?
+        fi
+        [[ $errVal -eq 0 ]] && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/$service/.dockerInit
+    done
 
     # Check if the host has a basic WMAgent.secrets file and copy a template if missing
+    # NOTE: Here we never overwrite any existing WMAGent.secrerts file: We follow:
+    #       * Check if there is any at the host, and if so, is it a blank template or a fully configured one
+    #       * In case we find a legit WMAgent.secrets file we set the .dockerInit and move on
+    #       * In case we need to copy a brand new template (based on the agent tape - test/prod)
+    #         or a blank one found at the host we halt without updating the .dockerInit file
+    #         and we ask the user to examine/update the file.
+    #       (Re)Initialisation should never pass beyond that step unless properly
+    #       configured WMAgent.secrets file being provided at the host.
+    echo "$FUNCNAME: WMAgent.secrets"
     [[ `cat $WMA_HOSTADMIN_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
-        true  && echo $WMA_BUILD_ID > $WMA_HOSTADMIN_DIR/.dockerInit
+        if [[ ! -f $WMA_HOSTADMIN_DIR/WMAgent.secrets ]]; then
+            echo "$FUNCNAME: copying $WMA_DEPLOY_DIR/WMAgent.${TEAMNAME%%-*} to $WMA_HOSTADMIN_DIR/WMAgent.secrets"
+            cp -f $WMA_DEPLOY_DIR/WMAgent.${TEAMNAME%%-*} $WMA_HOSTADMIN_DIR/WMAgent.secrets
+        fi
+        echo "$FUNCNAME: checking $WMA_HOSTADMIN_DIR/WMAgent.secrets"
+        if (_check_wmasecrets); then
+            echo $WMA_BUILD_ID > $WMA_HOSTADMIN_DIR/.dockerInit
+        else
+            echo "ERROR: We found a blank WMAgent.secrets file temlate at the current host!"
+            echo "ERROR: Please update it properly before reinitialising the WMagent container!"
+            exit 1
+        fi
     }
 
     echo "Done: $stepMsg"
@@ -209,13 +260,21 @@ check_databases() {
     true
 }
 
-DOCKER_INIT_LIST="$WMA_INSTALL_DIR/.dockerInit $WMA_CONFIG_DIR/.dockerInit $WMA_HOSTADMIN_DIR/.dockerInit"
 check_docker_init() {
     # A function to check all previously populated */.dockerInit files
     # from all previous steps and compare them with the /data/.dockerBuildId
     # if all do not match we cannot continue - we consider configuration/version
     # mismatch between the host and the container
 
+    local DOCKER_INIT_LIST="
+        $WMA_INSTALL_DIR/.dockerInit
+        $WMA_CONFIG_DIR/.dockerInit
+        $WMA_CONFIG_DIR/wmagent/.dockerInit
+        $WMA_CONFIG_DIR/mysql/.dockerInit
+        $WMA_CONFIG_DIR/couchdb/.dockerInit
+        $WMA_CONFIG_DIR/rucio/.dockerInit
+        $WMA_HOSTADMIN_DIR/.dockerInit
+        "
     local stepMsg="Performing checks for successful Docker initialisation steps..."
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
@@ -231,45 +290,117 @@ check_docker_init() {
 
 }
 
-# agent_activate() {
-#}
+services_start() {
+    local stepMsg="Performing $FUNCNAME"
+    echo "-------------------------------------------------------"
+    echo "Start: $stepMsg"
+    true
+    echo "Done: $stepMsg"
+    echo "-------------------------------------------------------"
+}
 
-# services_start() {
-#}
+agent_start() {
+    local stepMsg="Performing $FUNCNAME"
+    echo "-------------------------------------------------------"
+    echo "Start: $stepMsg"
+    echo "-------------------------------------------------------"
+    echo "Start sleeping now ...zzz..."
+    while true; do sleep 10; done
+    echo "Done: $stepMsg"
+    echo "-------------------------------------------------------"
+}
 
-# agent_init() {
-#}
+agent_activate() {
+    local stepMsg="Performing $FUNCNAME"
+    echo "-------------------------------------------------------"
+    echo "Start: $stepMsg"
+    true
+    echo "Done: $stepMsg"
+    echo "-------------------------------------------------------"
+}
 
-# agent_tweakconfig() {
-#
+agent_init() {
+    local stepMsg="Performing $FUNCNAME"
+    echo "-------------------------------------------------------"
+    echo "Start: $stepMsg"
+    true
+    echo "Done: $stepMsg"
+    echo "-------------------------------------------------------"
+}
 
-# agent_resource_control() {
-#}
+agent_tweakconfig() {
+    local stepMsg="Performing $FUNCNAME"
+    echo "-------------------------------------------------------"
+    echo "Start: $stepMsg"
+    true
+    echo "Done: $stepMsg"
+    echo "-------------------------------------------------------"
+}
 
-# agent_upload_config(){
-#}
+agent_resource_control() {
+    local stepMsg="Performing $FUNCNAME"
+    echo "-------------------------------------------------------"
+    echo "Start: $stepMsg"
+    true
+    echo "Done: $stepMsg"
+    echo "-------------------------------------------------------"
+}
 
-# set_crontabs() {
-#}
+agent_upload_config(){
+    # A function to be used for uploading WMAgentConfig to AuxDB at Central CouchDB
+    # NOTE: The final config/.dockerInit is to be set here after full agent initialisation.
+    #       Once we have reached to the step of uploading the agent config to Cerntral CouchDB
+    #       we consider all previous reintialisation and config steps as successfully complpeted.
+    #       Steps to follow:
+    #       * Checking if the current image WMA_BUILD_ID matches the last one successfully initialised at the host
+    #       * If not, tries to upload the current config to Central CouchDB
+    #       * If agent config successfully uploaded, preserve the WMA_BUILD_ID at config/.dockerInit
+    #       With that, we consider the agent initialisation fully complete. The init steps will not be
+    #       repeated on further container restarts unless any of the */.dockerInit files at the host is altered.
+    local stepMsg="Performing $FUNCNAME"
+    echo "-------------------------------------------------------"
+    echo "Start: $stepMsg"
+
+    [[ `cat $WMA_CONFIG_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
+       echo "TODO: Uploading config here" && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/.dockerInit ;}
+
+    echo "Done: $stepMsg"
+    echo "-------------------------------------------------------"
+}
+
+set_crontabs() {
+    local stepMsg="Performing $FUNCNAME"
+    echo "-------------------------------------------------------"
+    echo "Start: $stepMsg"
+    true
+    echo "Done: $stepMsg"
+    echo "-------------------------------------------------------"
+}
 
 
 main(){
     basic_checks
     check_docker_init || {
-        deploy_to_host
-        check_docker_init || { err=$?; echo -e "ERROR: DockerBuild - HostConfiguration version missmatch"; exit $err ; }
+        (deploy_to_host)         || { err=$?; echo "ERROR: deploy_to_host"; exit $err ;}
+        (deploy_to_container)    || { err=$?; echo "ERROR: deploy_to_container"; exit $err ;}
+        (check_databases)        || { err=$?; echo "ERROR: check_databases"; exit $err ;}
+        (services_start)         || { err=$?; echo "ERROR: services_start"; exit $err ;}
+        (agent_activate)         || { err=$?; echo "ERROR: agent_activate"; exit $err ;}
+        (agent_init)             || { err=$?; echo "ERROR: agent_init"; exit $err ;}
+        (agent_tweakconfig)      || { err=$?; echo "ERROR: agent_tweakconfig"; exit $err ;}
+        (agent_resource_control) || { err=$?; echo "ERROR: agent_resource_control"; exit $err ;}
+        (agent_upload_config)    || { err=$?; echo "ERROR: agent_upload_config"; exit $err ;}
+        (set_crontabs)           || { err=$?; echo "ERROR: set_crontabs"; exit $err ;}
+        (check_docker_init)      || { err=$?; echo "ERROR: DockerBuild vs. HostConfiguration version missmatch"; exit $err ; }
     }
-    deploy_to_container
     check_databases
+    services_start
+    agent_start
 }
 
 main
 
-echo "-------------------------------------------------------"
-echo "Start sleeping now ...zzz..."
-while true; do sleep 10; done
-echo "-------------------------------------------------------"
-
+exit 0
 # set -x
 
 ### Runs some basic checks before actually starting the deployment procedure
@@ -316,47 +447,47 @@ check_oracle()
   rm -rf $tmpdir
 }
 
-init_install_dir() {
+# init_install_dir() {
 
-  # create the install directory during run, when install dir is bind mounted
-  echo "Making the required install directories"
-  mkdir -p $WMA_INSTALL_DIR/{wmagent,reqmgr,workqueue,mysql,couchdb}
-  mkdir -p $WMA_INSTALL_DIR/wmagent/Docker/{WMRuntime,etc}
-  # grab two scripts that need to be available on the bind mounted install directory
-  # TODO: grab these in a more sane way
-  cp -fv /data/srv/wmagent/current/sw/slc7_amd64_gcc630/cms/wmagent/*/etc/submit.sh $WMA_INSTALL_DIR/wmagent/Docker/etc
-  cp -fv /data/srv/wmagent/current/sw/slc7_amd64_gcc630/cms/wmagent/*/lib/python2.7/site-packages/WMCore/WMRuntime/Unpacker.py $WMA_INSTALL_DIR/wmagent/Docker/WMRuntime
+#   # create the install directory during run, when install dir is bind mounted
+#   echo "Making the required install directories"
+#   mkdir -p $WMA_INSTALL_DIR/{wmagent,reqmgr,workqueue,mysql,couchdb}
+#   mkdir -p $WMA_INSTALL_DIR/wmagent/Docker/{WMRuntime,etc}
+#   # grab two scripts that need to be available on the bind mounted install directory
+#   # TODO: grab these in a more sane way
+#   cp -fv /data/srv/wmagent/current/sw/slc7_amd64_gcc630/cms/wmagent/*/etc/submit.sh $WMA_INSTALL_DIR/wmagent/Docker/etc
+#   cp -fv /data/srv/wmagent/current/sw/slc7_amd64_gcc630/cms/wmagent/*/lib/python2.7/site-packages/WMCore/WMRuntime/Unpacker.py $WMA_INSTALL_DIR/wmagent/Docker/WMRuntime
 
-  # keep track of bind mounted install dir initialization
-  touch $WMA_INSTALL_DIR/.dockerinit
-}
+#   # keep track of bind mounted install dir initialization
+#   touch $WMA_INSTALL_DIR/.dockerinit
+# }
 
-init_config_dir() {
+# init_config_dir() {
 
-  # create the base configuration during run, when config dir is bind mounted
-  echo "Making the base configuration directories"
-  local root=/data/srv/wmagent
-  # note the "v" here is "very" important
-  cfgversion=v$WMA_TAG
-  mkdir -p $root/$cfgversion/config/wmagent
+#   # create the base configuration during run, when config dir is bind mounted
+#   echo "Making the base configuration directories"
+#   local root=/data/srv/wmagent
+#   # note the "v" here is "very" important
+#   cfgversion=v$WMA_TAG
+#   mkdir -p $root/$cfgversion/config/wmagent
 
-  cp -fv /data/srv/deployment-$DEPLOY_TAG/wmagent/* $root/$cfgversion/config/wmagent
+#   cp -fv /data/srv/deployment-$DEPLOY_TAG/wmagent/* $root/$cfgversion/config/wmagent
 
-  mkdir -p $root/$cfgversion/config/{reqmgr,workqueue,mysql,couchdb,rucio/etc}
+#   mkdir -p $root/$cfgversion/config/{reqmgr,workqueue,mysql,couchdb,rucio/etc}
 
-  local couchdb_ini=$root/$cfgversion/config/wmagent/local.ini
-  perl -p -i -e "s{deploy_project_root}{$root/$cfgversion/install}g" $couchdb_ini
-  cp -f $couchdb_ini $root/$cfgversion/config/couchdb/
+#   local couchdb_ini=$root/$cfgversion/config/wmagent/local.ini
+#   perl -p -i -e "s{deploy_project_root}{$root/$cfgversion/install}g" $couchdb_ini
+#   cp -f $couchdb_ini $root/$cfgversion/config/couchdb/
 
-  local mysql_config=$root/$cfgversion/config/wmagent/my.cnf
-  cp -f $mysql_config $root/$cfgversion/config/mysql/
+#   local mysql_config=$root/$cfgversion/config/wmagent/my.cnf
+#   cp -f $mysql_config $root/$cfgversion/config/mysql/
 
-  local rucio_config=$root/$cfgversion/config/wmagent/rucio.cfg
-  cp -f $rucio_config $root/$cfgversion/config/rucio/etc/
+#   local rucio_config=$root/$cfgversion/config/wmagent/rucio.cfg
+#   cp -f $rucio_config $root/$cfgversion/config/rucio/etc/
 
-  # keep track of bind mounted config dir initialization
-  touch $WMA_CONFIG_DIR/.dockerinit
-}
+#   # keep track of bind mounted config dir initialization
+#   touch $WMA_CONFIG_DIR/.dockerinit
+# }
 
 if [[ -z $WMA_TAG ]] || [[ -z $DEPLOY_TAG ]] || [[ -z $TEAMNAME ]]; then
   usage

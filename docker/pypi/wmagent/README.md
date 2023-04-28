@@ -53,7 +53,6 @@ docker build --network=host --progress=plain --build-arg WMA_TAG=$WMA_TAG -t wma
 ```
 
 ## Running a WMAgent container
-It is a must that only one WMAgent container should be running on a singe agent VM. It is partially guarantied by setting all the host mounts as `private` (see the `:Z` mount options bellow).
 
 One needs to bind mount several directories from the host VM (vocmsXXXX) and also to update the selinux lables with the Z option again at the host.
 * /data/certs
@@ -61,9 +60,8 @@ One needs to bind mount several directories from the host VM (vocmsXXXX) and als
 * /tmp
 * /data/srv/wmagent/current/install (stateful service and component dirs)
 * /data/srv/wmagent/current/config
+* /data/admin/wmagent               (in order to access the WMAgent.secrets)
 
-One also needs to bind mount the secrets file.
-* /data/admin/wmagent/WMAgent.secrets
 
 The install and config dirs will be initialized the first time you execute run.sh and a .dockerinit file will be placed to keep track of the initialization. Subsequent container restarts won't touch these directories.
 
@@ -109,6 +107,19 @@ Starting WMAgent with the following initial data:
 =======================================================
 ...
 ```
+
+**NOTE:**
+Currently, it is a must that only one WMAgent container should be running on a singe agent VM. It is partially guarantied by setting setting the `--name=wmagent` parameter at the `docker run` command above. But it is infact possible to over come this by setting a different name of the new container, but bare in mind all unpredicted consiquenses of such action. If one tries tr start two containers with the same name, the expected errr is:
+```
+docker run $dockerOpts wmagent:$WMA_TAG $wmaOpts
+
+docker: Error response from daemon: Conflict. The container name "/wmagent" is already in use by container "c4c64688a75b6ac8f5cc5e4c951db324b2441ec1434f2e1d604a49d8009ff2a1". You have to remove (or rename) that container to be able to reuse that name.
+See 'docker run --help'
+```
+
+
+
+
 ## Checking container status
 ```
 ssh vocms****
