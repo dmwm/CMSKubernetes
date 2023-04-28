@@ -164,7 +164,20 @@ deploy_to_container() {
 }
 
 _check_wmasecrets(){
-    return $(true)
+    # Auxiliary function to provide basic parsing of the WMAgent.secrets file
+    # :param $1: path to WMAgent.secrets file
+    local errVal=0
+    local value=""
+    local secretsFile=$1
+    # All variables need to be fetched in lowercase through: ${var,,}
+    local badValuesReg="(update-me|updateme|<update-me>|<updateme>|fix-me|fixme|<fix-me>|<fixme>|127\.0\.0\.1|^$)"
+    local varsToCheck=`awk -F\= '{print $1}' $secretsFile | grep -v ^#`
+    for var in $varsToCheck
+    do
+        value=`grep $var $secretsFile | awk -F\= '{print $2}'`
+        [[ ${value,,} =~ $badValuesReg ]] && { echo "$FUNCNAME: Bad value for: $var=$value"; let errVal+=1 ;}
+    done
+    return $errVal
 }
 
 deploy_to_host(){
@@ -240,7 +253,7 @@ deploy_to_host(){
             cp -f $WMA_DEPLOY_DIR/WMAgent.${TEAMNAME%%-*} $WMA_HOSTADMIN_DIR/WMAgent.secrets
         fi
         echo "$FUNCNAME: checking $WMA_HOSTADMIN_DIR/WMAgent.secrets"
-        if (_check_wmasecrets); then
+        if (_check_wmasecrets $WMA_HOSTADMIN_DIR/WMAgent.secrets); then
             echo $WMA_BUILD_ID > $WMA_HOSTADMIN_DIR/.dockerInit
         else
             echo "ERROR: We found a blank WMAgent.secrets file temlate at the current host!"
