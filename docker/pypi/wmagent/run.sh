@@ -163,6 +163,14 @@ _parse_wmasecrets(){
     return $errVal
 }
 
+_init_valid(){
+    # Auxiliary function to shorten repetitive compares of */.dockerInit files to the current WMA_BUILD_TAG
+    # :param $1: The path tho the .dockerInit file to be checked.
+    # NOTE:      It works both ways: with and without providing the .dockerInit file at the end of the path
+    local dockerInit=${1%.dockerInit}/.dockerInit
+    [[ -n $dockerInit ]] && [[ -f $dockerInit ]] && [[ `cat $dockerInit` == $WMA_BUILD_ID ]]
+}
+
 deploy_to_host(){
     # This function does all the needed Docker image to Host modifications at Runtime
     # DONE: Here to execute all local config and manage/copy opertaions from the image deploy area of the container to the host
@@ -184,8 +192,8 @@ deploy_to_host(){
 
     # Check if the host has all needed components' logs and job cache areas
     # TODO: purge job cache if -p run option has been set
-    echo "$FUNCNAME: install"
-    [[ `cat $WMA_INSTALL_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
+    echo "$FUNCNAME: Initialise install"
+    _init_valid $WMA_INSTALL_DIR || {
         mkdir -p $WMA_INSTALL_DIR/{wmagent,mysql,couchdb} && echo $WMA_BUILD_ID > $WMA_INSTALL_DIR/.dockerInit
         # local errVal=0
         # for service in $serviceList; do
@@ -196,13 +204,14 @@ deploy_to_host(){
 
     # Check if the host has all config files and copy them if missing
     # NOTE: The final config/.dockerInit is to be set after full agent initialisation during `agent_upload_config`
+    echo "$FUNCNAME: Initialise config"
     local serviceList="wmagent mysql couchdb rucio"
     local config_mysql=my.cnf
     local config_couchdb=local.ini
     local config_wmagent=manage
     local config_rucio=rucio.cfg
     for service in $serviceList; do
-        [[ `cat $WMA_CONFIG_DIR/$service/.dockerInit` == $WMA_BUILD_ID ]] && continue
+        _init_valid $WMA_CONFIG_DIR/$service && continue
         echo "$FUNCNAME: config service=$service"
         local errVal=0
         local config=config_$service && config=${!config}        # expanding to the proper config name
@@ -226,8 +235,8 @@ deploy_to_host(){
     #         and we ask the user to examine/update the file.
     #       (Re)Initialisation should never pass beyond that step unless properly
     #       configured WMAgent.secrets file being provided at the host.
-    echo "$FUNCNAME: WMAgent.secrets"
-    [[ `cat $WMA_HOSTADMIN_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
+    echo "$FUNCNAME: Initialise WMAgent.secrets"
+    _init_valid $WMA_HOSTADMIN_DIR || {
         if [[ ! -f $WMA_HOSTADMIN_DIR/WMAgent.secrets ]]; then
             # NOTE: we consider production templates for relval agents
             local agentType=${TEAMNAME%%-*} && agentType=${agentType/relval*/production}
@@ -252,7 +261,7 @@ check_wmasecrets(){
     # Check if the the current WMAgent.secrets file is the same as the one from the latest agent inititialisation
     echo "$FUNCNAME: Checking for changes in the WMAgent.secrets file"
     touch $WMA_HOSTADMIN_DIR/.WMAgent.secrets.md5
-    if [[ `md5sum  $WMA_HOSTADMIN_DIR/WMAgent.secrets |awk '{print$1}'` == `cat $WMA_HOSTADMIN_DIR/.WMAgent.secrets.md5` ]]; then
+    if (md5sum --quiet -c $WMA_HOSTADMIN_DIR/.WMAgent.secrets.md5); then
         echo "$FUNCNAME: No change fund."
     else
         echo "$FUNCNAME: WARNING: Wrong checksum for WMAgent.secrets file. Restarting agent initialisation."
@@ -278,12 +287,12 @@ deploy_to_container() {
     #       the host, so if we find out that it has been eddited, all the reinitialisation
     #       steps to be repeated upon container restart.
     echo "$FUNCNAME: Try Copying the host WMAgent.secrets file into the container admin area"
-    if [[ `cat $WMA_HOSTADMIN_DIR/.dockerInit` == $WMA_BUILD_ID ]]; then
+    if _init_valid $WMA_HOSTADMIN_DIR; then
         cp -f $WMA_HOSTADMIN_DIR/WMAgent.secrets $WMA_ADMIN_DIR/
-        md5sum $WMA_HOSTADMIN_DIR/WMAgent.secrets |awk '{print $1}' > $WMA_HOSTADMIN_DIR/.WMAgent.secrets.md5
+        md5sum $WMA_HOSTADMIN_DIR/WMAgent.secrets > $WMA_HOSTADMIN_DIR/.WMAgent.secrets.md5
         echo "$FUNCNAME: Done"
     else
-        echo "$FUNCNAME: Not intialised WMAgent.secrets file. Sciping the current step."
+        echo "$FUNCNAME: Not intialised WMAgent.secrets file. Skipping the current step."
         return $(false)
     fi
 
@@ -370,7 +379,7 @@ agent_activate() {
     local stepMsg="Performing $FUNCNAME"
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
-    [[ `cat $WMA_CONFIG_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
+    _init_valid $WMA_CONFIG_DIR || {
         echo "$FUNCNAME: triggered."
     }
     echo "Done: $stepMsg"
@@ -381,7 +390,7 @@ agent_init() {
     local stepMsg="Performing $FUNCNAME"
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
-    [[ `cat $WMA_CONFIG_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
+    _init_valid $WMA_CONFIG_DIR || {
         echo "$FUNCNAME: triggered."
     }
     echo "Done: $stepMsg"
@@ -392,7 +401,7 @@ agent_tweakconfig() {
     local stepMsg="Performing $FUNCNAME"
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
-    [[ `cat $WMA_CONFIG_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
+    _init_valid $WMA_CONFIG_DIR || {
         echo "$FUNCNAME: triggered."
     }
     echo "Done: $stepMsg"
@@ -403,7 +412,7 @@ agent_resource_control() {
     local stepMsg="Performing $FUNCNAME"
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
-    [[ `cat $WMA_CONFIG_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
+    _init_valid $WMA_CONFIG_DIR || {
         echo "$FUNCNAME: triggered."
     }
     echo "Done: $stepMsg"
@@ -425,7 +434,7 @@ agent_upload_config(){
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
 
-    [[ `cat $WMA_CONFIG_DIR/.dockerInit` == $WMA_BUILD_ID ]] || {
+    _init_valid $WMA_CONFIG_DIR || {
        echo "TODO: Uploading config here" && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/.dockerInit ;}
 
     echo "Done: $stepMsg"
