@@ -3,7 +3,7 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 # Install basic OS package dependencies
 RUN apt-get update
-RUN apt-get install -y libmariadb-dev-compat libmariadb-dev apache2-utils hostname net-tools iputils-ping
+RUN apt-get install -y libmariadb-dev-compat libmariadb-dev apache2-utils hostname net-tools iputils-ping cron
 
 # WMA_TAG to be passed at build time through `--build-arg WMA_TAG=<WMA_TAG>`. Default: None
 ARG WMA_TAG=None

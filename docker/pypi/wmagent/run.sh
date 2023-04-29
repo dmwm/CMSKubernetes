@@ -441,15 +441,6 @@ agent_upload_config(){
     echo "-------------------------------------------------------"
 }
 
-set_crontabs() {
-    local stepMsg="Performing $FUNCNAME"
-    echo "-------------------------------------------------------"
-    echo "Start: $stepMsg"
-    true
-    echo "Done: $stepMsg"
-    echo "-------------------------------------------------------"
-}
-
 main(){
     basic_checks
     check_wmasecrets
@@ -463,7 +454,6 @@ main(){
         (agent_tweakconfig)      || { err=$?; echo "ERROR: agent_tweakconfig"; exit $err ;}
         (agent_resource_control) || { err=$?; echo "ERROR: agent_resource_control"; exit $err ;}
         (agent_upload_config)    || { err=$?; echo "ERROR: agent_upload_config"; exit $err ;}
-        (set_crontabs)           || { err=$?; echo "ERROR: set_crontabs"; exit $err ;}
         (check_docker_init)      || { err=$?; echo "ERROR: DockerBuild vs. HostConfiguration version missmatch"; exit $err ; }
     }
     check_databases
@@ -730,21 +720,21 @@ cd $WMA_MANAGE_DIR
 ./manage execute-agent wmagent-upload-config $agentExtraConfig
 echo "Done!" && echo
 
-### Populating cronjob with utilitarian scripts
-echo "*** Creating cronjobs for them ***"
-if [[ "$TEAMNAME" == *testbed* || "$TEAMNAME" == *dev* ]]; then
-( crontab -l 2>/dev/null | grep -Fv ntpdate
-echo "55 */12 * * * (export X509_USER_CERT=/data/certs/servicecert.pem; export X509_USER_KEY=/data/certs/servicekey.pem; myproxy-get-delegation -v -l amaltaro -t 168 -s 'myproxy.cern.ch' -k $MYPROXY_CREDNAME -n -o /data/certs/mynewproxy.pem && voms-proxy-init -rfc -voms cms:/cms/Role=production -valid 168:00 -noregen -cert /data/certs/mynewproxy.pem -key /data/certs/mynewproxy.pem -out /data/certs/myproxy.pem)"
-) | crontab -
-else
-( crontab -l 2>/dev/null | grep -Fv ntpdate
-echo "55 */12 * * * (export X509_USER_CERT=/data/certs/servicecert.pem; export X509_USER_KEY=/data/certs/servicekey.pem; myproxy-get-delegation -v -l amaltaro -t 168 -s 'myproxy.cern.ch' -k $MYPROXY_CREDNAME -n -o /data/certs/mynewproxy.pem && voms-proxy-init -rfc -voms cms:/cms/Role=production -valid 168:00 -noregen -cert /data/certs/mynewproxy.pem -key /data/certs/mynewproxy.pem -out /data/certs/myproxy.pem)"
-echo "58 */12 * * * python /data/admin/wmagent/checkProxy.py --proxy /data/certs/myproxy.pem --time 120 --send-mail True --mail alan.malta@cern.ch"
-echo "#workaround for the ErrorHandler silence issue"
-echo "*/15 * * * *  source /data/admin/wmagent/restartComponent.sh > /dev/null"
-) | crontab -
-fi
-echo "Done!" && echo
+# ### Populating cronjob with utilitarian scripts
+# echo "*** Creating cronjobs for them ***"
+# if [[ "$TEAMNAME" == *testbed* || "$TEAMNAME" == *dev* ]]; then
+# ( crontab -l 2>/dev/null | grep -Fv ntpdate
+# echo "55 */12 * * * (export X509_USER_CERT=/data/certs/servicecert.pem; export X509_USER_KEY=/data/certs/servicekey.pem; myproxy-get-delegation -v -l amaltaro -t 168 -s 'myproxy.cern.ch' -k $MYPROXY_CREDNAME -n -o /data/certs/mynewproxy.pem && voms-proxy-init -rfc -voms cms:/cms/Role=production -valid 168:00 -noregen -cert /data/certs/mynewproxy.pem -key /data/certs/mynewproxy.pem -out /data/certs/myproxy.pem)"
+# ) | crontab -
+# else
+# ( crontab -l 2>/dev/null | grep -Fv ntpdate
+# echo "55 */12 * * * (export X509_USER_CERT=/data/certs/servicecert.pem; export X509_USER_KEY=/data/certs/servicekey.pem; myproxy-get-delegation -v -l amaltaro -t 168 -s 'myproxy.cern.ch' -k $MYPROXY_CREDNAME -n -o /data/certs/mynewproxy.pem && voms-proxy-init -rfc -voms cms:/cms/Role=production -valid 168:00 -noregen -cert /data/certs/mynewproxy.pem -key /data/certs/mynewproxy.pem -out /data/certs/myproxy.pem)"
+# echo "58 */12 * * * python /data/admin/wmagent/checkProxy.py --proxy /data/certs/myproxy.pem --time 120 --send-mail True --mail alan.malta@cern.ch"
+# echo "#workaround for the ErrorHandler silence issue"
+# echo "*/15 * * * *  source /data/admin/wmagent/restartComponent.sh > /dev/null"
+# ) | crontab -
+# fi
+# echo "Done!" && echo
 
 set +x
 
