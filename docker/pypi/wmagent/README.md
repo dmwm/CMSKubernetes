@@ -12,6 +12,8 @@
  * `Dockerfile` - creates provides all basic requirements for the image and sets all common env variables to both `install.sh` and `run.sh`.
  * `install.sh` - called through `Dockerfile` `RUN` command and provided with a single parameter at build time `WMA_TAG`
  * `run.sh` - set as default `ENTRYPOINT` at container runtime. All agent related configuration parameters are passed as named arguments and used to (re)generate the agent configuration files. All service credentials and schedd caches are accessed via host mount points
+ * `wmagent-docker-build.sh` - simple script to be used for building a WMAgent docker image
+ * `wmagent-docker-run.sh` - simple script to be used for running a WMAgent docker container
 
 **Build options (accepted by `install.sh`):**
 * `WMA_TAG=2.2.0.2`
@@ -32,7 +34,7 @@ cd /data
 git clone https://github.com/dmwm/CMSKubernetes.git
 
 WMA_TAG=2.2.0.2
-docker build --network=host --progress=plain --build-arg WMA_TAG=$WMA_TAG -t wmagent:$WMA_TAG /data/CMSKubernetes/docker/pypi/wmagent/ 2>&1 |tee /data/build-wma.log
+docker build --network=host --progress=plain --build-arg WMA_TAG=$WMA_TAG -t wmagent:$WMA_TAG -t wmagent:latest  /data/CMSKubernetes/docker/pypi/wmagent/ 2>&1 |tee /data/build-wma.log
 ```
 **Partial output:**
 ```
@@ -71,7 +73,6 @@ ssh vocms****
 
 cmst1
 
-WMA_TAG=2.2.0.2
 dockerOpts=" \
 --network=host --rm --hostname=`hostname -f` --name=wmagent \
 -v /data/certs:/data/certs:Z,ro \
@@ -87,7 +88,7 @@ wmaOpts=" \
 -n 0 \
 -c cmsweb-testbed.cern.ch"
 
-docker run $dockerOpts wmagent:$WMA_TAG $wmaOpts
+docker run $dockerOpts wmagent $wmaOpts
 ```
 
 **Partial output:**

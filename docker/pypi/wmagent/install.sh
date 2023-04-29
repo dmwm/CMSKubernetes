@@ -17,7 +17,7 @@ help(){
 The basic WMAgent deployment script for Docker image creation:
 Usage: install.sh -v <wmagent_tag>
 
-      -v <wmagent_tag>    The WMAgent version/tag to be used for the Docker image creation
+    -v <wmagent_tag>    The WMAgent version/tag to be used for the Docker image creation
 
 Example: ./install.sh -v 2.2.0.2
 
@@ -32,7 +32,7 @@ usage(){
 WMA_TAG=None
 
 ### Argument parsing:
-while getopts ":v:" opt; do
+while getopts ":v:h" opt; do
     case ${opt} in
         v) WMA_TAG=$OPTARG ;;
         h) help; exit $? ;;

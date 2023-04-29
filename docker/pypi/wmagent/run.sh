@@ -27,10 +27,10 @@ The initial run.sh script for the wmagent container. It is used to:
 
 Usage: run.sh [-t <team_name>] [-n <agent_number>] [-c <central_services_url>] [-f <db_flavour>]
 
-              -t <team_name>    Team name in which the agent should be connected to
-              -n <agent_number> Agent number to be set when more than 1 agent connected to the same team (Default: 0)
-              -f <db_flavour>   Relational Database flavour. Possible optinos are: `mysql` or `oracle` (Default: myslq)
-              -c <central_services> Url to central services hosting central couchdb (Default: cmsweb-testbed.cern.ch)
+    -t <team_name>    Team name in which the agent should be connected to
+    -n <agent_number> Agent number to be set when more than 1 agent connected to the same team (Default: 0)
+    -f <db_flavour>   Relational Database flavour. Possible optinos are: 'mysql' or 'oracle' (Default: myslq)
+    -c <central_services> Url to central services hosting central couchdb (Default: cmsweb-testbed.cern.ch)
 
 Example: ./run.sh -w 2.2.0.2 -n 30 -t testbed-vocms001 -c cmsweb-testbed.cern.ch
 
@@ -449,7 +449,6 @@ set_crontabs() {
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
 }
-
 
 main(){
     basic_checks
