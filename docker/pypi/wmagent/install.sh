@@ -129,9 +129,6 @@ echo "Start $stepMsg"
 echo "Done $stepMsg!" && echo
 echo "-----------------------------------------------------------------------"
 
-###
-# Add WMA_USER's runtime aliases:
-###
 stepMsg="Creating all runtime aliases for the WMA_USER"
 echo "-----------------------------------------------------------------------"
 echo "Start $stepMsg"

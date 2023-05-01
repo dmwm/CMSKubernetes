@@ -222,6 +222,7 @@ deploy_to_host(){
         else
             [[ -d $WMA_CONFIG_DIR/$service ]] || mkdir -p $WMA_CONFIG_DIR/$service ; let errVal+=$?
             cp -f $WMA_DEPLOY_DIR/${config} $WMA_CONFIG_DIR/$service/ ; let errVal+=$?
+            [[ $config = "manage" ]] && chmod 755 $WMA_CONFIG_DIR/$service/$config
         fi
         [[ $errVal -eq 0 ]] && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/$service/.dockerInit
     done
@@ -456,6 +457,7 @@ main(){
         (agent_upload_config)    || { err=$?; echo "ERROR: agent_upload_config"; exit $err ;}
         (check_docker_init)      || { err=$?; echo "ERROR: DockerBuild vs. HostConfiguration version missmatch"; exit $err ; }
     }
+    deploy_to_container
     check_databases
     services_start
     agent_start

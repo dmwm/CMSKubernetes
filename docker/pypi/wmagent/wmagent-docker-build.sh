@@ -10,6 +10,7 @@ help(){
     cat <<EOF
 
 The WMAgent docker build script for Docker image creation based on pypi:
+
 Usage: wmagent-docker-build.sh -v <wmagent_tag>
 
     -v <wmagent_tag>    The WMAgent version/tag to be used for the Docker image creation
