@@ -274,7 +274,7 @@ check_wmasecrets(){
 deploy_to_container() {
     # This function does all the needed Host to Docker image modifications at Runtime
     # TODO: Here we should identify the type (prod/test) and flavour(mysql/oracle) of the agent and then:
-    #       * Copy WMAgent.secrets files from host and the container - it will be needed only once during the initialisation step
+    #       * Copy WMAgent.secrets files from host to the container - it will be needed by the manage script during the initialisation step
     #       * call check certs and all other authentications
     #
     # NOTE: On every step to check the .dockerInit file contend and compare similarly to deploy_to_host
@@ -299,9 +299,9 @@ deploy_to_container() {
 
     # Update WMagent.secrets file:
     echo "$FUNCNAME: Updating WMAgent.secrets file with the current host's details"
-    sed -i "s+MYSQL_USER=+MYSQL_USER=$WMA_USER+" $WMA_ADMIN_DIR/WMAgent.secrets
-    sed -i "s+COUCH_USER=+COUCH_USER=$WMA_USER+" $WMA_ADMIN_DIR/WMAgent.secrets
-    sed -i "s+COUCH_HOST=127.0.0.1+COUCH_HOST=$HOSTIP+" $WMA_ADMIN_DIR/WMAgent.secrets
+    sed -i "s/MYSQL_USER=.*/MYSQL_USER=$WMA_USER/g" $WMA_ADMIN_DIR/WMAgent.secrets
+    sed -i "s/COUCH_USER=.*/COUCH_USER=$WMA_USER/g" $WMA_ADMIN_DIR/WMAgent.secrets
+    sed -i "s/COUCH_HOST=127\.0\.0\.1/COUCH_HOST=$HOSTIP/g" $WMA_ADMIN_DIR/WMAgent.secrets
 
     # Double checking the final result:
     echo "$FUNCNAME: Double checking the final WMAgent.secrets file"
