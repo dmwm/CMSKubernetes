@@ -195,11 +195,7 @@ deploy_to_host(){
     echo "$FUNCNAME: Initialise install"
     _init_valid $WMA_INSTALL_DIR || {
         mkdir -p $WMA_INSTALL_DIR/{wmagent,mysql,couchdb} && echo $WMA_BUILD_ID > $WMA_INSTALL_DIR/.dockerInit
-        # local errVal=0
-        # for service in $serviceList; do
-        #     [[ -d $WMA_INSTALL_DIR/$service ]] || mkdir -p $WMA_INSTALL_DIR/$service && echo $WMA_BUILD_ID > $WMA_INSTALL_DIR/$service/.dockerInit
-        # done
-        # [[ $errVal -eq 0 ]] && echo $WMA_BUILD_ID > $WMA_INSTALL_DIR/.dockerInit
+        ln -s $WMA_INSTALL_DIR/wmagent $WMA_INSTALL_DIR/wmagentpy3
     }
 
     # Check if the host has all config files and copy them if missing
@@ -222,7 +218,11 @@ deploy_to_host(){
         else
             [[ -d $WMA_CONFIG_DIR/$service ]] || mkdir -p $WMA_CONFIG_DIR/$service ; let errVal+=$?
             cp -f $WMA_DEPLOY_DIR/${config} $WMA_CONFIG_DIR/$service/ ; let errVal+=$?
-            [[ $config = "manage" ]] && chmod 755 $WMA_CONFIG_DIR/$service/$config
+        fi
+        if [[ $service = "wmagent" ]]
+        then
+            chmod 755 $WMA_CONFIG_DIR/$service/$config;
+            ln -s $WMA_CONFIG_DIR/$service $WMA_CONFIG_DIR/wmagentpy3
         fi
         [[ $errVal -eq 0 ]] && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/$service/.dockerInit
     done
