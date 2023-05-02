@@ -3,7 +3,7 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 # Install basic OS package dependencies
 RUN apt-get update
-RUN apt-get install -y libmariadb-dev-compat libmariadb-dev apache2-utils hostname net-tools iputils-ping cron
+RUN apt-get install -y libmariadb-dev-compat libmariadb-dev apache2-utils hostname net-tools iputils-ping cron mariadb-server
 
 # WMA_TAG to be passed at build time through `--build-arg WMA_TAG=<WMA_TAG>`. Default: None
 ARG WMA_TAG=None
@@ -32,6 +32,8 @@ ENV WMA_ENV_FILE=$WMA_ADMIN_DIR/env.sh
 RUN groupadd -g ${WMA_GID} ${WMA_GROUP}
 RUN useradd -u ${WMA_UID} -g ${WMA_GID} -m ${WMA_USER}
 RUN install -o ${WMA_USER} -g ${WMA_GID} -d ${WMA_ROOT_DIR}
+RUN usermod -aG mysql ${WMA_USER}
+RUN rm -f /etc/mysql/mariadb.conf.d/50-server.cnf
 
 # Add WMA_USER to sudoers
 RUN echo "${WMA_USER} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
@@ -49,6 +51,7 @@ RUN chown -R ${WMA_USER}:${WMA_GID} ${WMA_ROOT_DIR}
 # Switch to the runtime directory and user
 WORKDIR ${WMA_ROOT_DIR}
 USER ${WMA_USER}
+ENV USER=$WMA_USER
 
 # Define the entrypoint. All the run.sh paramters should be passed at runtime.
 ENTRYPOINT ["./run.sh"]
