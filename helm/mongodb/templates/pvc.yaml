@@ -2,6 +2,8 @@ kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
   name: cpio1
+  annotations:
+    "helm.sh/resource-policy": keep
 provisioner: kubernetes.io/cinder
 parameters:
   type: cpio1
@@ -11,6 +13,8 @@ kind: PersistentVolumeClaim
 metadata:
   namespace: {{.Values.quickSetting.namespace}}
   name: {{.Values.db.instance0.pvName}}
+  annotations:
+    "helm.sh/resource-policy": keep
 spec:
   accessModes:
     - {{.Values.quickSetting.pvc.accessMode}}
@@ -24,6 +28,8 @@ kind: PersistentVolumeClaim
 metadata:
   namespace: {{.Values.quickSetting.namespace}}
   name: {{.Values.db.instance1.pvName}}
+  annotations:
+    "helm.sh/resource-policy": keep
 spec:
   accessModes:
     - {{.Values.quickSetting.pvc.accessMode}}
@@ -37,6 +43,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: {{.Values.db.instance2.pvName}}
   namespace: {{.Values.quickSetting.namespace}}
+  annotations:
+    "helm.sh/resource-policy": keep
 spec:
   accessModes:
     - {{.Values.quickSetting.pvc.accessMode}}
