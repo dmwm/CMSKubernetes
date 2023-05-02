@@ -24,7 +24,7 @@ Usage: wmagent-docker-run.sh [-t <team_name>] [-n <agent_number>] [-c <central_s
     -f <db_flavour>   Relational Database flavour. Possible optinos are: 'mysql' or 'oracle' (Default: myslq)
     -c <central_services> Url to central services hosting central couchdb (Default: cmsweb-testbed.cern.ch)
 
-Example: ./wmagent-docker-run.sh -w 2.2.0.2 -n 30 -t testbed-vocms001 -c cmsweb-testbed.cern.ch
+Example: ./wmagent-docker-run.sh -n 30 -t testbed-vocms001 -c cmsweb-testbed.cern.ch -f mysql
 
 EOF
 }
@@ -44,19 +44,27 @@ while getopts ":h" opt; do
     esac
 done
 
-# WMA_TAG=latest
+# This is the root at the host only, it may differ from the root inside the container.
+WMA_ROOT_DIR=/data
+
+[[ -d $WMA_ROOT_DIR/certs ]] || (mkdir -p $WMA_ROOT_DIR/certs) || exit $?
+[[ -d $WMA_ROOT_DIR/admin/wmagent ]] || (mkdir -p $WMA_ROOT_DIR/admin/wmagent) || exit $?
+[[ -d $WMA_ROOT_DIR/srv/wmagent/current/install ]] || (mkdir -p $WMA_ROOT_DIR/srv/wmagent/current/install) || exit $?
+[[ -d $WMA_ROOT_DIR/srv/wmagent/current/config  ]] || (mkdir -p $WMA_ROOT_DIR/srv/wmagent/current/config)  || exit $?
+
 dockerOpts=" \
 --network=host \
 --rm \
 --hostname=`hostname -f` \
 --name=wmagent \
--v /data/certs:/data/certs:Z,ro \
--v /etc/condor:/etc/condor:Z,ro \
--v /tmp:/tmp:Z \
--v /data/srv/wmagent/current/install:/data/srv/wmagent/current/install:Z \
--v /data/srv/wmagent/current/config:/data/srv/wmagent/current/config:Z \
--v /data/admin/wmagent:/data/admin/wmagent/hostadmin:Z \
+--mount type=bind,source=$WMA_ROOT_DIR/certs,target=/data/certs,readonly \
+--mount type=bind,source=/etc/condor,target=/etc/condor,readonly \
+--mount type=bind,source=/tmp,target=/tmp \
+--mount type=bind,source=$WMA_ROOT_DIR/srv/wmagent/current/install,target=/data/srv/wmagent/current/install \
+--mount type=bind,source=$WMA_ROOT_DIR/srv/wmagent/current/config,target=/data/srv/wmagent/current/config \
+--mount type=bind,source=$WMA_ROOT_DIR/admin/wmagent,target=/data/admin/wmagent/hostadmin \
 "
+
 wmaOpts=$*
 
 # docker run $dockerOpts wmagent:$WMA_TAG $wmaOpts

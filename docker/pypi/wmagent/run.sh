@@ -32,7 +32,7 @@ Usage: run.sh [-t <team_name>] [-n <agent_number>] [-c <central_services_url>] [
     -f <db_flavour>   Relational Database flavour. Possible optinos are: 'mysql' or 'oracle' (Default: myslq)
     -c <central_services> Url to central services hosting central couchdb (Default: cmsweb-testbed.cern.ch)
 
-Example: ./run.sh -w 2.2.0.2 -n 30 -t testbed-vocms001 -c cmsweb-testbed.cern.ch
+Example: ./run.sh -n 30 -t testbed-vocms001 -c cmsweb-testbed.cern.ch -f mysql
 
 EOF
 }
@@ -329,24 +329,24 @@ check_docker_init() {
     # mismatch between the host and the container
 
     local DOCKER_INIT_LIST="
-        $WMA_INSTALL_DIR/.dockerInit
-        $WMA_CONFIG_DIR/.dockerInit
-        $WMA_CONFIG_DIR/wmagent/.dockerInit
-        $WMA_CONFIG_DIR/mysql/.dockerInit
-        $WMA_CONFIG_DIR/couchdb/.dockerInit
-        $WMA_CONFIG_DIR/rucio/.dockerInit
-        $WMA_HOSTADMIN_DIR/.dockerInit
+        $WMA_INSTALL_DIR
+        $WMA_CONFIG_DIR
+        $WMA_CONFIG_DIR/wmagent
+        $WMA_CONFIG_DIR/mysql
+        $WMA_CONFIG_DIR/couchdb
+        $WMA_CONFIG_DIR/rucio
+        $WMA_HOSTADMIN_DIR
         "
-    touch $DOCKER_INIT_LIST
     local stepMsg="Performing checks for successful Docker initialisation steps..."
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
+    # touch $DOCKER_INIT_LIST
     local dockerInitId=""
     local dockerInitIdValues=""
     local idValue=""
     for initFile in $DOCKER_INIT_LIST; do
-        idValue=$(cat $initFile 2>&1)
-        [[ -z $idValue ]] && idValue=$(realpath $initFile)
+        initFile=$initFile/.dockerInit
+        _init_valid $initFile && idValue=$(cat $initFile 2>&1) || idValue=$initFile
         dockerInitIdValues="$dockerInitIdValues $idValue"
     done
     dockerInitId=$(for id in $dockerInitIdValues; do echo $id; done |sort|uniq)
