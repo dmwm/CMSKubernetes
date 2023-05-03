@@ -57,9 +57,9 @@ dockerOpts=" \
 --rm \
 --hostname=`hostname -f` \
 --name=wmagent \
---mount type=bind,source=$WMA_ROOT_DIR/certs,target=/data/certs,readonly \
 --mount type=bind,source=/etc/condor,target=/etc/condor,readonly \
 --mount type=bind,source=/tmp,target=/tmp \
+--mount type=bind,source=$WMA_ROOT_DIR/certs,target=/data/certs \
 --mount type=bind,source=$WMA_ROOT_DIR/srv/wmagent/current/install,target=/data/srv/wmagent/current/install \
 --mount type=bind,source=$WMA_ROOT_DIR/srv/wmagent/current/config,target=/data/srv/wmagent/current/config \
 --mount type=bind,source=$WMA_ROOT_DIR/admin/wmagent,target=/data/admin/wmagent/hostadmin \

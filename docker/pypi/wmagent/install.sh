@@ -167,7 +167,7 @@ echo "-----------------------------------------------------------------------"
 echo "Start $stepMsg"
 
 crontab -u $WMA_USER - <<EOF
-55 */12 * * * (export X509_USER_CERT=/data/certs/servicecert.pem; export X509_USER_KEY=/data/certs/servicekey.pem; myproxy-get-delegation -v -l amaltaro -t 168 -s 'myproxy.cern.ch' -k $MYPROXY_CREDNAME -n -o /data/certs/mynewproxy.pem && voms-proxy-init -rfc -voms cms:/cms/Role=production -valid 168:00 -noregen -cert /data/certs/mynewproxy.pem -key /data/certs/mynewproxy.pem -out /data/certs/myproxy.pem)
+55 */12 * * * /data/admin/wmagent/renew_proxy.sh
 58 */12 * * * python /data/admin/wmagent/checkProxy.py --proxy /data/certs/myproxy.pem --time 120 --send-mail True --mail alan.malta@cern.ch
 */15 * * * *  source /data/admin/wmagent/restartComponent.sh > /dev/null
 EOF

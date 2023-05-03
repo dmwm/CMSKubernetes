@@ -273,7 +273,7 @@ check_wmasecrets(){
 
 deploy_to_container() {
     # This function does all the needed Host to Docker image modifications at Runtime
-    # TODO: Here we should identify the type (prod/test) and flavour(mysql/oracle) of the agent and then:
+    # TODO: Here we should identify the type (prod/test) and flavour (mysql/oracle) and domain (CERN/FNAL) of the agent and then:
     #       * Copy WMAgent.secrets files from host to the container - it will be needed by the manage script during the initialisation step
     #       * call check certs and all other authentications
     #
@@ -309,7 +309,54 @@ deploy_to_container() {
 
     # Checking Certificates and proxy;
     echo "$FUNCNAME: Checking Certificates and Proxy"
+    local certMinLifetimeHours=168
+    local certMinLifetimeSec=$(($certMinLifetimeHours*60*60))
+    # DONE: Here to find out if the agent is CERN or FNAL and change renew_proxy.sh respectively
+    if [[ "$HOSTNAME" == *cern.ch ]]; then
+        MYPROXY_CREDNAME="amaltaroCERN"
+    elif [[ "$HOSTNAME" == *fnal.gov ]]; then
+        MYPROXY_CREDNAME="amaltaroFNAL"
+    else
+        echo "$FUNCNAME: ERROR: Sorry, we do not recognize the network domain name of the current host: $HOSTNAME"
+        return $(false)
+    fi
+    sed -i "s/credname=CREDNAME/credname=$MYPROXY_CREDNAME/g" $WMA_ADMIN_DIR/renew_proxy.sh
+    chmod 755 $WMA_ADMIN_DIR/renew_proxy.sh
 
+    # Here to check certificates and update myproxy if needed:
+    if [[ -f $WMA_CERTS_DIR/servicecert.pem ]] && [[ -f $WMA_CERTS_DIR/servicekey.pem ]]; then
+
+        echo "$FUNCNAME: Checking Certificate lifetime:"
+        local now=$(date +%s)
+        local certEndDate=$(openssl x509 -in $WMA_CERTS_DIR/servicecert.pem -noout -enddate)
+        certEndDate=${certEndDate##*=}
+        echo "$FUNCNAME: Certifficate end date: $certEndDate"
+        [[ -z $certEndDate ]] && { echo "ERROR: Failed to determine certificate end date!"; return $(false) ;}
+
+        certEndDate=$(date --date="$certEndDate" +%s)
+        [[ $certEndDate -le $now ]] && { echo "ERROR: Expired certificate at $WMA_CERTS_DIR/servicecert.pem!"; return $(false) ;}
+        [[ $(($certEndDate -$now)) -le $certMinLifetimeSec ]] && { echo "WARNING: The service certificate lifetime is less than certMinLifetimeHours: $certMinLifetimeHours! Please update it ASAP!" ;}
+
+        # Renew myproxy if needed:
+        echo "$FUNCNAME: Checking myproxy lifetime:"
+        local myproxyEndDate=$(openssl x509 -in $WMA_CERTS_DIR/myproxy.pem -noout -enddate)
+        myproxyEndDate=${myproxyEndDate##*=}
+        echo "$FUNCNAME: myproxy end date: $myproxyEndDate"
+        [[ -n $myproxyEndDate ]] || ($WMA_ADMIN_DIR/renew_proxy.sh) || { echo "ERROR: Failed to renew myproxy"; return $(false) ;}
+
+        myproxyEndDate=$(date --date="$myproxyEndDate" +%s)
+        [[ $myproxyEndDate -gt $now ]] || ($WMA_ADMIN_DIR/renew_proxy.sh) || { echo "ERROR: Failed to renew myproxy"; return $(false) ;}
+
+        # Stay safe and always change the service {cert,key} and myproxy mode here:
+        sudo chmod 600 $WMA_CERTS_DIR/*
+        echo "$FUNCNAME: OK"
+    else
+        echo "ERROR: We found no service certificate installed at $WMA_CERTS_DIR!"
+        echo "ERROR: Please install proper cert and key files before restarting the WMAgent container!"
+        return $(false)
+    fi
+
+    # Update flavour/type/domain global variables if needed
 
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
@@ -457,7 +504,7 @@ main(){
         (agent_upload_config)    || { err=$?; echo "ERROR: agent_upload_config"; exit $err ;}
         (check_docker_init)      || { err=$?; echo "ERROR: DockerBuild vs. HostConfiguration version missmatch"; exit $err ; }
     }
-    deploy_to_container
+    (deploy_to_container)        || { err=$?; echo "ERROR: deploy_to_container"; exit $err ;}
     check_databases
     services_start
     agent_start
@@ -470,24 +517,24 @@ exit 0
 
 ### Runs some basic checks before actually starting the deployment procedure
 
-check_certs()
-{
-  echo -ne "\nChecking whether the certificates and proxy are in place ..."
-  if [ ! -f $WMA_CERTS_DIR/myproxy.pem ] || [ ! -f $WMA_CERTS_DIR/servicecert.pem ] || [ ! -f $WMA_CERTS_DIR/servicekey.pem ]; then
-    echo -e "\n  ... nope, trying to copy them from another node, you might be prompted for the cmst1 password."
-    set -e
-    if [[ "$IAM" == cmst1 ]]; then
-      scp cmst1@vocms0250:/data/certs/* /data/certs/
-    else
-      scp cmsdataops@cmsgwms-submit3:/data/certs/* /data/certs/
-    fi
-    set +e
-    chmod 600 $WMA_CERTS_DIR/*
-  else
-    chmod 600 $WMA_CERTS_DIR/*
-  fi
-  echo -e "  OK!\n"
-}
+# check_certs()
+# {
+#   echo -ne "\nChecking whether the certificates and proxy are in place ..."
+#   if [ ! -f $WMA_CERTS_DIR/myproxy.pem ] || [ ! -f $WMA_CERTS_DIR/servicecert.pem ] || [ ! -f $WMA_CERTS_DIR/servicekey.pem ]; then
+#     echo -e "\n  ... nope, trying to copy them from another node, you might be prompted for the cmst1 password."
+#     set -e
+#     if [[ "$IAM" == cmst1 ]]; then
+#       scp cmst1@vocms0250:/data/certs/* /data/certs/
+#     else
+#       scp cmsdataops@cmsgwms-submit3:/data/certs/* /data/certs/
+#     fi
+#     set +e
+#     chmod 600 $WMA_CERTS_DIR/*
+#   else
+#     chmod 600 $WMA_CERTS_DIR/*
+#   fi
+#   echo -e "  OK!\n"
+# }
 
 check_oracle()
 {
@@ -571,16 +618,16 @@ check_oracle
 fi
 
 
-if [[ "$HOSTNAME" == *cern.ch ]]; then
-MYPROXY_CREDNAME="amaltaroCERN"
-FORCEDOWN="'T3_US_NERSC'"
-elif [[ "$HOSTNAME" == *fnal.gov ]]; then
-MYPROXY_CREDNAME="amaltaroFNAL"
-FORCEDOWN=""
-else
-echo "Sorry, I don't know this network domain name"
-exit 3
-fi
+# if [[ "$HOSTNAME" == *cern.ch ]]; then
+# MYPROXY_CREDNAME="amaltaroCERN"
+# FORCEDOWN="'T3_US_NERSC'"
+# elif [[ "$HOSTNAME" == *fnal.gov ]]; then
+# MYPROXY_CREDNAME="amaltaroFNAL"
+# FORCEDOWN=""
+# else
+# echo "Sorry, I don't know this network domain name"
+# exit 3
+# fi
 
 DATA_SIZE=`lsblk -bo SIZE,MOUNTPOINT | grep ' /data1' | sort | uniq | awk '{print $1}'`
 DATA_SIZE_GB=`lsblk -o SIZE,MOUNTPOINT | grep ' /data1' | sort | uniq | awk '{print $1}'`
