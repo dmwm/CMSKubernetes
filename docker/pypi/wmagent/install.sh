@@ -105,10 +105,25 @@ wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/deployment/ma
 wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/WMAgent.production
 wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/WMAgent.testbed
 
+# Download temporary fixes for broken pypi packaging. To be removed upon fixing the bellow two WMCore issues:
+# https://github.com/dmwm/WMCore/issues/11583
+# https://github.com/dmwm/WMCore/issues/11584
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/etc/WMAgentConfig.py
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/bin/wmcoreD
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/bin/wmcore-db-init
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/bin/wmagent-couchapp-init
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/bin/wmagent-delete-couchdb-workflow
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/bin/wmagent-mod-config
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/bin/wmagent-resource-control
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/bin/wmagent-unregister-wmstats
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/bin/wmagent-upload-config
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/bin/wmagent-workqueue
+
 # Download utilitarian scripts:
 wget -nv -P $WMA_ADMIN_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/checkProxy.py
 wget -nv -P $WMA_ADMIN_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/restartComponent.sh
 wget -nv -P $WMA_ADMIN_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/renew_proxy.sh
+
 chmod +x $WMA_ADMIN_DIR/renew_proxy.sh $WMA_ADMIN_DIR/restartComponent.sh
 echo "Done $stepMsg!" && echo
 echo "-----------------------------------------------------------------------"
@@ -155,7 +170,9 @@ alias scurl='curl -k --cert ${CERT_DIR}/servicecert.pem --key ${CERT_DIR}/servic
 # set WMAgent docker specific bash prompt:
 export PS1="(WMAgent.dock) [\u@\h:\w]\$ "
 export WMA_BUILD_ID=\$(cat $WMA_ROOT_DIR/.dockerBuildId)
-
+export WMAGENTPY3_ROOT=\$WMA_INSTALL_DIR/wmagent
+export WMAGENTPY3_VERSION=\$WMA_TAG
+export PATH=\$WMA_INSTALL_DIR/wmagent/bin\${PATH:+:\$PATH}
 EOF
 
 set +x

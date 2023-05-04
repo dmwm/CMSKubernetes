@@ -58,6 +58,9 @@ FLAVOR=mysql
 # NOTE: The $WMA_BUILD_ID is exported only from $WMA_USER/.bashrc but not from the Dockerfile ENV command
 [[ -n $WMA_BUILD_ID ]] || WMA_BUILD_ID=$(cat $WMA_ROOT_DIR/.dockerBuildId) || { echo "ERROR: Cuold not find/set WMA_UILD_ID"; exit 1 ;}
 
+# TODO: To fix the bellow two exports in the manage script - this will breack backwards compatibility
+# NOTE: The $WMAGENTPY3_ROOT is exported only from $WMA_USER/.bashrc but not from the Dockerfile ENV command
+# NOTE: The $WMAGENTPY3_VERSION is exported only from $WMA_USER/.bashrc but not from the Dockerfile ENV command
 
 ### Argument parsing:
 # export OPTIND=1
@@ -198,6 +201,13 @@ deploy_to_host(){
     _init_valid $WMA_INSTALL_DIR || {
         mkdir -p $WMA_INSTALL_DIR/{wmagent,mysql,couchdb} && echo $WMA_BUILD_ID > $WMA_INSTALL_DIR/.dockerInit
         ln -s $WMA_INSTALL_DIR/wmagent $WMA_INSTALL_DIR/wmagentpy3
+
+        # Temporary fixes for broken pypi packaging. To be removed upon fixing the bellow two WMCore issues:
+        # https://github.com/dmwm/WMCore/issues/11583
+        # https://github.com/dmwm/WMCore/issues/11584
+        mkdir -p $WMA_INSTALL_DIR/wmagent/{bin,etc}
+        cp -f $WMA_DEPLOY_DIR/wm{core,agent}* $WMA_INSTALL_DIR/wmagent/bin
+        cp -f $WMA_DEPLOY_DIR/WMAgentConfig.py $WMA_INSTALL_DIR/wmagent/etc
     }
 
     # Check if the host has all config files and copy them if missing
