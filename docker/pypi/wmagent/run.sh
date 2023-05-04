@@ -78,7 +78,7 @@ while getopts ":t:n:c:f:h" opt; do
 done
 
 # Check runtime arguments:
-TEAMNAME_REG="(^production$|^testbed-.*$|^relval.*$)"
+TEAMNAME_REG="(^production$|^testbed-.*$|^dev-.*$|^relval.*$)"
 [[ $TEAMNAME =~ $TEAMNAME_REG ]] || { echo "TEAMNAME: $TEAMNAME does not match requered expression: $TEAMNAME_REG"; echo "EXIT with Error 1"  ; exit 1 ;}
 
 FLAVOR_REG="(^oracle$|^mysql$)"
@@ -105,6 +105,8 @@ echo " - Python  Verson             : $(python --version)"
 echo " - Python  Module path        : $pythonLib"
 echo "======================================================="
 echo
+
+source $WMA_ENV_FILE
 
 _check_mounts() {
     # An auxiliay function to check if a given mountpoint is among the actually
@@ -154,10 +156,10 @@ _parse_wmasecrets(){
     local secretsFile=$1
     # All variables need to be fetched in lowercase through: ${var,,}
     local badValuesReg="(update-me|updateme|<update-me>|<updateme>|fix-me|fixme|<fix-me>|<fixme>|^$)"
-    local varsToCheck=`awk -F\= '{print $1}' $secretsFile | grep -v ^#`
+    local varsToCheck=`awk -F\= '{print $1}' $secretsFile | grep -vE "^[[:blank:]]*#.*$"`
     for var in $varsToCheck
     do
-        value=`grep $var $secretsFile | awk -F\= '{print $2}'`
+        value=`grep -E "^[[:blank:]]*$var" $secretsFile | awk -F\= '{print $2}'`
         [[ ${value,,} =~ $badValuesReg ]] && { echo "$FUNCNAME: Bad value for: $var=$value"; let errVal+=1 ;}
     done
     return $errVal
@@ -239,8 +241,10 @@ deploy_to_host(){
     echo "$FUNCNAME: Initialise WMAgent.secrets"
     _init_valid $WMA_HOSTADMIN_DIR || {
         if [[ ! -f $WMA_HOSTADMIN_DIR/WMAgent.secrets ]]; then
-            # NOTE: we consider production templates for relval agents
-            local agentType=${TEAMNAME%%-*} && agentType=${agentType/relval*/production}
+            # NOTE: we consider production templates for relval agents and testbed templates for dev- agents
+            local agentType=${TEAMNAME%%-*}
+            agentType=${agentType/relval*/production}
+            agentType=${agentType/dev*/testbed}
             echo "$FUNCNAME: copying $WMA_DEPLOY_DIR/WMAgent.$agentType to $WMA_HOSTADMIN_DIR/WMAgent.secrets"
             cp -f $WMA_DEPLOY_DIR/WMAgent.$agentType $WMA_HOSTADMIN_DIR/WMAgent.secrets
         fi
@@ -273,8 +277,8 @@ check_wmasecrets(){
 
 deploy_to_container() {
     # This function does all the needed Host to Docker image modifications at Runtime
-    # TODO: Here we should identify the type (prod/test) and flavour (mysql/oracle) and domain (CERN/FNAL) of the agent and then:
-    #       * Copy WMAgent.secrets files from host to the container - it will be needed by the manage script during the initialisation step
+    # NOTE: Here we identify the type (prod/test) and flavour (mysql/oracle) and domain (CERN/FNAL) of the agent and then:
+    #       * Copy WMAgent.secrets files from host to the container - it will be needed by the manage script during initialisation and startup steps
     #       * call check certs and all other authentications
     #
     # NOTE: On every step to check the .dockerInit file contend and compare similarly to deploy_to_host
@@ -289,6 +293,7 @@ deploy_to_container() {
     #       steps to be repeated upon container restart.
     echo "$FUNCNAME: Try Copying the host WMAgent.secrets file into the container admin area"
     if _init_valid $WMA_HOSTADMIN_DIR; then
+        # grep -vE "^[[:blank:]]*#.*$" $WMA_HOSTADMIN_DIR/WMAgent.secrets > $WMA_ADMIN_DIR/WMAgent.secrets
         cp -f $WMA_HOSTADMIN_DIR/WMAgent.secrets $WMA_ADMIN_DIR/
         md5sum $WMA_HOSTADMIN_DIR/WMAgent.secrets > $WMA_HOSTADMIN_DIR/.WMAgent.secrets.md5
         echo "$FUNCNAME: Done"
@@ -313,14 +318,14 @@ deploy_to_container() {
     local certMinLifetimeSec=$(($certMinLifetimeHours*60*60))
     # DONE: Here to find out if the agent is CERN or FNAL and change renew_proxy.sh respectively
     if [[ "$HOSTNAME" == *cern.ch ]]; then
-        MYPROXY_CREDNAME="amaltaroCERN"
+        local myproxyCredName="amaltaroCERN"
     elif [[ "$HOSTNAME" == *fnal.gov ]]; then
-        MYPROXY_CREDNAME="amaltaroFNAL"
+        local myproxyCredName="amaltaroFNAL"
     else
         echo "$FUNCNAME: ERROR: Sorry, we do not recognize the network domain name of the current host: $HOSTNAME"
         return $(false)
     fi
-    sed -i "s/credname=CREDNAME/credname=$MYPROXY_CREDNAME/g" $WMA_ADMIN_DIR/renew_proxy.sh
+    sed -i "s/credname=CREDNAME/credname=$myproxyCredName/g" $WMA_ADMIN_DIR/renew_proxy.sh
     chmod 755 $WMA_ADMIN_DIR/renew_proxy.sh
 
     # Here to check certificates and update myproxy if needed:
@@ -342,10 +347,10 @@ deploy_to_container() {
         local myproxyEndDate=$(openssl x509 -in $WMA_CERTS_DIR/myproxy.pem -noout -enddate)
         myproxyEndDate=${myproxyEndDate##*=}
         echo "$FUNCNAME: myproxy end date: $myproxyEndDate"
-        [[ -n $myproxyEndDate ]] || ($WMA_ADMIN_DIR/renew_proxy.sh) || { echo "ERROR: Failed to renew myproxy"; return $(false) ;}
+        [[ -n $myproxyEndDate ]] || ($WMA_ADMIN_DIR/renew_proxy.sh) || { echo "ERROR: Failed to renew invalid myproxy"; return $(false) ;}
 
         myproxyEndDate=$(date --date="$myproxyEndDate" +%s)
-        [[ $myproxyEndDate -gt $now ]] || ($WMA_ADMIN_DIR/renew_proxy.sh) || { echo "ERROR: Failed to renew myproxy"; return $(false) ;}
+        [[ $myproxyEndDate -gt $now ]] || ($WMA_ADMIN_DIR/renew_proxy.sh) || { echo "ERROR: Failed to renew expired myproxy"; return $(false) ;}
 
         # Stay safe and always change the service {cert,key} and myproxy mode here:
         sudo chmod 600 $WMA_CERTS_DIR/*
@@ -356,17 +361,31 @@ deploy_to_container() {
         return $(false)
     fi
 
-    # Update flavour/type/domain global variables if needed
+    # Update flavor/type/domain global variables if needed
+    # (grep -E "^[[:blank:]]*ORACLE_" $WMA_ADMIN_DIR/WMAgent.secrets > /dev/null) && CURR_FLAVOR=oracle || CURR_FLAVOR=mysql
 
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
 }
 
 check_databases() {
-# TODO: Here to check all databases - relational and CouchDB
-#       * call check_oracle or check_sql or similar
-#       * call check_couchdb
-    true
+    # TODO: Here to check all databases - relational and CouchDB
+    #       * call check_oracle or check_sql or similar
+    #       * call check_couchdb
+    local oracleCred=false
+    local mysqlCred=false
+    (grep -E "^[[:blank:]]*(ORACLE_USER)" $WMA_ADMIN_DIR/WMAgent.secrets > /dev/null) && oracleCred=true || oracleCred=false
+    (grep -E "^[[:blank:]]*(ORACLE_PASS)" $WMA_ADMIN_DIR/WMAgent.secrets > /dev/null) && oracleCred=true || oracleCred=false
+    (grep -E "^[[:blank:]]*(ORACLE_TNS)" $WMA_ADMIN_DIR/WMAgent.secrets > /dev/null) && oracleCred=true || oracleCred=false
+
+    (grep -E "^[[:blank:]]*(MYSQL_USER)" $WMA_ADMIN_DIR/WMAgent.secrets > /dev/null) && mysqlCred=true || mysqlCred=false
+    (grep -E "^[[:blank:]]*(MYSQL_PASS)" $WMA_ADMIN_DIR/WMAgent.secrets > /dev/null) && mysqlCred=true || mysqlCred=false
+
+    # Checking for relational database credentials at WMAgent.secrets file
+    case $FLAVOR in
+        mysql)  $mysqlCred  || { echo "ERROR: No Mysql database credentials provided at $WMA_ADMIN_DIR/WMAgent.secrets"; return $(false) ;} ;;
+        oracle) $oracleCred || { echo "ERROR: No Oracle database credentials provided at $WMA_ADMIN_DIR/WMAgent.secrets"; return $(false) ;} ;;
+    esac
 }
 
 check_docker_init() {
@@ -401,26 +420,6 @@ check_docker_init() {
     echo "dockerInitId: $dockerInitId"
     [[ $dockerInitId == $WMA_BUILD_ID ]] && { echo "OK"; return $(true) ;} || { echo "ERROR"; return $(false) ;}
 
-}
-
-services_start() {
-    local stepMsg="Performing $FUNCNAME"
-    echo "-------------------------------------------------------"
-    echo "Start: $stepMsg"
-    true
-    echo "Done: $stepMsg"
-    echo "-------------------------------------------------------"
-}
-
-agent_start() {
-    local stepMsg="Performing $FUNCNAME"
-    echo "-------------------------------------------------------"
-    echo "Start: $stepMsg"
-    echo "-------------------------------------------------------"
-    echo "Start sleeping now ...zzz..."
-    while true; do sleep 10; done
-    echo "Done: $stepMsg"
-    echo "-------------------------------------------------------"
 }
 
 agent_activate() {
@@ -489,14 +488,35 @@ agent_upload_config(){
     echo "-------------------------------------------------------"
 }
 
+start_services() {
+    local stepMsg="Performing $FUNCNAME"
+    echo "-------------------------------------------------------"
+    echo "Start: $stepMsg"
+    $manage start-services
+    echo "Done: $stepMsg"
+    echo "-------------------------------------------------------"
+}
+
+start_agent() {
+    local stepMsg="Performing $FUNCNAME"
+    echo "-------------------------------------------------------"
+    echo "Start: $stepMsg"
+    echo "-------------------------------------------------------"
+    echo "Start sleeping now ...zzz..."
+    while true; do sleep 10; done
+    $manage start-agent
+    echo "Done: $stepMsg"
+    echo "-------------------------------------------------------"
+}
+
 main(){
     basic_checks
     check_wmasecrets
     check_docker_init || {
         (deploy_to_host)         || { err=$?; echo "ERROR: deploy_to_host"; exit $err ;}
         (deploy_to_container)    || { err=$?; echo "ERROR: deploy_to_container"; exit $err ;}
+        start_services
         (check_databases)        || { err=$?; echo "ERROR: check_databases"; exit $err ;}
-        (services_start)         || { err=$?; echo "ERROR: services_start"; exit $err ;}
         (agent_activate)         || { err=$?; echo "ERROR: agent_activate"; exit $err ;}
         (agent_init)             || { err=$?; echo "ERROR: agent_init"; exit $err ;}
         (agent_tweakconfig)      || { err=$?; echo "ERROR: agent_tweakconfig"; exit $err ;}
@@ -505,9 +525,9 @@ main(){
         (check_docker_init)      || { err=$?; echo "ERROR: DockerBuild vs. HostConfiguration version missmatch"; exit $err ; }
     }
     (deploy_to_container)        || { err=$?; echo "ERROR: deploy_to_container"; exit $err ;}
-    check_databases
-    services_start
-    agent_start
+    start_services
+    (check_databases)            || { err=$?; echo "ERROR: check_databases"; exit $err ;}
+    start_agent
 }
 
 main
@@ -601,21 +621,21 @@ check_oracle()
 #   touch $WMA_CONFIG_DIR/.dockerinit
 # }
 
-if [[ -z $WMA_TAG ]] || [[ -z $DEPLOY_TAG ]] || [[ -z $TEAMNAME ]]; then
-  usage
-  exit 2
-fi
+# if [[ -z $WMA_TAG ]] || [[ -z $DEPLOY_TAG ]] || [[ -z $TEAMNAME ]]; then
+#   usage
+#   exit 2
+# fi
 
-basic_checks
+# basic_checks
 
-source $WMA_ENV_FILE;
+# source $WMA_ENV_FILE;
 
-### Are we using Oracle or MySQL
-MATCH_ORACLE_USER=`cat $WMAGENT_SECRETS_LOCATION | grep ORACLE_USER | sed s/ORACLE_USER=//`
-if [ "x$MATCH_ORACLE_USER" != "x" ]; then
-FLAVOR=oracle
-check_oracle
-fi
+# ### Are we using Oracle or MySQL
+# MATCH_ORACLE_USER=`cat $WMAGENT_SECRETS_LOCATION | grep ORACLE_USER | sed s/ORACLE_USER=//`
+# if [ "x$MATCH_ORACLE_USER" != "x" ]; then
+# FLAVOR=oracle
+# check_oracle
+# fi
 
 
 # if [[ "$HOSTNAME" == *cern.ch ]]; then
