@@ -102,27 +102,27 @@ wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/deployment/ma
 wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/deployment/master/wmagentpy3/rucio.cfg
 
 # Download WMAgent.secrets templates:
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/WMAgent.production
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/WMAgent.testbed
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/deploy/WMAgent.production
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/deploy/WMAgent.testbed
 
 # Download temporary fixes for broken pypi packaging. To be removed upon fixing the bellow two WMCore issues:
 # https://github.com/dmwm/WMCore/issues/11583
 # https://github.com/dmwm/WMCore/issues/11584
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/etc/WMAgentConfig.py
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/bin/wmcoreD
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/bin/wmcore-db-init
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/bin/wmagent-couchapp-init
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/bin/wmagent-delete-couchdb-workflow
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/bin/wmagent-mod-config
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/bin/wmagent-resource-control
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/bin/wmagent-unregister-wmstats
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/bin/wmagent-upload-config
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/bin/wmagent-workqueue
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/etc/WMAgentConfig.py
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/bin/wmcoreD
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/bin/wmcore-db-init
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/bin/wmagent-couchapp-init
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/bin/wmagent-delete-couchdb-workflow
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/bin/wmagent-mod-config
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/bin/wmagent-resource-control
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/bin/wmagent-unregister-wmstats
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/bin/wmagent-upload-config
+wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/bin/wmagent-workqueue
 
 # Download utilitarian scripts:
-wget -nv -P $WMA_ADMIN_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/checkProxy.py
-wget -nv -P $WMA_ADMIN_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/restartComponent.sh
-wget -nv -P $WMA_ADMIN_DIR https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/renew_proxy.sh
+wget -nv -P $WMA_ADMIN_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/deploy/checkProxy.py
+wget -nv -P $WMA_ADMIN_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/deploy/restartComponent.sh
+wget -nv -P $WMA_ADMIN_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/deploy/renew_proxy.sh
 
 chmod +x $WMA_ADMIN_DIR/renew_proxy.sh $WMA_ADMIN_DIR/restartComponent.sh
 echo "Done $stepMsg!" && echo

@@ -200,14 +200,7 @@ deploy_to_host(){
     echo "$FUNCNAME: Initialise install"
     _init_valid $WMA_INSTALL_DIR || {
         mkdir -p $WMA_INSTALL_DIR/{wmagent,mysql,couchdb} && echo $WMA_BUILD_ID > $WMA_INSTALL_DIR/.dockerInit
-        ln -s $WMA_INSTALL_DIR/wmagent $WMA_INSTALL_DIR/wmagentpy3
-
-        # Temporary fixes for broken pypi packaging. To be removed upon fixing the bellow two WMCore issues:
-        # https://github.com/dmwm/WMCore/issues/11583
-        # https://github.com/dmwm/WMCore/issues/11584
-        mkdir -p $WMA_INSTALL_DIR/wmagent/{bin,etc}
-        cp -f $WMA_DEPLOY_DIR/wm{core,agent}* $WMA_INSTALL_DIR/wmagent/bin
-        cp -f $WMA_DEPLOY_DIR/WMAgentConfig.py $WMA_INSTALL_DIR/wmagent/etc
+        [[ -h $WMA_INSTALL_DIR/wmagentpy3 ]] || ln -s $WMA_INSTALL_DIR/wmagent $WMA_INSTALL_DIR/wmagentpy3
     }
 
     # Check if the host has all config files and copy them if missing
@@ -234,7 +227,7 @@ deploy_to_host(){
         if [[ $service = "wmagent" ]]
         then
             chmod 755 $WMA_CONFIG_DIR/$service/$config;
-            ln -s $WMA_CONFIG_DIR/$service $WMA_CONFIG_DIR/wmagentpy3
+            [[ -h $WMA_CONFIG_DIR/wmagentpy3 ]] || ln -s $WMA_CONFIG_DIR/$service $WMA_CONFIG_DIR/wmagentpy3
         fi
         [[ $errVal -eq 0 ]] && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/$service/.dockerInit
     done
@@ -374,6 +367,21 @@ deploy_to_container() {
     # Update flavor/type/domain global variables if needed
     # (grep -E "^[[:blank:]]*ORACLE_" $WMA_ADMIN_DIR/WMAgent.secrets > /dev/null) && CURR_FLAVOR=oracle || CURR_FLAVOR=mysql
 
+    # Temporary fixes for broken pypi packaging. To be removed upon fixing the bellow two WMCore issues:
+    # https://github.com/dmwm/WMCore/issues/11583
+    # https://github.com/dmwm/WMCore/issues/11584
+    mkdir -p $WMA_INSTALL_DIR/wmagent/{bin,etc}
+    mkdir -p $WMA_CURRENT_DIR/apps/wmagentpy3/etc/profile.d
+    cp -f $WMA_DEPLOY_DIR/wm{core,agent}* $WMA_INSTALL_DIR/wmagent/bin
+    cp -f $WMA_DEPLOY_DIR/WMAgentConfig.py $WMA_INSTALL_DIR/wmagent/etc
+    chmod 755 $WMA_INSTALL_DIR/wmagent/bin/*
+    cat <<"    EOF"> $WMA_CURRENT_DIR/apps/wmagentpy3/etc/profile.d/init.sh
+        export WMAGENTPY3_ROOT=$WMA_INSTALL_DIR/wmagent
+        export WMCORE_ROOT=$WMA_INSTALL_DIR/wmagent
+        export WMAGENTPY3_VERSION=$WMA_TAG
+        export PATH=$WMA_INSTALL_DIR/wmagent/bin${PATH:+:$PATH}
+    EOF
+
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
 }
@@ -432,18 +440,19 @@ check_docker_init() {
 
 }
 
-agent_activate() {
+activate_agent() {
     local stepMsg="Performing $FUNCNAME"
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
     _init_valid $WMA_CONFIG_DIR || {
         echo "$FUNCNAME: triggered."
+        # $manage activate-agent || { echo "ERROR: Failed to activate WMAgent!"; return $(false) ;}
     }
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
 }
 
-agent_init() {
+init_agent() {
     local stepMsg="Performing $FUNCNAME"
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
@@ -527,8 +536,8 @@ main(){
         (deploy_to_container)    || { err=$?; echo "ERROR: deploy_to_container"; exit $err ;}
         start_services
         (check_databases)        || { err=$?; echo "ERROR: check_databases"; exit $err ;}
-        (agent_activate)         || { err=$?; echo "ERROR: agent_activate"; exit $err ;}
-        (agent_init)             || { err=$?; echo "ERROR: agent_init"; exit $err ;}
+        (activate_agent)         || { err=$?; echo "ERROR: activate_agent"; exit $err ;}
+        (init_agent)             || { err=$?; echo "ERROR: init_agent"; exit $err ;}
         (agent_tweakconfig)      || { err=$?; echo "ERROR: agent_tweakconfig"; exit $err ;}
         (agent_resource_control) || { err=$?; echo "ERROR: agent_resource_control"; exit $err ;}
         (agent_upload_config)    || { err=$?; echo "ERROR: agent_upload_config"; exit $err ;}
