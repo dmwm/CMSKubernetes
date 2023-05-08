@@ -446,7 +446,7 @@ activate_agent() {
     echo "Start: $stepMsg"
     _init_valid $WMA_CONFIG_DIR || {
         echo "$FUNCNAME: triggered."
-        # $manage activate-agent || { echo "ERROR: Failed to activate WMAgent!"; return $(false) ;}
+        $manage activate-agent || { echo "ERROR: Failed to activate WMAgent!"; return $(false) ;}
     }
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
@@ -458,6 +458,7 @@ init_agent() {
     echo "Start: $stepMsg"
     _init_valid $WMA_CONFIG_DIR || {
         echo "$FUNCNAME: triggered."
+        $manage init-agent || { echo "ERROR: Failed to initialise WMAgent databases!"; return $(false) ;}
     }
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
@@ -534,9 +535,9 @@ main(){
     check_docker_init || {
         (deploy_to_host)         || { err=$?; echo "ERROR: deploy_to_host"; exit $err ;}
         (deploy_to_container)    || { err=$?; echo "ERROR: deploy_to_container"; exit $err ;}
+        (activate_agent)         || { err=$?; echo "ERROR: activate_agent"; exit $err ;}
         start_services
         (check_databases)        || { err=$?; echo "ERROR: check_databases"; exit $err ;}
-        (activate_agent)         || { err=$?; echo "ERROR: activate_agent"; exit $err ;}
         (init_agent)             || { err=$?; echo "ERROR: init_agent"; exit $err ;}
         (agent_tweakconfig)      || { err=$?; echo "ERROR: agent_tweakconfig"; exit $err ;}
         (agent_resource_control) || { err=$?; echo "ERROR: agent_resource_control"; exit $err ;}
