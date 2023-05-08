@@ -9,7 +9,7 @@ ENV WDIR=/data
 WORKDIR $WDIR
 
 ENV HADOOP_CONF_DIR=/etc/hadoop/conf
-ENV PATH="${PATH}:/usr/hdp/hadoop/bin/hadoop:/usr/hdp/spark3/bin:/usr/hdp/sqoop/bin:${WDIR}/CMSMonitoring/rucio-dataset-monitoring/spark"
+ENV PATH="${PATH}:/usr/hdp/hadoop/bin/hadoop:/usr/hdp/spark/bin:/usr/hdp/sqoop/bin:${WDIR}/CMSMonitoring/rucio-dataset-monitoring/spark"
 ENV PYTHONPATH "${PYTHONPATH}:${WDIR}:${WDIR}/CMSMonitoring/src/python:${WDIR}/CMSMonitoring/rucio-dataset-monitoring/spark"
 
 # How to find: source LCG102 hadoop setup, which python, ln -ls python, voila!

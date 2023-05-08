@@ -18,7 +18,7 @@ RUN apt-get update -y && \
     rm -rf stomp-v700
 
 # --------------------------------------------------------------------------------------------------
-FROM gitlab-registry.cern.ch/linuxsupport/cc7-base:20230401-1.x86_64
+FROM gitlab-registry.cern.ch/linuxsupport/cc7-base:20230503-1.x86_64
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 # Should be full version
@@ -78,7 +78,7 @@ RUN yum -y update && \
 # add fetch-crl to fetch all certificates
 
 ENV HADOOP_CONF_DIR=/etc/hadoop/conf
-ENV PATH="${PATH}:/usr/hdp/hadoop/bin/hadoop:/usr/hdp/spark3/bin:/usr/hdp/sqoop/bin"
+ENV PATH="${PATH}:/usr/hdp/hadoop/bin/hadoop:/usr/hdp/spark/bin:/usr/hdp/sqoop/bin"
 ENV PYTHONPATH "${PYTHONPATH}:${WDIR}"
 
 ENV PYSPARK_PYTHON=/cvmfs/sft.cern.ch/lcg/releases/Python/3.9.12-9a1bc/x86_64-centos7-gcc8-opt/bin/python3
