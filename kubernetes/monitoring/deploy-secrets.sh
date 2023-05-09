@@ -22,14 +22,12 @@ set -e
 ##H        karma-secrets
 ##H        keytab-secrets
 ##H        krb5cc-secrets
-##H        nats-secrets
 ##H        prometheus-secrets
 ##H        promxy-secrets
 ##H        proxy-secrets
 ##H        redash-secrets
 ##H        robot-secrets
 ##H        rucio-daily-stats-secrets
-##H        rumble-secrets
 ##H        sqoop-secrets
 ##H        vmalert-secrets
 ##H Examples:
@@ -168,12 +166,8 @@ elif [ "$secret" == "keytab-secrets" ]; then
     files="--from-file=${sdir}/cmssqoop-keytab/keytab --from-file=${sdir}/kerberos/krb5cc"
 elif [ "$secret" == "krb5cc-secrets" ]; then
     files="--from-file=${sdir}/cmssqoop-keytab/keytab --from-file=${sdir}/kerberos/krb5cc"
-elif [ "$secret" == "nats-secrets" ]; then
-    files=`ls $sdir/nats/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/nats | sed "s, $,,g"`
 elif [ "$secret" == "redash-secrets" ]; then
     files=`ls $sdir/redash/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/redash | sed "s, $,,g"`
-elif [ "$secret" == "rumble-secrets" ]; then
-    files=`ls $sdir/rumble/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/rumble | sed "s, $,,g"`
 elif [ "$secret" == "rucio-daily-stats-secrets" ]; then
     # Grep cmsr to grep cmsr_string file only, since sqoop keytab conflicts with cmsmon keytab
     sqoop_f=`ls $sdir/sqoop/ | grep cmsr | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/sqoop | sed "s, $,,g"`
@@ -195,9 +189,6 @@ elif [ "$secret" == "certcheck-secrets" ]; then
     robot_s="--from-file=cmsmonit_cert=${sdir}/robot/robotcert.pem"
     robot_s="--from-file=cmsmonit_key=${sdir}/robot/robotkey.pem ${robot_s}"
     #
-    nats_s="--from-file=cms_nats_cert=${sdir}/nats-cluster/server.pem"
-    nats_s="--from-file=cms_nats_key=${sdir}/nats-cluster/server-key.pem ${nats_s}"
-    #
     cms_monitoring_s="--from-file=cms_monitoring_cert=${sdir}/cmsmon-auth/tls.crt"
     cms_monitoring_s="--from-file=cms_monitoring_key=${sdir}/cmsmon-auth/tls.key ${cms_monitoring_s}"
     #
@@ -208,7 +199,7 @@ elif [ "$secret" == "certcheck-secrets" ]; then
     cmspopdb_k="--from-file=cmspopdb_keytab=${sdir}/cmspopdb-keytab/keytab"
     cmssqoop_k="--from-file=cmssqoop_keytab=${sdir}/cmssqoop-keytab/keytab"
     training_s="--from-file=${sdir}/cms-training/robot-training-cert.pem --from-file=${sdir}/cms-training/robot-training-key.pem"
-    files="${robot_s} ${nats_s} ${cms_monitoring_s} ${cms_dm_monitoring_s} ${cmsmonit_k} ${cmspopdb_k} ${cmssqoop_k} ${training_s}"
+    files="${robot_s} ${cms_monitoring_s} ${cms_dm_monitoring_s} ${cmsmonit_k} ${cmspopdb_k} ${cmssqoop_k} ${training_s}"
 fi
 echo "files: \"$files\""
 #echo "literals: $literals"
