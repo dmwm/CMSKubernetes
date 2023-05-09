@@ -1,5 +1,5 @@
 # cmsmon-hadoop-base:spark2-YYYYMMDD
-FROM gitlab-registry.cern.ch/linuxsupport/cc7-base:20230401-1
+FROM gitlab-registry.cern.ch/linuxsupport/cc7-base:20230503-1
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 ENV WDIR=/data
