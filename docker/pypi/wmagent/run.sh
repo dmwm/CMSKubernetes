@@ -42,6 +42,10 @@ usage(){
     exit 1
 }
 
+# The container hostname must be properly fetched from the host and passed as `docker run --hostname=$hostname`
+HOSTNAME=`hostname -f`
+HOSTIP=`hostname -i`
+
 # Setup defaults:
 [[ $WMA_TAG == $WMCoreVersion ]] || {
     echo "WARNING: Container WMA_TAG: $WAM_TAG and actual WMCoreVersion: $WMCoreVersion mismatch."
@@ -49,7 +53,7 @@ usage(){
     WMA_TAG=$WMCoreVersion
 }
 
-TEAMNAME=testbed-vocms0192
+TEAMNAME=testbed-${HOSTNAME%%.*}
 CENTRAL_SERVICES=cmsweb-testbed.cern.ch
 AGENT_NUMBER=0
 FLAVOR=mysql
@@ -87,10 +91,6 @@ TEAMNAME_REG="(^production$|^testbed-.*$|^dev-.*$|^relval.*$)"
 FLAVOR_REG="(^oracle$|^mysql$)"
 [[ $FLAVOR =~ $FLAVOR_REG ]] || { echo "FLAVOR: $FLAVOR does not match requered expression: $FLAVOR_REG"; echo "EXIT with Error 1"  ; exit 1 ;}
 
-
-# The container hostname must be properly fetch from the host and passed as `docker run --hostname=$hostname`
-HOSTNAME=`hostname -f`
-HOSTIP=`hostname -i`
 
 echo
 echo "======================================================="
