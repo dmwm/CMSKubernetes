@@ -4,7 +4,7 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 # Install basic OS package dependencies
 RUN apt-get update
-RUN apt-get install -y libmariadb-dev-compat libmariadb-dev apache2-utils hostname net-tools iputils-ping cron mariadb-server myproxy voms-clients
+RUN apt-get install -y libmariadb-dev-compat libmariadb-dev apache2-utils hostname net-tools iputils-ping cron mariadb-server myproxy voms-clients rpm2cpio
 
 COPY --from=cmsweb /etc/vomses /etc/vomses
 COPY --from=cmsweb /etc/grid-security/vomsdir /etc/grid-security/vomsdir

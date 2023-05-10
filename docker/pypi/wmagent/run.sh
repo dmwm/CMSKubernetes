@@ -378,6 +378,7 @@ deploy_to_container() {
     cat <<"    EOF"> $WMA_CURRENT_DIR/apps/wmagentpy3/etc/profile.d/init.sh
         export WMAGENTPY3_ROOT=$WMA_INSTALL_DIR/wmagent
         export WMCORE_ROOT=$WMA_INSTALL_DIR/wmagent
+        export YUI_ROOT=$WMA_DEPLOY_DIR/yui/
         export WMAGENTPY3_VERSION=$WMA_TAG
         export PATH=$WMA_INSTALL_DIR/wmagent/bin${PATH:+:$PATH}
     EOF

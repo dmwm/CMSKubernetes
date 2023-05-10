@@ -119,12 +119,16 @@ wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_T
 wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/bin/wmagent-upload-config
 wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/bin/wmagent-workqueue
 
+# Fix for outdated yui library - A really bad workaround. We should get rid of it ASAP:
+wget -nv -P $WMA_DEPLOY_DIR wget http://cmsrep.cern.ch/cmssw/repos/comp/slc7_amd64_gcc630/0000000000000000000000000000000000000000000000000000000000000000/RPMS/cd/cda5f9ef4b33696e67c9e2f995dd5cb6/external+yui+2.9.0-1-1.slc7_amd64_gcc630.rpm
+mkdir $WMA_DEPLOY_DIR/yui && cat $WMA_DEPLOY_DIR/external+yui+2.9.0-1-1.slc7_amd64_gcc630.rpm|rpm2archive - |tar --strip-components=13 -xzv --directory $WMA_DEPLOY_DIR/yui
+
 # Download utilitarian scripts:
 wget -nv -P $WMA_ADMIN_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/deploy/checkProxy.py
 wget -nv -P $WMA_ADMIN_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/deploy/restartComponent.sh
 wget -nv -P $WMA_ADMIN_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/deploy/renew_proxy.sh
-
 chmod +x $WMA_ADMIN_DIR/renew_proxy.sh $WMA_ADMIN_DIR/restartComponent.sh
+
 echo "Done $stepMsg!" && echo
 echo "-----------------------------------------------------------------------"
 
