@@ -471,6 +471,35 @@ agent_tweakconfig() {
     echo "Start: $stepMsg"
     _init_valid $WMA_CONFIG_DIR || {
         echo "$FUNCNAME: triggered."
+        [[ -f $WMA_MANAGE_DIR/config.py ]] || { echo "ERROR: Missing WMAgent config!"; return $(false) ;}
+
+        echo "$FUNCNAME: Making agent configuration changes needed for Docker"
+        # make this a docker agent
+        sed -i "s+Agent.isDocker = False+Agent.isDocker = True+" $WMA_MANAGE_DIR/config.py
+        # update the location of submit.sh for docker
+        sed -i "s+config.JobSubmitter.submitScript.*+config.JobSubmitter.submitScript = '$WMA_CURRENT_DIR/install/wmagent/Docker/etc/submit.sh'+" $WMA_MANAGE_DIR/config.py
+        # replace all tags with current
+        sed -i "s+$WMA_TAG+current+" $WMA_MANAGE_DIR/config.py
+
+        echo "$FUNCNAME: Making other agent configuration changes"
+        sed -i "s+REPLACE_TEAM_NAME+$TEAMNAME+" $WMA_MANAGE_DIR/config.py
+        sed -i "s+Agent.agentNumber = 0+Agent.agentNumber = $AGENT_NUMBER+" $WMA_MANAGE_DIR/config.py
+        if [[ "$TEAMNAME" == relval ]]; then
+            sed -i "s+config.TaskArchiver.archiveDelayHours = 24+config.TaskArchiver.archiveDelayHours = 336+" $WMA_MANAGE_DIR/config.py
+        elif [[ "$TEAMNAME" == *testbed* ]] || [[ "$TEAMNAME" == *dev* ]]; then
+            GLOBAL_DBS_URL=https://cmsweb-testbed.cern.ch/dbs/int/global/DBSReader
+            sed -i "s+DBSInterface.globalDBSUrl = 'https://cmsweb.cern.ch/dbs/prod/global/DBSReader'+DBSInterface.globalDBSUrl = '$GLOBAL_DBS_URL'+" $WMA_MANAGE_DIR/config.py
+            sed -i "s+DBSInterface.DBSUrl = 'https://cmsweb.cern.ch/dbs/prod/global/DBSReader'+DBSInterface.DBSUrl = '$GLOBAL_DBS_URL'+" $WMA_MANAGE_DIR/config.py
+        fi
+
+        local forceSiteDown=""
+        [[ "$HOSTNAME" == *cern.ch ]] && forceSiteDown="'T3_US_NERSC'"
+
+        if [[ "$HOSTNAME" == *fnal.gov ]]; then
+            sed -i "s+forceSiteDown = \[\]+forceSiteDown = \[$forceSiteDown\]+" $WMA_MANAGE_DIR/config.py
+        else
+            sed -i "s+forceSiteDown = \[\]+forceSiteDown = \[$forceSiteDown\]+" $WMA_MANAGE_DIR/config.py
+        fi
     }
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
@@ -482,6 +511,18 @@ agent_resource_control() {
     echo "Start: $stepMsg"
     _init_valid $WMA_CONFIG_DIR || {
         echo "$FUNCNAME: triggered."
+        local errVal=0
+        ### Populating resource-control
+        echo "$FUNCNAME: Populating resource-control"
+        if [[ "$TEAMNAME" == relval* || "$TEAMNAME" == *testbed* ]]; then
+            echo "$FUNCNAME: Adding only T1 and T2 sites to resource-control..."
+            $manage execute-agent wmagent-resource-control --add-T1s --plugin=SimpleCondorPlugin --pending-slots=50 --running-slots=50 --down ; let errVal+=$?
+            $manage execute-agent wmagent-resource-control --add-T2s --plugin=SimpleCondorPlugin --pending-slots=50 --running-slots=50 --down ; let errVal+=$?
+        else
+            echo "$FUNCNAME: Adding ALL sites to resource-control..."
+            $manage execute-agent wmagent-resource-control --add-all-sites --plugin=SimpleCondorPlugin --pending-slots=50 --running-slots=50 --down ; let errVal+=$?
+        fi
+        [[ $errVal -eq 0 ]] || { echo "ERROR: Failed to populate WMAgent's resource control!"; return $(false) ;}
     }
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
@@ -503,7 +544,22 @@ agent_upload_config(){
     echo "Start: $stepMsg"
 
     _init_valid $WMA_CONFIG_DIR || {
-       echo "TODO: Uploading config here" && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/.dockerInit ;}
+        echo "$FUNCNAME: triggered."
+        echo "$FUNCNAME: Tweaking central agent configuration befre uploading"
+        local centralServicesUrl="https://$CENTRAL_SERVICES/reqmgr2/data/wmagentconfig"
+        if [[ "$TEAMNAME" == production ]]; then
+            echo "$FUNCNAME: Agent connected to the production team, setting it to drain mode"
+            agentExtraConfig='{"UserDrainMode":true}'
+        elif [[ "$TEAMNAME" == *testbed* ]]; then
+            echo "$FUNCNAME: Testbed agent, setting MaxRetries to 0..."
+            agentExtraConfig='{"MaxRetries":0}'
+        elif [[ "$TEAMNAME" == *devvm* ]]; then
+            echo "$FUNCNAME: Dev agent, setting MaxRetries to 0..."
+            agentExtraConfig='{"MaxRetries":0}'
+        fi
+        ### Upload WMAgentConfig to AuxDB
+        echo "*** Upload WMAgentConfig to AuxDB ***"
+        $manage execute-agent wmagent-upload-config $agentExtraConfig && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/.dockerInit ;}
 
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
@@ -525,7 +581,7 @@ start_agent() {
     echo "-------------------------------------------------------"
     echo "Start sleeping now ...zzz..."
     while true; do sleep 10; done
-    $manage start-agent
+    $manage start-agent || return $(false)
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
 }
@@ -538,8 +594,10 @@ main(){
         (deploy_to_container)    || { err=$?; echo "ERROR: deploy_to_container"; exit $err ;}
         (activate_agent)         || { err=$?; echo "ERROR: activate_agent"; exit $err ;}
         start_services
+        sleep 5
         (check_databases)        || { err=$?; echo "ERROR: check_databases"; exit $err ;}
         (init_agent)             || { err=$?; echo "ERROR: init_agent"; exit $err ;}
+        sleep 5
         (agent_tweakconfig)      || { err=$?; echo "ERROR: agent_tweakconfig"; exit $err ;}
         (agent_resource_control) || { err=$?; echo "ERROR: agent_resource_control"; exit $err ;}
         (agent_upload_config)    || { err=$?; echo "ERROR: agent_upload_config"; exit $err ;}
@@ -547,13 +605,26 @@ main(){
     }
     (deploy_to_container)        || { err=$?; echo "ERROR: deploy_to_container"; exit $err ;}
     start_services
+    sleep 5
     (check_databases)            || { err=$?; echo "ERROR: check_databases"; exit $err ;}
-    start_agent
+    (start_agent)                || { err=$?; echo "ERROR: start_agent"; exit $err ;}
 }
 
 main
 
+echo && echo "Docker container is running! However you still need to:"
+echo "  1) Source the new WMA env: source /data/admin/wmagent/env.sh"
+echo "  2) Double check agent configuration: less config/wmagent/config.py"
+echo "  3) Start the agent with: \$manage start-agent"
+echo "  $FINAL_MSG"
+echo "Have a nice day!" && echo
+
 exit 0
+
+
+
+
+
 # set -x
 
 ### Runs some basic checks before actually starting the deployment procedure
@@ -691,9 +762,9 @@ echo -e "\n*** Applying (for couchdb1.6, etc) cert file permission ***"
 chmod 600 /data/certs/service{cert,key}.pem
 echo "Done!"
 
-echo -e "\n*** Removing the current crontab ***"
-/usr/bin/crontab -r;
-echo "Done!"
+# echo -e "\n*** Removing the current crontab ***"
+# /usr/bin/crontab -r;
+# echo "Done!"
 
 #cd $WMA_BASE_DIR/deployment-$DEPLOY_TAG
 # XXX: update the PR number below, if needed :-)
@@ -714,21 +785,21 @@ echo "Done!"
 # fi
 # echo "Done!" && echo
 
-echo -e "\n*** Activating the agent ***"
-cd $WMA_MANAGE_DIR
-./manage activate-agent
-echo "Done!" && echo
+# echo -e "\n*** Activating the agent ***"
+# cd $WMA_MANAGE_DIR
+# ./manage activate-agent
+# echo "Done!" && echo
 
-echo "*** Starting services ***"
-cd $WMA_MANAGE_DIR
-./manage start-services
-echo "Done!" && echo
-sleep 5
+# echo "*** Starting services ***"
+# cd $WMA_MANAGE_DIR
+# ./manage start-services
+# echo "Done!" && echo
+# sleep 5
 
-echo "*** Initializing the agent ***"
-./manage init-agent
-echo "Done!" && echo
-sleep 5
+# echo "*** Initializing the agent ***"
+# ./manage init-agent
+# echo "Done!" && echo
+# sleep 5
 
 echo "*** Checking if couchdb migration is needed ***"
 echo -e "\n[query_server_config]\nos_process_limit = 50" >> $WMA_CURRENT_DIR/config/couchdb/local.ini
@@ -747,68 +818,68 @@ sed -i "s+view_index_dir = .*+view_index_dir = /data1/database+" $WMA_CURRENT_DI
 fi
 echo "Done!" && echo
 
-###
-# tweak configuration
-### 
-echo "*** Tweaking configuration ***"
-echo "*** Making agent configuration changes needed for Docker ***"
-# make this a docker agent
-sed -i "s+Agent.isDocker = False+Agent.isDocker = True+" $WMA_MANAGE_DIR/config.py
-# update the location of submit.sh for docker
-sed -i "s+config.JobSubmitter.submitScript.*+config.JobSubmitter.submitScript = '$WMA_CURRENT_DIR/install/wmagent/Docker/etc/submit.sh'+" $WMA_MANAGE_DIR/config.py
-# replace all tags with current
-sed -i "s+v$WMA_TAG+current+" $WMA_MANAGE_DIR/config.py
+# ###
+# # tweak configuration
+# ### 
+# echo "*** Tweaking configuration ***"
+# echo "*** Making agent configuration changes needed for Docker ***"
+# # make this a docker agent
+# sed -i "s+Agent.isDocker = False+Agent.isDocker = True+" $WMA_MANAGE_DIR/config.py
+# # update the location of submit.sh for docker
+# sed -i "s+config.JobSubmitter.submitScript.*+config.JobSubmitter.submitScript = '$WMA_CURRENT_DIR/install/wmagent/Docker/etc/submit.sh'+" $WMA_MANAGE_DIR/config.py
+# # replace all tags with current
+# sed -i "s+v$WMA_TAG+current+" $WMA_MANAGE_DIR/config.py
 
-echo "*** Making other agent configuration changes ***"
-sed -i "s+REPLACE_TEAM_NAME+$TEAMNAME+" $WMA_MANAGE_DIR/config.py
-sed -i "s+Agent.agentNumber = 0+Agent.agentNumber = $AG_NUM+" $WMA_MANAGE_DIR/config.py
-if [[ "$TEAMNAME" == relval ]]; then
-sed -i "s+config.TaskArchiver.archiveDelayHours = 24+config.TaskArchiver.archiveDelayHours = 336+" $WMA_MANAGE_DIR/config.py
-elif [[ "$TEAMNAME" == *testbed* ]] || [[ "$TEAMNAME" == *dev* ]]; then
-GLOBAL_DBS_URL=https://cmsweb-testbed.cern.ch/dbs/int/global/DBSReader
-sed -i "s+DBSInterface.globalDBSUrl = 'https://cmsweb.cern.ch/dbs/prod/global/DBSReader'+DBSInterface.globalDBSUrl = '$GLOBAL_DBS_URL'+" $WMA_MANAGE_DIR/config.py
-sed -i "s+DBSInterface.DBSUrl = 'https://cmsweb.cern.ch/dbs/prod/global/DBSReader'+DBSInterface.DBSUrl = '$GLOBAL_DBS_URL'+" $WMA_MANAGE_DIR/config.py
-fi
+# echo "*** Making other agent configuration changes ***"
+# sed -i "s+REPLACE_TEAM_NAME+$TEAMNAME+" $WMA_MANAGE_DIR/config.py
+# sed -i "s+Agent.agentNumber = 0+Agent.agentNumber = $AG_NUM+" $WMA_MANAGE_DIR/config.py
+# if [[ "$TEAMNAME" == relval ]]; then
+# sed -i "s+config.TaskArchiver.archiveDelayHours = 24+config.TaskArchiver.archiveDelayHours = 336+" $WMA_MANAGE_DIR/config.py
+# elif [[ "$TEAMNAME" == *testbed* ]] || [[ "$TEAMNAME" == *dev* ]]; then
+# GLOBAL_DBS_URL=https://cmsweb-testbed.cern.ch/dbs/int/global/DBSReader
+# sed -i "s+DBSInterface.globalDBSUrl = 'https://cmsweb.cern.ch/dbs/prod/global/DBSReader'+DBSInterface.globalDBSUrl = '$GLOBAL_DBS_URL'+" $WMA_MANAGE_DIR/config.py
+# sed -i "s+DBSInterface.DBSUrl = 'https://cmsweb.cern.ch/dbs/prod/global/DBSReader'+DBSInterface.DBSUrl = '$GLOBAL_DBS_URL'+" $WMA_MANAGE_DIR/config.py
+# fi
 
-if [[ "$HOSTNAME" == *fnal.gov ]]; then
-sed -i "s+forceSiteDown = \[\]+forceSiteDown = \[$FORCEDOWN\]+" $WMA_MANAGE_DIR/config.py
-else
-sed -i "s+forceSiteDown = \[\]+forceSiteDown = \[$FORCEDOWN\]+" $WMA_MANAGE_DIR/config.py
-fi
-echo "Done!" && echo
+# if [[ "$HOSTNAME" == *fnal.gov ]]; then
+# sed -i "s+forceSiteDown = \[\]+forceSiteDown = \[$FORCEDOWN\]+" $WMA_MANAGE_DIR/config.py
+# else
+# sed -i "s+forceSiteDown = \[\]+forceSiteDown = \[$FORCEDOWN\]+" $WMA_MANAGE_DIR/config.py
+# fi
+# echo "Done!" && echo
 
-### Populating resource-control
-echo "*** Populating resource-control ***"
-cd $WMA_MANAGE_DIR
-if [[ "$TEAMNAME" == relval* || "$TEAMNAME" == *testbed* ]]; then
-echo "Adding only T1 and T2 sites to resource-control..."
-./manage execute-agent wmagent-resource-control --add-T1s --plugin=SimpleCondorPlugin --pending-slots=50 --running-slots=50 --down
-./manage execute-agent wmagent-resource-control --add-T2s --plugin=SimpleCondorPlugin --pending-slots=50 --running-slots=50 --down
-else
-echo "Adding ALL sites to resource-control..."
-./manage execute-agent wmagent-resource-control --add-all-sites --plugin=SimpleCondorPlugin --pending-slots=50 --running-slots=50 --down
-fi
-echo "Done!" && echo
+# ### Populating resource-control
+# echo "*** Populating resource-control ***"
+# cd $WMA_MANAGE_DIR
+# if [[ "$TEAMNAME" == relval* || "$TEAMNAME" == *testbed* ]]; then
+# echo "Adding only T1 and T2 sites to resource-control..."
+# ./manage execute-agent wmagent-resource-control --add-T1s --plugin=SimpleCondorPlugin --pending-slots=50 --running-slots=50 --down
+# ./manage execute-agent wmagent-resource-control --add-T2s --plugin=SimpleCondorPlugin --pending-slots=50 --running-slots=50 --down
+# else
+# echo "Adding ALL sites to resource-control..."
+# ./manage execute-agent wmagent-resource-control --add-all-sites --plugin=SimpleCondorPlugin --pending-slots=50 --running-slots=50 --down
+# fi
+# echo "Done!" && echo
 
-echo "*** Tweaking central agent configuration ***"
-CENTRAL_SERVICES="https://$CENTRAL_SERVICES/reqmgr2/data/wmagentconfig"
-if [[ "$TEAMNAME" == production ]]; then
-echo "Agent connected to the production team, setting it to drain mode"
-agentExtraConfig='{"UserDrainMode":true}'
-elif [[ "$TEAMNAME" == *testbed* ]]; then
-echo "Testbed agent, setting MaxRetries to 0..."
-agentExtraConfig='{"MaxRetries":0}'
-elif [[ "$TEAMNAME" == *devvm* ]]; then
-echo "Dev agent, setting MaxRetries to 0..."
-agentExtraConfig='{"MaxRetries":0}'
-fi
-echo "Done!" && echo
+# echo "*** Tweaking central agent configuration ***"
+# CENTRAL_SERVICES="https://$CENTRAL_SERVICES/reqmgr2/data/wmagentconfig"
+# if [[ "$TEAMNAME" == production ]]; then
+# echo "Agent connected to the production team, setting it to drain mode"
+# agentExtraConfig='{"UserDrainMode":true}'
+# elif [[ "$TEAMNAME" == *testbed* ]]; then
+# echo "Testbed agent, setting MaxRetries to 0..."
+# agentExtraConfig='{"MaxRetries":0}'
+# elif [[ "$TEAMNAME" == *devvm* ]]; then
+# echo "Dev agent, setting MaxRetries to 0..."
+# agentExtraConfig='{"MaxRetries":0}'
+# fi
+# echo "Done!" && echo
 
-### Upload WMAgentConfig to AuxDB
-echo "*** Upload WMAgentConfig to AuxDB ***"
-cd $WMA_MANAGE_DIR
-./manage execute-agent wmagent-upload-config $agentExtraConfig
-echo "Done!" && echo
+# ### Upload WMAgentConfig to AuxDB
+# echo "*** Upload WMAgentConfig to AuxDB ***"
+# cd $WMA_MANAGE_DIR
+# ./manage execute-agent wmagent-upload-config $agentExtraConfig
+# echo "Done!" && echo
 
 # ### Populating cronjob with utilitarian scripts
 # echo "*** Creating cronjobs for them ***"
@@ -826,13 +897,13 @@ echo "Done!" && echo
 # fi
 # echo "Done!" && echo
 
-set +x
+# set +x
 
-echo && echo "Docker container is running! However you still need to:"
-echo "  1) Source the new WMA env: source /data/admin/wmagent/env.sh"
-echo "  2) Double check agent configuration: less config/wmagent/config.py"
-echo "  3) Start the agent with: \$manage start-agent"
-echo "  $FINAL_MSG"
-echo "Have a nice day!" && echo
+# echo && echo "Docker container is running! However you still need to:"
+# echo "  1) Source the new WMA env: source /data/admin/wmagent/env.sh"
+# echo "  2) Double check agent configuration: less config/wmagent/config.py"
+# echo "  3) Start the agent with: \$manage start-agent"
+# echo "  $FINAL_MSG"
+# echo "Have a nice day!" && echo
 
 exit 0
