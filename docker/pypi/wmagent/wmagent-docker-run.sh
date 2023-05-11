@@ -45,6 +45,7 @@ while getopts ":h" opt; do
 done
 
 # This is the root at the host only, it may differ from the root inside the container.
+# NOTE: this may be parametriesed, so that the container can run on a different mount point.
 WMA_ROOT_DIR=/data
 
 [[ -d $WMA_ROOT_DIR/certs ]] || (mkdir -p $WMA_ROOT_DIR/certs) || exit $?
@@ -57,6 +58,7 @@ dockerOpts=" \
 --rm \
 --hostname=`hostname -f` \
 --name=wmagent \
+--mount type=bind,source=/etc/tnsnames.ora,target=/etc/tnsnames.ora,readonly \
 --mount type=bind,source=/etc/condor,target=/etc/condor,readonly \
 --mount type=bind,source=/tmp,target=/tmp \
 --mount type=bind,source=$WMA_ROOT_DIR/certs,target=/data/certs \

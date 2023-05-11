@@ -1,13 +1,19 @@
-FROM registry.cern.ch/cmsweb/cmsweb:20230427-stable as cmsweb
+FROM registry.cern.ch/cmsweb/oracle:21_5-stable as oracle
 FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20230525
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 # Install basic OS package dependencies
 RUN apt-get update
-RUN apt-get install -y libmariadb-dev-compat libmariadb-dev apache2-utils hostname net-tools iputils-ping cron mariadb-server myproxy voms-clients rpm2cpio
+RUN apt-get install -y libmariadb-dev-compat libmariadb-dev apache2-utils hostname net-tools iputils-ping cron mariadb-server myproxy voms-clients rpm2cpio rlwrap libaio1 procps
 
 COPY --from=cmsweb /etc/vomses /etc/vomses
 COPY --from=cmsweb /etc/grid-security/vomsdir /etc/grid-security/vomsdir
+
+# copy oracle client:
+COPY --from=oracle /usr/lib/oracle /usr/lib/oracle
+ENV LD_LIBRARY_PATH=/usr/lib/oracle
+ENV PATH=$PATH:/usr/lib/oracle
+ENV PKG_CONFIG_PATH=/usr/lib/oracle
 
 # WMA_TAG to be passed at build time through `--build-arg WMA_TAG=<WMA_TAG>`. Default: None
 ARG WMA_TAG=None
