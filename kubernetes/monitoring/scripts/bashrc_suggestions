@@ -1,0 +1,55 @@
+# .bashrc suggestions specified for LxPlus. Please change "U/USER" and arrange according to your directory structures
+
+# Go path
+export GOPATH="/afs/cern.ch/user/U/USER//go/"
+export PATH=$PATH:$GOPATH/bin
+
+# My tools
+export PATH=$PATH:/afs/cern.ch/user/U/USER/private/tools:/afs/cern.ch/user/U/USER/go/bin
+
+# BASH HISTORY confs :)
+export HISTFILESIZE=100000
+export HISTSIZE=1000000
+export HISTTIMEFORMAT="[%F %T] "
+export HISTCONTROL=erasedups
+# Change the file location because certain bash sessions truncate .bash_history file upon close.
+# http://superuser.com/questions/575479/bash-history-truncated-to-500-lines-on-each-login
+export HISTFILE=~/.bash_eternal_history
+# Force prompt to write history after every command.
+# http://superuser.com/questions/20900/bash-history-loss
+PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
+
+# KUBECTL
+source <(kubectl completion bash)
+alias k=kubectl
+complete -F __start_kubectl k
+# [Not needed any more] Required for "cmsweb-k8s-frontend-prod"
+#export OS_TOKEN=$(openstack token issue -c id -f value)
+
+# MY ENV VARIABLES
+export GRAFANA_VIEWER_TOKEN='...'
+export GRAFANA_ADMIN_TOKEN='...'
+export secrets="/afs/cern.ch/user/U/USER/private/projects/secrets"
+
+#PYTHONPATH
+export PYTHONPATH="/afs/cern.ch/user/U/USER/private/projects/CMSSpark/src/python:$PYTHONPATH"
+export PYTHONPATH="/afs/cern.ch/user/U/USER/private/projects/CMSMonitoring/src/python:$PYTHONPATH"
+export PYTHONPATH="/afs/cern.ch/user/U/USER/private/projects/cms-htcondor-es/src:$PYTHONPATH"
+
+# ALIASES Graciases :)
+alias pc="cd /afs/cern.ch/user/U/USER/private/projects"
+alias p="cd /afs/cern.ch/user/U/USER/private"
+alias pt="cd /afs/cern.ch/user/U/USER/private/tools"
+alias wd="cd /afs/cern.ch/user/U/USER/wdir/k8s"
+alias h="history | grep "
+alias xcat=" zcat | jq . -C | more "
+alias diff="colordiff"
+alias gprum="git fetch --all && git pull --rebase upstream master"
+alias promtool="/cvmfs/cms.cern.ch/cmsmon/promtool"
+alias amtool="/cvmfs/cms.cern.ch/cmsmon/amtool"
+alias go="/afs/cern.ch/user/U/USER/go/bin/go"
+alias scurl="/cvmfs/cms.cern.ch/cmsmon/gocurl -k ~/.globus/userkey.pem -c ~/.globus/usercert.pem -u"
+export PS1="\u@\h \[\e[32m\]\W \[\e[91m\]\$(git branch 2>/dev/null | grep '^*' | colrm 1 2)\[\e[00m\]$ "
+
+# for git
+unset SSH_ASKPASS

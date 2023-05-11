@@ -1,0 +1,13 @@
+#!/bin/bash
+# PySpark run in LxPlus7
+spark_submit_args=(
+    --master yarn
+    --conf spark.ui.showConsoleProgress=false
+    --driver-memory=8g --executor-memory=8g
+    --packages org.apache.spark:spark-avro_2.12:3.1.2
+)
+
+source /cvmfs/sft.cern.ch/lcg/views/LCG_102/x86_64-centos7-gcc8-opt/setup.sh
+source /cvmfs/sft.cern.ch/lcg/etc/hadoop-confext/hadoop-swan-setconf.sh analytix 3.2 spark3
+
+pyspark "${spark_submit_args[@]}"
