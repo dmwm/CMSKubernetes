@@ -578,9 +578,7 @@ agent_upload_config(){
         fi
         ### Upload WMAgentConfig to AuxDB
         echo "*** Upload WMAgentConfig to AuxDB ***"
-        # TODO: Temporary stop uploading the config. To be reverted once we are ready with reconfiguring with pypi pkg env
-        # $manage execute-agent wmagent-upload-config $agentExtraConfig && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/.dockerInit ;}
-        true && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/.dockerInit ;}
+        $manage execute-agent wmagent-upload-config $agentExtraConfig && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/.dockerInit ;}
 
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
