@@ -48,6 +48,10 @@ RUN rm -f /etc/mysql/mariadb.conf.d/50-server.cnf
 # Add WMA_USER to sudoers
 RUN echo "${WMA_USER} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
+# Add all deployment needed directories
+ADD bin $WMA_DEPLOY_DIR/bin
+ADD etc $WMA_DEPLOY_DIR/etc
+
 # Add install script
 ADD install.sh ${WMA_ROOT_DIR}/install.sh
 

@@ -95,12 +95,6 @@ echo "Start $stepMsg"
 # Download the environment file
 wget -nv -O $WMA_ENV_FILE https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/env.sh
 
-# Download config and manage scripts for the initial deployment:
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/deployment/master/wmagentpy3/manage
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/deployment/master/wmagentpy3/local.ini
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/deployment/master/wmagentpy3/my.cnf
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/deployment/master/wmagentpy3/rucio.cfg
-
 # Download WMAgent.secrets templates:
 wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/deploy/WMAgent.production
 wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/deploy/WMAgent.testbed
@@ -172,7 +166,7 @@ alias foldersize="du -h --max-depth=1 | sort -hr"
 alias scurl='curl -k --cert ${CERT_DIR}/servicecert.pem --key ${CERT_DIR}/servicekey.pem'
 
 # set WMAgent docker specific bash prompt:
-export PS1="(WMAgent-\$WMA_TAG) [\u@\h:\w]\$ "
+export PS1="(WMAgent-\$WMA_TAG) [\u@\h:\W]\$ "
 export WMA_BUILD_ID=\$(cat $WMA_ROOT_DIR/.dockerBuildId)
 export WMAGENTPY3_ROOT=\$WMA_INSTALL_DIR/wmagent
 export WMAGENTPY3_VERSION=\$WMA_TAG

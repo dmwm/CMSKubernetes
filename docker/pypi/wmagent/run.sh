@@ -216,18 +216,19 @@ deploy_to_host(){
         echo "$FUNCNAME: config service=$service"
         local errVal=0
         local config=config_$service && config=${!config}        # expanding to the proper config name
-        if [[ $service = "rucio" ]]
-        then
-            [[ -d $WMA_CONFIG_DIR/$service/etc ]] || mkdir -p $WMA_CONFIG_DIR/$service/etc ; let errVal+=$?
-            cp -f $WMA_DEPLOY_DIR/${config} $WMA_CONFIG_DIR/$service/etc/ ; let errVal+=$?
-        else
-            [[ -d $WMA_CONFIG_DIR/$service ]] || mkdir -p $WMA_CONFIG_DIR/$service ; let errVal+=$?
-            cp -f $WMA_DEPLOY_DIR/${config} $WMA_CONFIG_DIR/$service/ ; let errVal+=$?
-        fi
         if [[ $service = "wmagent" ]]
         then
+            [[ -d $WMA_CONFIG_DIR/$service ]] || mkdir -p $WMA_CONFIG_DIR/$service ; let errVal+=$?
+            cp -f $WMA_DEPLOY_DIR/bin/${config} $WMA_CONFIG_DIR/$service/ ; let errVal+=$?
             chmod 755 $WMA_CONFIG_DIR/$service/$config;
             [[ -h $WMA_CONFIG_DIR/wmagentpy3 ]] || ln -s $WMA_CONFIG_DIR/$service $WMA_CONFIG_DIR/wmagentpy3
+        elif [[ $service = "rucio" ]]
+        then
+            [[ -d $WMA_CONFIG_DIR/$service/etc ]] || mkdir -p $WMA_CONFIG_DIR/$service/etc ; let errVal+=$?
+            cp -f $WMA_DEPLOY_DIR/etc/${config} $WMA_CONFIG_DIR/$service/etc/ ; let errVal+=$?
+        else
+            [[ -d $WMA_CONFIG_DIR/$service ]] || mkdir -p $WMA_CONFIG_DIR/$service ; let errVal+=$?
+            cp -f $WMA_DEPLOY_DIR/etc/${config} $WMA_CONFIG_DIR/$service/ ; let errVal+=$?
         fi
         [[ $errVal -eq 0 ]] && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/$service/.dockerInit
     done
@@ -591,7 +592,9 @@ agent_upload_config(){
         fi
         ### Upload WMAgentConfig to AuxDB
         echo "*** Upload WMAgentConfig to AuxDB ***"
-        $manage execute-agent wmagent-upload-config $agentExtraConfig && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/.dockerInit ;}
+        # TODO: Temporary stop uploading the config. To be reverted once we are ready with reconfiguring with pypi pkg env
+        # $manage execute-agent wmagent-upload-config $agentExtraConfig && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/.dockerInit ;}
+        true && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/.dockerInit ;}
 
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
