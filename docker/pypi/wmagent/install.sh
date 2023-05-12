@@ -62,7 +62,7 @@ echo
 
 
 # Installing the wmagent package from pypi
-stepMsg="Installing wmagent:$WMA_TAG at $WMA_BASE_DIR/wmagent/$WMA_TAG"
+stepMsg="Installing wmagent:$WMA_TAG at $WMA_DEPLOY_DIR"
 echo "-----------------------------------------------------------------------"
 echo "Start $stepMsg"
 
@@ -71,7 +71,7 @@ pip install wheel
 pip install --upgrade pip
 
 # Second deploy the package. Interrupt on error:
-pip install wmagent==$WMA_TAG || { err=$?; echo "Failed to install wmagent:$WMA_TAG at $WMA_BASE_DIR/wmagent/$WMA_TAG" ; exit $err ; }
+pip install wmagent==$WMA_TAG || { err=$?; echo "Failed to install wmagent:$WMA_TAG at $WMA_DEPLOY_IR" ; exit $err ; }
 echo "Done $stepMsg!" && echo
 echo "-----------------------------------------------------------------------"
 
@@ -93,8 +93,6 @@ echo "-----------------------------------------------------------------------"
 stepMsg="Downloading all files required for the containder intialisation at the host"
 echo "-----------------------------------------------------------------------"
 echo "Start $stepMsg"
-# Download the environment file
-wget -nv -O $WMA_ENV_FILE https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/deploy/env.sh
 
 # Fix for outdated yui library - A really bad workaround. We should get rid of it ASAP:
 wget -nv -P $WMA_DEPLOY_DIR wget http://cmsrep.cern.ch/cmssw/repos/comp/slc7_amd64_gcc630/0000000000000000000000000000000000000000000000000000000000000000/RPMS/cd/cda5f9ef4b33696e67c9e2f995dd5cb6/external+yui+2.9.0-1-1.slc7_amd64_gcc630.rpm
