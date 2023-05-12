@@ -1,6 +1,6 @@
-### WMAgent in Docker using pypi deployment method.
+## WMAgent in Docker using pypi deployment method.
 
-## Requires:
+### Requires:
  * Docker to be installed on the host VM (vocmsXXXX)
  * HTcondor schedd to be installed and configured at the host VM
  * CouchDB to be installed on the host VM
@@ -8,7 +8,7 @@
  * Service certificates to be present at the host VM
  * `WMAgent.secrets` file to be present at the host VM
 
-## The imlementation is realized through the following files:
+### The imlementation is realized through the following files:
  * `Dockerfile` - creates provides all basic requirements for the image and sets all common env variables to both `install.sh` and `run.sh`.
  * `install.sh` - called through `Dockerfile` `RUN` command and provided with a single parameter at build time `WMA_TAG`
  * `run.sh` - set as default `ENTRYPOINT` at container runtime. All agent related configuration parameters are passed as named arguments and used to (re)generate the agent configuration files. All service credentials and schedd caches are accessed via host mount points
@@ -25,7 +25,7 @@
 * `FLAVOR=mysql`
 
 
-## Building a WMAgent image
+### Building a WMAgent image
 
 The build process may happen at any machine running a Docker Engine.
 **Build command:**
@@ -61,7 +61,7 @@ docker build --network=host --progress=plain --build-arg WMA_TAG=$WMA_TAG -t wma
 #18 DONE 3.3s
 ```
 
-## Running a WMAgent container
+### Running a WMAgent container
 
 One needs to bind mount several directories from the host VM (vocmsXXXX) and also to update the selinux lables with the Z option again at the host.
 * /data/dockerMount/certs
@@ -147,7 +147,7 @@ See 'docker run --help'
 
 
 
-## Checking container status
+### Checking container status
 ```
 ssh vocms****
 
@@ -165,7 +165,7 @@ In order to stop the WMAgent container one just needs to kill it, the `--rm` opt
 docker kill wmagent
 ```
 
-## Enforce container reinitialisation at the host:
+### Enforce container reinitialisation at the host:
 The WMAgent needs to preserve its configuration and initialisation data permanently at the host. For the purpose we use Host to Docker bind mounts.
 Once a specific WMAgent image has been run for the first time it leaves a small set of .dockerInit files at all places where permanent data(like config files and job caches) at the host is preserved.
 On any further restart of the container, hence the WMAgent itself, we do not go through all the initialisation steps again if we find the
@@ -210,9 +210,10 @@ OK
 ...
 ```
 
-##Connecting to the container
+### Connecting to the container
 
 First login at the VM and from there connect to the container:
+
 **Login sequence:**
 ```
 docker exec -it wmagent /bin/bash
