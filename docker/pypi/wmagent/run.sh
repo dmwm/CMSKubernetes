@@ -368,21 +368,6 @@ deploy_to_container() {
     # Update flavor/type/domain global variables if needed
     # (grep -E "^[[:blank:]]*ORACLE_" $WMA_ADMIN_DIR/WMAgent.secrets > /dev/null) && CURR_FLAVOR=oracle || CURR_FLAVOR=mysql
 
-    # Temporary fixes for broken pypi packaging. To be removed upon fixing the bellow two WMCore issues:
-    # https://github.com/dmwm/WMCore/issues/11583
-    # https://github.com/dmwm/WMCore/issues/11584
-    # mkdir -p $WMA_INSTALL_DIR/wmagent/{bin,etc}
-    mkdir -p $WMA_CURRENT_DIR/apps/wmagentpy3/etc/profile.d
-    # cp -f $WMA_DEPLOY_DIR/bin/wm{core,agent}* $WMA_INSTALL_DIR/wmagent/bin
-    # cp -f $WMA_DEPLOY_DIR/etc/WMAgentConfig.py $WMA_INSTALL_DIR/wmagent/etc
-    # chmod 755 $WMA_INSTALL_DIR/wmagent/bin/*
-    cat <<"    EOF"> $WMA_CURRENT_DIR/apps/wmagentpy3/etc/profile.d/init.sh
-        export WMAGENTPY3_ROOT=$WMA_DEPLOY_DIR
-        export WMCORE_ROOT=$WMA_DEPLOY_DIR
-        export YUI_ROOT=$WMA_DEPLOY_DIR/yui/
-        export WMAGENTPY3_VERSION=$WMA_TAG
-    EOF
-
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
 }
@@ -407,6 +392,8 @@ _check_oracle()
 
 _check_mysql()
 {
+    # Auxiliary finction to check if the the MariaDB database for the current agent is properly set
+    # TODO: To be implemented in the issue related to the MariaDB setup fro wmagent
     echo "$FUNCNAME: Checking whether the mysql schema has been installed"
     true
 }
@@ -636,6 +623,14 @@ main(){
         (agent_resource_control) || { err=$?; echo "ERROR: agent_resource_control"; exit $err ;}
         (agent_upload_config)    || { err=$?; echo "ERROR: agent_upload_config"; exit $err ;}
         (check_docker_init)      || { err=$?; echo "ERROR: DockerBuild vs. HostConfiguration version missmatch"; exit $err ; }
+
+        echo && echo "Docker container has been initialised! However you still need to:"
+        echo "  1) Double check agent configuration: less current/config/wmagent/config.py"
+        echo "  2) Start the agent with on of the bellow commands: "
+        echo "      manage start-agent     (from inside a running wmagent container)"
+        echo "      ./wmagent-docker-run & (from the host)"
+        echo "Have a nice day!" && echo
+        return $(true)
     }
     (deploy_to_container)        || { err=$?; echo "ERROR: deploy_to_container"; exit $err ;}
     start_services
@@ -646,12 +641,6 @@ main(){
 
 main
 
-echo && echo "Docker container is running! However you still need to:"
-echo "  1) Source the new WMA env: source /data/admin/wmagent/env.sh"
-echo "  2) Double check agent configuration: less config/wmagent/config.py"
-echo "  3) Start the agent with: \$manage start-agent"
-echo "  $FINAL_MSG"
-echo "Have a nice day!" && echo
 
 exit 0
 

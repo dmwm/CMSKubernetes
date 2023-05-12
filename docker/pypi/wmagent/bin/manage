@@ -4,10 +4,7 @@
 #
 # Global variables etc
 #
-THIS_SCRIPT=$(readlink -f $0)
-PROJ_DIR=$(dirname $(dirname $THIS_SCRIPT))
-ROOT_DIR=$(dirname $(dirname $(dirname $THIS_SCRIPT)))
-
+ROOT_DIR=$WMA_CURRENT_DIR
 INSTALL_AG="$ROOT_DIR/install/wmagentpy3"
 INSTALL_MYSQL="$ROOT_DIR/install/mysql"
 INSTALL_COUCH="$ROOT_DIR/install/couchdb"
@@ -32,7 +29,7 @@ ORACLE_TNS=
 
 MYSQL_USER=
 if [ -z "$DBSOCK" ]; then
-    MYSQL_SOCK=$INSTALL_MYSQL/logs/mysql.sock 
+    MYSQL_SOCK=$INSTALL_MYSQL/logs/mysql.sock
 else
     MYSQL_SOCK=$DBSOCK
 fi
@@ -236,14 +233,14 @@ print_settings(){
 # Environment
 #
 
-. $ROOT_DIR/apps/wmagentpy3/etc/profile.d/init.sh
+# . $ROOT_DIR/apps/wmagentpy3/etc/profile.d/init.sh
 
-export WMAGENTPY3_ROOT
 # WMAGENT_ROOT == WMCORE_ROOT now but in old rpms WMCORE_ROOT was seperate,
 # if WMCORE_ROOT already set export it, else set to WMAGENT_ROOT
-export WMCORE_ROOT=${WMCORE_ROOT:-$WMAGENTPY3_ROOT}
-export YUI_ROOT
-export COUCHSKEL_ROOT
+export WMAGENTPY3_ROOT=$WMA_DEPLOY_DIR
+export WMCORE_ROOT=$WMA_DEPLOY_DIR
+export YUI_ROOT=$WMA_DEPLOY_DIR/yui/
+export WMAGENTPY3_VERSION=$WMA_TAG
 export CRYPTOGRAPHY_ALLOW_OPENSSL_102=true
 
 #########################
