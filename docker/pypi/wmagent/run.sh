@@ -249,8 +249,8 @@ deploy_to_host(){
             local agentType=${TEAMNAME%%-*}
             agentType=${agentType/relval*/production}
             agentType=${agentType/dev*/testbed}
-            echo "$FUNCNAME: copying $WMA_DEPLOY_DIR/WMAgent.$agentType to $WMA_HOSTADMIN_DIR/WMAgent.secrets"
-            cp -f $WMA_DEPLOY_DIR/WMAgent.$agentType $WMA_HOSTADMIN_DIR/WMAgent.secrets
+            echo "$FUNCNAME: copying $WMA_DEPLOY_DIR/etc/WMAgent.$agentType to $WMA_HOSTADMIN_DIR/WMAgent.secrets"
+            cp -f $WMA_DEPLOY_DIR/etc/WMAgent.$agentType $WMA_HOSTADMIN_DIR/WMAgent.secrets
         fi
         echo "$FUNCNAME: checking $WMA_HOSTADMIN_DIR/WMAgent.secrets"
         if (_parse_wmasecrets $WMA_HOSTADMIN_DIR/WMAgent.secrets); then
@@ -371,17 +371,16 @@ deploy_to_container() {
     # Temporary fixes for broken pypi packaging. To be removed upon fixing the bellow two WMCore issues:
     # https://github.com/dmwm/WMCore/issues/11583
     # https://github.com/dmwm/WMCore/issues/11584
-    mkdir -p $WMA_INSTALL_DIR/wmagent/{bin,etc}
+    # mkdir -p $WMA_INSTALL_DIR/wmagent/{bin,etc}
     mkdir -p $WMA_CURRENT_DIR/apps/wmagentpy3/etc/profile.d
-    cp -f $WMA_DEPLOY_DIR/wm{core,agent}* $WMA_INSTALL_DIR/wmagent/bin
-    cp -f $WMA_DEPLOY_DIR/WMAgentConfig.py $WMA_INSTALL_DIR/wmagent/etc
-    chmod 755 $WMA_INSTALL_DIR/wmagent/bin/*
+    # cp -f $WMA_DEPLOY_DIR/bin/wm{core,agent}* $WMA_INSTALL_DIR/wmagent/bin
+    # cp -f $WMA_DEPLOY_DIR/etc/WMAgentConfig.py $WMA_INSTALL_DIR/wmagent/etc
+    # chmod 755 $WMA_INSTALL_DIR/wmagent/bin/*
     cat <<"    EOF"> $WMA_CURRENT_DIR/apps/wmagentpy3/etc/profile.d/init.sh
-        export WMAGENTPY3_ROOT=$WMA_INSTALL_DIR/wmagent
-        export WMCORE_ROOT=$WMA_INSTALL_DIR/wmagent
+        export WMAGENTPY3_ROOT=$WMA_DEPLOY_DIR
+        export WMCORE_ROOT=$WMA_DEPLOY_DIR
         export YUI_ROOT=$WMA_DEPLOY_DIR/yui/
         export WMAGENTPY3_VERSION=$WMA_TAG
-        export PATH=$WMA_INSTALL_DIR/wmagent/bin${PATH:+:$PATH}
     EOF
 
     echo "Done: $stepMsg"

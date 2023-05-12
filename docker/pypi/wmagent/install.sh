@@ -62,7 +62,7 @@ echo
 
 
 # Installing the wmagent package from pypi
-stepMsg="Installing wmagent:$WMA_TAG at $WMA_DEPLOY_DIR"
+stepMsg="Installing wmagent:$WMA_TAG at $WMA_BASE_DIR/wmagent/$WMA_TAG"
 echo "-----------------------------------------------------------------------"
 echo "Start $stepMsg"
 
@@ -71,7 +71,7 @@ pip install wheel
 pip install --upgrade pip
 
 # Second deploy the package. Interrupt on error:
-pip install wmagent==$WMA_TAG || { err=$?; echo "Failed to install wmagent:$WMA_TAG at $WMA_DEPLOY_DIR" ; exit $err ; }
+pip install wmagent==$WMA_TAG || { err=$?; echo "Failed to install wmagent:$WMA_TAG at $WMA_BASE_DIR/wmagent/$WMA_TAG" ; exit $err ; }
 echo "Done $stepMsg!" && echo
 echo "-----------------------------------------------------------------------"
 
@@ -80,7 +80,8 @@ stepMsg="Creating required directory structure in the WMAgent image"
 echo "-----------------------------------------------------------------------"
 echo "Start $stepMsg"
 mkdir -p ${WMA_DEPLOY_DIR} || true
-ln -s ${WMA_DEPLOY_DIR%/deploy} $WMA_CURRENT_DIR
+mkdir -p $WMA_BASE_DIR/wmagent/$WMA_TAG || true
+ln -s $WMA_BASE_DIR/wmagent/$WMA_TAG $WMA_CURRENT_DIR
 
 mkdir -p $WMA_ADMIN_DIR $WMA_HOSTADMIN_DIR $WMA_CERTS_DIR $WMA_MANAGE_DIR $WMA_INSTALL_DIR
 chmod 755 $WMA_CERTS_DIR
@@ -93,25 +94,7 @@ stepMsg="Downloading all files required for the containder intialisation at the 
 echo "-----------------------------------------------------------------------"
 echo "Start $stepMsg"
 # Download the environment file
-wget -nv -O $WMA_ENV_FILE https://raw.githubusercontent.com/dmwm/WMCore/master/deploy/env.sh
-
-# Download WMAgent.secrets templates:
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/deploy/WMAgent.production
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/deploy/WMAgent.testbed
-
-# Download temporary fixes for broken pypi packaging. To be removed upon fixing the bellow two WMCore issues:
-# https://github.com/dmwm/WMCore/issues/11583
-# https://github.com/dmwm/WMCore/issues/11584
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/etc/WMAgentConfig.py
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/bin/wmcoreD
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/bin/wmcore-db-init
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/bin/wmagent-couchapp-init
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/bin/wmagent-delete-couchdb-workflow
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/bin/wmagent-mod-config
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/bin/wmagent-resource-control
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/bin/wmagent-unregister-wmstats
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/bin/wmagent-upload-config
-wget -nv -P $WMA_DEPLOY_DIR https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/bin/wmagent-workqueue
+wget -nv -O $WMA_ENV_FILE https://raw.githubusercontent.com/dmwm/WMCore/$WMA_TAG/deploy/env.sh
 
 # Fix for outdated yui library - A really bad workaround. We should get rid of it ASAP:
 wget -nv -P $WMA_DEPLOY_DIR wget http://cmsrep.cern.ch/cmssw/repos/comp/slc7_amd64_gcc630/0000000000000000000000000000000000000000000000000000000000000000/RPMS/cd/cda5f9ef4b33696e67c9e2f995dd5cb6/external+yui+2.9.0-1-1.slc7_amd64_gcc630.rpm
