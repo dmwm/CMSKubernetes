@@ -6,9 +6,6 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 RUN apt-get update
 RUN apt-get install -y libmariadb-dev-compat libmariadb-dev apache2-utils hostname net-tools iputils-ping cron mariadb-server myproxy voms-clients rpm2cpio rlwrap libaio1 procps
 
-COPY --from=cmsweb /etc/vomses /etc/vomses
-COPY --from=cmsweb /etc/grid-security/vomsdir /etc/grid-security/vomsdir
-
 # copy oracle client:
 COPY --from=oracle /usr/lib/oracle /usr/lib/oracle
 ENV LD_LIBRARY_PATH=/usr/lib/oracle
