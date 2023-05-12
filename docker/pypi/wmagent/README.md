@@ -19,7 +19,7 @@
 * `WMA_TAG=2.2.0.2`
 
 **RUN options (accepted by `run.sh`):**
-* `TEAMNAME=testbed-vocms0192`
+* `TEAMNAME=testbed-$HOSTNAME`
 * `CENTRAL_SERVICES=cmsweb-testbed.cern.ch`
 * `AGENT_NUMBER=0`
 * `FLAVOR=mysql`
@@ -29,10 +29,17 @@
 
 The build process may happen at any machine running a Docker Engine.
 **Build command:**
+* Using the wrapper script:
 ```
+ssh vocms****
+cmst1
 cd /data
 git clone https://github.com/dmwm/CMSKubernetes.git
-
+cd /data/CMSKubernetes/docker/pypi/wmagent/
+./wmagent-docker-build.sh -v 2.2.1rc2
+```
+* Here is what is happening under the hood:
+```
 WMA_TAG=2.2.0.2
 docker build --network=host --progress=plain --build-arg WMA_TAG=$WMA_TAG -t wmagent:$WMA_TAG -t wmagent:latest  /data/CMSKubernetes/docker/pypi/wmagent/ 2>&1 |tee /data/build-wma.log
 ```
@@ -68,11 +75,23 @@ One needs to bind mount several directories from the host VM (vocmsXXXX) and als
 The install and config dirs will be initialized the first time you execute run.sh and a .dockerinit file will be placed to keep track of the initialization. Subsequent container restarts won't touch these directories.
 
 **Run command:**
+
+* Initialising the agent for the first time:
 ```
 ssh vocms****
-
 cmst1
+cd /data/CMSKubernetes/docker/pypi/wmagent/
+# cleaning old agent data:
+rm -rf /data/dockerMount/srv/
+./wmagent-docker-run.sh -t <team_name> -n <agent_number> -f <db_flavour> -c <central_services> &
+```
+* Running the agent:
+```
+./wmagent-docker-run.sh &
+```
 
+Here is what is happening under the hood:
+```
 dockerOpts=" \
 --network=host --rm --hostname=`hostname -f` --name=wmagent \
 -v /data/certs:/data/certs:Z,ro \
