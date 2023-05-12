@@ -16,7 +16,7 @@
  * `wmagent-docker-run.sh` - simple script to be used for running a WMAgent docker container
 
 **Build options (accepted by `install.sh`):**
-* `WMA_TAG=2.2.0.2`
+* `WMA_TAG=2.2.1rc2`
 
 **RUN options (accepted by `run.sh`):**
 * `TEAMNAME=testbed-$HOSTNAME`
@@ -64,12 +64,12 @@ docker build --network=host --progress=plain --build-arg WMA_TAG=$WMA_TAG -t wma
 ## Running a WMAgent container
 
 One needs to bind mount several directories from the host VM (vocmsXXXX) and also to update the selinux lables with the Z option again at the host.
-* /data/certs
+* /data/dockerMount/certs
 * /etc/condor (schedd runs on the host, not the container)
 * /tmp
-* /data/srv/wmagent/current/install (stateful service and component dirs)
-* /data/srv/wmagent/current/config
-* /data/admin/wmagent               (in order to access the WMAgent.secrets)
+* /data/dockerMount/srv/wmagent/current/install (stateful service and component dirs)
+* /data/dockerMount/srv/wmagent/current/config  (for persisting agent configuration data)
+* /data/dockerMount/admin/wmagent               (in order to access the WMAgent.secrets)
 
 
 The install and config dirs will be initialized the first time you execute run.sh and a .dockerinit file will be placed to keep track of the initialization. Subsequent container restarts won't touch these directories.
@@ -92,18 +92,25 @@ rm -rf /data/dockerMount/srv/
 
 Here is what is happening under the hood:
 ```
+WMA_ROOT_DIR=/data/dockerMount
+
 dockerOpts=" \
---network=host --rm --hostname=`hostname -f` --name=wmagent \
--v /data/certs:/data/certs:Z,ro \
--v /etc/condor:/etc/condor:Z,ro \
--v /tmp:/tmp:Z \
--v /data/srv/wmagent/current/install:/data/srv/wmagent/current/install:Z \
--v /data/srv/wmagent/current/config:/data/srv/wmagent/current/config:Z \
--v /data/admin/wmagent:/data/admin/wmagent/hostadmin:Z \
+--network=host \
+--rm \
+--hostname=`hostname -f` \
+--name=wmagent \
+--mount type=bind,source=/etc/tnsnames.ora,target=/etc/tnsnames.ora,readonly \
+--mount type=bind,source=/etc/condor,target=/etc/condor,readonly \
+--mount type=bind,source=/tmp,target=/tmp \
+--mount type=bind,source=$WMA_ROOT_DIR/certs,target=/data/certs \
+--mount type=bind,source=$WMA_ROOT_DIR/srv/wmagent/current/install,target=/data/srv/wmagent/current/install \
+--mount type=bind,source=$WMA_ROOT_DIR/srv/wmagent/current/config,target=/data/srv/wmagent/current/config \
+--mount type=bind,source=$WMA_ROOT_DIR/admin/wmagent,target=/data/admin/wmagent/hostadmin \
 "
+
 wmaOpts=" \
--f oracle \
--t testbed-vocms0192 \
+-f mysql \
+-t testbed-vocms0260 \
 -n 0 \
 -c cmsweb-testbed.cern.ch"
 
@@ -116,10 +123,10 @@ docker run $dockerOpts wmagent $wmaOpts
 Starting WMAgent with the following initial data:
 -------------------------------------------------------
  - WMAgent Version            : 2.2.0.2
- - WMAgent TeamName           : testbed-vocms0192
+ - WMAgent TeamName           : testbed-vocms0260
  - WMAgent Number             : 0
  - WMAgent CentralServices    : cmsweb-testbed.cern.ch
- - WMAgent Host               : vocms0192.cern.ch
+ - WMAgent Host               : vocms0260.cern.ch
  - WMAgent Config             : /data/srv/wmagent/current/config
  - WMAgent Relational DB type : oracle
  - Python verson              : Python 3.8.16
@@ -170,7 +177,7 @@ In order for one to enforce reinitialisation steps to be performed one needs to 
 ```
 docker kill wmagent
 
-sudo find /data -name .dockerInit -delete
+sudo find /data/dockerMount -name .dockerInit -delete
 
 docker run $dockerOpts wmagent:$WMA_TAG $wmaOpts
 ```
@@ -210,5 +217,5 @@ First login at the VM and from there connect to the container:
 ```
 docker exec -it wmagent /bin/bash
 ...
-(WMAgent.dock) [cmst1@vocms***:/data/srv/wmagent/current]$
+(WMAgent-2.2.1rc2) [cmst1@vocms0260:current]$ manage status
 ```
