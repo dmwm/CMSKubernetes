@@ -172,7 +172,7 @@ alias foldersize="du -h --max-depth=1 | sort -hr"
 alias scurl='curl -k --cert ${CERT_DIR}/servicecert.pem --key ${CERT_DIR}/servicekey.pem'
 
 # set WMAgent docker specific bash prompt:
-export PS1="(WMAgent.dock) [\u@\h:\w]\$ "
+export PS1="(WMAgent-\$WMA_TAG) [\u@\h:\w]\$ "
 export WMA_BUILD_ID=\$(cat $WMA_ROOT_DIR/.dockerBuildId)
 export WMAGENTPY3_ROOT=\$WMA_INSTALL_DIR/wmagent
 export WMAGENTPY3_VERSION=\$WMA_TAG
@@ -204,27 +204,3 @@ echo "======================================================================="
 
 
 exit 0
-
-
-
-# if [[ -f $WMA_ENV_FILE ]]; then
-#   source $WMA_ENV_FILE
-# else
-#   echo -e "\n  Could not find $WMA_ENV_FILE, exiting."
-#   exit 1
-# fi
-
-# TODO: Here we need to
-#    * copy/download all the confg && deploy files from https://raw.githubusercontent.com/dmwm/deployment/master/wmagentpy3
-#    * preserve  it in a directory outside the host mounted area so that at
-#      first/initial container start it could be copied from here instead of downloading it from github on every restart
-#    * create the wmagent->wmagentpy3 soft link
-
-# TODO: Same as above for the WMAgent.secrets templates
-
-# ### Enabling couch watchdog; couchdb fix for file descriptors
-# echo "*** Enabling couch watchdog ***"
-# sed -i "s+RESPAWN_TIMEOUT=0+RESPAWN_TIMEOUT=5+" $WMA_CURRENT_DIR/sw*/$WMA_ARCH/external/couchdb*/*/bin/couchdb
-# sed -i "s+exec 1>&-+exec 1>$WMA_CURRENT_DIR/install/couchdb/logs/stdout.log+" $WMA_CURRENT_DIR/sw*/$WMA_ARCH/external/couchdb*/*/bin/couchdb
-# sed -i "s+exec 2>&-+exec 2>$WMA_CURRENT_DIR/install/couchdb/logs/stderr.log+" $WMA_CURRENT_DIR/sw*/$WMA_ARCH/external/couchdb*/*/bin/couchdb
-# echo "Done!" && echo

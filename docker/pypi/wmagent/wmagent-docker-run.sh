@@ -46,7 +46,7 @@ done
 
 # This is the root at the host only, it may differ from the root inside the container.
 # NOTE: this may be parametriesed, so that the container can run on a different mount point.
-WMA_ROOT_DIR=/data
+WMA_ROOT_DIR=/data/dockerMount
 
 [[ -d $WMA_ROOT_DIR/certs ]] || (mkdir -p $WMA_ROOT_DIR/certs) || exit $?
 [[ -d $WMA_ROOT_DIR/admin/wmagent ]] || (mkdir -p $WMA_ROOT_DIR/admin/wmagent) || exit $?

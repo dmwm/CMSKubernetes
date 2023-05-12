@@ -255,7 +255,7 @@ deploy_to_host(){
         if (_parse_wmasecrets $WMA_HOSTADMIN_DIR/WMAgent.secrets); then
             echo $WMA_BUILD_ID > $WMA_HOSTADMIN_DIR/.dockerInit
         else
-            echo "ERROR: We found a blank WMAgent.secrets file temlate at the current host!"
+            echo "ERROR: We found a blank WMAgent.secrets file template at the current host!"
             echo "ERROR: Please update it properly before reinitialising the WMagent container!"
             return $(false)
         fi
@@ -585,7 +585,7 @@ agent_upload_config(){
         elif [[ "$TEAMNAME" == *testbed* ]]; then
             echo "$FUNCNAME: Testbed agent, setting MaxRetries to 0..."
             agentExtraConfig='{"MaxRetries":0}'
-        elif [[ "$TEAMNAME" == *devvm* ]]; then
+        elif [[ "$TEAMNAME" == *dev* ]]; then
             echo "$FUNCNAME: Dev agent, setting MaxRetries to 0..."
             agentExtraConfig='{"MaxRetries":0}'
         fi
