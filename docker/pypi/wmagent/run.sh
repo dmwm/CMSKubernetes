@@ -329,8 +329,8 @@ deploy_to_container() {
         echo "$FUNCNAME: ERROR: Sorry, we do not recognize the network domain name of the current host: $HOSTNAME"
         return $(false)
     fi
-    sed -i "s/credname=CREDNAME/credname=$myproxyCredName/g" $WMA_ADMIN_DIR/renew_proxy.sh
-    chmod 755 $WMA_ADMIN_DIR/renew_proxy.sh
+    sed -i "s/credname=CREDNAME/credname=$myproxyCredName/g" $WMA_DEPLOY_DIR/deploy/renew_proxy.sh
+    chmod 755 $WMA_DEPLOY_DIR/deploy/renew_proxy.sh
 
     # Here to check certificates and update myproxy if needed:
     if [[ -f $WMA_CERTS_DIR/servicecert.pem ]] && [[ -f $WMA_CERTS_DIR/servicekey.pem ]]; then
@@ -351,10 +351,10 @@ deploy_to_container() {
         local myproxyEndDate=$(openssl x509 -in $WMA_CERTS_DIR/myproxy.pem -noout -enddate)
         myproxyEndDate=${myproxyEndDate##*=}
         echo "$FUNCNAME: myproxy end date: $myproxyEndDate"
-        [[ -n $myproxyEndDate ]] || ($WMA_ADMIN_DIR/renew_proxy.sh) || { echo "ERROR: Failed to renew invalid myproxy"; return $(false) ;}
+        [[ -n $myproxyEndDate ]] || ($WMA_DEPLOY_DIR/deploy/renew_proxy.sh) || { echo "ERROR: Failed to renew invalid myproxy"; return $(false) ;}
 
         myproxyEndDate=$(date --date="$myproxyEndDate" +%s)
-        [[ $myproxyEndDate -gt $now ]] || ($WMA_ADMIN_DIR/renew_proxy.sh) || { echo "ERROR: Failed to renew expired myproxy"; return $(false) ;}
+        [[ $myproxyEndDate -gt $now ]] || ($WMA_DEPLOY_DIR/deploy/renew_proxy.sh) || { echo "ERROR: Failed to renew expired myproxy"; return $(false) ;}
 
         # Stay safe and always change the service {cert,key} and myproxy mode here:
         sudo chmod 600 $WMA_CERTS_DIR/*
