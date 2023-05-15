@@ -176,7 +176,7 @@ With such change you'll be able to access your httpgo application on port
 
 Meanwhile, we'll deploy ingress controller
 ```
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress
@@ -189,9 +189,12 @@ spec:
     http:
       paths:
       - path: /http
+        pathType: Prefix
         backend:
-          serviceName: httpgo
-          servicePort: 8888
+          service:
+            name: httpgo
+            port:
+              number: 8888
 ```
 (save this file as ing.yaml) and deploy it as following:
 ```
@@ -229,7 +232,7 @@ Hello Go world!!!
 
 ### Advanced topic
 Let's try to scale our k8s app based on CPU metric. For that we need to adjust
-our deployment file and add resources clause. Add the following to httpgo.yaml
+our deployment file and add resources clause. Add the following to the end of httpgo.yaml
 ```
         resources:
           requests:
@@ -262,7 +265,7 @@ kubectl get hpa
 
 Then, login to your pod and create heavy CPU process, e.g.
 ```
-kubectl exec -ti httpgo-deployment-57b87765d6-brgq7 bash
+kubectl exec -ti httpgo-deployment-57b87765d6-brgq7 -- bash
 
 # create new python CPU hog process
 cat > cpu.py << EOF
