@@ -16,7 +16,7 @@
  * `wmagent-docker-run.sh` - simple script to be used for running a WMAgent docker container
 
 **Build options (accepted by `install.sh`):**
-* `WMA_TAG=2.2.1rc2`
+* `WMA_TAG=2.2.1rc3`
 
 **RUN options (accepted by `run.sh`):**
 * `TEAMNAME=testbed-$HOSTNAME`
@@ -28,6 +28,7 @@
 ### Building a WMAgent image
 
 The build process may happen at any machine running a Docker Engine.
+
 **Build command:**
 * Using the wrapper script:
 ```
@@ -36,11 +37,11 @@ cmst1
 cd /data
 git clone https://github.com/dmwm/CMSKubernetes.git
 cd /data/CMSKubernetes/docker/pypi/wmagent/
-./wmagent-docker-build.sh -v 2.2.1rc2
+./wmagent-docker-build.sh -v 2.2.1rc3
 ```
 * Here is what is happening under the hood:
 ```
-WMA_TAG=2.2.0.2
+WMA_TAG=2.2.1rc3
 docker build --network=host --progress=plain --build-arg WMA_TAG=$WMA_TAG -t wmagent:$WMA_TAG -t wmagent:latest  /data/CMSKubernetes/docker/pypi/wmagent/ 2>&1 |tee /data/build-wma.log
 ```
 **Partial output:**
@@ -52,12 +53,12 @@ docker build --network=host --progress=plain --build-arg WMA_TAG=$WMA_TAG -t wma
 #14 0.110 =======================================================
 #14 0.110 Starting new agent deployment with the following data:
 #14 0.110 -------------------------------------------------------
-#14 0.111  - WMAgent version         : 2.2.0.2
+#14 0.111  - WMAgent version         : 2.2.1rc3
 #14 0.113  - Python verson           : Python 3.8.16
 #14 0.114  - Python Module Path      : /usr/local/lib/python3.8/site-packages
 #14 0.114 =======================================================
 ...
-#18 naming to docker.io/library/wmagent:2.2.0.2 done
+#18 naming to docker.io/library/wmagent:2.2.1rc3 done
 #18 DONE 3.3s
 ```
 
@@ -90,7 +91,7 @@ rm -rf /data/dockerMount/srv/
 ./wmagent-docker-run.sh &
 ```
 
-Here is what is happening under the hood:
+* Here is what is happening under the hood:
 ```
 WMA_ROOT_DIR=/data/dockerMount
 
@@ -122,7 +123,7 @@ docker run $dockerOpts wmagent $wmaOpts
 =======================================================
 Starting WMAgent with the following initial data:
 -------------------------------------------------------
- - WMAgent Version            : 2.2.0.2
+ - WMAgent Version            : 2.2.1rc3
  - WMAgent TeamName           : testbed-vocms0260
  - WMAgent Number             : 0
  - WMAgent CentralServices    : cmsweb-testbed.cern.ch
@@ -153,7 +154,7 @@ ssh vocms****
 
 docker container ps
 CONTAINER ID   IMAGE             COMMAND                CREATED       STATUS       PORTS     NAMES
-78d7e1baa3df   wmagent:2.2.0.2   "./run.sh -f oracle ..."   2 hours ago   Up 2 hours             wmagent
+78d7e1baa3df   wmagent:2.2.1rc3   "./run.sh -f oracle ..."   2 hours ago   Up 2 hours             wmagent
 
 ```
 
@@ -187,7 +188,7 @@ docker run $dockerOpts wmagent:$WMA_TAG $wmaOpts
 =======================================================
 Starting WMAgent with the following initialisation data:
 -------------------------------------------------------
- - WMAgent Version            : 2.2.0.2
+ - WMAgent Version            : 2.2.1rc3
 ...
 =======================================================
 -------------------------------------------------------
@@ -218,5 +219,5 @@ First login at the VM and from there connect to the container:
 ```
 docker exec -it wmagent /bin/bash
 ...
-(WMAgent-2.2.1rc2) [cmst1@vocms0260:current]$ manage status
+(WMAgent-2.2.1rc3) [cmst1@vocms0260:current]$ manage status
 ```
