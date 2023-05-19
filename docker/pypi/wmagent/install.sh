@@ -95,7 +95,7 @@ echo "-----------------------------------------------------------------------"
 echo "Start $stepMsg"
 
 # Fix for outdated yui library - A really bad workaround. We should get rid of it ASAP:
-wget -nv -P $WMA_DEPLOY_DIR wget http://cmsrep.cern.ch/cmssw/repos/comp/slc7_amd64_gcc630/0000000000000000000000000000000000000000000000000000000000000000/RPMS/cd/cda5f9ef4b33696e67c9e2f995dd5cb6/external+yui+2.9.0-1-1.slc7_amd64_gcc630.rpm
+wget -nv -P $WMA_DEPLOY_DIR http://cmsrep.cern.ch/cmssw/repos/comp/slc7_amd64_gcc630/0000000000000000000000000000000000000000000000000000000000000000/RPMS/cd/cda5f9ef4b33696e67c9e2f995dd5cb6/external+yui+2.9.0-1-1.slc7_amd64_gcc630.rpm
 mkdir $WMA_DEPLOY_DIR/yui && cat $WMA_DEPLOY_DIR/external+yui+2.9.0-1-1.slc7_amd64_gcc630.rpm|rpm2archive - |tar --strip-components=13 -xzv --directory $WMA_DEPLOY_DIR/yui
 
 echo "Done $stepMsg!" && echo
