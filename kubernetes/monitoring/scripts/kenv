@@ -1,0 +1,102 @@
+#!/bin/bash
+##H Author: Valentin Y. Kuznetsov
+##H Script for setting up KUBECONFIG environment
+##H Usage: kenv <mon|ha1|ha2|cron|dmmon|vmagg|mtest|testX|mine>
+##H        testX refers to X=1,...,13 CMSWEB k8s clusters
+##H
+##H Please request access of Kubernetes cluster configs from CMSWEB team
+
+IAM=$(whoami)
+adir=~/private/projects/k8s_admin_config
+tdir=~/private/projects/users_config
+mineconf=~/private/tools/k8s_conf_mine/config."${IAM}"
+
+# Check if user is passing least required arguments.
+if [ "$#" -lt 1 ] || [ "$1" == "help" ]; then
+
+    echo "Usage: kenv <prod|cmsweb|cmsweb-prod|testX|auth|rucio|mon|ha1|ha2|cron|dmmon|vmagg|mtest|mine>"
+    echo "       testX refers to X=1,...,13 CMSWEB k8s clusters"
+
+else
+    # ---------------------------------------------------------------
+    # CMS Monitoring clusters
+    export OS_PROJECT_NAME="CMS Web"
+    if [ "$1" == "mon" ]; then
+        export KUBECONFIG=$adir/config.monit/config.cmsmonitnew
+    elif [ "$1" == "ha1" ]; then
+        export KUBECONFIG=$adir/config.monit/config.monitoring-vm-ha1
+    elif [ "$1" == "ha2" ]; then
+        export KUBECONFIG=$adir/config.monit/config.monitoring-vm-ha2
+    elif [ "$1" == "dmmon" ]; then
+        export KUBECONFIG=$adir/config.monit/config.cms-dm-monit
+    elif [ "$1" == "vmagg" ]; then
+        export KUBECONFIG=$adir/config.monit/config.monitoring-vm-agg
+    elif [ "$1" == "cron" ]; then
+        export KUBECONFIG=$adir/config.monit/config.monitoring-vm-cron
+    elif [ "$1" == "mtest" ]; then
+        export KUBECONFIG=$adir/config.monit/config.cmsmon-test
+        # ---------------------------------------------------------------
+        # CMSWEB clusters
+    elif [ "$1" == "prod" ]; then
+        export KUBECONFIG=$adir/config.prod/config.cmsweb-k8s-services-prod
+    elif [ "$1" == "cmsweb" ]; then
+        export KUBECONFIG=$adir/config.prod/config.cmsweb
+    elif [ "$1" == "cmsweb-prod" ]; then
+        export KUBECONFIG=$adir/config.prod/config.cmsweb-prod
+    elif [ "$1" == "testbed" ]; then
+        export KUBECONFIG=$adir/config.preprod/config.cmsweb-testbed
+    elif [ "$1" == "auth" ]; then
+        export KUBECONFIG=$adir/config.auth/config.cmsweb-auth
+    elif [ "$1" == "rucio1" ]; then
+        export KUBECONFIG=$adir/config.rucio/config.cmsrucioprod1
+    elif [ "$1" == "test1" ]; then
+        export OS_PROJECT_NAME="CMS Webtools Mig"
+        export KUBECONFIG=$tdir/config.test1/config.cmsweb-test1
+    elif [ "$1" == "test2" ]; then
+        export OS_PROJECT_NAME="CMS Webtools Mig"
+        export KUBECONFIG=$tdir/config.test2/config.cmsweb-test2
+    elif [ "$1" == "test3" ]; then
+        export OS_PROJECT_NAME="CMS Webtools Mig"
+        export KUBECONFIG=$tdir/config.test3/config.cmsweb-test3
+    elif [ "$1" == "test4" ]; then
+        export OS_PROJECT_NAME="CMS Webtools Mig"
+        export KUBECONFIG=$tdir/config.test4/config.cmsweb-test4
+    elif [ "$1" == "test5" ]; then
+        export OS_PROJECT_NAME="CMS Webtools Mig"
+        export KUBECONFIG=$tdir/config.test5/config.cmsweb-test5
+    elif [ "$1" == "test6" ]; then
+        export OS_PROJECT_NAME="CMS Webtools Mig"
+        export KUBECONFIG=$tdir/config.test6/config.cmsweb-test6
+    elif [ "$1" == "test7" ]; then
+        export OS_PROJECT_NAME="CMS Webtools Mig"
+        export KUBECONFIG=$tdir/config.test7/config.cmsweb-test7
+    elif [ "$1" == "test8" ]; then
+        export OS_PROJECT_NAME="CMS Webtools Mig"
+        export KUBECONFIG=$tdir/config.test8/config.cmsweb-test8
+    elif [ "$1" == "test9" ]; then
+        export OS_PROJECT_NAME="CMS Webtools Mig"
+        export KUBECONFIG=$tdir/config.test9/config.cmsweb-test9
+    elif [ "$1" == "test10" ]; then
+        export OS_PROJECT_NAME="CMS Webtools Mig"
+        export KUBECONFIG=$tdir/config.test10/config.cmsweb-test10
+    elif [ "$1" == "test11" ]; then
+        export OS_PROJECT_NAME="CMS Webtools Mig"
+        export KUBECONFIG=$tdir/config.test11/config.cmsweb-test11
+    elif [ "$1" == "test12" ]; then
+        export OS_PROJECT_NAME="CMS Webtools Mig"
+        export KUBECONFIG=$tdir/config.test12/config.cmsweb-test12
+    elif [ "$1" == "test13" ]; then
+        export OS_PROJECT_NAME="CMS Webtools Mig"
+        export KUBECONFIG=$tdir/config.test13/config.cmsweb-test13
+    elif [ "$1" == "mine" ]; then
+        # ---------------------------------------------------------------
+        # Personal cluster
+        export OS_PROJECT_NAME="Personal $IAM"
+        export KUBECONFIG=$mineconf
+    else
+        echo "Unsupported environment '$1'"
+        unset KUBECONFIG OS_PROJECT_NAME
+    fi
+    echo "OS_PROJECT_NAME=$OS_PROJECT_NAME"
+    echo "KUBECONFIG=$KUBECONFIG"
+fi
