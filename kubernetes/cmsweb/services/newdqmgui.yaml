@@ -62,6 +62,7 @@ spec:
       containers:
       - image: registry.cern.ch/cmsweb/newdqmgui #imagetag
 #      - image: msuccarm/new_dqmgui:9.0@sha256:216a2cdb309ed2fb0d0d21ce6ecb5433432a5550cc3d44df1a4e5e0efa66c807 #imagetag
+        imagePullPolicy: Always
         name: newdqmgui
         resources:
           requests:
