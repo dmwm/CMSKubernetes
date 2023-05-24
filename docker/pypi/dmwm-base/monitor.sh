@@ -12,7 +12,7 @@ for p in $configs; do
             app=`grep ^main.application /etc/secrets/${p}.py | grep -v application_dir | sed -e 's,#.*,,g' | awk '{split($0,a,"="); print a[2]}' | sed -e "s, ,,g" -e 's,",,g' -e "s,-,_,g"`
             echo "  Using PID: $pid and app name: '$app'"
             if [ -n "$app" ]; then
-                prefix=process_exporter_${app}
+                prefix=${app}
                 port=`grep main.port /etc/secrets/${p}.py | sed -e 's,#.*,,g' | awk '{split($0,a,"="); print a[2]}' | sed -e "s, ,,g"`
                 address=":1${port}"
                 echo "  Starting process_exporter with prefix ${prefix} on ${address}"
