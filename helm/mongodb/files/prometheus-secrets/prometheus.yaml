@@ -9,15 +9,27 @@ alerting:
 rule_files:
   - "/etc/prometheus/k8s.rules"
   - "/etc/prometheus/mongodb.rules"
-# remote_write:
-#   - url: http://cms-monitoring-ha1.cern.ch:30428/api/v1/write
-#     queue_config:
-#       max_samples_per_send: 10000
-#       max_shards: 30
-#   - url: http://cms-monitoring-ha2.cern.ch:30428/api/v1/write
-#     queue_config:
-#       max_samples_per_send: 10000
-#       max_shards: 30
+remote_write:
+  - url: http://cms-monitoring-ha1.cern.ch:30428/api/v1/write
+    remote_timeout: 30s
+    queue_config:
+      capacity: 100000
+      max_shards: 30
+      max_samples_per_send: 10000
+      batch_send_deadline: 5s
+      max_retries: 10
+      min_backoff: 30ms
+      max_backoff: 100ms
+  - url: http://cms-monitoring-ha2.cern.ch:30428/api/v1/write
+    remote_timeout: 30s
+    queue_config:
+      capacity: 100000
+      max_shards: 30
+      max_samples_per_send: 10000
+      batch_send_deadline: 5s
+      max_retries: 10
+      min_backoff: 30ms
+      max_backoff: 100ms
 scrape_configs:
   - job_name: "mongodb-exporter-changename"
     static_configs:
