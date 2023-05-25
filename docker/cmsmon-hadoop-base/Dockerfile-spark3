@@ -33,8 +33,7 @@ ADD epel.repo /etc/yum.repos.d/epel.repo
 ADD slc7-cernonly.repo /etc/yum.repos.d/slc7-cernonly.repo
 ADD RPM-GPG-KEY-wlcg /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg
 
-ENV PATH $PATH:/usr/hdp/hadoop/bin:/usr/hdp/sqoop/bin
-ENV PATH $PATH:/data
+ENV PATH="${PATH}:/data:/usr/hdp/hadoop/bin/hadoop:/usr/hdp/spark/bin:/usr/hdp/sqoop/bin"
 
 # add necessary RPMs for cmsweb deployment
 RUN yum -y update && \
@@ -78,7 +77,6 @@ RUN yum -y update && \
 # add fetch-crl to fetch all certificates
 
 ENV HADOOP_CONF_DIR=/etc/hadoop/conf
-ENV PATH="${PATH}:/usr/hdp/hadoop/bin/hadoop:/usr/hdp/spark/bin:/usr/hdp/sqoop/bin"
 ENV PYTHONPATH "${PYTHONPATH}:${WDIR}"
 
 ENV PYSPARK_PYTHON=/cvmfs/sft.cern.ch/lcg/releases/Python/3.9.12-9a1bc/x86_64-centos7-gcc8-opt/bin/python3
