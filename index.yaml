@@ -1341,6 +1341,16 @@ entries:
   reqmgr2:
   - apiVersion: v2
     appVersion: HG2208d
+    created: "2023-05-25T16:06:43.091646912Z"
+    description: A Helm chart for Kubernetes
+    digest: ec654747c21677ac3268c0bdb2893da208e7f32ef7e0d2d3a68ac3c3b3b2025f
+    name: reqmgr2
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/reqmgr2-0.1.5/reqmgr2-0.1.5.tgz
+    version: 0.1.5
+  - apiVersion: v2
+    appVersion: HG2208d
     created: "2022-09-14T12:53:36.475122374Z"
     description: A Helm chart for Kubernetes
     digest: dad44b9448e3f875bfea503d917c89258d03d8047a60bb2aa4143aa8974dbb49
@@ -2269,6 +2279,16 @@ entries:
   workqueue:
   - apiVersion: v2
     appVersion: HG2208d
+    created: "2023-05-25T16:06:43.40511304Z"
+    description: A Helm chart for Kubernetes
+    digest: 9d37c03746079296545dc51c5a252a6f3d8188214e4d5433a8e57468c847ecb5
+    name: workqueue
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/workqueue-0.1.4/workqueue-0.1.4.tgz
+    version: 0.1.4
+  - apiVersion: v2
+    appVersion: HG2208d
     created: "2022-09-14T12:53:39.772591447Z"
     description: A Helm chart for Kubernetes
     digest: fa96a6e888bb3007fba47f7b18967f920de46ddbfc599f8fe4267125fee9737e
@@ -2308,4 +2328,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
     version: 0.1.1
-generated: "2023-05-25T08:47:30.891244675Z"
+generated: "2023-05-25T16:06:43.405512242Z"
