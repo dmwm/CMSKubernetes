@@ -74,6 +74,10 @@ spec:
     metadata:
       labels:
         app: reqmon
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18249"
     spec:
       # use hostNetwork to allow communication between reqmgr/reqmon/workqueue and couch
 #       hostNetwork: true

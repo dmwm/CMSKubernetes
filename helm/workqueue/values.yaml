@@ -22,9 +22,10 @@ environment:
 serviceAccount:
   # Specifies whether a service account should be created
   create: false
-  # Annotations to add to the service account
 
-podAnnotations: {}
+podAnnotations:
+  prometheus.io/scrape: 'true'
+  prometheus.io/port: "18240"
 
 securityContext: 
   privileged: true
