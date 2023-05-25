@@ -36,6 +36,10 @@ spec:
   ports:
     - port: 8240
       targetPort: 8240
+      name: workqueue
+    - port: 18240
+      targetPort: 18240
+      name: workqueue-mon
 ---
 kind: ConfigMap
 apiVersion: v1
@@ -70,10 +74,9 @@ spec:
       labels:
         app: workqueue
         env: k8s #k8s#
-# should be enabled once we'll have exporter running with this sercice
-# we should also add prometheus.io/port in that case
-#       annotations:
-#         prometheus.io/scrape: 'true'
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18240"
     spec:
       # use hostNetwork to allow communication between reqmgr/reqmon/workqueue and couch
 #       hostNetwork: true
@@ -106,6 +109,10 @@ spec:
         ports:
         - containerPort: 8240
           protocol: TCP
+          name: workqueue
+        - containerPort: 18240
+          protocol: TCP
+          name: workqueue-mon
         command:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
