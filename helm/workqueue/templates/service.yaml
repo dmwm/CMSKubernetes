@@ -9,3 +9,7 @@ spec:
   ports:
     - port: 8240
       targetPort: 8240
+      name: workqueue
+    - port: 18240
+      targetPort: 18240
+      name: workqueue-mon

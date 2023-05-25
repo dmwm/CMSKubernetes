@@ -47,7 +47,7 @@ spec:
         - containerPort: 8246
           protocol: TCP
           name: reqmgr2
-        - containerPort: 18240
+        - containerPort: 18246
           protocol: TCP
           name: reqmgr2-mon
         command:

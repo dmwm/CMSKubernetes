@@ -28,7 +28,7 @@ serviceAccount:
 
 podAnnotations:
   prometheus.io/scrape: 'true'
-  prometheus.io/port: "18240"
+  prometheus.io/port: "18246"
 
 securityContext: 
   privileged: true

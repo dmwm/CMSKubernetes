@@ -33,6 +33,10 @@ spec:
         ports:
         - containerPort: 8240
           protocol: TCP
+          name: workqueue
+        - containerPort: 18240
+          protocol: TCP
+          name: workqueue-mon
         command:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
