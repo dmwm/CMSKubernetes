@@ -28,6 +28,9 @@ spec:
     metadata:
       labels:
         app: sitedb
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18051"
     spec:
 #       hostNetwork: true
 #       dnsPolicy: ClusterFirstWithHostNet
