@@ -1,3 +1,15 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: dbs2go-global-migration
+  namespace: dbs
+spec:
+  selector:
+    app: dbs2go-global-migration
+  ports:
+    - port: 19251
+      targetPort: 19251
+      name: dbs-mon
 ---
 apiVersion: v1
 kind: ConfigMap
