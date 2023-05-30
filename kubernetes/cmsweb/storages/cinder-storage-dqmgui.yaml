@@ -2,7 +2,7 @@ kind: StorageClass
 apiVersion: storage.k8s.io/v1beta1
 metadata:
   name: cpio1
-  namespace: dqmgui
+  namespace: dqm
 provisioner: kubernetes.io/cinder
 parameters:
   type: cpio1
