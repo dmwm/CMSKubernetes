@@ -37,12 +37,6 @@ spec:
     - port: 8251
       targetPort: 8251
       name: dbsmigration
-    - port: 18251
-      targetPort: 18251
-      name: dbsmig-mon
-    - port: 19251
-      targetPort: 19251
-      name: dbsmig-cpy-mon
 ---
 kind: ConfigMap
 apiVersion: v1

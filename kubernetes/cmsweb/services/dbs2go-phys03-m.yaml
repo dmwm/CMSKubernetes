@@ -37,9 +37,6 @@ spec:
     - port: 9257
       targetPort: 9257
       name: dbs
-    - port: 19257
-      targetPort: 19257
-      name: dbs-mon
 ---
 kind: Deployment
 apiVersion: apps/v1

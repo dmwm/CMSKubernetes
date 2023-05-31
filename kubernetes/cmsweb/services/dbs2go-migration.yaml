@@ -37,9 +37,6 @@ spec:
     - port: 8259
       targetPort: 8259
       name: dbs
-    - port: 18259
-      targetPort: 18259
-      name: dbs-mon
 ---
 kind: Deployment
 apiVersion: apps/v1

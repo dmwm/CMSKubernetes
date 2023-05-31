@@ -37,9 +37,6 @@ spec:
     - port: 8258
       targetPort: 8258
       name: dbs
-    - port: 18258
-      targetPort: 18258
-      name: dbs-mon
 ---
 kind: Deployment
 apiVersion: apps/v1

@@ -10,12 +10,6 @@ spec:
     - port: 8250
       targetPort: 8250
       name: dbs-default
-    - port: 18250
-      targetPort: 18250
-      name: dbs-default-mon
-    - port: 19250
-      targetPort: 19250
-      name: dbs-d-cpy-mon
 ---
 kind: Deployment
 apiVersion: apps/v1

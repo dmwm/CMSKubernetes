@@ -22,9 +22,6 @@ spec:
     - port: 8255
       targetPort: 8255
       name: dbs-phys03-w
-    - port: 18250
-      targetPort: 18250
-      name: dbs-mon
 ---
 kind: Deployment
 apiVersion: apps/v1

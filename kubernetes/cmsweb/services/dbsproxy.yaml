@@ -37,9 +37,6 @@ spec:
     - port: 8222
       targetPort: 8222
       name: dbs
-    - port: 18222
-      targetPort: 18222
-      name: dbs-mon
 ---
 kind: Deployment
 apiVersion: apps/v1
