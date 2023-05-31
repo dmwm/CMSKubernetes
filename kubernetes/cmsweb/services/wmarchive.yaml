@@ -39,9 +39,6 @@ spec:
     - port: 8200
       targetPort: 8200
       name: wma
-    - port: 18200
-      targetPort: 18200
-      name: wma-mon
 ---
 kind: ConfigMap
 apiVersion: v1

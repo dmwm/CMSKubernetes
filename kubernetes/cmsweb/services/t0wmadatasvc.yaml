@@ -37,9 +37,6 @@ spec:
     - port: 8308
       targetPort: 8308
       name: t0wmadatasvc
-    - port: 18308
-      targetPort: 18308
-      name: t0wmadsvc-mon
 ---
 kind: ConfigMap
 apiVersion: v1
