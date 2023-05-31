@@ -16,9 +16,6 @@ spec:
     - port: 8080
       targetPort: 8080
       name: dqmgui-offline
-    - port: 18060
-      targetPort: 18060
-      name: dqmgui-mon
 ---
 kind: ConfigMap
 apiVersion: v1

@@ -10,9 +10,6 @@ spec:
     - port: 8280
       targetPort: 8280
       name: dmwmmon
-    - port: 18280
-      targetPort: 18280
-      name: dmwmmon-mon
 ---
 kind: ConfigMap
 apiVersion: v1
