@@ -16,9 +16,6 @@ spec:
     - port: 7102
       targetPort: 7102
       name: phedex-graphs
-    - port: 17001
-      targetPort: 17001
-      name: phedex-mon
 ---
 kind: ConfigMap
 apiVersion: v1
