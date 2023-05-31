@@ -10,9 +10,6 @@ spec:
     - port: 8340
       targetPort: 8340
       name: confdb
-    - port: 18340
-      targetPort: 18340
-      name: confdb-mon
 ---
 kind: ConfigMap
 apiVersion: v1

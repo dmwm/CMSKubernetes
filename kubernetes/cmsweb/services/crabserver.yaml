@@ -11,9 +11,6 @@ spec:
     - port: 8270
       targetPort: 8270
       name: crabserver
-    - port: 18270
-      targetPort: 18270
-      name: crabserver-mon
 ---
 kind: ConfigMap
 apiVersion: v1
