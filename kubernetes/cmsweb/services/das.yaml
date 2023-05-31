@@ -10,12 +10,6 @@ spec:
     - port: 8217
       targetPort: 8217
       name: das
-    - port: 18217
-      targetPort: 18217
-      name: das-mon
-    - port: 18230
-      targetPort: 18230
-      name: das-mongo-mon
 ---
 kind: ConfigMap
 apiVersion: v1
