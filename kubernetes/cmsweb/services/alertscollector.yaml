@@ -10,9 +10,6 @@ spec:
     - port: 5984
       targetPort: 5984
       name: alertscollector
-    - port: 15984
-      targetPort: 15984
-      name: alertscol-mon
 ---
 kind: Deployment
 apiVersion: apps/v1
