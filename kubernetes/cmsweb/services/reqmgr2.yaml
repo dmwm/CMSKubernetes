@@ -37,9 +37,6 @@ spec:
     - port: 8246
       targetPort: 8246
       name: reqmgr2
-    - port: 18246
-      targetPort: 18246
-      name: reqmgr2-mon
 ---
 kind: ConfigMap
 apiVersion: v1

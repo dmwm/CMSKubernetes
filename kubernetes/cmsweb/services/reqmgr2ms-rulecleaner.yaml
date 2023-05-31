@@ -37,9 +37,6 @@ spec:
     - port: 8244
       targetPort: 8244
       name: ms-rulecleaner
-    - port: 18244
-      targetPort: 18244
-      name: rulecleaner-mon
 ---
 kind: ConfigMap
 apiVersion: v1

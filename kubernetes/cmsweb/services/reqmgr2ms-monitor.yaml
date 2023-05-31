@@ -37,9 +37,6 @@ spec:
     - port: 8248
       targetPort: 8248
       name: ms-monitor
-    - port: 18248
-      targetPort: 18248
-      name: ms-monitor-mon
 ---
 kind: ConfigMap
 apiVersion: v1
