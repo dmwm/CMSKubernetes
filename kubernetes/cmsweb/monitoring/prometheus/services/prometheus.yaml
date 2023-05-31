@@ -32,12 +32,17 @@ remote_write:
       max_samples_per_send: 10000
       max_shards: 30
 scrape_configs:
+#first, we define all the custom jobs that we have for the services
   - job_name: cern-magnum-kube-state-metrics
     scrape_interval: 1m
     scrape_timeout: 1m
     static_configs:
       - targets: [ "cern-magnum-kube-state-metrics.kube-system.svc.cluster.local:8080" ]
-
+  - job_name: "mongodb-service"
+    static_configs:
+        - targets: ["das-mongo-exporter.das.svc.cluster.local:18230"]
+          labels:
+            env: "k8s"
   - job_name: "nginx-ingress-controller"
     kubernetes_sd_configs:
     - role: pod
@@ -48,7 +53,6 @@ scrape_configs:
     - source_labels: [__meta_kubernetes_pod_container_port_number]
       action: keep
       regex: ^(10254)
-
   - job_name: "mongodb-service"
     static_configs:
         - targets: ["das-mongo-exporter.das.svc.cluster.local:18230"]
@@ -63,33 +67,27 @@ scrape_configs:
     metrics_path: '/crabserver/metrics'
     static_configs:
         - targets: ['crabserver.crab.svc.cluster.local:8270']
+#Then, the default job configs
 
   - job_name: "kubernetes-apiservers"
-
     kubernetes_sd_configs:
     - role: endpoints
     scheme: https
-
     tls_config:
       ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
     bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-
     relabel_configs:
     - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
       action: keep
       regex: default;kubernetes;https
 
   - job_name: "kubernetes-nodes"
-
     scheme: https
-
     tls_config:
       ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
     bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-
     kubernetes_sd_configs:
     - role: node
-
     relabel_configs:
     - action: labelmap
       regex: __meta_kubernetes_node_label_(.+)
@@ -102,10 +100,8 @@ scrape_configs:
 
   
   - job_name: "kubernetes-pods"
-
     kubernetes_sd_configs:
     - role: pod
-
     # for more information about prometheus relabeling see
     # https://blog.freshtracks.io/prometheus-relabel-rules-and-the-action-parameter-39c71959354a
     relabel_configs:
@@ -157,16 +153,12 @@ scrape_configs:
       target_label: instance      
 
   - job_name: "kubernetes-cadvisor"
-
     scheme: https
-
     tls_config:
       ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
     bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-
     kubernetes_sd_configs:
     - role: node
-
     relabel_configs:
     - action: labelmap
       regex: __meta_kubernetes_node_label_(.+)
