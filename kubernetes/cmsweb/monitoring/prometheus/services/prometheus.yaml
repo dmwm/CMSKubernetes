@@ -38,11 +38,6 @@ scrape_configs:
     scrape_timeout: 1m
     static_configs:
       - targets: [ "cern-magnum-kube-state-metrics.kube-system.svc.cluster.local:8080" ]
-  - job_name: "mongodb-service"
-    static_configs:
-        - targets: ["das-mongo-exporter.das.svc.cluster.local:18230"]
-          labels:
-            env: "k8s"
   - job_name: "nginx-ingress-controller"
     kubernetes_sd_configs:
     - role: pod
@@ -53,20 +48,11 @@ scrape_configs:
     - source_labels: [__meta_kubernetes_pod_container_port_number]
       action: keep
       regex: ^(10254)
-  - job_name: "mongodb-service"
-    static_configs:
-        - targets: ["das-mongo-exporter.das.svc.cluster.local:18230"]
-          labels:
-            env: "k8s"
   - job_name: 'quota-exporter'
     scrape_interval: 120s
     scrape_timeout: 110s
     static_configs:
       - targets: ['quota-exporter.http.svc.cluster.local:18000']
-  - job_name: 'crabserver-processes'
-    metrics_path: '/crabserver/metrics'
-    static_configs:
-        - targets: ['crabserver.crab.svc.cluster.local:8270']
 #Then, the default job configs
 
   - job_name: "kubernetes-apiservers"
@@ -97,7 +83,6 @@ scrape_configs:
       regex: (.+)
       target_label: __metrics_path__
       replacement: /api/v1/nodes/${1}/proxy/metrics
-
   
   - job_name: "kubernetes-pods"
     kubernetes_sd_configs:
