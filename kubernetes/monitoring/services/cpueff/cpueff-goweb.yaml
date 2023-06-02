@@ -32,7 +32,7 @@ spec:
     spec:
       containers:
       - name: cpueff-goweb
-        image: registry.cern.ch/cmsmonitoring/cpueff-goweb:cpueff-0.0.15
+        image: registry.cern.ch/cmsmonitoring/cpueff-goweb:cpueff-0.0.19
         # image: golang
         # command: [ "sleep" ]
         # args: [ "infinity" ]

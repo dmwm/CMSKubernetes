@@ -66,7 +66,7 @@ spec:
     spec:
       containers:
       - name: rucio-mon-goweb
-        image: registry.cern.ch/cmsmonitoring/rucio-mon-goweb:rgo-0.0.23
+        image: registry.cern.ch/cmsmonitoring/rucio-mon-goweb:rgo-0.0.26
         args:
           - /data/rucio-dataset-monitoring
           - -config

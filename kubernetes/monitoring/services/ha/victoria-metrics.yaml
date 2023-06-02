@@ -40,7 +40,7 @@ spec:
           - -storageDataPath=/tsdb
           - -search.maxConcurrentRequests=32
           name: victoria-metrics
-          image: victoriametrics/victoria-metrics
+          image: victoriametrics/victoria-metrics:v1.89.1
           ports:
           - containerPort: 4242
             protocol: TCP

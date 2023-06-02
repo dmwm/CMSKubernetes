@@ -229,7 +229,7 @@ deploy_all() {
         fi
     done
     deploy_storages
-    sleep 5
+    sleep 10
     deploy_secrets
     deploy_services
 }
