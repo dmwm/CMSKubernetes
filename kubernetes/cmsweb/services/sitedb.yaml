@@ -9,9 +9,6 @@ spec:
     - port: 8051
       targetPort: 8051
       name: sitedb
-    - port: 18051
-      targetPort: 18051
-      name: sitedb-mon
 ---
 kind: Deployment
 apiVersion: apps/v1

@@ -37,12 +37,6 @@ spec:
     - port: 8252
       targetPort: 8252
       name: dbs-global-r
-    - port: 18252
-      targetPort: 18252
-      name: dbs-gr-mon
-    - port: 19252
-      targetPort: 19252
-      name: dbs-gr-cpy-mon
 ---
 kind: ConfigMap
 apiVersion: v1

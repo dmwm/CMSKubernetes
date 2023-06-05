@@ -37,12 +37,6 @@ spec:
     - port: 8257
       targetPort: 8257
       name: dbs-migrate
-    - port: 18257
-      targetPort: 18257
-      name: dbs-mig-mon
-    - port: 19257
-      targetPort: 19257
-      name: dbs-mig-cpy-mon
 ---
 kind: ConfigMap
 apiVersion: v1

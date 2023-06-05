@@ -37,12 +37,6 @@ spec:
     - port: 8254
       targetPort: 8254
       name: dbs-phys03-r
-    - port: 18254
-      targetPort: 18254
-      name: dbs-pr-mon
-    - port: 19254
-      targetPort: 19254
-      name: dbs-pr-cpy-mon
 ---
 kind: ConfigMap
 apiVersion: v1

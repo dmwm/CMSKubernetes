@@ -37,12 +37,6 @@ spec:
     - port: 8255
       targetPort: 8255
       name: dbs-phys03-w
-    - port: 18255
-      targetPort: 18255
-      name: dbs-pw-mon
-    - port: 19255
-      targetPort: 19255
-      name: dbs-pw-cpy-mon
 ---
 kind: ConfigMap
 apiVersion: v1

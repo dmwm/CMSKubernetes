@@ -10,9 +10,6 @@ spec:
     - port: 5984
       targetPort: 5984
       name: couchdb
-    - port: 9984
-      targetPort: 9984
-      name: couchdb-mon
 ---
 kind: ConfigMap
 apiVersion: v1

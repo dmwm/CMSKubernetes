@@ -37,9 +37,6 @@ spec:
     - port: 8243
       targetPort: 8243
       name: t0reqmon
-    - port: 18243
-      targetPort: 18243
-      name: t0reqmon-mon
 ---
 kind: ConfigMap
 apiVersion: v1

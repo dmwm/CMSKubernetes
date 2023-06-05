@@ -37,9 +37,6 @@ spec:
     - port: 8249
       targetPort: 8249
       name: reqmon
-    - port: 18249
-      targetPort: 18249
-      name: reqmon-mon
 ---
 kind: ConfigMap
 apiVersion: v1

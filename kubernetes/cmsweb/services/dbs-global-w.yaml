@@ -36,12 +36,6 @@ spec:
     - port: 8253
       targetPort: 8253
       name: dbs-global-w
-    - port: 18253
-      targetPort: 18253
-      name: dbs-gw-mon
-    - port: 19253
-      targetPort: 19253
-      name: dbs-gw-cpy-mon
 ---
 kind: ConfigMap
 apiVersion: v1

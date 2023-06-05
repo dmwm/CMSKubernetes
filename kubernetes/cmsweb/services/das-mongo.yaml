@@ -10,9 +10,6 @@ spec:
     - port: 8230
       targetPort: 8230
       name: das
-    - port: 18230
-      targetPort: 18230
-      name: das-mongo-mon
 ---
 kind: Deployment
 apiVersion: apps/v1

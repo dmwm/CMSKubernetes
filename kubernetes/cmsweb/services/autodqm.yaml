@@ -10,9 +10,6 @@ spec:
     - port: 8083
       targetPort: 8083
       name: autodqm
-    - port: 18083
-      targetPort: 18083
-      name: dqmwebapp-mon
 ---
 kind: Deployment
 apiVersion: apps/v1

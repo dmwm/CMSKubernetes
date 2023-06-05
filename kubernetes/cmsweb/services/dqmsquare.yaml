@@ -10,9 +10,6 @@ spec:
     - port: 8084
       targetPort: 8084
       name: dqmsquare
-    - port: 18084
-      targetPort: 18084
-      name: dqmsquare-mon
 ---
 kind: Deployment
 apiVersion: apps/v1

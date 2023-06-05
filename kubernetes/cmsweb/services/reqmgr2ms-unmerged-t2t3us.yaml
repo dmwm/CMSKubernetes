@@ -37,9 +37,6 @@ spec:
     - port: 8242
       targetPort: 8242
       name: ms-unmer-t2t3us
-    - port: 18242
-      targetPort: 18242
-      name: unmerged-mon
 ---
 kind: ConfigMap
 apiVersion: v1

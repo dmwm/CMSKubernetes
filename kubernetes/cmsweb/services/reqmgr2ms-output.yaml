@@ -37,9 +37,6 @@ spec:
     - port: 8245
       targetPort: 8245
       name: ms-output
-    - port: 18245
-      targetPort: 18245
-      name: ms-output-mon
 ---
 kind: ConfigMap
 apiVersion: v1

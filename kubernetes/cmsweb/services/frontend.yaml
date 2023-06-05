@@ -26,10 +26,6 @@ spec:
     - port: 8443
       targetPort: 8443
       name: https-machine
-    - port: 18443
-      targetPort: 18443
-      name: http-mon
-
 ---
 kind: Deployment
 apiVersion: apps/v1

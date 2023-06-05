@@ -37,9 +37,6 @@ spec:
     - port: 8271
       targetPort: 8271
       name: crabcache
-    - port: 18271
-      targetPort: 18271
-      name: crabcache-mon
 ---
 kind: ConfigMap
 apiVersion: v1

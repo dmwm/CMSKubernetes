@@ -37,9 +37,6 @@ spec:
     - port: 8361
       targetPort: 8361
       name: ms-pileup-tasks
-    - port: 18361
-      targetPort: 18361
-      name: msp-tasks-mon
 ---
 kind: ConfigMap
 apiVersion: v1

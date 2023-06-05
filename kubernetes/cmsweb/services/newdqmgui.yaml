@@ -11,9 +11,6 @@ spec:
     - port: 8889
       targetPort: 8889
       name: newdqmgui
-    - port: 18889
-      targetPort: 18889
-      name: newdqmgui-mon
 ---
 kind: ConfigMap
 apiVersion: v1

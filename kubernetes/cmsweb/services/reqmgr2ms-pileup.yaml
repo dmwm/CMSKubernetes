@@ -37,9 +37,6 @@ spec:
     - port: 8241
       targetPort: 8241
       name: ms-pileup
-    - port: 18241
-      targetPort: 18241
-      name: ms-pileup-mon
 ---
 kind: ConfigMap
 apiVersion: v1

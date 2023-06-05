@@ -37,9 +37,6 @@ spec:
     - port: 8247
       targetPort: 8247
       name: ms-transferor
-    - port: 18247
-      targetPort: 18247
-      name: ms-transfer-mon
 ---
 kind: ConfigMap
 apiVersion: v1

@@ -76,7 +76,7 @@ spec:
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/path: "/wmstats2go/metrics"
-        prometheus.io/port: "8360"
+        prometheus.io/port: "18360"
     spec:
       securityContext:
         runAsUser: 1000
@@ -111,6 +111,9 @@ spec:
         - containerPort: 8360
           protocol: TCP
           name: dmwm
+        - containerPort: 18360
+          protocol: TCP
+          name: dmwm-mon
         volumeMounts:
         - name: proxy-secrets
           mountPath: /etc/proxy

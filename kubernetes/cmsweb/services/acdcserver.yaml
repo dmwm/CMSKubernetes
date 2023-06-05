@@ -10,9 +10,6 @@ spec:
     - port: 5984
       targetPort: 5984
       name: acdcserver
-    - port: 15984
-      targetPort: 15984
-      name: acdcserver-mon
 ---
 kind: ConfigMap
 apiVersion: v1
