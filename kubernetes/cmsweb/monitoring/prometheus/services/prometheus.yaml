@@ -21,7 +21,7 @@ rule_files:
   - "/etc/prometheus/reqmon.rules"
   - "/etc/prometheus/t0reqmon.rules"
 
-
+#enable remote write to be able to write to the cmsmonit cluster
 remote_write:
   - url: http://cms-monitoring-ha1.cern.ch:30428/api/v1/write
     queue_config:
@@ -32,30 +32,12 @@ remote_write:
       max_samples_per_send: 10000
       max_shards: 30
 scrape_configs:
-#  - job_name: "kube-eagle"
-#    static_configs:
-#        - targets: ["kube-eagle.monitoring.svc.cluster.local:8080"]
-#           labels:
-#             env: "k8s"
-#   - job_name: "das-service"
-#     static_configs:
-#         - targets: ["das-exporter.das.svc.cluster.local:18217"]
-#           labels:
-#             env: "k8s"
-#
-#   - job_name: "nginx-service"
-#     static_configs:
-#         - targets: ["nginx-ingress-controller-metrics.kube-system.svc.cluster.local:9913"]
-#           labels:
-#             env: "k8s"
-#             cluster: "be"
-
+#first, we define all the custom jobs that we have for the services
   - job_name: cern-magnum-kube-state-metrics
     scrape_interval: 1m
     scrape_timeout: 1m
     static_configs:
       - targets: [ "cern-magnum-kube-state-metrics.kube-system.svc.cluster.local:8080" ]
-
   - job_name: "nginx-ingress-controller"
     kubernetes_sd_configs:
     - role: pod
@@ -66,156 +48,32 @@ scrape_configs:
     - source_labels: [__meta_kubernetes_pod_container_port_number]
       action: keep
       regex: ^(10254)
-
-  - job_name: "mongodb-service"
-    static_configs:
-        - targets: ["das-mongo-exporter.das.svc.cluster.local:18230"]
-          labels:
-            env: "k8s"
   - job_name: 'quota-exporter'
     scrape_interval: 120s
     scrape_timeout: 110s
     static_configs:
       - targets: ['quota-exporter.http.svc.cluster.local:18000']
-  - job_name: 'crabserver-processes'
-    metrics_path: '/crabserver/metrics'
-    static_configs:
-        - targets: ['crabserver.crab.svc.cluster.local:8270']
-#   - job_name: "dbsmigration-service"
-#     static_configs:
-#         - targets: ["dbsmigration.dbs.svc.cluster.local:18251", "dbsmigration.dbs.svc.cluster.local:19251"]
-#           labels:
-#             env: "k8s"
-#   - job_name: "dbs-global-r-service"
-#     static_configs:
-#         - targets: ["dbs-global-r.dbs.svc.cluster.local:18252", "dbs-global-r.dbs.svc.cluster.local:19252"]
-#           labels:
-#             env: "k8s"
-#   - job_name: "dbs-global-w-service"
-#     static_configs:
-#         - targets: ["dbs-global-w.dbs.svc.cluster.local:18253", "dbs-global-w.dbs.svc.cluster.local:19253"]
-#           labels:
-#             env: "k8s"
-#   - job_name: "dbs-phys03-r-service"
-#     static_configs:
-#         - targets: ["dbs-phys03-r.dbs.svc.cluster.local:18254", "dbs-phys03-r.dbs.svc.cluster.local:19254"]
-#           labels:
-#             env: "k8s"
-#   - job_name: "dbs-phys03-w-service"
-#     static_configs:
-#         - targets: ["dbs-phys03-w.dbs.svc.cluster.local:18255", "dbs-phys03-w.dbs.svc.cluster.local:19255"]
-#           labels:
-#             env: "k8s"
-#   - job_name: "dbs-migrate-service"
-#     static_configs:
-#         - targets: ["dbs-migrate.dbs.svc.cluster.local:18257"]
-#           labels:
-#             env: "k8s"
-#   - job_name: "acdcserver-service"
-#     static_configs:
-#         - targets: ["acdcserver.dmwm.svc.cluster.local:15984"]
-#           labels:
-#             env: "k8s"
-#   - job_name: "reqmgr2-service"
-#     static_configs:
-#         - targets: ["reqmgr2.dmwm.svc.cluster.local:18240"]
-#           labels:
-#             env: "k8s"
-#   - job_name: "ms-monitor-service"
-#     static_configs:
-#         - targets: ["ms-monitor.dmwm.svc.cluster.local:18248"]
-#           labels:
-#             env: "k8s"
-#   - job_name: "ms-output-service"
-#     static_configs:
-#         - targets: ["ms-output.dmwm.svc.cluster.local:18245"]
-#           labels:
-#             env: "k8s"
-#   - job_name: "ms-transferor-service"
-#     static_configs:
-#         - targets: ["ms-transferor.dmwm.svc.cluster.local:18247"]
-#           labels:
-#             env: "k8s"
-#   - job_name: "crabserver-service"
-#     static_configs:
-#         - targets: ["crabserver.crab.svc.cluster.local:18270"]
-#           labels:
-#             env: "k8s"
-#   - job_name: "crabcache-service"
-#     static_configs:
-#         - targets: ["crabcache.crab.svc.cluster.local:18271"]
-#           labels:
-#             env: "k8s"
-#   - job_name: "reqmon-service"
-#     static_configs:
-#         - targets: ["reqmon.dmwm.svc.cluster.local:18249"]
-#           labels:
-#             env: "k8s"
-#   - job_name: "t0reqmon-service"
-#     static_configs:
-#         - targets: ["t0reqmon.tzero.svc.cluster.local:18243"]
-#           labels:
-#             env: "k8s"
-#   - job_name: "t0wmadatasvc-service"
-#     static_configs:
-#         - targets: ["t0wmadatasvc.tzero.svc.cluster.local:18308"]
-#           labels:
-#             env: "k8s"
-#   - job_name: "confdb-service"
-#     static_configs:
-#         - targets: ["confdb.confdb.svc.cluster.local:18340"]
-#           labels:
-#             env: "k8s"
+#Then, the default job configs
 
   - job_name: "kubernetes-apiservers"
-
     kubernetes_sd_configs:
     - role: endpoints
     scheme: https
-
     tls_config:
       ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
     bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-
     relabel_configs:
     - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
       action: keep
       regex: default;kubernetes;https
-#     - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
-#       action: keep
-#       regex: true
-#     - source_labels: [__meta_kubernetes_pod_container_port_name]
-#       action: keep
-#       regex: metrics
-#     - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
-#       action: replace
-#       target_label: __metrics_path__
-#       regex: (.+)
-#     - source_labels: [ __address__, __meta_kubernetes_pod_container_port_number]
-#       action: replace
-#       regex: (.+):(?:\d+);(\d+)
-#       replacement: ${1}:${2}
-#       target_label: __address__
-#     - action: labelmap
-#       regex: __meta_kubernetes_pod_label_(.+)
-#     - source_labels: [__meta_kubernetes_namespace]
-#       action: replace
-#       target_label: kubernetes_namespace
-#     - source_labels: [__meta_kubernetes_pod_name]
-#       action: replace
-#       target_label: kubernetes_pod_name
 
   - job_name: "kubernetes-nodes"
-
     scheme: https
-
     tls_config:
       ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
     bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-
     kubernetes_sd_configs:
     - role: node
-
     relabel_configs:
     - action: labelmap
       regex: __meta_kubernetes_node_label_(.+)
@@ -225,13 +83,10 @@ scrape_configs:
       regex: (.+)
       target_label: __metrics_path__
       replacement: /api/v1/nodes/${1}/proxy/metrics
-
   
   - job_name: "kubernetes-pods"
-
     kubernetes_sd_configs:
     - role: pod
-
     # for more information about prometheus relabeling see
     # https://blog.freshtracks.io/prometheus-relabel-rules-and-the-action-parameter-39c71959354a
     relabel_configs:
@@ -283,16 +138,12 @@ scrape_configs:
       target_label: instance      
 
   - job_name: "kubernetes-cadvisor"
-
     scheme: https
-
     tls_config:
       ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
     bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-
     kubernetes_sd_configs:
     - role: node
-
     relabel_configs:
     - action: labelmap
       regex: __meta_kubernetes_node_label_(.+)
