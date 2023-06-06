@@ -30,6 +30,9 @@ set -e
 ##H Environments:
 ##H   SECRETS_D        defines secrets repository local path. (default CMSKubernetes parent dir)
 ##H   CONFIGS_D        defines cmsmon-configs repository local path. (default CMSKubernetes parent dir)
+##H
+##H READ the DOC: https://cmsmonit-docs.web.cern.ch/k8s/cluster_upgrades/#ha1
+##H
 
 unset script_dir ha action cluster sdir cdir deploy_secrets_sh
 script_dir="$(cd "$(dirname "$0")" && pwd)"

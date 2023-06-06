@@ -27,6 +27,9 @@ set -e
 ##H Environments:
 ##H   SECRETS_D        defines secrets repository local path. (default CMSKubernetes parent dir)
 ##H   CONFIGS_D        defines cmsmon-configs repository local path. (default CMSKubernetes parent dir)
+##H
+##H READ the DOC: https://cmsmonit-docs.web.cern.ch/k8s/cluster_upgrades/#dm-mon
+##H
 
 unset script_dir action cluster sdir cdir deploy_secrets_sh
 script_dir="$(cd "$(dirname "$0")" && pwd)"
@@ -104,7 +107,7 @@ function deploy_secrets() {
     rm_temp_deploy_secrets_sh
 }
 function clean_secrets() {
-    # hdfs
+    # auth
     kubectl -n auth --ignore-not-found=true delete secret proxy-secrets
     kubectl -n auth --ignore-not-found=true delete secret robot-secrets
     kubectl -n auth --ignore-not-found=true delete secret cern-certificates
@@ -127,7 +130,7 @@ function deploy_services() {
     kubectl -n datasetmon apply -f services/datasetmon/spark2mng.yaml
 }
 function clean_services() {
-    # default
+    # auth
     kubectl -n auth --ignore-not-found=true delete -f ingress/ingress-dm.yaml
     kubectl -n auth --ignore-not-found=true delete -f services/auth-proxy-server-dm.yaml
     kubectl -n auth --ignore-not-found=true delete -f crons/cron-proxy.yaml

@@ -7,7 +7,6 @@ spec:
   type: ClusterIP
   selector:
     app: vmalert
-  type: ClusterIP
   ports:
   - port: 30880
     protocol: TCP
