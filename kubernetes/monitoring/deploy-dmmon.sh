@@ -115,7 +115,6 @@ function clean_secrets() {
     # datasetmon
     kubectl -n datasetmon --ignore-not-found=true delete secret cmsmon-mongo-secrets
 }
-
 function deploy_services() {
     # auth
     # [ingress]: Don't forget to delete "cern-magnum-ingress-nginx-admission" ValidatingWebhookConfiguration
@@ -153,7 +152,6 @@ deploy_all() {
     deploy_secrets
     deploy_services
 }
-
 clean_all() {
     clean_services
     sleep 10
@@ -163,7 +161,6 @@ clean_all() {
             kubectl --ignore-not-found=true delete namespace "$_ns"
         fi
     done
-
 }
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

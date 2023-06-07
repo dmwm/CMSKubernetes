@@ -122,7 +122,6 @@ function clean_secrets() {
     # sqoop
     kubectl -n sqoop --ignore-not-found=true delete secret sqoop-secrets
 }
-
 function deploy_services() {
     # default
     kubectl -n default apply -f services/pushgateway.yaml
@@ -159,7 +158,6 @@ deploy_all() {
     deploy_secrets
     deploy_services
 }
-
 clean_all() {
     clean_services
     sleep 10
@@ -169,7 +167,6 @@ clean_all() {
             kubectl --ignore-not-found=true delete namespace "$_ns"
         fi
     done
-
 }
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

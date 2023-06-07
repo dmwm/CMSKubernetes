@@ -107,7 +107,6 @@ function clean_secrets() {
     kubectl -n default --ignore-not-found=true delete secret s3-keys-secrets
     kubectl -n default --ignore-not-found=true delete secret vmalert-secrets
 }
-
 function deploy_services() {
     # default
     kubectl -n default apply -f services/agg/victoria-metrics.yaml
@@ -139,7 +138,6 @@ deploy_all() {
     deploy_secrets
     deploy_services
 }
-
 clean_all() {
     clean_services
     sleep 10

@@ -179,7 +179,6 @@ function clean_secrets() {
     kubectl -n http --ignore-not-found=true delete secret robot-secrets
     kubectl -n http --ignore-not-found=true delete secret certcheck-secrets
 }
-
 function deploy_services() {
     # Fails because of /etc/proxy/proxy tls conf
     # check_configs_prometheus
@@ -236,7 +235,6 @@ deploy_all() {
     deploy_secrets
     deploy_services
 }
-
 clean_all() {
     clean_services
     sleep 10
@@ -247,7 +245,6 @@ clean_all() {
             kubectl --ignore-not-found=true delete namespace $_ns
         fi
     done
-
 }
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
