@@ -72,4 +72,4 @@ spec:
             claimName: vm-volume-long-claim
         - name: secrets
           secret:
-            secretName: s3-keys
+            secretName: s3-keys-secrets
