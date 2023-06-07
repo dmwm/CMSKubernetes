@@ -30,6 +30,9 @@ set -e
 ##H Environments:
 ##H   SECRETS_D        defines secrets repository local path. (default CMSKubernetes parent dir)
 ##H   CONFIGS_D        defines cmsmon-configs repository local path. (default CMSKubernetes parent dir)
+##H
+##H READ the DOC: https://cmsmonit-docs.web.cern.ch/k8s/cluster_upgrades/#ha1
+##H
 
 unset script_dir ha action cluster sdir cdir deploy_secrets_sh
 script_dir="$(cd "$(dirname "$0")" && pwd)"
@@ -176,7 +179,6 @@ function clean_secrets() {
     kubectl -n http --ignore-not-found=true delete secret robot-secrets
     kubectl -n http --ignore-not-found=true delete secret certcheck-secrets
 }
-
 function deploy_services() {
     # Fails because of /etc/proxy/proxy tls conf
     # check_configs_prometheus
@@ -233,7 +235,6 @@ deploy_all() {
     deploy_secrets
     deploy_services
 }
-
 clean_all() {
     clean_services
     sleep 10
@@ -244,7 +245,6 @@ clean_all() {
             kubectl --ignore-not-found=true delete namespace $_ns
         fi
     done
-
 }
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

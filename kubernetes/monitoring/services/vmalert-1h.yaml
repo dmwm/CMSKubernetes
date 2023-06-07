@@ -7,7 +7,6 @@ spec:
   type: ClusterIP
   selector:
     app: vmalert-1h
-  type: ClusterIP
   ports:
   - port: 31880
     protocol: TCP
@@ -32,7 +31,7 @@ spec:
         containers:
         - args:
           - -datasource.url=http://cms-monitoring:30082
-          - -remoteWrite.url=http://cms-monitoring-agg:30428
+          - -remoteWrite.url=http://victoria-metrics:8428
           - -rule=/etc/vmalert/rucio-agg-1h.rules
           - -notifier.url=http://cms-monitoring:30093
           - -httpListenAddr=:31880

@@ -1,22 +1,25 @@
 #!/bin/bash
-# Creates Kubernetes cluster using openstack templates for CRON
-# Please
-#   - find a latest kubernetes template and use it:
-#     * 'openstack coe cluster template list'
-#     * 'openstack coe cluster template show kubernetes-1.22.9-1 -f yaml'
-#   - Define your master and node counts
-#   - Define your master and node FLAVORS: 'openstack flavor list'
-#   - Define EOS enabled or not, default is TRUE.
-#   - Define ingress controller, default NGINX; it can be traefik too!
-#
+##H Creates Kubernetes cluster using openstack templates for CRON
+##H Please
+##H   - find a latest kubernetes template and use it:
+##H     * 'openstack coe cluster template list'
+##H     * 'openstack coe cluster template show kubernetes-1.25.3-3 -f yaml'
+##H   - Define your master and node counts
+##H   - Define your master and node FLAVORS: 'openstack flavor list'
+##H   - Define EOS enabled or not, default NOT.
+##H   - Define ingress controller, default NGINX; it can be traefik too!
+##H Usage:
+##H     ./create_cluster_cron.sh <cluster_name:put template version as suffix> <template_name:if not provided will use $template >
+##H Example:
+##H    ./create_cluster_cron.sh monitoring-vm-cron-v1.25.3-3 kubernetes-1.25.3-3
+##H
 
 namespace=${OS_PROJECT_NAME:-"CMS Web"}
 name=$1
-template=${2:-"kubernetes-1.22.9-1"}
+template=${2:-"kubernetes-1.25.3-3"}
 
-usage="create_cluster.sh <name> <template_name, if not provided will use $template>"
 if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ] || [ "$1" == "" ]; then
-    echo "$usage"
+    grep "^##H" <"$0" | sed -e "s,##H,,g"
     exit 0
 fi
 echo "Creating cluster => NameSpace: ${namespace} , Name: ${name} , Template: ${template}"
@@ -32,6 +35,7 @@ openstack --os-project-name "$namespace" coe cluster create "$name" \
     --node-count 2 \
     --flavor m2.xlarge \
     --merge-labels \
+    --labels availability_zone="" \
     --labels cinder_csi_enabled="true" \
     --labels logging_include_internal="true" \
     --labels logging_http_destination="http://monit-logs.cern.ch:10012/" \

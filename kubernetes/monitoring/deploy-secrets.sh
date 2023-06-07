@@ -28,6 +28,7 @@ set -e
 ##H        redash-secrets
 ##H        robot-secrets
 ##H        rucio-daily-stats-secrets
+##H        s3-keys-secrets
 ##H        sqoop-secrets
 ##H        vmalert-secrets
 ##H Examples:
@@ -88,6 +89,8 @@ elif [ "$secret" == "promxy-secrets" ]; then
     files=`ls $cdir/promxy/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$cdir/promxy | sed "s, $,,g"`
 elif [ "$secret" == "vmalert-secrets" ]; then
     files=`ls $cdir/vmalert/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$cdir/vmalert | sed "s, $,,g"`
+elif [ "$secret" == "s3-keys-secrets" ]; then
+    files=`ls $sdir/victoria-metrics/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/victoria-metrics | sed "s, $,,g"`
 elif [ "$secret" == "robot-secrets" ]; then
     files=`ls $sdir/robot/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/robot | sed "s, $,,g"`
 elif [ "$secret" == "auth-secrets" ]; then

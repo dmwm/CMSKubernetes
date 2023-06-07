@@ -1,16 +1,15 @@
 #!/bin/bash
 # shellcheck disable=SC2181
 set -e
-##H Usage: deploy-cron.sh ACTION
+##H Usage: deploy-vmagg.sh ACTION
 ##H
 ##H Examples:
 ##H    --- If CMSKubernetes, cmsmon-configs and secrets repos are in same directory ---
-##H    deploy-cron.sh status
-##H    deploy-cron.sh deploy-secrets
-##H    deploy-cron.sh deploy-all
-##H    deploy-cron.sh clean-services
+##H    deploy-vmagg.sh status
+##H    deploy-vmagg.sh deploy-secrets
+##H    deploy-vmagg.sh deploy-all
 ##H    --- Else ---
-##H    export SECRETS_D=$SOMEDIR/secrets; export CONFIGS_D=$SOMEDIR/cmsmon-configs; deploy-cron.sh status
+##H    export SECRETS_D=$SOMEDIR/secrets; export CONFIGS_D=$SOMEDIR/cmsmon-configs; deploy-vmagg.sh status
 ##H
 ##H Attention: this script depends on deploy-secrets.sh
 ##H
@@ -29,7 +28,7 @@ set -e
 ##H   SECRETS_D        defines secrets repository local path. (default CMSKubernetes parent dir)
 ##H   CONFIGS_D        defines cmsmon-configs repository local path. (default CMSKubernetes parent dir)
 ##H
-##H READ the DOC: https://cmsmonit-docs.web.cern.ch/k8s/cluster_upgrades/#cron
+##H READ the DOC: https://cmsmonit-docs.web.cern.ch/k8s/cluster_upgrades/#vm-agg
 ##H
 
 unset script_dir action cluster sdir cdir deploy_secrets_sh
@@ -97,64 +96,45 @@ function rm_temp_deploy_secrets_sh() {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 function deploy_secrets() {
     create_temp_deploy_secrets_sh
-    # hdfs
-    "$deploy_secrets_sh" hdfs proxy-secrets
-    "$deploy_secrets_sh" hdfs robot-secrets
-    "$deploy_secrets_sh" hdfs rucio-daily-stats-secrets
-    "$deploy_secrets_sh" hdfs hpc-usage-secrets
-    "$deploy_secrets_sh" hdfs cron-size-quotas-secrets
-    "$deploy_secrets_sh" hdfs cms-eos-mon-secrets
-    "$deploy_secrets_sh" hdfs cron-spark-jobs-secrets
-    # sqoop
-    "$deploy_secrets_sh" sqoop sqoop-secrets
+    # default
+    "$deploy_secrets_sh" default s3-keys-secrets
+    "$deploy_secrets_sh" default vmalert-secrets
     #
     rm_temp_deploy_secrets_sh
 }
 function clean_secrets() {
-    # hdfs
-    kubectl -n hdfs --ignore-not-found=true delete secret proxy-secrets
-    kubectl -n hdfs --ignore-not-found=true delete secret robot-secrets
-    kubectl -n hdfs --ignore-not-found=true delete secret rucio-daily-stats-secrets
-    kubectl -n hdfs --ignore-not-found=true delete secret hpc-usage-secrets
-    kubectl -n hdfs --ignore-not-found=true delete secret cron-size-quotas-secrets
-    kubectl -n hdfs --ignore-not-found=true delete secret cms-eos-mon-secrets
-    kubectl -n hdfs --ignore-not-found=true delete secret cron-spark-jobs-secrets
-    # sqoop
-    kubectl -n sqoop --ignore-not-found=true delete secret sqoop-secrets
+    # default
+    kubectl -n default --ignore-not-found=true delete secret s3-keys-secrets
+    kubectl -n default --ignore-not-found=true delete secret vmalert-secrets
 }
 function deploy_services() {
     # default
-    kubectl -n default apply -f services/pushgateway.yaml
-    # hdfs
-    kubectl -n hdfs apply -f crons/cron-proxy.yaml
-    kubectl -n hdfs apply -f services/cmsmon-hpc-usage.yaml
-    kubectl -n hdfs apply -f services/cmsmon-rucio-ds.yaml
-    kubectl -n hdfs apply -f services/cron-size-quotas.yaml
-    kubectl -n hdfs apply -f services/cron-spark-jobs.yaml
-    # sqoop
-    kubectl -n sqoop apply -f services/sqoop.yaml
+    kubectl -n default apply -f services/agg/victoria-metrics.yaml
+    kubectl -n default apply -f services/agg/victoria-metrics-long.yaml
+    sleep 60
+    kubectl -n default apply -f services/vmalert.yaml
+    kubectl -n default apply -f services/vmalert-1h.yaml
 }
 function clean_services() {
     # default
-    kubectl -n default --ignore-not-found=true delete -f services/pushgateway.yaml
-    # hdfs
-    kubectl -n hdfs --ignore-not-found=true delete -f crons/cron-proxy.yaml
-    kubectl -n hdfs --ignore-not-found=true delete -f services/cmsmon-hpc-usage.yaml
-    kubectl -n hdfs --ignore-not-found=true delete -f services/cmsmon-rucio-ds.yaml
-    kubectl -n hdfs --ignore-not-found=true delete -f services/cron-size-quotas.yaml
-    kubectl -n hdfs --ignore-not-found=true delete -f services/cron-spark-jobs.yaml
-    # sqoop
-    kubectl -n sqoop --ignore-not-found=true delete -f services/sqoop.yaml
+    kubectl -n default --ignore-not-found=true delete -f services/vmalert.yaml
+    kubectl -n default --ignore-not-found=true delete -f services/vmalert-1h.yaml
+    sleep 5
+    kubectl -n default --ignore-not-found=true delete -f services/agg/victoria-metrics.yaml
+    kubectl -n default --ignore-not-found=true delete -f services/agg/victoria-metrics-long.yaml
+}
+# Deploy cinder volumes for default namespace
+function deploy_storages() {
+    kubectl apply -n default -f storages/vm-agg-cluster-cinder.yaml
+}
+function clean_storages() {
+    kubectl delete -n default -f storages/vm-agg-cluster-cinder.yaml
 }
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ MAIN ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-namespaces="hdfs sqoop"
 deploy_all() {
-    for _ns in $namespaces; do
-        if ! kubectl get ns | grep -q "$_ns"; then
-            kubectl create namespace "$_ns"
-        fi
-    done
+    deploy_storages
+    sleep 10
     deploy_secrets
     deploy_services
 }
@@ -162,11 +142,7 @@ clean_all() {
     clean_services
     sleep 10
     clean_secrets
-    for _ns in $namespaces; do
-        if kubectl get ns | grep -q "$_ns"; then
-            kubectl --ignore-not-found=true delete namespace "$_ns"
-        fi
-    done
+    clean_storages
 }
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
