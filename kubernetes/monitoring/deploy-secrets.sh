@@ -18,7 +18,6 @@ set -e
 ##H        dm-auth-secrets
 ##H        es-wma-secrets
 ##H        hpc-usage-secrets
-##H        intelligence-secrets
 ##H        karma-secrets
 ##H        keytab-secrets
 ##H        krb5cc-secrets
@@ -71,13 +70,6 @@ elif [ "$secret" == "alertmanager-secrets" ]; then
     password=`cat $sdir/alertmanager/secrets | grep PASSWORD | awk '{print $2}'`
     content=`cat $cdir/alertmanager/alertmanager.yaml | sed -e "s,__USERNAME__,$username,g" -e "s,__PASSWORD__,$password,g"`
     literals="--from-literal=alertmanager.yaml=$content"
-elif [ "$secret" == "intelligence-secrets" ]; then
-    token=`cat $sdir/cmsmon-intelligence/secrets | grep TOKEN | awk '{print $2}'`
-    content=`cat $cdir/cmsmon-intelligence/config.json | sed -e "s,__TOKEN__,$token,g"`
-    if [ -n "$ha" ]; then
-        content=`cat $cdir/cmsmon-intelligence/ha/${ha}/config.json | sed -e "s,__TOKEN__,$token,g"`
-    fi
-    literals="--from-literal=config.json=$content"
 elif [ "$secret" == "karma-secrets" ]; then
     files="--from-file=$cdir/karma/karma.yaml"
     if [ "$ha" == "ha1" ]; then
