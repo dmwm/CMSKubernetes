@@ -10,7 +10,7 @@ WMCoreVersion=$(python -c "from WMCore import __version__ as WMCoreVersion; prin
 pythonLib=$(python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
 
 help(){
-    echo -e $1
+    echo -e $*
     cat <<EOF
 
 WMCoreVersion: v$WMCoreVersion
@@ -37,7 +37,7 @@ EOF
 }
 
 usage(){
-    help $1
+    help $*
     exit 1
 }
 
@@ -72,9 +72,9 @@ while getopts ":t:n:c:f:h" opt; do
         n) AGENT_NUMBER=$OPTARG ;;
         f) FLAVOR=$OPTARG ;;
         h) help; exit $? ;;
-        \? )
-            msg="Invalid Option: -$OPTARG"
-            usage "$msg" ;;
+        # \? )
+        #     msg="Invalid Option: -$OPTARG"
+        #     usage "$msg" ;;
         : )
             msg="Invalid Option: -$OPTARG requires an argument"
             usage "$msg" ;;

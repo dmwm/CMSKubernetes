@@ -6,7 +6,7 @@
 
 
 help(){
-    echo -e $1
+    echo -e $*
     cat <<EOF
 
 The WMAgent docker build script for Docker image creation based on pypi:
@@ -14,6 +14,7 @@ The WMAgent docker build script for Docker image creation based on pypi:
 Usage: wmagent-docker-build.sh -v <wmagent_tag>
 
     -v <wmagent_tag>    The WMAgent version/tag to be used for the Docker image creation
+    -p <push_image>     Push the image to registry.cern.ch
 
 Example: ./wmagent-docker-build.sh -v 2.2.0.2
 
@@ -21,16 +22,18 @@ EOF
 }
 
 usage(){
-    help $1
+    help $*
     exit 1
 }
 
 WMA_TAG=None
+PUSH=false
 
 ### Argument parsing:
-while getopts ":v:h" opt; do
+while getopts ":v:hp" opt; do
     case ${opt} in
         v) WMA_TAG=$OPTARG ;;
+        p) PUSH=true ;;
         h) help; exit $? ;;
         \? )
             msg="Invalid Option: -$OPTARG"
@@ -42,9 +45,18 @@ while getopts ":v:h" opt; do
 done
 
 
-
 # NOTE: NO WMA_TAG validation is done in the current script. It is implemented at the install.sh
 
 dockerOpts=" --network=host --progress=plain --build-arg WMA_TAG=$WMA_TAG "
 
 docker build $dockerOpts -t wmagent:$WMA_TAG -t wmagent:latest  .
+
+$PUSH && {
+    docker login registry.cern.ch
+    docker tag wmagent:$WMA_TAG registry.cern.ch/cmsweb/wmagent:$WMA_TAG
+    docker tag wmagent:$WMA_TAG registry.cern.ch/cmsweb/wmagent:latest
+    echo "Uploading image registry.cern.ch/cmsweb/wmagent:$WMA_TAG"
+    docker push registry.cern.ch/cmsweb/wmagent:$WMA_TAG
+    echo "Uploading image registry.cern.ch/cmsweb/wmagent:latest"
+    docker push registry.cern.ch/cmsweb/wmagent:latest
+}

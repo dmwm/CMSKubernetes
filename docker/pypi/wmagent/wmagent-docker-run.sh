@@ -11,13 +11,16 @@
 # NOTE: In the help call to the current scrit we only repeat the help and usage
 #       information for all the parameters accepted by run.sh.
 help(){
-    echo -e $1
+    echo -e $*
     cat <<EOF
 
 The script to be used for running a WMAgent docker container at a VM. The full set of arguments
 passed to the current script are to be forwarded to the WMAgent container entrypoint 'run.sh'
 
 Usage: wmagent-docker-run.sh [-t <team_name>] [-n <agent_number>] [-f <db_flavour>]
+
+    -p <pull_image>   Pull the image from registry.cern.ch
+    -v <wmagent_tag>  The WMAgent version/tag to be downloaded from registry.cern.ch [Default:latest]
 
     -t <team_name>    Team name in which the agent should be connected to
     -n <agent_number> Agent number to be set when more than 1 agent connected to the same team (Default: 0)
@@ -29,13 +32,18 @@ EOF
 }
 
 usage(){
-    help $1
+    help $*
     exit 1
 }
 
+PULL=false
+WMA_TAG=latest
+
 ### Argument parsing:
-while getopts ":h" opt; do
+while getopts ":v:hp" opt; do
     case ${opt} in
+        v) WMA_TAG=$OPTARG ;;
+        p) PULL=true ;;
         h) help; exit $? ;;
         : )
             msg="Invalid Option: -$OPTARG requires an argument"
@@ -68,5 +76,14 @@ dockerOpts=" \
 
 wmaOpts=$*
 
+$PULL && {
+    echo "Pulling Docker image: registry.cern.ch/cmsweb/wmagent:$WMA_TAG"
+    docker login registry.cern.ch
+    docker pull registry.cern.ch/cmsweb/wmagent:$WMA_TAG
+    docker tag registry.cern.ch/cmsweb/wmagent:$WMA_TAG wmagent:$WMA_TAG
+    docker tag registry.cern.ch/cmsweb/wmagent:$WMA_TAG wmagent:latest
+}
+
 # docker run $dockerOpts wmagent:$WMA_TAG $wmaOpts
-docker run $dockerOpts wmagent $wmaOpts
+echo "Starting the wmagent:$WMA_TAG docker container with the following parameters: $wmaOpts"
+docker run $dockerOpts wmagent:$WMA_TAG $wmaOpts
