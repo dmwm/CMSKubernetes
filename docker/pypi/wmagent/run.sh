@@ -329,8 +329,8 @@ deploy_to_container() {
         echo "$FUNCNAME: ERROR: Sorry, we do not recognize the network domain name of the current host: $HOSTNAME"
         return $(false)
     fi
-    sed -i "s/credname=CREDNAME/credname=$myproxyCredName/g" $WMA_DEPLOY_DIR/deploy/renew_proxy.sh
-    chmod 755 $WMA_DEPLOY_DIR/deploy/renew_proxy.sh
+    sudo sed -i "s/credname=CREDNAME/credname=$myproxyCredName/g" $WMA_DEPLOY_DIR/deploy/renew_proxy.sh
+    sudo chmod 755 $WMA_DEPLOY_DIR/deploy/renew_proxy.sh
 
     # Here to check certificates and update myproxy if needed:
     if [[ -f $WMA_CERTS_DIR/servicecert.pem ]] && [[ -f $WMA_CERTS_DIR/servicekey.pem ]]; then
