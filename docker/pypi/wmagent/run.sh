@@ -25,12 +25,11 @@ The initial run.sh script for the wmagent container. It is used to:
  * Start the agent in the docker container
 
 
-Usage: run.sh [-t <team_name>] [-n <agent_number>] [-c <central_services_url>] [-f <db_flavour>]
+Usage: run.sh [-t <team_name>] [-n <agent_number>] [-f <db_flavour>]
 
     -t <team_name>    Team name in which the agent should be connected to
     -n <agent_number> Agent number to be set when more than 1 agent connected to the same team (Default: 0)
     -f <db_flavour>   Relational Database flavour. Possible optinos are: 'mysql' or 'oracle' (Default: myslq)
-    -c <central_services> Url to central services hosting central couchdb (Default: cmsweb-testbed.cern.ch)
 
 Example: ./run.sh -n 30 -t testbed-vocms001 -c cmsweb-testbed.cern.ch -f mysql
 
@@ -54,7 +53,6 @@ HOSTIP=`hostname -i`
 }
 
 TEAMNAME=testbed-${HOSTNAME%%.*}
-CENTRAL_SERVICES=cmsweb-testbed.cern.ch
 AGENT_NUMBER=0
 FLAVOR=mysql
 
@@ -72,7 +70,6 @@ while getopts ":t:n:c:f:h" opt; do
     case ${opt} in
         t) TEAMNAME=$OPTARG ;;
         n) AGENT_NUMBER=$OPTARG ;;
-        c) CENTRAL_SERVICES=$OPTARG ;;
         f) FLAVOR=$OPTARG ;;
         h) help; exit $? ;;
         \? )
@@ -102,7 +99,6 @@ echo " - WMAgent Root path          : $WMA_ROOT_DIR"
 echo " - WMAgent Host               : $HOSTNAME"
 echo " - WMAgent TeamName           : $TEAMNAME"
 echo " - WMAgent Number             : $AGENT_NUMBER"
-echo " - WMAgent CentralServices    : $CENTRAL_SERVICES"
 echo " - WMAgent Relational DB type : $FLAVOR"
 echo " - Python  Verson             : $(python --version)"
 echo " - Python  Module path        : $pythonLib"
@@ -565,7 +561,6 @@ agent_upload_config(){
     _init_valid $WMA_CONFIG_DIR || {
         echo "$FUNCNAME: triggered."
         echo "$FUNCNAME: Tweaking central agent configuration befre uploading"
-        local centralServicesUrl="https://$CENTRAL_SERVICES/reqmgr2/data/wmagentconfig"
         if [[ "$TEAMNAME" == production ]]; then
             echo "$FUNCNAME: Agent connected to the production team, setting it to drain mode"
             agentExtraConfig='{"UserDrainMode":true}'
