@@ -55,7 +55,7 @@ echo "-----------------------------------------------------------------------"
 echo " - WMAgent Version            : $WMA_TAG"
 echo " - WMAgent User               : $WMA_USER"
 echo " - WMAgent Root path          : $WMA_ROOT_DIR"
-echo " - Python  Verson             : $(python --version)"
+echo " - Python  Version            : $(python --version)"
 echo " - Python  Module path        : $pythonLib"
 echo "======================================================================="
 echo

@@ -60,12 +60,16 @@ WMA_ROOT_DIR=/data/dockerMount
 [[ -d $WMA_ROOT_DIR/srv/wmagent/current/install ]] || (mkdir -p $WMA_ROOT_DIR/srv/wmagent/current/install) || exit $?
 [[ -d $WMA_ROOT_DIR/srv/wmagent/current/config  ]] || (mkdir -p $WMA_ROOT_DIR/srv/wmagent/current/config)  || exit $?
 
+# NOTE: Before mounting /etc/tnsnames.ora we should check it exists, otherwise the run will fail on the FNAL agents
+tnsMount=""
+[[ -f /etc/tnsnames.ora ]] && tnsMount="--mount type=bind,source=/etc/tnsnames.ora,target=/etc/tnsnames.ora,readonly "
+
 dockerOpts=" \
 --network=host \
 --rm \
 --hostname=`hostname -f` \
 --name=wmagent \
---mount type=bind,source=/etc/tnsnames.ora,target=/etc/tnsnames.ora,readonly \
+$tnsMount
 --mount type=bind,source=/etc/condor,target=/etc/condor,readonly \
 --mount type=bind,source=/tmp,target=/tmp \
 --mount type=bind,source=$WMA_ROOT_DIR/certs,target=/data/certs \
