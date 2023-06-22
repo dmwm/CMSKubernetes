@@ -13,8 +13,9 @@ The WMAgent docker build script for Docker image creation based on pypi:
 
 Usage: wmagent-docker-build.sh -v <wmagent_tag>
 
-    -v <wmagent_tag>    The WMAgent version/tag to be used for the Docker image creation
-    -p <push_image>     Push the image to registry.cern.ch
+    -v <wmagent_tag>                The WMAgent version/tag to be used for the Docker image creation
+    -p <push_image>                 Push the image to registry.cern.ch
+    -l <latest_tag_toregistry>      Push the curernt tag also as latest to registry.cern.ch
 
 Example: ./wmagent-docker-build.sh -v 2.2.0.2
 
@@ -28,12 +29,14 @@ usage(){
 
 WMA_TAG=None
 PUSH=false
+LATEST=false
 
 ### Argument parsing:
-while getopts ":v:hp" opt; do
+while getopts ":v:hpl" opt; do
     case ${opt} in
         v) WMA_TAG=$OPTARG ;;
         p) PUSH=true ;;
+        l) LATEST=true ;;
         h) help; exit $? ;;
         \? )
             msg="Invalid Option: -$OPTARG"
@@ -54,9 +57,11 @@ docker build $dockerOpts -t wmagent:$WMA_TAG -t wmagent:latest  .
 $PUSH && {
     docker login registry.cern.ch
     docker tag wmagent:$WMA_TAG registry.cern.ch/cmsweb/wmagent:$WMA_TAG
-    docker tag wmagent:$WMA_TAG registry.cern.ch/cmsweb/wmagent:latest
     echo "Uploading image registry.cern.ch/cmsweb/wmagent:$WMA_TAG"
     docker push registry.cern.ch/cmsweb/wmagent:$WMA_TAG
-    echo "Uploading image registry.cern.ch/cmsweb/wmagent:latest"
-    docker push registry.cern.ch/cmsweb/wmagent:latest
+    $LATEST &&  {
+        docker tag wmagent:$WMA_TAG registry.cern.ch/cmsweb/wmagent:latest
+        echo "Uploading image registry.cern.ch/cmsweb/wmagent:latest"
+        docker push registry.cern.ch/cmsweb/wmagent:latest
+    }
 }

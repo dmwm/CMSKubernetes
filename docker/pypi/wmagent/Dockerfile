@@ -4,7 +4,7 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 # Install basic OS package dependencies
 RUN apt-get update
-RUN apt-get install -y libmariadb-dev-compat libmariadb-dev apache2-utils hostname net-tools iputils-ping cron mariadb-server myproxy voms-clients rpm2cpio rlwrap libaio1 procps
+RUN apt-get install -y libmariadb-dev-compat libmariadb-dev apache2-utils hostname net-tools iputils-ping cron mariadb-server myproxy voms-clients rlwrap libaio1 procps && apt-get clean
 
 # copy oracle client:
 COPY --from=oracle /usr/lib/oracle /usr/lib/oracle

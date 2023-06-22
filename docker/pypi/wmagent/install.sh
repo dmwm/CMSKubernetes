@@ -71,7 +71,7 @@ pip install wheel
 pip install --upgrade pip
 
 # Second deploy the package. Interrupt on error:
-pip install wmagent==$WMA_TAG || { err=$?; echo "Failed to install wmagent:$WMA_TAG at $WMA_DEPLOY_IR" ; exit $err ; }
+pip install wmagent==$WMA_TAG || { err=$?; echo "Failed to install wmagent:$WMA_TAG at $WMA_DEPLOY_DIR" ; exit $err ; }
 echo "Done $stepMsg!" && echo
 echo "-----------------------------------------------------------------------"
 
@@ -95,8 +95,9 @@ echo "-----------------------------------------------------------------------"
 echo "Start $stepMsg"
 
 # Fix for outdated yui library - A really bad workaround. We should get rid of it ASAP:
-wget -nv -P $WMA_DEPLOY_DIR http://cmsrep.cern.ch/cmssw/repos/comp/slc7_amd64_gcc630/0000000000000000000000000000000000000000000000000000000000000000/RPMS/cd/cda5f9ef4b33696e67c9e2f995dd5cb6/external+yui+2.9.0-1-1.slc7_amd64_gcc630.rpm
-mkdir $WMA_DEPLOY_DIR/yui && cat $WMA_DEPLOY_DIR/external+yui+2.9.0-1-1.slc7_amd64_gcc630.rpm|rpm2archive - |tar --strip-components=13 -xzv --directory $WMA_DEPLOY_DIR/yui
+wget -nv -r -P $WMA_DEPLOY_DIR  https://yui.github.io/yui2/archives/yui_2.9.0.zip || { err=$?; echo "Error downloading yui_2.9.0.zip"; exit $err ; }
+unzip -d $WMA_DEPLOY_DIR yui_2.9.0.zip yui/build/*
+rm -rf $WMA_DEPLOY_DIR/yui_2.9.0.zip
 
 echo "Done $stepMsg!" && echo
 echo "-----------------------------------------------------------------------"
@@ -117,11 +118,18 @@ echo "Start $stepMsg"
 echo "Done $stepMsg!" && echo
 echo "-----------------------------------------------------------------------"
 
-stepMsg="Creating all runtime aliases for the WMA_USER"
-echo "-----------------------------------------------------------------------"
-echo "Start $stepMsg"
-set -x
-cat <<EOF >> /home/${WMA_USER}/.bashrc
+tweakEnv(){
+    # A function to apply environment tweaks for the docker image
+    echo "-------------------------------------------------------"
+    echo "Edit \$WMA_ENV_FILE script to point to \$WMA_ROOT_DIR"
+    sed -i "s|/data/|\$WMA_ROOT_DIR/|g" $WMA_ENV_FILE
+
+    echo "Edit $WMA_DEPLOY_DIR/deploy/renew_proxy.sh script to point to \$WMA_ROOT_DIR"
+    sed -i "s|/data/|\$WMA_ROOT_DIR/|g" $WMA_DEPLOY_DIR/deploy/renew_proxy.sh
+    sed -i "s|source.*env\.sh|source \$WMA_ENV_FILE|g" $WMA_DEPLOY_DIR/deploy/renew_proxy.sh
+    echo "-------------------------------------------------------"
+
+    cat <<EOF >> $WMA_ENV_FILE
 
 alias lll="ls -lathr"
 alias ls="ls --color=auto"
@@ -130,7 +138,6 @@ alias ll='ls -la --color=auto'
 alias condorq='condor_q -format "%i." ClusterID -format "%s " ProcId -format " %i " JobStatus  -format " %d " ServerTime-EnteredCurrentStatus -format "%s" UserLog -format " %s\n" DESIRED_Sites'
 alias condorqrunning='condor_q -constraint JobStatus==2 -format "%i." ClusterID -format "%s " ProcId -format " %i " JobStatus  -format " %d " ServerTime-EnteredCurrentStatus -format "%s" UserLog -format " %s\n" DESIRED_Sites'
 alias agentenv='source $WMA_ENV_FILE'
-agentenv
 alias manage=\$manage
 
 # Aliases for Tier0-Ops.
@@ -147,8 +154,16 @@ export WMAGENTPY3_ROOT=\$WMA_INSTALL_DIR/wmagent
 export WMAGENTPY3_VERSION=\$WMA_TAG
 export PATH=\$WMA_INSTALL_DIR/wmagent/bin\${PATH:+:\$PATH}
 EOF
+}
 
-set +x
+
+stepMsg="Tweaking runtime environment for the WMA_USER"
+echo "-----------------------------------------------------------------------"
+echo "Start $stepMsg"
+tweakEnv || { err=$?; echo ""; exit $err ; }
+cat <<EOF >> /home/${WMA_USER}/.bashrc
+source $WMA_ENV_FILE
+EOF
 echo "Done $stepMsg!" && echo
 echo "-----------------------------------------------------------------------"
 
