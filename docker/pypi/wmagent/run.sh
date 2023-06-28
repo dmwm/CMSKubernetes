@@ -83,10 +83,10 @@ done
 
 # Check runtime arguments:
 TEAMNAME_REG="(^production$|^testbed-.*$|^dev-.*$|^relval.*$)"
-[[ $TEAMNAME =~ $TEAMNAME_REG ]] || { echo "TEAMNAME: $TEAMNAME does not match requered expression: $TEAMNAME_REG"; echo "EXIT with Error 1"  ; exit 1 ;}
+[[ $TEAMNAME =~ $TEAMNAME_REG ]] || { echo "TEAMNAME: $TEAMNAME does not match required expression: $TEAMNAME_REG"; echo "EXIT with Error 1"  ; exit 1 ;}
 
 FLAVOR_REG="(^oracle$|^mysql$)"
-[[ $FLAVOR =~ $FLAVOR_REG ]] || { echo "FLAVOR: $FLAVOR does not match requered expression: $FLAVOR_REG"; echo "EXIT with Error 1"  ; exit 1 ;}
+[[ $FLAVOR =~ $FLAVOR_REG ]] || { echo "FLAVOR: $FLAVOR does not match required expression: $FLAVOR_REG"; echo "EXIT with Error 1"  ; exit 1 ;}
 
 
 echo
@@ -100,7 +100,7 @@ echo " - WMAgent Host               : $HOSTNAME"
 echo " - WMAgent TeamName           : $TEAMNAME"
 echo " - WMAgent Number             : $AGENT_NUMBER"
 echo " - WMAgent Relational DB type : $FLAVOR"
-echo " - Python  Verson             : $(python --version)"
+echo " - Python  Version            : $(python --version)"
 echo " - Python  Module path        : $pythonLib"
 echo "======================================================="
 echo
@@ -230,10 +230,10 @@ deploy_to_host(){
     done
 
     # Check if the host has a basic WMAgent.secrets file and copy a template if missing
-    # NOTE: Here we never overwrite any existing WMAGent.secrerts file: We follow:
+    # NOTE: Here we never overwrite any existing WMAGent.secrets file: We follow:
     #       * Check if there is any at the host, and if so, is it a blank template or a fully configured one
     #       * In case we find a legit WMAgent.secrets file we set the .dockerInit and move on
-    #       * In case we need to copy a brand new template (based on the agent tape - test/prod)
+    #       * In case we need to copy a brand new template (based on the agent type - test/prod)
     #         or a blank one found at the host we halt without updating the .dockerInit file
     #         and we ask the user to examine/update the file.
     #       (Re)Initialisation should never pass beyond that step unless properly
@@ -267,7 +267,7 @@ check_wmasecrets(){
     echo "$FUNCNAME: Checking for changes in the WMAgent.secrets file"
     touch $WMA_HOSTADMIN_DIR/.WMAgent.secrets.md5
     if (md5sum --quiet -c $WMA_HOSTADMIN_DIR/.WMAgent.secrets.md5); then
-        echo "$FUNCNAME: No change fund."
+        echo "$FUNCNAME: No change found."
     else
         echo "$FUNCNAME: WARNING: Wrong checksum for WMAgent.secrets file. Restarting agent initialisation."
         rm -f $WMA_HOSTADMIN_DIR/.dockerInit
@@ -335,7 +335,7 @@ deploy_to_container() {
         local now=$(date +%s)
         local certEndDate=$(openssl x509 -in $WMA_CERTS_DIR/servicecert.pem -noout -enddate)
         certEndDate=${certEndDate##*=}
-        echo "$FUNCNAME: Certifficate end date: $certEndDate"
+        echo "$FUNCNAME: Certificate end date: $certEndDate"
         [[ -z $certEndDate ]] && { echo "ERROR: Failed to determine certificate end date!"; return $(false) ;}
 
         certEndDate=$(date --date="$certEndDate" +%s)
@@ -370,17 +370,19 @@ deploy_to_container() {
 
 _check_oracle()
 {
-    # Auxiliary finction to check if the oracle database configured for the current agent is empty
+    # Auxiliary function to check if the oracle database configured for the current agent is empty
     # NOTE: Oracle is centraly provided - we require an empty database for every account/agent
     #       otherwise we cannot guarantie this is the only agent to connect to the so configured database
     echo "$FUNCNAME: Checking whether the oracle database is clean and not used by other agents ..."
     $manage db-prompt<<"    EOF">/tmp/db_check_output
     SELECT COUNT(*) from USER_TABLES;
     EOF
+    err=$?
+    [[ $err -ne 0 ]] && return $(false)
     tables=`cat /tmp/db_check_output | grep -A1 '\-\-\-\-' | tail -n 1`
     rm -rf /tmp/db_check_output
     if [ "$tables" -gt 0 ]; then
-        echo "ERROR: Non empty database found: $tables tables."; return $(false)
+        echo "WARNING: Non empty database found: $tables tables."; return $(true)
     else
         echo "OK"; return $(true)
     fi
@@ -417,7 +419,7 @@ check_databases() {
             ;;
         oracle)
             $oracleCred   || { echo "ERROR: No Oracle database credentials provided at $WMA_ADMIN_DIR/WMAgent.secrets"; return $(false) ;}
-            _check_oracle || { echo "ERROR: Oracle database unreachable or not cleaned"; return $(false) ;}
+            _check_oracle || { echo "ERROR: Oracle database unreachable"; return $(false) ;}
         ;;
     esac
 }
@@ -452,8 +454,7 @@ check_docker_init() {
     dockerInitId=$(for id in $dockerInitIdValues; do echo $id; done |sort|uniq)
     echo "WMA_BUILD_ID: $WMA_BUILD_ID"
     echo "dockerInitId: $dockerInitId"
-    [[ $dockerInitId == $WMA_BUILD_ID ]] && { echo "OK"; return $(true) ;} || { echo "ERROR"; return $(false) ;}
-
+    [[ $dockerInitId == $WMA_BUILD_ID ]] && { echo "OK"; return $(true) ;} || { echo "WARNING: dockerInit vs buildId mismatch"; return $(false) ;}
 }
 
 activate_agent() {
@@ -573,8 +574,8 @@ agent_upload_config(){
         fi
         ### Upload WMAgentConfig to AuxDB
         echo "*** Upload WMAgentConfig to AuxDB ***"
-        $manage execute-agent wmagent-upload-config $agentExtraConfig && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/.dockerInit ;}
-
+        $manage execute-agent wmagent-upload-config $agentExtraConfig && echo $WMA_BUILD_ID > $WMA_CONFIG_DIR/.dockerInit
+    }
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
 }
