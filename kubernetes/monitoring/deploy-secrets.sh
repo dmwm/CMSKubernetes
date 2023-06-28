@@ -66,10 +66,7 @@ if [ "$secret" == "prometheus-secrets" ]; then
     fi
     files=`ls $cdir/prometheus/*.rules $cdir/prometheus/*.json $prom | awk '{ORS=" " ; print "--from-file="$1""}' | sed "s, $,,g"`
 elif [ "$secret" == "alertmanager-secrets" ]; then
-    username=`cat $sdir/alertmanager/secrets | grep USERNAME | awk '{print $2}'`
-    password=`cat $sdir/alertmanager/secrets | grep PASSWORD | awk '{print $2}'`
-    content=`cat $cdir/alertmanager/alertmanager.yaml | sed -e "s,__USERNAME__,$username,g" -e "s,__PASSWORD__,$password,g"`
-    literals="--from-literal=alertmanager.yaml=$content"
+    files="--from-file=${cdir}/alertmanager/alertmanager.yaml"
 elif [ "$secret" == "karma-secrets" ]; then
     files="--from-file=$cdir/karma/karma.yaml"
     if [ "$ha" == "ha1" ]; then
