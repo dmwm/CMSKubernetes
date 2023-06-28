@@ -9,7 +9,7 @@
  * `WMAgent.secrets` file to be present at the host VM
 
 ### The implementation is realized through the following files:
- * `Dockerfile` - creates provides all basic requirements for the image and sets all common env variables to both `install.sh` and `run.sh`.
+ * `Dockerfile` - provides all basic requirements for the image and sets all common env variables to both `install.sh` and `run.sh`.
  * `install.sh` - called through `Dockerfile` `RUN` command and provided with a single parameter at build time `WMA_TAG`
  * `run.sh` - set as default `ENTRYPOINT` at container runtime. All agent related configuration parameters are passed as named arguments and used to (re)generate the agent configuration files. All service credentials and schedd caches are accessed via host mount points
  * `wmagent-docker-build.sh` - simple script to be used for building a WMAgent docker image
