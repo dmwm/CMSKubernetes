@@ -149,7 +149,7 @@ alias scurl='curl -k --cert ${CERT_DIR}/servicecert.pem --key ${CERT_DIR}/servic
 
 # set WMAgent docker specific bash prompt:
 export PS1="(WMAgent-\$WMA_TAG) [\u@\h:\W]\$ "
-export WMA_BUILD_ID=\$(cat $WMA_ROOT_DIR/.dockerBuildId)
+export WMA_BUILD_ID=\$(cat \$WMA_ROOT_DIR/.dockerBuildId)
 export WMAGENTPY3_ROOT=\$WMA_INSTALL_DIR/wmagent
 export WMAGENTPY3_VERSION=\$WMA_TAG
 export PATH=\$WMA_INSTALL_DIR/wmagent/bin\${PATH:+:\$PATH}
