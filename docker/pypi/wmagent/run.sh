@@ -390,7 +390,7 @@ _check_oracle()
 
 _check_mysql()
 {
-    # Auxiliary finction to check if the the MariaDB database for the current agent is properly set
+    # Auxiliary function to check if the the MariaDB database for the current agent is properly set
     # TODO: To be implemented in the issue related to the MariaDB setup fro wmagent
     echo "$FUNCNAME: Checking whether the mysql schema has been installed"
     true
@@ -595,6 +595,7 @@ start_agent() {
     echo "Start: $stepMsg"
     echo "-------------------------------------------------------"
     echo "Start sleeping now ...zzz..."
+    # TODO: To remove the endless while cycle once we are done with the full containerization issue: #11314
     while true; do sleep 10; done
     $manage start-agent || return $(false)
     echo "Done: $stepMsg"

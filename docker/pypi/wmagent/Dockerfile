@@ -15,6 +15,7 @@ ENV PKG_CONFIG_PATH=/usr/lib/oracle
 # WMA_TAG to be passed at build time through `--build-arg WMA_TAG=<WMA_TAG>`. Default: None
 ARG WMA_TAG=None
 ENV WMA_TAG=${WMA_TAG}
+ENV TAG=${WMA_TAG}
 ENV WMA_USER=cmst1
 ENV WMA_GROUP=zh
 ENV WMA_UID=31961
