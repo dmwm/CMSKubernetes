@@ -12,10 +12,11 @@ ENV LD_LIBRARY_PATH=/usr/lib/oracle
 ENV PATH=$PATH:/usr/lib/oracle
 ENV PKG_CONFIG_PATH=/usr/lib/oracle
 
+# This TAG is overwritten by WMCore GH actions workflow
+ENV TAG=X.Y.Z
 # WMA_TAG to be passed at build time through `--build-arg WMA_TAG=<WMA_TAG>`. Default: None
-ARG WMA_TAG=None
+ARG WMA_TAG=${TAG}
 ENV WMA_TAG=${WMA_TAG}
-ENV TAG=${WMA_TAG}
 ENV WMA_USER=cmst1
 ENV WMA_GROUP=zh
 ENV WMA_UID=31961
