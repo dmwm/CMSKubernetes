@@ -1,16 +1,5 @@
-FROM registry.cern.ch/cmsweb/oracle:21_5-stable as oracle
-FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20230525
+FROM registry.cern.ch/cmsweb/wmagent-base:pypi-20230705
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
-
-# Install basic OS package dependencies
-RUN apt-get update
-RUN apt-get install -y libmariadb-dev-compat libmariadb-dev apache2-utils hostname net-tools iputils-ping cron mariadb-server myproxy voms-clients rlwrap libaio1 procps && apt-get clean
-
-# copy oracle client:
-COPY --from=oracle /usr/lib/oracle /usr/lib/oracle
-ENV LD_LIBRARY_PATH=/usr/lib/oracle
-ENV PATH=$PATH:/usr/lib/oracle
-ENV PKG_CONFIG_PATH=/usr/lib/oracle
 
 # TAG to be passed at build time through `--build-arg TAG=<WMA_TAG>`. Default: None
 ARG TAG=None
