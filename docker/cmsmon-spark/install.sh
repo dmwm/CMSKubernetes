@@ -26,6 +26,6 @@ fi
 zip -r CMSMonitoring.zip CMSMonitoring/src/python/CMSMonitoring/*
 
 # -- Install python modules
-pip install --no-cache-dir stomp.py==7.0.0 click pyspark pandas numpy schema seaborn matplotlib plotly requests
+pip install --no-cache-dir stomp.py==7.0.0 click pyspark pandas numpy schema seaborn matplotlib plotly requests==2.29
 
 echo "Info: CMSSPARK_TAG=${CMSSPARK_TAG} , CMSMON_TAG=${CMSMON_TAG}, HADOOP_CONF_DIR=${HADOOP_CONF_DIR}, PATH=${PATH}, PYTHONPATH=${PYTHONPATH}, PYSPARK_PYTHON=${PYSPARK_PYTHON}, PYSPARK_DRIVER_PYTHON=${PYSPARK_DRIVER_PYTHON}"
