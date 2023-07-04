@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: grafana-backup
+  namespace: hdfs
+spec:
+  schedule: "1 4 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: grafana-backup
+            image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.4.2.1
+            args:
+            - /bin/sh
+            - -c
+            - echo "run dashboard-exporter.py through run.sh"; chmod +x run.sh; /data/run.sh /etc/secrets/cmsmonit/keytab /etc/secrets/token/token_backup.json /cms/backups/grafana_test/ /eos/cms/store/group/offcomp_monit/;
+            volumeMounts:
+              - name: cmsmonit-secret
+                mountPath: /etc/secrets/cmsmonit
+                readOnly: true
+              - name: grafana-backup-token
+                mountPath: /etc/secrets/token
+                readOnly: true
+          restartPolicy: OnFailure
+          volumes:
+          - name: cmsmonit-secret
+            secret:
+              secretName: cmsmonit-secret
+          - name: grafana-backup-token
+            secret:
+              secretName: grafana-backup-token
