@@ -11,23 +11,29 @@ spec:
         spec:
           containers:
           - name: grafana-backup
-            image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.4.2.1
+            image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.4.2.3
+            command: [ "bash", "-c"]
             args:
-            - /bin/sh
-            - -c
-            - echo "run dashboard-exporter.py through run.sh"; chmod +x run.sh; /data/run.sh /etc/secrets/cmsmonit/keytab /etc/secrets/token/token_backup.json /cms/backups/grafana_test/ /eos/cms/store/group/offcomp_monit/;
+            - date; echo "run dashboard-exporter.py through run.sh";
+              cd /data/CMSMonitoring/grafana-backup/;
+              ./run.sh /etc/secrets/keytab /etc/secrets/token_backup.json $HDFS_PATH $FILESYSTEM_PATH
+            env:
+              - name: HDFS_PATH
+                value: "/cms/backups/grafana/"
+              - name: FILESYSTEM_PATH
+                value: "/eos/cms/store/group/offcomp_monit/grafana_backup/"
             volumeMounts:
-              - name: cmsmonit-secret
-                mountPath: /etc/secrets/cmsmonit
+              - name: grafana-backup-secrets
+                mountPath: /etc/secrets
                 readOnly: true
-              - name: grafana-backup-token
-                mountPath: /etc/secrets/token
-                readOnly: true
+              - name: eos # EOS access
+                mountPath: /eos
+                mountPropagation: HostToContainer
           restartPolicy: OnFailure
           volumes:
-          - name: cmsmonit-secret
+          - name: grafana-backup-secrets
             secret:
-              secretName: cmsmonit-secret
-          - name: grafana-backup-token
-            secret:
-              secretName: grafana-backup-token
+              secretName: grafana-backup-secrets
+          - name: eos
+            hostPath:
+              path: /var/eos
