@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: grafana-backup
+  namespace: hdfs
+spec:
+  schedule: "1 4 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: grafana-backup
+            image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.4.2.3
+            command: [ "bash", "-c"]
+            args:
+            - date; echo "run dashboard-exporter.py through run.sh";
+              cd /data/CMSMonitoring/grafana-backup/;
+              ./run.sh /etc/secrets/keytab /etc/secrets/token_backup.json $HDFS_PATH $FILESYSTEM_PATH
+            env:
+              - name: HDFS_PATH
+                value: "/cms/backups/grafana/"
+              - name: FILESYSTEM_PATH
+                value: "/eos/cms/store/group/offcomp_monit/grafana_backup/"
+            volumeMounts:
+              - name: grafana-backup-secrets
+                mountPath: /etc/secrets
+                readOnly: true
+              - name: eos # EOS access
+                mountPath: /eos
+                mountPropagation: HostToContainer
+          restartPolicy: OnFailure
+          volumes:
+          - name: grafana-backup-secrets
+            secret:
+              secretName: grafana-backup-secrets
+          - name: eos
+            hostPath:
+              path: /var/eos

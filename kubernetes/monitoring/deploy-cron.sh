@@ -105,6 +105,7 @@ function deploy_secrets() {
     "$deploy_secrets_sh" hdfs cron-size-quotas-secrets
     "$deploy_secrets_sh" hdfs cms-eos-mon-secrets
     "$deploy_secrets_sh" hdfs cron-spark-jobs-secrets
+    "$deploy_secrets_sh" hdfs grafana-backup-secrets
     # sqoop
     "$deploy_secrets_sh" sqoop sqoop-secrets
     #
@@ -119,6 +120,7 @@ function clean_secrets() {
     kubectl -n hdfs --ignore-not-found=true delete secret cron-size-quotas-secrets
     kubectl -n hdfs --ignore-not-found=true delete secret cms-eos-mon-secrets
     kubectl -n hdfs --ignore-not-found=true delete secret cron-spark-jobs-secrets
+    kubectl -n hdfs --ignore-not-found=true delete secret grafana-backup-secrets
     # sqoop
     kubectl -n sqoop --ignore-not-found=true delete secret sqoop-secrets
 }
@@ -127,6 +129,7 @@ function deploy_services() {
     kubectl -n default apply -f services/pushgateway.yaml
     # hdfs
     kubectl -n hdfs apply -f crons/cron-proxy.yaml
+    kubectl -n hdfs apply -f crons/grafana-backup.yaml
     kubectl -n hdfs apply -f services/cmsmon-hpc-usage.yaml
     kubectl -n hdfs apply -f services/cmsmon-rucio-ds.yaml
     kubectl -n hdfs apply -f services/cron-size-quotas.yaml
@@ -139,6 +142,7 @@ function clean_services() {
     kubectl -n default --ignore-not-found=true delete -f services/pushgateway.yaml
     # hdfs
     kubectl -n hdfs --ignore-not-found=true delete -f crons/cron-proxy.yaml
+    kubectl -n hdfs --ignore-not-found=true delete -f crons/grafana-backup.yaml
     kubectl -n hdfs --ignore-not-found=true delete -f services/cmsmon-hpc-usage.yaml
     kubectl -n hdfs --ignore-not-found=true delete -f services/cmsmon-rucio-ds.yaml
     kubectl -n hdfs --ignore-not-found=true delete -f services/cron-size-quotas.yaml
