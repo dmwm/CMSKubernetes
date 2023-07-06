@@ -5,7 +5,8 @@ COPY --from=gfal /data/miniconda /data/miniconda
 ENV WDIR=/data
 ENV PATH $PATH:$WDIR/miniconda/bin
 ENV PYTHONPATH $WDIR/miniconda/lib/python3.8/site-packages/
-ENV TAG=X.Y.Z
+# TAG to be passed at build time through `--build-arg TAG=<PYPI_TAG>`. Default: None
+ARG TAG=None
 WORKDIR $WDIR
 # since we install gfal via external image we'll skip it for installation
 # of reqmgr2ms-unmerged, but to satisfy dependencies we'll install them first
