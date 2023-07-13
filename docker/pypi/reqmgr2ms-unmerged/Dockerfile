@@ -8,6 +8,7 @@ ENV PYTHONPATH $WDIR/miniconda/lib/python3.8/site-packages/
 # TAG to be passed at build time through `--build-arg TAG=<PYPI_TAG>`. Default: None
 ARG TAG=None
 WORKDIR $WDIR
+ADD run.sh $WDIR/run.sh
 # since we install gfal via external image we'll skip it for installation
 # of reqmgr2ms-unmerged, but to satisfy dependencies we'll install them first
 RUN curl -ksLO https://raw.githubusercontent.com/dmwm/WMCore/$TAG/requirements.txt
