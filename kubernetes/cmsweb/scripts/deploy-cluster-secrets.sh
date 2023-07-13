@@ -63,6 +63,7 @@ for ns in $namespaces; do
         "dmwm")
             robot_key=$certificates/robotkey_dmwm.pem
             robot_crt=$certificates/robotcert_dmwm.pem
+            proxy=$proxy_dmwm
            
             ##proxy for ms-unmerged service
             voms-proxy-init -rfc \
