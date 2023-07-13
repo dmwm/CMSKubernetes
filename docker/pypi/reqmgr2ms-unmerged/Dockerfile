@@ -20,6 +20,7 @@ ENV WDIR=/data
 ENV USER=_reqmgr2ms
 RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
 RUN echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+ADD run.sh $WDIR/run.sh
 USER ${USER}
 RUN sudo chown -R $USER.$USER $WDIR
 CMD ["python3"]
