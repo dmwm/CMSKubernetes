@@ -16,7 +16,8 @@ data:
       "cms-dbs3-files.sh": "/project/awg/cms/dbs3verify/CMS_DBS3_PROD_GLOBAL/files",
       "phedex-blk-replicas-snapshot.sh": "/project/awg/cms/phedex/block-replicas-snapshots/csv",
       "phedex-file-catalog.sh": "/project/awg/cms/phedex/catalog/csv",
-      "rucio_table_dumps.sh": "/project/awg/cms/rucio"
+      "rucio_table_dumps.sh": "/project/awg/cms/rucio",
+      "cms-tasks.sh": "/project/awg/cms/crab/tasks"
     }
 ---
 apiVersion: apps/v1
