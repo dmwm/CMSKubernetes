@@ -1,10 +1,10 @@
 #!/bin/bash
 
 ARCH=slc7_amd64_gcc630
-VER=HG2212d
+VER=HG2306b
 REPO="comp"
 AREA=/data/cfg/admin
-PKGS="admin backend t0wmadatasvc"
+PKGS="admin backend t0wmadatasvc@2.0.1"
 SERVER=cmsrep.cern.ch
 
 cd $WDIR
