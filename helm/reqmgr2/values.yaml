@@ -79,7 +79,9 @@ livenessProbe:
     - -verbose
     - "0"
   initialDelaySeconds: 120
-  periodSeconds: 10
+  periodSeconds: 30
+  successThreshold: 1
+  timeoutSeconds: 10
 
 ingress:
   enabled: false
