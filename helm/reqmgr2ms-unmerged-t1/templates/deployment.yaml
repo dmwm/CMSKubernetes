@@ -114,7 +114,7 @@ spec:
           secretName: proxy-secrets-ms-unmerged
       - name: secrets
         secret:
-          secretName: reqmgr2ms-unmerged-secrets
+          secretName: reqmgr2ms-unmerged-t1-secrets
       - name: robot-secrets
         secret:
           secretName: robot-secrets
