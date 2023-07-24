@@ -11,12 +11,15 @@ cluster_name=$(kubectl config get-clusters | grep -v NAME)
 ns=$1
 srv=$2
 conf=$3
+decrypted_files=()
 tmpDir=/tmp/$USER/sops
 if [ -d $tmpDir ]; then
     rm -rf $tmpDir
 fi
 mkdir -p $tmpDir
 cd $tmpDir
+decrypted_dir="$tmpDir/decrypted"
+mkdir -p "$decrypted_dir"
 
 installSops() {
     # download soap in tmp area
@@ -84,11 +87,13 @@ secretfiles=""
 if [ "$srv" == "auth-proxy-server" ] || [ "$srv" == "x509-proxy-server" ] || [ "$srv" == "scitokens-proxy-server" ]; then
     for fname in $secretdir/*; do
         if [[ $fname == *.encrypted ]]; then
+            decrypted_fname="$decrypted_dir/$(basename "$fname" .encrypted)"
             if [[ $fname == *.json* ]]; then
-                $SOPS --output-type json -d $fname > $secretdir/$(basename $fname .encrypted)
+                $SOPS --output-type json -d $fname > $decrypted_fname
             else
-                $SOPS -d $fname > $secretdir/$(basename $fname .encrypted)
+                $SOPS -d $fname > $decrypted_fname
             fi
+            decrypted_files+=("$decrypted_fname")
         fi
     done
     if [ -d $secretdir ] && [ -n "$(ls $secretdir)" ] && [ -f $secretdir/client.secrets ]; then
@@ -133,12 +138,14 @@ if [ -d $secretdir ] && [ -n "$(ls $secretdir)" ]; then
 	fi
         if [[ $fname == *.encrypted ]]; then
             if [[ $fname == *.json* ]]; then
-                $SOPS --output-type json -d $fname > $secretdir/$(basename $fname .encrypted)
+                decrypted_fname="$decrypted_dir/$(basename "$fname" .encrypted)"
+                $SOPS --output-type json -d $fname > $decrypted_fname
             else
-                $SOPS -d $fname > $secretdir/$(basename $fname .encrypted)
+                decrypted_fname="$decrypted_dir/$(basename $fname .encrypted)"
+                $SOPS -d $fname > $decrypted_fname
             fi
-            fname=$secretdir/$(basename $fname .encrypted)
-            echo "Decrypted file $fname"
+            decrypted_files+=("$decrypted_fname")
+            echo "Decrypted file $decrypted_fname"
         fi
         if [[ ! $files == *$fname* ]]; then
             files="$files --from-file=$fname"
@@ -168,8 +175,11 @@ kubectl create secret generic ${srv}-secrets \
     $files --dry-run=client -o yaml |
     kubectl apply --namespace=$ns -f -
 
-    echo $secretfiles
-    rm -rf $secretfiles
+    echo "Deleting decrypted files..."
+    for decrypted_file in "${decrypted_files[@]}"; do
+      rm -f "$decrypted_file"
+    done
+
 export SOPS_AGE_KEY_FILE=$sopskey
 echo
 echo "+++ list secrets"
