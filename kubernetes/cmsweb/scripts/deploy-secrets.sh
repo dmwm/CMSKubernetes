@@ -144,7 +144,8 @@ if [ -d $secretdir ] && [ -n "$(ls $secretdir)" ]; then
                 decrypted_fname="$secretdir/$(basename $fname .encrypted)"
                 $SOPS -d $fname > $decrypted_fname
             fi
-            decrypted_files+=("$decrypted_fname") 
+            decrypted_files+=("$decrypted_fname")
+            fname=$decrypted_fname 
             echo "Decrypted file $decrypted_fname"
         fi
         if [[ ! $files == *$fname* ]]; then
