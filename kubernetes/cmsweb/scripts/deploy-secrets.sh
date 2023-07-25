@@ -17,6 +17,7 @@ if [ -d $tmpDir ]; then
 fi
 mkdir -p $tmpDir
 cd $tmpDir
+decrypted_files=()
 
 installSops() {
     # download soap in tmp area
@@ -85,10 +86,14 @@ if [ "$srv" == "auth-proxy-server" ] || [ "$srv" == "x509-proxy-server" ] || [ "
     for fname in $secretdir/*; do
         if [[ $fname == *.encrypted ]]; then
             if [[ $fname == *.json* ]]; then
-                $SOPS --output-type json -d $fname > $secretdir/$(basename $fname .encrypted)
+                decrypted_fname="$secretdir/$(basename $fname .encrypted)"
+                $SOPS --output-type json -d $fname > $decrypted_fname
             else
-                $SOPS -d $fname > $secretdir/$(basename $fname .encrypted)
+                decrypted_fname="$secretdir/$(basename $fname .encrypted)"
+                $SOPS -d $fname > $decrypted_fname
             fi
+            decrypted_files+=("$decrypted_fname")
+            echo "Decrypted file $decrypted_fname"
         fi
     done
     if [ -d $secretdir ] && [ -n "$(ls $secretdir)" ] && [ -f $secretdir/client.secrets ]; then
@@ -133,12 +138,15 @@ if [ -d $secretdir ] && [ -n "$(ls $secretdir)" ]; then
 	fi
         if [[ $fname == *.encrypted ]]; then
             if [[ $fname == *.json* ]]; then
-                $SOPS --output-type json -d $fname > $secretdir/$(basename $fname .encrypted)
+                decrypted_fname="$secretdir/$(basename $fname .encrypted)"
+                $SOPS --output-type json -d $fname > $decrypted_fname
             else
-                $SOPS -d $fname > $secretdir/$(basename $fname .encrypted)
+                decrypted_fname="$secretdir/$(basename $fname .encrypted)"
+                $SOPS -d $fname > $decrypted_fname
             fi
-            fname=$secretdir/$(basename $fname .encrypted)
-            echo "Decrypted file $fname"
+            decrypted_files+=("$decrypted_fname")
+            fname=$decrypted_fname 
+            echo "Decrypted file $decrypted_fname"
         fi
         if [[ ! $files == *$fname* ]]; then
             files="$files --from-file=$fname"
@@ -150,7 +158,9 @@ fi
 if [ "$ns" == "dbs" ]; then
     for fname in $conf/dbs/*; do
         if [[ $fname == *.encrypted ]]; then
-            $SOPS -d $fname >$conf/dbs/$(basename $fname .encrypted)
+            decrypted_fname="$conf/dbs/$(basename $fname .encrypted)"
+            $SOPS -d $fname > $decrypted_fname
+            decrypted_files+=("$decrypted_fname")
         fi
     done
     if [ -f $conf/dbs/DBSSecrets.py ]; then
@@ -168,8 +178,10 @@ kubectl create secret generic ${srv}-secrets \
     $files --dry-run=client -o yaml |
     kubectl apply --namespace=$ns -f -
 
-    echo $secretfiles
-    rm -rf $secretfiles
+echo "Deleting decrypted files..."
+for decrypted_file in "${decrypted_files[@]}"; do
+  rm -f "$decrypted_file"
+done
 export SOPS_AGE_KEY_FILE=$sopskey
 echo
 echo "+++ list secrets"
