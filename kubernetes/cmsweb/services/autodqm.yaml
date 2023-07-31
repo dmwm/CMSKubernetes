@@ -22,7 +22,7 @@ spec:
   selector:
     matchLabels:
       app: autodqm
-  replicas: 1
+  replicas: 2
   template:
     metadata:
       labels:
@@ -44,11 +44,11 @@ spec:
            value: /
         resources:
           requests:
-            memory: "500Mi"
-            cpu: "2000m"
-          limits:
-            memory: "3Gi"
+            memory: "4Gi"
             cpu: "4000m"
+          limits:
+            memory: "8Gi"
+            cpu: "8000m"
         ports:
         - containerPort: 8083
           protocol: TCP
