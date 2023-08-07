@@ -14,9 +14,6 @@ RUN git checkout tags/$CMSMON_TAG -b build
 ARG CGO_ENABLED=0
 WORKDIR $WDIR/CMSMonitoring/src/go/MONIT
 RUN go build -ldflags="-s -w -extldflags -static" monit.go
-RUN go build -ldflags="-s -w -extldflags -static" ssb_alerting.go
-RUN go build -ldflags="-s -w -extldflags -static" ggus_parser.go
-RUN go build -ldflags="-s -w -extldflags -static" ggus_alerting.go
 RUN go build -ldflags="-s -w -extldflags -static" es_exporter.go
 RUN go build -ldflags="-s -w -extldflags -static" hdfs_exporter.go
 
@@ -25,9 +22,6 @@ RUN go build -ldflags="-s -w -extldflags -static" hdfs_exporter.go
 FROM gcr.io/distroless/static AS final
 WORKDIR /data
 COPY --from=go-builder /data/CMSMonitoring/src/go/MONIT/monit /data
-COPY --from=go-builder /data/CMSMonitoring/src/go/MONIT/ssb_alerting /data
-COPY --from=go-builder /data/CMSMonitoring/src/go/MONIT/ggus_parser /data
-COPY --from=go-builder /data/CMSMonitoring/src/go/MONIT/ggus_alerting /data
 COPY --from=go-builder /data/CMSMonitoring/src/go/MONIT/es_exporter /data
 COPY --from=go-builder /data/CMSMonitoring/src/go/MONIT/hdfs_exporter /data
 COPY --from=go-builder /data/CMSMonitoring/scripts /data

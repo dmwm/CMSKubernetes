@@ -111,41 +111,7 @@ kubectl apply -f services/ha/prometheus.yaml
 - deploy `services/ha/kube-eagle.yaml` to monitor our HA cluster
 - deploy `services/ha/httpgo.yaml` to consume logs from Prometheus
 
-Next, we can deploy CMS specific services, like `cmsmon-int`. To do that we
-need the following pieces in place:
-```
-# create http and alerts namespaces
-kubectl create ns http
-kubectl create ns alerts
-
-# create robot-secrets
-kubectl create secret generic robot-secrets \
-    --from-file=/path/certificates/robotcert-cmsmon.pem \
-    --from-file=/path/certificates/robotkey-cmsmon.pem \
-    --dry-run=client -o yaml | kubectl apply --namespace=alerts -f -
-
-# deploy proxies
-./deploy.sh create proxies
-
-# deploy crons
-kubectl apply -f crons/proxy-account.yaml
-kubectl apply -f crons/cron-proxy.yaml -n alerts
-
-# create alerts secrets
-kubectl create secret generic alerts-secrets \
-    --from-file=secrets/alerts/token \
-    --dry-run=client -o yaml | kubectl apply --namespace=alerts -f -
-
-# deploy ggus/ssub alert services, use ha1 or ha2 accordingly to your cluster choice
-kubectl apply -f services/ha/ggus-alerts-ha1.yaml
-kubectl apply -f services/ha/ssb-alerts-ha1.yaml
-
-# deploy cmsmon int service
-kubectl apply -f services/ha/cmsmon-intelligence.yaml
-
-# deploy http exporters
-ls services/*-exporter*.yaml | awk '{print "kubectl apply -f "$1""}' | /bin/sh
-```
+Finally, we deploy CMS specific services.
 
 At the end each HA cluster will have the following set of services
 in default namespace:
@@ -169,10 +135,10 @@ kubernetes         ClusterIP   10.254.0.1       <none>        443/TCP           
 prometheus         NodePort    10.254.185.99    <none>        9090:30090/TCP                  20d
 victoria-metrics   NodePort    10.254.182.246   <none>        8428:30428/TCP,4242:30242/TCP   20d
 ```
-and the following services in http and alerts namespace:
+and the following services in http namespace:
 ```
-# list of services in alerts namespace
-kubeclt get pods -n http
+# list of pods in http namespace
+kubectl get pods -n http
 NAME                                     READY   STATUS    RESTARTS   AGE
 es-exporter-wma-6ccd857477-ljkbl         1/1     Running   0          5s
 http-exp-wmstatssrv-7dc9fdb954-kv4gw     1/1     Running   1          5d
@@ -188,32 +154,33 @@ http-exporter-rucio-78dccc4b8b-f4qqw     1/1     Running   1          5d
 http-exporter-unified-5c5574d7b8-h8tkp   1/1     Running   1          5d
 http-exporter-wmstats-74ddf89645-5xpt6   1/1     Running   1          5d
 
-# list of services in alerts namespace
-NAME                    TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)     AGE
-es-exporter-wma         ClusterIP   10.254.180.87    <none>        18000/TCP   25s
-http-exp-wmstatssrv     ClusterIP   10.254.174.157   <none>        18009/TCP   5d
-http-exporter           ClusterIP   10.254.132.126   <none>        18000/TCP   5d
-http-exporter-arucio    ClusterIP   10.254.209.199   <none>        18012/TCP   5d
-http-exporter-cric      ClusterIP   10.254.14.64     <none>        18004/TCP   5d
-http-exporter-detox     ClusterIP   10.254.242.10    <none>        18002/TCP   5d
-http-exporter-dmytro    ClusterIP   10.254.41.214    <none>        18010/TCP   5d
-http-exporter-mcm       ClusterIP   10.254.73.89     <none>        18006/TCP   5d
-http-exporter-mss       ClusterIP   10.254.243.199   <none>        18003/TCP   5d
-http-exporter-phedex    ClusterIP   10.254.64.54     <none>        18007/TCP   5d
-http-exporter-rucio     ClusterIP   10.254.187.98    <none>        18011/TCP   5d
-http-exporter-unified   ClusterIP   10.254.16.203    <none>        18005/TCP   5d
-http-exporter-wmstats   ClusterIP   10.254.39.212    <none>        18008/TCP   5d
-
-# list of services in alerts namespace
-kubeclt get pods -n alerts
-NAME                           READY   STATUS    RESTARTS   AGE
-ggus-alerts-648f487547-jrfvg   1/1     Running   0          55m
-ssb-alerts-848b5f5cdb-8qq8c    1/1     Running   0          55m
+# list of services in http namespace
+ubectl get svc -n http
+NAME                      TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)     AGE
+cert-checker              ClusterIP   10.254.192.249   <none>        8888/TCP    247d
+es-exporter-wma           ClusterIP   10.254.42.167    <none>        18000/TCP   468d
+hdfs-exporter-eos         ClusterIP   10.254.37.51     <none>        18000/TCP   107d
+http-exp-wmstatssrv       ClusterIP   10.254.62.126    <none>        18009/TCP   472d
+http-exporter             ClusterIP   10.254.48.85     <none>        18000/TCP   472d
+http-exporter-arucio      ClusterIP   10.254.156.70    <none>        18012/TCP   472d
+http-exporter-certcheck   ClusterIP   10.254.57.77     <none>        8888/TCP    230d
+http-exporter-cric        ClusterIP   10.254.8.93      <none>        18004/TCP   472d
+http-exporter-dmytro      ClusterIP   10.254.61.112    <none>        18010/TCP   472d
+http-exporter-mcm         ClusterIP   10.254.70.72     <none>        18006/TCP   472d
+http-exporter-mss         ClusterIP   10.254.168.67    <none>        18003/TCP   472d
+http-exporter-rucio       ClusterIP   10.254.161.228   <none>        18011/TCP   472d
+http-exporter-unified     ClusterIP   10.254.166.254   <none>        18005/TCP   472d
+http-exporter-wmstats     ClusterIP   10.254.232.85    <none>        18008/TCP   472d
+json-exporter-dbs-db      ClusterIP   10.254.117.139   <none>        17979/TCP   370d
 
 # list of all crons
 kubectl get cronjobs -A
-NAMESPACE   NAME         SCHEDULE    SUSPEND   ACTIVE   LAST SCHEDULE   AGE
-alerts      cron-proxy   0 0 * * *   False     0        <none>          62m
+NAMESPACE   NAME            SCHEDULE      SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+auth        cron-proxy      0 0 * * *     False     0        10h             267d
+cpueff      cpueff-spark    00 06 * * *   False     0        4h15m           75d
+default     cron-proxy      0 0 * * *     False     0        10h             234d
+http        cron-kerberos   45 1 * * *    False     0        8h              472d
+http        cron-proxy      0 0 * * *     False     0        10h             267d
 ```
 
 ### Availability zones
