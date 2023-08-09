@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cmsmon-int
+  namespace: default
+  labels:
+     app: cmsmon-int
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: cmsmon-int
+   template:
+      metadata:
+         labels:
+           app: cmsmon-int
+      spec:
+        containers:
+        - args:
+          - /data/intelligence
+          - -config
+          - /etc/secrets/config.json
+          image: registry.cern.ch/cmsmonitoring/cmsmon-int:go-0.5.38
+          name: intelligence
+          imagePullPolicy: Always
+          volumeMounts:
+          - name: intelligence-secrets
+            mountPath: /etc/secrets
+            readOnly: true
+        volumes:
+        - name: intelligence-secrets
+          secret:
+            secretName: intelligence-secrets
