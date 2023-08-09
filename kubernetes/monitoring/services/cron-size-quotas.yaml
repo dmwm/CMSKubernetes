@@ -61,7 +61,7 @@ spec:
     spec:
       containers:
         - name: test
-          image: registry.cern.ch/cmsmonitoring/cmsmon-py:drpy-0.0.15
+          image: registry.cern.ch/cmsmonitoring/cmsmon-py:drpy-0.0.16
           command: [ "crond" ]
           args: [ "-n", "-s" ]
           env:
