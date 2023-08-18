@@ -1,0 +1,712 @@
+#!/bin/bash
+
+##H Usage: manage ACTION [ARG] [SECURITY-STRING]
+##H
+##H Available actions:
+##H   help            show this help
+##H   version         get current version of the service
+##H   status          show current service's status
+##H   sysboot         start server from crond if not running
+##H   restart         (re)start the service
+##H   start           (re)start the service
+##H   stop            stop the service
+##H   pushapps        push couch applications
+##H   pushreps        push couch replications
+##H   updatecouchapps pull new couch applications from WMCore repo
+##H   compact         compact database ARG
+##H   compactviews    compact database views for design doc ARG ARG
+##H   cleanviews      clean view named ARG
+##H   backup          rsync databases to ARG (i.e. [user@]host:path)
+##H   archive         archive backups to ARG area in castor
+##H
+##H For more details please refer to operations page:
+##H   https://twiki.cern.ch/twiki/bin/view/CMS/CouchDB
+
+[ $(id -un) != cmsweb -o "$1" = "backup" -o "$1" = "archive" ] ||
+  { echo "ERROR: please use another account" 1>&2; exit 1; }
+
+case $(uname) in Darwin )
+  md5sum() { md5 -r ${1+"$@"}; }
+  ;;
+esac
+
+ME=$(basename $(dirname $0))
+TOP=$(cd $(dirname $0)/../../.. && pwd)
+ROOT=$(cd $(dirname $0)/../.. && pwd)
+CFGDIR=$COUCH_CONFIG_DIR
+LOGDIR=$COUCH_LOG_DIR
+STATEDIR=$COUCH_STATE_DIR
+KEYFILE=$COUCH_AUTH_DIR/hmackey.ini
+
+# if [ -f /etc/secrets/couch_creds ]; then
+#     # k8s setup
+#     COUCH_CREDS=/etc/secrets/couch_creds
+# else
+#     COUCH_CREDS=$ROOT/auth/$ME/couch_creds
+# fi
+# EXCEPTIONS="wmstats"
+
+
+echo ME                : $ME
+echo TOP               : $TOP
+echo ROOT              : $ROOT
+echo CFGDIR            : $CFGDIR
+echo LOGDIR            : $LOGDIR
+echo STATEDIR          : $STATEDIR
+echo KEYFILE           : $KEYFILE
+echo
+echo COUCH_ROOT_DIR    : $COUCH_ROOT_DIR
+echo COUCH_BASE_DIR    : $COUCH_BASE_DIR
+echo COUCH_STATE_DIR   : $COUCH_STATE_DIR
+echo COUCH_INSTALL_DIR : $COUCH_INSTALL_DIR
+echo COUCH_CONFIG_DIR  : $COUCH_CONFIG_DIR
+echo
+
+
+
+COLOR_OK="\\033[0;32m"
+COLOR_WARN="\\033[0;31m"
+COLOR_NORMAL="\\033[0;39m"
+PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/kerberos/bin:/usr/local/bin:/opt/couchdb/bin
+
+# # Does the credential file exist and is it readable?
+# if [ ! -r $COUCH_CREDS ]; then
+#    echo "Variable COUCH_CREDS needs to be defined"
+#    exit 1
+# fi
+# COUCH_USER=`cat $COUCH_CREDS | grep COUCH_USER | sed s/COUCH_USER=//`
+# COUCH_PASS=`cat $COUCH_CREDS | grep COUCH_PASS | sed s/COUCH_PASS=//`
+
+COUCH_CREDS=$COUCH_ADMIN_DIR/WMAgent.secrets
+COUCH_USER=`cat $COUCH_CREDS | grep COUCH_USER | sed s/COUCH_USER=//`
+COUCH_PASS=`cat $COUCH_CREDS | grep COUCH_PASS | sed s/COUCH_PASS=//`
+COUCH_CREDS_URL="http://$COUCH_USER:$COUCH_PASS@localhost:5984"
+
+echo COUCH_CREDS_URL=$COUCH_CREDS_URL
+
+# . $ROOT/apps/$ME/etc/profile.d/init.sh
+
+
+# Specific files required for WorkQueue, from the YUI JavaScript/CSS library
+files_needed_from_yui=('build/animation/animation-min.js'
+    'build/assets/skins/sam/ajax-loader.gif'
+    'build/assets/skins/sam/asc.gif'
+    'build/assets/skins/sam/autocomplete.css'
+    'build/assets/skins/sam/back-h.png'
+    'build/assets/skins/sam/back-v.png'
+    'build/assets/skins/sam/bar-h.png'
+    'build/assets/skins/sam/bar-v.png'
+    'build/assets/skins/sam/bg-h.gif'
+    'build/assets/skins/sam/bg-v.gif'
+    'build/assets/skins/sam/blankimage.png'
+    'build/assets/skins/sam/button.css'
+    'build/assets/skins/sam/calendar.css'
+    'build/assets/skins/sam/carousel.css'
+    'build/assets/skins/sam/check0.gif'
+    'build/assets/skins/sam/check1.gif'
+    'build/assets/skins/sam/check2.gif'
+    'build/assets/skins/sam/colorpicker.css'
+    'build/assets/skins/sam/container.css'
+    'build/assets/skins/sam/datatable.css'
+    'build/assets/skins/sam/desc.gif'
+    'build/assets/skins/sam/dt-arrow-dn.png'
+    'build/assets/skins/sam/dt-arrow-up.png'
+    'build/assets/skins/sam/editor-knob.gif'
+    'build/assets/skins/sam/editor-sprite-active.gif'
+    'build/assets/skins/sam/editor-sprite.gif'
+    'build/assets/skins/sam/editor.css'
+    'build/assets/skins/sam/header_background.png'
+    'build/assets/skins/sam/hue_bg.png'
+    'build/assets/skins/sam/imagecropper.css'
+    'build/assets/skins/sam/layout.css'
+    'build/assets/skins/sam/layout_sprite.png'
+    'build/assets/skins/sam/loading.gif'
+    'build/assets/skins/sam/logger.css'
+    'build/assets/skins/sam/menu-button-arrow-disabled.png'
+    'build/assets/skins/sam/menu-button-arrow.png'
+    'build/assets/skins/sam/menu.css'
+    'build/assets/skins/sam/menubaritem_submenuindicator.png'
+    'build/assets/skins/sam/menubaritem_submenuindicator_disabled.png'
+    'build/assets/skins/sam/menuitem_checkbox.png'
+    'build/assets/skins/sam/menuitem_checkbox_disabled.png'
+    'build/assets/skins/sam/menuitem_submenuindicator.png'
+    'build/assets/skins/sam/menuitem_submenuindicator_disabled.png'
+    'build/assets/skins/sam/paginator.css'
+    'build/assets/skins/sam/picker_mask.png'
+    'build/assets/skins/sam/profilerviewer.css'
+    'build/assets/skins/sam/progressbar.css'
+    'build/assets/skins/sam/resize.css'
+    'build/assets/skins/sam/simpleeditor.css'
+    'build/assets/skins/sam/skin.css'
+    'build/assets/skins/sam/slider.css'
+    'build/assets/skins/sam/split-button-arrow-active.png'
+    'build/assets/skins/sam/split-button-arrow-disabled.png'
+    'build/assets/skins/sam/split-button-arrow-focus.png'
+    'build/assets/skins/sam/split-button-arrow-hover.png'
+    'build/assets/skins/sam/split-button-arrow.png'
+    'build/assets/skins/sam/sprite.png'
+    'build/assets/skins/sam/sprite.psd'
+    'build/assets/skins/sam/tabview.css'
+    'build/assets/skins/sam/treeview-loading.gif'
+    'build/assets/skins/sam/treeview-sprite.gif'
+    'build/assets/skins/sam/treeview.css'
+    'build/assets/skins/sam/wait.gif'
+    'build/assets/skins/sam/yuitest.css'
+    'build/connection/connection-min.js'
+    'build/connection/connection_core-min.js'
+    'build/container/assets/alrt16_1.gif'
+    'build/container/assets/blck16_1.gif'
+    'build/container/assets/close12_1.gif'
+    'build/container/assets/container-core.css'
+    'build/container/assets/container.css'
+    'build/container/assets/hlp16_1.gif'
+    'build/container/assets/info16_1.gif'
+    'build/container/assets/skins/sam/container-skin.css'
+    'build/container/assets/skins/sam/container.css'
+    'build/container/assets/tip16_1.gif'
+    'build/container/assets/warn16_1.gif'
+    'build/container/container-min.js'
+    'build/container/container_core-min.js'
+    'build/datasource/datasource-min.js'
+    'build/datatable/assets/datatable-core.css'
+    'build/datatable/assets/datatable.css'
+    'build/datatable/assets/skins/sam/datatable-skin.css'
+    'build/datatable/assets/skins/sam/datatable.css'
+    'build/datatable/assets/skins/sam/dt-arrow-dn.png'
+    'build/datatable/assets/skins/sam/dt-arrow-up.png'
+    'build/datatable/datatable-min.js'
+    'build/dragdrop/dragdrop-min.js'
+    'build/element/element-min.js'
+    'build/fonts/fonts-min.css'
+    'build/fonts/fonts.css'
+    'build/json/json-min.js'
+    'build/layout/assets/layout-core.css'
+    'build/layout/assets/skins/sam/layout-skin.css'
+    'build/layout/assets/skins/sam/layout.css'
+    'build/layout/assets/skins/sam/layout_sprite.png'
+    'build/layout/layout-min.js'
+    'build/menu/assets/menu-core.css'
+    'build/menu/assets/menu.css'
+    'build/menu/assets/menu_down_arrow.png'
+    'build/menu/assets/menu_down_arrow_disabled.png'
+    'build/menu/assets/menu_up_arrow.png'
+    'build/menu/assets/menu_up_arrow_disabled.png'
+    'build/menu/assets/menubaritem_submenuindicator.png'
+    'build/menu/assets/menubaritem_submenuindicator_disabled.png'
+    'build/menu/assets/menubaritem_submenuindicator_selected.png'
+    'build/menu/assets/menuitem_checkbox.png'
+    'build/menu/assets/menuitem_checkbox_disabled.png'
+    'build/menu/assets/menuitem_checkbox_selected.png'
+    'build/menu/assets/menuitem_submenuindicator.png'
+    'build/menu/assets/menuitem_submenuindicator_disabled.png'
+    'build/menu/assets/menuitem_submenuindicator_selected.png'
+    'build/menu/assets/skins/sam/menu-skin.css'
+    'build/menu/assets/skins/sam/menu.css'
+    'build/menu/assets/skins/sam/menubaritem_submenuindicator.png'
+    'build/menu/assets/skins/sam/menubaritem_submenuindicator_disabled.png'
+    'build/menu/assets/skins/sam/menuitem_checkbox.png'
+    'build/menu/assets/skins/sam/menuitem_checkbox_disabled.png'
+    'build/menu/assets/skins/sam/menuitem_submenuindicator.png'
+    'build/menu/assets/skins/sam/menuitem_submenuindicator_disabled.png'
+    'build/menu/menu-min.js'
+    'build/paginator/assets/paginator-core.css'
+    'build/paginator/assets/skins/sam/paginator-skin.css'
+    'build/paginator/assets/skins/sam/paginator.css'
+    'build/paginator/paginator-min.js'
+    'build/progressbar/assets/progressbar-core.css'
+    'build/progressbar/assets/skins/sam/back-h.png'
+    'build/progressbar/assets/skins/sam/back-v.png'
+    'build/progressbar/assets/skins/sam/bar-h.png'
+    'build/progressbar/assets/skins/sam/bar-v.png'
+    'build/progressbar/assets/skins/sam/progressbar-skin.css'
+    'build/progressbar/assets/skins/sam/progressbar.css'
+    'build/progressbar/progressbar-min.js'
+    'build/reset-fonts-grids/reset-fonts-grids.css'
+    'build/resize/assets/resize-core.css'
+    'build/resize/assets/skins/sam/layout_sprite.png'
+    'build/resize/assets/skins/sam/resize-skin.css'
+    'build/resize/assets/skins/sam/resize.css'
+    'build/resize/resize-min.js'
+    'build/utilities/utilities.js'
+    'build/yahoo-dom-event/yahoo-dom-event.js')
+
+# Start service conditionally on crond restart.
+sysboot()
+{
+  num_procs=$(get_num_couch_process)
+  if [ -z "$num_procs" ]; then
+    start
+  fi
+}
+
+# Start the service.
+start()
+{
+  cd $STATEDIR
+  echo -n "Which couchdb: "
+  which couchdb
+  echo "  With configuration directory: $CFGDIR"
+  echo "  With logdir: $LOGDIR"
+  echo "  nohup couchdb -couch_ini $CFGDIR >> ${LOGDIR}/couch.log 2>&1 &"
+  nohup couchdb -couch_ini $CFGDIR >> ${LOGDIR}/couch.log 2>&1 &
+
+  # push_apps
+  # replications push
+}
+
+# Stop the service.
+stop()
+{
+  echo "Stopping CouchDB service..."
+  for couch_pid in $(ps aux | grep '_couchdb' | egrep -v 'grep|couchdb\/manage|ps aux' | awk '{print $2}'); do
+    echo "  killing CouchDB process... ${couch_pid}"
+    kill -9 $couch_pid || true
+  done
+}
+
+# check the number of beam/couchdb processes
+get_num_couch_process()
+{
+  local num_proc=`ps aux | grep beam | grep -v grep`
+  echo $num_proc
+}
+
+# Check if the server is running.
+status()
+{
+  curl -s localhost:5984/_up | grep -q '"status":"ok"' ||
+    { echo -e "$ME is ${COLOR_WARN}NOT RUNNING${COLOR_NORMAL}."; return; }
+
+  echo -e "$ME is ${COLOR_OK}RUNNING${COLOR_NORMAL}"
+  local TASKS=$(curl -s $COUCH_CREDS_URL/_active_tasks)
+  [ "$TASKS" = '[]' ] && TASKS="No active tasks (e.g. compactions)"
+  echo $TASKS
+
+  replications status
+}
+
+# When a view is changed, such as a new app version is deployed,
+# invoke this to clean up the views in that database.
+clean_views()
+{
+  local database=$1
+  [ -n "$database" ] ||
+    { echo "You must specify the database you wish to clean the views "; exit 1; }
+
+  curl -s -H "Content-Type: application/json" -X POST $COUCH_CREDS_URL/$database/_view_cleanup | \
+       grep -q '{"ok":true}' ||
+    { echo "An error occured while cleaning the views. Please look in the CouchDB logs."; exit 3; }
+}
+
+# Push applications from staging area into couchdb.
+push_apps()
+{
+  local couchapps_path="/data/srv/state/couchdb/stagingarea/couchapps"
+
+  if [[ ! -d $couchapps_path ]]; then
+    echo "Couchapps not found. Installing from latest WMCore tag."
+    update_couchapps "latest"
+  fi
+
+  n=0 started=false
+  while [ $n -le 100 ]; do
+    curl -s localhost:5984/_up | grep -q '"status":"ok"' &&
+      started=true && break
+    echo "waiting for couchdb..."
+    sleep 1
+    n=$(expr $n + 1)
+  done
+
+  if $started; then
+    # acdc server
+    for ddoc in "ACDC" "GroupUser"; do
+      couchapp push -p $couchapps_path/$ddoc -c $COUCH_CREDS_URL/acdcserver
+    done
+
+    # reqmgr2
+    couchapp push -p $couchapps_path/ReqMgrAux -c $COUCH_CREDS_URL/reqmgr_auxiliary
+    couchapp push -p $couchapps_path/ReqMgr -c $COUCH_CREDS_URL/reqmgr_workload_cache
+    couchapp push -p $couchapps_path/ConfigCache -c $COUCH_CREDS_URL/reqmgr_config_cache
+
+    # reqmon
+    couchapp push -p $couchapps_path/WorkloadSummary -c $COUCH_CREDS_URL/workloadsummary
+    couchapp push -p $couchapps_path/LogDB -c $COUCH_CREDS_URL/wmstats_logdb
+    for ddoc in "WMStats" "WMStatsErl" "WMStatsErl1" "WMStatsErl2" "WMStatsErl3" \
+      "WMStatsErl4" "WMStatsErl5" "WMStatsErl6" "WMStatsErl7"; do
+      couchapp push -p $couchapps_path/$ddoc -c $COUCH_CREDS_URL/wmstats
+    done
+
+    # t0_reqmon
+    couchapp push -p $couchapps_path/T0Request -c $COUCH_CREDS_URL/t0_request
+    couchapp push -p $couchapps_path/WorkloadSummary -c $COUCH_CREDS_URL/t0_workloadsummary
+    couchapp push -p $couchapps_path/LogDB -c $COUCH_CREDS_URL/t0_logdb
+    for ddoc in "WMStats" "WMStatsErl" "WMStatsErl1" "WMStatsErl2" "WMStatsErl3" \
+      "WMStatsErl4" "WMStatsErl5" "WMStatsErl6" "WMStatsErl7"; do
+      couchapp push -p $couchapps_path/$ddoc -c $COUCH_CREDS_URL/tier0_wmstats
+    done
+
+    # workqueue
+    couchapp push -p $couchapps_path/WorkQueue -c $COUCH_CREDS_URL/workqueue
+    couchapp push -p $couchapps_path/WorkQueue -c $COUCH_CREDS_URL/workqueue_inbox
+
+    # clean views
+    local databases="acdcserver reqmgr_auxiliary reqmgr_workload_cache reqmgr_config_cache workloadsummary
+                    wmstats_logdb wmstats t0_request t0_workloadsummary t0_logdb tier0_wmstats"
+
+    for DB in $databases; do
+      clean_views $DB
+    done
+  else
+    echo "couchdb did not start, not pushing application"
+    exit 1
+  fi
+}
+
+update_couchapps()
+{
+  local WMCORE_TAG=$1
+  [ -n $WMCORE_TAG ] ||
+    { echo "WMCore tag not provided. Please provide a WMCore tag."; exit 1; }
+
+  local couchapps_dir=/data/srv/state/couchdb/stagingarea
+  local tmp_dir=$couchapps_dir/tmp
+
+  # clean up and recreate $tmp_dir
+  rm -rf $tmp_dir
+  mkdir -p $tmp_dir
+
+  pushd $tmp_dir
+
+  if [[ $WMCORE_TAG == "latest" ]]; then
+    WMCORE_TAG=$(curl https://api.github.com/repos/dmwm/WMCore/releases/latest | grep -Po '"tag_name": "\K.*?(?=")')
+  fi
+
+  echo -e "\nPulling couchapps version $1 from Github..."
+  wget -nv https://github.com/dmwm/WMCore/archive/refs/tags/${WMCORE_TAG}.tar.gz ||
+    { echo "Error pulling couchapps version $1 from Github"; exit 3; }
+
+  tar --strip-components=2 -xzf ${WMCORE_TAG}.tar.gz WMCore-$WMCORE_TAG/src/couchapps ||
+    { echo "Error extracting couchapps tarball"; exit 3; }
+
+  # grab external dependencies for reqmon/t0_reqmon
+  echo -e "\nPulling additional reqmon and t0_reqmon dependencies..."
+  cp -R $tmp_dir/couchapps/couchskel/vendor $tmp_dir/couchapps/WMStats
+  mkdir -p $tmp_dir/couchapps/WMStats/vendor/{jquery,datatables}/_attachments
+
+  # jquery-ui.min.js
+  echo -e "\nDownloading jquery-ui.min.js..."
+  wget -nv https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js ||
+    { echo "Error downloading jquery-ui.min.js"; exit 3; }
+  cp jquery-ui.min.js $tmp_dir/couchapps/WMStats/vendor/jquery/_attachments/jquery-ui.min.js
+
+  # jquery.min.js
+  echo -e "\nDownloading jquery.min.js..."
+  wget -nv http://code.jquery.com/jquery-1.7.2.min.js ||
+    { echo "Error downloading jquery-1.7.2.min.js"; exit 3; }
+  cp jquery-1.7.2.min.js $tmp_dir/couchapps/WMStats/vendor/jquery/_attachments/jquery.min.js
+
+  # Datatables
+  echo -e "\nDownloading Datatables..."
+  wget -nv http://datatables.net/releases/DataTables-1.9.1.zip ||
+    { echo "Error downloading Datatables-1.9.1.zip"; exit 3; }
+  unzip DataTables-1.9.1.zip &> /dev/null
+  cp DataTables*/{media/js/jquery.dataTables.min,extras/ColVis/media/js/ColVis.min}.js $tmp_dir/couchapps/WMStats/vendor/datatables/_attachments
+
+  # YUI library, required by WorkQueue
+  # List of required files at: https://github.com/dmwm/WMCore/blob/master/bin/wmagent-couchapp-init#L135
+  # TODO: can we copy the whole library instead of specific files?!?
+  echo -e "\nDownloading YUI..."
+  wget -nv https://yui.github.io/yui2/archives/yui_2.9.0.zip ||
+    { echo "Error downloading yui_2.9.0.zip"; exit 3; }
+  unzip yui_2.9.0.zip &> /dev/null
+  mkdir -p $tmp_dir/couchapps/WorkQueue/vendor/yui/_attachments
+  pushd yui
+  for yui_file in "${files_needed_from_yui[@]}"
+  do
+    # copy the file itself and the parent directories
+    cp --parents ${yui_file} $tmp_dir/couchapps/WorkQueue/vendor/yui/_attachments/
+  done
+  popd
+
+  echo "Removing old couchapps..."
+  rm -rf $couchapps_dir/couchapps &> /dev/null
+
+  echo "Installing new couchapps..."
+  mv couchapps $couchapps_dir
+
+  popd
+  echo "Cleaning up!"
+  rm -rf $tmp_dir
+}
+
+replications()
+{
+  [ "$1" = "push" ] && local status=false || local status=true
+  local all_reps=$(curl -s $COUCH_CREDS_URL/_replicator/_all_docs?include_docs=true \
+                   | grep '^{"id":"[^_]' | awk -F\" '{print $4,$14,$28,$32,$38,$42}')
+  local req_reps=$(cat $STATEDIR/replication/* 2>/dev/null || echo "")
+
+  if [ -n "$all_reps" ]; then
+    echo "$all_reps" | while read ID REV SRC DST FILTER STATE; do
+      if echo "$req_reps" | grep -q "$SRC $DST $FILTER"; then
+        echo "Replication 'id=$ID source=$SRC target=$DST filter=$FILTER' $STATE."
+      else
+        echo "Replication 'id=$ID source=$SRC target=$DST filter=$FILTER' unknown."
+        if ! $status; then
+          echo -n "Removing it... "
+          curl -s -X DELETE $COUCH_CREDS_URL/_replicator/$ID?rev=$REV
+        fi
+      fi
+    done
+  fi
+
+  if [ -n "$req_reps" ]; then
+    local IDS=$(echo "$all_reps" | awk '{print $1}')
+    echo "$req_reps" | while read SRC DST FILTER; do
+      local ID=$(echo "$SRC $DST $FILTER" | md5sum | awk '{print $1}')
+      if ! echo "$IDS" | grep -q "$ID"; then
+        echo "Replication 'id=$ID source=$SRC target=$DST filter=$FILTER' not pushed."
+        if ! $status; then
+          echo -n "Pushing it... "
+          curl -s -X PUT $COUCH_CREDS_URL/_replicator/$ID \
+               -d "{\"source\":\"$SRC\", \"target\":\"$DST\", \"continuous\":true, \"filter\":\"$FILTER\"}"
+        fi
+      fi
+    done
+  fi
+}
+
+# Trigger database compaction.
+# - If "all", then compact ALL databases.
+# - If "all_but_exceptions", then compact all views but the ones listed in EXCEPTIONS
+# - Otherwise, the database must be provided
+compact()
+{
+  local database=$1
+  [ -n "$database" ] ||
+    { echo "You must specify a database to compact"; exit 3; }
+
+  if [ "$database" = all -o "$database" = all_but_exceptions ]; then
+    for db in $STATEDIR/database/[^_]*.couch; do
+      [ -f $db ] || continue
+      db=${db##*/}
+      db=${db%.couch}
+      if [[ $EXCEPTIONS == *$db* && "$database" = all_but_exceptions ]]; then
+        continue
+      fi
+      compact_database $db
+    done
+  else
+    compact_database $database
+  fi
+}
+
+compact_database()
+{
+  local database=$1
+  curl -s $COUCH_CREDS_URL/$database | grep -q '"compact_running":true' &&
+    { echo "$database is already compacting"; exit 5; }
+
+  curl -s -H "Content-Type: application/json" -X POST $COUCH_CREDS_URL/$database/_compact | \
+        grep -q '{"ok":true}' ||
+    { echo "An error occured triggering compaction. Please look in the CouchDB logs."; exit 7; }
+}
+
+# Trigger view compaction.
+# - If "all", then compact ALL views
+# - If "all_but_exceptions", then compact all views but the ones listed in EXCEPTIONS
+# - Otherwise, the database and designdoc must be provided
+compact_views()
+{
+  local database=$1
+  local designdoc=$2
+  [ -n "$database" ] ||
+    { echo "You must specify a database to compact its views"; exit 3; }
+  [ -n "$designdoc" ] ||
+    { echo "You must specify a design doc to compact its views"; exit 3; }
+
+  if [ "$database" = all -o "$database" = all_but_exceptions ]; then
+    for db in $STATEDIR/database/[^_]*.couch; do
+      [ -f $db ] || continue
+      db=${db##*/}
+      db=${db%.couch}
+      if [[ $EXCEPTIONS == *$db* && "$database" = all_but_exceptions ]]; then
+        continue
+      fi
+      curl -s "$COUCH_CREDS_URL/$db/_all_docs?startkey=%22_design%22&endkey=%22_design/zzzzzzzz%22" |
+        awk -F\" '/"id":"_design/ {print $4}' |
+        while read dbview; do
+          compact_view $db ${dbview#*/}
+	done
+    done
+  elif [ "$designdoc" = all ]; then
+    curl -s "$COUCH_CREDS_URL/$database/_all_docs?startkey=%22_design%22&endkey=%22_design/zzzzzzzz%22" |
+      awk -F\" '/"id":"_design/ {print $4}' |
+      while read dbview; do
+        compact_view $database ${dbview#*/}
+      done
+  else
+    compact_view $database $designdoc
+  fi
+}
+
+# Trigger single view compaction
+compact_view()
+{
+  local database=$1
+  local designdoc=$2
+
+  curl -s $COUCH_CREDS_URL/$database/_design/$designdoc/_info | grep -q '"compact_running":true' &&
+    { echo "$database/$designdoc is already compacting"; exit 5; }
+
+  curl -s -H "Content-Type: application/json" -X POST $COUCH_CREDS_URL/$database/_compact/$designdoc | \
+        grep -q '{"ok":true}' ||
+    { echo "An error occured triggering view compaction. Please look in the CouchDB logs."; exit 7; }
+}
+
+# Rsync couchdb databases to elsewhere (can be used to restore a backup too)
+backup()
+{
+  local hostdir=$1
+  [ -n "$hostdir" ] ||
+    { echo "You must specify a destination [user@]host:path."; exit 9; }
+  #ionice -c3 rsync --delete --delete-excluded --exclude "*.compact*" -au -e 'ssh -c arcfour' $STATEDIR/database/ $hostdir/ ||
+   ionice -c3 rsync --delete --delete-excluded --exclude "*.compact*" -au -e 'ssh -c aes128-ctr' $STATEDIR/database/ $hostdir/ ||
+
+    { echo "failed to synchronise databases to $hostdir: $?" 1>&2; exit 11; }
+}
+
+# Archive couchdb backups to castor
+archive()
+{
+  local archdir=$1
+  klist -s ||
+    { echo "You must have a valid kerberos token to run the archive." 1>&2; exit 20; }
+  rfstat $archdir >/dev/null ||
+    { echo "Could not stat $archdir in the castor archive" 1>&2; exit 19; }
+
+  echo "Checking for couchdb archives not yet staged out to tape:"
+  stager_qry -M $archdir | grep couchdb | grep -v STAGED || echo "all staged out."
+
+  echo
+  echo "Starting to archive couchdb backups on $(date)"
+  for bkp in $STATEDIR/backup/*; do
+    [ -d $bkp ] || continue;
+    tarfile=couchdb_${bkp##*/}_$(date +%Y%m%d-%H%M).tar
+    echo "$archdir/$tarfile"
+    tar cf - -C $bkp . | rfcp - $archdir/$tarfile &
+  done
+  wait;
+  [ -n "$tarfile" ] && echo "Archive copy to castor completed on $(date)." ||
+    echo "No backups found on $STATEDIR/backup. Nothing to archive."
+
+  #FIXME: do some sanity checks on castor to make sure new archives are genuine
+
+  # Cleanup old archives
+  for bkp in $STATEDIR/backup/*; do
+    [ -d $bkp ] || continue;
+    tarprefix=couchdb_${bkp##*/}
+    since=$(date --date='3 months ago' +%Y%m%d)
+    echo
+    echo "Cleaning old archives for $tarprefix:"
+    for f in $(nsls $archdir|grep $tarprefix); do
+      if [ $(echo -n $f | cut -d_ -f3| cut -d- -f1) -lt $since ]; then
+        echo $archdir/$f
+        rfrm $archdir/$f
+      fi
+    done
+  done
+
+  echo
+  echo "Archive procedure done."
+}
+
+# Verify the security string.
+check()
+{
+  CHECK=$(echo "$1" | md5sum | awk '{print $1}')
+  if [ $CHECK != 94e261a5a70785552d34a65068819993 ]; then
+    echo "$0: cannot complete operation, please check documentation." 1>&2
+    exit 2;
+  fi
+}
+
+# Main routine, perform action requested on command line.
+case ${1:-status} in
+  sysboot )
+    sysboot
+    ;;
+
+  restart )
+    check "$2"
+    stop
+    sleep 1
+    start
+    ;;
+
+  status )
+    status
+    ;;
+
+  stop )
+    check "$2"
+    stop
+    ;;
+
+  pushapps )
+    check "$2"
+    push_apps
+    ;;
+
+  pushreps )
+    check "$2"
+    replications push
+    ;;
+
+  updatecouchapps )
+    check "$3"
+    update_couchapps $2
+    ;;
+
+  compact )
+    check "$3"
+    compact $2
+    ;;
+
+  compactviews )
+    check "$4"
+    compact_views $2 $3
+    ;;
+
+  cleanviews )
+    check "$3"
+    clean_views $2
+    ;;
+
+  backup )
+    check "$3"
+    backup $2
+    ;;
+
+  archive )
+    check "$3"
+    archive $2
+    ;;
+
+  help )
+    perl -ne '/^##H/ && do { s/^##H ?//; print }' < $0
+    ;;
+
+  version )
+    echo "$COUCHDB_VERSION"
+    ;;
+
+  start )
+    start
+    ;;
+
+  * )
+    echo "$0: unknown action '$1', please try '$0 help' or documentation." 1>&2
+    exit 1
+    ;;
+esac
