@@ -48,9 +48,9 @@ while getopts ":t:u:p:h" opt; do
     esac
 done
 
-
-# NOTE: NO WMA_TAG validation is done in the current script. It is implemented at the install.sh
-
+# NOTE: The COUCH_USER may refer to both the couch user to run the CouchDB
+#       service inside the container and to the database admin user as well
 # dockerOpts=" --network=host --progress=plain --build-arg COUCH_USER=$COUCH_USER  --build-arg COUCH_PASS=$COUCH_PASS --build-arg TAG=$TAG"
+dockerOpts=" --network=host --progress=plain --build-arg TAG=$TAG"
 
 docker build $dockerOpts -t local/couchdb:$TAG -t local/couchdb:latest  .

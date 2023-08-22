@@ -62,7 +62,9 @@ COUCH_ROOT_DIR=/data/dockerMount
 [[ -d $COUCH_ROOT_DIR/srv/couchdb/$TAG/install/database ]] || { sudo mkdir -p $COUCH_ROOT_DIR/srv/couchdb/$TAG/install/database ;} || exit $?
 [[ -d $COUCH_ROOT_DIR/srv/couchdb/$TAG/logs ]] || { sudo mkdir -p $COUCH_ROOT_DIR/srv/couchdb/$TAG/logs ;} || exit $?
 
+sudo ln -s $COUCH_ROOT_DIR/srv/couchdb/$TAG $COUCH_ROOT_DIR/srv/couchdb/currrent
 sudo chown -R $couchdbUser:$couchdbUser $COUCH_ROOT_DIR/srv/couchdb/$TAG
+
 
 dockerOpts=" \
 --network=host \
@@ -73,6 +75,7 @@ dockerOpts=" \
 --mount type=bind,source=/tmp,target=/tmp \
 --mount type=bind,source=$COUCH_ROOT_DIR/certs,target=/data/certs \
 --mount type=bind,source=$COUCH_ROOT_DIR/srv/couchdb/$TAG/install/database,target=/data/srv/couchdb/current/install/database \
+--mount type=bind,source=$COUCH_ROOT_DIR/srv/couchdb/$TAG/config,target=/data/srv/couchdb/current/config \
 --mount type=bind,source=$COUCH_ROOT_DIR/srv/couchdb/$TAG/logs,target=/data/srv/couchdb/current/logs \
 --mount type=bind,source=$COUCH_ROOT_DIR/admin/wmagent,target=/data/admin/wmagent/ \
 "
@@ -86,8 +89,8 @@ $PULL && {
     echo "Pulling Docker image: registry.cern.ch/cmsweb/couchdb:$TAG"
     docker login registry.cern.ch
     docker pull registry.cern.ch/cmsweb/couchdb:$TAG
-    docker tag registry.cern.ch/cmsweb/couchdb:$TAG couchdb:$TAG
-    docker tag registry.cern.ch/cmsweb/couchdb:$TAG couchdb:latest
+    docker tag registry.cern.ch/cmsweb/couchdb:$TAG local/couchdb:$TAG
+    docker tag registry.cern.ch/cmsweb/couchdb:$TAG local/couchdb:latest
 }
 
 echo "Starting the couchdb:$COUCH_TAG docker container with the following parameters: $couchOpts"

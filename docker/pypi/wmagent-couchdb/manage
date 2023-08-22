@@ -80,9 +80,9 @@ PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/kerberos/bin:/usr/local/bin:/opt/couchdb
 COUCH_CREDS=$COUCH_ADMIN_DIR/WMAgent.secrets
 COUCH_USER=`cat $COUCH_CREDS | grep COUCH_USER | sed s/COUCH_USER=//`
 COUCH_PASS=`cat $COUCH_CREDS | grep COUCH_PASS | sed s/COUCH_PASS=//`
-COUCH_CREDS_URL="http://$COUCH_USER:$COUCH_PASS@localhost:5984"
+COUCH_CREDS_URL="http://$COUCH_USER:$COUCH_PASS@localhost:$COUCH_PORT"
 
-echo COUCH_CREDS_URL=$COUCH_CREDS_URL
+# echo COUCH_CREDS_URL=$COUCH_CREDS_URL
 
 # . $ROOT/apps/$ME/etc/profile.d/init.sh
 
@@ -274,7 +274,7 @@ get_num_couch_process()
 # Check if the server is running.
 status()
 {
-  curl -s localhost:5984/_up | grep -q '"status":"ok"' ||
+  curl -s localhost:$COUCH_PORT/_up | grep -q '"status":"ok"' ||
     { echo -e "$ME is ${COLOR_WARN}NOT RUNNING${COLOR_NORMAL}."; return; }
 
   echo -e "$ME is ${COLOR_OK}RUNNING${COLOR_NORMAL}"
@@ -301,7 +301,7 @@ clean_views()
 # Push applications from staging area into couchdb.
 push_apps()
 {
-  local couchapps_path="/data/srv/state/couchdb/stagingarea/couchapps"
+  local couchapps_path=$COUCH_INSTALL_DIR/stagingarea/couchapps
 
   if [[ ! -d $couchapps_path ]]; then
     echo "Couchapps not found. Installing from latest WMCore tag."
@@ -310,7 +310,7 @@ push_apps()
 
   n=0 started=false
   while [ $n -le 100 ]; do
-    curl -s localhost:5984/_up | grep -q '"status":"ok"' &&
+    curl -s localhost:$COUCH_PORT/_up | grep -q '"status":"ok"' &&
       started=true && break
     echo "waiting for couchdb..."
     sleep 1
@@ -368,7 +368,7 @@ update_couchapps()
   [ -n $WMCORE_TAG ] ||
     { echo "WMCore tag not provided. Please provide a WMCore tag."; exit 1; }
 
-  local couchapps_dir=/data/srv/state/couchdb/stagingarea
+  local couchapps_dir=$COUCH_INSTALL_DIR/stagingarea
   local tmp_dir=$couchapps_dir/tmp
 
   # clean up and recreate $tmp_dir
