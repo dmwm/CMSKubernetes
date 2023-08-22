@@ -62,16 +62,15 @@ COUCH_ROOT_DIR=/data/dockerMount
 [[ -d $COUCH_ROOT_DIR/srv/couchdb/$TAG/install/database ]] || { sudo mkdir -p $COUCH_ROOT_DIR/srv/couchdb/$TAG/install/database ;} || exit $?
 [[ -d $COUCH_ROOT_DIR/srv/couchdb/$TAG/logs ]] || { sudo mkdir -p $COUCH_ROOT_DIR/srv/couchdb/$TAG/logs ;} || exit $?
 
-sudo ln -s $COUCH_ROOT_DIR/srv/couchdb/$TAG $COUCH_ROOT_DIR/srv/couchdb/currrent
 sudo chown -R $couchdbUser:$couchdbUser $COUCH_ROOT_DIR/srv/couchdb/$TAG
 
 
-dockerOpts=" \
+dockerOpts="
+--detach  \
 --network=host \
 --rm \
 --hostname=`hostname -f` \
 --name=couchdb \
---mount type=bind,source=/etc/condor,target=/etc/condor,readonly \
 --mount type=bind,source=/tmp,target=/tmp \
 --mount type=bind,source=$COUCH_ROOT_DIR/certs,target=/data/certs \
 --mount type=bind,source=$COUCH_ROOT_DIR/srv/couchdb/$TAG/install/database,target=/data/srv/couchdb/current/install/database \
@@ -94,4 +93,6 @@ $PULL && {
 }
 
 echo "Starting the couchdb:$COUCH_TAG docker container with the following parameters: $couchOpts"
-docker run $dockerOpts $couchOpts local/couchdb:$TAG
+docker run $dockerOpts $couchOpts local/couchdb:$TAG && (
+    [[ -h $COUCH_ROOT_DIR/srv/couchdb/currrent ]] && sudo rm -f $COUCH_ROOT_DIR/srv/couchdb/currrent
+    sudo ln -s $COUCH_ROOT_DIR/srv/couchdb/$TAG $COUCH_ROOT_DIR/srv/couchdb/currrent )
