@@ -15,11 +15,11 @@ help(){
     cat <<EOF
 
 The basic WMAgent deployment script for Docker image creation:
-Usage: install.sh -v <wmagent_tag>
+Usage: install.sh -t <wmagent_tag>
 
-    -v <wmagent_tag>    The WMAgent version/tag to be used for the Docker image creation
+    -t <wmagent_tag>    The WMAgent version/tag to be used for the Docker image creation
 
-Example: ./install.sh -v 2.2.0.2
+Example: ./install.sh -t 2.2.0.2
 
 EOF
 }
@@ -32,9 +32,9 @@ usage(){
 WMA_TAG=None
 
 ### Argument parsing:
-while getopts ":v:h" opt; do
+while getopts ":t:h" opt; do
     case ${opt} in
-        v) WMA_TAG=$OPTARG ;;
+        t) WMA_TAG=$OPTARG ;;
         h) help; exit $? ;;
         \? )
             msg="Invalid Option: -$OPTARG"
@@ -79,11 +79,11 @@ echo "-----------------------------------------------------------------------"
 stepMsg="Creating required directory structure in the WMAgent image"
 echo "-----------------------------------------------------------------------"
 echo "Start $stepMsg"
-mkdir -p ${WMA_DEPLOY_DIR} || true
-mkdir -p $WMA_BASE_DIR/wmagent/$WMA_TAG || true
-ln -s $WMA_BASE_DIR/wmagent/$WMA_TAG $WMA_CURRENT_DIR
+mkdir -p $WMA_DEPLOY_DIR  || true
+mkdir -p $WMA_CURRENT_DIR || true
+ln -s $WMA_CURRENT_DIR $WMA_BASE_DIR/current
 
-mkdir -p $WMA_ADMIN_DIR $WMA_HOSTADMIN_DIR $WMA_CERTS_DIR $WMA_MANAGE_DIR $WMA_INSTALL_DIR
+mkdir -p $WMA_ADMIN_DIR $WMA_CERTS_DIR $WMA_MANAGE_DIR $WMA_INSTALL_DIR $WMA_AUTH_DIR $WMA_STATE_DIR $WMA_CONFIG_DIR $WMA_LOG_DIR
 chmod 755 $WMA_CERTS_DIR
 
 cd $WMA_BASE_DIR
@@ -124,12 +124,37 @@ tweakEnv(){
     echo "Edit \$WMA_ENV_FILE script to point to \$WMA_ROOT_DIR"
     sed -i "s|/data/|\$WMA_ROOT_DIR/|g" $WMA_ENV_FILE
 
+    echo "-------------------------------------------------------"
+    echo "Edit \$WMA_ENV_FILE script to point to the correct install, config and manage"
+    sed -i "s|install=.*|install=\$WMA_INSTALL_DIR|g" $WMA_ENV_FILE
+    sed -i "s|config=.*|config=\$WMA_CONFIG_DIR|g" $WMA_ENV_FILE
+    sed -i "s|manage=.*|manage=\$WMA_MANAGE_DIR/manage|g" $WMA_ENV_FILE
+    sed -i "s|RUCIO_HOME=.*|RUCIO_HOME=\$WMA_CONFIG_DIR|g" $WMA_ENV_FILE
+
     echo "Edit $WMA_DEPLOY_DIR/deploy/renew_proxy.sh script to point to \$WMA_ROOT_DIR"
     sed -i "s|/data/|\$WMA_ROOT_DIR/|g" $WMA_DEPLOY_DIR/deploy/renew_proxy.sh
     sed -i "s|source.*env\.sh|source \$WMA_ENV_FILE|g" $WMA_DEPLOY_DIR/deploy/renew_proxy.sh
     echo "-------------------------------------------------------"
 
     cat <<EOF >> $WMA_ENV_FILE
+
+export WMA_BUILD_ID=\$(cat \$WMA_ROOT_DIR/.dockerBuildId)
+export WMCORE_ROOT=\$WMA_DEPLOY_DIR
+export WMAGENTPY3_ROOT=\$WMA_INSTALL_DIR
+export WMAGENTPY3_VERSION=\$WMA_TAG
+export CRYPTOGRAPHY_ALLOW_OPENSSL_102=true
+export YUI_ROOT=$WMA_DEPLOY_DIR/yui/
+export PATH=\$WMA_INSTALL_DIR/bin\${PATH:+:\$PATH}
+export PATH=\$WMA_DEPLOY_DIR/bin\${PATH:+:\$PATH}
+EOF
+}
+
+
+stepMsg="Tweaking runtime environment for user: $WMA_USER"
+echo "-----------------------------------------------------------------------"
+echo "Start $stepMsg"
+tweakEnv || { err=$?; echo ""; exit $err ; }
+cat <<EOF >> /home/${WMA_USER}/.bashrc
 
 alias lll="ls -lathr"
 alias ls="ls --color=auto"
@@ -138,7 +163,7 @@ alias ll='ls -la --color=auto'
 alias condorq='condor_q -format "%i." ClusterID -format "%s " ProcId -format " %i " JobStatus  -format " %d " ServerTime-EnteredCurrentStatus -format "%s" UserLog -format " %s\n" DESIRED_Sites'
 alias condorqrunning='condor_q -constraint JobStatus==2 -format "%i." ClusterID -format "%s " ProcId -format " %i " JobStatus  -format " %d " ServerTime-EnteredCurrentStatus -format "%s" UserLog -format " %s\n" DESIRED_Sites'
 alias agentenv='source $WMA_ENV_FILE'
-alias manage=\$manage
+alias manage=\$WMA_MANAGE_DIR/manage
 
 # Aliases for Tier0-Ops.
 alias runningagent="ps aux | egrep 'couch|wmcore|mysql|beam'"
@@ -149,19 +174,7 @@ alias scurl='curl -k --cert ${CERT_DIR}/servicecert.pem --key ${CERT_DIR}/servic
 
 # set WMAgent docker specific bash prompt:
 export PS1="(WMAgent-\$WMA_TAG) [\u@\h:\W]\$ "
-export WMA_BUILD_ID=\$(cat \$WMA_ROOT_DIR/.dockerBuildId)
-export WMAGENTPY3_ROOT=\$WMA_INSTALL_DIR/wmagent
-export WMAGENTPY3_VERSION=\$WMA_TAG
-export PATH=\$WMA_INSTALL_DIR/wmagent/bin\${PATH:+:\$PATH}
-EOF
-}
 
-
-stepMsg="Tweaking runtime environment for the WMA_USER"
-echo "-----------------------------------------------------------------------"
-echo "Start $stepMsg"
-tweakEnv || { err=$?; echo ""; exit $err ; }
-cat <<EOF >> /home/${WMA_USER}/.bashrc
 source $WMA_ENV_FILE
 EOF
 echo "Done $stepMsg!" && echo
@@ -176,7 +189,7 @@ echo "Start $stepMsg"
 chmod +x $WMA_DEPLOY_DIR/deploy/renew_proxy.sh $WMA_DEPLOY_DIR/deploy/restartComponent.sh
 
 crontab -u $WMA_USER - <<EOF
-55 */12 * * * $WMA_DEPLOY_DIR/deploy/renew_proxy.sh
+55 */12 * * * $WMA_MANAGE_DIR/manage renew-proxy
 58 */12 * * * python $WMA_DEPLOY_DIR/deploy/checkProxy.py --proxy /data/certs/myproxy.pem --time 120 --send-mail True --mail alan.malta@cern.ch
 */15 * * * *  source $WMA_DEPLOY_DIR/deploy/restartComponent.sh > /dev/null
 EOF
