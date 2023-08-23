@@ -34,12 +34,13 @@ usage(){
 }
 
 PULL=false
-TAG=3.3.2
+COUCH_TAG=3.3.2
+
 
 ### Argument parsing:
 while getopts ":t:hp" opt; do
     case ${opt} in
-        t) TAG=$OPTARG ;;
+        t) COUCH_TAG=$OPTARG ;;
         p) PULL=true ;;
         h) help; exit $? ;;
         : )
@@ -54,29 +55,29 @@ couchOpts=" --user $couchdbUser"
 
 # This is the root at the host only, it may differ from the root inside the container.
 # NOTE: this may be parametriesed, so that the container can run on a different mount point.
-COUCH_ROOT_DIR=/data/dockerMount
+HOST_MOUNT_DIR=/data/dockerMount
 
-[[ -d $COUCH_ROOT_DIR/certs ]] || (mkdir -p $COUCH_ROOT_DIR/certs) || exit $?
-[[ -d $COUCH_ROOT_DIR/admin/couchdb ]] || (mkdir -p $COUCH_ROOT_DIR/admin/couchdb) || exit $?
-[[ -d $COUCH_ROOT_DIR/srv/couchdb/$TAG/config  ]] || (mkdir -p $COUCH_ROOT_DIR/srv/couchdb/$TAG/config)  || exit $?
-[[ -d $COUCH_ROOT_DIR/srv/couchdb/$TAG/install/database ]] || { sudo mkdir -p $COUCH_ROOT_DIR/srv/couchdb/$TAG/install/database ;} || exit $?
-[[ -d $COUCH_ROOT_DIR/srv/couchdb/$TAG/logs ]] || { sudo mkdir -p $COUCH_ROOT_DIR/srv/couchdb/$TAG/logs ;} || exit $?
+[[ -d $HOST_MOUNT_DIR/certs ]] || (mkdir -p $HOST_MOUNT_DIR/certs) || exit $?
+[[ -d $HOST_MOUNT_DIR/admin/couchdb ]] || (mkdir -p $HOST_MOUNT_DIR/admin/couchdb) || exit $?
+[[ -d $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/config  ]] || (mkdir -p $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/config)  || exit $?
+[[ -d $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/install/database ]] || { sudo mkdir -p $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/install/database ;} || exit $?
+[[ -d $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/logs ]] || { sudo mkdir -p $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/logs ;} || exit $?
 
-sudo chown -R $couchdbUser:$couchdbUser $COUCH_ROOT_DIR/srv/couchdb/$TAG
+sudo chown -R $couchdbUser:$couchdbUser $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG
 
 
 dockerOpts="
---detach  \
+--detach \
 --network=host \
 --rm \
 --hostname=`hostname -f` \
 --name=couchdb \
 --mount type=bind,source=/tmp,target=/tmp \
---mount type=bind,source=$COUCH_ROOT_DIR/certs,target=/data/certs \
---mount type=bind,source=$COUCH_ROOT_DIR/srv/couchdb/$TAG/install/database,target=/data/srv/couchdb/current/install/database \
---mount type=bind,source=$COUCH_ROOT_DIR/srv/couchdb/$TAG/config,target=/data/srv/couchdb/current/config \
---mount type=bind,source=$COUCH_ROOT_DIR/srv/couchdb/$TAG/logs,target=/data/srv/couchdb/current/logs \
---mount type=bind,source=$COUCH_ROOT_DIR/admin/wmagent,target=/data/admin/wmagent/ \
+--mount type=bind,source=$HOST_MOUNT_DIR/certs,target=/data/certs \
+--mount type=bind,source=$HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/install/database,target=/data/srv/couchdb/current/install/database \
+--mount type=bind,source=$HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/config,target=/data/srv/couchdb/current/config \
+--mount type=bind,source=$HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/logs,target=/data/srv/couchdb/current/logs \
+--mount type=bind,source=$HOST_MOUNT_DIR/admin/wmagent,target=/data/admin/wmagent/ \
 "
 
 
@@ -85,14 +86,14 @@ dockerOpts="
 # couchOpts="$couchOpts --user couchdb -e COUCHDB_USER=TestAdmin -e COUCHDB_PASSWORD=TestPass"
 
 $PULL && {
-    echo "Pulling Docker image: registry.cern.ch/cmsweb/couchdb:$TAG"
+    echo "Pulling Docker image: registry.cern.ch/cmsweb/couchdb:$COUCH_TAG"
     docker login registry.cern.ch
-    docker pull registry.cern.ch/cmsweb/couchdb:$TAG
-    docker tag registry.cern.ch/cmsweb/couchdb:$TAG local/couchdb:$TAG
-    docker tag registry.cern.ch/cmsweb/couchdb:$TAG local/couchdb:latest
+    docker pull registry.cern.ch/cmsweb/couchdb:$COUCH_TAG
+    docker tag registry.cern.ch/cmsweb/couchdb:$COUCH_TAG local/couchdb:$COUCH_TAG
+    docker tag registry.cern.ch/cmsweb/couchdb:$COUCH_TAG local/couchdb:latest
 }
 
 echo "Starting the couchdb:$COUCH_TAG docker container with the following parameters: $couchOpts"
-docker run $dockerOpts $couchOpts local/couchdb:$TAG && (
-    [[ -h $COUCH_ROOT_DIR/srv/couchdb/currrent ]] && sudo rm -f $COUCH_ROOT_DIR/srv/couchdb/currrent
-    sudo ln -s $COUCH_ROOT_DIR/srv/couchdb/$TAG $COUCH_ROOT_DIR/srv/couchdb/currrent )
+docker run $dockerOpts $couchOpts local/couchdb:$COUCH_TAG && (
+    [[ -h $HOST_MOUNT_DIR/srv/couchdb/currrent ]] && sudo rm -f $HOST_MOUNT_DIR/srv/couchdb/currrent
+    sudo ln -s $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG $HOST_MOUNT_DIR/srv/couchdb/currrent )
