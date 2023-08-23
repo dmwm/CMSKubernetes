@@ -95,5 +95,5 @@ $PULL && {
 
 echo "Starting the couchdb:$COUCH_TAG docker container with the following parameters: $couchOpts"
 docker run $dockerOpts $couchOpts local/couchdb:$COUCH_TAG && (
-    [[ -h $HOST_MOUNT_DIR/srv/couchdb/currrent ]] && sudo rm -f $HOST_MOUNT_DIR/srv/couchdb/currrent
-    sudo ln -s $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG $HOST_MOUNT_DIR/srv/couchdb/currrent )
+    [[ -h $HOST_MOUNT_DIR/srv/couchdb/current ]] && sudo rm -f $HOST_MOUNT_DIR/srv/couchdb/current
+    sudo ln -s $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG $HOST_MOUNT_DIR/srv/couchdb/current )
