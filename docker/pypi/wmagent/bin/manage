@@ -11,6 +11,16 @@ source $WMA_ENV_FILE
 # Global variables etc
 #
 
+# NOTE: The folowing environment variables, which are refereced from inside the WMCore code,
+#       are exported by sourcing the $WMA_ENV_FILE at runtime, but not from the Dockerfile at build time
+#
+#       * $WMAGENTPY3_VERSION
+#       * $WMAGENTPY3_ROOT
+#       * $WMCORE_ROOT
+#       * install
+#       * config
+#       * X509_*
+
 RUCIO_CONFIG="$WMA_CONFIG_DIR/etc/rucio.cfg"
 
 GLOBAL_WORKQUEUE_URL=
@@ -323,5 +333,3 @@ case $1 in
       usage "$0: unknown action '$1', please try '$0 help' or documentation." 1>&2
       exit 1 ;;
 esac
-
-

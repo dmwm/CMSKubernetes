@@ -36,10 +36,6 @@ AGENT_FLAVOR=mysql
 # NOTE: The $WMA_BUILD_ID is exported only from $WMA_USER/.bashrc but not from the Dockerfile ENV command
 [[ -n $WMA_BUILD_ID ]] || WMA_BUILD_ID=$(cat $WMA_ROOT_DIR/.dockerBuildId) || { echo "ERROR: Cuold not find/set WMA_UILD_ID"; exit 1 ;}
 
-# TODO: To fix the bellow two exports in the manage script - this will breack backwards compatibility
-# NOTE: The $WMAGENTPY3_ROOT is exported only from $WMA_USER/.bashrc but not from the Dockerfile ENV command
-# NOTE: The $WMAGENTPY3_VERSION is exported only from $WMA_USER/.bashrc but not from the Dockerfile ENV command
-
 # Check runtime arguments:
 TEAMNAME_REG="(^production$|^testbed-.*$|^dev-.*$|^relval.*$)"
 [[ $TEAMNAME =~ $TEAMNAME_REG ]] || { echo "TEAMNAME: $TEAMNAME does not match required expression: $TEAMNAME_REG"; echo "EXIT with Error 1"  ; exit 1 ;}
@@ -84,9 +80,6 @@ basic_checks() {
     errMsg="$FUNCNAME: ERROR: Could not find $WMA_ENV_FILE."
     [[ -e $WMA_ENV_FILE ]] || { err=$?; echo -e "$errMsg"; exit $err ;}
 
-    errMsg="$FUNCNAME: ERROR: Could not find $WMA_ADMIN_DIR."
-    [[ -d $WMA_ADMIN_DIR ]] || { err=$?; echo -e "$errMsg"; exit $err ;}
-
     errMsg="$FUNCNAME: ERROR: Could not find $WMA_ADMIN_DIR mount point"
     [[ -d $WMA_ADMIN_DIR ]] && _check_mounts $WMA_ADMIN_DIR || { err=$?; echo -e "$errMsg"; exit $err ;}
 
@@ -121,7 +114,6 @@ deploy_to_host(){
     local stepMsg="Performing Docker image to Host initialisation steps"
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
-
 
     # TODO: This is to be removed once we decide to run it directly from the deploy area
     echo "$FUNCNAME: Copy the proper manage file"
@@ -188,7 +180,6 @@ deploy_to_host(){
     echo "-------------------------------------------------------"
 }
 
-
 check_wmasecrets(){
     # Check if the the current WMAgent.secrets file is the same as the one from the latest agent initialization
     echo "$FUNCNAME: Checking for changes in the WMAgent.secrets file"
@@ -208,13 +199,12 @@ check_wmasecrets(){
     fi
 }
 
-
 _check_oracle() {
     # Auxiliary function to check if the oracle database configured for the current agent is empty
     # NOTE: Oracle is centraly provided - we require an empty database for every account/agent
     #       otherwise we cannot guarantie this is the only agent to connect to the so configured database
-    # TODO: Here to check if the wmagent database exists and if so to check if it was done from and
-    #       container with the current $WMA_BUILD_ID
+    # NOTE: Here to check if the wmagent database exists and if so to check if it was done from
+    #       a container with the current $WMA_BUILD_ID
     echo "$FUNCNAME: Checking whether the Oracle server is reachable ..."
     _status_of_oracle || return $(false)
 
@@ -234,10 +224,8 @@ _check_oracle() {
 
 _check_mysql() {
     # Auxiliary function to check if the MariaDB database for the current agent is properly set
-    # TODO: To be implemented in the issue related to the MariaDB setup for wmagent
-    #
-    # TODO: Here to check if the wmagent database exists and if so to check if it was done from and
-    #       container with the current $WMA_BUILD_ID
+    # NOTE: Here to check if the wmagent database exists and if so to check if it was done from
+    #       a container with the current $WMA_BUILD_ID
     echo "$FUNCNAME: Checking whether the MySQL server is reachable..."
     _status_of_mysql || return $(false)
 
@@ -262,7 +250,6 @@ _check_couch() {
 
     # echo "$FUNCNAME: Additional checks for CouchDB:"
     # NOTE: To implement any additional check to the CouchDB similar to the relational databases
-
 }
 
 check_databases() {
@@ -292,7 +279,6 @@ check_databases() {
     # Checking CouchDB:
     _check_couch
 }
-
 
 check_docker_init() {
     # A function to check all previously populated */.dockerInit files
@@ -522,50 +508,4 @@ main(){
 
 main
 
-
 exit 0
-
-
-
-# ###########################################################################################
-# # NOTE: Leftovers - to be adopted/reimplemented in the GH issue dealing with CouchDB setup
-# ###########################################################################################
-
-# DATA_SIZE=`lsblk -bo SIZE,MOUNTPOINT | grep ' /data1' | sort | uniq | awk '{print $1}'`
-# DATA_SIZE_GB=`lsblk -o SIZE,MOUNTPOINT | grep ' /data1' | sort | uniq | awk '{print $1}'`
-# if [[ $DATA_SIZE -gt 200000000000 ]]; then  # greater than ~200GB
-# echo "Partition /data1 available! Total size: $DATA_SIZE_GB"
-# sleep 0.5
-# while true; do
-# read -p "Would you like to deploy couchdb in this /data1 partition (yes/no)? " yn
-# case $yn in
-# [Y/y]* ) DATA1=true; break;;
-# [N/n]* ) DATA1=false; break;;
-# * ) echo "Please answer yes or no.";;
-# esac
-# done
-# else
-# DATA1=false
-# fi && echo
-
-# echo -e "\n*** Applying (for couchdb1.6, etc) cert file permission ***"
-# chmod 600 /data/certs/service{cert,key}.pem
-# echo "Done!"
-
-# echo "*** Checking if couchdb migration is needed ***"
-# echo -e "\n[query_server_config]\nos_process_limit = 50" >> $WMA_CURRENT_DIR/config/couchdb/local.ini
-# if [ "$DATA1" = true ]; then
-# ./manage stop-services
-# sleep 5
-# if [ -d "/data1/database/" ]; then
-# echo "Moving old database away... "
-# mv /data1/database/ /data1/database_old/
-# FINAL_MSG="5) Remove the old database when possible (/data1/database_old/)"
-# fi
-# rsync --remove-source-files -avr /data/srv/wmagent/current/install/couchdb/database /data1
-# sed -i "s+database_dir = .*+database_dir = /data1/database+" $WMA_CURRENT_DIR/config/couchdb/local.ini
-# sed -i "s+view_index_dir = .*+view_index_dir = /data1/database+" $WMA_CURRENT_DIR/config/couchdb/local.ini
-# ./manage start-services
-# fi
-# echo "Done!" && echo
-# ###########################################################################################
