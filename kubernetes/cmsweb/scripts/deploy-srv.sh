@@ -160,6 +160,11 @@ if [[ $check == false ]] ; then
         exit 1;
 fi
 
+if [[ "$env" == "prod" ]] && [[ "$cmsweb_image_tag" != *"stable"* ]] ; then
+        echo "Image tag must include stable for deployment in production clusters."
+        exit 1;
+fi
+
 tmpDir=/tmp/$USER/k8s/srv
 
 # use tmp area to store service file
