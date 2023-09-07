@@ -34,7 +34,7 @@ usage(){
 }
 
 PULL=false
-COUCH_TAG=3.3.2
+COUCH_TAG=3.2.2
 
 
 ### Argument parsing:
@@ -50,16 +50,16 @@ while getopts ":t:hp" opt; do
 done
 
 
-couchdbUser=couchdb
+couchdbUser=cmst1
 couchOpts=" --user $couchdbUser"
 
 # This is the root at the host only, it may differ from the root inside the container.
 # NOTE: this may be parametriesed, so that the container can run on a different mount point.
 HOST_MOUNT_DIR=/data/dockerMount
 
-[[ -d $HOST_MOUNT_DIR/certs ]] || (mkdir -p $HOST_MOUNT_DIR/certs) || exit $?
-[[ -d $HOST_MOUNT_DIR/admin/couchdb ]] || (mkdir -p $HOST_MOUNT_DIR/admin/couchdb) || exit $?
-[[ -d $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/config  ]] || (mkdir -p $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/config)  || exit $?
+[[ -d $HOST_MOUNT_DIR/certs ]] || (sudo mkdir -p $HOST_MOUNT_DIR/certs) || exit $?
+[[ -d $HOST_MOUNT_DIR/admin/couchdb ]] || (sudo mkdir -p $HOST_MOUNT_DIR/admin/couchdb) || exit $?
+[[ -d $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/config  ]] || (sudo mkdir -p $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/config)  || exit $?
 [[ -d $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/install/database ]] || { sudo mkdir -p $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/install/database ;} || exit $?
 [[ -d $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/logs ]] || { sudo mkdir -p $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/logs ;} || exit $?
 

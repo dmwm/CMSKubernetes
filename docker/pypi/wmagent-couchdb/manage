@@ -638,7 +638,7 @@ case ${1:-status} in
     ;;
 
   restart )
-    check "$2"
+    # check "$2"
     stop
     sleep 1
     start
@@ -649,47 +649,47 @@ case ${1:-status} in
     ;;
 
   stop )
-    check "$2"
+    # check "$2"
     stop
     ;;
 
   pushapps )
-    check "$2"
+    # check "$2"
     push_apps
     ;;
 
   pushreps )
-    check "$2"
+    # check "$2"
     replications push
     ;;
 
   updatecouchapps )
-    check "$3"
+    # check "$3"
     update_couchapps $2
     ;;
 
   compact )
-    check "$3"
+    # check "$3"
     compact $2
     ;;
 
   compactviews )
-    check "$4"
+    # check "$4"
     compact_views $2 $3
     ;;
 
   cleanviews )
-    check "$3"
+    # check "$3"
     clean_views $2
     ;;
 
   backup )
-    check "$3"
+    # check "$3"
     backup $2
     ;;
 
   archive )
-    check "$3"
+    # check "$3"
     archive $2
     ;;
 

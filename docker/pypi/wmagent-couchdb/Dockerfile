@@ -1,4 +1,4 @@
-ARG TAG=3.3.2
+ARG TAG=3.2.2
 FROM couchdb:${TAG}
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
@@ -13,11 +13,16 @@ RUN apt-get install -y hostname net-tools iputils-ping procps emacs-nox tcpdump 
 
 RUN pip install CMSCouchapp
 
-ENV USER=couchdb
-ENV GROUP=couchdb
+# ENV USER=couchdb
+# ENV GROUP=couchdb
+ENV USER=cmst1
+ENV GROUP=zh
+ENV COUCH_UID=31961
+ENV COUCH_GID=1399
 ENV COUCH_PORT=5984
 # ENV COUCH_UID=5984
 # ENV COUCH_GID=5984
+
 ENV COUCH_ROOT_DIR=/data
 
 ENV COUCH_BASE_DIR=$COUCH_ROOT_DIR/srv/couchdb
@@ -40,9 +45,9 @@ ENV COUCH_ENV_FILE=$COUCH_DEPLOY_DIR/deploy/env.sh
 
 # # Setting up users and previleges
 # # THIS MUST HAPPEN MANUALLY ON THE HOST:
-# RUN groupadd -g ${COUCH_GID} ${GROUP}
-# RUN useradd -u ${COUCH_UID} -g ${COUCH_GID} -m ${USER}
-# RUN install -o ${USER} -g ${COUCH_GID} -d ${COUCH_ROOT_DIR}
+RUN groupadd -g ${COUCH_GID} ${GROUP}
+RUN useradd -u ${COUCH_UID} -g ${COUCH_GID} -m ${USER}
+RUN install -o ${USER} -g ${COUCH_GID} -d ${COUCH_ROOT_DIR}
 
 
 # add user to sudoers file
@@ -69,8 +74,10 @@ RUN ln -s ${COUCH_MANAGE_DIR}/manage ${COUCH_ROOT_DIR}/manage
 RUN ln -s ${COUCH_CONFIG_DIR}/local.ini /opt/couchdb/etc/local.d/
 
 ENV PATH="/opt/couchdb/bin:/usr/local/bin/:${PATH}"
+ENV CRYPTOGRAPHY_ALLOW_OPENSSL_102=true
 
-RUN <<EOF cat >> /opt/couchdb/.bashrc
+# RUN <<EOF cat >> /opt/couchdb/.bashrc
+RUN <<EOF cat >> /home/$USER/.bashrc
 
 alias lll="ls -lathr"
 alias ls="ls --color=auto"

@@ -28,7 +28,7 @@ usage(){
     exit 1
 }
 
-TAG=3.3.2
+TAG=3.2.2
 COUCH_USER=FIXME_USER
 COUCH_PASS=FIXME_PWD
 
