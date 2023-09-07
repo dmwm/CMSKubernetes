@@ -4,15 +4,15 @@
 ###       !!!! NOTHING MUST STAY HERE !!!!
 ###       THIS IS JUST A PLACEHOLDER OF ALL THE STEPS THAT
 ###       NEED TO BE PERFORMED AT THE MYSQL DOCKER IMAGE
-mysqlRoot=
+mysqlRoot=root
 mysqlRootPass=
 mysqlUser=cmst1
 mysqlUserPass=
 
-configDir=/data/srv/mysql/current/config
-dataDir=/data/srv/mysql/current/install/database
-logDir=/data/srv/mysql/current/logs
-socket=/data/srv/mysql/current/logs/mysql.sock
+configDir=/data/dockerMount/srv/mysql/current/config
+dataDir=/data/dockerMount/srv/mysql/current/install/database
+logDir=/data/dockerMount/srv/mysql/current/logs
+socket=/data/dockerMount/srv/mysql/current/logs/mysql.sock
 agentDb=wmagent
 
 echo -------------------------------------------------------------------------
@@ -48,16 +48,17 @@ mysqladmin -u $mysqlRoot --password=$mysqlRootPass  -h 127.0.0.1 password $mysql
 echo
 
 echo -------------------------------------------------------------------------
-echo creating new users
-# create a user - different than root and current unix user - and grant privileges
-mysql -u $mysqlRoot --password=$mysqlRootPass --socket=$socket --execute "CREATE USER '${mysqlUser}'@'localhost'"
-mysql -u $mysqlRoot --password=$mysqlRootPass --socket=$socket --execute "GRANT ALL ON *.* TO $mysqlUser@localhost WITH GRANT OPTION"
-mysql -u $mysqlRoot --password=$mysqlRootPass --socket=$socket --execute "CREATE USER '${mysqlUser}'@'127.0.0.1'"
-mysql -u $mysqlRoot --password=$mysqlRootPass --socket=$socket --execute "GRANT ALL ON *.* TO $mysqlUser@127.0.0.1 WITH GRANT OPTION"
-
-echo -------------------------------------------------------------------------
 echo creating agent databases
 echo "Installing WMAgent Database: $agentDb"
-mysql -u $mysqlRoot --password=$mysqlRootPass --socket=$socket --execute "create database $agentDb"
+mysql -u $mysqlRoot --password=$mysqlRootPass --socket=$socket --execute "create database '$agentDb'"
+
+echo -------------------------------------------------------------------------
+echo creating new users
+# create a user - different than root and current unix user - and grant privileges
+mysql -u $mysqlRoot --password=$mysqlRootPass --socket=$socket --execute "CREATE USER '${mysqlUser}'@'localhost' IDENTIFIED BY '$mysqlUserPass'"
+mysql -u $mysqlRoot --password=$mysqlRootPass --socket=$socket --execute "GRANT ALL ON *.* TO $mysqlUser@localhost WITH GRANT OPTION"
+mysql -u $mysqlRoot --password=$mysqlRootPass --socket=$socket --execute "CREATE USER '${mysqlUser}'@'127.0.0.1' IDENTIFIED BY '$mysqlUserPass'"
+mysql -u $mysqlRoot --password=$mysqlRootPass --socket=$socket --execute "GRANT ALL ON *.* TO $mysqlUser@127.0.0.1 WITH GRANT OPTION"
+
 
 echo -------------------------------------------------------------------------
