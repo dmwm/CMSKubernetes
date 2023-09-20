@@ -94,10 +94,10 @@ spec:
               - sudo chmod 0777 /data/srv/logs/reqmgr2ms; sudo chown _reqmgr2ms:_reqmgr2ms /data/srv/logs/reqmgr2ms
 #PROD#  resources:
 #PROD#    requests:
-#PROD#      memory: "500Mi"
-#PROD#      cpu: "200m"
-#PROD#    limits:
 #PROD#      memory: "1Gi"
+#PROD#      cpu: "1000m"
+#PROD#    limits:
+#PROD#      memory: "2Gi"
 #PROD#      cpu: "1000m"
         livenessProbe:
           exec:
