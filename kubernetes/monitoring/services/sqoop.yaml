@@ -43,7 +43,7 @@ spec:
             - /data/sqoop/log
             - "7"
             - "7200"
-          image: registry.cern.ch/cmsmonitoring/sqoop:sqoop-0.1.13
+          image: registry.cern.ch/cmsmonitoring/sqoop:sqoop-0.1.14
           name: sqoop
           env:
             - name: CMSSQOOP_ENV
