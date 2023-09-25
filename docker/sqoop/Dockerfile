@@ -19,7 +19,9 @@ WORKDIR $WDIR/CMSMonitoring/src/go/MONIT
 RUN go get github.com/go-stomp/stomp
 RUN go get github.com/prometheus/client_golang/prometheus
 RUN go get github.com/prometheus/client_golang/prometheus/promhttp
-RUN go build monit.go && go build hdfs_exporter.go && cp monit hdfs_exporter $WDIR
+RUN CGO_ENABLED=0 go build -ldflags "-s -w -extldflags '-static'" monit.go && \
+    CGO_ENABLED=0 go build -ldflags "-s -w -extldflags '-static'" hdfs_exporter.go && \
+    cp monit hdfs_exporter $WDIR
 WORKDIR $WDIR
 
 # get amtool
