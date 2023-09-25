@@ -1,12 +1,12 @@
 #!/bin/bash
 
-### This script is used to create a WMAgent Docker image and is based on deploy-wmagent.sh
-### It simply deploys the agent based on the WMAgent version/tag provided at runtime.
+### This script is used to deploy the WMAgent pypi package inside a Docker image
+### based on the WMAgent version/tag provided at build time.
 ### * Patches can be applied when the agent container is started.
-### * Configuration changes are made when the container is started with `run.sh`.
+### * Configuration changes are made when the container is initialized for the first time with `init.sh`.
 ###
-### It takes a single parameter as first (and only) argument at runtime - The WMA_TAG
-### Example: install.sh 2.2.0.2
+### It takes a single parameter as first (and only) argument - The WMA_TAG
+### Example: install.sh -t 2.2.0.2
 
 pythonLib=$(python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
 

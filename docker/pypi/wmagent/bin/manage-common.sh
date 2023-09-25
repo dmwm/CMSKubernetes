@@ -1,4 +1,4 @@
-# Auxiliary script to hold common function definitions between run.sh and manage scripts
+# Auxiliary script to hold common function definitions between init.sh and manage scripts
 
 # NOTE: At the current stage none of the global variables like $AGENT_FLAVOR or $MYSQL_PASS are
 #       defined. All of those come not from the environment as $WMA_* variables, but rather
@@ -8,7 +8,7 @@
 
 
 #-------------------------------------------------------------------------------
-# Setting some variables common only between manage and run.sh scripts but not
+# Setting some variables common only between manage and init.sh scripts but not
 # relevant for the rest of the environment
 #
 # Setting all initialization files paths:
@@ -242,7 +242,7 @@ _renew_proxy(){
         [[ -n $myproxyEndDate ]] || ($myproxyCmd && $vomsproxyCmd) || {
                 echo "$FUNCNAME: ERROR: Failed to renew invalid myproxy"; return $(false) ;}
         myproxyEndDate=$(date --date="$myproxyEndDate" +%s)
-        [[ $myproxyEndDate -gt $now ]] || ($myproxyCmd && $vomsproxyCmd) || {
+        [[ $myproxyEndDate -gt $(($now + 7*24*60*60)) ]] || ($myproxyCmd && $vomsproxyCmd) || {
                 echo "$FUNCNAME: ERROR: Failed to renew expired myproxy"; return $(false) ;}
 
         # Stay safe and always change the service {cert,key} and myproxy mode here:

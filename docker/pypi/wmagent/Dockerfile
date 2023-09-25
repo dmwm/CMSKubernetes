@@ -62,6 +62,5 @@ WORKDIR ${WMA_ROOT_DIR}
 USER ${WMA_USER}
 ENV USER=$WMA_USER
 
-# Define the entrypoint. All the run.sh paramters should be passed at runtime.
-# ENTRYPOINT ["./run.sh"]
-ENTRYPOINT ["./init.sh"]
+# Define the entrypoint.
+ENTRYPOINT ["./run.sh"]
