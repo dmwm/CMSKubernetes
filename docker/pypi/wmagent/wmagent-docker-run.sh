@@ -1,32 +1,24 @@
 #!/bin/bash
 
 ### This script is to be used for running the WMAgent docker container at a VM
-### Its sole purpose is to set all the needed mount points from the Host VM and
-### forward all WMAgent runtime parameters to the WMAgent container entrypoint run.sh
-### It accepts only the set of parameters relevant to WMAgent's container run.sh
-### and no build dependent ones. The docker image tag to be searched for execution is
-### always `latest`.
+### Its sole purpose is to set all the needed mount points from the Host VM. Create
+### all proper links at the host pointing to the currently executing container's tag and
+### run the docekr cointainer. The Default docker image tag to be searched for execution is
+### `latest`.
 
-
-# NOTE: In the help call to the current scrit we only repeat the help and usage
-#       information for all the parameters accepted by run.sh.
 help(){
     echo -e $*
     cat <<EOF
 
-The script to be used for running a WMAgent docker container at a VM. The full set of arguments
-passed to the current script are to be forwarded to the WMAgent container entrypoint 'run.sh'
+The script to be used for running a WMAgent docker container at a VM.
 
-Usage: wmagent-docker-run.sh [-t <team_name>] [-n <agent_number>] [-f <db_flavour>]
+Usage: wmagent-docker-run.sh [-t <wmagent_tag] [-p]
 
-    -p <pull_image>   Pull the image from registry.cern.ch
-    -v <wmagent_tag>  The WMAgent version/tag to be downloaded from registry.cern.ch [Default:latest]
+    -t <wmagent_tag>  The WMAgent version/tag to be downloaded from registry.cern.ch [Default:latest]
+    -p <pull_image>   Bool flag to pull the image from registry.cern.ch [Default:False]
 
-    -t <team_name>    Team name in which the agent should be connected to
-    -n <agent_number> Agent number to be set when more than 1 agent connected to the same team (Default: 0)
-    -f <db_flavour>   Relational Database flavour. Possible optinos are: 'mysql' or 'oracle' (Default: myslq)
 
-Example: ./wmagent-docker-run.sh -n 30 -t testbed-vocms001 -c cmsweb-testbed.cern.ch -f mysql
+Example: ./wmagent-docker-run.sh -t 2.2.3.2 -p
 
 EOF
 }
@@ -40,9 +32,9 @@ PULL=false
 WMA_TAG=latest
 
 ### Argument parsing:
-while getopts ":v:hp" opt; do
+while getopts ":t:hp" opt; do
     case ${opt} in
-        v) WMA_TAG=$OPTARG ;;
+        t) WMA_TAG=$OPTARG ;;
         p) PULL=true ;;
         h) help; exit $? ;;
         : )
@@ -51,14 +43,26 @@ while getopts ":v:hp" opt; do
     esac
 done
 
-# This is the root at the host only, it may differ from the root inside the container.
-# NOTE: this may be parametriesed, so that the container can run on a different mount point.
-WMA_ROOT_DIR=/data/dockerMount
 
-[[ -d $WMA_ROOT_DIR/certs ]] || (mkdir -p $WMA_ROOT_DIR/certs) || exit $?
-[[ -d $WMA_ROOT_DIR/admin/wmagent ]] || (mkdir -p $WMA_ROOT_DIR/admin/wmagent) || exit $?
-[[ -d $WMA_ROOT_DIR/srv/wmagent/current/install ]] || (mkdir -p $WMA_ROOT_DIR/srv/wmagent/current/install) || exit $?
-[[ -d $WMA_ROOT_DIR/srv/wmagent/current/config  ]] || (mkdir -p $WMA_ROOT_DIR/srv/wmagent/current/config)  || exit $?
+wmaUser=cmst1
+wmaOpts=" --user $wmaUser"
+
+# This is the root at the host only, it may differ from the root inside the container.
+# NOTE: This is parametriesed, so that the container can run on a different mount point.
+#       A soft link is needed to mimic the same /data tree as inside the container so
+#       that condor may find the job cache and working directories:
+HOST_MOUNT_DIR=/data/dockerMount
+[[ -h /data/srv/wmagent ]] && sudo rm -f /data/srv/wmagent
+sudo ln -s $HOST_MOUNT_DIR/srv/wmagent /data/srv/wmagent
+
+
+[[ -d $HOST_MOUNT_DIR/certs ]] || (sudo mkdir -p $HOST_MOUNT_DIR/certs) || exit $?
+[[ -d $HOST_MOUNT_DIR/admin/wmagent ]] || (sudo mkdir -p $HOST_MOUNT_DIR/admin/wmagent) || exit $?
+[[ -d $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/install ]] || (sudo mkdir -p $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/install) || exit $?
+[[ -d $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/config  ]] || (sudo mkdir -p $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/config)  || exit $?
+[[ -d $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/logs ]] || { sudo mkdir -p $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/logs ;} || exit $?
+
+sudo chown -R $wmaUser $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG || exit $?
 
 # NOTE: Before mounting /etc/tnsnames.ora we should check it exists, otherwise the run will fail on the FNAL agents
 tnsMount=""
@@ -72,22 +76,27 @@ dockerOpts=" \
 $tnsMount
 --mount type=bind,source=/etc/condor,target=/etc/condor,readonly \
 --mount type=bind,source=/tmp,target=/tmp \
---mount type=bind,source=$WMA_ROOT_DIR/certs,target=/data/certs \
---mount type=bind,source=$WMA_ROOT_DIR/srv/wmagent/current/install,target=/data/srv/wmagent/current/install \
---mount type=bind,source=$WMA_ROOT_DIR/srv/wmagent/current/config,target=/data/srv/wmagent/current/config \
---mount type=bind,source=$WMA_ROOT_DIR/admin/wmagent,target=/data/admin/wmagent/hostadmin \
+--mount type=bind,source=$HOST_MOUNT_DIR/certs,target=/data/certs \
+--mount type=bind,source=$HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/install,target=/data/srv/wmagent/current/install \
+--mount type=bind,source=$HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/config,target=/data/srv/wmagent/current/config \
+--mount type=bind,source=$HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/logs,target=/data/srv/wmagent/current/logs \
+--mount type=bind,source=$HOST_MOUNT_DIR/admin/wmagent,target=/data/admin/wmagent/ \
 "
 
-wmaOpts=$*
+wmaOpts="$wmaOpt $*"
 
 $PULL && {
     echo "Pulling Docker image: registry.cern.ch/cmsweb/wmagent:$WMA_TAG"
     docker login registry.cern.ch
     docker pull registry.cern.ch/cmsweb/wmagent:$WMA_TAG
-    docker tag registry.cern.ch/cmsweb/wmagent:$WMA_TAG wmagent:$WMA_TAG
-    docker tag registry.cern.ch/cmsweb/wmagent:$WMA_TAG wmagent:latest
+    docker tag registry.cern.ch/cmsweb/wmagent:$WMA_TAG local/wmagent:$WMA_TAG
+    docker tag registry.cern.ch/cmsweb/wmagent:$WMA_TAG local/wmagent:latest
 }
 
-# docker run $dockerOpts wmagent:$WMA_TAG $wmaOpts
+echo "Checking if there is no other wmagent container running and creating a link to the $WMA_TAG in the host mount area."
+[[ `docker container inspect -f '{{.State.Status}}' wmagent 2>/dev/null ` == 'running' ]] || (
+    [[ -h $HOST_MOUNT_DIR/srv/wmagent/current ]] && sudo rm -f $HOST_MOUNT_DIR/srv/wmagent/current
+    sudo ln -s $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG $HOST_MOUNT_DIR/srv/wmagent/current )
+
 echo "Starting the wmagent:$WMA_TAG docker container with the following parameters: $wmaOpts"
-docker run $dockerOpts wmagent:$WMA_TAG $wmaOpts
+docker run $dockerOpts local/wmagent:$WMA_TAG $wmaOpts
