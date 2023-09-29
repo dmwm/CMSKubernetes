@@ -1,0 +1,106 @@
+# miniDQM service manifest. Repo and docker images: https://github.com/cms-DQM/miniDQM
+# DNS in dqm namespace:
+#  - backend: minidqm.dbs.svc.cluster.local:8081
+#  - frontend: minidqm.dbs.svc.cluster.local:80
+kind: Service
+apiVersion: v1
+metadata:
+  name: minidqm
+  namespace: dqm
+spec:
+  selector:
+    app: minidqm
+  ports:
+    - port: 8081
+      name: backend
+      targetPort: 8081
+      protocol: TCP
+    - port: 80
+      name: frontend
+      targetPort: 80
+      protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minidqm
+  namespace: dqm
+  labels:
+    app: minidqm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minidqm
+  template:
+    metadata:
+      labels:
+        app: minidqm
+    spec:
+      hostname: minidqm
+      containers:
+        # ------------- BACKEND ------------------------------------------------------
+        - name: backend
+          imagePullPolicy: Always
+          image: registry.cern.ch/cmsweb/minidqm-back:latest
+          command: [ "backend/run.sh" ]
+          args: [ "/etc/secrets/keytab" ]
+          env:
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: K8S_ENV
+              value: "prod"
+            - name: FAST_API_CONF
+              value: "/data/backend/config"
+          ports:
+            - containerPort: 8081
+              name: backend
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 6Gi
+            requests:
+              cpu: 500m
+              memory: 750Mi
+          stdin: true
+          tty: true
+          volumeMounts:
+            - name: minidqm-secrets
+              mountPath: /etc/secrets
+              readOnly: true
+            - name: eos
+              mountPath: /eos
+              mountPropagation: HostToContainer
+        # ------------- FRONTEND -----------------------------------------------------
+        - name: frontend
+          imagePullPolicy: Always
+          image: registry.cern.ch/cmsweb/minidqm-front:latest
+          command: [ "/run.sh" ]
+          env:
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: K8S_ENV
+              value: "prod"
+            - name: VITE_BACKEND_API_BASE_URL # see frontend/src/main.js and frontend/run.sh, used in axios. Check auth proxy conf for cmsweb entry
+              value: "https://cmsweb.cern.ch/dqm/mini_back/api"
+          ports:
+            - containerPort: 80
+              name: frontend
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+            requests:
+              cpu: 500m
+              memory: 750Mi
+      volumes:
+        - name: minidqm-secrets
+          secret:
+            secretName: minidqm-secrets
+        - name: eos
+          hostPath:
+            path: /var/eos
