@@ -1,6 +1,6 @@
-FROM cern/cc7-base:20230426-1
+FROM cern/cc7-base:20230901-2
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
-ADD http://repository.egi.eu/sw/production/cas/1/current/repo-files/EGI-trustanchors.repo /etc/yum.repos.d/egi.repo
+ADD http://repository.egi.eu/sw/production/cas/1/current/repo-files/egi-trustanchors.repo /etc/yum.repos.d/egi.repo
 ADD http://linuxsoft.cern.ch/wlcg/wlcg-centos7.repo /etc/yum.repos.d/wlcg-centos7.repo
 ADD slc7-cernonly.repo /etc/yum.repos.d/slc7-cernonly.repo
 # always run yum install and yum clean and remove cache in one command

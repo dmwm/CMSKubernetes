@@ -1,14 +1,14 @@
-FROM registry.cern.ch/cmsweb/exporters:20210726-nonstatic as exporters-builder
+FROM registry.cern.ch/cmsweb/exporters:20231002-stable as exporters-builder
 RUN mkdir -p /data
 
 
-FROM cern/cc7-base:20230426-1
+FROM cern/cc7-base:20230901-2
 
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data/cmsweb
 RUN mkdir -p $WDIR
-ADD http://repository.egi.eu/sw/production/cas/1/current/repo-files/EGI-trustanchors.repo /etc/yum.repos.d/egi.repo
+ADD http://repository.egi.eu/sw/production/cas/1/current/repo-files/egi-trustanchors.repo /etc/yum.repos.d/egi.repo
 ADD http://linuxsoft.cern.ch/wlcg/wlcg-centos7.repo /etc/yum.repos.d/wlcg-centos7.repo
 ADD hadoop.repo /etc/yum.repos.d/hadoop.repo
 ADD epel.repo /etc/yum.repos.d/epel.repo
