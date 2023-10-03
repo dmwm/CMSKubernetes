@@ -1,0 +1,41 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongotools
+  namespace: mongodb
+  labels:
+     app: mongotools
+spec:
+  selector:
+    matchLabels:
+      app: mongotools
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongotools
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 2000
+      containers:
+#       - image: registry.cern.ch/cmsweb/mongotools #imagetag
+      - image: registry.cern.ch/cmsweb/mongotools:v0.0.1
+        name: mongotools
+        imagePullPolicy: Always
+        command:
+        - tail
+        - -f
+        - /etc/hosts
+        volumeMounts:
+        - name: mongodb-secrets
+          mountPath: /etc/mongodb
+          readOnly: true
+        securityContext:
+          allowPrivilegeEscalation: false
+      volumes:
+      - name: mongodb-secrets
+        secret:
+          secretName: mongodb-secrets
