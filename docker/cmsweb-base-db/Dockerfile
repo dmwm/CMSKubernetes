@@ -1,4 +1,4 @@
-FROM cern/cc7-base:20221101-1 as builder
+FROM cern/cc7-base:20230928-1 as builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 ENV WDIR=/data
@@ -10,7 +10,7 @@ RUN yum install -y git-core make gcc golang sudo oracle-instantclient-tnsnames.o
             oracle-instantclient-devel oracle-instantclient-basic \
             && yum clean all && rm -rf /var/cache/yum
 
-FROM cern/cc7-base:20221101-1
+FROM cern/cc7-base:20230928-1
 RUN yum install -y libaio && yum clean all && rm -rf /var/cache/yum
 RUN mkdir -p /data
 COPY --from=builder /usr/lib/oracle /usr/lib/oracle
