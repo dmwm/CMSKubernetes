@@ -28,7 +28,7 @@ RUN yum -y update && \
     rm -rf Python-${PY_VERSION}.tgz Python-${PY_VERSION} && \
     unset PY_MAJOR && \
     cd $WDIR && \
-    pip install --no-cache-dir click pandas schema stomp.py==7.0.0 && \
+    pip install --no-cache-dir click pandas rucio-clients schema stomp.py==7.0.0 && \
     git clone https://github.com/dmwm/CMSSpark.git && \
     git clone https://github.com/dmwm/CMSMonitoring.git && cd CMSMonitoring && git checkout tags/$CMSMONITORING_TAG -b build && cd ..
 
