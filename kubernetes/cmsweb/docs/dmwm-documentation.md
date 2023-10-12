@@ -29,3 +29,9 @@ The CMSWeb Operator/CMS-HTTP-GROUP.
     -rw-r--r--. 1 _reqmgr2ms _reqmgr2ms 3513 Sep 29 14:06 dmwm-service-cert.pem
     
     ```
+- How do I check if the host certificates are expired?
+```
+[apervaiz@lxplus812 ~]$ echo | openssl s_client -connect <cluster-url>:443 2>/dev/null | openssl x509 -noout -dates
+notBefore=Feb 28 02:56:51 2023 GMT
+notAfter=Apr  3 02:56:51 2024 GMT
+```
