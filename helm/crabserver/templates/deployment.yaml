@@ -55,14 +55,18 @@ spec:
           livenessProbe:
           {{- if eq (toString $environment) "prod" }}
           {{- toYaml .Values.livenessProbe | nindent 12 }}
-          {{- else }}
+          {{- else if eq (toString $environment) "preprod" }}
           {{- toYaml .Values.livenessProbePreProd | nindent 12 }}
+          {{- else }}
+          {{- toYaml .Values.livenessProbeTest | nindent 12 }}
           {{- end }}
           readinessProbe:
           {{- if eq (toString $environment) "prod" }}
           {{- toYaml .Values.readinessProbe | nindent 12 }}
-          {{- else }}
+          {{- else if eq (toString $environment) "preprod" }}
           {{- toYaml .Values.readinessProbePreProd | nindent 12 }}
+          {{- else }}
+          {{- toYaml .Values.readinessProbeTest | nindent 12 }}
           {{- end }}
           volumeMounts:
           - name: proxy-secrets
