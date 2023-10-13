@@ -133,3 +133,74 @@ repository contains SSL and NOSSL redirect rules for individual services or name
   - If they don't exist in backends.txt, update the secrets by applying the services_config files mentioned above, and restart the frontend daemonset.
   - If they don't exist in the server.conf or `srv/current/config/frontend/app\_\<service-name\>\_ssl/nossl.conf` files, and you are sure your changes were incorporate, then maybe your cluster is running an older version of the frontend service.
 
+## Health/Load of the cluster
+
+1. **Get Cluster Information**:
+   - To get general information about your cluster, including its version and nodes, use: `kubectl cluster-info`.
+
+2. **Check Node Status**:
+   - To view the status of your cluster nodes and their resource utilization, you can use: `kubectl get nodes`.
+
+3. **View Pod Status**:
+   - To check the status of pods running in your cluster: `kubectl get pods -n <namespace>`.
+
+4. **Get Resource Usage**:
+   - Use `kubectl top` to check resource usage for nodes or pods. For example, to view CPU and memory usage for pods: `kubectl top pods -n <namespace>`.
+   - To view node resource usage: `kubectl top nodes`.
+
+5. **Check Cluster Events**:
+   - To see recent cluster events, run: `kubectl get events`.
+
+6. **Examine Logs**:
+   - View logs of a pod for troubleshooting or performance analysis: `kubectl logs <pod-name> -n <namespace>`.
+
+7. **List Deployments**:
+   - List all deployments in a namespace: `kubectl get deployments -n <namespace>`.
+
+8. **Scale Deployments**:
+   - Scale a deployment up or down using `kubectl scale`. For example, to scale a deployment to 3 replicas: `kubectl scale deployment <deployment-name> --replicas=3 -n <namespace>`.
+
+9. **Resource Requests and Limits**:
+   - Check the resource requests and limits of pods with: `kubectl describe pod <pod-name> -n <namespace>`. This helps you understand resource allocation.
+
+10. **Pod Restart Count**:
+    - To see how many times a pod has been restarted, use: `kubectl get pods <pod-name> -n <namespace> -o=jsonpath='{.status.containerStatuses[0].restartCount}'`.
+
+11. **Rolling Restart**:
+    - Perform a rolling restart of a deployment: `kubectl rollout restart deployment/<deployment-name> -n <namespace>`.
+
+12. **Attach to Running Pod**:
+    - Attach to a running pod for interactive troubleshooting: `kubectl exec -it <pod-name> -n <namespace> -- /bin/sh`.
+
+13. **Horizontal Pod Autoscaling**:
+    - To check the status of Horizontal Pod Autoscalers (HPA), use: `kubectl get hpa -n <namespace>`.
+
+14. **Check API Resources**:
+    - Get a list of available API resources with: `kubectl api-resources`.
+
+15. **Check Component Status**:
+     - To view the status of core Kubernetes components, use: `kubectl get componentstatus`.
+
+16. **API Server Health**:
+     - Check the health of the Kubernetes API server: `kubectl get --raw /healthz`.
+     - To get more detailed information about the API server, use: `kubectl describe componentstatuses kube-apiserver`.
+
+17. **Kubelet Health**:
+     - Verify the health of Kubelet on each node: `kubectl describe nodes`.
+
+18. **Control Plane Components**:
+     - Examine the status of control plane components by running: `kubectl get pods -n kube-system`.
+
+19. **Check Cluster DNS**:
+     - Confirm the health of the cluster DNS by running: `kubectl get pods -n kube-system -l k8s-app=kube-dns`.
+
+20. **Storage Provisioners**:
+     - To check the status of storage provisioners, run: `kubectl get storageclass`.
+
+21. **Persistent Volume Claims (PVCs)**:
+     - Verify the status of PVCs in a particular namespace: `kubectl get pvc -n <namespace>`.
+
+22. **Cluster Version**:
+    - To check the version of the Kubernetes cluster, you can use: `kubectl version`.
+
+
