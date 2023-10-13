@@ -143,6 +143,28 @@ readinessProbePreProd:
   periodSeconds: 60  
   timeoutSeconds: 60
 
+livenessProbeTest:
+  exec:
+    command:
+    - /bin/sh
+    - -c
+    - |
+      cmsweb-ping --url=http://localhost:8270/crabserver/dev/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
+  failureThreshold: 3
+  initialDelaySeconds: 120
+  periodSeconds: 60
+  timeoutSeconds: 60
+
+readinessProbeTest:
+  exec:
+    command:
+    - /bin/sh
+    - -c
+    - |
+      cmsweb-ping --url=http://localhost:8270/crabserver/dev/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
+  periodSeconds: 60  
+  timeoutSeconds: 60
+
 autoscaling:
   enabled: false
   minReplicas: 1
