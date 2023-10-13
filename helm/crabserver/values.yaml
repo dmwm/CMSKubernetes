@@ -10,7 +10,7 @@ image:
   path: registry.cern.ch/cmsweb/crabserver
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "v3.230221"
+  tag: "v3.231006"
   command:
   - /bin/bash
   - /opt/setup-certs-and-run/setup-certs-and-run.sh
