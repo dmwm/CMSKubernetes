@@ -92,7 +92,7 @@ Calico Node and CoreDNS are specific components within the Kubernetes ecosystem,
      ```
       Usually, restarting the deployment fixes the issue. Sometimes, you have to ensure that you are running the latest configuration. The configuration changes are made by       the CERN IT. The most common type of error is `FailedCreatePodSandBox        Failed to create pod sandbox: rpc error: code = Unknown desc = failed to set up sandbox container.`
 
-In summary, Calico Node is responsible for managing networking and network security policies at the node level, ensuring connectivity and security for pods, while CoreDNS is the DNS server responsible for resolving domain names and enabling service discovery within the Kubernetes cluster. Together, they contribute to the effective functioning of a Kubernetes environment.
+In summary, calico is responsible for managing networking and network security policies at the node level, ensuring connectivity and security for pods, while CoreDNS is the DNS server responsible for resolving domain names and enabling service discovery within the Kubernetes cluster. Together, they contribute to the effective functioning of a Kubernetes environment.
 
 
 #### Robot certificates/ Cron-proxy
@@ -103,4 +103,33 @@ Now, we can obtain CERN service account and apply for a Robot certificate. Once 
 register them in [LCG VOMS server](https://lcg-voms2.cern.ch:8443).  Then, we'll mount them in secrets volume in the k8s cluster and use them for acquiring proxies
 within k8s pods, see [proxy.sh](https://github.com/dmwm/CMSKubernetes/blob/master/docker/proxy/proxy.sh) file for example. It runs as a cronjob, named `cron-proxy.`
 
+#### Frontends
+
+When you want to add a new service to be hosted under CMSWeb, you have to take the following steps:
+  - The [deployment/frontend](https://github.com/dmwm/deployment/tree/master/frontend)
+repository contains SSL and NOSSL redirect rules for individual services or namespaces. They are labeled as app\_\<service-name\>\_ssl.conf and app\_\<service-name\>\_nossl.conf. You have to insert redirect rules there.
+  - Then, we need to insert rules in backends-k8s-prod.txt and backends-k8s-preprod.txt to let the frontends know where we would like our requests to be redirected. For K8s, you just need to supply a single `backends.txt` file with proper rules. This file is present in the [services_config/-/tree/cmsweb/frontend-ds](https://gitlab.cern.ch/cmsweb-k8s/services_config/-/tree/cmsweb/frontend-ds?ref_type=heads) branch for the production cluster, for preproduction cluster, it is present in the [services_config/-/tree/preprod/frontend-ds](https://gitlab.cern.ch/cmsweb-k8s/services_config/-/tree/preprod/frontend-ds?ref_type=heads), and for test cluster, it is present in [services_config/-/tree/test/frontend-ds](https://gitlab.cern.ch/cmsweb-k8s/services_config/-/tree/test/frontend-ds?ref_type=heads).
+
+- How do you check if your changes for a particular service are there?
+  - Exec into the frontend pod:
+    ```
+    kubectl exec -it frontend-pod -n auth
+    ```
+  - Then, check if the rules exist for the service, let's say, MS-PileUP, in the following locations:
+    ```
+        [_frontend@cmsweb-testbed-v1-22-zone-a-whjk2m547jvl-node-0 data]$ cat srv/state/frontend/server.conf | grep ms-pileup
+      RewriteRule ^(/ms-pileup-tasks(/.*)?)$ /auth/verify${escape:$1} [QSA,PT,E=AUTH_SPEC:cert]
+      RewriteRule ^/auth/complete(/ms-pileup-tasks(/.*)?)$ http://%{ENV:BACKEND}:8361${escape:$1} [QSA,P,L,NE]
+      RewriteRule ^(/ms-pileup(/.*)?)$ /auth/verify${escape:$1} [QSA,PT,E=AUTH_SPEC:cert]
+      RewriteRule ^/auth/complete(/ms-pileup(/.*)?)$ http://%{ENV:BACKEND}:8241${escape:$1} [QSA,P,L,NE]
+      RewriteRule ^(/ms-pileup-tasks(/.*)?)$ https://%{SERVER_NAME}${escape:$1}%{env:CMS_QUERY} [R=301,NE,L]
+      RewriteRule ^(/ms-pileup(/.*)?)$ https://%{SERVER_NAME}${escape:$1}%{env:CMS_QUERY} [R=301,NE,L]
+    ```
+    AND
+    ```
+        [_frontend@cmsweb-testbed-v1-22-zone-a-whjk2m547jvl-node-0 data]$ cat srv/current/config/frontend/backends.txt | grep ms-pileup
+    ^/auth/complete/ms-pileup(?:/|$) ms-pileup.dmwm.svc.cluster.local
+    ```
+  - If they don't exist in backends.txt, update the secrets by applying the services_config files mentioned above, and restart the frontend daemonset.
+  - If they don't exist in the server.conf or `srv/current/config/frontend/app\_\<service-name\>\_ssl/nossl.conf` files, and you are sure your changes were incorporate, then maybe your cluster is running an older version of the frontend service.
 
