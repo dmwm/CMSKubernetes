@@ -11,15 +11,13 @@ spec:
         spec:
           containers:
           - name: grafana-backup
-            image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.4.2.3
+            image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.4.2.5
             command: [ "bash", "-c"]
             args:
             - date; echo "run dashboard-exporter.py through run.sh";
               cd /data/CMSMonitoring/grafana-backup/;
-              ./run.sh /etc/secrets/keytab /etc/secrets/token_backup.json $HDFS_PATH $FILESYSTEM_PATH
+              ./run.sh /etc/secrets/keytab /etc/secrets/token_backup.json $FILESYSTEM_PATH
             env:
-              - name: HDFS_PATH
-                value: "/cms/backups/grafana/"
               - name: FILESYSTEM_PATH
                 value: "/eos/cms/store/group/offcomp_monit/grafana_backup/"
             volumeMounts:
