@@ -33,13 +33,25 @@ fi
 # age -i $AGE_KEY --decrypt -o - file.encrypted
 
 init(){
-  URI=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep URI | sed -e "s,URI=,,g"`
-  HOST=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep URI | sed -e "s,HOST=,,g"`
-  PORT=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep URI | sed -e "s,PORT=,,g"`
-  AUTHDB=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep AUTHDB | sed -e "s,AUTHDB=,,g"`
-  USERNAME=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep USERNAME | sed -e "s,USERNAME=,,g"`
-  PASSWORD=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep PASSWORD | sed -e "s,PASSWORD=,,g"`
-  BACKUP_DIR=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep BACKUP_DIR | sed -e "s,BACKUP_DIR=,,g"`
+  if [ -n "`grep USERNAME $CONFIG`" ]; then
+      # we have unencrypted config
+      URI=`cat $CONFIG | grep URI | sed -e "s,URI=,,g"`
+      HOST=`cat $CONFIG | grep HOST | sed -e "s,HOST=,,g"`
+      PORT=`cat $CONFIG | grep PORT | sed -e "s,PORT=,,g"`
+      AUTHDB=`cat $CONFIG | grep AUTHDB | sed -e "s,AUTHDB=,,g"`
+      USERNAME=`cat $CONFIG | grep USERNAME | sed -e "s,USERNAME=,,g"`
+      PASSWORD=`cat $CONFIG | grep PASSWORD | sed -e "s,PASSWORD=,,g"`
+      BACKUP_DIR=`cat $CONFIG | grep BACKUP_DIR | sed -e "s,BACKUP_DIR=,,g"`
+  else
+      # we got encrypted config
+      URI=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep URI | sed -e "s,URI=,,g"`
+      HOST=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep HOST | sed -e "s,HOST=,,g"`
+      PORT=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep PORT | sed -e "s,PORT=,,g"`
+      AUTHDB=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep AUTHDB | sed -e "s,AUTHDB=,,g"`
+      USERNAME=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep USERNAME | sed -e "s,USERNAME=,,g"`
+      PASSWORD=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep PASSWORD | sed -e "s,PASSWORD=,,g"`
+      BACKUP_DIR=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep BACKUP_DIR | sed -e "s,BACKUP_DIR=,,g"`
+  fi
   if [ -z "$USERNAME" ]; then
       echo "Unable to locate USERNAME in $CONFIG"
       exit 1
