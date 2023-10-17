@@ -9,6 +9,7 @@ RUN curl -ksLO https://fastdl.mongodb.org/tools/db/mongodb-database-tools-$MONGO
     && rm mongodb-database-tools-$MONGO_VER.tgz \
     && mv mongodb-database-tools-$MONGO_VER/bin . \
     && rm -rf mongodb-database-tools-$MONGO_VER
+RUN mv bin/* . && rm -rf bin
 # download sops tool
 ENV SOPS_VER=v3.8.0
 RUN curl -ksLO https://github.com/getsops/sops/releases/download/${SOPS_VER}/sops-${SOPS_VER}.linux.amd64
