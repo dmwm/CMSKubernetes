@@ -1,3 +1,26 @@
+FROM debian:stable-slim as tools
+RUN apt-get update && apt-get -y install curl
+ENV WDIR=/data/tools
+WORKDIR $WDIR
+# download mongodb tools
+ENV MONGO_VER=debian92-x86_64-100.8.0
+RUN curl -ksLO https://fastdl.mongodb.org/tools/db/mongodb-database-tools-$MONGO_VER.tgz \
+    && tar xfz mongodb-database-tools-$MONGO_VER.tgz \
+    && rm mongodb-database-tools-$MONGO_VER.tgz \
+    && mv mongodb-database-tools-$MONGO_VER/bin . \
+    && rm -rf mongodb-database-tools-$MONGO_VER
+RUN mv bin/* . && rm -rf bin
+# download sops tool
+ENV SOPS_VER=v3.8.0
+RUN curl -ksLO https://github.com/getsops/sops/releases/download/${SOPS_VER}/sops-${SOPS_VER}.linux.amd64
+RUN mv sops-${SOPS_VER}.linux.amd64 sops && chmod +x sops
+# download age tool
+ENV AGE_VER=v1.1.1
+RUN curl -ksLO https://github.com/FiloSottile/age/releases/download/v1.1.1/age-${AGE_VER}-linux-amd64.tar.gz
+RUN tar xfz age-${AGE_VER}-linux-amd64.tar.gz
+RUN mv age agetools && mv agetools/age . && mv agetools/age-keygen . && rm -rf age-${AGE_VER}-linux-amd64.tar.gz agetools
+
+# main mongodb image
 FROM mongo:5.0.15
 WORKDIR /root
 ENV MONGODB_ID mongo-0
@@ -5,6 +28,9 @@ ENV MONGODB_ID mongo-0
 RUN apt update
 RUN apt install -y iproute2
 
+COPY --from=tools /data/tools /data/tools
 COPY /startup-script-mongo /root
+COPY /mongotools /data/tools
+ENV PATH=/data/tools:$PATH
 
 CMD ./startup-$MONGODB_ID.sh
