@@ -19,11 +19,6 @@ if [ -z "$CONFIG" ]; then
     usage
     exit 1
 fi
-if [ -z "$AGE_KEY" ]; then
-    echo "AGE_KEY environment is not set, please generate appropriate key file"
-    echo "using age-keygen and point this environment to it"
-    exit 1
-fi
 
 # how to encrypt file with age
 # age -i $AGE_KEY --encrypt file.txt > file.encrypted
@@ -43,6 +38,11 @@ init(){
       PASSWORD=`cat $CONFIG | grep PASSWORD | sed -e "s,PASSWORD=,,g"`
       BACKUP_DIR=`cat $CONFIG | grep BACKUP_DIR | sed -e "s,BACKUP_DIR=,,g"`
   else
+      if [ -z "$AGE_KEY" ]; then
+        echo "AGE_KEY environment is not set, please generate appropriate key file"
+        echo "using age-keygen and point this environment to it"
+        exit 1
+      fi
       # we got encrypted config
       URI=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep URI | sed -e "s,URI=,,g"`
       HOST=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep HOST | sed -e "s,HOST=,,g"`
