@@ -21,7 +21,7 @@ if [ -z "$CONFIG" ]; then
 fi
 if [ -z "$AGE_KEY" ]; then
     echo "AGE_KEY environment is not set, please generate appropriate key file"
-    ehco "using age-keygen and point this environment to it"
+    echo "using age-keygen and point this environment to it"
     exit 1
 fi
 
