@@ -106,7 +106,7 @@ backup()
             --out="$BACKUP_DIR/$DATE" \
             --db="$dbName" 
     done
-    #sudo find $BACKUP_DIR -mindepth 1 -maxdepth 1 -type d -ctime +10  | xargs sudo rm -rf;
+    find $BACKUP_DIR -mindepth 1 -maxdepth 1 -type d -ctime +10  | xargs sudo rm -rf;
 }
 
 restore()
