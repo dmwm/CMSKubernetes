@@ -128,7 +128,7 @@ restore()
             --password="$PASSWORD" \
             --db="$dbName" 
     done
-    sudo find $BACKUP_DIR -mindepth 1 -maxdepth 1 -type d -ctime +10  | xargs sudo rm -rf;
+    sudo find $BACKUP_DIR -mindepth 1 -maxdepth 1 -type d -ctime +10  | xargs rm -rf;
 }
 
 backup_status()
