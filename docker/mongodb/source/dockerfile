@@ -1,5 +1,5 @@
 FROM debian:stable-slim as tools
-RUN apt-get update && apt-get -y install curl
+RUN apt-get update && apt-get -y install curl && apt-get -y install krb5-user
 ENV WDIR=/data/tools
 WORKDIR $WDIR
 # download mongodb tools
