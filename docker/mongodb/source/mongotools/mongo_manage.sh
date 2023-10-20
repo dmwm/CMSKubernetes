@@ -37,6 +37,7 @@ init(){
       USERNAME=`cat $CONFIG | grep USERNAME | sed -e "s,USERNAME=,,g"`
       PASSWORD=`cat $CONFIG | grep PASSWORD | sed -e "s,PASSWORD=,,g"`
       BACKUP_DIR=`cat $CONFIG | grep BACKUP_DIR | sed -e "s,BACKUP_DIR=,,g"`
+      RS_NAME=`cat $CONFIG | grep RS_NAME | sed -e "s,BACKUP_DIR=,,g"`
   else
       if [ -z "$AGE_KEY" ]; then
         echo "AGE_KEY environment is not set, please generate appropriate key file"
@@ -51,6 +52,7 @@ init(){
       USERNAME=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep USERNAME | sed -e "s,USERNAME=,,g"`
       PASSWORD=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep PASSWORD | sed -e "s,PASSWORD=,,g"`
       BACKUP_DIR=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep BACKUP_DIR | sed -e "s,BACKUP_DIR=,,g"`
+      RS_NAME=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep RS_NAME | sed -e "s,RS_NAME=,,g"`
   fi
   if [ -z "$USERNAME" ]; then
       echo "Unable to locate USERNAME in $CONFIG"
@@ -58,6 +60,10 @@ init(){
   fi
   if [ -z "$PASSWORD" ]; then
       echo "Unable to locate PASSWORD in $CONFIG"
+      exit 1
+  fi
+  if [ -z "$RS_NAME" ]; then
+      echo "Unable to locate RS_NAME in $CONFIG"
       exit 1
   fi
   if [ "$ACTION" == "backup" ]; then
@@ -93,20 +99,14 @@ backup()
 
     # Get the current date and time
     DATE=$(date +%Y-%m-%d_%H-%M-%S)
-   
     # Loop through each database and run mongodump
     for dbName in "msOutputDBPreProd" "msPileupDBPreProd" "msUnmergedDBPreProd"
     do
         echo "Dumping database: $dbName"
-        mongodump -vvv \
-            --uri="$URI/$dbName?replicaSet=mongodb-preprod" \
-            --username="$USERNAME" \
-            --password="$PASSWORD" \
-            --authenticationDatabase="$authdb" \
-            --out="$BACKUP_DIR/$DATE" \
-            --db="$dbName" 
+    
+        mongodump --uri "mongodb://$USERNAME:$PASSWORD@$URI/$dbName?$RS_NAME" --authenticationDatabase=$AUTHDB --out="$BACKUP_DIR/$DATE" 
     done
-    find $BACKUP_DIR -mindepth 1 -maxdepth 1 -type d -ctime +10  | xargs sudo rm -rf;
+    find $BACKUP_DIR -mindepth 1 -maxdepth 1 -type d -ctime +10  | xargs rm -rf;
 }
 
 restore()
@@ -128,7 +128,7 @@ restore()
             --password="$PASSWORD" \
             --db="$dbName" 
     done
-    sudo find $BACKUP_DIR -mindepth 1 -maxdepth 1 -type d -ctime +10  | xargs rm -rf;
+    find $BACKUP_DIR -mindepth 1 -maxdepth 1 -type d -ctime +10  | xargs rm -rf;
 }
 
 backup_status()
