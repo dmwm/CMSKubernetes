@@ -1,5 +1,5 @@
 FROM debian:stable-slim as tools
-RUN apt-get update && apt-get -y install curl && apt-get -y install krb5-user
+RUN apt-get update && apt-get -y install curl
 ENV WDIR=/data/tools
 WORKDIR $WDIR
 # download mongodb tools
@@ -26,11 +26,15 @@ WORKDIR /root
 ENV MONGODB_ID mongo-0
 
 RUN apt update
-RUN apt install -y iproute2
+RUN apt install -y iproute2 && apt-get -y install krb5-user && apt-get install -y cron
 
 COPY --from=tools /data/tools /data/tools
 COPY /startup-script-mongo /root
+ADD mongo.cron /data/tools/mongo.cron
 COPY /mongotools /data/tools
+
+RUN crontab /data/tools/mongo.cron
+
 ENV PATH=/data/tools:$PATH
 
 CMD ./startup-$MONGODB_ID.sh

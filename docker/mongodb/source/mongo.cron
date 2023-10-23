@@ -1,0 +1,1 @@
+0 2 * * * export AGE_KEY="/data/tools/age-key.txt" && /data/tools/mongo_manage.sh backup mongo.ini 
