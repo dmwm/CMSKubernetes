@@ -1,4 +1,4 @@
-FROM registry.cern.ch/cmsweb/oracle:21_5 as oracle
+FROM registry.cern.ch/cmsweb/oracle:21_5-stable as oracle
 #FROM cmssw/oracle:21_1 as oracle
 FROM cmssw/exporters:latest as exporters
 FROM cmssw/filebeat:latest as filebeat
