@@ -22,7 +22,7 @@ spec:
   selector:
     matchLabels:
       app: autodqm
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
