@@ -26,10 +26,16 @@ WORKDIR /root
 ENV MONGODB_ID mongo-0
 
 RUN apt update
-RUN apt install -y iproute2
+RUN apt install -y iproute2 
 
 COPY --from=tools /data/tools /data/tools
 COPY /startup-script-mongo /root
+
+#add kinit operation
+ADD run.sh /root && chmod +x /root/run.sh
+#add cronjob
+ADD mongo.cron /data/tools/mongo.cron
+
 COPY /mongotools /data/tools
 ENV PATH=/data/tools:$PATH
 
