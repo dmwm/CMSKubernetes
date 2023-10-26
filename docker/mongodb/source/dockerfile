@@ -32,7 +32,8 @@ COPY --from=tools /data/tools /data/tools
 COPY /startup-script-mongo /root
 
 #add kinit operation
-ADD run.sh /root && chmod +x /root/run.sh
+ADD run.sh /root 
+RUN chmod +x /root/run.sh
 
 #add cronjob
 ADD mongo.cron /data/tools/mongo.cron
