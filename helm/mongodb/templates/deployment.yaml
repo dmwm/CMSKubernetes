@@ -101,7 +101,7 @@ spec:
           volumeMounts:
             - name: {{.Values.db.instance0.pvName}}
               mountPath: "/data/db"
-            - name: {{.Values.db.instance2.pvName-eos}}
+            - name: {{.Values.db.instance0.pvName}}-eos
               mountPath: "/eos"
             - name: mongo-keyfile
               mountPath: "/etc/secrets"
@@ -110,9 +110,9 @@ spec:
         - name: {{.Values.db.instance0.pvName}}
           persistentVolumeClaim:
             claimName: {{.Values.db.instance0.pvName}}
-        - name: {{.Values.db.instance0.pvName-eos}}
+        - name: {{.Values.db.instance0.pvName}}-eos
           persistentVolumeClaim:
-            claimName: {{.Values.db.instance0.pvName-eos}}
+            claimName: {{.Values.db.instance0.pvName}}-eos
         - name: mongo-keyfile
           secret:
             secretName: mongodb-auth
@@ -120,7 +120,6 @@ spec:
             items:
               - key: keyfile
                 path: mongokeyfile
-
 ---
 apiVersion: v1
 kind: Service
@@ -189,7 +188,7 @@ spec:
           volumeMounts:
             - name: {{.Values.db.instance1.pvName}}
               mountPath: "/data/db"
-            - name: {{.Values.db.instance1.pvName-eos}}
+            - name: {{.Values.db.instance1.pvName}}-eos
               mountPath: "/eos"
             - name: mongo-keyfile
               mountPath: "/etc/secrets"
@@ -197,9 +196,9 @@ spec:
         - name: {{.Values.db.instance1.pvName}}
           persistentVolumeClaim:
             claimName: {{.Values.db.instance1.pvName}}
-        - name: {{.Values.db.instance1.pvName-eos}}
+        - name: {{.Values.db.instance1.pvName}}-eos
           persistentVolumeClaim:
-            claimName: {{.Values.db.instance1.pvName-eos}}
+            claimName: {{.Values.db.instance1.pvName}}-eos
         - name: mongo-keyfile
           secret:
             secretName: mongodb-auth
@@ -275,7 +274,7 @@ spec:
           volumeMounts:
             - name: {{.Values.db.instance2.pvName}}
               mountPath: "/data/db"
-            - name: {{.Values.db.instance2.pvName-eos}}
+            - name: {{.Values.db.instance2.pvName}}-eos
               mountPath: "/eos"
             - name: mongo-keyfile
               mountPath: "/etc/secrets"
@@ -283,9 +282,9 @@ spec:
         - name: {{.Values.db.instance2.pvName}}
           persistentVolumeClaim:
             claimName: {{.Values.db.instance2.pvName}}
-        - name: {{.Values.db.instance2.pvName-eos}}
+        - name: {{.Values.db.instance2.pvName}}-eos
           persistentVolumeClaim:
-            claimName: {{.Values.db.instance2.pvName-eos}}
+            claimName: {{.Values.db.instance2.pvName}}-eos
         - name: mongo-keyfile
           secret:
             secretName: mongodb-auth

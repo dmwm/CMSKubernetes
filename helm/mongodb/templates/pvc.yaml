@@ -53,3 +53,59 @@ spec:
     requests:
       storage: {{.Values.quickSetting.pvc.storageSize}}
 ---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: eos
+  annotations:
+    "helm.sh/resource-policy": keep
+provisioner: kubernetes.io/cinder
+parameters:
+  type: eos
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: {{.Values.quickSetting.namespace}}
+  name: {{.Values.db.instance0.pvName}}-eos
+  annotations:
+    "helm.sh/resource-policy": keep
+spec:
+  accessModes:
+    - {{.Values.quickSetting.pvc.accessMode}}
+  storageClassName: eos
+  resources:
+    requests:
+      storage: 1
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: {{.Values.quickSetting.namespace}}
+  name: {{.Values.db.instance1.pvName}}-eos
+  annotations:
+    "helm.sh/resource-policy": keep
+spec:
+  accessModes:
+    - {{.Values.quickSetting.pvc.accessMode}}
+  storageClassName: eos
+  resources:
+    requests:
+      storage: 1
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{.Values.db.instance2.pvName}}-eos
+  namespace: {{.Values.quickSetting.namespace}}
+  annotations:
+    "helm.sh/resource-policy": keep
+spec:
+  accessModes:
+    - {{.Values.quickSetting.pvc.accessMode}}
+  storageClassName: eos
+  resources:
+    requests:
+      storage: 1
+---
+
