@@ -105,7 +105,8 @@ spec:
               mountPath: "/eos"
             - name: mongo-keyfile
               mountPath: "/etc/secrets"
-
+            - name: eos-krb
+              mountPath: /tmp/krb
       volumes:
         - name: {{.Values.db.instance0.pvName}}
           persistentVolumeClaim:
@@ -120,6 +121,9 @@ spec:
             items:
               - key: keyfile
                 path: mongokeyfile
+        - name: eos-krb
+          secret:
+            secretName: eos-krb
 ---
 apiVersion: v1
 kind: Service
@@ -192,6 +196,8 @@ spec:
               mountPath: "/eos"
             - name: mongo-keyfile
               mountPath: "/etc/secrets"
+            - name: eos-krb
+              mountPath: /tmp/krb
       volumes:
         - name: {{.Values.db.instance1.pvName}}
           persistentVolumeClaim:
@@ -206,6 +212,9 @@ spec:
             items:
               - key: keyfile
                 path: mongokeyfile
+        - name: eos-krb
+          secret:
+            secretName: eos-krb
 ---
 apiVersion: v1
 kind: Service
@@ -278,6 +287,8 @@ spec:
               mountPath: "/eos"
             - name: mongo-keyfile
               mountPath: "/etc/secrets"
+            - name: eos-krb
+              mountPath: /tmp/krb
       volumes:
         - name: {{.Values.db.instance2.pvName}}
           persistentVolumeClaim:
@@ -292,3 +303,6 @@ spec:
             items:
               - key: keyfile
                 path: mongokeyfile
+        - name: eos-krb
+          secret:
+            secretName: eos-krb
