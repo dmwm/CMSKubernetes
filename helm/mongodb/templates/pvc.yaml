@@ -59,7 +59,7 @@ metadata:
   name: eos
   annotations:
     "helm.sh/resource-policy": keep
-provisioner: kubernetes.io/cinder
+provisioner: eosxd.csi.cern.ch
 parameters:
   type: eos
 ---

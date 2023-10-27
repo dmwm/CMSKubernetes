@@ -54,6 +54,7 @@ spec:
       containers:
         - image: {{.Values.quickSetting.image.mongodb}}
           name: {{.Values.db.instance0.podName}}
+          imagePullPolicy: Always
           resources:
             requests:
               ephemeral-storage: {{.Values.db.pod.resources.requests.ephemeralStorage}}
@@ -108,7 +109,7 @@ spec:
             - name: eos-krb
               mountPath: /tmp/krb
             - name: mongodb-secrets
-              mountPath: /root
+              mountPath: "/etc/mongodb-secret"
       volumes:
         - name: {{.Values.db.instance0.pvName}}
           persistentVolumeClaim:
@@ -171,6 +172,7 @@ spec:
       containers:
         - image: {{.Values.quickSetting.image.mongodb}}
           name: {{.Values.db.instance1.podName}}
+          imagePullPolicy: Always
           resources:
             requests:
               ephemeral-storage: {{.Values.db.pod.resources.requests.ephemeralStorage}}
@@ -204,7 +206,7 @@ spec:
             - name: eos-krb
               mountPath: /tmp/krb
             - name: mongodb-secrets
-              mountPath: /root
+              mountPath: "/etc/mongodb-secret"
       volumes:
         - name: {{.Values.db.instance1.pvName}}
           persistentVolumeClaim:
@@ -267,6 +269,7 @@ spec:
       containers:
         - image: {{.Values.quickSetting.image.mongodb}}
           name: {{.Values.db.instance2.podName}}
+          imagePullPolicy: Always
           resources:
             requests:
               ephemeral-storage: {{.Values.db.pod.resources.requests.ephemeralStorage}}
@@ -300,7 +303,7 @@ spec:
             - name: eos-krb
               mountPath: /tmp/krb
             - name: mongodb-secrets
-              mountPath: /root
+              mountPath: "/etc/mongodb-secret"
       volumes:
         - name: {{.Values.db.instance2.pvName}}
           persistentVolumeClaim:

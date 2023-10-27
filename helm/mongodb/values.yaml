@@ -3,11 +3,11 @@ quickSetting:
   namespace: default
   env: test-rs
   image:
-    mongodb: registry.cern.ch/cmsweb/cmsmongo:HG2303b
+    mongodb: registry.cern.ch/cmsweb/cmsmongo:HG2310a
   pvc:
-    storageClassName: cpio1
-    accessMode: ReadWriteOnce
-    storageSize: 1Ti
+    storageClassName: io1
+    accessMode: ReadWriteMany
+    storageSize: 20Gi
     mongodbMountPath: "/mnt/NFS1/cluster5/defacement-detection-test-deployment-with-helm/"
 monitoring:
   jobName: "mongodb-exporter"

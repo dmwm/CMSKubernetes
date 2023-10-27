@@ -1,8 +1,8 @@
 #!/bin/bash
 ### This script relies on provided keytab file which will be
 ### be mounted to /etc/secrets area
-if [ -f /etc/secrets/keytab ]; then
-  export keytab=/etc/secrets/keytab
+if [ -f /tmp/krb ]; then
+  export keytab=/tmp/krb/cmsweb.keytab
   principal=`klist -k "$keytab" | tail -1 | awk '{print $2}'`
   kinit $principal -k -t "$keytab" 2>&1 1>& /dev/null
   if [ $? == 1 ]; then
