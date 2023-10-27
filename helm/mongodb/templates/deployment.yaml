@@ -107,6 +107,8 @@ spec:
               mountPath: "/etc/secrets"
             - name: eos-krb
               mountPath: /tmp/krb
+            - name: mongodb-secrets
+              mountPath: /root
       volumes:
         - name: {{.Values.db.instance0.pvName}}
           persistentVolumeClaim:
@@ -202,7 +204,7 @@ spec:
             - name: eos-krb
               mountPath: /tmp/krb
             - name: mongodb-secrets
-              mountPath: /etc/secrets
+              mountPath: /root
       volumes:
         - name: {{.Values.db.instance1.pvName}}
           persistentVolumeClaim:
@@ -298,7 +300,7 @@ spec:
             - name: eos-krb
               mountPath: /tmp/krb
             - name: mongodb-secrets
-              mountPath: /etc/secrets
+              mountPath: /root
       volumes:
         - name: {{.Values.db.instance2.pvName}}
           persistentVolumeClaim:

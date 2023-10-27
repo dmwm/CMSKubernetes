@@ -45,4 +45,4 @@ RUN crontab /data/tools/mongo.cron
 
 ENV PATH=/data/tools:$PATH
 
-CMD [./startup-$MONGODB_ID.sh, ./root/run.sh]
+CMD ["./startup-$MONGODB_ID.sh", "./root/run.sh"]
