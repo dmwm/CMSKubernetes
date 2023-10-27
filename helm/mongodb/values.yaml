@@ -25,6 +25,10 @@ db:
       one: cms-mongo-preprod-node-0.cern.ch
       two: cms-mongo-preprod-node-1.cern.ch
       three: cms-mongo-preprod-node-2.cern.ch
+    test:
+      one: cmsmongo-test-node-0.cern.ch
+      two: cmsmongo-test-node-1.cern.ch
+      three: cmsmongo-test-node-2.cern.ch
   auth:
     password: password
     keyfile: keyfile

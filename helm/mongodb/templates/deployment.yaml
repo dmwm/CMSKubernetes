@@ -83,6 +83,15 @@ spec:
             - name: "NODE_HOSTNAME_THREE"
               value: {{.Values.db.nodeName.preprod.three}}
             {{- end }}
+           {{- if  (eq (toString $environment) "test")}}
+            - name: "NODE_HOSTNAME_ONE"
+              value: {{.Values.db.nodeName.test.one}}
+            - name: "NODE_HOSTNAME_TWO"
+              value: {{.Values.db.nodeName.test.two}}
+            - name: "NODE_HOSTNAME_THREE"
+              value: {{.Values.db.nodeName.test.three}}
+            {{- end }}
+
             - name: "MONGODB_ID"
               value: {{.Values.db.instance0.mongoId | quote}}
             - name: "MONGODB_ADMIN_PASSWORD"
