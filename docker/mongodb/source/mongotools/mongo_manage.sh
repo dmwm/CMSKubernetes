@@ -122,15 +122,12 @@ restore()
     # Loop through each database and run mongodump
     for dbName in "msOutputDBPreProd" "msPileupDBPreProd" "msUnmergedDBPreProd"
     do
-        echo "Dumping database: $dbName"
-        mongorestore -vvv \
-            --host=$HOST \
-            --port=$PORT \
-            --username="$USERNAME" \
-            --password="$PASSWORD" \
-            --db="$dbName" 
+         echo "Restoring database: $db_name"
+
+         mongorestore --uri "mongodb://$USERNAME:$PASSWORD@$URI/$dbName?replicaSet=$RS_NAME" --authenticationDatabase=$AUTHDB  "$BACKUP_DIR/$DATE"
     done
-    find $BACKUP_DIR -mindepth 1 -maxdepth 1 -type d -ctime +10  | xargs rm -rf;
+
+    done
 }
 
 backup_status()
