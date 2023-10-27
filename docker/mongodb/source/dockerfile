@@ -32,7 +32,7 @@ COPY --from=tools /data/tools /data/tools
 COPY /startup-script-mongo /root
 
 #add kinit operation
-ADD run.sh /root 
+ADD run.sh /root/run.sh
 RUN chmod +x /root/run.sh
 
 #add cronjob
@@ -45,4 +45,4 @@ RUN crontab /data/tools/mongo.cron
 
 ENV PATH=/data/tools:$PATH
 
-CMD ["./startup-$MONGODB_ID.sh", "./root/run.sh"]
+CMD ./startup-$MONGODB_ID.sh; ./run.sh
