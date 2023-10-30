@@ -116,7 +116,7 @@ spec:
             - name: mongo-keyfile
               mountPath: "/etc/secrets"
             - name: eos-krb
-              mountPath: /tmp/krb
+              mountPath: /etc/krb
             - name: mongodb-secrets
               mountPath: "/etc/mongodb-secret"
       volumes:
@@ -213,7 +213,7 @@ spec:
             - name: mongo-keyfile
               mountPath: "/etc/secrets"
             - name: eos-krb
-              mountPath: /tmp/krb
+              mountPath: /etc/krb
             - name: mongodb-secrets
               mountPath: "/etc/mongodb-secret"
       volumes:
@@ -310,7 +310,7 @@ spec:
             - name: mongo-keyfile
               mountPath: "/etc/secrets"
             - name: eos-krb
-              mountPath: /tmp/krb
+              mountPath: /etc/krb
             - name: mongodb-secrets
               mountPath: "/etc/mongodb-secret"
       volumes:
