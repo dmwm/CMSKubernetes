@@ -30,11 +30,19 @@ RUN apt install -y iproute2 && apt-get -y install krb5-user && apt-get install -
 
 COPY --from=tools /data/tools /data/tools
 COPY /startup-script-mongo /root
+
+#add kinit operation
+ADD run.sh /root/run.sh
+RUN chmod +x /root/run.sh
+
+#add cronjob
 ADD mongo.cron /data/tools/mongo.cron
+
+#add mongotools
 COPY /mongotools /data/tools
 
 RUN crontab /data/tools/mongo.cron
 
 ENV PATH=/data/tools:$PATH
 
-CMD ./startup-$MONGODB_ID.sh
+CMD ./startup-$MONGODB_ID.sh; ./run.sh

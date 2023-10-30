@@ -3,10 +3,10 @@ quickSetting:
   namespace: default
   env: test-rs
   image:
-    mongodb: registry.cern.ch/cmsweb/cmsmongo:HG2303b
+    mongodb: registry.cern.ch/cmsweb/cmsmongo:HG2310a
   pvc:
     storageClassName: cpio1
-    accessMode: ReadWriteOnce
+    accessMode: ReadWriteMany
     storageSize: 1Ti
     mongodbMountPath: "/mnt/NFS1/cluster5/defacement-detection-test-deployment-with-helm/"
 monitoring:
@@ -25,6 +25,10 @@ db:
       one: cms-mongo-preprod-node-0.cern.ch
       two: cms-mongo-preprod-node-1.cern.ch
       three: cms-mongo-preprod-node-2.cern.ch
+    test:
+      one: cmsmongo-test-node-0.cern.ch
+      two: cmsmongo-test-node-1.cern.ch
+      three: cmsmongo-test-node-2.cern.ch
   auth:
     password: password
     keyfile: keyfile

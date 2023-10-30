@@ -37,7 +37,7 @@ init(){
       USERNAME=`cat $CONFIG | grep USERNAME | sed -e "s,USERNAME=,,g"`
       PASSWORD=`cat $CONFIG | grep PASSWORD | sed -e "s,PASSWORD=,,g"`
       BACKUP_DIR=`cat $CONFIG | grep BACKUP_DIR | sed -e "s,BACKUP_DIR=,,g"`
-      RS_NAME=`cat $CONFIG | grep RS_NAME | sed -e "s,BACKUP_DIR=,,g"`
+      RS_NAME=`cat $CONFIG | grep RS_NAME | sed -e "s,RS_NAME=,,g"`
   else
       if [ -z "$AGE_KEY" ]; then
         echo "AGE_KEY environment is not set, please generate appropriate key file"
@@ -90,6 +90,8 @@ init(){
           exit 1
       fi
   fi
+  #selecting backup directory based on the deployment name
+  BACKUP_DIR=$BACKUP_DIR/$MONGODB_ID
 }
 
 backup()
@@ -104,7 +106,7 @@ backup()
     do
         echo "Dumping database: $dbName"
     
-        mongodump --uri "mongodb://$USERNAME:$PASSWORD@$URI/$dbName?$RS_NAME" --authenticationDatabase=$AUTHDB --out="$BACKUP_DIR/$DATE" 
+        mongodump --uri "mongodb://$USERNAME:$PASSWORD@$URI/$dbName?replicaSet=$RS_NAME" --authenticationDatabase=$AUTHDB --out="$BACKUP_DIR/$DATE" 
     done
     find $BACKUP_DIR -mindepth 1 -maxdepth 1 -type d -ctime +10  | xargs rm -rf;
 }
@@ -120,15 +122,12 @@ restore()
     # Loop through each database and run mongodump
     for dbName in "msOutputDBPreProd" "msPileupDBPreProd" "msUnmergedDBPreProd"
     do
-        echo "Dumping database: $dbName"
-        mongorestore -vvv \
-            --host=$HOST \
-            --port=$PORT \
-            --username="$USERNAME" \
-            --password="$PASSWORD" \
-            --db="$dbName" 
+         echo "Restoring database: $db_name"
+
+         mongorestore --uri "mongodb://$USERNAME:$PASSWORD@$URI/$dbName?replicaSet=$RS_NAME" --authenticationDatabase=$AUTHDB  "$BACKUP_DIR/$DATE"
     done
-    find $BACKUP_DIR -mindepth 1 -maxdepth 1 -type d -ctime +10  | xargs rm -rf;
+
+    done
 }
 
 backup_status()
