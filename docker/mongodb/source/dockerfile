@@ -36,6 +36,7 @@ RUN CGO_ENABLED=0 go build -ldflags="-s -w -extldflags -static" && ./email -help
 FROM mongo:5.0.15
 WORKDIR /root
 ENV MONGODB_ID mongo-0
+ARG ENVIRONMENT
 
 RUN apt update
 RUN apt install -y iproute2 && apt-get -y install krb5-user && apt-get install -y cron
@@ -49,7 +50,7 @@ ADD run.sh /root/run.sh
 RUN chmod +x /root/run.sh
 
 #add cronjob
-ADD mongo.cron /data/tools/mongo.cron
+ADD mongo-$ENVIRONMENT.cron /data/tools/mongo.cron
 
 #add mongotools
 COPY /mongotools /data/tools

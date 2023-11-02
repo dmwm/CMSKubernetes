@@ -65,6 +65,8 @@ spec:
               cpu: {{.Values.db.pod.resources.requests.cpu}}
               memory: {{.Values.db.pod.resources.limits.memory}}
           env:
+            - name: "ENV"
+              value: {{ (toString $environment) }}
             - name: "RS_NAME"
               value: {{.Values.db.rsname}}
           {{- if  (eq (toString $environment) "prod") }}
@@ -91,7 +93,6 @@ spec:
             - name: "NODE_HOSTNAME_THREE"
               value: {{.Values.db.nodeName.test.three}}
             {{- end }}
-
             - name: "MONGODB_ID"
               value: {{.Values.db.instance0.mongoId | quote}}
             - name: "MONGODB_ADMIN_PASSWORD"
@@ -192,6 +193,8 @@ spec:
               cpu: {{.Values.db.pod.resources.requests.cpu}}
               memory: {{.Values.db.pod.resources.limits.memory}}
           env:
+            - name: "ENV"
+              value: {{ (toString $environment) }}
             - name: "RS_NAME"
               value: {{.Values.db.rsname}}
             - name: "MONGODB_ID"
@@ -289,6 +292,8 @@ spec:
               cpu: {{.Values.db.pod.resources.requests.cpu}}
               memory: {{.Values.db.pod.resources.limits.memory}}
           env:
+            - name: "ENV"
+              value: {{ (toString $environment) }}
             - name: "RS_NAME"
               value: {{.Values.db.rsname}}
             - name: "MONGODB_ID"
