@@ -1,2 +1,2 @@
-0 5 31 2 * export AGE_KEY="/etc/mongodb-secret/age-key.txt" && /data/tools/mongo_manage.sh backup /etc/mongodb-secret/mongo.ini
+0 2 * * * export AGE_KEY="/etc/mongodb-secret/age-key.txt" && /data/tools/mongo_manage.sh backup /etc/mongodb-secret/mongo.ini
 
