@@ -109,7 +109,7 @@ backup()
     for dbName in "${DB_NAME_ARRAY[@]}"
     do
         echo "Dumping database: $dbName"
-        if ! mongodump --uri "mongodb://$USERNAME:$PASSWORD@$URI/$dbName?replicaSet=$RS_NAME" --authenticationDatabase="$AUTHDB" --out "$BACKUP_DIR/$DATE/$dbName"; then
+        if ! mongodump --uri "mongodb://$USERNAME:$PASSWORD@$URI/$dbName?replicaSet=$RS_NAME" --authenticationDatabase="$AUTHDB" --out "$BACKUP_DIR/$DATE"; then
             /data/tools/alerts.sh
         fi
     done
