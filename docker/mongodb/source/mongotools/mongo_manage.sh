@@ -109,9 +109,11 @@ backup()
     for dbName in "${DB_NAME_ARRAY[@]}"
     do
         echo "Dumping database: $dbName"
-        if ! mongodump --uri "mongodb://$USERNAME:$PASSWORD@$URI/$dbName?replicaSet=$RS_NAME" --authenticationDatabase="$AUTHDB" --out "$BACKUP_DIR/$DATE"; then
+        if mongodump --uri "mongodb://$USERNAME:$PASSWORD@$URI/$dbName?replicaSet=$RS_NAME" --authenticationDatabase="$AUTHDB" --out "$BACKUP_DIR/$DATE"; then
+            echo "MongoDB backup for $dbName succeeded."
+        else
+            echo "MongoDB backup for $dbName failed. Running alerts.sh..."
             /data/tools/alerts.sh
-        fi
     done
     find $BACKUP_DIR -mindepth 1 -maxdepth 1 -type d -ctime +10  | xargs rm -rf;
 }
