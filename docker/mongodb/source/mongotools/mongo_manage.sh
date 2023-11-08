@@ -38,6 +38,7 @@ init(){
       PASSWORD=`cat $CONFIG | grep PASSWORD | sed -e "s,PASSWORD=,,g"`
       BACKUP_DIR=`cat $CONFIG | grep BACKUP_DIR | sed -e "s,BACKUP_DIR=,,g"`
       RS_NAME=`cat $CONFIG | grep RS_NAME | sed -e "s,RS_NAME=,,g"`
+      DB_NAMES=$(cat "$CONFIG" | grep DB_NAMES | sed -e "s,DB_NAMES=,,g")
   else
       if [ -z "$AGE_KEY" ]; then
         echo "AGE_KEY environment is not set, please generate appropriate key file"
@@ -53,6 +54,7 @@ init(){
       PASSWORD=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep PASSWORD | sed -e "s,PASSWORD=,,g"`
       BACKUP_DIR=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep BACKUP_DIR | sed -e "s,BACKUP_DIR=,,g"`
       RS_NAME=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep RS_NAME | sed -e "s,RS_NAME=,,g"`
+      DB_NAMES=$(cat "$CONFIG" | grep DB_NAMES | sed -e "s,DB_NAMES=,,g")
   fi
   if [ -z "$USERNAME" ]; then
       echo "Unable to locate USERNAME in $CONFIG"
@@ -90,6 +92,8 @@ init(){
           exit 1
       fi
   fi
+  # Split DB_NAMES into an array
+  IFS=' ' read -ra DB_NAME_ARRAY <<< "$DB_NAMES"
   #selecting backup directory based on the deployment name
   BACKUP_DIR=$BACKUP_DIR/$MONGODB_ID
 }
@@ -102,11 +106,14 @@ backup()
     # Get the current date and time
     DATE=$(date +%Y-%m-%d_%H-%M-%S)
     # Loop through each database and run mongodump
-    for dbName in "msOutputDBPreProd" "msPileupDBPreProd" "msUnmergedDBPreProd"
+    for dbName in "${DB_NAME_ARRAY[@]}"
     do
         echo "Dumping database: $dbName"
-    
-        mongodump --uri "mongodb://$USERNAME:$PASSWORD@$URI/$dbName?replicaSet=$RS_NAME" --authenticationDatabase=$AUTHDB --out="$BACKUP_DIR/$DATE" 
+        if mongodump --uri "mongodb://$USERNAME:$PASSWORD@$URI/$dbName?replicaSet=$RS_NAME" --authenticationDatabase="$AUTHDB" --out "$BACKUP_DIR/$DATE"; then
+            echo "MongoDB backup for $dbName succeeded."
+        else
+            echo "MongoDB backup for $dbName failed. Running alerts.sh..."
+            /data/tools/alerts.sh
     done
     find $BACKUP_DIR -mindepth 1 -maxdepth 1 -type d -ctime +10  | xargs rm -rf;
 }
@@ -120,14 +127,13 @@ restore()
     DATE=$(date +%Y-%m-%d_%H-%M-%S)
    
     # Loop through each database and run mongodump
-    for dbName in "msOutputDBPreProd" "msPileupDBPreProd" "msUnmergedDBPreProd"
+    for dbName in "${DB_NAME_ARRAY[@]}"
     do
          echo "Restoring database: $db_name"
 
          mongorestore --uri "mongodb://$USERNAME:$PASSWORD@$URI/$dbName?replicaSet=$RS_NAME" --authenticationDatabase=$AUTHDB  "$BACKUP_DIR/$DATE"
     done
 
-    done
 }
 
 backup_status()

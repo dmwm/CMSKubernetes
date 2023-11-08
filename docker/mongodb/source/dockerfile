@@ -46,16 +46,20 @@ COPY --from=go-builder /data/email/email /data/tools
 
 #add kinit operation
 ADD run.sh /root/run.sh
-RUN chmod +x /root/run.sh
 
 #add cronjob
-ADD mongo.cron /data/tools/mongo.cron
+
 
 #add mongotools
 COPY /mongotools /data/tools
 
-RUN crontab /data/tools/mongo.cron
+COPY copy_cron.sh /data/tools/copy_cron.sh
+COPY mongo-prod.cron /data/tools/mongo-prod.cron
+COPY mongo-preprod.cron /data/tools/mongo-preprod.cron
+COPY mongo-test.cron /data/tools/mongo-test.cron
+
 
 ENV PATH=/data/tools:$PATH
 
-CMD ./startup-$MONGODB_ID.sh; ./run.sh
+CMD ["/bin/sh", "-c", "./run.sh; /data/tools/copy_cron.sh; ./startup-$MONGODB_ID.sh;"]
+
