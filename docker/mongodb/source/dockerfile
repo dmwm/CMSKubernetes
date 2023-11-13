@@ -23,15 +23,6 @@ RUN mv age agetools && mv agetools/age . && mv agetools/age-keygen . && rm -rf a
 RUN curl -ksLO https://github.com/prometheus/alertmanager/releases/download/v0.24.0/alertmanager-0.24.0.linux-amd64.tar.gz
 RUN tar xfz alertmanager-0.24.0.linux-amd64.tar.gz && mv alertmanager-0.24.0.linux-amd64/amtool $WDIR/ && rm -rf alertmanager-0.24.0.linux-amd64*
 
-# build email client
-FROM golang:latest as go-builder
-MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
-ENV WDIR=/data
-WORKDIR $WDIR
-COPY /email $WDIR/email
-WORKDIR $WDIR/email
-RUN CGO_ENABLED=0 go build -ldflags="-s -w -extldflags -static" && ./email -help
-
 # main mongodb image
 FROM mongo:5.0.15
 WORKDIR /root
@@ -42,7 +33,6 @@ RUN apt install -y iproute2 && apt-get -y install krb5-user && apt-get install -
 
 COPY --from=tools /data/tools /data/tools
 COPY /startup-script-mongo /root
-COPY --from=go-builder /data/email/email /data/tools
 
 #add kinit operation
 ADD run.sh /root/run.sh
