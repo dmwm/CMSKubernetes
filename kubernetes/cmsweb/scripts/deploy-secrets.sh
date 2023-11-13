@@ -176,7 +176,7 @@ fi
 
 kubectl create secret generic ${srv}-secrets \
     $files --dry-run=client -o yaml |
-    kubectl apply --namespace=$ns -f -
+    kubectl apply --server-side=true --namespace=$ns -f -
 
 echo "Deleting decrypted files..."
 for decrypted_file in "${decrypted_files[@]}"; do
