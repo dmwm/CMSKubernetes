@@ -74,7 +74,7 @@ for pkg in $cmssw_pkgs; do
 
     echo "### build $repo/$pkg"
     if [ -n "$CMSK8STAG" ]; then
-        docker build --build-arg CMSK8S=$CMSK8S --build-arg CMSWEB_ENV=$CMSWEB_ENV -t $repo/$pkg -t $repo/$pkg:$CMSK8STAG $pkg
+        docker build --build-arg CMSK8S=$CMSK8S --build-arg CMSWEB_ENV=$CMSWEB_ENV -t $repo/$pkg -t $repo/$pkg:$CMSK8STAG $pkg --no-cache
         docker tag $repo/$pkg:$CMSK8STAG $registry/$pkg:$CMSK8STAG
         if [ "$pkg" == "reqmgr2ms" ] ; then
           docker tag $repo/$pkg:$CMSK8STAG $registry/reqmgr2ms-output:$CMSK8STAG
