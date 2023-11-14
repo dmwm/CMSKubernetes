@@ -35,6 +35,10 @@ The CMSWeb Operator/CMS-HTTP-GROUP.
 notBefore=Feb 28 02:56:51 2023 GMT
 notAfter=Apr  3 02:56:51 2024 GMT
 ```
+- Where are they mounted from?
+```
+They come from robot-secrets present under /etc/robots.
+```
 ## List of components that are related to DMWM services
 #### Networking
 Calico Node and CoreDNS are specific components within the Kubernetes ecosystem, each serving distinct functions:
@@ -95,7 +99,7 @@ Calico Node and CoreDNS are specific components within the Kubernetes ecosystem,
 In summary, calico is responsible for managing networking and network security policies at the node level, ensuring connectivity and security for pods, while CoreDNS is the DNS server responsible for resolving domain names and enabling service discovery within the Kubernetes cluster. Together, they contribute to the effective functioning of a Kubernetes environment.
 
 
-#### Robot certificates/ Cron-proxy
+#### Robot certificates/Cron-proxy
 For cmsweb operations, we need to have a valid proxy on our backends. Originally, we used operator proxy and uploaded it to myproxy server. The
 cmsweb ProxySeed and ProxyRenew scripts were used.
 
