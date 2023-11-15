@@ -54,7 +54,7 @@ init(){
       PASSWORD=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep PASSWORD | sed -e "s,PASSWORD=,,g"`
       BACKUP_DIR=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep BACKUP_DIR | sed -e "s,BACKUP_DIR=,,g"`
       RS_NAME=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep RS_NAME | sed -e "s,RS_NAME=,,g"`
-      DB_NAMES=$(cat "$CONFIG" | grep DB_NAMES | sed -e "s,DB_NAMES=,,g")
+      DB_NAMES=`age -i $AGE_KEY --decrypt -o - $CONFIG | grep DB_NAMES | sed -e "s,DB_NAMES=,,g"`
   fi
   if [ -z "$USERNAME" ]; then
       echo "Unable to locate USERNAME in $CONFIG"
