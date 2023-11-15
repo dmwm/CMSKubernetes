@@ -114,6 +114,7 @@ backup()
         else
             echo "MongoDB backup for $dbName failed. Running alerts.sh..."
             /data/tools/alerts.sh
+        fi
     done
     find $BACKUP_DIR -mindepth 1 -maxdepth 1 -type d -ctime +10  | xargs rm -rf;
 }
