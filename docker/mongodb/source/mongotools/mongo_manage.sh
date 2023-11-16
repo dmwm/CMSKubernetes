@@ -10,6 +10,7 @@
 #
 ACTION=$1
 CONFIG=$2
+export PATH="/usr/bin:/bin:/data/tools"
 usage()
 {
     grep "^##H " < $0 | sed -e "s,##H ,,g"
