@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -l
 ##H
 ##H Usage: manage <backup|restore|status|help> <config_file>
 ##H
