@@ -1,31 +1,34 @@
 #!/bin/bash
 # shellcheck disable=SC2181
 set -e
-##H Usage: deploy-ha.sh ACTION
+##H Usage: deploy-mon.sh ACTION
 ##H
 ##H Examples:
 ##H    --- If CMSKubernetes, cmsmon-configs and secrets repos are in same directory ---
-##H    deploy-ha.sh status
-##H    deploy-ha.sh deploy-secrets
-##H    deploy-ha.sh deploy-all
-##H    deploy-ha.sh clean-services
+##H    deploy-mon.sh status
+##H    deploy-mon.sh deploy-secrets
+##H    deploy-mon.sh deploy-all
+##H    deploy-mon.sh clean-services
 ##H    --- Else ---
-##H    export SECRETS_D=$SOMEDIR/secrets; export CONFIGS_D=$SOMEDIR/cmsmon-configs; deploy-ha.sh ha1 status
+##H    export SECRETS_D=$SOMEDIR/secrets; export CONFIGS_D=$SOMEDIR/cmsmon-configs; deploy-mon.sh status
 ##H
 ##H Arguments: ACTION should be one of the defined actions
 ##H Attention: this script depends on deploy-secrets.sh
 ##H
 ##H Actions:
-##H   help             show this help
-##H   clean-all        cleanup all services secrets storages cronjobs accounts
-##H   clean-services   cleanup services
-##H   clean-secrets    cleanup secrets
-##H   clean-storages   cleanup storages
-##H   status           check status of all cluster
-##H   test             perform integration tests using VictoriaMetrics
-##H   deploy-all       deploy everything
-##H   deploy-secrets   deploy secrets
-##H   deploy-services  deploy services
+##H   help                       show this help
+##H   clean-all                  cleanup all services secrets storages cronjobs accounts
+##H   clean-services             cleanup services
+##H   clean-secrets              cleanup secrets
+##H   clean-storages             cleanup storages
+##H   status                     check status of all cluster
+##H   test                       perform integration tests using VictoriaMetrics
+##H   deploy-all                 deploy everything except for storages
+##H                              and services using storages
+##H   deploy-secrets             deploy secrets
+##H   deploy-services            deploy services
+##H   deploy-storages            deploy storages
+##H   deploy-storage-services    deploy services that use storages (Prometheus and etc.)
 ##H
 ##H Environments:
 ##H   SECRETS_D        defines secrets repository local path. (default CMSKubernetes parent dir)
@@ -51,8 +54,8 @@ cdir=${CONFIGS_D:-"${script_dir}/../../../cmsmon-configs"}
 # deploy-secrets.sh temporary file
 deploy_secrets_sh="$script_dir"/__temp-deploy-secrets__.sh
 
-if [[ -z $ha || -z $action || $ha != ha*[0-9] ]]; then
-    echo "ha or action is not defined. ha:${ha}, action:${action}. Exiting with help message..."
+if [[ -z $action ]]; then
+    echo "action is not defined. action:${action}. Exiting with help message..."
     grep "^##H" <"$0" | sed -e "s,##H,,g"
     exit 1
 fi
@@ -147,7 +150,7 @@ function rm_temp_deploy_secrets_sh() {
 function deploy_secrets() {
     create_temp_deploy_secrets_sh
     # auth
-    "$deploy_secrets_sh" auth alertmanager-secrets
+    "$deploy_secrets_sh" auth auth-secrets
     "$deploy_secrets_sh" auth cern-certificates
     "$deploy_secrets_sh" auth proxy-secrets
     "$deploy_secrets_sh" auth robot-secrets
@@ -194,7 +197,6 @@ function clean_secrets() {
     kubectl -n http --ignore-not-found=true delete secret robot-secrets
 }
 function deploy_services() {
-    # Fails because of /etc/proxy/proxy tls conf
     # auth
     kubectl -n auth apply -f services/auth-proxy-server.yaml
     # cpueff
@@ -202,10 +204,7 @@ function deploy_services() {
     kubectl -n cpueff apply -f services/cpueff/mongo-cpueff.yaml
     # default
     kubectl -n default apply -f services/httpgo.yaml
-    kubectl -n default apply -f services/karma.yaml
     kubectl -n default apply -f kmon/kube-eagle.yaml
-    kubectl -n default apply -f services/promxy.yaml
-    kubectl -n default apply -f services/pushgateway.yaml
     # http
     find "${script_dir}"/services/ -name "*-exp*.yaml" | awk '{print "kubectl apply -f "$1""}' | /bin/sh
 }
@@ -230,18 +229,21 @@ function clean_all_services() {
 
 function deploy_storage_services() {
     # Fails because of /etc/proxy/proxy tls conf
-    check_configs_prometheus
+    # check_configs_prometheus
     check_configs_am
     # default
     kubectl -n default apply -f services/alertmanager.yaml
+    kubectl -n default apply -f services/karma.yaml
     kubectl -n default apply -f services/prometheus.yaml
+    kubectl -n default apply -f services/promxy.yaml
+    kubectl -n default apply -f services/pushgateway.yaml
     kubectl -n default apply -f services/victoria-metrics.yaml
 }
 
 # cluster cronjob deployment
 function deploy_cronjobs() {
     kubectl -n auth apply -f crons/cron-proxy.yaml
-    kubectl -n cpueff apply -f cpueff/cpueff-spark.yaml
+    kubectl -n cpueff apply -f services/cpueff/cpueff-spark.yaml
     kubectl -n default apply -f crons/cron-proxy.yaml
     kubectl -n http apply -f crons/cron-kerberos.yaml
     kubectl -n http apply -f crons/cron-proxy.yaml
@@ -249,7 +251,7 @@ function deploy_cronjobs() {
 
 function clean_cronjobs() {
     kubectl -n auth --ignore-not-found=true delete -f crons/cron-proxy.yaml
-    kubectl -n cpueff --ignore-not-found=true delete -f cpueff/cpueff-spark.yaml
+    kubectl -n cpueff --ignore-not-found=true delete -f services/cpueff/cpueff-spark.yaml
     kubectl -n default --ignore-not-found=true delete -f crons/cron-proxy.yaml
     kubectl -n http --ignore-not-found=true delete -f crons/cron-kerberos.yaml
     kubectl -n http --ignore-not-found=true delete -f crons/cron-proxy.yaml
@@ -281,6 +283,8 @@ deploy_all() {
     done
     deploy_secrets
     deploy_services
+    deploy_cronjobs
+    deploy_ingress
 }
 clean_all() {
     clean_all_services
