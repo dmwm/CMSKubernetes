@@ -35,7 +35,7 @@ spec:
         prometheus.io/port: "9091"
     spec:
       containers:
-      - image: registry.cern.ch/cmsweb/auth-proxy-server:0.2.46
+      - image: registry.cern.ch/cmsweb/auth-proxy-server:0.2.48
         name: auth-proxy-server
         args:
           - /data/auth-proxy-server

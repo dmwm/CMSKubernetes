@@ -38,8 +38,7 @@ data:
     /data/CMSMonitoring/cpueff-goweb/spark/cron4cpueff_goweb.sh \
       --keytab /etc/secrets/keytab --p1 31205 --p2 31206 --host $MY_NODE_NAME --wdir $WDIR
 ---
-#apiVersion: batch/v1
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: cpueff-spark

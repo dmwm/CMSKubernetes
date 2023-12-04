@@ -61,8 +61,7 @@ spec:
             secretName: prometheus-secrets
         - name: cinder-volume
           persistentVolumeClaim:
-            claimName: prom-volume-claim
-#             claimName: prometheus-volume-claim
+            claimName: prometheus-volume-claim
         - name: proxy-secrets
           secret:
             secretName: proxy-secrets

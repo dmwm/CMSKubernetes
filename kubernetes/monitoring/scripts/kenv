@@ -21,7 +21,7 @@ else
     # CMS Monitoring clusters
     export OS_PROJECT_NAME="CMS Web"
     if [ "$1" == "mon" ]; then
-        export KUBECONFIG=$adir/config.monit/config.cmsmonitnew
+        export KUBECONFIG=$adir/config.monit/config.cmsmonit
     elif [ "$1" == "ha1" ]; then
         export KUBECONFIG=$adir/config.monit/config.monitoring-vm-ha1
     elif [ "$1" == "ha2" ]; then
