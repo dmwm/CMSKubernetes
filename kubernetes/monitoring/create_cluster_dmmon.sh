@@ -35,7 +35,6 @@ openstack --os-project-name "$namespace" coe cluster create "$name" \
     --node-count 2 \
     --flavor m2.large \
     --merge-labels \
-    --labels availability_zone="" \
     --labels cinder_csi_enabled="true" \
     --labels logging_include_internal="true" \
     --labels logging_http_destination="http://monit-logs.cern.ch:10012/" \
@@ -45,7 +44,6 @@ openstack --os-project-name "$namespace" coe cluster create "$name" \
     --labels logging_producer="cmswebk8s" \
     --labels ingress_controller="nginx" \
     --labels cern_enabled="true" \
-    --labels keystone_auth_enabled="true" \
     --labels logging_type="http"
 
 # Ref: https://cms-http-group.docs.cern.ch/k8s_cluster/cmsweb-deployment/
