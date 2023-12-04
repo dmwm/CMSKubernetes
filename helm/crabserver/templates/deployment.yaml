@@ -50,8 +50,14 @@ spec:
             name: crabserver-mon
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          {{- if .Values.image.command }}
           command:
           {{- toYaml .Values.image.command | nindent 10 }}
+          {{- end }}
+          {{- if .Values.image.args }}
+          args:
+          {{- toYaml .Values.image.args | nindent 10 }}
+          {{- end }}
           env:
           {{- toYaml .Values.image.env | nindent 10 }}
           livenessProbe:
