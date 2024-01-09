@@ -736,8 +736,10 @@ deploy_monitoring()
 
     # locate all prometheus files
     local mon=""
-    if [ "$deployment" == "services" ] || [ "$deployment" == "aps" ]; then
+    if [ "$deployment" == "services" ]; then
         mon="services"
+    elif [ "$deployment" == "aps" ]; then
+        mon="aps"
     else
         mon="frontend"
     fi
@@ -760,9 +762,11 @@ deploy_monitoring()
         else
             files="$files --from-file=monitoring/prometheus/$mon/prometheus.yaml"
         fi
-        for fname in monitoring/prometheus/rules/*; do
-            files="$files --from-file=$fname"
-        done
+        if [ "$mon" != "aps" ]; then
+            for fname in monitoring/prometheus/rules/*; do
+                files="$files --from-file=$fname"
+            done
+        fi
     fi
     kubectl create secret generic prometheus-secrets \
         $files --dry-run=client -o yaml | \
