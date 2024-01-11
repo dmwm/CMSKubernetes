@@ -41,8 +41,8 @@ if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == 
 fi
 
 # define configuration and secrets areas
-cdir=../../../cmsmon-configs
-sdir=../../../secrets
+cdir=cmsmon-configs
+sdir=secrets
 
 # --- DO NOT CHANGE BELOW THIS LINE --- #
 ns=$1
