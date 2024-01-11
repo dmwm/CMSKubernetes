@@ -60,14 +60,14 @@ echo "OS_PROJECT_NAME:${OS_PROJECT_NAME}, action: ${action}, secrets:${sdir}, cm
 # Check status of the cluster
 function cluster_check() {
     echo -e "\n*** check secrets"
-    kubectl get secrets -A | grep -E "default  *|http *|alerts *" | grep Opaque
+    kubectl get secrets -A | grep -E "default  *|auth *|datasetmon *" | grep Opaque
     echo -e "\n*** check svc"
-    kubectl get svc -A | grep -E "default  *|http *|alerts *"
+    kubectl get svc -A | grep -E "default  *|auth *|datasetmon *"
     echo -e "\n*** node status"
     kubectl top node
     echo -e "\n*** pods status"
-    kubectl top pods --sort-by=memory -A | grep -E "default  *|http *|alerts *"
-    kubectl get pods -A | grep -E "default  *|http *|alerts *"
+    kubectl top pods --sort-by=memory -A | grep -E "default  *|auth *|datasetmon *"
+    kubectl get pods -A | grep -E "default  *|auth *|datasetmon *"
 }
 # =================================================================================================
 
@@ -124,7 +124,6 @@ function deploy_services() {
     # default
     kubectl -n default apply -f services/httpgo.yaml
     # datasetmon
-    kubectl -n datasetmon apply -f services/datasetmon/cmsmon-mongo.yaml
     kubectl -n datasetmon apply -f services/datasetmon/rucio-mon-goweb.yaml
     kubectl -n datasetmon apply -f services/datasetmon/spark2mng.yaml
 }
