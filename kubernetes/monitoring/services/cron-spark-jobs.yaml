@@ -73,7 +73,7 @@ spec:
       hostname: cron-spark-jobs
       containers:
         - name: cron-spark-jobs
-          image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.4.2.4
+          image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.4.2.6
           env:
             - name: MY_NODE_NAME
               valueFrom:
