@@ -57,6 +57,7 @@ spec:
       containers:
       #- image: sbelforte/crabserver:3.3.1911.rc3
       - image: registry.cern.ch/cmsweb/crabserver #imagetag
+        imagePullPolicy: Always
         name: crabserver
         env:
         - name: CRABSERVER_LOGSTDOUT
