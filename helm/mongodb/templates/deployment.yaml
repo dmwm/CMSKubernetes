@@ -55,15 +55,27 @@ spec:
         - image: {{.Values.quickSetting.image.mongodb}}
           name: {{.Values.db.instance0.podName}}
           imagePullPolicy: Always
+          {{- if  (eq (toString $environment) "prod") }}
           resources:
             requests:
-              ephemeral-storage: {{.Values.db.pod.resources.requests.ephemeralStorage}}
-              cpu: {{.Values.db.pod.resources.requests.cpu}}
-              memory: {{.Values.db.pod.resources.requests.memory}}
+              ephemeral-storage: {{.Values.db.pod.prod.resources.requests.ephemeralStorage}}
+              cpu: {{.Values.db.pod.prod.resources.requests.cpu}}
+              memory: {{.Values.db.pod.prod.resources.requests.memory}}
             limits:
-              ephemeral-storage: {{.Values.db.pod.resources.limits.ephemeralStorage}}
-              cpu: {{.Values.db.pod.resources.requests.cpu}}
-              memory: {{.Values.db.pod.resources.limits.memory}}
+              ephemeral-storage: {{.Values.db.pod.prod.resources.limits.ephemeralStorage}}
+              cpu: {{.Values.db.pod.prod.resources.requests.cpu}}
+              memory: {{.Values.db.pod.prod.resources.limits.memory}}
+          {{- else }}
+          resources:
+            requests:
+              ephemeral-storage: {{.Values.db.pod.preprod.resources.requests.ephemeralStorage}}
+              cpu: {{.Values.db.pod.preprod.resources.requests.cpu}}
+              memory: {{.Values.db.pod.preprod.resources.requests.memory}}
+            limits:
+              ephemeral-storage: {{.Values.db.pod.preprod.resources.limits.ephemeralStorage}}
+              cpu: {{.Values.db.pod.preprod.resources.requests.cpu}}
+              memory: {{.Values.db.pod.preprod.resources.limits.memory}}
+           {{- end }}
           env:
             - name: "ENVIRONMENT"
               value: {{ (toString $environment) }}
@@ -183,22 +195,27 @@ spec:
         - image: {{.Values.quickSetting.image.mongodb}}
           name: {{.Values.db.instance1.podName}}
           imagePullPolicy: Always
+          {{- if  (eq (toString $environment) "prod") }}
           resources:
             requests:
-              ephemeral-storage: {{.Values.db.pod.resources.requests.ephemeralStorage}}
-              cpu: {{.Values.db.pod.resources.requests.cpu}}
-              memory: {{.Values.db.pod.resources.requests.memory}}
+              ephemeral-storage: {{.Values.db.pod.prod.resources.requests.ephemeralStorage}}
+              cpu: {{.Values.db.pod.prod.resources.requests.cpu}}
+              memory: {{.Values.db.pod.prod.resources.requests.memory}}
             limits:
-              ephemeral-storage: {{.Values.db.pod.resources.limits.ephemeralStorage}}
-              cpu: {{.Values.db.pod.resources.requests.cpu}}
-              memory: {{.Values.db.pod.resources.limits.memory}}
-          env:
-            - name: "ENVIRONMENT"
-              value: {{ (toString $environment) }}
-            - name: "RS_NAME"
-              value: {{.Values.db.rsname}}
-            - name: "MONGODB_ID"
-              value: {{.Values.db.instance1.mongoId | quote}}
+              ephemeral-storage: {{.Values.db.pod.prod.resources.limits.ephemeralStorage}}
+              cpu: {{.Values.db.pod.prod.resources.requests.cpu}}
+              memory: {{.Values.db.pod.prod.resources.limits.memory}}
+          {{- else }}
+          resources:
+            requests:
+              ephemeral-storage: {{.Values.db.pod.preprod.resources.requests.ephemeralStorage}}
+              cpu: {{.Values.db.pod.preprod.resources.requests.cpu}}
+              memory: {{.Values.db.pod.preprod.resources.requests.memory}}
+            limits:
+              ephemeral-storage: {{.Values.db.pod.preprod.resources.limits.ephemeralStorage}}
+              cpu: {{.Values.db.pod.preprod.resources.requests.cpu}}
+              memory: {{.Values.db.pod.preprod.resources.limits.memory}}
+           {{- end }}
           livenessProbe:
             exec:
               command:
@@ -282,15 +299,27 @@ spec:
         - image: {{.Values.quickSetting.image.mongodb}}
           name: {{.Values.db.instance2.podName}}
           imagePullPolicy: Always
+          {{- if  (eq (toString $environment) "prod") }}
           resources:
             requests:
-              ephemeral-storage: {{.Values.db.pod.resources.requests.ephemeralStorage}}
-              cpu: {{.Values.db.pod.resources.requests.cpu}}
-              memory: {{.Values.db.pod.resources.requests.memory}}
+              ephemeral-storage: {{.Values.db.pod.prod.resources.requests.ephemeralStorage}}
+              cpu: {{.Values.db.pod.prod.resources.requests.cpu}}
+              memory: {{.Values.db.pod.prod.resources.requests.memory}}
             limits:
-              ephemeral-storage: {{.Values.db.pod.resources.limits.ephemeralStorage}}
-              cpu: {{.Values.db.pod.resources.requests.cpu}}
-              memory: {{.Values.db.pod.resources.limits.memory}}
+              ephemeral-storage: {{.Values.db.pod.prod.resources.limits.ephemeralStorage}}
+              cpu: {{.Values.db.pod.prod.resources.requests.cpu}}
+              memory: {{.Values.db.pod.prod.resources.limits.memory}}
+          {{- else }}
+          resources:
+            requests:
+              ephemeral-storage: {{.Values.db.pod.preprod.resources.requests.ephemeralStorage}}
+              cpu: {{.Values.db.pod.preprod.resources.requests.cpu}}
+              memory: {{.Values.db.pod.preprod.resources.requests.memory}}
+            limits:
+              ephemeral-storage: {{.Values.db.pod.preprod.resources.limits.ephemeralStorage}}
+              cpu: {{.Values.db.pod.preprod.resources.requests.cpu}}
+              memory: {{.Values.db.pod.preprod.resources.limits.memory}}
+           {{- end }}
           env:
             - name: "ENVIRONMENT"
               value: {{ (toString $environment) }}
