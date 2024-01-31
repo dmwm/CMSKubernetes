@@ -63,7 +63,7 @@ spec:
               memory: {{.Values.db.pod.prod.resources.requests.memory}}
             limits:
               ephemeral-storage: {{.Values.db.pod.prod.resources.limits.ephemeralStorage}}
-              cpu: {{.Values.db.pod.prod.resources.requests.cpu}}
+              cpu: {{.Values.db.pod.prod.resources.limits.cpu}}
               memory: {{.Values.db.pod.prod.resources.limits.memory}}
           {{- else }}
           resources:
@@ -73,7 +73,7 @@ spec:
               memory: {{.Values.db.pod.preprod.resources.requests.memory}}
             limits:
               ephemeral-storage: {{.Values.db.pod.preprod.resources.limits.ephemeralStorage}}
-              cpu: {{.Values.db.pod.preprod.resources.requests.cpu}}
+              cpu: {{.Values.db.pod.preprod.resources.limits.cpu}}
               memory: {{.Values.db.pod.preprod.resources.limits.memory}}
            {{- end }}
           env:
@@ -203,7 +203,7 @@ spec:
               memory: {{.Values.db.pod.prod.resources.requests.memory}}
             limits:
               ephemeral-storage: {{.Values.db.pod.prod.resources.limits.ephemeralStorage}}
-              cpu: {{.Values.db.pod.prod.resources.requests.cpu}}
+              cpu: {{.Values.db.pod.prod.resources.limits.cpu}}
               memory: {{.Values.db.pod.prod.resources.limits.memory}}
           {{- else }}
           resources:
@@ -213,7 +213,7 @@ spec:
               memory: {{.Values.db.pod.preprod.resources.requests.memory}}
             limits:
               ephemeral-storage: {{.Values.db.pod.preprod.resources.limits.ephemeralStorage}}
-              cpu: {{.Values.db.pod.preprod.resources.requests.cpu}}
+              cpu: {{.Values.db.pod.preprod.resources.limits.cpu}}
               memory: {{.Values.db.pod.preprod.resources.limits.memory}}
            {{- end }}
           livenessProbe:
@@ -307,7 +307,7 @@ spec:
               memory: {{.Values.db.pod.prod.resources.requests.memory}}
             limits:
               ephemeral-storage: {{.Values.db.pod.prod.resources.limits.ephemeralStorage}}
-              cpu: {{.Values.db.pod.prod.resources.requests.cpu}}
+              cpu: {{.Values.db.pod.prod.resources.limits.cpu}}
               memory: {{.Values.db.pod.prod.resources.limits.memory}}
           {{- else }}
           resources:
@@ -317,7 +317,7 @@ spec:
               memory: {{.Values.db.pod.preprod.resources.requests.memory}}
             limits:
               ephemeral-storage: {{.Values.db.pod.preprod.resources.limits.ephemeralStorage}}
-              cpu: {{.Values.db.pod.preprod.resources.requests.cpu}}
+              cpu: {{.Values.db.pod.preprod.resources.limits.cpu}}
               memory: {{.Values.db.pod.preprod.resources.limits.memory}}
            {{- end }}
           env:
