@@ -35,15 +35,26 @@ db:
   service:
     port: 27017
   pod:
-    resources:
-      requests:
-        ephemeralStorage: "1Gi"
-        cpu: "100m"
-        memory: "1Gi"
-      limits:
-        ephemeralStorage: "2Gi"
-        cpu: "200m"
-        memory: "2Gi"
+    prod:
+      resources:
+        requests:
+          ephemeralStorage: "1Gi"
+          cpu: "1000m"
+          memory: "3Gi"
+        limits:
+          ephemeralStorage: "2Gi"
+          cpu: "3000m"
+          memory: "8Gi"
+    preprod:
+      resources:
+        requests:
+          ephemeralStorage: "1Gi"
+          cpu: "100m"
+          memory: "1Gi"
+        limits:
+          ephemeralStorage: "2Gi"
+          cpu: "200m"
+          memory: "2Gi"
   probes:
     livenessProbe:
       initialDelaySeconds: 90

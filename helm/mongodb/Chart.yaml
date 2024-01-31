@@ -2,5 +2,5 @@ apiVersion: v2
 name: mongodb
 description: A Helm chart for launching a MongoDB ReplicaSet with 3 instances
 type: application
-version: 1.0.8
-appVersion: 1.0.8
+version: 1.0.9
+appVersion: 1.0.9
