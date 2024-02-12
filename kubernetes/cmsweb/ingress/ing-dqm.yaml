@@ -17,7 +17,7 @@ spec:
   - host: cmsweb-srv.cern.ch
     http:
       paths:
-      - path: /dqm/dqm-square-k8
+      - path: /dqm/dqm-square
         pathType: Prefix
         backend:
           service:
