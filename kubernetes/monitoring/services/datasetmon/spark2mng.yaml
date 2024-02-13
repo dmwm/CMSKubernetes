@@ -41,8 +41,7 @@ data:
     echo "Starting run_hdfs2mongo.sh ... "
     /data/CMSMonitoring/rucio-dataset-monitoring/spark/cron4rucio_hdfs2mongo.sh \
       --keytab /etc/secrets/keytab --hdfs /tmp/cmsmonit/prod \
-      --mongohost "mongodb-0.mongodb.datasetmon.svc.cluster.local" \
-      --mongoport "27017" \
+      --mongohost "mongodb-prod/cms-mongo-prod-node-0.cern.ch:32001,cms-mongo-prod-node-1.cern.ch:32002,cms-mongo-prod-node-2.cern.ch:32003" \
       --mongouser $MONGO_ROOT_USERNAME \
       --mongopass $MONGO_ROOT_PASSWORD \
       --mongowritedb rucio \
@@ -71,7 +70,7 @@ spec:
           hostname: spark2mng
           containers:
             - name: spark2mng
-              image: registry.cern.ch/cmsmonitoring/spark2mng:rgo-0.0.28
+              image: registry.cern.ch/cmsmonitoring/spark2mng:rgo-0.0.29
               command: [ "/bin/bash", "-c" ]
               args:
                 - source /etc/environment;
