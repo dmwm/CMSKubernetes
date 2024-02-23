@@ -5,9 +5,9 @@
 ###       THIS IS JUST A PLACEHOLDER OF ALL THE STEPS THAT
 ###       NEED TO BE PERFORMED AT THE MARIADB DOCKER IMAGE
 mariadbRoot=root
-mariadbRootPass=FIXME
+mariadbRootPass=fixme
 mariadbUser=cmst1
-mariadbUserPass=FIXME
+mariadbUserPass=fixme
 
 configDir=/data/srv/mariadb/current/config
 dataDir=/data/srv/mariadb/current/install/database
@@ -62,12 +62,15 @@ echo creating agent databases
 echo "Installing WMAgent Database: $agentDb"
 mariadb -u $mariadbUser --password=$mariadbUserPass --socket=$socket --execute "create database $agentDb"
 
-# echo -------------------------------------------------------------------------
-# echo creating new users
-# # create a user - different than root and current unix user - and grant privileges
-# mariadb -u $mariadbUser --password=$mariadbUserPass --socket=$socket --execute "CREATE USER '${mariadbUser}'@'localhost' IDENTIFIED BY '$mariadbUserPass'"
-# mariadb -u $mariadbUser --password=$mariadbUserPass --socket=$socket --execute "GRANT ALL ON *.* TO $mariadbUser@localhost WITH GRANT OPTION"
-# mariadb -u $mariadbUser --password=$mariadbUserPass --socket=$socket --execute "CREATE USER '${mariadbUser}'@'127.0.0.1' IDENTIFIED BY '$mariadbUserPass'"
-# mariadb -u $mariadbUser --password=$mariadbUserPass --socket=$socket --execute "GRANT ALL ON *.* TO $mariadbUser@127.0.0.1 WITH GRANT OPTION"
+echo
+
+echo -------------------------------------------------------------------------
+echo creating new users and setting grants
+# try to create a user different than root (if it does not already exist), and grant privileges
+# we need ${mariadbUser}'@'127.0.0.1 user in paralel to ${mariadbUser}'@'localhost
+mariadb -u $mariadbUser --password=$mariadbUserPass --socket=$socket --execute "CREATE USER '${mariadbUser}'@'localhost' IDENTIFIED BY '$mariadbUserPass'"
+mariadb -u $mariadbUser --password=$mariadbUserPass --socket=$socket --execute "GRANT ALL ON *.* TO $mariadbUser@localhost WITH GRANT OPTION"
+mariadb -u $mariadbUser --password=$mariadbUserPass --socket=$socket --execute "CREATE USER '${mariadbUser}'@'127.0.0.1' IDENTIFIED BY '$mariadbUserPass'"
+mariadb -u $mariadbUser --password=$mariadbUserPass --socket=$socket --execute "GRANT ALL ON *.* TO $mariadbUser@127.0.0.1 WITH GRANT OPTION"
 
 echo -------------------------------------------------------------------------

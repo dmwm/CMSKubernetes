@@ -34,13 +34,13 @@ usage(){
 }
 
 PULL=false
-MARIADB_TAG=latest
+MDB_TAG=latest
 
 
 ### Argument parsing:
 while getopts ":t:hp" opt; do
     case ${opt} in
-        t) MARIADB_TAG=$OPTARG ;;
+        t) MDB_TAG=$OPTARG ;;
         p) PULL=true ;;
         h) help; exit $? ;;
         : )
@@ -59,11 +59,11 @@ HOST_MOUNT_DIR=/data/dockerMount
 
 [[ -d $HOST_MOUNT_DIR/certs ]] || (mkdir -p $HOST_MOUNT_DIR/certs) || exit $?
 [[ -d $HOST_MOUNT_DIR/admin/mariadb ]] || (mkdir -p $HOST_MOUNT_DIR/admin/mariadb) || exit $?
-# [[ -d $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/config  ]] || (mkdir -p $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/config)  || exit $?
-[[ -d $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/install/database ]] || { mkdir -p $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/install/database ;} || exit $?
-[[ -d $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/logs ]] || { mkdir -p $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/logs ;} || exit $?
+# [[ -d $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/config  ]] || (mkdir -p $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/config)  || exit $?
+[[ -d $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/install/database ]] || { mkdir -p $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/install/database ;} || exit $?
+[[ -d $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/logs ]] || { mkdir -p $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/logs ;} || exit $?
 
-# sudo chown -R $mariadbUser:$mariadbUser $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG
+# sudo chown -R $mariadbUser:$mariadbUser $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG
 
 
 dockerOpts="
@@ -74,25 +74,25 @@ dockerOpts="
 --name=mariadb \
 --mount type=bind,source=/tmp,target=/tmp \
 --mount type=bind,source=$HOST_MOUNT_DIR/certs,target=/data/certs \
---mount type=bind,source=$HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/install/database,target=/data/srv/mariadb/current/install/database \
---mount type=bind,source=$HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/logs,target=/data/srv/mariadb/current/logs \
+--mount type=bind,source=$HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/install/database,target=/data/srv/mariadb/current/install/database \
+--mount type=bind,source=$HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/logs,target=/data/srv/mariadb/current/logs \
 --mount type=bind,source=$HOST_MOUNT_DIR/admin/wmagent,target=/data/admin/wmagent/ \
 "
 
-# --mount type=bind,source=$HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/config,target=/data/srv/mariadb/current/config \
+# --mount type=bind,source=$HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/config,target=/data/srv/mariadb/current/config \
 
 # mariadbOpts=$*
 # mariadbOpts="$mariadbOpts --user mariadb -e MARIADB_USER=TestAdmin -e MARIADB_PASSWORD=TestPass"
 
 $PULL && {
-    echo "Pulling Docker image: registry.cern.ch/cmsweb/mariadb:$MARIADB_TAG"
+    echo "Pulling Docker image: registry.cern.ch/cmsweb/mariadb:$MDB_TAG"
     docker login registry.cern.ch
-    docker pull registry.cern.ch/cmsweb/mariadb:$MARIADB_TAG
-    docker tag registry.cern.ch/cmsweb/mariadb:$MARIADB_TAG local/mariadb:$MARIADB_TAG
-    docker tag registry.cern.ch/cmsweb/mariadb:$MARIADB_TAG local/mariadb:latest
+    docker pull registry.cern.ch/cmsweb/mariadb:$MDB_TAG
+    docker tag registry.cern.ch/cmsweb/mariadb:$MDB_TAG local/mariadb:$MDB_TAG
+    docker tag registry.cern.ch/cmsweb/mariadb:$MDB_TAG local/mariadb:latest
 }
 
-echo "Starting the mariadb:$MARIADB_TAG docker container with the following parameters: $mariadbOpts"
-docker run $dockerOpts $mariadbOpts local/mariadb:$MARIADB_TAG && (
+echo "Starting the mariadb:$MDB_TAG docker container with the following parameters: $mariadbOpts"
+docker run $dockerOpts $mariadbOpts local/mariadb:$MDB_TAG && (
     [[ -h $HOST_MOUNT_DIR/srv/mariadb/current ]] && rm -f $HOST_MOUNT_DIR/srv/mariadb/current
-    ln -s $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG $HOST_MOUNT_DIR/srv/mariadb/current )
+    ln -s $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG $HOST_MOUNT_DIR/srv/mariadb/current )

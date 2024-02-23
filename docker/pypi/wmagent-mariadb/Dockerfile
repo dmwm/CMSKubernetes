@@ -1,4 +1,4 @@
-ARG TAG=10.11
+ARG TAG=11.0
 ARG MDB_TAG=$TAG
 FROM mariadb:${MDB_TAG}
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
