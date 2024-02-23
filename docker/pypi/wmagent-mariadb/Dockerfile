@@ -49,7 +49,7 @@ RUN ln -s $MARIADB_CURRENT_DIR $MARIADB_BASE_DIR/current
 
 # add necessary scripts
 ADD run.sh ${MARIADB_ROOT_DIR}/
-ADD start-mysql.sh ${MARIADB_ROOT_DIR}/
+ADD start-mariadb.sh ${MARIADB_ROOT_DIR}/
 ADD manage ${MARIADB_MANAGE_DIR}/manage
 RUN ln -s ${MARIADB_MANAGE_DIR}/manage ${MARIADB_ROOT_DIR}/manage
 
