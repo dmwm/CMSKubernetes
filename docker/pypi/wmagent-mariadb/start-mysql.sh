@@ -3,62 +3,71 @@
 ### NOTE: !!!! All OF THIS IS TO BE REMOVED !!!!!
 ###       !!!! NOTHING MUST STAY HERE !!!!
 ###       THIS IS JUST A PLACEHOLDER OF ALL THE STEPS THAT
-###       NEED TO BE PERFORMED AT THE MYSQL DOCKER IMAGE
-mysqlRoot=root
-mysqlRootPass=
-mysqlUser=cmst1
-mysqlUserPass=
+###       NEED TO BE PERFORMED AT THE MARIADB DOCKER IMAGE
+mariadbRoot=root
+mariadbRootPass=FIXME
+mariadbUser=cmst1
+mariadbUserPass=FIXME
 
 configDir=/data/srv/mariadb/current/config
 dataDir=/data/srv/mariadb/current/install/database
 logDir=/data/srv/mariadb/current/logs
-socket=/data/srv/mariadb/current/logs/mysql.sock
+socket=/data/srv/mariadb/current/logs/mariadb.sock
 agentDb=wmagent
 
 echo -------------------------------------------------------------------------
-echo Stopping any previously running mysql server
-mysqladmin -u $mysqlRoot --password=$mysqlRootPass -h 127.0.0.1 shutdown
-# mysqladmin -u $mysqlRoot --password=$mysqlRootPass --socket=$socket shutdown
+echo Stopping any previously running mariadb server
+# mariadb-admin -u $mariadbRoot --password=$mariadbRootPass -h 127.0.0.1 shutdown
+# mariadb-admin -u $mariadbRoot --password=$mariadbRootPass --socket=$socket shutdown
+mariadb-admin -u $mariadbUser --socket=$socket shutdown
 echo
 
 
-echo -------------------------------------------------------------------------
-echo Installing system database
-mysql_install_db --datadir=$dataDir
-echo
+# echo -------------------------------------------------------------------------
+# echo Installing system database
+mariadb-install-db --datadir=$dataDir
+# echo
 
 
 echo -------------------------------------------------------------------------
 echo starting the server
-mysqld_safe --defaults-extra-file=$configDir/my.cnf \
+mariadbd-safe --defaults-extra-file=$configDir/my.cnf \
       --datadir=$dataDir \
       --log-bin \
       --socket=$socket \
       --log-error=$logDir/error.log \
-      --pid-file=$logDir/mysqld.pid  & # > /dev/null 2>&1 < /dev/null &
+      --pid-file=$logDir/mariadbd.pid  & # > /dev/null 2>&1 < /dev/null &
 echo ...
 sleep 10
 echo
 
+
+
 echo -------------------------------------------------------------------------
-echo Securing mysqlRoot and removing temp databases
-mysqladmin -u $mysqlRoot password $mysqlRootPass --socket=$socket
-mysqladmin -u $mysqlRoot --password=$mysqlRootPass  -h 127.0.0.1 password $mysqlRootPass
-# mysql_secure_installation
+echo Securing $mariadbRoot and removing temp databases
+sudo mariadb-admin -u $mariadbRoot password $mariadbRootPass --socket=$socket
+# mariadb-admin -u $mariadbRoot --password=$mariadbRootPass  -h 127.0.0.1 password $mariadbRootPass
+# mariadb-secure-installation --socket=$socket
+echo
+
+echo -------------------------------------------------------------------------
+echo Securing $mariadbUser and removing temp databases
+mariadb-admin -u $mariadbUser password $mariadbUserPass --socket=$socket
+# mariadb-admin -u $mariadbRoot --password=$mariadbRootPass  -h 127.0.0.1 password $mariadbRootPass
+# mariadb-secure-installation --socket=$socket
 echo
 
 echo -------------------------------------------------------------------------
 echo creating agent databases
 echo "Installing WMAgent Database: $agentDb"
-mysql -u $mysqlRoot --password=$mysqlRootPass --socket=$socket --execute "create database '$agentDb'"
+mariadb -u $mariadbUser --password=$mariadbUserPass --socket=$socket --execute "create database $agentDb"
 
-echo -------------------------------------------------------------------------
-echo creating new users
-# create a user - different than root and current unix user - and grant privileges
-mysql -u $mysqlRoot --password=$mysqlRootPass --socket=$socket --execute "CREATE USER '${mysqlUser}'@'localhost' IDENTIFIED BY '$mysqlUserPass'"
-mysql -u $mysqlRoot --password=$mysqlRootPass --socket=$socket --execute "GRANT ALL ON *.* TO $mysqlUser@localhost WITH GRANT OPTION"
-mysql -u $mysqlRoot --password=$mysqlRootPass --socket=$socket --execute "CREATE USER '${mysqlUser}'@'127.0.0.1' IDENTIFIED BY '$mysqlUserPass'"
-mysql -u $mysqlRoot --password=$mysqlRootPass --socket=$socket --execute "GRANT ALL ON *.* TO $mysqlUser@127.0.0.1 WITH GRANT OPTION"
-
+# echo -------------------------------------------------------------------------
+# echo creating new users
+# # create a user - different than root and current unix user - and grant privileges
+# mariadb -u $mariadbUser --password=$mariadbUserPass --socket=$socket --execute "CREATE USER '${mariadbUser}'@'localhost' IDENTIFIED BY '$mariadbUserPass'"
+# mariadb -u $mariadbUser --password=$mariadbUserPass --socket=$socket --execute "GRANT ALL ON *.* TO $mariadbUser@localhost WITH GRANT OPTION"
+# mariadb -u $mariadbUser --password=$mariadbUserPass --socket=$socket --execute "CREATE USER '${mariadbUser}'@'127.0.0.1' IDENTIFIED BY '$mariadbUserPass'"
+# mariadb -u $mariadbUser --password=$mariadbUserPass --socket=$socket --execute "GRANT ALL ON *.* TO $mariadbUser@127.0.0.1 WITH GRANT OPTION"
 
 echo -------------------------------------------------------------------------
