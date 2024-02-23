@@ -1,10 +1,11 @@
-ARG TAG=11.1
-FROM mariadb:${TAG}
+ARG TAG=10.11
+ARG MDB_TAG=$TAG
+FROM mariadb:${MDB_TAG}
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
-ARG TAG
-ENV TAG=${TAG}
-RUN echo TAG=$TAG
+ARG MDB_TAG=$TAG
+ENV MDB_TAG=${MDB_TAG}
+RUN echo MDB_TAG=$MDB_TAG
 
 RUN apt-get update && apt-get install -y vim less sudo wget unzip python3 pip
 
@@ -20,7 +21,7 @@ ENV MARIADB_BASE_DIR=$MARIADB_ROOT_DIR/srv/mariadb
 ENV MARIADB_ADMIN_DIR=$MARIADB_ROOT_DIR/admin/wmagent
 ENV MARIADB_CERTS_DIR=$MARIADB_ROOT_DIR/certs
 
-ENV MARIADB_CURRENT_DIR=$MARIADB_BASE_DIR/$TAG
+ENV MARIADB_CURRENT_DIR=$MARIADB_BASE_DIR/$MDB_TAG
 ENV MARIADB_MANAGE_DIR=$MARIADB_CURRENT_DIR
 ENV MARIADB_AUTH_DIR=$MARIADB_CURRENT_DIR/auth/
 ENV MARIADB_INSTALL_DIR=$MARIADB_CURRENT_DIR/install
@@ -53,9 +54,9 @@ ADD manage ${MARIADB_MANAGE_DIR}/manage
 RUN ln -s ${MARIADB_MANAGE_DIR}/manage ${MARIADB_ROOT_DIR}/manage
 
 # The $MARIADB_CONFIG_DIR is to be mounted from the host and my.cnf read from there
-# ADD my.cnf ${MARIADB_CONFIG_DIR}/my.cnf
+ADD my.cnf ${MARIADB_CONFIG_DIR}/my.cnf
 # RUN ln -s ${MARIADB_CONFIG_DIR}/my.cnf /opt/mariadb/etc/local.d/
-ADD my.cnf /etc/mysql/my.cnf
+# ADD my.cnf /etc/mysql/my.cnf
 
 
 ENV PATH="/opt/couchdb/bin:/usr/local/bin/:${PATH}"
@@ -69,7 +70,7 @@ alias ll='ls -la --color=auto'
 alias manage=$MARIADB_MANAGE_DIR/manage
 
 # set MariaDB docker specific bash prompt:
-export PS1="(MariaDB-$TAG) [\u@\h:\W]\$ "
+export PS1="(MariaDB-$MDB_TAG) [\u@\h:\W]\$ "
 EOF
 
 RUN chown -R ${USER} ${MARIADB_ROOT_DIR}

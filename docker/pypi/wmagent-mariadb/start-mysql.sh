@@ -9,10 +9,10 @@ mysqlRootPass=
 mysqlUser=cmst1
 mysqlUserPass=
 
-configDir=/data/dockerMount/srv/mysql/current/config
-dataDir=/data/dockerMount/srv/mysql/current/install/database
-logDir=/data/dockerMount/srv/mysql/current/logs
-socket=/data/dockerMount/srv/mysql/current/logs/mysql.sock
+configDir=/data/srv/mariadb/current/config
+dataDir=/data/srv/mariadb/current/install/database
+logDir=/data/srv/mariadb/current/logs
+socket=/data/srv/mariadb/current/logs/mysql.sock
 agentDb=wmagent
 
 echo -------------------------------------------------------------------------

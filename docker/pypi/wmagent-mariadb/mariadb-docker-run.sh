@@ -34,7 +34,7 @@ usage(){
 }
 
 PULL=false
-MARIADB_TAG=11.1
+MARIADB_TAG=latest
 
 
 ### Argument parsing:
@@ -59,11 +59,11 @@ HOST_MOUNT_DIR=/data/dockerMount
 
 [[ -d $HOST_MOUNT_DIR/certs ]] || (mkdir -p $HOST_MOUNT_DIR/certs) || exit $?
 [[ -d $HOST_MOUNT_DIR/admin/mariadb ]] || (mkdir -p $HOST_MOUNT_DIR/admin/mariadb) || exit $?
-[[ -d $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/config  ]] || (mkdir -p $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/config)  || exit $?
-[[ -d $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/install/database ]] || { sudo mkdir -p $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/install/database ;} || exit $?
-[[ -d $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/logs ]] || { sudo mkdir -p $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/logs ;} || exit $?
+# [[ -d $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/config  ]] || (mkdir -p $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/config)  || exit $?
+[[ -d $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/install/database ]] || { mkdir -p $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/install/database ;} || exit $?
+[[ -d $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/logs ]] || { mkdir -p $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/logs ;} || exit $?
 
-sudo chown -R $mariadbUser:$mariadbUser $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG
+# sudo chown -R $mariadbUser:$mariadbUser $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG
 
 
 dockerOpts="
@@ -75,12 +75,11 @@ dockerOpts="
 --mount type=bind,source=/tmp,target=/tmp \
 --mount type=bind,source=$HOST_MOUNT_DIR/certs,target=/data/certs \
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/install/database,target=/data/srv/mariadb/current/install/database \
---mount type=bind,source=$HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/config,target=/data/srv/mariadb/current/config \
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/logs,target=/data/srv/mariadb/current/logs \
 --mount type=bind,source=$HOST_MOUNT_DIR/admin/wmagent,target=/data/admin/wmagent/ \
 "
 
-
+# --mount type=bind,source=$HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG/config,target=/data/srv/mariadb/current/config \
 
 # mariadbOpts=$*
 # mariadbOpts="$mariadbOpts --user mariadb -e MARIADB_USER=TestAdmin -e MARIADB_PASSWORD=TestPass"
@@ -95,5 +94,5 @@ $PULL && {
 
 echo "Starting the mariadb:$MARIADB_TAG docker container with the following parameters: $mariadbOpts"
 docker run $dockerOpts $mariadbOpts local/mariadb:$MARIADB_TAG && (
-    [[ -h $HOST_MOUNT_DIR/srv/mariadb/current ]] && sudo rm -f $HOST_MOUNT_DIR/srv/mariadb/current
-    sudo ln -s $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG $HOST_MOUNT_DIR/srv/mariadb/current )
+    [[ -h $HOST_MOUNT_DIR/srv/mariadb/current ]] && rm -f $HOST_MOUNT_DIR/srv/mariadb/current
+    ln -s $HOST_MOUNT_DIR/srv/mariadb/$MARIADB_TAG $HOST_MOUNT_DIR/srv/mariadb/current )
