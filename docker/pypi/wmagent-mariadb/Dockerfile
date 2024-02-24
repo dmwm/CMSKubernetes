@@ -9,29 +9,33 @@ RUN echo MDB_TAG=$MDB_TAG
 
 RUN apt-get update && apt-get install -y vim less sudo wget unzip python3 pip
 
-# # Install some debugging tools
+# Install some debugging tools
 RUN apt-get install -y hostname net-tools iputils-ping procps emacs-nox tcpdump && apt-get clean
 
 ENV USER=cmst1
-# ENV MARIADB_PORT=
+# ENV MDB_PORT=
 ENV UID=31961
-ENV MARIADB_ROOT_DIR=/data
+ENV MDB_ROOT_DIR=/data
 
-ENV MARIADB_BASE_DIR=$MARIADB_ROOT_DIR/srv/mariadb
-ENV MARIADB_ADMIN_DIR=$MARIADB_ROOT_DIR/admin/wmagent
-ENV MARIADB_CERTS_DIR=$MARIADB_ROOT_DIR/certs
+ENV MDB_BASE_DIR=$MDB_ROOT_DIR/srv/mariadb
+ENV MDB_ADMIN_DIR=$MDB_ROOT_DIR/admin/mariadb
+ENV WMA_ADMIN_DIR=$MDB_ROOT_DIR/admin/wmagent
+ENV MDB_CERTS_DIR=$MDB_ROOT_DIR/certs
 
-ENV MARIADB_CURRENT_DIR=$MARIADB_BASE_DIR/$MDB_TAG
-ENV MARIADB_MANAGE_DIR=$MARIADB_CURRENT_DIR
-ENV MARIADB_AUTH_DIR=$MARIADB_CURRENT_DIR/auth/
-ENV MARIADB_INSTALL_DIR=$MARIADB_CURRENT_DIR/install
-ENV MARIADB_STATE_DIR=$MARIADB_CURRENT_DIR/state
-ENV MARIADB_DATABASE_DIR=$MARIADB_INSTALL_DIR/database
-ENV MARIADB_CONFIG_DIR=$MARIADB_CURRENT_DIR/config
-ENV MARIADB_LOG_DIR=$MARIADB_CURRENT_DIR/logs
-ENV MARIADB_DEPLOY_DIR=/usr/local
-ENV MARIADB_ENV_FILE=$MARIADB_DEPLOY_DIR/deploy/env.sh
-ENV MARIADB_SECRETS_FILE=$MARIADB_ADMIN_DIR/MariaDB.secrets
+ENV MDB_CURRENT_DIR=$MDB_BASE_DIR/$MDB_TAG
+ENV MDB_MANAGE_DIR=$MDB_CURRENT_DIR
+ENV MDB_AUTH_DIR=$MDB_CURRENT_DIR/auth/
+ENV MDB_INSTALL_DIR=$MDB_CURRENT_DIR/install
+ENV MDB_STATE_DIR=$MDB_CURRENT_DIR/state
+ENV MDB_DATABASE_DIR=$MDB_INSTALL_DIR/database
+ENV MDB_CONFIG_DIR=$MDB_CURRENT_DIR/config
+ENV MDB_LOG_DIR=$MDB_CURRENT_DIR/logs
+ENV MDB_DEPLOY_DIR=/usr/local
+ENV MDB_ENV_FILE=$MDB_DEPLOY_DIR/deploy/env.sh
+ENV MDB_SOCKET_FILE=$MDB_CURRENT_DIR/mariadb.sock
+ENV MDB_SECRETS_FILE=$MDB_ADMIN_DIR/MariaDB.secrets
+ENV WMA_SECRETS_FILE=$WMA_ADMIN_DIR/WMAgent.secrets
+ENV WMA_DATABASE=wmagent
 
 
 RUN useradd -u $UID -m $USER
@@ -40,24 +44,20 @@ RUN useradd -u $UID -m $USER
 RUN echo "$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # start the setup
-RUN mkdir -p $MARIADB_ROOT_DIR
+RUN mkdir -p $MDB_ROOT_DIR
 
-ENV PATH="${MARIADB_ROOT_DIR}:${PATH}"
+ENV PATH="${MDB_ROOT_DIR}:${PATH}"
 
-RUN mkdir -p $MARIADB_CURRENT_DIR $MARIADB_CONFIG_DIR $MARIADB_MANAGE_DIR $MARIADB_LOG_DIR $MARIADB_DATABASE_DIR $MARIADB_STATE_DIR $MARIADB_AUTH_DIR
-RUN ln -s $MARIADB_CURRENT_DIR $MARIADB_BASE_DIR/current
+RUN mkdir -p $MDB_CURRENT_DIR $MDB_CONFIG_DIR $MDB_MANAGE_DIR $MDB_LOG_DIR $MDB_DATABASE_DIR $MDB_STATE_DIR $MDB_AUTH_DIR
+RUN ln -s $MDB_CURRENT_DIR $MDB_BASE_DIR/current
 
 # add necessary scripts
-ADD run.sh ${MARIADB_ROOT_DIR}/
-ADD start-mariadb.sh ${MARIADB_ROOT_DIR}/
-ADD manage ${MARIADB_MANAGE_DIR}/manage
-RUN ln -s ${MARIADB_MANAGE_DIR}/manage ${MARIADB_ROOT_DIR}/manage
+ADD run.sh ${MDB_ROOT_DIR}/
+ADD manage ${MDB_MANAGE_DIR}/manage
+RUN ln -s ${MDB_MANAGE_DIR}/manage ${MDB_ROOT_DIR}/manage
 
-# The $MARIADB_CONFIG_DIR is to be mounted from the host and my.cnf read from there
-ADD my.cnf ${MARIADB_CONFIG_DIR}/my.cnf
-# RUN ln -s ${MARIADB_CONFIG_DIR}/my.cnf /opt/mariadb/etc/local.d/
-# ADD my.cnf /etc/mysql/my.cnf
-
+# The $MDB_CONFIG_DIR is to be mounted from the host and my.cnf read from there
+ADD my.cnf ${MDB_CONFIG_DIR}/my.cnf
 
 ENV PATH="/opt/couchdb/bin:/usr/local/bin/:${PATH}"
 
@@ -67,15 +67,15 @@ alias lll="ls -lathr"
 alias ls="ls --color=auto"
 alias ll='ls -la --color=auto'
 
-alias manage=$MARIADB_MANAGE_DIR/manage
+alias manage=$MDB_MANAGE_DIR/manage
 
 # set MariaDB docker specific bash prompt:
 export PS1="(MariaDB-$MDB_TAG) [\u@\h:\W]\$ "
 EOF
 
-RUN chown -R ${USER} ${MARIADB_ROOT_DIR}
+RUN chown -R ${USER} ${MDB_ROOT_DIR}
 
 # setup final environment
 USER $USER
-WORKDIR $MARIADB_ROOT_DIR
+WORKDIR $MDB_ROOT_DIR
 ENTRYPOINT ["./run.sh"]
