@@ -65,7 +65,6 @@ HOST_MOUNT_DIR=/data/dockerMount
 
 # sudo chown -R $mariadbUser:$mariadbUser $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG
 
-
 dockerOpts="
 --detach \
 --network=host \
@@ -76,6 +75,7 @@ dockerOpts="
 --mount type=bind,source=$HOST_MOUNT_DIR/certs,target=/data/certs \
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/install/database,target=/data/srv/mariadb/current/install/database \
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/logs,target=/data/srv/mariadb/current/logs \
+--mount type=bind,source=$HOST_MOUNT_DIR/admin/mariadb,target=/data/admin/mariadb/ \
 --mount type=bind,source=$HOST_MOUNT_DIR/admin/wmagent,target=/data/admin/wmagent/ \
 "
 
