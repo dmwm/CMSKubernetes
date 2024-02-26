@@ -1,16 +1,13 @@
-ARG TAG=11.0
-ARG MDB_TAG=$TAG
-FROM mariadb:${MDB_TAG}
+ARG MDB_TAG=10.0
+FROM mariadb:$MDB_TAG
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
-ARG MDB_TAG=$TAG
-ENV MDB_TAG=${MDB_TAG}
+ARG MDB_TAG
+ENV MDB_TAG=$MDB_TAG
 RUN echo MDB_TAG=$MDB_TAG
 
-RUN apt-get update && apt-get install -y vim less sudo wget unzip python3 pip
-
-# Install some debugging tools
-RUN apt-get install -y hostname net-tools iputils-ping procps emacs-nox tcpdump && apt-get clean
+RUN apt-get update && apt-get install -y vim less sudo wget unzip python3 pip \
+    hostname net-tools iputils-ping procps emacs-nox tcpdump && apt-get clean
 
 ENV USER=cmst1
 # ENV MDB_PORT=
@@ -37,7 +34,6 @@ ENV MDB_SECRETS_FILE=$MDB_ADMIN_DIR/MariaDB.secrets
 ENV WMA_SECRETS_FILE=$WMA_ADMIN_DIR/WMAgent.secrets
 ENV WMA_DATABASE=wmagent
 
-
 RUN useradd -u $UID -m $USER
 
 # add user to sudoers file
@@ -45,8 +41,6 @@ RUN echo "$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # start the setup
 RUN mkdir -p $MDB_ROOT_DIR
-
-ENV PATH="${MDB_ROOT_DIR}:${PATH}"
 
 RUN mkdir -p $MDB_CURRENT_DIR $MDB_CONFIG_DIR $MDB_MANAGE_DIR $MDB_LOG_DIR $MDB_DATABASE_DIR $MDB_STATE_DIR $MDB_AUTH_DIR
 RUN ln -s $MDB_CURRENT_DIR $MDB_BASE_DIR/current
@@ -59,7 +53,7 @@ RUN ln -s ${MDB_MANAGE_DIR}/manage ${MDB_ROOT_DIR}/manage
 # The $MDB_CONFIG_DIR is to be mounted from the host and my.cnf read from there
 ADD my.cnf ${MDB_CONFIG_DIR}/my.cnf
 
-ENV PATH="/opt/couchdb/bin:/usr/local/bin/:${PATH}"
+ENV PATH="/usr/local/bin/:${MDB_ROOT_DIR}:${PATH}"
 
 RUN <<EOF cat >> /home/${USER}/.bashrc
 
