@@ -34,15 +34,12 @@ ENV MDB_SECRETS_FILE=$MDB_ADMIN_DIR/MariaDB.secrets
 ENV WMA_SECRETS_FILE=$WMA_ADMIN_DIR/WMAgent.secrets
 ENV WMA_DATABASE=wmagent
 
-RUN useradd -u $UID -m $USER
-
-# add user to sudoers file
-RUN echo "$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+# create the system user to run the database and add it to the sudoers file
+RUN useradd -u $UID -m $USER && echo "$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # start the setup
-RUN mkdir -p $MDB_ROOT_DIR
-
-RUN mkdir -p $MDB_CURRENT_DIR $MDB_CONFIG_DIR $MDB_MANAGE_DIR $MDB_LOG_DIR $MDB_DATABASE_DIR $MDB_STATE_DIR $MDB_AUTH_DIR
+RUN mkdir -p $MDB_ROOT_DIR $MDB_CURRENT_DIR $MDB_CONFIG_DIR $MDB_MANAGE_DIR \
+    $MDB_LOG_DIR $MDB_DATABASE_DIR $MDB_STATE_DIR $MDB_AUTH_DIR
 RUN ln -s $MDB_CURRENT_DIR $MDB_BASE_DIR/current
 
 # add necessary scripts
@@ -50,7 +47,8 @@ ADD run.sh ${MDB_ROOT_DIR}/
 ADD manage ${MDB_MANAGE_DIR}/manage
 RUN ln -s ${MDB_MANAGE_DIR}/manage ${MDB_ROOT_DIR}/manage
 
-# The $MDB_CONFIG_DIR is to be mounted from the host and my.cnf read from there
+# The $MDB_CONFIG_DIR is NOT to be mounted from the host
+# and the my.cnf file is going to be accessible only from the container
 ADD my.cnf ${MDB_CONFIG_DIR}/my.cnf
 
 ENV PATH="/usr/local/bin/:${MDB_ROOT_DIR}:${PATH}"

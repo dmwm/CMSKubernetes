@@ -47,20 +47,32 @@ while getopts ":t:hpl" opt; do
 done
 
 
-# NOTE: NO MDB_TAG validation is done in the current script. It is implemented at the install.sh
-
-dockerOpts=" --network=host --progress=plain --build-arg MDB_TAG=$MDB_TAG "
+# NOTE: NO MDB_TAG validation is done in the current script. The proper tag
+#       to be used should be taken from: https://mariadb.org/mariadb/all-releases/
+dockerOpts=" --network host --progress=plain --build-arg MDB_TAG=$MDB_TAG "
 
 docker build $dockerOpts -t local/mariadb:$MDB_TAG -t local/mariadb:latest  .
 
 $PUSH && {
-    docker login registry.cern.ch
-    docker tag mariadb:$MDB_TAG registry.cern.ch/cmsweb/mariadb:$MDB_TAG
-    echo "Uploading image registry.cern.ch/cmsweb/mariadb:$MDB_TAG"
-    docker push registry.cern.ch/cmsweb/mariadb:$MDB_TAG
-    $LATEST &&  {
-        docker tag mariadb:$MDB_TAG registry.cern.ch/cmsweb/mariadb:latest
-        echo "Uploading image registry.cern.ch/cmsweb/mariadb:latest"
-        docker push registry.cern.ch/cmsweb/mariadb:latest
+    # For security reasons we check if the login name and the current user match.
+    # If they do not, abort the execution and push nothing to registry.cern.ch.
+    loginUser=`logname`
+    currUser=`id -un`
+    registry=registry.cern.ch
+    [[ $loginUser == $currUser ]] || {
+        echo "ERROR: The CURRENT and the LOGIN users do not match!"
+        echo "ERROR: You MUST connect to $registry with your login user rather than with $currUser"
+        exit 1
     }
+    echo "Connecting to $registry with Username: $loginUser"
+    docker login -u $loginUser $registry
+    docker tag local/mariadb:$MDB_TAG $registry/cmsweb/mariadb:$MDB_TAG
+    echo "Uploading image $registry/cmsweb/mariadb:$MDB_TAG"
+    docker push $registry/cmsweb/mariadb:$MDB_TAG
+    $LATEST &&  {
+        docker tag local/mariadb:$MDB_TAG $registry/cmsweb/mariadb:latest
+        echo "Uploading image $registry/cmsweb/mariadb:latest"
+        docker push $registry/cmsweb/mariadb:latest
+    }
+    docker logout $registry
 }
