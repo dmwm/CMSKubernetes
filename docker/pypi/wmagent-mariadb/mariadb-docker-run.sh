@@ -84,15 +84,20 @@ dockerOpts="
 # mariadbOpts=$*
 # mariadbOpts="$mariadbOpts --user mariadb -e MARIADB_USER=TestAdmin -e MARIADB_PASSWORD=TestPass"
 
+registry=local
+repository=mariadb
+
 $PULL && {
+    registry=registry.cern.ch
+    project=cmsweb
+    repository=mariadb
     echo "Pulling Docker image: registry.cern.ch/cmsweb/mariadb:$MDB_TAG"
-    docker login registry.cern.ch
-    docker pull registry.cern.ch/cmsweb/mariadb:$MDB_TAG
-    docker tag registry.cern.ch/cmsweb/mariadb:$MDB_TAG local/mariadb:$MDB_TAG
-    docker tag registry.cern.ch/cmsweb/mariadb:$MDB_TAG local/mariadb:latest
+    docker pull $registry/$project/$repository:$MDB_TAG
+    docker tag  $registry/$project/$repository:$MDB_TAG $registry/$repository:$MDB_TAG
+    docker tag  $registry/$project/$repository:$MDB_TAG $registry/$repository:latest
 }
 
 echo "Starting the mariadb:$MDB_TAG docker container with the following parameters: $mariadbOpts"
-docker run $dockerOpts $mariadbOpts local/mariadb:$MDB_TAG && (
+docker run $dockerOpts $mariadbOpts $registry/$repository:$MDB_TAG && (
     [[ -h $HOST_MOUNT_DIR/srv/mariadb/current ]] && rm -f $HOST_MOUNT_DIR/srv/mariadb/current
     ln -s $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG $HOST_MOUNT_DIR/srv/mariadb/current )
