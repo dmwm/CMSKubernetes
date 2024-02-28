@@ -1,6 +1,6 @@
 ARG MDB_TAG=10.6.5
 FROM mariadb:$MDB_TAG
-MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
+MAINTAINER Todor Ivanov todor.ivanov@cern.ch
 
 ARG MDB_TAG
 ENV MDB_TAG=$MDB_TAG
