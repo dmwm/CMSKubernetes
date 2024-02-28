@@ -1,4 +1,4 @@
-ARG MDB_TAG=10.0
+ARG MDB_TAG=10.6.5
 FROM mariadb:$MDB_TAG
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
@@ -9,9 +9,7 @@ RUN echo MDB_TAG=$MDB_TAG
 RUN apt-get update && apt-get install -y vim less sudo wget unzip python3 pip \
     hostname net-tools iputils-ping procps emacs-nox tcpdump && apt-get clean
 
-ENV USER=cmst1
 # ENV MDB_PORT=
-ENV UID=31961
 ENV MDB_ROOT_DIR=/data
 
 ENV MDB_BASE_DIR=$MDB_ROOT_DIR/srv/mariadb
@@ -29,13 +27,14 @@ ENV MDB_CONFIG_DIR=$MDB_CURRENT_DIR/config
 ENV MDB_LOG_DIR=$MDB_CURRENT_DIR/logs
 ENV MDB_DEPLOY_DIR=/usr/local
 ENV MDB_ENV_FILE=$MDB_DEPLOY_DIR/deploy/env.sh
-ENV MDB_SOCKET_FILE=$MDB_CURRENT_DIR/mariadb.sock
+ENV MDB_SOCKET_FILE=/var/run/mysqld/mariadb.sock
 ENV MDB_SECRETS_FILE=$MDB_ADMIN_DIR/MariaDB.secrets
 ENV WMA_SECRETS_FILE=$WMA_ADMIN_DIR/WMAgent.secrets
 ENV WMA_DATABASE=wmagent
 
-# create the system user to run the database and add it to the sudoers file
-RUN useradd -u $UID -m $USER && echo "$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+# create the system user to run the database
+RUN groupadd -g 1399 zh
+RUN useradd -u 31961  -g 1399 -G 999 -m cmst1
 
 # start the setup
 RUN mkdir -p $MDB_ROOT_DIR $MDB_CURRENT_DIR $MDB_CONFIG_DIR $MDB_MANAGE_DIR \
@@ -53,21 +52,20 @@ ADD my.cnf ${MDB_CONFIG_DIR}/my.cnf
 
 ENV PATH="/usr/local/bin/:${MDB_ROOT_DIR}:${PATH}"
 
-RUN <<EOF cat >> /home/${USER}/.bashrc
-
-alias lll="ls -lathr"
-alias ls="ls --color=auto"
-alias ll='ls -la --color=auto'
-
+# set MariaDB docker specific bash prompt and manage alias for all users:
+RUN <<EOF cat >>/root/.bashrc
 alias manage=$MDB_MANAGE_DIR/manage
-
-# set MariaDB docker specific bash prompt:
-export PS1="(MariaDB-$MDB_TAG) [\u@\h:\W]\$ "
+export PS1="(MariaDB-$MDB_TAG) [\u@\h:\W]\$([[ \$(id -u) -eq 0 ]] && echo \# || echo \$) "
 EOF
 
-RUN chown -R ${USER} ${MDB_ROOT_DIR}
+RUN <<EOF cat >>/home/cmst1/.bashrc
+alias manage=$MDB_MANAGE_DIR/manage
+export PS1="(MariaDB-$MDB_TAG) [\u@\h:\W]\$([[ \$(id -u) -eq 0 ]] && echo \# || echo \$) "
+EOF
+
+# RUN chown -R ${USER} ${MDB_ROOT_DIR}
 
 # setup final environment
-USER $USER
+# USER $USER
 WORKDIR $MDB_ROOT_DIR
-ENTRYPOINT ["./run.sh"]
+ENTRYPOINT ["./run.sh", "2>&1"]
