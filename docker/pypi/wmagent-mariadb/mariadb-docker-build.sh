@@ -64,8 +64,12 @@ $PUSH && {
         echo "ERROR: You MUST connect to $registry with your login user rather than with $currUser"
         exit 1
     }
-    echo "Connecting to $registry with Username: $loginUser"
-    docker login -u $loginUser $registry
+    echo "Testing for existing login session to $registry with Username: $loginUser"
+    docker login $registry < /dev/null >/dev/null 2>&1 || {
+        echo "ERROR: A valid login session to $registry is required in order to be able to upload any docker image"
+        echo "ERROR: Please consider running 'docker login $registry' with USER:$currUser and retry again."
+        exit 1
+    }
     docker tag local/mariadb:$MDB_TAG $registry/cmsweb/mariadb:$MDB_TAG
     echo "Uploading image $registry/cmsweb/mariadb:$MDB_TAG"
     docker push $registry/cmsweb/mariadb:$MDB_TAG
@@ -74,5 +78,4 @@ $PUSH && {
         echo "Uploading image $registry/cmsweb/mariadb:latest"
         docker push $registry/cmsweb/mariadb:latest
     }
-    docker logout $registry
 }
