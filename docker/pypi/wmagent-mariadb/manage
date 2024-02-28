@@ -54,8 +54,6 @@ _load_secrets(){
 status(){
     mariadb-admin --socket=$MDB_SOCKET_FILE version
     echo
-    mariadb-admin --socket=$MDB_SOCKET_FILE status
-    echo
 }
 
 start_mariadb(){
@@ -98,14 +96,15 @@ init_mariadb(){
 
     echo -------------------------------------------------------------------------
     echo Stopping any previously running mariadb server
-    mariadb-admin -u $MDB_USER --socket=$MDB_SOCKET_FILE shutdown
+    mariadb-admin -u $MDB_ROOT --socket=$MDB_SOCKET_FILE shutdown
     echo
 
     echo -------------------------------------------------------------------------
-    echo Trying to install system database if it is not present already
+    echo "Trying to install system database with user: $USER (if it is not already present)"
 
-    errMsg=$(mariadb-install-db --skip-test-db --datadir=$MDB_DATABASE_DIR)
+    errMsg=$(mariadb-install-db --skip-test-db --user=$USER --datadir=$MDB_DATABASE_DIR)
     err=$?
+    echo $errMsg
 
     if [[ $err -ne 0 ]]; then
         echo "ERROR: Could not create system and user databases."
@@ -121,8 +120,8 @@ init_mariadb(){
     start_mariadb
 
     echo -------------------------------------------------------------------------
-    echo Securing MariaDB Root users
-    sudo mariadb-admin -u root password $MDB_ROOTPASS --socket=$MDB_SOCKET_FILE
+    echo Securing MariaDB Root user
+    # sudo mariadb-admin -u root password $MDB_ROOTPASS --socket=$MDB_SOCKET_FILE
     mariadb-admin -u $MDB_ROOT password $MDB_ROOTPASS --socket=$MDB_SOCKET_FILE
     echo
 

@@ -50,8 +50,8 @@ while getopts ":t:hp" opt; do
 done
 
 
-mariadbUser=cmst1
-mariadbOpts=" --user $mariadbUser"
+mariadbUser=`id -un`
+mariadbOpts=" --user $mariadbUser -e USER=$mariadbUser"
 
 # This is the root at the host only, it may differ from the root inside the container.
 # NOTE: this may be parametriesed, so that the container can run on a different mount point.
@@ -63,7 +63,7 @@ HOST_MOUNT_DIR=/data/dockerMount
 [[ -d $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/install/database ]] || { mkdir -p $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/install/database ;} || exit $?
 [[ -d $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/logs ]] || { mkdir -p $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/logs ;} || exit $?
 
-# sudo chown -R $mariadbUser:$mariadbUser $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG
+# sudo chown -R $mariadbUser $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG
 
 dockerOpts="
 --detach \
@@ -81,9 +81,6 @@ dockerOpts="
 
 # --mount type=bind,source=$HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/config,target=/data/srv/mariadb/current/config \
 
-# mariadbOpts=$*
-# mariadbOpts="$mariadbOpts --user mariadb -e MARIADB_USER=TestAdmin -e MARIADB_PASSWORD=TestPass"
-
 registry=local
 repository=mariadb
 
@@ -97,7 +94,7 @@ $PULL && {
     docker tag  $registry/$project/$repository:$MDB_TAG $registry/$repository:latest
 }
 
-echo "Starting the mariadb:$MDB_TAG docker container with the following parameters: $mariadbOpts"
+echo "Starting the $registry/$repository:$MDB_TAG docker container with the following parameters: $mariadbOpts"
 docker run $dockerOpts $mariadbOpts $registry/$repository:$MDB_TAG && (
     [[ -h $HOST_MOUNT_DIR/srv/mariadb/current ]] && rm -f $HOST_MOUNT_DIR/srv/mariadb/current
     ln -s $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG $HOST_MOUNT_DIR/srv/mariadb/current )
