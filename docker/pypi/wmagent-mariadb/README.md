@@ -124,70 +124,7 @@ cmst1@vocms0290:wmagent-mariadb $ docker exec -it mariadb bash
 
 ```
 
-* Managing the databse service:
-    * General options:
-```
-(MariaDB-10.6.5) [cmst1@vocms0290:data]$ manage --help
-
-The manage script of the MariaDB docker image for WMAgent
-
-Usage: manage  status | start-mariadb | stop-mariadb | clean-mariadb | db-prompt | version
-
-```
-    * Stat/Stop the database:
-```
-(MariaDB-10.6.5) [cmst1@vocms0290:data]$ manage start-mariadb
-start_mariadb: Starting MariaDB server
-...
-240301 09:25:54 mysqld_safe Can't log to error log and syslog at the same time.  Remove all --log-error configuration options for --syslog to take effect.
-240301 09:25:54 mysqld_safe Logging to '/data/srv/mariadb/10.6.5/logs/error.log'.
-240301 09:25:54 mysqld_safe Starting mariadbd daemon with databases from /data/srv/mariadb/10.6.5/install/database
-mariadb-admin  Ver 9.1 Distrib 10.6.5-MariaDB, for debian-linux-gnu on x86_64
-Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
-
-Server version		10.6.5-MariaDB-1:10.6.5+maria~focal-log
-Protocol version	10
-Connection		Localhost via UNIX socket
-UNIX socket		/var/run/mysqld/mariadb.sock
-Uptime:			10 sec
-
-Threads: 2  Questions: 1  Slow queries: 0  Opens: 16  Open tables: 10  Queries per second avg: 0.100
-
-```
-If one tries to start a second server on the same socket:
-```
-(MariaDB-10.6.5) [cmst1@vocms0290:data]$ manage start-mariadb
-start_mariadb: WARNING: MariaDB Server already running on --socket=/var/run/mysqld/mariadb.sock
-
-```
-    * Cleaning the WMAgent database:
-```
-(MariaDB-10.6.5) [cmst1@vocms0290:data]$ manage clean-mariadb
-
-clean_mariadb: THE CURRENT OPERATIONS WILL WIPE OUT THE wmagent DATABASE.
-clean_mariadb: Continue? [n]: y
-clean_mariadb: ...
-clean_mariadb: You still have 5 sec. to cancel before we proceed.
-
-clean_mariadb: DROPPING wmagent DATABASE!
-
-```
-
-    * Connecting to the database with the admin user locally from inside the container:
-```
-(MariaDB-10.6.5) [cmst1@vocms0290:data]$ manage db-prompt
-Welcome to the MariaDB monitor.  Commands end with ; or \g.
-Your MariaDB connection id is 5
-Server version: 10.6.5-MariaDB-1:10.6.5+maria~focal-log mariadb.org binary distribution
-
-Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
-
-Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
-
-MariaDB [wmagent]>
-```
-
-    * Fetching startup logs:
+* Fetching startup logs:
 ```
 cmst1@vocms0290:wmagent-mariadb $ docker  logs mariadb
 -------------------------------------------------------------------------
@@ -218,4 +155,70 @@ Threads: 1  Questions: 1  Slow queries: 0  Opens: 16  Open tables: 10  Queries p
 Uptime: 10  Threads: 1  Questions: 2  Slow queries: 0  Opens: 16  Open tables: 10  Queries per second avg: 0.200
 
 Start sleeping....zzz
+```
+
+### Managing the databse service:
+
+* General options:
+```
+(MariaDB-10.6.5) [cmst1@vocms0290:data]$ manage --help
+
+The manage script of the MariaDB docker image for WMAgent
+
+Usage: manage  status | start-mariadb | stop-mariadb | clean-mariadb | db-prompt | version
+
+```
+
+* Stat/Stop the database:
+```
+(MariaDB-10.6.5) [cmst1@vocms0290:data]$ manage start-mariadb
+start_mariadb: Starting MariaDB server
+...
+240301 09:25:54 mysqld_safe Can't log to error log and syslog at the same time.  Remove all --log-error configuration options for --syslog to take effect.
+240301 09:25:54 mysqld_safe Logging to '/data/srv/mariadb/10.6.5/logs/error.log'.
+240301 09:25:54 mysqld_safe Starting mariadbd daemon with databases from /data/srv/mariadb/10.6.5/install/database
+mariadb-admin  Ver 9.1 Distrib 10.6.5-MariaDB, for debian-linux-gnu on x86_64
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Server version		10.6.5-MariaDB-1:10.6.5+maria~focal-log
+Protocol version	10
+Connection		Localhost via UNIX socket
+UNIX socket		/var/run/mysqld/mariadb.sock
+Uptime:			10 sec
+
+Threads: 2  Questions: 1  Slow queries: 0  Opens: 16  Open tables: 10  Queries per second avg: 0.100
+
+```
+If one tries to start a second server on the same socket:
+```
+(MariaDB-10.6.5) [cmst1@vocms0290:data]$ manage start-mariadb
+start_mariadb: WARNING: MariaDB Server already running on --socket=/var/run/mysqld/mariadb.sock
+
+```
+
+* Cleaning the WMAgent database:
+```
+(MariaDB-10.6.5) [cmst1@vocms0290:data]$ manage clean-mariadb
+
+clean_mariadb: THE CURRENT OPERATIONS WILL WIPE OUT THE wmagent DATABASE.
+clean_mariadb: Continue? [n]: y
+clean_mariadb: ...
+clean_mariadb: You still have 5 sec. to cancel before we proceed.
+
+clean_mariadb: DROPPING wmagent DATABASE!
+
+```
+
+    * Connecting to the database with the admin user locally from inside the container:
+```
+(MariaDB-10.6.5) [cmst1@vocms0290:data]$ manage db-prompt
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 5
+Server version: 10.6.5-MariaDB-1:10.6.5+maria~focal-log mariadb.org binary distribution
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [wmagent]>
 ```
