@@ -30,18 +30,18 @@ There are no other external dependencies.
 
 We fetch all the passwords from two secrets files:
 
-* `/data/admin/wmagent/WMAgent.secrets` - for reading the credentials for the
+* `/data/admin/wmagent/WMAgent.secrets` - for reading the credentials of the
   user to be used by the WMAgent to connect to the datbase
-* `/data/admin/mariadb/MariaDB.secrets` - for reading the the credentials for
-    the root user who is about to have full administrative rights on the MariaDB
-    server
-    **NOTE:** The server admin user configured at the `MariaDB.secrets` file,
-        must match the username of the one who is to run the server inside the
-        container. And the later is resolved at runtime, depending on where we
-        run the container, it could be on of the three:
-   * CERN - production agent
+* `/data/admin/mariadb/MariaDB.secrets` - for reading the credentials of the
+  root user who is about to have full administrative rights on the MariaDB server
+
+  **NOTE:** The server admin user configured at the `MariaDB.secrets` file,
+    must match the username of the one who is to run the server inside the
+    container. And the later is resolved at runtime, depending on where we
+    run the container, it could be on of the three:
+   * CERN - WM agent
    * CERN - T0 agent
-   * FNAL
+   * FNAL - WM agent
 
 ## Usage
 
@@ -69,8 +69,8 @@ local/mariadb              latest    4efa646aea3e   6 minutes ago    950MB
 
 ### Running a MariaDB container
 
-We can run from local repository or from upstream CERN registry. The set of
-images one may end up working may look like:
+We can run from the local repository or from upstream CERN registry. The typical
+set of images one could end up working with, may look like this:
 
 ```
 cmst1@vocms0290:wmagent-mariadb $ docker image  ls
@@ -126,7 +126,7 @@ cmst1@vocms0290:wmagent-mariadb $ docker exec -it mariadb bash
 
 * Fetching startup logs:
 ```
-cmst1@vocms0290:wmagent-mariadb $ docker  logs mariadb
+cmst1@vocms0290:wmagent-mariadb $ docker logs mariadb
 -------------------------------------------------------------------------
 Stopping any previously running mariadb server
 mariadb-admin: connect to server at 'localhost' failed
@@ -159,6 +159,8 @@ Start sleeping....zzz
 
 ### Managing the databse service:
 
+All of the commands bellow must be run from inside the container.
+
 * General options:
 ```
 (MariaDB-10.6.5) [cmst1@vocms0290:data]$ manage --help
@@ -169,7 +171,7 @@ Usage: manage  status | start-mariadb | stop-mariadb | clean-mariadb | db-prompt
 
 ```
 
-* Stat/Stop the database:
+* Start/Stop the database server:
 ```
 (MariaDB-10.6.5) [cmst1@vocms0290:data]$ manage start-mariadb
 start_mariadb: Starting MariaDB server
@@ -209,7 +211,7 @@ clean_mariadb: DROPPING wmagent DATABASE!
 
 ```
 
-    * Connecting to the database with the admin user locally from inside the container:
+* Connecting to the database with the admin user locally from inside the container:
 ```
 (MariaDB-10.6.5) [cmst1@vocms0290:data]$ manage db-prompt
 Welcome to the MariaDB monitor.  Commands end with ; or \g.
