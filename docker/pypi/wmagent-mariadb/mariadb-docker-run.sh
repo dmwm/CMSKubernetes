@@ -17,11 +17,11 @@ help(){
 The script to be used for running a Mariadb docker container at a VM. The full set of arguments
 passed to the current script are to be forwarded to the Mariadb container entrypoint 'run.sh'
 
-Usage: mariadb-docker-run.sh [-t <team_name>] [-n <agent_number>] [-f <db_flavour>]
+Usage: mariadb-docker-run.sh [-t <mariadb_tag>] [-p]
 
-    -p <pull_image>   Pull the image from registry.cern.ch
     -t <mariadb_tag>  The Mariadb version/tag to be downloaded from registry.cern.ch [Default:latest]
-    -h <help>
+    -p                Pull the image from registry.cern.ch
+    -h                Help
 
 Example: ./mariadb-docker-run.sh -t 3.2.2
 

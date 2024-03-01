@@ -10,13 +10,13 @@ help(){
 
 The MariaDB docker build script for Docker image creation based on pypi:
 
-Usage: mariadb-docker-build.sh -v <mariadb_tag>
+Usage: mariadb-docker-build.sh -t <mariadb_tag> [-p] [-l]
 
-    -t <mariadb_tag>                The MariaDB version/tag to be used for the Docker image creation
-    -p <push_image>                 Push the image to registry.cern.ch
-    -l <latest_tag_toregistry>      Push the curernt tag also as latest to registry.cern.ch
+    -t <mariadb_tag>  The MariaDB version/tag to be used for the Docker image creation
+    -p                Push the image to registry.cern.ch
+    -l                Push the curernt tag also as latest to registry.cern.ch
 
-Example: ./mariadb-docker-build.sh -v 2.2.0.2
+Example: ./mariadb-docker-build.sh -t 2.2.0.2
 
 EOF
 }
