@@ -70,7 +70,7 @@ ADD manage ${COUCH_MANAGE_DIR}/manage
 RUN ln -s ${COUCH_MANAGE_DIR}/manage ${COUCH_ROOT_DIR}/manage
 
 # The $COUCH_CONFIG_DIR is to be mounted from the host and locla.ini read from there
-# ADD local.ini ${COUCH_CONFIG_DIR}/local.ini
+ADD local.ini ${COUCH_CONFIG_DIR}/local.ini
 RUN ln -s ${COUCH_CONFIG_DIR}/local.ini /opt/couchdb/etc/local.d/
 
 ENV PATH="/opt/couchdb/bin:/usr/local/bin/:${PATH}"

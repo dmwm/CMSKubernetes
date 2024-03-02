@@ -57,13 +57,13 @@ couchOpts=" --user $couchdbUser"
 # NOTE: this may be parametriesed, so that the container can run on a different mount point.
 HOST_MOUNT_DIR=/data/dockerMount
 
-[[ -d $HOST_MOUNT_DIR/certs ]] || (sudo mkdir -p $HOST_MOUNT_DIR/certs) || exit $?
-[[ -d $HOST_MOUNT_DIR/admin/couchdb ]] || (sudo mkdir -p $HOST_MOUNT_DIR/admin/couchdb) || exit $?
-[[ -d $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/config  ]] || (sudo mkdir -p $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/config)  || exit $?
-[[ -d $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/install/database ]] || { sudo mkdir -p $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/install/database ;} || exit $?
-[[ -d $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/logs ]] || { sudo mkdir -p $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/logs ;} || exit $?
+[[ -d $HOST_MOUNT_DIR/certs ]] || mkdir -p $HOST_MOUNT_DIR/certs || exit $?
+[[ -d $HOST_MOUNT_DIR/admin/couchdb ]] || mkdir -p $HOST_MOUNT_DIR/admin/couchdb || exit $?
+# [[ -d $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/config  ]] || mkdir -p $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/config  || exit $?
+[[ -d $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/install/database ]] || mkdir -p $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/install/database || exit $?
+[[ -d $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/logs ]] || mkdir -p $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/logs || exit $?
 
-sudo chown -R $couchdbUser:$couchdbUser $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG
+# sudo chown -R $couchdbUser:$couchdbUser $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG
 
 
 dockerOpts="
@@ -75,12 +75,11 @@ dockerOpts="
 --mount type=bind,source=/tmp,target=/tmp \
 --mount type=bind,source=$HOST_MOUNT_DIR/certs,target=/data/certs \
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/install/database,target=/data/srv/couchdb/current/install/database \
---mount type=bind,source=$HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/config,target=/data/srv/couchdb/current/config \
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/logs,target=/data/srv/couchdb/current/logs \
 --mount type=bind,source=$HOST_MOUNT_DIR/admin/wmagent,target=/data/admin/wmagent/ \
 "
 
-
+# --mount type=bind,source=$HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/config,target=/data/srv/couchdb/current/config \
 
 # couchOpts=$*
 # couchOpts="$couchOpts --user couchdb -e COUCHDB_USER=TestAdmin -e COUCHDB_PASSWORD=TestPass"
@@ -95,5 +94,5 @@ $PULL && {
 
 echo "Starting the couchdb:$COUCH_TAG docker container with the following parameters: $couchOpts"
 docker run $dockerOpts $couchOpts local/couchdb:$COUCH_TAG && (
-    [[ -h $HOST_MOUNT_DIR/srv/couchdb/current ]] && sudo rm -f $HOST_MOUNT_DIR/srv/couchdb/current
-    sudo ln -s $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG $HOST_MOUNT_DIR/srv/couchdb/current )
+    [[ -h $HOST_MOUNT_DIR/srv/couchdb/current ]] && rm -f $HOST_MOUNT_DIR/srv/couchdb/current
+    ln -s $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG $HOST_MOUNT_DIR/srv/couchdb/current )
