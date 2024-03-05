@@ -20,7 +20,9 @@ COPY --from=dmwm-base /data/manage /data/manage
 # Required OS packages
 RUN dnf -y update && \
     dnf install epel-release -y && dnf clean all && \
-    dnf -y install --skip-broken curl libcurl vim python3-pycurl pip sudo less python3-gfal2-util && \
+    dnf -y install --skip-broken curl libcurl && \
+    dnf -y install sudo vim less python3-pycurl pip python3-gfal2-util && \
+    dnf -y install procps && \
     dnf clean all
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
@@ -29,8 +31,16 @@ WORKDIR $WDIR
 ADD run.sh $WDIR/run.sh
 # TAG to be passed at build time through `--build-arg TAG=<PYPI_TAG>`. Default: None
 ARG TAG=None
-# Finally install MSUnmerged from PyPi
+
+# We already installed gfal2 via dnf, so first install only non-gfal2 service dependencies
+# FIXME: it is probably best to remove it from the requirements.txt file
+RUN curl -ksLO https://raw.githubusercontent.com/dmwm/WMCore/$TAG/requirements.txt
+RUN cat requirements.txt | grep dbs3-client > req.txt
+RUN cat requirements.txt | grep reqmgr2ms-unmerged | grep -v gfal2 >> req.txt
+RUN pip install -r req.txt
+# and now install MSUnmerged itself, without any dependencies
 RUN pip install --no-deps reqmgr2ms-unmerged==$TAG
+
 # and now setup run.sh and manage scripts accordingly
 RUN sed -i -e "s,-config.py,-config-unmerged.py,g" /data/run.sh
 RUN sed -i -e "s,config.py,config-unmerged.py,g" /data/manage
@@ -40,3 +50,4 @@ RUN echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 USER ${USER}
 RUN sudo chown -R $USER.$USER $WDIR
 CMD ["python3"]
+
