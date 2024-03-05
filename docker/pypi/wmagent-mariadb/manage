@@ -1,0 +1,200 @@
+#!/bin/bash
+
+help(){
+    echo -e $*
+    cat <<EOF
+
+The manage script of the MariaDB docker image for WMAgent
+
+Usage: manage  status | start-mariadb | stop-mariadb | clean-mariadb | db-prompt | version
+
+EOF
+}
+
+usage(){
+    help $*
+    exit 1
+}
+
+_load_secrets(){
+    # Auxiliary function to parse WMAgent.secrets or MariaDB.secrets files
+    # and load a set of variables from them
+    # :param $1: Path to WMAgent.secrets or file
+    # :param $2: String with variable names to be checked
+    # :retrun:   Error value if one or more values have been left unset in the secrets file
+    local errVal=0
+    local value=""
+    local secretsFile=$1
+    local varsToLoad=$2
+
+    [[ -f $secretsFile ]] || {
+        echo "$FUNCNAME: ERROR: Password file: $secretsFile does not exist"
+        echo "$FUNCNAME: ERROR: Either set WMA_SECRETS_FILE environment variable to a valid file or check that $HOME/WMAgent.secrets exists"
+        return $(false)
+    }
+
+    # All variables need to be fetched in lowercase through: ${varName,,}
+    local badValuesReg="(update-me|updateme|<update-me>|<updateme>|fix-me|fixme|<fix-me>|<fixme>|^$)"
+    for varName in $varsToLoad
+    do
+        value=`grep -E "^[[:blank:]]*$varName=" $secretsFile | awk -F\= '{print $2}'`
+        [[ ${value,,} =~ $badValuesReg ]] && { echo "$FUNCNAME: Bad value for: $varName=$value"; let errVal+=1 ;}
+    done
+
+    for varName in $varsToLoad
+    do
+        value=`grep -E "^[[:blank:]]*$varName=" $secretsFile | sed "s/ *$varName=//"`
+        eval $varName=$value
+        [[ -n $varName ]] || { echo "$FUNCNAME: Empty value for: $varName=$value"; let errVal+=1 ;}
+    done
+    return $errVal
+}
+
+
+status(){
+    mariadb-admin --socket=$MDB_SOCKET_FILE version
+    echo
+}
+
+start_mariadb(){
+    mariadb-admin --socket=$MDB_SOCKET_FILE status >/dev/null 2>&1 && {
+        echo "$FUNCNAME: WARNING: MariaDB Server already running on --socket=$MDB_SOCKET_FILE"
+        return
+    }
+    echo "$FUNCNAME: Starting MariaDB server"
+    mariadbd-safe --defaults-extra-file=$MDB_CONFIG_DIR/my.cnf \
+                  --datadir=$MDB_DATABASE_DIR \
+                  --log-bin \
+                  --socket=$MDB_SOCKET_FILE \
+                  --log-error=$MDB_LOG_DIR/error.log \
+                  --pid-file=$MDB_LOG_DIR/mariadbd.pid  &
+    echo ...
+    sleep 10
+    status
+}
+
+stop_mariadb(){
+    mariadb-admin --socket=$MDB_SOCKET_FILE shutdown
+}
+
+db_prompt(){
+    mariadb --socket=$MDB_SOCKET_FILE --database=$WMA_DATABASE --pager='less -SFX'
+}
+
+clean_mariadb(){
+    echo
+    echo    "$FUNCNAME: THE CURRENT OPERATIONS WILL WIPE OUT THE $WMA_DATABASE DATABASE."
+    echo -n "$FUNCNAME: Continue? [n]: "
+    read x && [[ $x =~ (y|yes|yeS|yEs|Yes|yES|YEs|YeS|YES|Y) ]] || return 102
+    echo "$FUNCNAME: ..."
+    echo "$FUNCNAME: You still have 5 sec. to cancel before we proceed."
+    echo
+    sleep 5
+    echo "$FUNCNAME: DROPPING $WMA_DATABASE DATABASE!"
+    mariadb --socket=$MDB_SOCKET_FILE -e "drop database $WMA_DATABASE"
+    mariadb --socket=$MDB_SOCKET_FILE -e "create database $WMA_DATABASE"
+}
+
+version(){
+    mariadb-admin --socket=$MDB_SOCKET_FILE version
+}
+
+
+init_mariadb(){
+    # The function to set/check initial database configurations and user preveleges
+    [[ $USER == $MDB_ROOT ]] || {
+        echo "$FUNCNAME: ERROR: The current user does not match the MariaDB root user from $MDB_SECRETS_FILE."
+        echo "$FUNCNAME: ERROR: Cannot continue. Exit..."
+        exit 1
+    }
+
+    echo -------------------------------------------------------------------------
+    echo "$FUNCNAME: Stopping any previously running mariadb server"
+    mariadb-admin -u $MDB_ROOT --socket=$MDB_SOCKET_FILE shutdown
+    echo
+
+    echo -------------------------------------------------------------------------
+    echo "$FUNCNAME: Trying to install system database with user: $USER (if it is not already present)"
+
+    errMsg=$(mariadb-install-db --skip-test-db --user=$USER --datadir=$MDB_DATABASE_DIR)
+    err=$?
+    echo $errMsg
+
+    if [[ $err -ne 0 ]]; then
+        echo "$FUNCNAME: ERROR: Could not create system and user databases."
+        echo "$FUNCNAME: ERROR: $errMsg"
+        exit $err
+    elif echo $errMsg|grep -i "exists" ; then
+        echo "$FUNCNAME: WARNING: System and user databases already exist. NOT trying to create them."
+        return $err
+    fi
+
+    echo -------------------------------------------------------------------------
+    echo "$FUNCNAME: Starting MariaDB server"
+    start_mariadb
+
+    echo -------------------------------------------------------------------------
+    echo "$FUNCNAME: Securing MariaDB Root user"
+    # sudo mariadb-admin -u root password $MDB_ROOTPASS --socket=$MDB_SOCKET_FILE
+    mariadb-admin -u $MDB_ROOT password $MDB_ROOTPASS --socket=$MDB_SOCKET_FILE
+    echo
+
+    echo -------------------------------------------------------------------------
+    echo "$FUNCNAME: Creating WMAgent databases"
+    echo "$FUNCNAME: Installing WMAgent Database: $WMA_DATABASE"
+    mariadb -u $MDB_ROOT --password=$MDB_ROOTPASS --socket=$MDB_SOCKET_FILE --execute "create database $WMA_DATABASE"
+    echo
+
+    echo -------------------------------------------------------------------------
+    echo "$FUNCNAME: Creating WMAgent user and setting grants"
+    # try to create a user different than root (if it does not already exist), and grant privileges
+    # we need ${MDB_USER}'@'127.0.0.1 user in paralel to ${MDB_USER}'@'localhost
+
+    if [[ $MDB_USER == $MDB_ROOT ]]; then
+        echo "$FUNCNAME: WARNING: WMAgent user set is the same as the MariaDB Root user. You must configure a different one!"
+        echo "$FUNCNAME: WARNING: NOT creating WMAgent users and NOT granting priveleges to $WMA_DATABASE database"
+        return 1
+    else
+        mariadb -u $MDB_ROOT --password=$MDB_ROOTPASS --socket=$MDB_SOCKET_FILE --execute "CREATE USER '${MDB_USER}'@'localhost' IDENTIFIED BY '$MDB_PASS'"
+        mariadb -u $MDB_ROOT --password=$MDB_ROOTPASS --socket=$MDB_SOCKET_FILE --execute "GRANT ALL ON $WMA_DATABASE.* TO $MDB_USER@localhost"
+        mariadb -u $MDB_ROOT --password=$MDB_ROOTPASS --socket=$MDB_SOCKET_FILE --execute "CREATE USER '${MDB_USER}'@'127.0.0.1' IDENTIFIED BY '$MDB_PASS'"
+        mariadb -u $MDB_ROOT --password=$MDB_ROOTPASS --socket=$MDB_SOCKET_FILE --execute "GRANT ALL ON $WMA_DATABASE.* TO $MDB_USER@127.0.0.1"
+    fi
+    echo -------------------------------------------------------------------------
+}
+
+
+_load_secrets $MDB_SECRETS_FILE "MDB_ROOT MDB_ROOTPASS" || {
+    err=$?
+    echo "$FUNCNAME: ERROR: Could not properly load root password for MariaDB"
+    exit $err
+}
+
+_load_secrets $WMA_SECRETS_FILE "MDB_USER MDB_PASS" || {
+    err=$?
+    echo "$FUNCNAME: ERROR: Could not properly load WMAgent User password for MariaDB"
+    exit $err
+}
+
+
+case $1 in
+    status)
+        status ;;
+    init-mariadb)
+        init_mariadb;;
+    start-mariadb)
+        start_mariadb;;
+    stop-mariadb)
+        stop_mariadb;;
+    clean-mariadb)
+        clean_mariadb;;
+    db-prompt)
+        shift
+        db_prompt $@;;
+    version)
+        version ;;
+    help)
+        help ;;
+    *)
+        usage ;;
+esac
