@@ -1,6 +1,7 @@
 FROM almalinux:latest
 RUN dnf -y update && \
-    dnf -y install --skip-broken curl libcurl vim python3-pycurl pip sudo less && \
+    dnf install epel-release -y && dnf clean all && \
+    dnf -y install --skip-broken curl libcurl vim python3-pycurl pip sudo less python3-gfal2-util && \
     dnf clean all
 #RUN yum update -y && \
 #    yum install -y --skip-broken curl libcurl vim python3-pycurl pip sudo less \
