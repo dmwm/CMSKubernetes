@@ -52,23 +52,24 @@ wmaOpts=" --user $wmaUser"
 #       A soft link is needed to mimic the same /data tree as inside the container so
 #       that condor may find the job cache and working directories:
 HOST_MOUNT_DIR=/data/dockerMount
-[[ -h /data/srv/wmagent ]] && sudo rm -f /data/srv/wmagent
-sudo ln -s $HOST_MOUNT_DIR/srv/wmagent /data/srv/wmagent
+[[ -h /data/srv/wmagent ]] && rm -f /data/srv/wmagent
+ln -s $HOST_MOUNT_DIR/srv/wmagent /data/srv/wmagent
 
 
-[[ -d $HOST_MOUNT_DIR/certs ]] || (sudo mkdir -p $HOST_MOUNT_DIR/certs) || exit $?
-[[ -d $HOST_MOUNT_DIR/admin/wmagent ]] || (sudo mkdir -p $HOST_MOUNT_DIR/admin/wmagent) || exit $?
-[[ -d $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/install ]] || (sudo mkdir -p $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/install) || exit $?
-[[ -d $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/config  ]] || (sudo mkdir -p $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/config)  || exit $?
-[[ -d $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/logs ]] || { sudo mkdir -p $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/logs ;} || exit $?
+[[ -d $HOST_MOUNT_DIR/certs ]] || (mkdir -p $HOST_MOUNT_DIR/certs) || exit $?
+[[ -d $HOST_MOUNT_DIR/admin/wmagent ]] || (mkdir -p $HOST_MOUNT_DIR/admin/wmagent) || exit $?
+[[ -d $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/install ]] || (mkdir -p $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/install) || exit $?
+[[ -d $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/config  ]] || (mkdir -p $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/config)  || exit $?
+[[ -d $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/logs ]] || { mkdir -p $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/logs ;} || exit $?
 
-sudo chown -R $wmaUser $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG || exit $?
+chown -R $wmaUser $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG || exit $?
 
 # NOTE: Before mounting /etc/tnsnames.ora we should check it exists, otherwise the run will fail on the FNAL agents
 tnsMount=""
 [[ -f /etc/tnsnames.ora ]] && tnsMount="--mount type=bind,source=/etc/tnsnames.ora,target=/etc/tnsnames.ora,readonly "
 
 dockerOpts=" \
+--detach
 --network=host \
 --rm \
 --hostname=`hostname -f` \
@@ -95,8 +96,8 @@ $PULL && {
 
 echo "Checking if there is no other wmagent container running and creating a link to the $WMA_TAG in the host mount area."
 [[ `docker container inspect -f '{{.State.Status}}' wmagent 2>/dev/null ` == 'running' ]] || (
-    [[ -h $HOST_MOUNT_DIR/srv/wmagent/current ]] && sudo rm -f $HOST_MOUNT_DIR/srv/wmagent/current
-    sudo ln -s $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG $HOST_MOUNT_DIR/srv/wmagent/current )
+    [[ -h $HOST_MOUNT_DIR/srv/wmagent/current ]] && rm -f $HOST_MOUNT_DIR/srv/wmagent/current
+    ln -s $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG $HOST_MOUNT_DIR/srv/wmagent/current )
 
 echo "Starting the wmagent:$WMA_TAG docker container with the following parameters: $wmaOpts"
 docker run $dockerOpts local/wmagent:$WMA_TAG $wmaOpts

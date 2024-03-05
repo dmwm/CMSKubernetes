@@ -74,7 +74,7 @@ init_wmagent(){
             local database_options="--mysql_url=mysql://$MYSQL_USER:$MYSQL_PASS@$MYSQL_HOST/$wmaDBName "
             ;;
         'oracle')
-            echo "$FUNCNAME: NOT IMPLEMENTED"
+            echo "$FUNCNAME: Using ORACLE user schema: $ORACLE_USER@$ORACLE_TNS "
             local database_options="--coredb_url=oracle://$ORACLE_USER:$ORACLE_PASS@$ORACLE_TNS "
             ;;
         *)
@@ -165,28 +165,25 @@ status_of_agent(){
 clean_agent(){
     stop_agent;
     if  _init_valid $wmaInitActive ; then
-        echo "Cleaning WMAgent..."
+        echo "$FUNCNAME: Cleaning WMAgent..."
         rm -rf $WMA_INSTALL_DIR/*
         rm -f $WMA_CONFIG_DIR/config.py;
 
         case $AGENT_FLAVOR in
             'mysql')
-                _exec_mysql "drop database $wmaDBName"
-                _exec_mysql "create database $wmaDBName"
-                rm -f $wmaInitAgent
-                rm -f $wmaInitSqlDB
+                clean_mysql
                 ;;
             'oracle')
-                echo "$FUNCNAME: Not Implemented"
+                clean_oracle
                 ;;
             *)
                 echo "$FUNCNAME: ERROR: Unknown or not set Agent Flavor"
                 return $(false)
                 ;;
         esac
-
+        rm -f $wmaInitAgent
     else
-        echo "ERROR: This agent is not yet activated. Cannot clean it."
+        echo "$FUNCNAME: ERROR: This agent is not yet activated. Cannot clean it."
         return $(false)
     fi
 }
@@ -194,14 +191,22 @@ clean_agent(){
 # Wipe out MySQL and Oracle databases
 # Will cause next start to recreate databases
 clean_mysql(){
-    [[ -z $MYSQL_USER ]] && { echo "Not using MySQL..."; exit 1 ; }
-    echo "Dropping MySQL DB... ";
-    _exec_mysql "drop database $wmaDBName"
-    rm -f $wmaInitSqlDB
+    [[ -z $MYSQL_USER ]] && { echo "$FUNCNAME: ERROR: Not using MySQL..."; exit 1 ; }
+    local errVal=0
+    echo "$FUNCNAME: Dropping MySQL DB... ";
+    _exec_mysql "drop database $wmaDBName"   || let errVal+=$?
+    _exec_mysql "create database $wmaDBName" || let errVal+=$?
+    [[ $errVal -eq 0 ]] &&  rm -f $wmaInitSqlDB
+    return $errVal
 }
 
 clean_oracle(){
-    echo "NOT IMPLEMENTED"
+    [[ -z $ORACLE_USER ]] && { echo "$FUNCNAME: ERROR: Not using MySQL..."; exit 1 ; }
+    local errVal=0
+    echo "$FUNCNAME: Dropping Oracle DB..."
+    execute_command_agent "clean-oracle" || let errVal+=$?
+    [[ $errVal -eq 0 ]] && rm -f $wmaInitSqlDB
+    return $errVal
 }
 
 status(){
@@ -250,19 +255,18 @@ clean_all(){
 }
 
 execute_command_agent(){
-    shift;
     local RUNTHIS=$1
     local WMCORE_BIN_DIR=$WMCORE_ROOT/bin
-    if [ ! -e $WMCORE_BIN_DIR/$1 ]; then
-        echo "$RUNTHIS is not a binary in WMCore/bin"
+    [[ -e $WMCORE_BIN_DIR/$1 ]] || {
+        echo "$FUNCNAME: ERROR $RUNTHIS is not a binary in WMCore/bin"
         exit 1
-    fi
-    shift;
-
+    }
+    shift
     export WMAGENT_CONFIG=$WMA_CONFIG_DIR/config.py
-    echo "Executing $RUNTHIS $@ ..."
+    echo "$FUNCNAME: Executing: $RUNTHIS $@ ..."
     $RUNTHIS $@;
 }
+
 
 help(){
     echo -e $*
@@ -321,6 +325,7 @@ case $1 in
   clean-all)
      clean_all;;
   execute-agent)
+      shift
       execute_command_agent $@;;
   renew-proxy)
       _renew_proxy ;;

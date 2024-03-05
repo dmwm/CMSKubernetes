@@ -63,4 +63,4 @@ USER ${WMA_USER}
 ENV USER=$WMA_USER
 
 # Define the entrypoint.
-ENTRYPOINT ["./run.sh"]
+ENTRYPOINT ["./run.sh", "2>&1"]
