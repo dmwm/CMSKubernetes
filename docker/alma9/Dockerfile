@@ -1,7 +1,0 @@
-FROM almalinux:latest
-RUN dnf -y update && \
-    dnf -y install --skip-broken curl libcurl vim python3-pycurl pip sudo less && \
-    dnf clean all
-#RUN yum update -y && \
-#    yum install -y --skip-broken curl libcurl vim python3-pycurl pip sudo less \
-#    && yum clean all && rm -rf /var/cache/yum

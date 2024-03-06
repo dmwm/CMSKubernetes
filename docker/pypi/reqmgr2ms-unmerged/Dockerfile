@@ -1,4 +1,4 @@
-FROM registry.cern.ch/cmsweb/alma-base:alma9-20240305
+FROM registry.cern.ch/cmsweb/pypi/alma-base:alma9-20240305
 MAINTAINER Alan Malta alan.malta@cern.ch
 
 # Specific MSUnmerged requirements from epel repository
