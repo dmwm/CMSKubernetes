@@ -1,59 +1,5 @@
 #!/bin/bash
-# script to start MSUnmerged
-
-
-### Usage: Usage: run.sh [-e 'RSE Expression']
-### Usage:
-### Usage:   -e  <RSE Expression>   A Rucio RSE Expression to be passed to the service configuration
-### Usage:                          before service start
-### Usage:   -h <help>              Provides help to the current script
-### Usage:
-### Usage: Example: ./run.sh -e 'rse_type=DISK&country=US&tier=3&cms_type=real'
-### Usage: Example: ./run.sh
-### Usage:
-
-FULL_SCRIPT_PATH="$(realpath "${0}")"
-
-usage()
-{
-    echo -e $*
-    grep '^### Usage:' < $FULL_SCRIPT_PATH
-    exit 1
-}
-
-help()
-{
-    echo -e $*
-    grep '^### Usage:' < $FULL_SCRIPT_PATH
-    exit 0
-}
-
-### Searching for the mandatory and optional arguments:
-# export OPTIND=1
-while getopts ":e:h" opt; do
-    case ${opt} in
-        e)
-            rseExpr=${OPTARG}
-            # escaping all possible special characters in the RSE expression:
-            # NOTE: One should always start escaping the escaping chars first
-            rseExpr=${rseExpr//\\/\\\\}
-            rseExpr=${rseExpr//&/\\&}
-            rseExpr=${rseExpr//|/\\|}
-            ;;
-        h)
-            help
-            ;;
-        \? )
-            msg="Invalid Option: -$OPTARG"
-            usage "$msg"
-            ;;
-        : )
-            msg="Invalid Option: -$OPTARG requires an argument"
-            usage "$msg"
-            ;;
-    esac
-done
-
+# script to start ReqMgr2
 
 srv=`echo $USER | sed -e "s,_,,g"`
 STATEDIR=/data/srv/state/$srv
@@ -77,21 +23,13 @@ export REQMGR_CACHE_DIR=$STATEDIR
 export WMCORE_CACHE_DIR=$STATEDIR
 
 # overwrite host PEM files in /data/srv area by the robot certificate
-# Note that the proxy file IS required and used in MSUnmerged
+# Note that the proxy file is not required and used
 if [ -f /etc/robots/robotkey.pem ]; then
     sudo cp /etc/robots/robotkey.pem $AUTHDIR/dmwm-service-key.pem
     sudo cp /etc/robots/robotcert.pem $AUTHDIR/dmwm-service-cert.pem
     sudo chown $USER.$USER $AUTHDIR/dmwm-service-key.pem
     sudo chown $USER.$USER $AUTHDIR/dmwm-service-cert.pem
     sudo chmod 0400 $AUTHDIR/dmwm-service-key.pem
-fi
-
-# overwrite proxy if it is present in /etc/proxy
-if [ -f /etc/proxy/proxy ]; then
-    export X509_USER_PROXY=/etc/proxy/proxy
-    mkdir -p /data/srv/state/$srv/proxy
-    [[ -h $AUTHDIR/proxy.cert ]] && rm -rf $AUTHDIR/proxy.cert
-    ln -s /etc/proxy/proxy $AUTHDIR/proxy.cert
 fi
 
 if [ -e $AUTHDIR/dmwm-service-cert.pem ] && [ -e $AUTHDIR/dmwm-service-key.pem ]; then
@@ -135,11 +73,6 @@ if [ -d /usr/local/data ] && [ "$USER" == "_reqmgr2" ]; then
    sudo mkdir -p /data/srv/current/apps/reqmgr2
    sudo ln -s /usr/local/data /data/srv/current/apps/reqmgr2
 fi
-
-# Edit the MSUnmerged configuration file (msConfig for the service) at runtime
-# based on the set of arguments passed to the run.sh script by the service
-# statrtup command defined in the .yaml file of the currently starting service
-[[ -n $rseExpr ]] && sed -i -e "s/^[[:blank:]]*RSEEXPR.*/RSEEXPR = \"${rseExpr}\"/g" $CFGFILE
 
 # start the service
 wmc-httpd -r -d $STATEDIR -l "$LOGDIR/$srv-`hostname -s`.log" $CFGFILE

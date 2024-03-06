@@ -1,23 +1,30 @@
-FROM registry.cern.ch/cmsweb/gfal:latest as gfal
-FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20230525
-MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
-COPY --from=gfal /data/miniconda /data/miniconda
+FROM registry.cern.ch/cmsweb/alma-base:alma9-20240305
+MAINTAINER Alan Malta alan.malta@cern.ch
+
+# Specific MSUnmerged requirements from epel repository
+RUN dnf install epel-release -y && dnf clean all && \
+    dnf -y install python3-gfal2-util && \
+    dnf clean all
+
+# Specific run.sh for MSUnmerged
 ENV WDIR=/data
-ENV PATH $PATH:$WDIR/miniconda/bin
-ENV PYTHONPATH $WDIR/miniconda/lib/python3.8/site-packages/
-# TAG to be passed at build time through `--build-arg TAG=<PYPI_TAG>`. Default: None
-ARG TAG=None
 WORKDIR $WDIR
 ADD run.sh $WDIR/run.sh
-# since we install gfal via external image we'll skip it for installation
-# of reqmgr2ms-unmerged, but to satisfy dependencies we'll install them first
+
+# TAG to be passed at build time through `--build-arg TAG=<PYPI_TAG>`. Default: None
+ARG TAG=None
+# We already installed gfal2 via dnf, so first install only non-gfal2 service dependencies
+# FIXME: it is probably best to remove it from the requirements.txt file
 RUN curl -ksLO https://raw.githubusercontent.com/dmwm/WMCore/$TAG/requirements.txt
-RUN cat requirements.txt | grep -v gfal2 > req.txt
+RUN cat requirements.txt | grep dbs3-client > req.txt
+RUN cat requirements.txt | grep reqmgr2ms-unmerged | grep -v gfal2 >> req.txt
 RUN pip install -r req.txt
-RUN pip install --no-deps reqmgr2ms-unmerged==$TAG dbs3-client
+# and now install MSUnmerged itself, without any dependencies
+RUN pip install --no-deps reqmgr2ms-unmerged==$TAG
+
+# and now setup run.sh and manage scripts accordingly
 RUN sed -i -e "s,-config.py,-config-unmerged.py,g" /data/run.sh
 RUN sed -i -e "s,config.py,config-unmerged.py,g" /data/manage
-ENV WDIR=/data
 ENV USER=_reqmgr2ms
 RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
 RUN echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
