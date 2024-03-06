@@ -142,26 +142,30 @@ _sql_dbid_valid(){
     local wmaDBName=${1:-$wmaDBName}
     case $AGENT_FLAVOR in
         'oracle')
-            echo "Not implemented"
+            local sqlCmd="select init_value from wma_init where init_param='wma_build_id';"
+            local dbId=$(_exec_oracle "$sqlCmd")
+            local sqlCmd="select init_value from wma_init where init_param='hostname';"
+            local dbHostname=$(_exec_oracle "$sqlCmd")
             ;;
         'mysql')
             local sqlCmd="select init_value from wma_init where init_param='wma_build_id';"
             local dbId=$(_exec_mysql "$sqlCmd" $wmaDBName)
             local sqlCmd="select init_value from wma_init where init_param='hostname';"
             local dbHostname=$(_exec_mysql "$sqlCmd" $wmaDBName)
-            if [[ $dbId == $WMA_BUILD_ID ]] && [[ $dbHostname == $HOSTNAME ]]; then
-                echo "$FUNCNAME: OK: Database recorded and current agent's init parameters match."
-                return $(true)
-            else
-                echo "$FUNCNAME: WARNING: Database recorded and current agent's init parameters do NOT match."
-                return $(false)
-            fi
             ;;
         *)
             echo "$FUNCNAME: ERROR: Unknown or not set Agent Flavor"
             return $(false)
             ;;
     esac
+    # Perform the check:
+    if [[ $dbId == $WMA_BUILD_ID ]] && [[ $dbHostname == $HOSTNAME ]]; then
+        echo "$FUNCNAME: OK: Database recorded and current agent's init parameters match."
+        return $(true)
+    else
+        echo "$FUNCNAME: WARNING: Database recorded and current agent's init parameters do NOT match."
+        return $(false)
+    fi
 }
 
 _sql_db_isclean(){
@@ -194,20 +198,27 @@ _sql_db_isclean(){
 _sql_write_agentid(){
     # Auxiliary function to write the current agent build id into the sql database
     echo "$FUNCNAME: Preserving the current WMA_BUILD_ID and HostName at database: $wmaDBName."
+    local createCmd="create table wma_init(init_param varchar(100) not null unique, init_value varchar(100) not null);"
     case $AGENT_FLAVOR in
         'oracle')
-            echo "Not implemented"
-            ;;
-        'mysql')
-            local sqlCmd=""
-
             echo "$FUNCNAME: Creating wma_init table at database: $wmaDBName"
-            sqlCmd="create table wma_init(init_param varchar(100) not null, init_value varchar(100));"
-            _exec_mysql "$sqlCmd" $wmaDBName || return
+            _exec_oracle "$createCmd" || return
 
             echo "$FUNCNAME: Inserting current Agent's build id and hostname at database: $wmaDBName"
-            sqlCmd="insert into wma_init (init_param, init_value) values ('wma_build_id', '$WMA_BUILD_ID'), ('hostname', '$HOSTNAME'), ('is_active', 'true');"
-            _exec_mysql "$sqlCmd" $wmaDBName || return
+            _exec_oracle "insert into wma_init (init_param, init_value) values ('wma_build_id', '$WMA_BUILD_ID');" || return
+            _exec_oracle "insert into wma_init (init_param, init_value) values ('wma_tag', '$WMA_TAG');"           || return
+            _exec_oracle "insert into wma_init (init_param, init_value) values ('hostname', '$HOSTNAME');"         || return
+            _exec_oracle "insert into wma_init (init_param, init_value) values ('is_active', 'true');"             || return
+            ;;
+        'mysql')
+            echo "$FUNCNAME: Creating wma_init table at database: $wmaDBName"
+            _exec_mysql "$createCmd" $wmaDBName || return
+
+            echo "$FUNCNAME: Inserting current Agent's build id and hostname at database: $wmaDBName"
+            _exec_oracle "insert into wma_init (init_param, init_value) values ('wma_build_id', '$WMA_BUILD_ID');" $wmaDBName || return
+            _exec_oracle "insert into wma_init (init_param, init_value) values ('wma_tag', '$WMA_TAG');"           $wmaDBName || return
+            _exec_oracle "insert into wma_init (init_param, init_value) values ('hostname', '$HOSTNAME');"         $wmaDBName || return
+            _exec_oracle "insert into wma_init (init_param, init_value) values ('is_active', 'true');"             $wmaDBName || return
             ;;
         *)
             echo "$FUNCNAME: ERROR: Unknown or not set Agent Flavor"

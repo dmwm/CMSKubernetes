@@ -11,7 +11,7 @@ source $WMA_ENV_FILE
 # Global variables etc
 #
 
-# NOTE: The folowing environment variables, which are refereced from inside the WMCore code,
+# NOTE: The folowing environment variables, which are referenced from inside the WMCore code,
 #       are exported by sourcing the $WMA_ENV_FILE at runtime, but not from the Dockerfile at build time
 #
 #       * $WMAGENTPY3_VERSION
@@ -215,16 +215,14 @@ clean_oracle(){
 status(){
     echo "----------------------------------------------------------------------"
     echo "Status of services:"
-    _status_of_couch;
+    _status_of_couch
     echo
     echo
     case $AGENT_FLAVOR in
         'mysql')
-            _status_of_mysql;
-            ;;
+            _status_of_mysql ;;
         'oracle')
-            _status_of_oracle;
-            ;;
+            _status_of_oracle ;;
         *)
             echo "$FUNCNAME: ERROR: Unknown or not set Agent Flavor"
             return $(false)
@@ -234,27 +232,23 @@ status(){
     echo
     echo "----------------------------------------------------------------------"
     echo "Status of WMAgent components:"
-    status_of_agent;
+    status_of_agent
     echo "----------------------------------------------------------------------"
 }
 
 clean_all(){
-
     case $AGENT_FLAVOR in
         'mysql')
-	        clean_mysql;
-            ;;
+	        clean_mysql ;;
         'oracle')
-            echo "$FUNCNAME: Not implemented"
-            ;;
+            clean_oracle ;;
         *)
             echo "$FUNCNAME: ERROR: Unknown or not set Agent Flavor"
             return $(false)
             ;;
     esac
-
-    clean_couch;
-    clean_agent;
+    clean_couch
+    clean_agent
 }
 
 execute_command_agent(){
@@ -287,7 +281,7 @@ The manage script for WMAgent. It is used to:
 Usage: manage [ status | start-agent | stop-agent | activate-agent | init-agent  |
                 clean-mysql | clean-oracle | clean-couch | clean-agent | clean-all | renew-proxy |
                 db-prompt <sql command> |
-                execue-agent <agent command> ]
+                execute-agent <agent command> ]
 
 EOF
 }

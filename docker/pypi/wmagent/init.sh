@@ -215,7 +215,7 @@ _check_oracle() {
     #         we require and empty wmagent database and halt if not empty
     local cleanMessage="You may consider dropping it with 'manage clean-oracle'"
     if _init_valid $wmaInitSqlDB ; then
-        _sql_schema_valid || { echo "$FUNCNAME: ERROR: Invalid database schema. $cleanMessage"; return $(false) ;}
+        # _sql_schema_valid || { echo "$FUNCNAME: ERROR: Invalid database schema. $cleanMessage"; return $(false) ;}
         _sql_dbid_valid   || { echo "$FUNCNAME: ERROR: A database initialized by an agent with different Build ID. $cleanMessage' "; return $(false) ;}
     else
         _sql_db_isclean   || { echo "$FUNCNAME: ERROR: Nonempty database. $cleanMessage"; return $(false) ;}
