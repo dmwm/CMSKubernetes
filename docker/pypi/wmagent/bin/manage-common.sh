@@ -39,14 +39,67 @@ _exec_mysql() {
     else
         mysql -sN -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --execute="$sqlStr"
     fi
-}
 
+    # if $isPipe || $noArgs
+    # then
+    #     mysql -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --database=$wmaDBName --pager='less -SFX'
+    # else
+    #     local sqlStr=$1
+    #     local dbName=$2
+    #     if [[ -n $dbName ]]; then
+    #         mysql -sN -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --database=$dbName --execute="$sqlStr"
+    #     else
+    #         mysql -sN -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --execute="$sqlStr"
+    #     fi
+    # fi
+}
 
 _exec_oracle() {
     # Auxiliary function to avoid repetitive and long calls to the sqlplus command
-    echo "Not implemented"
-}
+    # :param: $@ could be a sql string to execute or a file redirect or a here document
 
+    # We check for input arguments
+    local execStr=""
+    if [[ -z $* ]]
+    then
+        local hasArgs=false
+    else
+        local hasArgs=true
+        # Building a default executable string:
+        execStr="$execStr SET HEADING OFF;\n"
+        execStr="$execStr SET UNDERLINE OFF;\n"
+        execStr="$execStr SET FEEDBACK OFF;\n"
+        execStr="$execStr SET PAGESIZE 0;\n"
+        execStr="$execStr whenever sqlerror exit sql.sqlcode;\n"
+        execStr="$execStr $@"
+        execStr="${execStr%;};\n"
+        execStr="$execStr exit;\n"
+    fi
+
+    # First we need to know if we are running through a redirected input
+    # if fd 0 (stdin) is open and refers to a terminal - then we are running the script directly, without a pipe
+    # if fd 0 (stdin) is open but does not refer to the terminal - then we are running the script through a pipe
+    # NOTE: Docker by default redirects stdin
+    local isPipe=false
+    if [[ -t 0 ]] ; then isPipe=false; else isPipe=true ; fi
+
+    # Then we traverse the callstack to find if the original caller was init.sh
+    # if so - we never redirect
+    local isInitCall=false
+    for callSource in ${BASH_SOURCE[@]}
+    do
+        [[ $callSource =~ .*init\.sh ]] && isInitCall=true
+    done
+
+    if $isInitCall || $hasArgs; then
+        echo -e $execStr | sqlplus -NOLOGINTIME -S $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS
+    elif $isPipe || ! $hasArgs; then
+        rlwrap -H ~/.sqlplus_history -pgreen sqlplus $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS
+    else
+        echo "$FUNCNAME: ERROR: Unhandled type of call with: isPipe: $isPipe &&  noArgs: $noArgs && isInitCall: $isInitCall"
+        return $(false)
+    fi
+}
 
 _init_valid(){
     # Auxiliary function to shorten repetitive compares of .init* files to the current WMA_BUILD_ID
@@ -54,7 +107,6 @@ _init_valid(){
     local initFile=$1
     [[ -n $initFile ]] && [[ -f $initFile ]] && [[ `cat $initFile` == $WMA_BUILD_ID ]]
 }
-
 
 _sql_dumpSchema(){
     # Auxiliary function to dump the currently deployed schema into a file
@@ -119,7 +171,9 @@ _sql_db_isclean(){
     local wmaDBName=${1:-$wmaDBName}
     case $AGENT_FLAVOR in
         'oracle')
-            echo "Not implemented"
+            local sqlCmd="SELECT COUNT(table_name) FROM user_tables;"
+            local numTables=$(_exec_oracle "$sqlCmd")
+            [[ $numTables -eq 0 ]] || { echo "$FUNCNAME: WARNING: Nonclean database $wmaDBName: numTables=$numTables"; return $(false) ;}
             ;;
         'mysql')
             local sqlCmd="SELECT SCHEMA_NAME   FROM INFORMATION_SCHEMA.SCHEMATA  WHERE SCHEMA_NAME = '$wmaDBName'"
@@ -181,11 +235,12 @@ _status_of_mysql(){
 _status_of_oracle(){
     # Auxiliary function to check if the oracle database configured for the current agent is empty
     echo "$FUNCNAME:"
-	sqlplus $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS <<EOF
-    whenever sqlerror exit sql.sqlcode;
-    select 1 from dual;
-    exit;
-EOF
+    _exec_oracle "select 1 from dual;"
+#	sqlplus $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS <<EOF
+#     whenever sqlerror exit sql.sqlcode;
+#     select 1 from dual;
+#     exit;
+# EOF
     local errVal=$?
     [[ $errVal -ne 0 ]] && { echo "$FUNCNAME: ERROR: Oracle database unreachable!"; return $(false) ;}
     echo "$FUNCNAME: Oracle connection is OK!"

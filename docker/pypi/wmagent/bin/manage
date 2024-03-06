@@ -44,13 +44,16 @@ activate_agent(){
 #
 # Database prompt so that people can poke around in the db interactively
 #
+
 db_prompt(){
     case $AGENT_FLAVOR in
         'mysql')
+            # _exec_mysql $@
             mysql -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --database=$wmaDBName --pager='less -SFX'
             ;;
         'oracle')
-            rlwrap -H ~/.sqlplus_history -pgreen sqlplus $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS
+            _exec_oracle $@
+            # rlwrap -H ~/.sqlplus_history -pgreen sqlplus $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS
             ;;
         *)
             echo "$FUNCNAME: ERROR: Unknown or not set Agent Flavor/Database"
@@ -201,7 +204,7 @@ clean_mysql(){
 }
 
 clean_oracle(){
-    [[ -z $ORACLE_USER ]] && { echo "$FUNCNAME: ERROR: Not using MySQL..."; exit 1 ; }
+    [[ -z $ORACLE_USER ]] && { echo "$FUNCNAME: ERROR: Not using ORACLE..."; exit 1 ; }
     local errVal=0
     echo "$FUNCNAME: Dropping Oracle DB..."
     execute_command_agent "clean-oracle" || let errVal+=$?
@@ -295,6 +298,7 @@ usage(){
 }
 
 
+
 #######################################################
 # Main
 #######################################################
@@ -305,8 +309,7 @@ case $1 in
   activate-agent)
     activate_agent;;
   db-prompt)
-     db_prompt $@;;
-  mysql-prompt)
+     shift
      db_prompt $@;;
   clean-mysql)
       clean_mysql;;

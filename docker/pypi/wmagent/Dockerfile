@@ -62,5 +62,9 @@ WORKDIR ${WMA_ROOT_DIR}
 USER ${WMA_USER}
 ENV USER=$WMA_USER
 
-# Define the entrypoint.
+# Define the entrypoint (Using exec Form):
 ENTRYPOINT ["./run.sh", "2>&1"]
+
+# # Define the entrypoint (Using shell Form):
+# SHELL ["/bin/bash", "-c"]
+# ENTRYPOINT /data/run.sh 2>&1
