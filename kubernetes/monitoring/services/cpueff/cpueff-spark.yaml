@@ -60,7 +60,7 @@ spec:
           hostname: cpueff-spark
           containers:
             - name: cpueff-spark
-              image: registry.cern.ch/cmsmonitoring/cpueff-spark:cpueff-0.0.20
+              image: registry.cern.ch/cmsmonitoring/cpueff-spark:cpueff-0.0.22
               command: [ "/bin/bash", "-c" ]
               args:
                 - source /etc/environment;

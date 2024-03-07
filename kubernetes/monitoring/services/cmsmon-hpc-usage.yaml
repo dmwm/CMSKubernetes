@@ -57,7 +57,7 @@ spec:
       hostname: hpc-usage
       containers:
         - name: hpc-usage
-          image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.4.1.10
+          image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.4.2.7
           env:
             - name: MY_NODE_NAME
               valueFrom:
