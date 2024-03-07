@@ -40,6 +40,8 @@ _exec_mysql() {
         mysql -sN -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --execute="$sqlStr"
     fi
 
+    ## TODO: To add the same functionality for reccognizing the type of call, similar to _exec_oracle
+    #
     # if $isPipe || $noArgs
     # then
     #     mysql -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --database=$wmaDBName --pager='less -SFX'
@@ -137,21 +139,19 @@ _sql_schema_valid(){
 
 _sql_dbid_valid(){
     # Auxiliary function to check if the build Id and hostname recorded in the database matches the $WMA_BUILD_ID
-    # :param $1: The database name to be checked (it will be ignored for Oracle)
+    # :param $1: The database name to be checked. It will be ignored for Oracle (Default: $wmaDBName)
     echo $FUNCNAME: "Checking if the current SQL Database Id matches the WMA_BUILD_ID and hostname of the agent."
     local wmaDBName=${1:-$wmaDBName}
+    local dbIdCmd="select init_value from wma_init where init_param='wma_build_id';"
+    local dbHostNameCmd="select init_value from wma_init where init_param='hostname';"
     case $AGENT_FLAVOR in
         'oracle')
-            local sqlCmd="select init_value from wma_init where init_param='wma_build_id';"
-            local dbId=$(_exec_oracle "$sqlCmd")
-            local sqlCmd="select init_value from wma_init where init_param='hostname';"
-            local dbHostname=$(_exec_oracle "$sqlCmd")
+            local dbId=$(_exec_oracle "$dbIdCmd")
+            local dbHostName=$(_exec_oracle "$dbHostNameCmd")
             ;;
         'mysql')
-            local sqlCmd="select init_value from wma_init where init_param='wma_build_id';"
-            local dbId=$(_exec_mysql "$sqlCmd" $wmaDBName)
-            local sqlCmd="select init_value from wma_init where init_param='hostname';"
-            local dbHostname=$(_exec_mysql "$sqlCmd" $wmaDBName)
+            local dbId=$(_exec_mysql "$dbIdCmd" $wmaDBName)
+            local dbHostName=$(_exec_mysql "$dbHostNameCmd" $wmaDBName)
             ;;
         *)
             echo "$FUNCNAME: ERROR: Unknown or not set Agent Flavor"
@@ -159,7 +159,7 @@ _sql_dbid_valid(){
             ;;
     esac
     # Perform the check:
-    if [[ $dbId == $WMA_BUILD_ID ]] && [[ $dbHostname == $HOSTNAME ]]; then
+    if [[ $dbId == $WMA_BUILD_ID ]] && [[ $dbHostName == $HOSTNAME ]]; then
         echo "$FUNCNAME: OK: Database recorded and current agent's init parameters match."
         return $(true)
     else

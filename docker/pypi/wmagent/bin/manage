@@ -298,40 +298,42 @@ usage(){
 #######################################################
 
 case $1 in
-  status)
-    status ;;
-  activate-agent)
-    activate_agent;;
-  db-prompt)
-     shift
-     db_prompt $@;;
-  clean-mysql)
-      clean_mysql;;
-  clean-oracle)
-      clean_oracle;;
-  clean-couch)
-     clean_couch;;
-  init-agent)
-     init_agent;;
-  start-agent)
-     start_agent;;
-  stop-agent)
-     stop_agent;;
-  clean-agent)
-     clean_agent;;
-  clean-all)
-     clean_all;;
-  execute-agent)
-      shift
-      execute_command_agent $@;;
-  renew-proxy)
-      _renew_proxy ;;
-  help)
-      help ;;
-  version)
-      echo "WMCore  version: $WMCoreVersion"
-      echo "WMAgent version: $WMA_TAG";;
-  * )
-      usage "$0: unknown action '$1', please try '$0 help' or documentation." 1>&2
-      exit 1 ;;
+    status)
+        status ;;
+    activate-agent)
+        activate_agent;;
+    db-prompt)
+        shift
+        set -f
+        db_prompt $@
+        set +f ;;
+    clean-mysql)
+        clean_mysql;;
+    clean-oracle)
+        clean_oracle;;
+    clean-couch)
+        clean_couch;;
+    init-agent)
+        init_agent;;
+    start-agent)
+        start_agent;;
+    stop-agent)
+        stop_agent;;
+    clean-agent)
+        clean_agent;;
+    clean-all)
+        clean_all;;
+    execute-agent)
+        shift
+        execute_command_agent $@;;
+    renew-proxy)
+        _renew_proxy ;;
+    help)
+        help ;;
+    version)
+        echo "WMCore  version: $WMCoreVersion"
+        echo "WMAgent version: $WMA_TAG";;
+    * )
+        usage "$0: unknown action '$1', please try '$0 help' or documentation." 1>&2
+        exit 1 ;;
 esac
