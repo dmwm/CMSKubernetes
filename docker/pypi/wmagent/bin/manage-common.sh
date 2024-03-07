@@ -40,7 +40,7 @@ _exec_mysql() {
         mysql -sN -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --execute="$sqlStr"
     fi
 
-    ## TODO: To add the same functionality for reccognizing the type of call, similar to _exec_oracle
+    ## TODO: To add the same functionality for recognizing the type of call, similar to _exec_oracle
     #
     # if $isPipe || $noArgs
     # then

@@ -21,6 +21,42 @@ source $WMA_ENV_FILE
 #       * config
 #       * X509_*
 
+# NOTE: The following set of global(but not environment) variables are configurred
+#       by sourcing $WMA_DEPLOY_DIR/bin/manage-common.sh
+#       * wmaInitAdmin
+#       * wmaInitRucio
+#       * wmaInitActive
+#       * wmaInitAgent
+#       * wmaInitSqlDB
+#       * wmaInitCouchDB
+#       * wmaInitConfig
+#       * wmaInitResourceControl
+#       * wmaInitUpload
+#       * wmaInitUsing
+#       * wmaSchemaFile
+#       * wmaDBName=wmagent
+
+# NOTE: The following set of functions is defined and imported by
+#       by sourcing $WMA_DEPLOY_DIR/bin/manage-common.sh
+#       * _exec_mysql
+#       * _exec_oracle
+#       * _init_valid
+#       * _sql_dumpSchema
+#       * _sql_schema_valid
+#       * _sql_dbid_valid
+#       * _sql_db_isclean
+#       * _sql_write_agentid
+#       * _status_of_couch
+#       * _status_of_mysql
+#       * _status_of_oracle
+#       * _renew_proxy
+#       * _parse_wmasecrets
+#       * _load_wmasecrets
+#       * _print_settings
+
+# NOTE: All credential variables are loaded by parsing the WMAgent.secrets file
+#       with _loadwmasecrets
+
 RUCIO_CONFIG="$WMA_CONFIG_DIR/etc/rucio.cfg"
 
 GLOBAL_WORKQUEUE_URL=
