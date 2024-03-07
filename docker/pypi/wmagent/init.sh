@@ -498,7 +498,7 @@ main(){
         echo "          * Kill the currently running container:"
         echo "            docker kill wmagent"
         echo "          * Start a fresh instance of wmagent:"
-        echo "            ./wmagent-docker-run.sh -t <WMA_TAG> & "
+        echo "            ./wmagent-docker-run.sh -t <WMA_TAG> && docker logs -f wmagent"
         echo "Have a nice day!" && echo
         return $(true)
     }
