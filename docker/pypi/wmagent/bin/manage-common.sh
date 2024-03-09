@@ -69,7 +69,9 @@ _exec_oracle() {
         local hasArgs=true
         # Building a default executable string:
         execStr="$execStr SET HEADING OFF;\n"
+        execStr="$execStr SET ECHO OFF;\n"
         execStr="$execStr SET UNDERLINE OFF;\n"
+        execStr="$execStr SET LINESIZE 1024;\n"
         execStr="$execStr SET FEEDBACK OFF;\n"
         execStr="$execStr SET PAGESIZE 0;\n"
         execStr="$execStr whenever sqlerror exit sql.sqlcode;\n"
@@ -94,9 +96,9 @@ _exec_oracle() {
     done
 
     if $isInitCall || $hasArgs; then
-        echo -e $execStr | sqlplus -NOLOGINTIME -S $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS
+        ( unset ORACLE_PATH; echo -e $execStr | sqlplus -NOLOGINTIME -S $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS )
     elif $isPipe || ! $hasArgs; then
-        rlwrap -H ~/.sqlplus_history -pgreen sqlplus $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS
+        rlwrap -H $WMA_LOG_DIR/.sqlplus_history -pgreen sqlplus $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS
     else
         echo "$FUNCNAME: ERROR: Unhandled type of call with: isPipe: $isPipe &&  noArgs: $noArgs && isInitCall: $isInitCall"
         return $(false)
