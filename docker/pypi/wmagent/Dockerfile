@@ -30,6 +30,7 @@ ENV WMA_LOG_DIR=$WMA_CURRENT_DIR/logs
 ENV WMA_DEPLOY_DIR=/usr/local
 ENV WMA_ENV_FILE=$WMA_DEPLOY_DIR/deploy/env.sh
 ENV WMA_SECRETS_FILE=$WMA_ADMIN_DIR/WMAgent.secrets
+ENV ORACLE_PATH=$WMA_DEPLOY_DIR/etc/oracle
 
 
 # Setting up users and previleges
@@ -62,5 +63,9 @@ WORKDIR ${WMA_ROOT_DIR}
 USER ${WMA_USER}
 ENV USER=$WMA_USER
 
-# Define the entrypoint.
-ENTRYPOINT ["./run.sh"]
+# Define the entrypoint (Using exec Form):
+ENTRYPOINT ["./run.sh", "2>&1"]
+
+# # Define the entrypoint (Using shell Form):
+# SHELL ["/bin/bash", "-c"]
+# ENTRYPOINT /data/run.sh 2>&1

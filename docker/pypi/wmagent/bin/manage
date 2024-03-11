@@ -11,7 +11,7 @@ source $WMA_ENV_FILE
 # Global variables etc
 #
 
-# NOTE: The folowing environment variables, which are refereced from inside the WMCore code,
+# NOTE: The folowing environment variables, which are referenced from inside the WMCore code,
 #       are exported by sourcing the $WMA_ENV_FILE at runtime, but not from the Dockerfile at build time
 #
 #       * $WMAGENTPY3_VERSION
@@ -20,6 +20,42 @@ source $WMA_ENV_FILE
 #       * install
 #       * config
 #       * X509_*
+
+# NOTE: The following set of global(but not environment) variables are configurred
+#       by sourcing $WMA_DEPLOY_DIR/bin/manage-common.sh
+#       * wmaInitAdmin
+#       * wmaInitRucio
+#       * wmaInitActive
+#       * wmaInitAgent
+#       * wmaInitSqlDB
+#       * wmaInitCouchDB
+#       * wmaInitConfig
+#       * wmaInitResourceControl
+#       * wmaInitUpload
+#       * wmaInitUsing
+#       * wmaSchemaFile
+#       * wmaDBName=wmagent
+
+# NOTE: The following set of functions is defined and imported by
+#       by sourcing $WMA_DEPLOY_DIR/bin/manage-common.sh
+#       * _exec_mysql
+#       * _exec_oracle
+#       * _init_valid
+#       * _sql_dumpSchema
+#       * _sql_schema_valid
+#       * _sql_dbid_valid
+#       * _sql_db_isclean
+#       * _sql_write_agentid
+#       * _status_of_couch
+#       * _status_of_mysql
+#       * _status_of_oracle
+#       * _renew_proxy
+#       * _parse_wmasecrets
+#       * _load_wmasecrets
+#       * _print_settings
+
+# NOTE: All credential variables are loaded by parsing the WMAgent.secrets file
+#       with _loadwmasecrets
 
 RUCIO_CONFIG="$WMA_CONFIG_DIR/etc/rucio.cfg"
 
@@ -44,13 +80,16 @@ activate_agent(){
 #
 # Database prompt so that people can poke around in the db interactively
 #
+
 db_prompt(){
     case $AGENT_FLAVOR in
         'mysql')
+            # _exec_mysql $@
             mysql -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --database=$wmaDBName --pager='less -SFX'
             ;;
         'oracle')
-            rlwrap -H ~/.sqlplus_history -pgreen sqlplus $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS
+            _exec_oracle $@
+            # rlwrap -H ~/.sqlplus_history -pgreen sqlplus $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS
             ;;
         *)
             echo "$FUNCNAME: ERROR: Unknown or not set Agent Flavor/Database"
@@ -74,7 +113,7 @@ init_wmagent(){
             local database_options="--mysql_url=mysql://$MYSQL_USER:$MYSQL_PASS@$MYSQL_HOST/$wmaDBName "
             ;;
         'oracle')
-            echo "$FUNCNAME: NOT IMPLEMENTED"
+            echo "$FUNCNAME: Using ORACLE user schema: $ORACLE_USER@$ORACLE_TNS "
             local database_options="--coredb_url=oracle://$ORACLE_USER:$ORACLE_PASS@$ORACLE_TNS "
             ;;
         *)
@@ -165,28 +204,25 @@ status_of_agent(){
 clean_agent(){
     stop_agent;
     if  _init_valid $wmaInitActive ; then
-        echo "Cleaning WMAgent..."
+        echo "$FUNCNAME: Cleaning WMAgent..."
         rm -rf $WMA_INSTALL_DIR/*
         rm -f $WMA_CONFIG_DIR/config.py;
 
         case $AGENT_FLAVOR in
             'mysql')
-                _exec_mysql "drop database $wmaDBName"
-                _exec_mysql "create database $wmaDBName"
-                rm -f $wmaInitAgent
-                rm -f $wmaInitSqlDB
+                clean_mysql
                 ;;
             'oracle')
-                echo "$FUNCNAME: Not Implemented"
+                clean_oracle
                 ;;
             *)
                 echo "$FUNCNAME: ERROR: Unknown or not set Agent Flavor"
                 return $(false)
                 ;;
         esac
-
+        rm -f $wmaInitAgent
     else
-        echo "ERROR: This agent is not yet activated. Cannot clean it."
+        echo "$FUNCNAME: ERROR: This agent is not yet activated. Cannot clean it."
         return $(false)
     fi
 }
@@ -194,29 +230,35 @@ clean_agent(){
 # Wipe out MySQL and Oracle databases
 # Will cause next start to recreate databases
 clean_mysql(){
-    [[ -z $MYSQL_USER ]] && { echo "Not using MySQL..."; exit 1 ; }
-    echo "Dropping MySQL DB... ";
-    _exec_mysql "drop database $wmaDBName"
-    rm -f $wmaInitSqlDB
+    [[ -z $MYSQL_USER ]] && { echo "$FUNCNAME: ERROR: Not using MySQL..."; exit 1 ; }
+    local errVal=0
+    echo "$FUNCNAME: Dropping MySQL DB... ";
+    _exec_mysql "drop database $wmaDBName"   || let errVal+=$?
+    _exec_mysql "create database $wmaDBName" || let errVal+=$?
+    [[ $errVal -eq 0 ]] &&  rm -f $wmaInitSqlDB
+    return $errVal
 }
 
 clean_oracle(){
-    echo "NOT IMPLEMENTED"
+    [[ -z $ORACLE_USER ]] && { echo "$FUNCNAME: ERROR: Not using ORACLE..."; exit 1 ; }
+    local errVal=0
+    echo "$FUNCNAME: Dropping Oracle DB..."
+    execute_command_agent "clean-oracle" || let errVal+=$?
+    [[ $errVal -eq 0 ]] && rm -f $wmaInitSqlDB
+    return $errVal
 }
 
 status(){
     echo "----------------------------------------------------------------------"
     echo "Status of services:"
-    _status_of_couch;
+    _status_of_couch
     echo
     echo
     case $AGENT_FLAVOR in
         'mysql')
-            _status_of_mysql;
-            ;;
+            _status_of_mysql ;;
         'oracle')
-            _status_of_oracle;
-            ;;
+            _status_of_oracle ;;
         *)
             echo "$FUNCNAME: ERROR: Unknown or not set Agent Flavor"
             return $(false)
@@ -226,43 +268,38 @@ status(){
     echo
     echo "----------------------------------------------------------------------"
     echo "Status of WMAgent components:"
-    status_of_agent;
+    status_of_agent
     echo "----------------------------------------------------------------------"
 }
 
 clean_all(){
-
     case $AGENT_FLAVOR in
         'mysql')
-	        clean_mysql;
-            ;;
+	        clean_mysql ;;
         'oracle')
-            echo "$FUNCNAME: Not implemented"
-            ;;
+            clean_oracle ;;
         *)
             echo "$FUNCNAME: ERROR: Unknown or not set Agent Flavor"
             return $(false)
             ;;
     esac
-
-    clean_couch;
-    clean_agent;
+    clean_couch
+    clean_agent
 }
 
 execute_command_agent(){
-    shift;
     local RUNTHIS=$1
     local WMCORE_BIN_DIR=$WMCORE_ROOT/bin
-    if [ ! -e $WMCORE_BIN_DIR/$1 ]; then
-        echo "$RUNTHIS is not a binary in WMCore/bin"
+    [[ -e $WMCORE_BIN_DIR/$1 ]] || {
+        echo "$FUNCNAME: ERROR $RUNTHIS is not a binary in WMCore/bin"
         exit 1
-    fi
-    shift;
-
+    }
+    shift
     export WMAGENT_CONFIG=$WMA_CONFIG_DIR/config.py
-    echo "Executing $RUNTHIS $@ ..."
+    echo "$FUNCNAME: Executing: $RUNTHIS $@ ..."
     $RUNTHIS $@;
 }
+
 
 help(){
     echo -e $*
@@ -280,7 +317,7 @@ The manage script for WMAgent. It is used to:
 Usage: manage [ status | start-agent | stop-agent | activate-agent | init-agent  |
                 clean-mysql | clean-oracle | clean-couch | clean-agent | clean-all | renew-proxy |
                 db-prompt <sql command> |
-                execue-agent <agent command> ]
+                execute-agent <agent command> ]
 
 EOF
 }
@@ -291,45 +328,48 @@ usage(){
 }
 
 
+
 #######################################################
 # Main
 #######################################################
 
 case $1 in
-  status)
-    status ;;
-  activate-agent)
-    activate_agent;;
-  db-prompt)
-     db_prompt $@;;
-  mysql-prompt)
-     db_prompt $@;;
-  clean-mysql)
-      clean_mysql;;
-  clean-oracle)
-      clean_oracle;;
-  clean-couch)
-     clean_couch;;
-  init-agent)
-     init_agent;;
-  start-agent)
-     start_agent;;
-  stop-agent)
-     stop_agent;;
-  clean-agent)
-     clean_agent;;
-  clean-all)
-     clean_all;;
-  execute-agent)
-      execute_command_agent $@;;
-  renew-proxy)
-      _renew_proxy ;;
-  help)
-      help ;;
-  version)
-      echo "WMCore  version: $WMCoreVersion"
-      echo "WMAgent version: $WMA_TAG";;
-  * )
-      usage "$0: unknown action '$1', please try '$0 help' or documentation." 1>&2
-      exit 1 ;;
+    status)
+        status ;;
+    activate-agent)
+        activate_agent;;
+    db-prompt)
+        shift
+        set -f
+        db_prompt $@
+        set +f ;;
+    clean-mysql)
+        clean_mysql;;
+    clean-oracle)
+        clean_oracle;;
+    clean-couch)
+        clean_couch;;
+    init-agent)
+        init_agent;;
+    start-agent)
+        start_agent;;
+    stop-agent)
+        stop_agent;;
+    clean-agent)
+        clean_agent;;
+    clean-all)
+        clean_all;;
+    execute-agent)
+        shift
+        execute_command_agent $@;;
+    renew-proxy)
+        _renew_proxy ;;
+    help)
+        help ;;
+    version)
+        echo "WMCore  version: $WMCoreVersion"
+        echo "WMAgent version: $WMA_TAG";;
+    * )
+        usage "$0: unknown action '$1', please try '$0 help' or documentation." 1>&2
+        exit 1 ;;
 esac

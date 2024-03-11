@@ -39,14 +39,71 @@ _exec_mysql() {
     else
         mysql -sN -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --execute="$sqlStr"
     fi
-}
 
+    ## TODO: To add the same functionality for recognizing the type of call, similar to _exec_oracle
+    #
+    # if $isPipe || $noArgs
+    # then
+    #     mysql -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --database=$wmaDBName --pager='less -SFX'
+    # else
+    #     local sqlStr=$1
+    #     local dbName=$2
+    #     if [[ -n $dbName ]]; then
+    #         mysql -sN -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --database=$dbName --execute="$sqlStr"
+    #     else
+    #         mysql -sN -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --execute="$sqlStr"
+    #     fi
+    # fi
+}
 
 _exec_oracle() {
     # Auxiliary function to avoid repetitive and long calls to the sqlplus command
-    echo "Not implemented"
-}
+    # :param: $@ could be a sql string to execute or a file redirect or a here document
 
+    # We check for input arguments
+    local execStr=""
+    if [[ -z $* ]]
+    then
+        local hasArgs=false
+    else
+        local hasArgs=true
+        # Building a default executable string:
+        execStr="$execStr SET HEADING OFF;\n"
+        execStr="$execStr SET ECHO OFF;\n"
+        execStr="$execStr SET UNDERLINE OFF;\n"
+        execStr="$execStr SET LINESIZE 1024;\n"
+        execStr="$execStr SET FEEDBACK OFF;\n"
+        execStr="$execStr SET PAGESIZE 0;\n"
+        execStr="$execStr whenever sqlerror exit sql.sqlcode;\n"
+        execStr="$execStr $@"
+        execStr="${execStr%;};\n"
+        execStr="$execStr exit;\n"
+    fi
+
+    # First we need to know if we are running through a redirected input
+    # if fd 0 (stdin) is open and refers to a terminal - then we are running the script directly, without a pipe
+    # if fd 0 (stdin) is open but does not refer to the terminal - then we are running the script through a pipe
+    # NOTE: Docker by default redirects stdin
+    local isPipe=false
+    if [[ -t 0 ]] ; then isPipe=false; else isPipe=true ; fi
+
+    # Then we traverse the callstack to find if the original caller was init.sh
+    # if so - we never redirect
+    local isInitCall=false
+    for callSource in ${BASH_SOURCE[@]}
+    do
+        [[ $callSource =~ .*init\.sh ]] && isInitCall=true
+    done
+
+    if $isInitCall || $hasArgs; then
+        ( unset ORACLE_PATH; echo -e $execStr | sqlplus -NOLOGINTIME -S $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS )
+    elif $isPipe || ! $hasArgs; then
+        rlwrap -H $WMA_LOG_DIR/.sqlplus_history -pgreen sqlplus $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS
+    else
+        echo "$FUNCNAME: ERROR: Unhandled type of call with: isPipe: $isPipe &&  noArgs: $noArgs && isInitCall: $isInitCall"
+        return $(false)
+    fi
+}
 
 _init_valid(){
     # Auxiliary function to shorten repetitive compares of .init* files to the current WMA_BUILD_ID
@@ -54,7 +111,6 @@ _init_valid(){
     local initFile=$1
     [[ -n $initFile ]] && [[ -f $initFile ]] && [[ `cat $initFile` == $WMA_BUILD_ID ]]
 }
-
 
 _sql_dumpSchema(){
     # Auxiliary function to dump the currently deployed schema into a file
@@ -85,31 +141,33 @@ _sql_schema_valid(){
 
 _sql_dbid_valid(){
     # Auxiliary function to check if the build Id and hostname recorded in the database matches the $WMA_BUILD_ID
-    # :param $1: The database name to be checked (it will be ignored for Oracle)
+    # :param $1: The database name to be checked. It will be ignored for Oracle (Default: $wmaDBName)
     echo $FUNCNAME: "Checking if the current SQL Database Id matches the WMA_BUILD_ID and hostname of the agent."
     local wmaDBName=${1:-$wmaDBName}
+    local dbIdCmd="select init_value from wma_init where init_param='wma_build_id';"
+    local dbHostNameCmd="select init_value from wma_init where init_param='hostname';"
     case $AGENT_FLAVOR in
         'oracle')
-            echo "Not implemented"
+            local dbId=$(_exec_oracle "$dbIdCmd")
+            local dbHostName=$(_exec_oracle "$dbHostNameCmd")
             ;;
         'mysql')
-            local sqlCmd="select init_value from wma_init where init_param='wma_build_id';"
-            local dbId=$(_exec_mysql "$sqlCmd" $wmaDBName)
-            local sqlCmd="select init_value from wma_init where init_param='hostname';"
-            local dbHostname=$(_exec_mysql "$sqlCmd" $wmaDBName)
-            if [[ $dbId == $WMA_BUILD_ID ]] && [[ $dbHostname == $HOSTNAME ]]; then
-                echo "$FUNCNAME: OK: Database recorded and current agent's init parameters match."
-                return $(true)
-            else
-                echo "$FUNCNAME: WARNING: Database recorded and current agent's init parameters do NOT match."
-                return $(false)
-            fi
+            local dbId=$(_exec_mysql "$dbIdCmd" $wmaDBName)
+            local dbHostName=$(_exec_mysql "$dbHostNameCmd" $wmaDBName)
             ;;
         *)
             echo "$FUNCNAME: ERROR: Unknown or not set Agent Flavor"
             return $(false)
             ;;
     esac
+    # Perform the check:
+    if [[ $dbId == $WMA_BUILD_ID ]] && [[ $dbHostName == $HOSTNAME ]]; then
+        echo "$FUNCNAME: OK: Database recorded and current agent's init parameters match."
+        return $(true)
+    else
+        echo "$FUNCNAME: WARNING: Database recorded and current agent's init parameters do NOT match."
+        return $(false)
+    fi
 }
 
 _sql_db_isclean(){
@@ -119,7 +177,9 @@ _sql_db_isclean(){
     local wmaDBName=${1:-$wmaDBName}
     case $AGENT_FLAVOR in
         'oracle')
-            echo "Not implemented"
+            local sqlCmd="SELECT COUNT(table_name) FROM user_tables;"
+            local numTables=$(_exec_oracle "$sqlCmd")
+            [[ $numTables -eq 0 ]] || { echo "$FUNCNAME: WARNING: Nonclean database $wmaDBName: numTables=$numTables"; return $(false) ;}
             ;;
         'mysql')
             local sqlCmd="SELECT SCHEMA_NAME   FROM INFORMATION_SCHEMA.SCHEMATA  WHERE SCHEMA_NAME = '$wmaDBName'"
@@ -140,20 +200,27 @@ _sql_db_isclean(){
 _sql_write_agentid(){
     # Auxiliary function to write the current agent build id into the sql database
     echo "$FUNCNAME: Preserving the current WMA_BUILD_ID and HostName at database: $wmaDBName."
+    local createCmd="create table wma_init(init_param varchar(100) not null unique, init_value varchar(100) not null);"
     case $AGENT_FLAVOR in
         'oracle')
-            echo "Not implemented"
-            ;;
-        'mysql')
-            local sqlCmd=""
-
             echo "$FUNCNAME: Creating wma_init table at database: $wmaDBName"
-            sqlCmd="create table wma_init(init_param varchar(100) not null, init_value varchar(100));"
-            _exec_mysql "$sqlCmd" $wmaDBName || return
+            _exec_oracle "$createCmd" || return
 
             echo "$FUNCNAME: Inserting current Agent's build id and hostname at database: $wmaDBName"
-            sqlCmd="insert into wma_init (init_param, init_value) values ('wma_build_id', '$WMA_BUILD_ID'), ('hostname', '$HOSTNAME'), ('is_active', 'true');"
-            _exec_mysql "$sqlCmd" $wmaDBName || return
+            _exec_oracle "insert into wma_init (init_param, init_value) values ('wma_build_id', '$WMA_BUILD_ID');" || return
+            _exec_oracle "insert into wma_init (init_param, init_value) values ('wma_tag', '$WMA_TAG');"           || return
+            _exec_oracle "insert into wma_init (init_param, init_value) values ('hostname', '$HOSTNAME');"         || return
+            _exec_oracle "insert into wma_init (init_param, init_value) values ('is_active', 'true');"             || return
+            ;;
+        'mysql')
+            echo "$FUNCNAME: Creating wma_init table at database: $wmaDBName"
+            _exec_mysql "$createCmd" $wmaDBName || return
+
+            echo "$FUNCNAME: Inserting current Agent's build id and hostname at database: $wmaDBName"
+            _exec_oracle "insert into wma_init (init_param, init_value) values ('wma_build_id', '$WMA_BUILD_ID');" $wmaDBName || return
+            _exec_oracle "insert into wma_init (init_param, init_value) values ('wma_tag', '$WMA_TAG');"           $wmaDBName || return
+            _exec_oracle "insert into wma_init (init_param, init_value) values ('hostname', '$HOSTNAME');"         $wmaDBName || return
+            _exec_oracle "insert into wma_init (init_param, init_value) values ('is_active', 'true');"             $wmaDBName || return
             ;;
         *)
             echo "$FUNCNAME: ERROR: Unknown or not set Agent Flavor"
@@ -181,11 +248,12 @@ _status_of_mysql(){
 _status_of_oracle(){
     # Auxiliary function to check if the oracle database configured for the current agent is empty
     echo "$FUNCNAME:"
-	sqlplus $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS <<EOF
-    whenever sqlerror exit sql.sqlcode;
-    select 1 from dual;
-    exit;
-EOF
+    _exec_oracle "select 1 from dual;"
+#	sqlplus $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS <<EOF
+#     whenever sqlerror exit sql.sqlcode;
+#     select 1 from dual;
+#     exit;
+# EOF
     local errVal=$?
     [[ $errVal -ne 0 ]] && { echo "$FUNCNAME: ERROR: Oracle database unreachable!"; return $(false) ;}
     echo "$FUNCNAME: Oracle connection is OK!"

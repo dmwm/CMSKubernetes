@@ -4,7 +4,7 @@
 
 
 echo "Start initialization"
-./init.sh || true
+./init.sh | tee -a $WMA_LOG_DIR/init.log || true
 
 echo "Start sleeping now ...zzz..."
 
