@@ -11,14 +11,13 @@ help(){
 
 The Coucdb docker build script for Docker image creation based on pypi:
 
-Usage: coucdb-docker-build.sh -v <coucdb_tag>
+Usage: coucdb-docker-build.sh -t <coucdb_tag> [-p]
 
-    -t <couch_tag>                  The Couchdb (upstream tag) tag to base this this image on
-    -u <coucdb_user>                The Couchdb user to be used for the Docker image creation
-    -p <password>                   The Couchdb user to be used for the Docker image creation
-    -h <help>                       Provides this help
+    -t <couch_tag>  The Couchdb (upstream tag) tag to base this this image on
+    -p              Push the CouchDB image to registry.cern.ch
+    -h <help>       Provides this help
 
-Example: ./coucdb-docker-build.sh -u FIXME_USER -p FIXME_PWD
+Example: ./coucdb-docker-build.sh -t 3.2.2
 
 EOF
 }

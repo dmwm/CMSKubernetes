@@ -65,7 +65,6 @@ HOST_MOUNT_DIR=/data/dockerMount
 
 # sudo chown -R $couchdbUser:$couchdbUser $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG
 
-
 dockerOpts="
 --detach \
 --network=host \
@@ -77,22 +76,26 @@ dockerOpts="
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/install/database,target=/data/srv/couchdb/current/install/database \
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/logs,target=/data/srv/couchdb/current/logs \
 --mount type=bind,source=$HOST_MOUNT_DIR/admin/wmagent,target=/data/admin/wmagent/ \
+--mount type=bind,source=$HOST_MOUNT_DIR/admin/couchdb,target=/data/admin/couchdb/ \
 "
 
 # --mount type=bind,source=$HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/config,target=/data/srv/couchdb/current/config \
-
 # couchOpts=$*
 # couchOpts="$couchOpts --user couchdb -e COUCHDB_USER=TestAdmin -e COUCHDB_PASSWORD=TestPass"
+registry=local
+repository=couchdb
 
 $PULL && {
+    registry=registry.cern.ch
+    project=cmsweb
+    repository=couchdb
     echo "Pulling Docker image: registry.cern.ch/cmsweb/couchdb:$COUCH_TAG"
-    docker login registry.cern.ch
-    docker pull registry.cern.ch/cmsweb/couchdb:$COUCH_TAG
-    docker tag registry.cern.ch/cmsweb/couchdb:$COUCH_TAG local/couchdb:$COUCH_TAG
-    docker tag registry.cern.ch/cmsweb/couchdb:$COUCH_TAG local/couchdb:latest
+    docker pull $registry/$project/$repository:$COUCH_TAG
+    docker tag  $registry/$project/$repository:$COUCH_TAG $registry/$repository:$COUCH_TAG
+    docker tag  $registry/$project/$repository:$COUCH_TAG $registry/$repository:latest
 }
 
 echo "Starting the couchdb:$COUCH_TAG docker container with the following parameters: $couchOpts"
-docker run $dockerOpts $couchOpts local/couchdb:$COUCH_TAG && (
+docker run $dockerOpts $couchOpts $registry/$repository:$COUCH_TAG && (
     [[ -h $HOST_MOUNT_DIR/srv/couchdb/current ]] && rm -f $HOST_MOUNT_DIR/srv/couchdb/current
     ln -s $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG $HOST_MOUNT_DIR/srv/couchdb/current )

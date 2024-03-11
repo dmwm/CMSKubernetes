@@ -69,22 +69,44 @@ COLOR_WARN="\\033[0;31m"
 COLOR_NORMAL="\\033[0;39m"
 PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/kerberos/bin:/usr/local/bin:/opt/couchdb/bin
 
-# # Does the credential file exist and is it readable?
-# if [ ! -r $COUCH_CREDS ]; then
-#    echo "Variable COUCH_CREDS needs to be defined"
-#    exit 1
-# fi
-# COUCH_USER=`cat $COUCH_CREDS | grep COUCH_USER | sed s/COUCH_USER=//`
-# COUCH_PASS=`cat $COUCH_CREDS | grep COUCH_PASS | sed s/COUCH_PASS=//`
 
-COUCH_CREDS=$COUCH_ADMIN_DIR/WMAgent.secrets
-COUCH_USER=`cat $COUCH_CREDS | grep COUCH_USER | sed s/COUCH_USER=//`
-COUCH_PASS=`cat $COUCH_CREDS | grep COUCH_PASS | sed s/COUCH_PASS=//`
+_load_secrets(){
+    # Auxiliary function to parse WMAgent.secrets or CouchDB.secrets or local.ini files
+    # and load a set of variables from them
+    # :param $1: Path to WMAgent.secrets or file
+    # :param $2: String with variable names to be checked
+    # :retrun:   Error value if one or more values have been left unset in the secrets file
+    local errVal=0
+    local value=""
+    local secretsFile=$1
+    local varsToLoad=$2
+
+    [[ -f $secretsFile ]] || {
+        echo "$FUNCNAME: ERROR: Password file: $secretsFile does not exist"
+        echo "$FUNCNAME: ERROR: Either set WMA_SECRETS_FILE environment variable to a valid file or check that $HOME/WMAgent.secrets exists"
+        return $(false)
+    }
+
+    # All variables need to be fetched in lowercase through: ${varName,,}
+    local badValuesReg="(update-me|updateme|<update-me>|<updateme>|fix-me|fixme|<fix-me>|<fixme>|^$)"
+    for varName in $varsToLoad
+    do
+        value=`grep -E "^[[:blank:]]*$varName=" $secretsFile | awk -F\= '{print $2}'`
+        [[ ${value,,} =~ $badValuesReg ]] && { echo "$FUNCNAME: Bad value for: $varName=$value"; let errVal+=1 ;}
+    done
+
+    for varName in $varsToLoad
+    do
+        value=`grep -E "^[[:blank:]]*$varName=" $secretsFile | sed "s/ *$varName=//"`
+        eval $varName=$value
+        [[ -n $varName ]] || { echo "$FUNCNAME: Empty value for: $varName=$value"; let errVal+=1 ;}
+    done
+    return $errVal
+}
+
+
+_load_secrets $WMA_SECRETS_FILE "COUCH_USER COUCH_PASS"
 COUCH_CREDS_URL="http://$COUCH_USER:$COUCH_PASS@localhost:$COUCH_PORT"
-
-# echo COUCH_CREDS_URL=$COUCH_CREDS_URL
-
-# . $ROOT/apps/$ME/etc/profile.d/init.sh
 
 
 # Specific files required for WorkQueue, from the YUI JavaScript/CSS library
@@ -230,6 +252,7 @@ files_needed_from_yui=('build/animation/animation-min.js'
     'build/utilities/utilities.js'
     'build/yahoo-dom-event/yahoo-dom-event.js')
 
+
 # Start service conditionally on crond restart.
 sysboot()
 {
@@ -242,6 +265,7 @@ sysboot()
 # Start the service.
 start()
 {
+  _parse_localini $COUCH_CONFIG_DIR/local.ini || { echo "$FUNCNAME: ERROR: Not confiured databse. Try manage init first"; return 1 ;}
   cd $STATEDIR
   echo -n "Which couchdb: "
   which couchdb
@@ -631,10 +655,83 @@ check()
   fi
 }
 
+_parse_localini (){
+    # Auxiliary function to provide basic parsing of the local.ini file at the container
+    # :param $1: path to local.ini file
+    local errVal=0
+    local value=""
+    local secretsFile=$1
+    # All variables need to be fetched in lowercase through: ${var,,}
+    local badValuesReg="(update-me|updateme|<update-me>|<updateme>|fix-me|fixme|<fix-me>|<fixme>|^$)"
+    local varsToCheck=`grep -vE "^[[:blank:]]*(\;|\#|\[).*$" $secretsFile |awk -F\= '{print $1}'`
+    # `awk -F\= '{print $1}' $secretsFile | grep -vE "^[[:blank:]]*(\#|\;|\[).*$;"`
+    for var in $varsToCheck
+    do
+        value=`grep -E "^[[:blank:]]*$var" $secretsFile | awk -F\= '{print $2}'`
+        [[ ${value,,} =~ $badValuesReg ]] && { echo "$FUNCNAME: WARNING: Bad value for: $var=$value"; let errVal+=1 ;}
+    done
+    return $errVal
+}
+
+
+init_couchdb() {
+    # Auxiliary function to check for initial setting of couchdb.
+    # i.e. check if COUCHDB_SECRETS_FILE and WMAGENT_SECRETS_FILE from the host
+    # have been parsed correctly and the passwords propagated to local.ini
+
+    if _parse_localini $COUCH_CONFIG_DIR/local.ini; then
+        echo "The local.ini file at the container is OK. NOT adding any new admin accounts from secrets files!"
+        return
+    else
+        # Second, parsing [admins] section and loading all accounts already configurred in the local.ini file:
+        local accountList=""
+        for var in `grep -A5 '\[admins\]' ${COUCH_CONFIG_DIR}/local.ini | sed 's/ *= */=/g'|grep = |grep -vE "(^\;|^\#)"`
+        do
+            local $var
+            accountList="$accountList ${var%%=*}"
+        done
+
+        # Next, Load all couchdb passwords from the two secrets files
+        _load_secrets $COUCH_SECRETS_FILE "COUCH_ROOT COUCH_ROOTPASS" || {
+            err=$?
+            echo "$FUNCNAME: ERROR: Could not properly load root password for CouchDB"
+            exit $err
+        }
+
+        _load_secrets $WMA_SECRETS_FILE "COUCH_USER COUCH_PASS" || {
+            err=$?
+            echo "$FUNCNAME: ERROR: Could not properly load WMAgent User password for CouchDB"
+            exit $err
+        }
+
+        # Finally, Compare and add the missing ones at local.ini inside the container.
+        # NOTE: those will be increpted and replaced by CouchDB immediately after the first run
+        if [[ $accountList =~ $COUCH_ROOT ]] ;then
+            echo "$FUNCNAME: Substitute already existing account: $COUCH_ROOT"
+            sed -i "s/$COUCH_ROOT *=.*/$COUCH_ROOT = $COUCH_ROOTPASS/g" $COUCH_CONFIG_DIR/local.ini
+        else
+            echo "$FUNCNAME: Adding a new account: $COUCH_ROOT"
+            sed -i "/\[admins\]/a $COUCH_USER = $COUCH_PASS" $COUCH_CONFIG_DIR/local.ini
+        fi
+
+        if [[ $accountList =~ $COUCH_USER ]] ;then
+            echo "$FUNCNAME: Substitute already existing account: $COUCH_USER"
+            sed -i "s/$COUCH_USER *=.*/$COUCH_USER = $COUCH_PASS/g" $COUCH_CONFIG_DIR/local.ini
+        else
+            echo "$FUNCNAME: Adding a new account: $COUCH_USER"
+            sed -i "/\[admins\]/a $COUCH_USER = $COUCH_PASS" $COUCH_CONFIG_DIR/local.ini
+        fi
+    fi
+}
+
 # Main routine, perform action requested on command line.
 case ${1:-status} in
   sysboot )
     sysboot
+    ;;
+
+  init )
+    init_couchdb
     ;;
 
   restart )
