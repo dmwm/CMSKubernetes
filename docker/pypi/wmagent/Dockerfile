@@ -30,8 +30,6 @@ ENV WMA_LOG_DIR=$WMA_CURRENT_DIR/logs
 ENV WMA_DEPLOY_DIR=/usr/local
 ENV WMA_ENV_FILE=$WMA_DEPLOY_DIR/deploy/env.sh
 ENV WMA_SECRETS_FILE=$WMA_ADMIN_DIR/WMAgent.secrets
-ENV ORACLE_PATH=$WMA_DEPLOY_DIR/etc/oracle
-
 
 # Setting up users and previleges
 RUN groupadd -g ${WMA_GID} ${WMA_GROUP}
@@ -46,6 +44,16 @@ RUN echo "${WMA_USER} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 # Add all deployment needed directories
 ADD bin $WMA_DEPLOY_DIR/bin
 ADD etc $WMA_DEPLOY_DIR/etc
+
+# Oracle features (must be added after bin/):
+ENV ORACLE_PATH=$WMA_DEPLOY_DIR/etc/oracle
+ENV SQLCL_VER=sqlcl-23.4.0.023.2321
+RUN wget -P $WMA_DEPLOY_DIR/ https://download.oracle.com/otn_software/java/sqldeveloper/${SQLCL_VER}.zip && \
+    echo "f0adb2b8b60c248f5f15e0dc1e95876262316460b4ebf85e601116d73dad19ce $WMA_DEPLOY_DIR/${SQLCL_VER}.zip" > $WMA_DEPLOY_DIR/${SQLCL_VER}.sha256 && \
+    sha256sum $WMA_DEPLOY_DIR/${SQLCL_VER}.sha256 && unzip -d $WMA_DEPLOY_DIR/ $WMA_DEPLOY_DIR/${SQLCL_VER}.zip
+ENV PATH="$PATH:$WMA_DEPLOY_DIR/sqlcl/bin:"
+RUN apt-get update
+RUN apt-get install -y openjdk-17-jre && apt-get clean
 
 # Add install script
 ADD install.sh ${WMA_ROOT_DIR}/install.sh

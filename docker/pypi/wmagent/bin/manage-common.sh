@@ -98,7 +98,7 @@ _exec_oracle() {
     if $isInitCall || $hasArgs; then
         ( unset ORACLE_PATH; echo -e $execStr | sqlplus -NOLOGINTIME -S $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS )
     elif $isPipe || ! $hasArgs; then
-        rlwrap -H $WMA_LOG_DIR/.sqlplus_history -pgreen sqlplus $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS
+        rlwrap -H $WMA_LOG_DIR/.sqlplus_history -pgreen sql $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS
     else
         echo "$FUNCNAME: ERROR: Unhandled type of call with: isPipe: $isPipe &&  noArgs: $noArgs && isInitCall: $isInitCall"
         return $(false)
