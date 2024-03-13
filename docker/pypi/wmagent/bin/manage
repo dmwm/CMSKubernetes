@@ -232,9 +232,16 @@ clean_agent(){
 clean_mysql(){
     [[ -z $MYSQL_USER ]] && { echo "$FUNCNAME: ERROR: Not using MySQL..."; exit 1 ; }
     local errVal=0
+    echo
+    echo    "$FUNCNAME: THE CURRENT OPERATIONS WILL WIPE OUT THE $WMA_DATABASE DATABASE."
+    echo -n "$FUNCNAME: Continue? [n]: "
+    read x && [[ $x =~ (y|yes|yeS|yEs|Yes|yES|YEs|YeS|YES|Y) ]] || return 102
+    echo "$FUNCNAME: ..."
+    echo "$FUNCNAME: You still have 5 sec. to cancel before we proceed."
+    echo
+    sleep 5
     echo "$FUNCNAME: Dropping MySQL DB... ";
     _exec_mysql "drop database $wmaDBName"   || let errVal+=$?
-    _exec_mysql "create database $wmaDBName" || let errVal+=$?
     [[ $errVal -eq 0 ]] &&  rm -f $wmaInitSqlDB
     return $errVal
 }
@@ -242,6 +249,14 @@ clean_mysql(){
 clean_oracle(){
     [[ -z $ORACLE_USER ]] && { echo "$FUNCNAME: ERROR: Not using ORACLE..."; exit 1 ; }
     local errVal=0
+    echo
+    echo    "$FUNCNAME: THE CURRENT OPERATIONS WILL WIPE OUT THE $WMA_DATABASE DATABASE."
+    echo -n "$FUNCNAME: Continue? [n]: "
+    read x && [[ $x =~ (y|yes|yeS|yEs|Yes|yES|YEs|YeS|YES|Y) ]] || return 102
+    echo "$FUNCNAME: ..."
+    echo "$FUNCNAME: You still have 5 sec. to cancel before we proceed."
+    echo
+    sleep 5
     echo "$FUNCNAME: Dropping Oracle DB..."
     execute_command_agent "clean-oracle" || let errVal+=$?
     [[ $errVal -eq 0 ]] && rm -f $wmaInitSqlDB
