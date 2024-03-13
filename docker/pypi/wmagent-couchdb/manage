@@ -679,25 +679,29 @@ init_couchdb() {
     # i.e. check if COUCHDB_SECRETS_FILE and WMAGENT_SECRETS_FILE from the host
     # have been parsed correctly and the passwords propagated to local.ini
 
-    if _parse_localini $COUCH_CONFIG_DIR/local.ini; then
-        echo "The local.ini file at the container is OK. NOT adding any new admin accounts from secrets files!"
-        return
-    else
-        # Second, parsing [admins] section and loading all accounts already configurred in the local.ini file:
-        local accountList=""
-        for var in `grep -A5 '\[admins\]' ${COUCH_CONFIG_DIR}/local.ini | sed 's/ *= */=/g'|grep = |grep -vE "(^\;|^\#)"`
-        do
+    # First check if all variables in the local.ini file are properly set
+    local parseOk=true
+    _parse_localini $COUCH_CONFIG_DIR/local.ini || parseOk=false
+
+    # Separate only the [admins] section of the local.ini file:
+    local adminSection=`grep -vE "^(\;|\#)" ${COUCH_CONFIG_DIR}/local.ini | sed -n '/^ *\[admins\].*/,/^ *\[.*\].*/p' |sed -e 's/$/\\\\n/'`
+
+    # Load all accounts already configurred in the [admins] section of the local.ini file:
+    local accountList=""
+    for var in `echo -e $adminSection |sed 's/ *= */=/g'|grep \= |grep -vE "^\;"`
+    do
+        [[ $var =~ .*=.* ]] && {
             local $var
             accountList="$accountList ${var%%=*}"
-        done
-
-        # Next, Load all couchdb passwords from the two secrets files
-        _load_secrets $COUCH_SECRETS_FILE "COUCH_ROOT COUCH_ROOTPASS" || {
-            err=$?
-            echo "$FUNCNAME: ERROR: Could not properly load root password for CouchDB"
-            exit $err
         }
+    done
 
+    # Check if we local.ini format is ok and if we have any admin accounts properly configurred
+    if $parseOk && [[ -n $accountList ]]; then
+        echo "$FUNCNAME: The local.ini file at the container is already properly configured."
+        echo "$FUNCNAME: NOT adding any new admin accounts from the secrets files!"
+        return
+    else
         _load_secrets $WMA_SECRETS_FILE "COUCH_USER COUCH_PASS" || {
             err=$?
             echo "$FUNCNAME: ERROR: Could not properly load WMAgent User password for CouchDB"
@@ -706,14 +710,6 @@ init_couchdb() {
 
         # Finally, Compare and add the missing ones at local.ini inside the container.
         # NOTE: those will be increpted and replaced by CouchDB immediately after the first run
-        if [[ $accountList =~ $COUCH_ROOT ]] ;then
-            echo "$FUNCNAME: Substitute already existing account: $COUCH_ROOT"
-            sed -i "s/$COUCH_ROOT *=.*/$COUCH_ROOT = $COUCH_ROOTPASS/g" $COUCH_CONFIG_DIR/local.ini
-        else
-            echo "$FUNCNAME: Adding a new account: $COUCH_ROOT"
-            sed -i "/\[admins\]/a $COUCH_USER = $COUCH_PASS" $COUCH_CONFIG_DIR/local.ini
-        fi
-
         if [[ $accountList =~ $COUCH_USER ]] ;then
             echo "$FUNCNAME: Substitute already existing account: $COUCH_USER"
             sed -i "s/$COUCH_USER *=.*/$COUCH_USER = $COUCH_PASS/g" $COUCH_CONFIG_DIR/local.ini
