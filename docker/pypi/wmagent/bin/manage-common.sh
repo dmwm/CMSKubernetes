@@ -217,10 +217,10 @@ _sql_write_agentid(){
             _exec_mysql "$createCmd" $wmaDBName || return
 
             echo "$FUNCNAME: Inserting current Agent's build id and hostname at database: $wmaDBName"
-            _exec_oracle "insert into wma_init (init_param, init_value) values ('wma_build_id', '$WMA_BUILD_ID');" $wmaDBName || return
-            _exec_oracle "insert into wma_init (init_param, init_value) values ('wma_tag', '$WMA_TAG');"           $wmaDBName || return
-            _exec_oracle "insert into wma_init (init_param, init_value) values ('hostname', '$HOSTNAME');"         $wmaDBName || return
-            _exec_oracle "insert into wma_init (init_param, init_value) values ('is_active', 'true');"             $wmaDBName || return
+            _exec_mysql "insert into wma_init (init_param, init_value) values ('wma_build_id', '$WMA_BUILD_ID');" $wmaDBName || return
+            _exec_mysql "insert into wma_init (init_param, init_value) values ('wma_tag', '$WMA_TAG');"           $wmaDBName || return
+            _exec_mysql "insert into wma_init (init_param, init_value) values ('hostname', '$HOSTNAME');"         $wmaDBName || return
+            _exec_mysql "insert into wma_init (init_param, init_value) values ('is_active', 'true');"             $wmaDBName || return
             ;;
         *)
             echo "$FUNCNAME: ERROR: Unknown or not set Agent Flavor"

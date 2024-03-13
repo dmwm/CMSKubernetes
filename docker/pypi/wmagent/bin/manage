@@ -339,6 +339,8 @@ case $1 in
     activate-agent)
         activate_agent;;
     db-prompt)
+        # We need to switch off shell globbing, in order to avoid path expansion
+        # of the * symbol from the shell on queries of the sort: "select * from ..."
         shift
         set -f
         db_prompt $@
