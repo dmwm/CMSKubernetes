@@ -275,7 +275,7 @@ status(){
 clean_all(){
     case $AGENT_FLAVOR in
         'mysql')
-	        clean_mysql ;;
+            clean_mysql ;;
         'oracle')
             clean_oracle ;;
         *)
