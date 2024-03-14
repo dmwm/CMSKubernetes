@@ -348,8 +348,8 @@ They are set at different moments along the process: i.e. at `buildtime` - when 
 
 * **List  of variables set at `configtime` defined in $WMAgent.secrets file:**
 
-   * MYSQL_USER=*****
-   * MYSQL_PASS=*****
+   * MDB_USER=*****
+   * MDB_PASS=*****
 
     or
 

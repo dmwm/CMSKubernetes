@@ -139,7 +139,7 @@ deploy_to_host(){
             cp -f $WMA_DEPLOY_DIR/deploy/WMAgent.$agentType $WMA_SECRETS_FILE
             # Update WMagent.secrets file:
             echo "$FUNCNAME: Updating WMAgent.secrets file with the current host's details"
-            sed -i "s/MYSQL_USER=.*/MYSQL_USER=$WMA_USER/g" $WMA_SECRETS_FILE
+            sed -i "s/MDB_USER=.*/MDB_USER=$WMA_USER/g" $WMA_SECRETS_FILE
             sed -i "s/COUCH_USER=.*/COUCH_USER=$WMA_USER/g" $WMA_SECRETS_FILE
             sed -i "s/COUCH_HOST=127\.0\.0\.1/COUCH_HOST=$HOSTIP/g" $WMA_SECRETS_FILE
         fi
@@ -261,7 +261,7 @@ check_databases() {
     [[ -n $ORACLE_USER ]] && [[ -n $ORACLE_PASS ]] && [[ -n $ORACLE_TNS ]] && \
         oracleCred=true
 
-    [[ -n $MYSQL_USER ]] && [[ -n $MYSQL_PASS ]] && \
+    [[ -n $MDB_USER ]] && [[ -n $MDB_PASS ]] && \
         mysqlCred=true
 
     # Checking the relational databases:
