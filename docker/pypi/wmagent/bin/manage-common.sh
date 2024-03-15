@@ -1,6 +1,6 @@
 # Auxiliary script to hold common function definitions between init.sh and manage scripts
 
-# NOTE: At the current stage none of the global variables like $AGENT_FLAVOR or $MYSQL_PASS are
+# NOTE: At the current stage none of the global variables like $AGENT_FLAVOR or $MDB_PASS are
 #       defined. All of those come not from the environment as $WMA_* variables, but rather
 #       from loading the WMAgent.secrets file.  So loading of this script as a primary source
 #       with definitions should work, but calling any of those functions without
@@ -35,23 +35,23 @@ _exec_mysql() {
     local sqlStr=$1
     local dbName=$2
     if [[ -n $dbName ]]; then
-        mysql -sN -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --database=$dbName --execute="$sqlStr"
+        mysql -sN -u $MDB_USER --password=$MDB_PASS -h $MDB_HOST --database=$dbName --execute="$sqlStr"
     else
-        mysql -sN -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --execute="$sqlStr"
+        mysql -sN -u $MDB_USER --password=$MDB_PASS -h $MDB_HOST --execute="$sqlStr"
     fi
 
     ## TODO: To add the same functionality for recognizing the type of call, similar to _exec_oracle
     #
     # if $isPipe || $noArgs
     # then
-    #     mysql -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --database=$wmaDBName --pager='less -SFX'
+    #     mysql -u $MDB_USER --password=$MDB_PASS -h $MDB_HOST --database=$wmaDBName --pager='less -SFX'
     # else
     #     local sqlStr=$1
     #     local dbName=$2
     #     if [[ -n $dbName ]]; then
-    #         mysql -sN -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --database=$dbName --execute="$sqlStr"
+    #         mysql -sN -u $MDB_USER --password=$MDB_PASS -h $MDB_HOST --database=$dbName --execute="$sqlStr"
     #     else
-    #         mysql -sN -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --execute="$sqlStr"
+    #         mysql -sN -u $MDB_USER --password=$MDB_PASS -h $MDB_HOST --execute="$sqlStr"
     #     fi
     # fi
 }
@@ -119,7 +119,7 @@ _sql_dumpSchema(){
     echo "$FUNCNAME: Dumping the current SQL schema of database: $wmaDBName to $wmaSchemaFile"
     case $AGENT_FLAVOR in
         'mysql')
-            mysqldump -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --no-data --skip-dump-date --compact --skip-opt wmagent > $wmaSchemaFile
+            mysqldump -u $MDB_USER --password=$MDB_PASS -h $MDB_HOST --no-data --skip-dump-date --compact --skip-opt wmagent > $wmaSchemaFile
             ;;
         'oracle')
             echo "$FUNCNAME: NOT implemented"
@@ -217,10 +217,10 @@ _sql_write_agentid(){
             _exec_mysql "$createCmd" $wmaDBName || return
 
             echo "$FUNCNAME: Inserting current Agent's build id and hostname at database: $wmaDBName"
-            _exec_oracle "insert into wma_init (init_param, init_value) values ('wma_build_id', '$WMA_BUILD_ID');" $wmaDBName || return
-            _exec_oracle "insert into wma_init (init_param, init_value) values ('wma_tag', '$WMA_TAG');"           $wmaDBName || return
-            _exec_oracle "insert into wma_init (init_param, init_value) values ('hostname', '$HOSTNAME');"         $wmaDBName || return
-            _exec_oracle "insert into wma_init (init_param, init_value) values ('is_active', 'true');"             $wmaDBName || return
+            _exec_mysql "insert into wma_init (init_param, init_value) values ('wma_build_id', '$WMA_BUILD_ID');" $wmaDBName || return
+            _exec_mysql "insert into wma_init (init_param, init_value) values ('wma_tag', '$WMA_TAG');"           $wmaDBName || return
+            _exec_mysql "insert into wma_init (init_param, init_value) values ('hostname', '$HOSTNAME');"         $wmaDBName || return
+            _exec_mysql "insert into wma_init (init_param, init_value) values ('is_active', 'true');"             $wmaDBName || return
             ;;
         *)
             echo "$FUNCNAME: ERROR: Unknown or not set Agent Flavor"
@@ -239,7 +239,7 @@ _status_of_couch(){
 
 _status_of_mysql(){
     echo "$FUNCNAME:"
-    mysqladmin -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST  status
+    mysqladmin -u $MDB_USER --password=$MDB_PASS -h $MDB_HOST  status
     local errVal=$?
     [[ $errVal -ne 0 ]] && { echo "$FUNCNAME: ERROR: MySQL database unreachable!"; return $(false) ;}
     echo "$FUNCNAME: MySQL connection is OK!"
@@ -361,9 +361,9 @@ _load_wmasecrets(){
     local MATCH_ORACLE_PASS=`cat $WMA_SECRETS_FILE | grep ORACLE_PASS | sed s/ORACLE_PASS=//`
     local MATCH_ORACLE_TNS=`cat $WMA_SECRETS_FILE | grep ORACLE_TNS | sed s/ORACLE_TNS=//`
     local MATCH_GRAFANA_TOKEN=`cat $WMA_SECRETS_FILE | grep GRAFANA_TOKEN | sed s/GRAFANA_TOKEN=//`
-    local MATCH_MYSQL_USER=`cat $WMA_SECRETS_FILE | grep MYSQL_USER | sed s/MYSQL_USER=//`
-    local MATCH_MYSQL_PASS=`cat $WMA_SECRETS_FILE | grep MYSQL_PASS | sed s/MYSQL_PASS=//`
-    local MATCH_MYSQL_HOST=`cat $WMA_SECRETS_FILE | grep MYSQL_HOST | sed s/MYSQL_HOST=//`
+    local MATCH_MDB_USER=`cat $WMA_SECRETS_FILE | grep MDB_USER | sed s/MDB_USER=//`
+    local MATCH_MDB_PASS=`cat $WMA_SECRETS_FILE | grep MDB_PASS | sed s/MDB_PASS=//`
+    local MATCH_MDB_HOST=`cat $WMA_SECRETS_FILE | grep MDB_HOST | sed s/MDB_HOST=//`
     local MATCH_COUCH_USER=`cat $WMA_SECRETS_FILE | grep COUCH_USER | sed s/COUCH_USER=//`
     local MATCH_COUCH_PASS=`cat $WMA_SECRETS_FILE | grep COUCH_PASS | sed s/COUCH_PASS=//`
     local MATCH_COUCH_PORT=`cat $WMA_SECRETS_FILE | grep COUCH_PORT | sed s/COUCH_PORT=//`
@@ -393,9 +393,9 @@ _load_wmasecrets(){
     # database settings (mysql or oracle)
     if [ "x$MATCH_ORACLE_USER" == "x" ]; then
         AGENT_FLAVOR=mysql
-        MYSQL_USER=${MATCH_MYSQL_USER:-$USER};
-        MYSQL_PASS=${MATCH_MYSQL_PASS:-$MYSQL_PASS};
-        MYSQL_HOST=${MATCH_MYSQL_HOST:-127.0.0.1};
+        MDB_USER=${MATCH_MDB_USER:-$USER};
+        MDB_PASS=${MATCH_MDB_PASS:-$MDB_PASS};
+        MDB_HOST=${MATCH_MDB_HOST:-127.0.0.1};
     else
         AGENT_FLAVOR=oracle
         ORACLE_USER=$MATCH_ORACLE_USER;
@@ -465,9 +465,9 @@ _print_settings(){
     echo "ORACLE_PASS=               $ORACLE_PASS               "
     echo "ORACLE_TNS=                $ORACLE_TNS                "
     echo "GRAFANA_TOKEN=             $GRAFANA_TOKEN             "
-    echo "MYSQL_USER=                $MYSQL_USER                "
-    echo "MYSQL_PASS=                $MYSQL_PASS                "
-    echo "MYSQL_HOST=                $MYSQL_HOST                "
+    echo "MDB_USER=                  $MDB_USER                  "
+    echo "MDB_PASS=                  $MDB_PASS                  "
+    echo "MDB_HOST=                  $MDB_HOST                  "
     echo "COUCH_USER=                $COUCH_USER                "
     echo "COUCH_PASS=                $COUCH_PASS                "
     echo "COUCH_PORT=                $COUCH_PORT                "

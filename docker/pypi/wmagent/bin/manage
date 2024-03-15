@@ -85,7 +85,7 @@ db_prompt(){
     case $AGENT_FLAVOR in
         'mysql')
             # _exec_mysql $@
-            mysql -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --database=$wmaDBName --pager='less -SFX'
+            mysql -u $MDB_USER --password=$MDB_PASS -h $MDB_HOST --database=$wmaDBName --pager='less -SFX'
             ;;
         'oracle')
             _exec_oracle $@
@@ -110,7 +110,7 @@ init_wmagent(){
         'mysql')
             _exec_mysql "create database if not exists $wmaDBName" && \
                 echo "$FUNCNAME: MYSQL database: $wmaDBName has been created"
-            local database_options="--mysql_url=mysql://$MYSQL_USER:$MYSQL_PASS@$MYSQL_HOST/$wmaDBName "
+            local database_options="--mysql_url=mysql://$MDB_USER:$MDB_PASS@$MDB_HOST/$wmaDBName "
             ;;
         'oracle')
             echo "$FUNCNAME: Using ORACLE user schema: $ORACLE_USER@$ORACLE_TNS "
@@ -230,11 +230,18 @@ clean_agent(){
 # Wipe out MySQL and Oracle databases
 # Will cause next start to recreate databases
 clean_mysql(){
-    [[ -z $MYSQL_USER ]] && { echo "$FUNCNAME: ERROR: Not using MySQL..."; exit 1 ; }
+    [[ -z $MDB_USER ]] && { echo "$FUNCNAME: ERROR: Not using MySQL..."; exit 1 ; }
     local errVal=0
-    echo "$FUNCNAME: Dropping MySQL DB... ";
+    echo
+    echo    "$FUNCNAME: THE CURRENT OPERATIONS WILL WIPE OUT THE $wmaDBName DATABASE."
+    echo -n "$FUNCNAME: Continue? [n]: "
+    read x && [[ $x =~ (y|yes|yeS|yEs|Yes|yES|YEs|YeS|YES|Y) ]] || return 102
+    echo "$FUNCNAME: ..."
+    echo "$FUNCNAME: You still have 5 sec. to cancel before we proceed."
+    echo
+    sleep 5
+    echo "$FUNCNAME: Dropping MariaDB DB... ";
     _exec_mysql "drop database $wmaDBName"   || let errVal+=$?
-    _exec_mysql "create database $wmaDBName" || let errVal+=$?
     [[ $errVal -eq 0 ]] &&  rm -f $wmaInitSqlDB
     return $errVal
 }
@@ -242,6 +249,14 @@ clean_mysql(){
 clean_oracle(){
     [[ -z $ORACLE_USER ]] && { echo "$FUNCNAME: ERROR: Not using ORACLE..."; exit 1 ; }
     local errVal=0
+    echo
+    echo    "$FUNCNAME: THE CURRENT OPERATIONS WILL WIPE OUT THE $wmaDBName DATABASE."
+    echo -n "$FUNCNAME: Continue? [n]: "
+    read x && [[ $x =~ (y|yes|yeS|yEs|Yes|yES|YEs|YeS|YES|Y) ]] || return 102
+    echo "$FUNCNAME: ..."
+    echo "$FUNCNAME: You still have 5 sec. to cancel before we proceed."
+    echo
+    sleep 5
     echo "$FUNCNAME: Dropping Oracle DB..."
     execute_command_agent "clean-oracle" || let errVal+=$?
     [[ $errVal -eq 0 ]] && rm -f $wmaInitSqlDB
@@ -275,7 +290,7 @@ status(){
 clean_all(){
     case $AGENT_FLAVOR in
         'mysql')
-	        clean_mysql ;;
+            clean_mysql ;;
         'oracle')
             clean_oracle ;;
         *)
@@ -339,6 +354,8 @@ case $1 in
     activate-agent)
         activate_agent;;
     db-prompt)
+        # We need to switch off shell globbing, in order to avoid path expansion
+        # of the * symbol from the shell on queries of the sort: "select * from ..."
         shift
         set -f
         db_prompt $@
