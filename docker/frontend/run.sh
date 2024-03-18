@@ -166,6 +166,8 @@ ps auxw | grep httpd
 if [ -f /data/monitor.sh ]; then
     /data/monitor.sh
 fi
-
+crontab -l
+#fixing the crontab depending on the environment to avoid putting heavy load on CRIC servers.
+./copy_cron.sh && (crontab -l ; cat /tmp/authmap.cron) | crontab -
 # start cron daemon
 sudo /usr/sbin/crond -n
