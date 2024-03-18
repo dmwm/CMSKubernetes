@@ -24,7 +24,7 @@ HOSTIP=`hostname -i`
     WMA_TAG=$WMCoreVersion
 }
 
-TEAMNAME=testbed-${HOSTNAME%%.*}
+TEAMNAME=[[ -n $TEAMNAME ]] || TEAMNAME=testbed-${HOSTNAME%%.*}
 AGENT_NUMBER=0
 AGENT_FLAVOR=mysql
 
@@ -37,7 +37,7 @@ AGENT_FLAVOR=mysql
 [[ -n $WMA_BUILD_ID ]] || WMA_BUILD_ID=$(cat $WMA_ROOT_DIR/.dockerBuildId) || { echo "ERROR: Cuold not find/set WMA_UILD_ID"; exit 1 ;}
 
 # Check runtime arguments:
-TEAMNAME_REG="(^production$|^testbed-.*$|^dev-.*$|^relval.*$)"
+TEAMNAME_REG="(^production$|^testbed-.*$|^dev-.*$|^relval.*$|^Tier0.*$)"
 [[ $TEAMNAME =~ $TEAMNAME_REG ]] || { echo "TEAMNAME: $TEAMNAME does not match required expression: $TEAMNAME_REG"; echo "EXIT with Error 1"  ; exit 1 ;}
 
 FLAVOR_REG="(^oracle$|^mysql$)"
@@ -414,6 +414,17 @@ agent_resource_control() {
             echo "$FUNCNAME: Adding only T1 and T2 sites to resource-control..."
             manage execute-agent wmagent-resource-control --add-T1s --plugin=SimpleCondorPlugin --pending-slots=50 --running-slots=50 --down ; let errVal+=$?
             manage execute-agent wmagent-resource-control --add-T2s --plugin=SimpleCondorPlugin --pending-slots=50 --running-slots=50 --down ; let errVal+=$?
+        elif  [[ "$TEAMNAME" == Tier0* ]]; then
+            echo "$FUNCNAME: Adding only T0 sites to resource-control..." 
+            manage execute-agent wmagent-resource-control --site-name=T2_CH_CERN --cms-name=T2_CH_CERN --pnn=T0_CH_CERN_Disk --ce-name=T2_CH_CERN --pending-slots=20000 --running-slots=20000 --plugin=SimpleCondorPlugin  
+            manage execute-agent wmagent-resource-control --site-name=T0_CH_CERN_Disk --cms-name=T0_CH_CERN_Disk --pnn=T2_CH_CERN --ce-name=T0_CH_CERN_Disk --pending-slots=20000 --running-slots=20000 --plugin=SimpleCondorPlugin
+            manage execute-agent wmagent-resource-control --site-name=T2_CH_CERN --task-type=Processing --pending-slots=10000 --running-slots=10000
+            manage execute-agent wmagent-resource-control --site-name=T2_CH_CERN --task-type=Merge --pending-slots=1000 --running-slots=1000
+            manage execute-agent wmagent-resource-control --site-name=T2_CH_CERN --task-type=Cleanup --pending-slots=1000 --running-slots=1000
+            manage execute-agent wmagent-resource-control --site-name=T2_CH_CERN --task-type=LogCollect --pending-slots=1000 --running-slots=1000
+            manage execute-agent wmagent-resource-control --site-name=T2_CH_CERN --task-type=Skim --pending-slots=1000 --running-slots=1000
+            manage execute-agent wmagent-resource-control --site-name=T2_CH_CERN --task-type=Production --pending-slots=1000 --running-slots=1000
+            manage execute-agent wmagent-resource-control --site-name=T2_CH_CERN --task-type=Harvesting --pending-slots=1000 --running-slots=1000
         else
             echo "$FUNCNAME: Adding ALL sites to resource-control..."
             manage execute-agent wmagent-resource-control --add-all-sites --plugin=SimpleCondorPlugin --pending-slots=50 --running-slots=50 --down ; let errVal+=$?
@@ -452,6 +463,10 @@ agent_upload_config(){
         elif [[ "$TEAMNAME" == *dev* ]]; then
             echo "$FUNCNAME: Dev agent, setting MaxRetries to 0..."
             agentExtraConfig='{"MaxRetries":0}'
+        elif [[ "$TEAMNAME" == Tier0* ]]; then
+            echo "$FUNCNAME: Tier0 agent not uploading configuration"
+            echo $WMA_BUILD_ID > $wmaInitUpload
+            return
         fi
         ### Upload WMAgentConfig to AuxDB
         echo "*** Upload WMAgentConfig to AuxDB ***"
