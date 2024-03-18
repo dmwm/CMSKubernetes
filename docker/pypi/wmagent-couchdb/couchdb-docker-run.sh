@@ -19,7 +19,7 @@ passed to the current script are to be forwarded to the Couchdb container entryp
 
 Usage: couchdb-docker-run.sh [-t <team_name>] [-n <agent_number>] [-f <db_flavour>]
 
-    -p <pull_image>   Pull the image from registry.cern.ch
+    -p                Pull the image from registry.cern.ch
     -t <couchdb_tag>  The Couchdb version/tag to be downloaded from registry.cern.ch [Default:latest]
     -h <help>
 
@@ -83,13 +83,12 @@ dockerOpts="
 # couchOpts=$*
 # couchOpts="$couchOpts --user couchdb -e COUCHDB_USER=TestAdmin -e COUCHDB_PASSWORD=TestPass"
 registry=local
-repository=couchdb
+repository=wmagent-couchdb
 
 $PULL && {
     registry=registry.cern.ch
     project=cmsweb
-    repository=couchdb
-    echo "Pulling Docker image: registry.cern.ch/cmsweb/couchdb:$COUCH_TAG"
+    echo "Pulling Docker image: $registry/$project/$repository:$COUCH_TAG"
     docker pull $registry/$project/$repository:$COUCH_TAG
     docker tag  $registry/$project/$repository:$COUCH_TAG $registry/$repository:$COUCH_TAG
     docker tag  $registry/$project/$repository:$COUCH_TAG $registry/$repository:latest
