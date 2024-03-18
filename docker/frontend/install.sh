@@ -122,7 +122,7 @@ crontab -l | \
 crontab -l | egrep -v "reboot|ProxyRenew|LogArchive|ServerMonitor" > /tmp/mycron
 echo "0 0 * * * sudo /usr/sbin/fetch-crl" >> /tmp/mycron
 sed -i '/mkauthmap/d' /tmp/mycron
-chmod +x copy_cron.sh && ./copy_cron.sh && cat /tmp/authmap.cron >> /tmp/mycron
+./copy_cron.sh && cat /tmp/authmap.cron >> /tmp/mycron
 
 crontab /tmp/mycron
 rm /tmp/mycron
