@@ -139,7 +139,7 @@ deploy_to_host(){
             cp -f $WMA_DEPLOY_DIR/deploy/WMAgent.$agentType $WMA_SECRETS_FILE
             # Update WMagent.secrets file:
             echo "$FUNCNAME: Updating WMAgent.secrets file with the current host's details"
-            sed -i "s/MYSQL_USER=.*/MYSQL_USER=$WMA_USER/g" $WMA_SECRETS_FILE
+            sed -i "s/MDB_USER=.*/MDB_USER=$WMA_USER/g" $WMA_SECRETS_FILE
             sed -i "s/COUCH_USER=.*/COUCH_USER=$WMA_USER/g" $WMA_SECRETS_FILE
             sed -i "s/COUCH_HOST=127\.0\.0\.1/COUCH_HOST=$HOSTIP/g" $WMA_SECRETS_FILE
         fi
@@ -215,7 +215,7 @@ _check_oracle() {
     #         we require and empty wmagent database and halt if not empty
     local cleanMessage="You may consider dropping it with 'manage clean-oracle'"
     if _init_valid $wmaInitSqlDB ; then
-        _sql_schema_valid || { echo "$FUNCNAME: ERROR: Invalid database schema. $cleanMessage"; return $(false) ;}
+        # _sql_schema_valid || { echo "$FUNCNAME: ERROR: Invalid database schema. $cleanMessage"; return $(false) ;}
         _sql_dbid_valid   || { echo "$FUNCNAME: ERROR: A database initialized by an agent with different Build ID. $cleanMessage' "; return $(false) ;}
     else
         _sql_db_isclean   || { echo "$FUNCNAME: ERROR: Nonempty database. $cleanMessage"; return $(false) ;}
@@ -261,7 +261,7 @@ check_databases() {
     [[ -n $ORACLE_USER ]] && [[ -n $ORACLE_PASS ]] && [[ -n $ORACLE_TNS ]] && \
         oracleCred=true
 
-    [[ -n $MYSQL_USER ]] && [[ -n $MYSQL_PASS ]] && \
+    [[ -n $MDB_USER ]] && [[ -n $MDB_PASS ]] && \
         mysqlCred=true
 
     # Checking the relational databases:
@@ -466,6 +466,7 @@ start_agent() {
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
     echo "-------------------------------------------------------"
+    manage stop-agent
     manage start-agent
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
@@ -497,7 +498,7 @@ main(){
         echo "          * Kill the currently running container:"
         echo "            docker kill wmagent"
         echo "          * Start a fresh instance of wmagent:"
-        echo "            ./wmagent-docker-run.sh -t <WMA_TAG> & "
+        echo "            ./wmagent-docker-run.sh -t <WMA_TAG> && docker logs -f wmagent"
         echo "Have a nice day!" && echo
         return $(true)
     }
