@@ -24,7 +24,7 @@ HOSTIP=`hostname -i`
     WMA_TAG=$WMCoreVersion
 }
 
-TEAMNAME=[[ -n $TEAMNAME ]] || TEAMNAME=testbed-${HOSTNAME%%.*}
+TEAMNAME=testbed-${HOSTNAME%%.*}
 AGENT_NUMBER=0
 AGENT_FLAVOR=mysql
 
