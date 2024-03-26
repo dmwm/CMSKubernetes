@@ -7,7 +7,7 @@ metadata:
     kubernetes.io/ingress.class: nginx
     # restrict access to this ingress controller from specific IPs
     # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#whitelist-source-range
-    nginx.ingress.kubernetes.io/whitelist-source-range: 137.138.55.102,137.138.123.132,188.185.38.247,188.185.115.204,188.185.101.116,188.184.75.82,137.138.154.184,188.184.73.32,188.185.89.202,188.185.89.194,137.138.157.32,137.138.62.154,188.184.31.220,137.138.31.95
+    nginx.ingress.kubernetes.io/whitelist-source-range: 137.138.55.102,137.138.123.132,188.185.38.247,188.185.115.204,188.185.101.116,188.184.75.82,137.138.154.184,188.184.73.32,188.185.89.202,188.185.89.194,137.138.157.32,137.138.62.154,188.184.31.220,137.138.31.95,188.185.114.255,188.185.25.202,188.185.78.114,137.138.52.150,188.184.117.46,188.185.29.242,188.185.31.221
 #    nginx.ingress.kubernetes.io/affinity: "cookie"
 #    nginx.ingress.kubernetes.io/session-cookie-name: "route"
 #    nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
