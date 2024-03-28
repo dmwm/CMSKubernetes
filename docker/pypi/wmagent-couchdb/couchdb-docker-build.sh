@@ -1,24 +1,24 @@
 #!/bin/bash
 
-### This script is to be used for building a Coucdb docker imagge based on pypi
+### This script is to be used for building a CouchDB docker image based on pypi
 ### It depends on a single parameter WMA_TAG, which is to be passed to the basic
-### Coucdb deployment script install.sh at build time through `docker --build-arg`
+### CouchDB deployment script install.sh at build time through `docker --build-arg`
 
 
 help(){
     echo -e $*
     cat <<EOF
 
-The Coucdb docker build script for Docker image creation based on pypi:
+The CouchDB docker build script for Docker image creation based on pypi:
 
-Usage: coucdb-docker-build.sh -t <coucdb_tag> [-p]
+Usage: couchdb-docker-build.sh -t <couchdb_tag> [-p]
 
     -t <couch_tag>  The Couchdb (upstream tag) tag to base this this image on
     -p              Push the CouchDB image to registry.cern.ch
-    -l              Push the curernt tag also as latest to registry.cern.ch
+    -l              Push the current tag also as latest to registry.cern.ch
     -h <help>       Provides this help
 
-Example: ./coucdb-docker-build.sh -t 3.2.2
+Example: ./couchdb-docker-build.sh -t 3.2.2
 
 EOF
 }

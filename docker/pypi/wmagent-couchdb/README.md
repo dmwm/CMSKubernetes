@@ -25,24 +25,14 @@ the bind mounts inside the container, respectively. Those are as follows:
 ```
 
 Upon starting the container we try to initialize the default user and system
-databases, which if previously created should exist in the host mount area. And
-the last steps are creating the `wmagent` database.
+databases, which if previously created should exist in the host mount area.
 
 There are no other external dependencies.
 
-We fetch all the passwords from two secrets files (giving the container-based paths below, which map to `/data/dockerMount/{wmagent|couchdb}`` in the host):
+We fetch all the passwords from two secrets files (giving the container-based paths below, which map to `/data/dockerMount/{wmagent|couchdb}` in the host):
 
 * `/data/admin/wmagent/WMAgent.secrets` - for reading the credentials of the
-  user to be used by the WMAgent to connect to the datbase
-* `/data/admin/couchdb/CouchDB.secrets` - for reading the credentials of the
-  root user who is about to have full administrative rights on the CouchDB server
-
-  **NOTE:** The server admin user configured at the `CouchDB.secrets` file,
-    must match the admin username used in the locals.ini couchDB configuration file. User/admin accounts are resolved at runtime. Depending on where we
-    run the container, it could be on of the three:
-   * CERN - WM agent
-   * CERN - T0 agent
-   * FNAL - WM agent
+  user to be used by the WMAgent to connect to the database
 
 ## Usage
 
@@ -143,20 +133,6 @@ All of the commands bellow must be run from inside the container.
 * General options:
 ```
 (CouchDB-3.2.2) [cmst1@vocms0290:data]$ manage help
-
-ME : 3.2.2
-TOP : /data
-ROOT : /data/srv
-CFGDIR : /data/srv/couchdb/3.2.2/config
-LOGDIR : /data/srv/couchdb/3.2.2/logs
-STATEDIR : /data/srv/couchdb/3.2.2/state
-KEYFILE : /data/srv/couchdb/auth//hmackey.ini
-
-COUCH_ROOT_DIR : /data
-COUCH_BASE_DIR : /data/srv/couchdb
-COUCH_STATE_DIR : /data/srv/couchdb/3.2.2/state
-COUCH_INSTALL_DIR : /data/srv/couchdb/3.2.2/install
-COUCH_CONFIG_DIR : /data/srv/couchdb/3.2.2/config
 
 Usage: manage ACTION [ARG] [SECURITY-STRING]
 

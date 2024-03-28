@@ -46,22 +46,22 @@ KEYFILE=$COUCH_AUTH_DIR/hmackey.ini
 # fi
 # EXCEPTIONS="wmstats"
 
-
-echo ME                : $ME
-echo TOP               : $TOP
-echo ROOT              : $ROOT
-echo CFGDIR            : $CFGDIR
-echo LOGDIR            : $LOGDIR
-echo STATEDIR          : $STATEDIR
-echo KEYFILE           : $KEYFILE
-echo
-echo COUCH_ROOT_DIR    : $COUCH_ROOT_DIR
-echo COUCH_BASE_DIR    : $COUCH_BASE_DIR
-echo COUCH_STATE_DIR   : $COUCH_STATE_DIR
-echo COUCH_INSTALL_DIR : $COUCH_INSTALL_DIR
-echo COUCH_CONFIG_DIR  : $COUCH_CONFIG_DIR
-echo
-
+print_settings(){
+    echo ME                : $ME
+    echo TOP               : $TOP
+    echo ROOT              : $ROOT
+    echo CFGDIR            : $CFGDIR
+    echo LOGDIR            : $LOGDIR
+    echo STATEDIR          : $STATEDIR
+    echo KEYFILE           : $KEYFILE
+    echo
+    echo COUCH_ROOT_DIR    : $COUCH_ROOT_DIR
+    echo COUCH_BASE_DIR    : $COUCH_BASE_DIR
+    echo COUCH_STATE_DIR   : $COUCH_STATE_DIR
+    echo COUCH_INSTALL_DIR : $COUCH_INSTALL_DIR
+    echo COUCH_CONFIG_DIR  : $COUCH_CONFIG_DIR
+    echo
+}
 
 
 COLOR_OK="\\033[0;32m"
@@ -265,7 +265,7 @@ sysboot()
 # Start the service.
 start()
 {
-  _parse_localini $COUCH_CONFIG_DIR/local.ini || { echo "$FUNCNAME: ERROR: Not confiured databse. Try manage init first"; return 1 ;}
+  _parse_localini $COUCH_CONFIG_DIR/local.ini || { echo "$FUNCNAME: ERROR: Not configured database. Try manage init first"; return 1 ;}
   cd $STATEDIR
   echo -n "Which couchdb: "
   which couchdb
@@ -796,6 +796,10 @@ case ${1:-status} in
 
   start )
     start
+    ;;
+
+  print-settings )
+    print_settings
     ;;
 
   * )

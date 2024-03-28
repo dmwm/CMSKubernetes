@@ -8,7 +8,7 @@
 ### always `latest`.
 
 
-# NOTE: In the help call to the current scrit we only repeat the help and usage
+# NOTE: In the help call to the current script we only repeat the help and usage
 #       information for all the parameters accepted by run.sh.
 help(){
     echo -e $*
@@ -17,7 +17,7 @@ help(){
 The script to be used for running a Couchdb docker container at a VM. The full set of arguments
 passed to the current script are to be forwarded to the Couchdb container entrypoint 'run.sh'
 
-Usage: couchdb-docker-run.sh [-t <team_name>] [-n <agent_number>] [-f <db_flavour>]
+Usage: couchdb-docker-run.sh [-t <couchdb_tag>] [-p] [-h]
 
     -p                Pull the image from registry.cern.ch
     -t <couchdb_tag>  The Couchdb version/tag to be downloaded from registry.cern.ch [Default:latest]
@@ -54,7 +54,7 @@ couchdbUser=cmst1
 couchOpts=" --user $couchdbUser"
 
 # This is the root at the host only, it may differ from the root inside the container.
-# NOTE: this may be parametriesed, so that the container can run on a different mount point.
+# NOTE: this may be parameterized, so that the container can run on a different mount point.
 HOST_MOUNT_DIR=/data/dockerMount
 
 [[ -d $HOST_MOUNT_DIR/certs ]] || mkdir -p $HOST_MOUNT_DIR/certs || exit $?
