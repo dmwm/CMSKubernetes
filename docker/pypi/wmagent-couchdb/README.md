@@ -107,19 +107,7 @@ cmst1@vocms0290:wmagent-couchdb $ docker exec -it couchdb bash
 * Fetching startup logs:
 ```
 cmst1@vocms0265:wmagent-couchdb $ docker logs couchdb
-ME : data
-TOP : /
-ROOT : /
-CFGDIR : /data/srv/couchdb/3.2.2/config
-LOGDIR : /data/srv/couchdb/3.2.2/logs
-STATEDIR : /data/srv/couchdb/3.2.2/state
-KEYFILE : /data/srv/couchdb/auth//hmackey.ini
 
-COUCH_ROOT_DIR : /data
-COUCH_BASE_DIR : /data/srv/couchdb
-COUCH_STATE_DIR : /data/srv/couchdb/3.2.2/state
-COUCH_INSTALL_DIR : /data/srv/couchdb/3.2.2/install
-COUCH_CONFIG_DIR : /data/srv/couchdb/3.2.2/config
 <snip>
 Installing WorkQueue app into database: http://localhost:5984/workqueue
 Installing WorkQueue app into database: http://localhost:5984/workqueue_inbox
@@ -152,6 +140,7 @@ Available actions:
   cleanviews      clean view named ARG
   backup          rsync databases to ARG (i.e. [user@]host:path)
   archive         archive backups to ARG area in castor
+  print-settings  print a basic set of environment variables
 
 For more details please refer to operations page:
   https://twiki.cern.ch/twiki/bin/view/CMS/CouchDB
@@ -161,19 +150,6 @@ For more details please refer to operations page:
 * Start/Stop the database server:
 ```
 (CouchDB-3.2.2) [cmst1@vocms0290:data]$ manage start
-ME : 3.2.2
-TOP : /data
-ROOT : /data/srv
-CFGDIR : /data/srv/couchdb/3.2.2/config
-LOGDIR : /data/srv/couchdb/3.2.2/logs
-STATEDIR : /data/srv/couchdb/3.2.2/state
-KEYFILE : /data/srv/couchdb/auth//hmackey.ini
-
-COUCH_ROOT_DIR : /data
-COUCH_BASE_DIR : /data/srv/couchdb
-COUCH_STATE_DIR : /data/srv/couchdb/3.2.2/state
-COUCH_INSTALL_DIR : /data/srv/couchdb/3.2.2/install
-COUCH_CONFIG_DIR : /data/srv/couchdb/3.2.2/config
 
 Which couchdb: /opt/couchdb/bin/couchdb
   With configuration directory: /data/srv/couchdb/3.2.2/config
@@ -182,11 +158,11 @@ Which couchdb: /opt/couchdb/bin/couchdb
 
 ```
 
+* Printing the basic set of environment variables for the current server:
 
-* Pushing new couch applications:
- 
 ```
-(CouchDB-3.2.2) [cmst1@vocms0265:data]$ manage pushapps
+(CouchDB-3.2.2) [cmst1@vocms0290:data]$ manage print-settings
+
 ME : 3.2.2
 TOP : /data
 ROOT : /data/srv
@@ -200,6 +176,13 @@ COUCH_BASE_DIR : /data/srv/couchdb
 COUCH_STATE_DIR : /data/srv/couchdb/3.2.2/state
 COUCH_INSTALL_DIR : /data/srv/couchdb/3.2.2/install
 COUCH_CONFIG_DIR : /data/srv/couchdb/3.2.2/config
+
+```
+
+* Pushing new couch applications:
+ 
+```
+(CouchDB-3.2.2) [cmst1@vocms0265:data]$ manage pushapps
 
 Installing ACDC app into database: http://localhost:5984/acdcserver
 Installing GroupUser app into database: http://localhost:5984/acdcserver
@@ -238,38 +221,12 @@ Installing WorkQueue app into database: http://localhost:5984/workqueue_inbox
 
 ```
 (CouchDB-3.2.2) [cmst1@vocms0265:data]$ manage pushreps
-ME : 3.2.2
-TOP : /data
-ROOT : /data/srv
-CFGDIR : /data/srv/couchdb/3.2.2/config
-LOGDIR : /data/srv/couchdb/3.2.2/logs
-STATEDIR : /data/srv/couchdb/3.2.2/state
-KEYFILE : /data/srv/couchdb/auth//hmackey.ini
-
-COUCH_ROOT_DIR : /data
-COUCH_BASE_DIR : /data/srv/couchdb
-COUCH_STATE_DIR : /data/srv/couchdb/3.2.2/state
-COUCH_INSTALL_DIR : /data/srv/couchdb/3.2.2/install
-COUCH_CONFIG_DIR : /data/srv/couchdb/3.2.2/config
 ```
 
 * Pulling new applications from WMCore repo
 
 ```
 (CouchDB-3.2.2) [cmst1@vocms0290:data]$ manage updatecouchapps 2.3.0
-ME : 3.2.2
-TOP : /data
-ROOT : /data/srv
-CFGDIR : /data/srv/couchdb/3.2.2/config
-LOGDIR : /data/srv/couchdb/3.2.2/logs
-STATEDIR : /data/srv/couchdb/3.2.2/state
-KEYFILE : /data/srv/couchdb/auth//hmackey.ini
-
-COUCH_ROOT_DIR : /data
-COUCH_BASE_DIR : /data/srv/couchdb
-COUCH_STATE_DIR : /data/srv/couchdb/3.2.2/state
-COUCH_INSTALL_DIR : /data/srv/couchdb/3.2.2/install
-COUCH_CONFIG_DIR : /data/srv/couchdb/3.2.2/config
 
 /data/srv/couchdb/3.2.2/install/stagingarea/tmp /data
 

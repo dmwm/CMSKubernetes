@@ -18,6 +18,7 @@
 ##H   cleanviews      clean view named ARG
 ##H   backup          rsync databases to ARG (i.e. [user@]host:path)
 ##H   archive         archive backups to ARG area in castor
+##H   print-settings  print a basic set of environment variables
 ##H
 ##H For more details please refer to operations page:
 ##H   https://twiki.cern.ch/twiki/bin/view/CMS/CouchDB
