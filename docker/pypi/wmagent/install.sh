@@ -175,6 +175,11 @@ alias scurl='curl -k --cert ${CERT_DIR}/servicecert.pem --key ${CERT_DIR}/servic
 # set WMAgent docker specific bash prompt:
 export PS1="(WMAgent-\$WMA_TAG) [\u@\h:\W]\$ "
 
+unpkl ()
+{
+    python3 -c 'import pickle,sys,pprint;d=pickle.load(open(sys.argv[1],"rb"));print(d);pprint.pprint(d)' "\$1"
+}
+
 source $WMA_ENV_FILE
 EOF
 echo "Done $stepMsg!" && echo
