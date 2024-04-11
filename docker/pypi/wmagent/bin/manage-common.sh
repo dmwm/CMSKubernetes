@@ -386,6 +386,7 @@ _load_wmasecrets(){
     for varName in $varsToLoad
     do
         value=`grep -E "^[[:blank:]]*$varName=" $secretsFile | sed "s/ *$varName=//"`
+        [[ $varName =~ ^RESOURCE_ ]] && declare -g -A $varName
         eval $varName=$value
         [[ -n $varName ]] || { echo "$FUNCNAME: ERROR: Empty value for: $varName=$value"; let errVal+=1 ;}
     done
