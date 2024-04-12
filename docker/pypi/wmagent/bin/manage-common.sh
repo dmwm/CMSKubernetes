@@ -326,17 +326,26 @@ _renew_proxy(){
 
 _parse_wmasecrets(){
     # Auxiliary function to provide basic parsing of the WMAgent.secrets file
-    # :param $1: path to WMAgent.secrets file
+    # :param $1: path to WMAgent.secrets file (Default: $WMA_SECRETS_FILE)
+    # :param $2: a particular valuw to check (Default: *)
     local errVal=0
     local value=""
-    local secretsFile=$1
+    local secretsFile=${1:-$WMA_SECRETS_FILE}
+    local varsToCheck=${2:-""}
+
     # All variables need to be fetched in lowercase through: ${var,,}
     local badValuesReg="(update-me|updateme|<update-me>|<updateme>|fix-me|fixme|<fix-me>|<fixme>|^$)"
-    local varsToCheck=`awk -F\= '{print $1}' $secretsFile | grep -vE "^[[:blank:]]*#.*$"`
+    # local varsToCheck=`awk -F\= '{print $1}' $secretsFile | grep -vE "^[[:blank:]]*#.*$"`
+
+    # Building the list by parsing the secrets file itself.
+    [[ -n $varsToCheck ]] || {
+       varsToCheck=`grep -v "^[[:blank:]]#" $secretsFile  |grep \= | awk -F\= '{print $1}'`
+    }
+
     for var in $varsToCheck
     do
         value=`grep -E "^[[:blank:]]*$var" $secretsFile | awk -F\= '{print $2}'`
-        [[ ${value,,} =~ $badValuesReg ]] && { echo "$FUNCNAME: Bad value for: $var=$value"; let errVal+=1 ;}
+        [[ ${value,,} =~ $badValuesReg ]] && { echo "$FUNCNAME: ERROR: Bad value for: $var=$value"; let errVal+=1 ;}
     done
     return $errVal
 }
@@ -346,150 +355,100 @@ _parse_wmasecrets(){
 # Passwords/Secrets handling
 #
 _load_wmasecrets(){
-    if [ "x$WMA_SECRETS_FILE" == "x" ]; then
-        WMA_SECRETS_FILE=$HOME/WMAgent.secrets;
-    fi
-    if [ ! -e $WMA_SECRETS_FILE ]; then
-        echo "$FUNCNAME: Password file: $WMA_SECRETS_FILE does not exist"
-        echo "$FUNCNAME: Either set WMA_SECRETS_FILE environment variable to a valid file or check that $HOME/WMAgent.secrets exists"
-        return 1;
-    fi
 
-    _parse_wmasecrets $WMA_SECRETS_FILE || { echo "$FUNCNAME: WARNING: Not loading raw or not updated secrets file at $WMA_SECRETS_FILE"; return $(false) ;}
+    # Auxiliary function to parse WMAgent.secrets or MariaDB.secrets files
+    # and load a set of variables from them
+    # :param $1: Path to WMAgent.secrets or file (Default: $WMA_SECRETS_FILE)
+    # :param $2: String with variable names to be checked (Default: *)
+    # :retrun:   Error value if one or more values have been left unset in the secrets file
+    local errVal=0
+    local value=""
+    local secretsFile=${1:-$WMA_SECRETS_FILE}
+    local varsToLoad=${2:-""}
 
-    local MATCH_ORACLE_USER=`cat $WMA_SECRETS_FILE | grep ORACLE_USER | sed s/ORACLE_USER=//`
-    local MATCH_ORACLE_PASS=`cat $WMA_SECRETS_FILE | grep ORACLE_PASS | sed s/ORACLE_PASS=//`
-    local MATCH_ORACLE_TNS=`cat $WMA_SECRETS_FILE | grep ORACLE_TNS | sed s/ORACLE_TNS=//`
-    local MATCH_GRAFANA_TOKEN=`cat $WMA_SECRETS_FILE | grep GRAFANA_TOKEN | sed s/GRAFANA_TOKEN=//`
-    local MATCH_MDB_USER=`cat $WMA_SECRETS_FILE | grep MDB_USER | sed s/MDB_USER=//`
-    local MATCH_MDB_PASS=`cat $WMA_SECRETS_FILE | grep MDB_PASS | sed s/MDB_PASS=//`
-    local MATCH_MDB_HOST=`cat $WMA_SECRETS_FILE | grep MDB_HOST | sed s/MDB_HOST=//`
-    local MATCH_COUCH_USER=`cat $WMA_SECRETS_FILE | grep COUCH_USER | sed s/COUCH_USER=//`
-    local MATCH_COUCH_PASS=`cat $WMA_SECRETS_FILE | grep COUCH_PASS | sed s/COUCH_PASS=//`
-    local MATCH_COUCH_PORT=`cat $WMA_SECRETS_FILE | grep COUCH_PORT | sed s/COUCH_PORT=//`
-    local MATCH_COUCH_HOST=`cat $WMA_SECRETS_FILE | grep COUCH_HOST | sed s/COUCH_HOST=//`
-    local MATCH_COUCH_CERT_FILE=`cat $WMA_SECRETS_FILE | grep COUCH_CERT_FILE | sed s/COUCH_CERT_FILE=//`
-    local MATCH_COUCH_KEY_FILE=`cat $WMA_SECRETS_FILE | grep COUCH_KEY_FILE | sed s/COUCH_KEY_FILE=//`
-    local MATCH_GLOBAL_WORKQUEUE_URL=`cat $WMA_SECRETS_FILE | grep GLOBAL_WORKQUEUE_URL | sed s/GLOBAL_WORKQUEUE_URL=//`
-    local MATCH_LOCAL_WORKQUEUE_DBNAME=`cat $WMA_SECRETS_FILE | grep LOCAL_WORKQUEUE_DBNAME | sed s/LOCAL_WORKQUEUE_DBNAME=//`
-    local MATCH_WORKLOAD_SUMMARY_URL=`cat $WMA_SECRETS_FILE | grep WORKLOAD_SUMMARY_URL | sed s/WORKLOAD_SUMMARY_URL=//`
-    local MATCH_WORKLOAD_SUMMARY_DBNAME=`cat $WMA_SECRETS_FILE | grep WORKLOAD_SUMMARY_DBNAME | sed s/WORKLOAD_SUMMARY_DBNAME=//`
-    local MATCH_WMSTATS_URL=`cat $WMA_SECRETS_FILE | grep WMSTATS_URL | sed s/WMSTATS_URL=//`
-    local MATCH_REQMGR2_URL=`cat $WMA_SECRETS_FILE | grep REQMGR2_URL | sed s/REQMGR2_URL=//`
-    local MATCH_ACDC_URL=`cat $WMA_SECRETS_FILE | grep ACDC_URL | sed s/ACDC_URL=//`
-    local MATCH_DBS3_URL=`cat $WMA_SECRETS_FILE | grep DBS3_URL | sed s/DBS3_URL=//`
-    local MATCH_DQM_URL=`cat $WMA_SECRETS_FILE | grep DQM_URL | sed s/DQM_URL=//`
-    local MATCH_REQUESTCOUCH_URL=`cat $WMA_SECRETS_FILE | grep REQUESTCOUCH_URL | sed s/REQUESTCOUCH_URL=//`
-    local MATCH_CENTRAL_LOGDB_URL=`cat $WMA_SECRETS_FILE | grep CENTRAL_LOGDB_URL | sed s/CENTRAL_LOGDB_URL=//`
-    local MATCH_WMARCHIVE_URL=`cat $WMA_SECRETS_FILE | grep WMARCHIVE_URL | sed s/WMARCHIVE_URL=//`
-    local MATCH_AMQ_CREDENTIALS=`cat $WMA_SECRETS_FILE | grep AMQ_CREDENTIALS | sed s/AMQ_CREDENTIALS=//`
-    local MATCH_RUCIO_HOST=`cat $WMA_SECRETS_FILE | grep RUCIO_HOST | sed s/RUCIO_HOST=//`
-    local MATCH_RUCIO_AUTH=`cat $WMA_SECRETS_FILE | grep RUCIO_AUTH | sed s/RUCIO_AUTH=//`
-    local MATCH_RUCIO_ACCOUNT=`cat $WMA_SECRETS_FILE | grep RUCIO_ACCOUNT | sed s/RUCIO_ACCOUNT=//`
-    local MATCH_TEAMNAME=`cat $WMA_SECRETS_FILE | grep TEAMNAME | sed s/TEAMNAME=//`
-    local MATCH_AGENT_NUMBER=`cat $WMA_SECRETS_FILE | grep AGENT_NUMBER | sed s/AGENT_NUMBER=//`
+    # # Initial parsing of the $WMA_SECRETS_FILE
+    # _parse_wmasecrets $secretsFile || { echo "$FUNCNAME: WARNING: Not loading raw or not updated secrets file at $secretsFile"; return $(false) ;}
 
+    [[ -f $secretsFile ]] || {
+        echo "$FUNCNAME: ERROR: Password file: $secretsFile does not exist"
+        echo "$FUNCNAME: ERROR: Either set WMA_SECRETS_FILE environment variable to a valid file or check that $HOME/WMAgent.secrets exists"
+        return $(false)
+    }
 
-    # database settings (mysql or oracle)
-    if [ "x$MATCH_ORACLE_USER" == "x" ]; then
+    # # All variables need to be fetched in lowercase through: ${varName,,}
+    # local badValuesReg="(update-me|updateme|<update-me>|<updateme>|fix-me|fixme|<fix-me>|<fixme>|^$)"
+
+    # If no list of variables to be loaded was given assume all of them.
+    # Building the list by parsing the secrets file itself.
+    [[ -n $varsToLoad ]] || {
+       varsToLoad=`grep -v "^[[:blank:]]#" $secretsFile  |grep \= | awk -F\= '{print $1}'`
+    }
+
+    # Here we validate every variable for itself before loading it
+    for varName in $varsToLoad
+    do
+        _parse_wmasecrets $secretsFile $varName || {
+            let errVal+=1
+            echo "$FUNCNAME: ERROR: Bad value found for $varName"
+            return $errVal
+        }
+    done
+
+    # Now load them all
+    for varName in $varsToLoad
+    do
+        value=`grep -E "^[[:blank:]]*$varName=" $secretsFile | sed "s/ *$varName=//"`
+        [[ $varName =~ ^RESOURCE_ ]] && declare -g -A $varName
+        eval $varName=$value
+        [[ -n $varName ]] || { echo "$FUNCNAME: ERROR: Empty value for: $varName=$value"; let errVal+=1 ;}
+    done
+
+    # Finaly check and set defaults:
+
+    # Relational database settings (mariaDB or oracle)
+    if [[ -z $ORACLE_USER ]]; then
         AGENT_FLAVOR=mysql
-        MDB_USER=${MATCH_MDB_USER:-$USER};
-        MDB_PASS=${MATCH_MDB_PASS:-$MDB_PASS};
-        MDB_HOST=${MATCH_MDB_HOST:-127.0.0.1};
+        MDB_USER=${MDB_USER:-$USER};
+        MDB_HOST=${MDB_HOST:-127.0.0.1};
     else
         AGENT_FLAVOR=oracle
-        ORACLE_USER=$MATCH_ORACLE_USER;
-        ORACLE_PASS=$MATCH_ORACLE_PASS;
-        ORACLE_TNS=$MATCH_ORACLE_TNS;
-        if [ "x$ORACLE_PASS" == "x" ] || [ "x$ORACLE_TNS" == "x" ]; then
-            echo "$FUNCNAME: Secrets file doesnt contain ORACLE_PASS or ORACLE_TNS";
-            exit 1
+        if [[ -z $ORACLE_PASS ]] || [[ -z $ORACLE_TNS ]]; then
+            echo "$FUNCNAME: ERROR: Secrets file doesnt contain ORACLE_PASS or ORACLE_TNS"; let errVal+=1
         fi
     fi
 
-    GRAFANA_TOKEN=${MATCH_GRAFANA_TOKEN:-$GRAFANA_TOKEN};
-    if [ "x$GRAFANA_TOKEN" == "x" ]; then
-        echo "$FUNCNAME: Secrets file doesnt contain GRAFANA_TOKEN";
-        exit 1
+    if [[  -z $GRAFANA_TOKEN ]]; then
+        echo "$FUNCNAME: ERROR: Secrets file doesnt contain GRAFANA_TOKEN"; let errVal+=1
     fi
 
-    # basic couch settings
-    COUCH_USER=${MATCH_COUCH_USER:-wmagentcouch};
-    COUCH_PASS=${MATCH_COUCH_PASS:-$COUCH_PASS};
-    if [ "x$COUCH_PASS" == "x" ]; then
-        echo "$FUNCNAME: Secrets file doesnt contain COUCH_PASS";
-        exit 1
-    fi
-
-    COUCH_PORT=${MATCH_COUCH_PORT:-$COUCH_PORT};
-    COUCH_HOST=${MATCH_COUCH_HOST:-127.0.0.1};
+    # CouchDB settings
     # if couch ssl certificate not specified check X509_USER_CERT and X509_USER_PROXY
-    COUCH_CERT_FILE=${MATCH_COUCH_CERT_FILE:-${X509_USER_CERT:-$X509_USER_PROXY}};
-
     # if couch ssl key not specified check X509_USER_KEY and X509_USER_PROXY
-    COUCH_KEY_FILE=${MATCH_COUCH_KEY_FILE:-${X509_USER_KEY:-$X509_USER_PROXY}};
+    COUCH_USER=${COUCH_USER:-wmagentcouch};
+    COUCH_HOST=${COUCH_HOST:-127.0.0.1};
+    COUCH_CERT_FILE=${COUCH_CERT_FILE:-${X509_USER_CERT:-$X509_USER_PROXY}};
+    COUCH_KEY_FILE=${COUCH_KEY_FILE:-${X509_USER_KEY:-$X509_USER_PROXY}};
+    if [[ -z $COUCH_PASS ]]; then
+        echo "$FUNCNAME: ERROR: Secrets file doesnt contain COUCH_PASS"; let errVal+=1
+    fi
 
-    GLOBAL_WORKQUEUE_URL=${MATCH_GLOBAL_WORKQUEUE_URL:-$GLOBAL_WORKQUEUE_URL};
-
-    LOCAL_WORKQUEUE_DBNAME=${MATCH_LOCAL_WORKQUEUE_DBNAME:-$LOCAL_WORKQUEUE_DBNAME};
-
-    WORKLOAD_SUMMARY_URL=${MATCH_WORKLOAD_SUMMARY_URL:-$WORKLOAD_SUMMARY_URL};
-
-    WMSTATS_URL=${MATCH_WMSTATS_URL:-$WMSTATS_URL}
-
-    REQMGR2_URL=${MATCH_REQMGR2_URL:-$REQMGR2_URL}
-
-    ACDC_URL=${MATCH_ACDC_URL:-$ACDC_URL}
-
-    DBS3_URL=${MATCH_DBS3_URL:-$DBS3_URL}
-
-    DQM_URL=${MATCH_DQM_URL:-$DQM_URL}
-
-    REQUESTCOUCH_URL=${MATCH_REQUESTCOUCH_URL:-$REQUESTCOUCH_URL}
-
-    CENTRAL_LOGDB_URL=${MATCH_CENTRAL_LOGDB_URL:-$CENTRAL_LOGDB_URL}
-
-    WMARCHIVE_URL=${MATCH_WMARCHIVE_URL:-$WMARCHIVE_URL}
-
-    AMQ_CREDENTIALS=${MATCH_AMQ_CREDENTIALS:-$AMQ_CREDENTIALS}
-    RUCIO_HOST=${MATCH_RUCIO_HOST:-$RUCIO_HOST}
-    RUCIO_AUTH=${MATCH_RUCIO_AUTH:-$RUCIO_AUTH}
-    RUCIO_ACCOUNT=${MATCH_RUCIO_ACCOUNT:-$RUCIO_ACCOUNT}
-    TEAMNAME=${MATCH_TEMANAME:-$TEAMNAME}
-    AGENT_NUMBER=${MATCH_AGENT_NUMBER:-$AGENT_NUMBER}
+    return $errVal
 }
 
 _print_settings(){
+    echo "-------------- WMA_* environment variables: --------------"
     env |grep ^WMA| sort
-    echo "ORACLE_USER=               $ORACLE_USER               "
-    echo "ORACLE_PASS=               $ORACLE_PASS               "
-    echo "ORACLE_TNS=                $ORACLE_TNS                "
-    echo "GRAFANA_TOKEN=             $GRAFANA_TOKEN             "
-    echo "MDB_USER=                  $MDB_USER                  "
-    echo "MDB_PASS=                  $MDB_PASS                  "
-    echo "MDB_HOST=                  $MDB_HOST                  "
-    echo "COUCH_USER=                $COUCH_USER                "
-    echo "COUCH_PASS=                $COUCH_PASS                "
-    echo "COUCH_PORT=                $COUCH_PORT                "
-    echo "COUCH_HOST=                $COUCH_HOST                "
-    echo "COUCH_CERT_FILE=           $COUCH_CERT_FILE           "
-    echo "COUCH_KEY_FILE=            $COUCH_KEY_FILE            "
-    echo "GLOBAL_WORKQUEUE_URL=      $GLOBAL_WORKQUEUE_URL      "
-    echo "LOCAL_WORKQUEUE_DBNAME=    $LOCAL_WORKQUEUE_DBNAME    "
-    echo "WORKLOAD_SUMMARY_URL=      $WORKLOAD_SUMMARY_URL      "
-    echo "WORKLOAD_SUMMARY_DBNAME=   $WORKLOAD_SUMMARY_DBNAME   "
-    echo "WMSTATS_URL=               $WMSTATS_URL               "
-    echo "REQMGR2_URL=               $REQMGR2_URL               "
-    echo "ACDC_URL=                  $ACDC_URL                  "
-    echo "DBS3_URL=                  $DBS3_URL                  "
-    echo "DQM_URL=                   $DQM_URL                   "
-    echo "REQUESTCOUCH_URL=          $REQUESTCOUCH_URL          "
-    echo "CENTRAL_LOGDB_URL=         $CENTRAL_LOGDB_URL         "
-    echo "WMARCHIVE_URL=             $WMARCHIVE_URL             "
-    echo "AMQ_CREDENTIALS=           $AMQ_CREDENTIALS           "
-    echo "RUCIO_HOST=                $RUCIO_HOST                "
-    echo "RUCIO_AUTH=                $RUCIO_AUTH                "
-    echo "RUCIO_ACCOUNT=             $RUCIO_ACCOUNT             "
-    echo "TEAMNAME=                  $TEAMNAME                  "
-    echo "AGENT_NUMBER=              $AGENT_NUMBER              "
+
+    echo "-------------- WMA_SECRETS_FILE  variables: --------------"
+    varsToPrint=`grep -v "^[[:blank:]]#" $WMA_SECRETS_FILE  |grep \= | awk -F\= '{print $1}'`
+
+    for varName in $varsToPrint
+    do
+        if [[ $varName =~ ^RESOURCE_ ]]; then
+            declare -p $varName
+        else
+            echo $varName=${!varName}
+        fi
+    done
+    echo "---------------------------------------------------------"
 }
