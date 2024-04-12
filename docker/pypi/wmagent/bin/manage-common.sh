@@ -20,8 +20,10 @@ wmaInitSqlDB=$WMA_CONFIG_DIR/.initSqlDB                     # set once the metad
 wmaInitCouchDB=$WMA_CONFIG_DIR/.initCouchDB                 # set immediately after agent initialization
 wmaInitConfig=$WMA_CONFIG_DIR/.initConfig                   # set upon final WMAgent config file tweaks have been applied
 wmaInitResourceControl=$WMA_CONFIG_DIR/.initResourceControl # set once the resource control of the agent has been populated
+wmaInitResourceOpp=$WMA_CONFIG_DIR/.initResourceOpp         # set once the resource control of the agent has been populated for opportunistic resources
 wmaInitUpload=$WMA_CONFIG_DIR/.initUpload                   # set once the agent config has been uploaded to central CouchDB
 wmaInitUsing=$WMA_CONFIG_DIR/.initUsing                     # Final init flag to mark that the agent is fully activated, initialized, and already in use by the system
+
 
 # Setting database name and schema dump location.
 wmaSchemaFile=$WMA_CONFIG_DIR/.wmaSchemaFile.sql
