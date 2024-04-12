@@ -404,7 +404,6 @@ agent_resource_control() {
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
     if _init_valid $wmaInitResourceControl && \
-       _init_valid $wmaInitResourceOpp && \
        _init_valid $wmaInitSqlDB
     then
         echo "$FUNCNAME: Agent Resource control has been populated already."
@@ -420,19 +419,6 @@ agent_resource_control() {
         else
             echo "$FUNCNAME: Adding ALL sites to resource-control..."
             manage execute-agent wmagent-resource-control --add-all-sites --plugin=SimpleCondorPlugin --pending-slots=50 --running-slots=50 --down ; let errVal+=$?
-            for site in ${!RESOURCE_*}
-            do 
-                siteName = ${!site[name]}
-                if [[ $siteName =~ .*_US_.* ]] && [[ $HOSTNAME =~ .*cern\.ch ]]; then
-                    continue
-                else
-                    HPC_RUNN_JOB = ${!site[run]}
-                    HPC_PEND_JOBS = ${!site[pend]}
-                    HPC_STATE = ${!site[state]}
-                    manage execute-agent wmagent-resource-control --plugin=SimpleCondorPlugin --opportunistic --pending-slots=$HPC_PEND_JOBS --running-slots=$HPC_RUNN_JOBS --add-one-site $siteName ; let errVal+=$?
-            done
-            [[ $errVal -eq 0 ]] || { echo "ERROR: Failed to populate WMAgent's resource control for opportunistic resources!"; return $(false) ;}
-            echo $WMA_BUILD_ID > $wmaInitResourceOpp
         fi
         [[ $errVal -eq 0 ]] || { echo "ERROR: Failed to populate WMAgent's resource control!"; return $(false) ;}
         echo $WMA_BUILD_ID > $wmaInitResourceControl
@@ -440,6 +426,39 @@ agent_resource_control() {
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
 }
+
+agent_resource_opp() {
+    local stepMsg="Performing $FUNCNAME"
+    echo "-------------------------------------------------------"
+    echo "Start: $stepMsg"
+    if _init_valid $wmaInitResourceOpp && \
+       _init_valid $wmaInitSqlDB
+    then
+        echo "$FUNCNAME: Agent Opportunistic Resource control has been populated already."
+    else
+        echo "$FUNCNAME: triggered."
+        local errVal=0
+        ### Populating opportunistic resource-control
+        echo "$FUNCNAME: Populating opportunistic resource-control"
+        for res in ${!RESOURCE_*}
+        do
+            eval `declare -p $res | sed -e "s/$res/site/g"`
+            if [[ ${site[name]} =~ .*_US_.* ]] && [[ $HOSTNAME =~ .*cern\.ch ]]; then
+                echo "I am based at CERN, so I cannot use US opportunistic resources, moving to the next site"
+                continue
+            else
+                manage execute-agent wmagent-resource-control --plugin=SimpleCondorPlugin --opportunistic --pending-slots=${site[pend]} --running-slots=${site[run]} --add-one-site=${site[name]} ; let errVal+=$?
+            fi
+        done
+        [[ $errVal -eq 0 ]] || { echo "ERROR: Failed to populate WMAgent's opportunistic resource control!"; return $(false) ;}
+        echo $WMA_BUILD_ID > $wmaInitResourceOpp
+    fi
+
+    echo "Done: $stepMsg"
+    echo "-------------------------------------------------------"
+}
+
+
 
 agent_upload_config(){
     # A function to be used for uploading WMAgentConfig to AuxDB at Central CouchDB
@@ -498,6 +517,7 @@ main(){
         (init_agent)             || { err=$?; echo "ERROR: init_agent"; exit $err ;}
         (agent_tweakconfig)      || { err=$?; echo "ERROR: agent_tweakconfig"; exit $err ;}
         (agent_resource_control) || { err=$?; echo "ERROR: agent_resource_control"; exit $err ;}
+        (agent_resource_opp)     || { err=$?; echo "ERROR: agent_resource_opp"; exit $err ;}
         (agent_upload_config)    || { err=$?; echo "ERROR: agent_upload_config"; exit $err ;}
         echo $WMA_BUILD_ID > $wmaInitUsing
         (check_docker_init)      || { err=$?; echo "ERROR: DockerBuild vs. HostConfiguration version missmatch"; exit $err ; }
