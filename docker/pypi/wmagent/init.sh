@@ -417,6 +417,16 @@ agent_resource_control() {
         else
             echo "$FUNCNAME: Adding ALL sites to resource-control..."
             manage execute-agent wmagent-resource-control --add-all-sites --plugin=SimpleCondorPlugin --pending-slots=50 --running-slots=50 --down ; let errVal+=$?
+            for site in ${!RESOURCES_*}
+            do 
+                if [[(site == *_US_*) && !("$HOSTNAME" == *fnal.gov)]]; then
+                    continue
+                else
+                    siteName=${site#RESOURCES_}
+                    siteResources=${!site}
+                    read HPC_RUNN_JOBS HPC_PEND_JOBS <<< "$siteResources"
+                    ./manage execute-agent wmagent-resource-control --plugin=SimpleCondorPlugin --opportunistic --pending-slots=$HPC_PEND_JOBS --running-slots=$HPC_RUNN_JOBS --add-one-site $siteName
+            done
         fi
         [[ $errVal -eq 0 ]] || { echo "ERROR: Failed to populate WMAgent's resource control!"; return $(false) ;}
         echo $WMA_BUILD_ID > $wmaInitResourceControl
