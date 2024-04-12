@@ -326,17 +326,26 @@ _renew_proxy(){
 
 _parse_wmasecrets(){
     # Auxiliary function to provide basic parsing of the WMAgent.secrets file
-    # :param $1: path to WMAgent.secrets file
+    # :param $1: path to WMAgent.secrets file (Default: $WMA_SECRETS_FILE)
+    # :param $2: a particular valuw to check (Default: *)
     local errVal=0
     local value=""
-    local secretsFile=$1
+    local secretsFile=${1:-$WMA_SECRETS_FILE}
+    local varsToCheck=${2:-""}
+
     # All variables need to be fetched in lowercase through: ${var,,}
     local badValuesReg="(update-me|updateme|<update-me>|<updateme>|fix-me|fixme|<fix-me>|<fixme>|^$)"
-    local varsToCheck=`awk -F\= '{print $1}' $secretsFile | grep -vE "^[[:blank:]]*#.*$"`
+    # local varsToCheck=`awk -F\= '{print $1}' $secretsFile | grep -vE "^[[:blank:]]*#.*$"`
+
+    # Building the list by parsing the secrets file itself.
+    [[ -n $varsToCheck ]] || {
+       varsToCheck=`grep -v "^[[:blank:]]#" $secretsFile  |grep \= | awk -F\= '{print $1}'`
+    }
+
     for var in $varsToCheck
     do
         value=`grep -E "^[[:blank:]]*$var" $secretsFile | awk -F\= '{print $2}'`
-        [[ ${value,,} =~ $badValuesReg ]] && { echo "$FUNCNAME: Bad value for: $var=$value"; let errVal+=1 ;}
+        [[ ${value,,} =~ $badValuesReg ]] && { echo "$FUNCNAME: ERROR: Bad value for: $var=$value"; let errVal+=1 ;}
     done
     return $errVal
 }
@@ -357,8 +366,8 @@ _load_wmasecrets(){
     local secretsFile=${1:-$WMA_SECRETS_FILE}
     local varsToLoad=${2:-""}
 
-    # Initial parsing of the $WMA_SECRETS_FILE
-    _parse_wmasecrets $secretsFile || { echo "$FUNCNAME: WARNING: Not loading raw or not updated secrets file at $secretsFile"; return $(false) ;}
+    # # Initial parsing of the $WMA_SECRETS_FILE
+    # _parse_wmasecrets $secretsFile || { echo "$FUNCNAME: WARNING: Not loading raw or not updated secrets file at $secretsFile"; return $(false) ;}
 
     [[ -f $secretsFile ]] || {
         echo "$FUNCNAME: ERROR: Password file: $secretsFile does not exist"
@@ -366,8 +375,8 @@ _load_wmasecrets(){
         return $(false)
     }
 
-    # All variables need to be fetched in lowercase through: ${varName,,}
-    local badValuesReg="(update-me|updateme|<update-me>|<updateme>|fix-me|fixme|<fix-me>|<fixme>|^$)"
+    # # All variables need to be fetched in lowercase through: ${varName,,}
+    # local badValuesReg="(update-me|updateme|<update-me>|<updateme>|fix-me|fixme|<fix-me>|<fixme>|^$)"
 
     # If no list of variables to be loaded was given assume all of them.
     # Building the list by parsing the secrets file itself.
@@ -378,8 +387,11 @@ _load_wmasecrets(){
     # Here we validate every variable for itself before loading it
     for varName in $varsToLoad
     do
-        value=`grep -E "^[[:blank:]]*$varName=" $secretsFile | awk -F\= '{print $2}'`
-        [[ ${value,,} =~ $badValuesReg ]] && { echo "$FUNCNAME: ERROR: Bad value for: $varName=$value"; let errVal+=1 ;}
+        _parse_wmasecrets $secretsFile $varName || {
+            let errVal+=1
+            echo "$FUNCNAME: ERROR: Bad value found for $varName"
+            return $errVal
+        }
     done
 
     # Now load them all
@@ -424,37 +436,19 @@ _load_wmasecrets(){
 }
 
 _print_settings(){
+    echo "-------------- WMA_* environment variables: --------------"
     env |grep ^WMA| sort
-    echo "ORACLE_USER=               $ORACLE_USER               "
-    echo "ORACLE_PASS=               $ORACLE_PASS               "
-    echo "ORACLE_TNS=                $ORACLE_TNS                "
-    echo "GRAFANA_TOKEN=             $GRAFANA_TOKEN             "
-    echo "MDB_USER=                  $MDB_USER                  "
-    echo "MDB_PASS=                  $MDB_PASS                  "
-    echo "MDB_HOST=                  $MDB_HOST                  "
-    echo "COUCH_USER=                $COUCH_USER                "
-    echo "COUCH_PASS=                $COUCH_PASS                "
-    echo "COUCH_PORT=                $COUCH_PORT                "
-    echo "COUCH_HOST=                $COUCH_HOST                "
-    echo "COUCH_CERT_FILE=           $COUCH_CERT_FILE           "
-    echo "COUCH_KEY_FILE=            $COUCH_KEY_FILE            "
-    echo "GLOBAL_WORKQUEUE_URL=      $GLOBAL_WORKQUEUE_URL      "
-    echo "LOCAL_WORKQUEUE_DBNAME=    $LOCAL_WORKQUEUE_DBNAME    "
-    echo "WORKLOAD_SUMMARY_URL=      $WORKLOAD_SUMMARY_URL      "
-    echo "WORKLOAD_SUMMARY_DBNAME=   $WORKLOAD_SUMMARY_DBNAME   "
-    echo "WMSTATS_URL=               $WMSTATS_URL               "
-    echo "REQMGR2_URL=               $REQMGR2_URL               "
-    echo "ACDC_URL=                  $ACDC_URL                  "
-    echo "DBS3_URL=                  $DBS3_URL                  "
-    echo "DQM_URL=                   $DQM_URL                   "
-    echo "REQUESTCOUCH_URL=          $REQUESTCOUCH_URL          "
-    echo "CENTRAL_LOGDB_URL=         $CENTRAL_LOGDB_URL         "
-    echo "WMARCHIVE_URL=             $WMARCHIVE_URL             "
-    echo "AMQ_CREDENTIALS=           $AMQ_CREDENTIALS           "
-    echo "RUCIO_HOST=                $RUCIO_HOST                "
-    echo "RUCIO_AUTH=                $RUCIO_AUTH                "
-    echo "RUCIO_ACCOUNT=             $RUCIO_ACCOUNT             "
-    echo "TEAMNAME=                  $TEAMNAME                  "
-    echo "AGENT_NUMBER=              $AGENT_NUMBER              "
-    echo "AGENT_FLAVOR=              $AGENT_FLAVOR              "
+
+    echo "-------------- WMA_SECRETS_FILE  variables: --------------"
+    varsToPrint=`grep -v "^[[:blank:]]#" $WMA_SECRETS_FILE  |grep \= | awk -F\= '{print $1}'`
+
+    for varName in $varsToPrint
+    do
+        if [[ $varName =~ ^RESOURCE_ ]]; then
+            declare -p $varName
+        else
+            echo $varName=${!varName}
+        fi
+    done
+    echo "---------------------------------------------------------"
 }
