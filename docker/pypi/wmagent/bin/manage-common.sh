@@ -368,17 +368,11 @@ _load_wmasecrets(){
     local secretsFile=${1:-$WMA_SECRETS_FILE}
     local varsToLoad=${2:-""}
 
-    # # Initial parsing of the $WMA_SECRETS_FILE
-    # _parse_wmasecrets $secretsFile || { echo "$FUNCNAME: WARNING: Not loading raw or not updated secrets file at $secretsFile"; return $(false) ;}
-
     [[ -f $secretsFile ]] || {
         echo "$FUNCNAME: ERROR: Password file: $secretsFile does not exist"
         echo "$FUNCNAME: ERROR: Either set WMA_SECRETS_FILE environment variable to a valid file or check that $HOME/WMAgent.secrets exists"
         return $(false)
     }
-
-    # # All variables need to be fetched in lowercase through: ${varName,,}
-    # local badValuesReg="(update-me|updateme|<update-me>|<updateme>|fix-me|fixme|<fix-me>|<fixme>|^$)"
 
     # If no list of variables to be loaded was given assume all of them.
     # Building the list by parsing the secrets file itself.
