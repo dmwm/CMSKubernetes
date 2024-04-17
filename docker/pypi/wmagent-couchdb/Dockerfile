@@ -68,6 +68,17 @@ alias manage=$COUCH_MANAGE_DIR/manage
 export PS1="(CouchDB-$TAG) [\u@\h:\W]\$ "
 EOF
 
+# set CouchDB docker specific bash prompt and manage alias for all users:
+RUN <<EOF cat >>/root/.bashrc
+alias manage=$COUCH_MANAGE_DIR/manage
+export PS1="(CouchDB-$TAG) [\u@\h:\W]\$([[ \$(id -u) -eq 0 ]] && echo \# || echo \$) "
+EOF
+
+RUN <<EOF cat >> ~/.bashrc
+alias manage=$COUCH_MANAGE_DIR/manage
+export PS1="(CouchDB-$TAG) [\u@\h:\W]\$([[ \$(id -u) -eq 0 ]] && echo \# || echo \$) "
+EOF
+
 # setup final environment
 WORKDIR $COUCH_ROOT_DIR
 ENTRYPOINT ["./run.sh"]
