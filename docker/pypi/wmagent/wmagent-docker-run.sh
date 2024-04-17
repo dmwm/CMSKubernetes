@@ -72,6 +72,11 @@ dockerOpts=" \
 --detach
 --network=host \
 --rm \
+--user $UID:$GID \
+--volume='/etc/group:/etc/group:ro' \
+--volume='/etc/passwd:/etc/passwd:ro' \
+--volume='/etc/shadow:/etc/shadow:ro' \
+--volume='/etc/sudoers:/etc/sudoers:ro' \
 --hostname=`hostname -f` \
 --name=wmagent \
 $tnsMount
