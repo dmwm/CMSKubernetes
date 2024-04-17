@@ -428,6 +428,10 @@ agent_resource_control() {
 }
 
 agent_resource_opp() {
+    ## In this function, the list of available opportunistic resources is added to the resource control
+    ## This is done fetching the env variables starting with RESOURCE_
+    ## that are associative arrays defined in WMAgent.secrets with the following schema:
+    ## RESOURCE_OPP<number>=([name]=<name of the site> [run]=<total number of available running slots> [pend]=<total number of available pending slots> [state]=<status of the site>)
     local stepMsg="Performing $FUNCNAME"
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
@@ -438,10 +442,12 @@ agent_resource_opp() {
     else
         echo "$FUNCNAME: triggered."
         local errVal=0
-        ### Populating opportunistic resource-control
+        ## Populating opportunistic resource-control
         echo "$FUNCNAME: Populating opportunistic resource-control"
+        ## Loop over the env variables starting with RESOURCE_*
         for res in ${!RESOURCE_*}
         do
+            ## Parsing of the information stored in RESOURCE_* env variable, according to the schema reported above
             eval `declare -p $res | sed -e "s/$res/site/g"`
             if [[ ${site[name]} =~ .*_US_.* ]] && [[ $HOSTNAME =~ .*cern\.ch ]]; then
                 echo "I am based at CERN, so I cannot use US opportunistic resources, moving to the next site"

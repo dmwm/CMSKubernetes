@@ -329,7 +329,7 @@ _renew_proxy(){
 _parse_wmasecrets(){
     # Auxiliary function to provide basic parsing of the WMAgent.secrets file
     # :param $1: path to WMAgent.secrets file (Default: $WMA_SECRETS_FILE)
-    # :param $2: a particular valuw to check (Default: *)
+    # :param $2: a particular value to check (Default: *)
     local errVal=0
     local value=""
     local secretsFile=${1:-$WMA_SECRETS_FILE}
@@ -362,14 +362,14 @@ _load_wmasecrets(){
     # and load a set of variables from them
     # :param $1: Path to WMAgent.secrets or file (Default: $WMA_SECRETS_FILE)
     # :param $2: String with variable names to be checked (Default: *)
-    # :retrun:   Error value if one or more values have been left unset in the secrets file
+    # :return:   Error value if one or more values have been left unset in the secrets file
     local errVal=0
     local value=""
     local secretsFile=${1:-$WMA_SECRETS_FILE}
     local varsToLoad=${2:-""}
 
     [[ -f $secretsFile ]] || {
-        echo "$FUNCNAME: ERROR: Password file: $secretsFile does not exist"
+        echo "$FUNCNAME: ERROR: Secrets file $secretsFile does not exist"
         echo "$FUNCNAME: ERROR: Either set WMA_SECRETS_FILE environment variable to a valid file or check that $HOME/WMAgent.secrets exists"
         return $(false)
     }
