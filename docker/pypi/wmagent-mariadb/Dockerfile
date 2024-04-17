@@ -54,7 +54,7 @@ alias manage=$MDB_MANAGE_DIR/manage
 export PS1="(MariaDB-$MDB_TAG) [\u@\h:\W]\$([[ \$(id -u) -eq 0 ]] && echo \# || echo \$) "
 EOF
 
-RUN <<EOF cat >>/home/cmst1/.bashrc
+RUN <<EOF cat >> ~/.bashrc
 alias manage=$MDB_MANAGE_DIR/manage
 export PS1="(MariaDB-$MDB_TAG) [\u@\h:\W]\$([[ \$(id -u) -eq 0 ]] && echo \# || echo \$) "
 EOF

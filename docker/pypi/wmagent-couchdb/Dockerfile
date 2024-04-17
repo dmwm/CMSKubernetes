@@ -56,8 +56,7 @@ RUN ln -s ${COUCH_CONFIG_DIR}/local.ini /opt/couchdb/etc/local.d/
 ENV PATH="/opt/couchdb/bin:/usr/local/bin/:${PATH}"
 ENV CRYPTOGRAPHY_ALLOW_OPENSSL_102=true
 
-# RUN <<EOF cat >> /opt/couchdb/.bashrc
-RUN <<EOF cat >> $HOME/.bashrc
+RUN <<EOF cat >> ~/.bashrc
 
 alias lll="ls -lathr"
 alias ls="ls --color=auto"

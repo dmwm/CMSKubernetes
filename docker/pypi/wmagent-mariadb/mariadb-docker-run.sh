@@ -74,6 +74,8 @@ dockerOpts="
 --volume='/etc/passwd:/etc/passwd:ro' \
 --volume='/etc/shadow:/etc/shadow:ro' \
 --volume='/etc/sudoers:/etc/sudoers:ro' \
+--volume='/etc/sudoers.d:/etc/sudoers.d:ro' \
+--volume='/etc/profile:/etc/profile:ro'
 --hostname=`hostname -f` \
 --name=mariadb \
 --mount type=bind,source=/tmp,target=/tmp \
