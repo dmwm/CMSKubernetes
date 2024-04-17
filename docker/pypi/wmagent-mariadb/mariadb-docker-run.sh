@@ -84,6 +84,12 @@ dockerOpts="
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/logs,target=/data/srv/mariadb/current/logs \
 --mount type=bind,source=$HOST_MOUNT_DIR/admin/mariadb,target=/data/admin/mariadb/ \
 --mount type=bind,source=$HOST_MOUNT_DIR/admin/wmagent,target=/data/admin/wmagent/ \
+--mount type=bind,source=/etc/group,target=/etc/group,readonly \
+--mount type=bind,source=/etc/passwd,target=/etc/passwd,readonly \
+--mount type=bind,source=/etc/shadow,target=/etc/shadow,readonly \
+--mount type=bind,source=/etc/sudoers,target=/etc/sudoers,readonly \
+--mount type=bind,source=/etc/sudoers.d,target=/etc/sudoers.d,readonly \
+--mount type=bind,source=/etc/profile,target=/etc/profile,readonly \
 "
 
 # --mount type=bind,source=$HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/config,target=/data/srv/mariadb/current/config \
