@@ -191,7 +191,6 @@ check_wmasecrets(){
         rm -f $wmaInitAdmin
         rm -f $wmaInitConfig
         rm -f $wmaInitRucio
-        rm -f $wmaInitResourceOpp
         echo "$FUNCNAME: WARNING: NOT cleaning SQL and Couch databases. If you are aware the change in WMAgent.secrets file"
         echo "$FUNCNAME: WARNING: is to affect them, please consider executing 'manage clean-agent' and restart the agent."
         # rm -f $wmaInitCouchDB
