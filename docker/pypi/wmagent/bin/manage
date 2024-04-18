@@ -103,7 +103,7 @@ db_prompt(){
 #  Agent stuff               #
 ##############################
 
-# generate the agent config from the basic template
+# generate the WMAgent config from the basic template
 init_wmagent(){
 
     case $AGENT_FLAVOR in
@@ -157,10 +157,64 @@ init_wmagent(){
 }
 
 
+##############################
+#  Tier0 stuff               #
+##############################
+
+
+# generate the tier0 config from the basic template
+init_tier0(){
+    local errVal=0
+    wmagent-mod-config --input=$CONFIG_TIER0/config-template.py \
+                       # --output=$CONFIG_TIER0/config-agent.py \
+                       --output=$CONFIG_TIER0/config.py \
+                       --coredb_url=oracle://$ORACLE_USER:$ORACLE_PASS@$ORACLE_TNS \
+                       --working_dir=$INSTALL_TIER0 \
+                       --couch_url=http://$COUCH_USER:$COUCH_PASS@$COUCH_HOST_NAME:$COUCH_PORT \
+                       --workqueue_db_name=$LOCAL_WORKQUEUE_DBNAME \
+                       --workload_summary_url=$WORKLOAD_SUMMARY_URL \
+                       --grafana_token=$GRAFANA_TOKEN \
+                       --wmstats_url=$WMSTATS_URL \
+                       --dbs3_url=$DBS3_URL \
+                       --dqm_url=$DQM_URL \
+                       --requestcouch_url=$REQUESTCOUCH_URL \
+                       --central_logdb_url=$CENTRAL_LOGDB_URL \
+                       --wmarchive_url=$WMARCHIVE_URL \
+                       --amq_credentials=$AMQ_CREDENTIALS \
+	                   --rucio_account=$RUCIO_ACCOUNT \
+	                   --rucio_host=$RUCIO_HOST \
+	                   --rucio_auth=$RUCIO_AUTH
+    let errVal+=$?
+
+    optargs=""
+    [[ -n $CONFDB_URL ]]      && optargs="$optargs --confdb_url=$CONFDB_URL"
+    [[ -n $SMDB_URL ]]        && optargs="$optargs --smdb_url=$SMDB_URL"
+    [[ -n $POPCONLOGDB_URL ]] && optargs="$optargs --popconlogdb_url=$POPCONLOGDB_URL"
+    [[ -n $T0DATASVCDB_URL ]  && optargs="$optargs --t0datasvcdb_url=$T0DATASVCDB_URL"
+    [[ -n $SMNOTIFYDB_URL ]]  && optargs="$optargs --smnotifydb_url=$SMNOTIFYDB_URL"
+
+    tier0-mod-config --input=$CONFIG_TIER0/config-agent.py \
+	                 --output=$CONFIG_TIER0/config.py \
+                     $optargs
+    let errVal+=$?
+
+    wmcore-db-init --config $CONFIG_TIER0/config.py --create --modules=WMCore.WMBS,WMCore.Agent.Database,WMComponent.DBS3Buffer,WMCore.BossAir,WMCore.ResourceControl,T0.WMBS;
+    let errVal+=$?
+    export WMAGENT_CONFIG=$CONFIG_TIER0/config.py
+    wmagent-couchapp-init;
+    let errVal+=$?
+    unset WMAGENT_CONFIG
+}
+
+
 init_agent(){
     if _init_valid $wmaInitActive ; then
         echo "Initialising Agent..."
-        init_wmagent
+        if [[ "$TEAMNAME" == Tier0* ]]; then
+            init_tier0
+        else
+            init_wmagent
+        fi
     else
         echo "ERROR: This agent has not been activated yet. Cannot proceed."
         return $(false)
