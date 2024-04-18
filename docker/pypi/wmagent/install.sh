@@ -176,6 +176,7 @@ alias scurl='curl -k --cert ${CERT_DIR}/servicecert.pem --key ${CERT_DIR}/servic
 export PS1="(WMAgent-\$WMA_TAG) [\u@\h:\W]\$ "
 
 source $WMA_ENV_FILE
+source $WMA_DEPLOY_DIR/bin/manage-common.sh
 EOF
 echo "Done $stepMsg!" && echo
 echo "-----------------------------------------------------------------------"

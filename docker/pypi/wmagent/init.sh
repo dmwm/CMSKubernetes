@@ -293,6 +293,7 @@ check_docker_init() {
         $wmaInitConfig
         $wmaInitUpload
         $wmaInitResourceControl
+        $wmaInitResourceOpp
         $wmaInitCouchDB
         $wmaInitSqlDB
         $wmaInitRucio
@@ -425,6 +426,45 @@ agent_resource_control() {
     echo "-------------------------------------------------------"
 }
 
+agent_resource_opp() {
+    ## In this function, the list of available opportunistic resources is added to the resource control
+    ## This is done fetching the env variables starting with RESOURCE_
+    ## that are associative arrays defined in WMAgent.secrets with the following schema:
+    ## RESOURCE_OPP<number>=([name]=<name of the site> [run]=<total number of available running slots> [pend]=<total number of available pending slots> [state]=<status of the site>)
+    local stepMsg="Performing $FUNCNAME"
+    echo "-------------------------------------------------------"
+    echo "Start: $stepMsg"
+    if _init_valid $wmaInitResourceOpp && \
+       _init_valid $wmaInitSqlDB
+    then
+        echo "$FUNCNAME: Agent Opportunistic Resource control has been populated already."
+    else
+        echo "$FUNCNAME: triggered."
+        local errVal=0
+        ## Populating opportunistic resource-control
+        echo "$FUNCNAME: Populating opportunistic resource-control"
+        ## Loop over the env variables starting with RESOURCE_*
+        for res in ${!RESOURCE_*}
+        do
+            ## Parsing of the information stored in RESOURCE_* env variable, according to the schema reported above
+            eval `declare -p $res | sed -e "s/$res/site/g"`
+            if [[ ${site[name]} =~ .*_US_.* ]] && [[ $HOSTNAME =~ .*cern\.ch ]]; then
+                echo "I am based at CERN, so I cannot use US opportunistic resources, moving to the next site"
+                continue
+            else
+                manage execute-agent wmagent-resource-control --plugin=SimpleCondorPlugin --opportunistic --pending-slots=${site[pend]} --running-slots=${site[run]} --add-one-site=${site[name]} ; let errVal+=$?
+            fi
+        done
+        [[ $errVal -eq 0 ]] || { echo "ERROR: Failed to populate WMAgent's opportunistic resource control!"; return $(false) ;}
+        echo $WMA_BUILD_ID > $wmaInitResourceOpp
+    fi
+
+    echo "Done: $stepMsg"
+    echo "-------------------------------------------------------"
+}
+
+
+
 agent_upload_config(){
     # A function to be used for uploading WMAgentConfig to AuxDB at Central CouchDB
     # NOTE: The final config/.dockerInit is to be set here after full agent initialisation.
@@ -482,6 +522,7 @@ main(){
         (init_agent)             || { err=$?; echo "ERROR: init_agent"; exit $err ;}
         (agent_tweakconfig)      || { err=$?; echo "ERROR: agent_tweakconfig"; exit $err ;}
         (agent_resource_control) || { err=$?; echo "ERROR: agent_resource_control"; exit $err ;}
+        (agent_resource_opp)     || { err=$?; echo "ERROR: agent_resource_opp"; exit $err ;}
         (agent_upload_config)    || { err=$?; echo "ERROR: agent_upload_config"; exit $err ;}
         echo $WMA_BUILD_ID > $wmaInitUsing
         (check_docker_init)      || { err=$?; echo "ERROR: DockerBuild vs. HostConfiguration version missmatch"; exit $err ; }
