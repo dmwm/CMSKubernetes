@@ -384,7 +384,7 @@ agent_tweakconfig() {
         # make this a docker agent
         sed -i "s+Agent.isDocker = False+Agent.isDocker = True+" $WMA_CONFIG_DIR/config.py
         # update the location of submit.sh for docker
-        sed -i "s+config.JobSubmitter.submitScript.*+config.JobSubmitter.submitScript = '$WMA_CONFIG_DIR/etc/submit.sh'+" $WMA_CONFIG_DIR/config.py
+        sed -i "s+config.JobSubmitter.submitScript.*+config.JobSubmitter.submitScript = '$WMA_CONFIG_DIR/etc/submit_py3.sh'+" $WMA_CONFIG_DIR/config.py
         # replace all tags with current
         sed -i "s+$WMA_TAG+current+" $WMA_CONFIG_DIR/config.py
 
