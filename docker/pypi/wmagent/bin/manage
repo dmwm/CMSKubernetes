@@ -167,7 +167,7 @@ init_tier0(){
     local errVal=0
     wmagent-mod-config --input=$CONFIG_TIER0/config-template.py \
                        # --output=$CONFIG_TIER0/config-agent.py \
-                       --output=$CONFIG_TIER0/config.py \
+                       --output=$WMA_CONFIG_DIR/config-agent.py \
                        --coredb_url=oracle://$ORACLE_USER:$ORACLE_PASS@$ORACLE_TNS \
                        --working_dir=$INSTALL_TIER0 \
                        --couch_url=http://$COUCH_USER:$COUCH_PASS@$COUCH_HOST_NAME:$COUCH_PORT \
@@ -190,11 +190,11 @@ init_tier0(){
     [[ -n $CONFDB_URL ]]      && optargs="$optargs --confdb_url=$CONFDB_URL"
     [[ -n $SMDB_URL ]]        && optargs="$optargs --smdb_url=$SMDB_URL"
     [[ -n $POPCONLOGDB_URL ]] && optargs="$optargs --popconlogdb_url=$POPCONLOGDB_URL"
-    [[ -n $T0DATASVCDB_URL ]  && optargs="$optargs --t0datasvcdb_url=$T0DATASVCDB_URL"
+    [[ -n $T0DATASVCDB_URL ]] && optargs="$optargs --t0datasvcdb_url=$T0DATASVCDB_URL"
     [[ -n $SMNOTIFYDB_URL ]]  && optargs="$optargs --smnotifydb_url=$SMNOTIFYDB_URL"
 
-    tier0-mod-config --input=$CONFIG_TIER0/config-agent.py \
-	                 --output=$CONFIG_TIER0/config.py \
+    tier0-mod-config --input=$WMA_CONFIG_DIR/config-agent.py \
+	                 --output=$WMA_CONFIG_DIR/config.py \
                      $optargs
     let errVal+=$?
 

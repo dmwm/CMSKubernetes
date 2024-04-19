@@ -306,7 +306,7 @@ _parse_wmasecrets(){
 
     # Building the list by parsing the secrets file itself.
     [[ -n $varsToCheck ]] || {
-       varsToCheck=`grep -v "^[[:blank:]]#" $secretsFile  |grep \= | awk -F\= '{print $1}'`
+       varsToCheck=`grep -v "^[[:blank:]]*#" $secretsFile  |grep \= | awk -F\= '{print $1}'`
     }
 
     for var in $varsToCheck
@@ -342,7 +342,7 @@ _load_wmasecrets(){
     # If no list of variables to be loaded was given assume all of them.
     # Building the list by parsing the secrets file itself.
     [[ -n $varsToLoad ]] || {
-       varsToLoad=`grep -v "^[[:blank:]]#" $secretsFile  |grep \= | awk -F\= '{print $1}'`
+       varsToLoad=`grep -v "^[[:blank:]]*#" $secretsFile  |grep \= | awk -F\= '{print $1}'`
     }
 
     # Here we validate every variable for itself before loading it
@@ -359,8 +359,19 @@ _load_wmasecrets(){
     for varName in $varsToLoad
     do
         value=`grep -E "^[[:blank:]]*$varName=" $secretsFile | sed "s/ *$varName=//"`
-        [[ $varName =~ ^RESOURCE_ ]] && declare -g -A $varName
-        eval $varName=$value
+        if [[ $varName =~ ^RESOURCE_ ]]; then
+	    declare -g -A $varName
+            eval $varName=$value || {
+		echo "$FUNCNAME: ERROR: Could not evaluate: ${varName}=${!varName}"
+		return
+	    }
+	else
+            eval $varName='$value' || {
+		echo "$FUNCNAME: ERROR: Could not evaluate: ${varName}=${!varName}"
+		return
+	    }
+	fi
+	# echo ${varName}=${!varName}
         [[ -n $varName ]] || { echo "$FUNCNAME: ERROR: Empty value for: $varName=$value"; let errVal+=1 ;}
     done
 
@@ -401,7 +412,7 @@ _print_settings(){
     env |grep ^WMA| sort
 
     echo "-------------- WMA_SECRETS_FILE  variables: --------------"
-    varsToPrint=`grep -v "^[[:blank:]]#" $WMA_SECRETS_FILE  |grep \= | awk -F\= '{print $1}'`
+    varsToPrint=`grep -v "^[[:blank:]]*#" $WMA_SECRETS_FILE  |grep \= | awk -F\= '{print $1}'`
 
     for varName in $varsToPrint
     do
