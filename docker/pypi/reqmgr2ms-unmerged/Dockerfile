@@ -3,7 +3,8 @@ MAINTAINER Alan Malta alan.malta@cern.ch
 
 # Specific MSUnmerged requirements from epel repository
 RUN dnf install epel-release -y && dnf clean all && \
-    dnf -y install python3-gfal2-util && \
+    dnf -y install python3-gfal2-util gfal2-plugin-http gfal2-plugin-dcap \
+                   gfal2-plugin-file gfal2-plugin-srm gfal2-plugin-xrootd && \
     dnf clean all
 
 # Specific run.sh for MSUnmerged
