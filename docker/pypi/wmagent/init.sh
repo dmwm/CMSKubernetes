@@ -117,9 +117,15 @@ deploy_to_host(){
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
 
-    # TODO: This is to be removed once we decide to run it directly from the deploy area
-    echo "$FUNCNAME: Copy the proper manage file"
-    cp -fv $WMA_DEPLOY_DIR/bin/manage $WMA_MANAGE_DIR/manage && chmod 755 $WMA_MANAGE_DIR/manage
+    # TODO: This is to be removed once we decide to run it only from the deploy area
+    #       The only place left where the manage script is called directly from
+    #       $WMA_CONFIG_DIR is from $WMA_DEPLOY_DIR/bin/clean-oracle
+    echo "$FUNCNAME: Linking the proper manage file from Config Area"
+
+    if [[ -h $WMA_CONFIG_DIR/manage ]] || [[ -f $WMA_CONFIG_DIR/manage ]]; then
+        rm -f $WMA_CONFIG_DIR/manage
+    fi
+    ln -s $WMA_MANAGE_DIR/manage $WMA_CONFIG_DIR/manage
 
     echo "$FUNCNAME: Copy the Runtime scripts"
     _init_valid $wmaInitRuntime || {
