@@ -166,7 +166,6 @@ init_wmagent(){
 init_tier0(){
     local errVal=0
     wmagent-mod-config --input=$CONFIG_TIER0/config-template.py \
-                       # --output=$CONFIG_TIER0/config-agent.py \
                        --output=$WMA_CONFIG_DIR/config-agent.py \
                        --coredb_url=oracle://$ORACLE_USER:$ORACLE_PASS@$ORACLE_TNS \
                        --working_dir=$INSTALL_TIER0 \
@@ -186,21 +185,27 @@ init_tier0(){
 	                   --rucio_auth=$RUCIO_AUTH
     let errVal+=$?
 
-    optargs=""
-    [[ -n $CONFDB_URL ]]      && optargs="$optargs --confdb_url=$CONFDB_URL"
-    [[ -n $SMDB_URL ]]        && optargs="$optargs --smdb_url=$SMDB_URL"
-    [[ -n $POPCONLOGDB_URL ]] && optargs="$optargs --popconlogdb_url=$POPCONLOGDB_URL"
-    [[ -n $T0DATASVCDB_URL ]] && optargs="$optargs --t0datasvcdb_url=$T0DATASVCDB_URL"
-    [[ -n $SMNOTIFYDB_URL ]]  && optargs="$optargs --smnotifydb_url=$SMNOTIFYDB_URL"
+    # NOTE: For the next step relates to modifying the originally generated WMAgent config file
+    #       from $WMA_CONFIG_DIR/config-agent.py
+    #       to $WMA_CONFIG_DIR/config.py
+    #       It removes the components not relevant for T0 and adds the additional DB credentials
+    #       used at Tier0Feeder. In order for it to be executed properly we need to download the
+    #       tier0-mod-config script from https://github.com/dmwm/T0/blob/master/bin/tier0-mod-config
+    # optargs=""
+    # [[ -n $CONFDB_URL ]]      && optargs="$optargs --confdb_url=$CONFDB_URL"
+    # [[ -n $SMDB_URL ]]        && optargs="$optargs --smdb_url=$SMDB_URL"
+    # [[ -n $POPCONLOGDB_URL ]] && optargs="$optargs --popconlogdb_url=$POPCONLOGDB_URL"
+    # [[ -n $T0DATASVCDB_URL ]] && optargs="$optargs --t0datasvcdb_url=$T0DATASVCDB_URL"
+    # [[ -n $SMNOTIFYDB_URL ]]  && optargs="$optargs --smnotifydb_url=$SMNOTIFYDB_URL"
 
-    tier0-mod-config --input=$WMA_CONFIG_DIR/config-agent.py \
-	                 --output=$WMA_CONFIG_DIR/config.py \
-                     $optargs
-    let errVal+=$?
+    # tier0-mod-config --input=$WMA_CONFIG_DIR/config-agent.py \
+	#                  --output=$WMA_CONFIG_DIR/config.py \
+    #                  $optargs
+    # let errVal+=$?
 
-    wmcore-db-init --config $CONFIG_TIER0/config.py --create --modules=WMCore.WMBS,WMCore.Agent.Database,WMComponent.DBS3Buffer,WMCore.BossAir,WMCore.ResourceControl,T0.WMBS;
+    wmcore-db-init --config $WMA_CONFIG_DIR/config-agent.py --create --modules=WMCore.WMBS,WMCore.Agent.Database,WMComponent.DBS3Buffer,WMCore.BossAir,WMCore.ResourceControl,T0.WMBS;
     let errVal+=$?
-    export WMAGENT_CONFIG=$CONFIG_TIER0/config.py
+    export WMAGENT_CONFIG=$WMA_CONFIG_DIR/config-agent.py
     wmagent-couchapp-init;
     let errVal+=$?
     unset WMAGENT_CONFIG
