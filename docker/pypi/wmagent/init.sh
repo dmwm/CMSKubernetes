@@ -119,6 +119,21 @@ deploy_to_host(){
     echo "$FUNCNAME: Copy the proper manage file"
     cp -fv $WMA_DEPLOY_DIR/bin/manage $WMA_MANAGE_DIR/manage && chmod 755 $WMA_MANAGE_DIR/manage
 
+    echo "$FUNCNAME: Copy the Runtime scripts"
+    _init_valid $wmaInitRuntime || {
+        # checking if $WMA_DEPLOY_DIR is root path for $pythonLib:
+        if [[ $pythonLib =~ ^$WMA_DEPLOY_DIR ]]; then
+            mkdir -p $WMA_INSTALL_DIR/Docker/
+            cp -rav $pythonLib/WMCore/WMRuntime $WMA_INSTALL_DIR/Docker/
+            cp -rav $WMA_DEPLOY_DIR/etc/ $WMA_CONFIG_DIR/
+            echo $WMA_BUILD_ID > $wmaInitRuntime
+        else
+            echo "$FUNCNAME: ERROR: \$WMA_DEPLOY_DIR: $WMA_DEPLOY_DIR is not a root path for \$pythonLib: $pithonLib"
+            echo "$FUNCNAME: ERROR: We cannot find the correct WMCore/WMRuntime source to copy at the current host!"
+            return $(false)
+        fi
+    }
+
     # Check if the host has a basic WMAgent.secrets file and copy a template if missing
     # NOTE: Here we never overwrite any existing WMAGent.secrets file: We follow:
     #       * Check if there is any at the host, and if so, is it a blank template or a fully configured one
@@ -291,6 +306,7 @@ check_docker_init() {
         $wmaInitActive
         $wmaInitAgent
         $wmaInitConfig
+        $wmaInitRuntime
         $wmaInitUpload
         $wmaInitResourceControl
         $wmaInitResourceOpp
@@ -369,7 +385,7 @@ agent_tweakconfig() {
         # make this a docker agent
         sed -i "s+Agent.isDocker = False+Agent.isDocker = True+" $WMA_CONFIG_DIR/config.py
         # update the location of submit.sh for docker
-        sed -i "s+config.JobSubmitter.submitScript.*+config.JobSubmitter.submitScript = '$WMA_DEPLOY_DIR/etc/submit.sh'+" $WMA_CONFIG_DIR/config.py
+        sed -i "s+config.JobSubmitter.submitScript.*+config.JobSubmitter.submitScript = '$WMA_CONFIG_DIR/etc/submit_py3.sh'+" $WMA_CONFIG_DIR/config.py
         # replace all tags with current
         sed -i "s+$WMA_TAG+current+" $WMA_CONFIG_DIR/config.py
 

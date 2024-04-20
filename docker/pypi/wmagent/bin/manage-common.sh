@@ -22,6 +22,7 @@ wmaInitConfig=$WMA_CONFIG_DIR/.initConfig                   # set upon final WMA
 wmaInitResourceControl=$WMA_CONFIG_DIR/.initResourceControl # set once the resource control of the agent has been populated
 wmaInitResourceOpp=$WMA_CONFIG_DIR/.initResourceOpp         # set once the resource control of the agent has been populated for opportunistic resources
 wmaInitUpload=$WMA_CONFIG_DIR/.initUpload                   # set once the agent config has been uploaded to central CouchDB
+wmaInitRuntime=$WMA_CONFIG_DIR/.initRuntime                 # set once the runtime scripts needed for HTCondor are copied at the host
 wmaInitUsing=$WMA_CONFIG_DIR/.initUsing                     # Final init flag to mark that the agent is fully activated, initialized, and already in use by the system
 
 
