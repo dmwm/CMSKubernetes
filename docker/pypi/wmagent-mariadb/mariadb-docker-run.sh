@@ -69,7 +69,7 @@ dockerOpts="
 --detach \
 --network=host \
 --rm \
---user $UID:$GID \
+--user $UID:`id -g` \
 --hostname=`hostname -f` \
 --name=mariadb \
 --mount type=bind,source=/tmp,target=/tmp \
