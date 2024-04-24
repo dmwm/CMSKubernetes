@@ -44,8 +44,8 @@ while getopts ":t:hp" opt; do
 done
 
 
-wmaUser=cmst1
-wmaOpts=" --user $wmaUser"
+wmaUser=$(id -un)
+userOpts=" --user $(id -u):$(id -g)"
 
 # This is the root at the host only, it may differ from the root inside the container.
 # NOTE: This is parametriesed, so that the container can run on a different mount point.
@@ -68,13 +68,14 @@ chown -R $wmaUser $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG || exit $?
 tnsMount=""
 [[ -f /etc/tnsnames.ora ]] && tnsMount="--mount type=bind,source=/etc/tnsnames.ora,target=/etc/tnsnames.ora,readonly "
 
+
 dockerOpts=" \
---detach
+--detach \
 --network=host \
 --rm \
---hostname=`hostname -f` \
+--hostname=$(hostname -f) \
 --name=wmagent \
-$tnsMount
+$tnsMount \
 --mount type=bind,source=/etc/condor,target=/etc/condor,readonly \
 --mount type=bind,source=/tmp,target=/tmp \
 --mount type=bind,source=$HOST_MOUNT_DIR/certs,target=/data/certs \
@@ -82,9 +83,15 @@ $tnsMount
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/config,target=/data/srv/wmagent/current/config \
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/logs,target=/data/srv/wmagent/current/logs \
 --mount type=bind,source=$HOST_MOUNT_DIR/admin/wmagent,target=/data/admin/wmagent/ \
+--mount type=bind,source=/etc/group,target=/etc/group,readonly \
+--mount type=bind,source=/etc/passwd,target=/etc/passwd,readonly \
+--mount type=bind,source=/etc/shadow,target=/etc/shadow,readonly \
+--mount type=bind,source=/etc/sudoers,target=/etc/sudoers,readonly \
+--mount type=bind,source=/etc/sudoers.d,target=/etc/sudoers.d,readonly \
+--mount type=bind,source=/var/lib/sss/pipes,target=/var/lib/sss/pipes,readonly \
+--mount type=bind,source=/etc/profile,target=/etc/profile,readonly \
 "
 
-wmaOpts="$wmaOpt $*"
 
 $PULL && {
     echo "Pulling Docker image: registry.cern.ch/cmsweb/wmagent:$WMA_TAG"
@@ -99,5 +106,5 @@ echo "Checking if there is no other wmagent container running and creating a lin
     [[ -h $HOST_MOUNT_DIR/srv/wmagent/current ]] && rm -f $HOST_MOUNT_DIR/srv/wmagent/current
     ln -s $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG $HOST_MOUNT_DIR/srv/wmagent/current )
 
-echo "Starting the wmagent:$WMA_TAG docker container with the following parameters: $wmaOpts"
-docker run $dockerOpts local/wmagent:$WMA_TAG $wmaOpts
+echo "Starting the wmagent:$WMA_TAG docker container with the following user parameter: $userOpts"
+docker run $dockerOpts local/wmagent:$WMA_TAG $userOpts

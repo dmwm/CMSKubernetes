@@ -3,7 +3,8 @@ FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20230525
 
 # Install basic OS package dependencies
 RUN apt-get update
-RUN apt-get install -y libmariadb-dev-compat libmariadb-dev apache2-utils cron mariadb-server myproxy voms-clients rlwrap libaio1 && apt-get clean
+RUN apt-get install -y libmariadb-dev-compat libmariadb-dev apache2-utils cron mariadb-server \
+   myproxy voms-clients rlwrap libaio1 sssd && apt-get clean
 
 # Install some debugging tools
 RUN apt-get install -y hostname net-tools iputils-ping procps && apt-get clean
@@ -13,3 +14,11 @@ COPY --from=oracle /usr/lib/oracle /usr/lib/oracle
 ENV LD_LIBRARY_PATH=/usr/lib/oracle
 ENV PATH=$PATH:/usr/lib/oracle
 ENV PKG_CONFIG_PATH=/usr/lib/oracle
+
+# overwrite /etc/pam.d/login such that we can access accounts at CERN
+RUN printf "\n\
+auth required pam_sss.so\n\
+account required pam_sss.so\n\
+password required pam_sss.so\n\
+session required pam_sss.so\n\
+" > /etc/pam.d/login
