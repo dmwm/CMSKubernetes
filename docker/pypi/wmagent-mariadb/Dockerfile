@@ -32,10 +32,6 @@ ENV MDB_SECRETS_FILE=$MDB_ADMIN_DIR/MariaDB.secrets
 ENV WMA_SECRETS_FILE=$WMA_ADMIN_DIR/WMAgent.secrets
 ENV WMA_DATABASE=wmagent
 
-# create the system user to run the database
-RUN groupadd -g 1399 zh
-RUN useradd -u 31961  -g 1399 -G 999 -m cmst1
-
 # start the setup
 RUN mkdir -p $MDB_ROOT_DIR $MDB_CURRENT_DIR $MDB_CONFIG_DIR $MDB_MANAGE_DIR \
     $MDB_LOG_DIR $MDB_DATABASE_DIR $MDB_STATE_DIR $MDB_AUTH_DIR
@@ -58,14 +54,11 @@ alias manage=$MDB_MANAGE_DIR/manage
 export PS1="(MariaDB-$MDB_TAG) [\u@\h:\W]\$([[ \$(id -u) -eq 0 ]] && echo \# || echo \$) "
 EOF
 
-RUN <<EOF cat >>/home/cmst1/.bashrc
+RUN <<EOF cat >> ~/.bashrc
 alias manage=$MDB_MANAGE_DIR/manage
 export PS1="(MariaDB-$MDB_TAG) [\u@\h:\W]\$([[ \$(id -u) -eq 0 ]] && echo \# || echo \$) "
 EOF
 
-# RUN chown -R ${USER} ${MDB_ROOT_DIR}
-
 # setup final environment
-# USER $USER
 WORKDIR $MDB_ROOT_DIR
 ENTRYPOINT ["./run.sh", "2>&1"]

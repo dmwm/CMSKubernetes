@@ -44,7 +44,10 @@ while getopts ":t:hp" opt; do
 done
 
 
-wmaUser=cmst1
+wmaUser=`id -un`
+wmaUserID=`id -u`
+wmaGroup=`id -gn`
+wmaGroupID=`id -g`
 wmaOpts=" --user $wmaUser"
 
 # This is the root at the host only, it may differ from the root inside the container.
@@ -55,7 +58,19 @@ HOST_MOUNT_DIR=/data/dockerMount
 [[ -h /data/srv/wmagent ]] && rm -f /data/srv/wmagent
 ln -s $HOST_MOUNT_DIR/srv/wmagent /data/srv/wmagent
 
+# create the passwd and group mount point dynamically at runtime
+passwdEntry=`getent passwd $wmaUser  |awk -F : -v wmaUser=$wmaUser '{print $1":"$2":"$3":"$4":"$5":""/home/"wmaUser":"$7}'`
+groupEntry=`getent group $wmaGroup`
 
+[[ -d $HOST_MOUNT_DIR/admin/ ]] || (mkdir -p $HOST_MOUNT_DIR/admin) || exit $?
+
+getent passwd > $HOST_MOUNT_DIR/admin/passwd
+getent group > $HOST_MOUNT_DIR/admin/group
+
+echo $passwdEntry >> $HOST_MOUNT_DIR/admin/passwd
+echo $groupEntry >> $HOST_MOUNT_DIR/admin/group
+
+# create regular mount points at runtime
 [[ -d $HOST_MOUNT_DIR/certs ]] || (mkdir -p $HOST_MOUNT_DIR/certs) || exit $?
 [[ -d $HOST_MOUNT_DIR/admin/wmagent ]] || (mkdir -p $HOST_MOUNT_DIR/admin/wmagent) || exit $?
 [[ -d $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/install ]] || (mkdir -p $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/install) || exit $?
@@ -72,6 +87,7 @@ dockerOpts=" \
 --detach
 --network=host \
 --rm \
+--user $wmaUserID:$wmaGroupID \
 --hostname=`hostname -f` \
 --name=wmagent \
 $tnsMount
@@ -82,6 +98,10 @@ $tnsMount
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/config,target=/data/srv/wmagent/current/config \
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/logs,target=/data/srv/wmagent/current/logs \
 --mount type=bind,source=$HOST_MOUNT_DIR/admin/wmagent,target=/data/admin/wmagent/ \
+--mount type=bind,source=$HOST_MOUNT_DIR/admin/group,target=/etc/group,readonly \
+--mount type=bind,source=$HOST_MOUNT_DIR/admin/passwd,target=/etc/passwd,readonly \
+--mount type=bind,source=/etc/sudoers,target=/etc/sudoers,readonly \
+--mount type=bind,source=/etc/sudoers.d,target=/etc/sudoers.d,readonly \
 "
 
 wmaOpts="$wmaOpt $*"
