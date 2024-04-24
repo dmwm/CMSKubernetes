@@ -107,4 +107,4 @@ echo "Checking if there is no other wmagent container running and creating a lin
     ln -s $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG $HOST_MOUNT_DIR/srv/wmagent/current )
 
 echo "Starting the wmagent:$WMA_TAG docker container with the following user parameter: $userOpts"
-docker run $dockerOpts local/wmagent:$WMA_TAG $userOpts
+docker run $dockerOpts $userOpts local/wmagent:$WMA_TAG

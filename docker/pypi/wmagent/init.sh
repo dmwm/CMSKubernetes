@@ -19,7 +19,7 @@ HOSTIP=`hostname -i`
 
 # Setup defaults:
 [[ $WMA_TAG == $WMCoreVersion ]] || {
-    echo "WARNING: Container WMA_TAG: $WAM_TAG and actual WMCoreVersion: $WMCoreVersion mismatch."
+    echo "WARNING: Container WMA_TAG: $WMA_TAG and actual WMCoreVersion: $WMCoreVersion mismatch."
     echo "WARNING: Assuming  WMA_TAG=$WMCoreVersion"
     WMA_TAG=$WMCoreVersion
 }
