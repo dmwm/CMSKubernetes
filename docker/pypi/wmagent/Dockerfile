@@ -58,6 +58,11 @@ ADD init.sh ${WMA_ROOT_DIR}/init.sh
 RUN ${WMA_ROOT_DIR}/install.sh -t ${WMA_TAG}
 RUN chown -R ${WMA_USER}:${WMA_GID} ${WMA_ROOT_DIR}
 
+# Set command prompt for root inside the container
+RUN <<EOF cat >>/root/.bashrc
+export PS1="(WMAgent-\$WMA_TAG) [\u@\h:\W]# "
+EOF
+
 # Switch to the runtime directory and user
 WORKDIR ${WMA_ROOT_DIR}
 USER ${WMA_USER}
