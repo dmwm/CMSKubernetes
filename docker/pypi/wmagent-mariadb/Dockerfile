@@ -48,16 +48,13 @@ ADD my.cnf ${MDB_CONFIG_DIR}/my.cnf
 
 ENV PATH="/usr/local/bin/:${MDB_ROOT_DIR}:${PATH}"
 
-# set MariaDB docker specific bash prompt and manage alias for all users:
-RUN <<EOF cat >>/root/.bashrc
-alias manage=$MDB_MANAGE_DIR/manage
-export PS1="(MariaDB-$MDB_TAG) [\u@\h:\W]\$([[ \$(id -u) -eq 0 ]] && echo \# || echo \$) "
+# Set command prompt for root
+RUN <<EOF cat >> /root/.bashrc
+export PS1="(MariaDB-$MDB_TAG) [\u@\h:\W]# "
 EOF
 
-RUN <<EOF cat >> ~/.bashrc
-alias manage=$MDB_MANAGE_DIR/manage
-export PS1="(MariaDB-$MDB_TAG) [\u@\h:\W]\$([[ \$(id -u) -eq 0 ]] && echo \# || echo \$) "
-EOF
+# allow dynamic users to create homefolders and .bashrc
+RUN chmod 777 /home
 
 # setup final environment
 WORKDIR $MDB_ROOT_DIR
