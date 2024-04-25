@@ -56,28 +56,13 @@ RUN ln -s ${COUCH_CONFIG_DIR}/local.ini /opt/couchdb/etc/local.d/
 ENV PATH="/opt/couchdb/bin:/usr/local/bin/:${PATH}"
 ENV CRYPTOGRAPHY_ALLOW_OPENSSL_102=true
 
-RUN <<EOF cat >> ~/.bashrc
-
-alias lll="ls -lathr"
-alias ls="ls --color=auto"
-alias ll='ls -la --color=auto'
-
-alias manage=$COUCH_MANAGE_DIR/manage
-
-# set CouchDB docker specific bash prompt:
-export PS1="(CouchDB-$TAG) [\u@\h:\W]\$ "
+# Set command prompt for root
+RUN <<EOF cat >> /root/.bashrc
+export PS1="(CouchDB-$TAG) [\u@\h:\W]# "
 EOF
 
-# set CouchDB docker specific bash prompt and manage alias for all users:
-RUN <<EOF cat >>/root/.bashrc
-alias manage=$COUCH_MANAGE_DIR/manage
-export PS1="(CouchDB-$TAG) [\u@\h:\W]\$([[ \$(id -u) -eq 0 ]] && echo \# || echo \$) "
-EOF
-
-RUN <<EOF cat >> ~/.bashrc
-alias manage=$COUCH_MANAGE_DIR/manage
-export PS1="(CouchDB-$TAG) [\u@\h:\W]\$([[ \$(id -u) -eq 0 ]] && echo \# || echo \$) "
-EOF
+# allow dynamic users to create homefolders and .bashrc
+RUN chmod 777 /home
 
 # setup final environment
 WORKDIR $COUCH_ROOT_DIR

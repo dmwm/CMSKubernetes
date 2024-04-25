@@ -49,13 +49,29 @@ while getopts ":t:hp" opt; do
     esac
 done
 
-
-couchdbUser=cmst1
-couchOpts=" --user $couchdbUser"
-
 # This is the root at the host only, it may differ from the root inside the container.
 # NOTE: this may be parameterized, so that the container can run on a different mount point.
 HOST_MOUNT_DIR=/data/dockerMount
+
+thisUser=$(id -un)
+thisGroup=$(id -gn)
+
+# create the passwd and group mount point dynamically at runtime
+passwdEntry=$(getent passwd $thisUser | awk -F : -v thisHome="/home/$thisUser" '{print $1 ":" $2 ":" $3 ":" $4 ":" $5 ":" thisHome ":" $7}')
+groupEntry=$(getent group $thisGroup)
+
+# workaround case where Unix account is not in the local system (e.g. sssd)
+[[ -d $HOST_MOUNT_DIR/admin/etc/ ]] || (mkdir -p $HOST_MOUNT_DIR/admin/etc) || exit $?
+[[ -f $HOST_MOUNT_DIR/admin/etc/passwd ]] || {
+    echo "Creating passwd file"
+    getent passwd > $HOST_MOUNT_DIR/admin/etc/passwd
+    echo $passwdEntry >> $HOST_MOUNT_DIR/admin/etc/passwd
+}
+[[ -f $HOST_MOUNT_DIR/admin/etc/group ]] || {
+    echo "Creating group file"
+    getent group > $HOST_MOUNT_DIR/admin/etc/group
+    echo $groupEntry >> $HOST_MOUNT_DIR/admin/etc/group
+}
 
 [[ -d $HOST_MOUNT_DIR/certs ]] || mkdir -p $HOST_MOUNT_DIR/certs || exit $?
 [[ -d $HOST_MOUNT_DIR/admin/couchdb ]] || mkdir -p $HOST_MOUNT_DIR/admin/couchdb || exit $?
@@ -63,14 +79,13 @@ HOST_MOUNT_DIR=/data/dockerMount
 [[ -d $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/install/database ]] || mkdir -p $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/install/database || exit $?
 [[ -d $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/logs ]] || mkdir -p $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/logs || exit $?
 
-# sudo chown -R $couchdbUser:$couchdbUser $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG
 
 dockerOpts="
 --detach \
 --network=host \
 --rm \
---user $UID:`id -g` \
---hostname=`hostname -f` \
+--hostname=$(hostname -f) \
+--user $(id -u):$(id -g) \
 --name=couchdb \
 --mount type=bind,source=/tmp,target=/tmp \
 --mount type=bind,source=$HOST_MOUNT_DIR/certs,target=/data/certs \
@@ -78,17 +93,14 @@ dockerOpts="
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/logs,target=/data/srv/couchdb/current/logs \
 --mount type=bind,source=$HOST_MOUNT_DIR/admin/wmagent,target=/data/admin/wmagent/ \
 --mount type=bind,source=$HOST_MOUNT_DIR/admin/couchdb,target=/data/admin/couchdb/ \
---mount type=bind,source=/etc/group,target=/etc/group,readonly \
---mount type=bind,source=/etc/passwd,target=/etc/passwd,readonly \
---mount type=bind,source=/etc/shadow,target=/etc/shadow,readonly \
+--mount type=bind,source=$HOST_MOUNT_DIR/admin/etc/passwd,target=/etc/passwd,readonly \
+--mount type=bind,source=$HOST_MOUNT_DIR/admin/etc/group,target=/etc/group,readonly \
 --mount type=bind,source=/etc/sudoers,target=/etc/sudoers,readonly \
 --mount type=bind,source=/etc/sudoers.d,target=/etc/sudoers.d,readonly \
---mount type=bind,source=/etc/profile,target=/etc/profile,readonly \
 "
 
 # --mount type=bind,source=$HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/config,target=/data/srv/couchdb/current/config \
-# couchOpts=$*
-# couchOpts="$couchOpts --user couchdb -e COUCHDB_USER=TestAdmin -e COUCHDB_PASSWORD=TestPass"
+
 registry=local
 repository=wmagent-couchdb
 
@@ -101,7 +113,7 @@ $PULL && {
     docker tag  $registry/$project/$repository:$COUCH_TAG $registry/$repository:latest
 }
 
-echo "Starting the couchdb:$COUCH_TAG docker container with the following parameters: $couchOpts"
-docker run $dockerOpts $couchOpts $registry/$repository:$COUCH_TAG && (
+echo "Starting couchdb:$COUCH_TAG docker container with user: $thisUser:$thisGroup"
+docker run $dockerOpts $registry/$repository:$COUCH_TAG && (
     [[ -h $HOST_MOUNT_DIR/srv/couchdb/current ]] && rm -f $HOST_MOUNT_DIR/srv/couchdb/current
     ln -s $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG $HOST_MOUNT_DIR/srv/couchdb/current )
