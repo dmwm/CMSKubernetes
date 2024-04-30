@@ -1,0 +1,4 @@
+environment: "preprod"
+
+image:
+  tag: "v3.240426"

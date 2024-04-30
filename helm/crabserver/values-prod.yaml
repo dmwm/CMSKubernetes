@@ -1,0 +1,4 @@
+environment: "prod"
+
+image:
+  tag: "v3.240426"
