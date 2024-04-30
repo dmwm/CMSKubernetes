@@ -9,7 +9,7 @@ elif [ "$ENVIRONMENT" = "k8s-preprod" ]; then
 elif [[ "$ENVIRONMENT" == k8s-test* ]]; then
   # Copy the test cron file
   echo "Copying authmap-test.cron"
-  echo "*/15 * * * * /tmp/authmap-test.sh" > /tmp/authmap.cron
+  echo "*/30 * * * * /tmp/authmap-test.sh" > /tmp/authmap.cron
   
 else
   echo "Unsupported environment: $ENVIRONMENT"
