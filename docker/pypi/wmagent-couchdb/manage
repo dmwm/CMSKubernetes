@@ -680,6 +680,8 @@ init_couchdb() {
     # i.e. check if COUCHDB_SECRETS_FILE and WMAGENT_SECRETS_FILE from the host
     # have been parsed correctly and the passwords propagated to local.ini
 
+    [[ -f $COUCH_CONFIG_DIR/local.ini ]] || cp -v $COUCH_DEPLOY_DIR/local.ini $COUCH_CONFIG_DIR/local.ini
+
     # First check if all variables in the local.ini file are properly set
     local parseOk=true
     _parse_localini $COUCH_CONFIG_DIR/local.ini || parseOk=false
