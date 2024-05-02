@@ -317,7 +317,7 @@ _renew_proxy(){
                 echo "$FUNCNAME: ERROR: Failed to renew expired myproxy"; return $(false) ;}
 
         # Stay safe and always change the service {cert,key} and myproxy mode here:
-        sudo chmod 400 $WMA_CERTS_DIR/*
+        chmod 400 $WMA_CERTS_DIR/*
         echo "$FUNCNAME: OK"
     else
         echo "$FUNCNAME: ERROR: We found no service certificate installed at $WMA_CERTS_DIR!"

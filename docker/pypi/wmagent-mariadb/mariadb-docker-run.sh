@@ -49,13 +49,29 @@ while getopts ":t:hp" opt; do
     esac
 done
 
-
-mariadbUser=`id -un`
-mariadbOpts=" --user $mariadbUser -e USER=$mariadbUser"
-
 # This is the root at the host only, it may differ from the root inside the container.
 # NOTE: this may be parametriesed, so that the container can run on a different mount point.
 HOST_MOUNT_DIR=/data/dockerMount
+
+thisUser=$(id -un)
+thisGroup=$(id -gn)
+
+# create the passwd and group mount point dynamically at runtime
+passwdEntry=$(getent passwd $thisUser | awk -F : -v thisHome="/home/$thisUser" '{print $1 ":" $2 ":" $3 ":" $4 ":" $5 ":" thisHome ":" $7}')
+groupEntry=$(getent group $thisGroup)
+
+# workaround case where Unix account is not in the local system (e.g. sssd)
+[[ -d $HOST_MOUNT_DIR/admin/etc/ ]] || (mkdir -p $HOST_MOUNT_DIR/admin/etc) || exit $?
+[[ -f $HOST_MOUNT_DIR/admin/etc/passwd ]] || {
+    echo "Creating passwd file"
+    getent passwd > $HOST_MOUNT_DIR/admin/etc/passwd
+    echo $passwdEntry >> $HOST_MOUNT_DIR/admin/etc/passwd
+}
+[[ -f $HOST_MOUNT_DIR/admin/etc/group ]] || {
+    echo "Creating group file"
+    getent group > $HOST_MOUNT_DIR/admin/etc/group
+    echo $groupEntry >> $HOST_MOUNT_DIR/admin/etc/group
+}
 
 [[ -d $HOST_MOUNT_DIR/certs ]] || (mkdir -p $HOST_MOUNT_DIR/certs) || exit $?
 [[ -d $HOST_MOUNT_DIR/admin/mariadb ]] || (mkdir -p $HOST_MOUNT_DIR/admin/mariadb) || exit $?
@@ -63,13 +79,13 @@ HOST_MOUNT_DIR=/data/dockerMount
 [[ -d $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/install/database ]] || { mkdir -p $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/install/database ;} || exit $?
 [[ -d $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/logs ]] || { mkdir -p $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/logs ;} || exit $?
 
-# sudo chown -R $mariadbUser $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG
 
 dockerOpts="
 --detach \
 --network=host \
 --rm \
---hostname=`hostname -f` \
+--hostname=$(hostname -f) \
+--user $(id -u):$(id -g) \
 --name=mariadb \
 --mount type=bind,source=/tmp,target=/tmp \
 --mount type=bind,source=$HOST_MOUNT_DIR/certs,target=/data/certs \
@@ -77,6 +93,10 @@ dockerOpts="
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/logs,target=/data/srv/mariadb/current/logs \
 --mount type=bind,source=$HOST_MOUNT_DIR/admin/mariadb,target=/data/admin/mariadb/ \
 --mount type=bind,source=$HOST_MOUNT_DIR/admin/wmagent,target=/data/admin/wmagent/ \
+--mount type=bind,source=$HOST_MOUNT_DIR/admin/etc/passwd,target=/etc/passwd,readonly \
+--mount type=bind,source=$HOST_MOUNT_DIR/admin/etc/group,target=/etc/group,readonly \
+--mount type=bind,source=/etc/sudoers,target=/etc/sudoers,readonly \
+--mount type=bind,source=/etc/sudoers.d,target=/etc/sudoers.d,readonly \
 "
 
 # --mount type=bind,source=$HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG/config,target=/data/srv/mariadb/current/config \
@@ -94,7 +114,7 @@ $PULL && {
     docker tag  $registry/$project/$repository:$MDB_TAG $registry/$repository:latest
 }
 
-echo "Starting the $registry/$repository:$MDB_TAG docker container with the following parameters: $mariadbOpts"
-docker run $dockerOpts $mariadbOpts $registry/$repository:$MDB_TAG && (
+echo "Starting $repository:$MDB_TAG docker container with user: $thisUser:$thisGroup"
+docker run $dockerOpts $registry/$repository:$MDB_TAG && (
     [[ -h $HOST_MOUNT_DIR/srv/mariadb/current ]] && rm -f $HOST_MOUNT_DIR/srv/mariadb/current
     ln -s $HOST_MOUNT_DIR/srv/mariadb/$MDB_TAG $HOST_MOUNT_DIR/srv/mariadb/current )

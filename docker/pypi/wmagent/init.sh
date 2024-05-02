@@ -19,7 +19,7 @@ HOSTIP=`hostname -i`
 
 # Setup defaults:
 [[ $WMA_TAG == $WMCoreVersion ]] || {
-    echo "WARNING: Container WMA_TAG: $WAM_TAG and actual WMCoreVersion: $WMCoreVersion mismatch."
+    echo "WARNING: Container WMA_TAG: $WMA_TAG and actual WMCoreVersion: $WMCoreVersion mismatch."
     echo "WARNING: Assuming  WMA_TAG=$WMCoreVersion"
     WMA_TAG=$WMCoreVersion
 }
@@ -295,6 +295,23 @@ check_databases() {
     _check_couch
 }
 
+set_cronjob() {
+    stepMsg="Populating cronjob with utilitarian scripts for the $WMA_USER"
+    echo "-----------------------------------------------------------------------"
+    echo "Start: $stepMsg"
+
+    chmod +x $WMA_DEPLOY_DIR/deploy/renew_proxy.sh $WMA_DEPLOY_DIR/deploy/restartComponent.sh
+
+    crontab -u $WMA_USER - <<EOF
+55 */12 * * * $WMA_MANAGE_DIR/manage renew-proxy
+58 */12 * * * python $WMA_DEPLOY_DIR/deploy/checkProxy.py --proxy /data/certs/myproxy.pem --time 120 --send-mail True --mail alan.malta@cern.ch
+*/15 * * * *  source $WMA_DEPLOY_DIR/deploy/restartComponent.sh > /dev/null
+EOF
+
+    echo "Done: $stepMsg!" && echo
+    echo "-----------------------------------------------------------------------"
+}
+
 check_docker_init() {
     # A function to check all previously populated */.dockerInit files
     # from all previous steps and compare them with the /data/.dockerBuildId
@@ -559,6 +576,7 @@ main(){
         echo "Have a nice day!" && echo
         return $(true)
     }
+    (set_cronjob)                || { err=$?; echo "ERROR: set_cronjob"; exit $err ;}
     (check_databases)            || { err=$?; echo "ERROR: check_databases"; exit $err ;}
     (_renew_proxy)               || { err=$?; echo "ERROR: _renew_proxy"; exit $err ;}
     (start_agent)                || { err=$?; echo "ERROR: start_agent"; exit $err ;}
