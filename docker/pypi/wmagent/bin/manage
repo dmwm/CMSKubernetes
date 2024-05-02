@@ -74,7 +74,12 @@ activate_agent(){
     # The very first step of activating the WMAgent upon all needed checks and
     # validations performed during the initialization process.
     # No .init* flags are checked at this stage.
-    cp -vf $WMA_DEPLOY_DIR/etc/WMAgentConfig.py $WMA_CONFIG_DIR/config-template.py
+    if [[ "$TEAMNAME" == Tier0* ]]; then
+	cat $WMA_DEPLOY_DIR/etc/WMAgentConfig.py $WMA_DEPLOY_DIR/etc/Tier0Config.py > $WMA_CONFIG_DIR/config-template.py 
+    else
+	cp -vf $WMA_DEPLOY_DIR/etc/WMAgentConfig.py $WMA_CONFIG_DIR/config-template.py
+    fi
+
 }
 
 #
@@ -169,7 +174,7 @@ init_tier0(){
                        --output=$WMA_CONFIG_DIR/config-agent.py \
                        --coredb_url=oracle://$ORACLE_USER:$ORACLE_PASS@$ORACLE_TNS \
                        --working_dir=$WMA_INSTALL_DIR \
-                       --couch_url=http://$COUCH_USER:$COUCH_PASS@$COUCH_HOST_NAME:$COUCH_PORT \
+                       --couch_url=http://$COUCH_USER:$COUCH_PASS@$COUCH_HOST:$COUCH_PORT \
                        --workqueue_db_name=$LOCAL_WORKQUEUE_DBNAME \
                        --workload_summary_url=$WORKLOAD_SUMMARY_URL \
                        --grafana_token=$GRAFANA_TOKEN \
@@ -203,9 +208,9 @@ init_tier0(){
                      $optargs
     let errVal+=$?
 
-    wmcore-db-init --config $WMA_CONFIG_DIR/config-agent.py --create --modules=WMCore.WMBS,WMCore.Agent.Database,WMComponent.DBS3Buffer,WMCore.BossAir,WMCore.ResourceControl,T0.WMBS;
+    wmcore-db-init --config $WMA_CONFIG_DIR/config.py --create --modules=WMCore.WMBS,WMCore.Agent.Database,WMComponent.DBS3Buffer,WMCore.BossAir,WMCore.ResourceControl,T0.WMBS;
     let errVal+=$?
-    export WMAGENT_CONFIG=$WMA_CONFIG_DIR/config-agent.py
+    export WMAGENT_CONFIG=$WMA_CONFIG_DIR/config.py
     wmagent-couchapp-init;
     let errVal+=$?
     unset WMAGENT_CONFIG

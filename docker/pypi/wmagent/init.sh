@@ -62,6 +62,7 @@ echo "======================================================="
 echo
 
 _check_mounts() {
+    [[ "$TEAMNAME" == Tier0* ]] && return $(true)
     # An auxiliary function to check if a given mountpoint is among the actually
     # bind mounted volumes from the host
     # :param $1: The mountpoint to be checked
@@ -475,6 +476,8 @@ agent_resource_control() {
             echo "$FUNCNAME: Adding only T1 and T2 sites to resource-control..."
             manage execute-agent wmagent-resource-control --add-T1s --plugin=SimpleCondorPlugin --pending-slots=50 --running-slots=50 --down ; let errVal+=$?
             manage execute-agent wmagent-resource-control --add-T2s --plugin=SimpleCondorPlugin --pending-slots=50 --running-slots=50 --down ; let errVal+=$?
+        elif [[ "$TEAMNAME" == Tier0* ]]; then
+            echo "$FUNCNAME: Tier0 agent not populating resource countrol for this agent"
         else
             echo "$FUNCNAME: Adding ALL sites to resource-control..."
             manage execute-agent wmagent-resource-control --add-all-sites --plugin=SimpleCondorPlugin --pending-slots=50 --running-slots=50 --down ; let errVal+=$?
