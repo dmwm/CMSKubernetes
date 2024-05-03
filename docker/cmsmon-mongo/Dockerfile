@@ -1,4 +1,4 @@
-ARG MONGODBVER=5.0.9
+ARG MONGODBVER=5.0.26
 FROM mongo:$MONGODBVER
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
