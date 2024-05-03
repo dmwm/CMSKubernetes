@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
       - name: mongodb
-        image: registry.cern.ch/cmsmonitoring/cmsmon-mongo:5.0.9
+        image: registry.cern.ch/cmsmonitoring/cmsmon-mongo:5.0.26
         args: [ "--tlsAllowInvalidHostnames","--dbpath","/data/db","--profile","2","--slowms","9","--slowOpSampleRate","0.5"]
         livenessProbe:
           exec:
