@@ -120,11 +120,9 @@ echo "-----------------------------------------------------------------------"
 
 tweakEnv(){
     # A function to apply environment tweaks for the docker image
-    echo "-------------------------------------------------------"
     echo "Edit \$WMA_ENV_FILE script to point to \$WMA_ROOT_DIR"
     sed -i "s|/data/|\$WMA_ROOT_DIR/|g" $WMA_ENV_FILE
 
-    echo "-------------------------------------------------------"
     echo "Edit \$WMA_ENV_FILE script to point to the correct install, config and manage"
     sed -i "s|install=.*|install=\$WMA_INSTALL_DIR|g" $WMA_ENV_FILE
     sed -i "s|config=.*|config=\$WMA_CONFIG_DIR|g" $WMA_ENV_FILE
@@ -134,7 +132,6 @@ tweakEnv(){
     echo "Edit $WMA_DEPLOY_DIR/deploy/renew_proxy.sh script to point to \$WMA_ROOT_DIR"
     sed -i "s|/data/|\$WMA_ROOT_DIR/|g" $WMA_DEPLOY_DIR/deploy/renew_proxy.sh
     sed -i "s|source.*env\.sh|source \$WMA_ENV_FILE|g" $WMA_DEPLOY_DIR/deploy/renew_proxy.sh
-    echo "-------------------------------------------------------"
 
     cat <<EOF >> $WMA_ENV_FILE
 
@@ -154,52 +151,14 @@ stepMsg="Tweaking runtime environment for user: $WMA_USER"
 echo "-----------------------------------------------------------------------"
 echo "Start $stepMsg"
 tweakEnv || { err=$?; echo ""; exit $err ; }
-cat <<EOF >> /home/${WMA_USER}/.bashrc
-
-alias lll="ls -lathr"
-alias ls="ls --color=auto"
-alias ll='ls -la --color=auto'
-
-alias condorq='condor_q -format "%i." ClusterID -format "%s " ProcId -format " %i " JobStatus  -format " %d " ServerTime-EnteredCurrentStatus -format "%s" UserLog -format " %s\n" DESIRED_Sites'
-alias condorqrunning='condor_q -constraint JobStatus==2 -format "%i." ClusterID -format "%s " ProcId -format " %i " JobStatus  -format " %d " ServerTime-EnteredCurrentStatus -format "%s" UserLog -format " %s\n" DESIRED_Sites'
-alias agentenv='source $WMA_ENV_FILE'
-alias manage=\$WMA_MANAGE_DIR/manage
-
-# Aliases for Tier0-Ops.
-alias runningagent="ps aux | egrep 'couch|wmcore|mysql|beam'"
-alias foldersize="du -h --max-depth=1 | sort -hr"
-
-# Better curl command
-alias scurl='curl -k --cert ${CERT_DIR}/servicecert.pem --key ${CERT_DIR}/servicekey.pem'
-
-# set WMAgent docker specific bash prompt:
-export PS1="(WMAgent-\$WMA_TAG) [\u@\h:\W]\$ "
 
 source $WMA_ENV_FILE
-EOF
+source $WMA_DEPLOY_DIR/bin/manage-common.sh
 echo "Done $stepMsg!" && echo
 echo "-----------------------------------------------------------------------"
 
-stepMsg="Populating cronjob with utilitarian scripts for the WMA_USER"
 echo "-----------------------------------------------------------------------"
-echo "Start $stepMsg"
-
-# TODO: These executable flags we should consider fixing them for all *.sh
-#       scripts under the /deploy top level area in the WMCore github repository
-chmod +x $WMA_DEPLOY_DIR/deploy/renew_proxy.sh $WMA_DEPLOY_DIR/deploy/restartComponent.sh
-
-crontab -u $WMA_USER - <<EOF
-55 */12 * * * $WMA_MANAGE_DIR/manage renew-proxy
-58 */12 * * * python $WMA_DEPLOY_DIR/deploy/checkProxy.py --proxy /data/certs/myproxy.pem --time 120 --send-mail True --mail alan.malta@cern.ch
-*/15 * * * *  source $WMA_DEPLOY_DIR/deploy/restartComponent.sh > /dev/null
-EOF
-
-echo "Done $stepMsg!" && echo
-echo "-----------------------------------------------------------------------"
-
-
-echo "-----------------------------------------------------------------------"
-echo "WMAgent contaner build finished!!" && echo
+echo "WMAgent image build finished!!" && echo
 echo "Have a nice day!" && echo
 echo "======================================================================="
 

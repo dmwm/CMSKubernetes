@@ -19,7 +19,7 @@ HOSTIP=`hostname -i`
 
 # Setup defaults:
 [[ $WMA_TAG == $WMCoreVersion ]] || {
-    echo "WARNING: Container WMA_TAG: $WAM_TAG and actual WMCoreVersion: $WMCoreVersion mismatch."
+    echo "WARNING: Container WMA_TAG: $WMA_TAG and actual WMCoreVersion: $WMCoreVersion mismatch."
     echo "WARNING: Assuming  WMA_TAG=$WMCoreVersion"
     WMA_TAG=$WMCoreVersion
 }
@@ -118,6 +118,21 @@ deploy_to_host(){
     # TODO: This is to be removed once we decide to run it directly from the deploy area
     echo "$FUNCNAME: Copy the proper manage file"
     cp -fv $WMA_DEPLOY_DIR/bin/manage $WMA_MANAGE_DIR/manage && chmod 755 $WMA_MANAGE_DIR/manage
+
+    echo "$FUNCNAME: Copy the Runtime scripts"
+    _init_valid $wmaInitRuntime || {
+        # checking if $WMA_DEPLOY_DIR is root path for $pythonLib:
+        if [[ $pythonLib =~ ^$WMA_DEPLOY_DIR ]]; then
+            mkdir -p $WMA_INSTALL_DIR/Docker/
+            cp -rav $pythonLib/WMCore/WMRuntime $WMA_INSTALL_DIR/Docker/
+            cp -rav $WMA_DEPLOY_DIR/etc/ $WMA_CONFIG_DIR/
+            echo $WMA_BUILD_ID > $wmaInitRuntime
+        else
+            echo "$FUNCNAME: ERROR: \$WMA_DEPLOY_DIR: $WMA_DEPLOY_DIR is not a root path for \$pythonLib: $pithonLib"
+            echo "$FUNCNAME: ERROR: We cannot find the correct WMCore/WMRuntime source to copy at the current host!"
+            return $(false)
+        fi
+    }
 
     # Check if the host has a basic WMAgent.secrets file and copy a template if missing
     # NOTE: Here we never overwrite any existing WMAGent.secrets file: We follow:
@@ -280,6 +295,23 @@ check_databases() {
     _check_couch
 }
 
+set_cronjob() {
+    stepMsg="Populating cronjob with utilitarian scripts for the $WMA_USER"
+    echo "-----------------------------------------------------------------------"
+    echo "Start: $stepMsg"
+
+    chmod +x $WMA_DEPLOY_DIR/deploy/renew_proxy.sh $WMA_DEPLOY_DIR/deploy/restartComponent.sh
+
+    crontab -u $WMA_USER - <<EOF
+55 */12 * * * $WMA_MANAGE_DIR/manage renew-proxy
+58 */12 * * * python $WMA_DEPLOY_DIR/deploy/checkProxy.py --proxy /data/certs/myproxy.pem --time 120 --send-mail True --mail alan.malta@cern.ch
+*/15 * * * *  source $WMA_DEPLOY_DIR/deploy/restartComponent.sh > /dev/null
+EOF
+
+    echo "Done: $stepMsg!" && echo
+    echo "-----------------------------------------------------------------------"
+}
+
 check_docker_init() {
     # A function to check all previously populated */.dockerInit files
     # from all previous steps and compare them with the /data/.dockerBuildId
@@ -291,8 +323,10 @@ check_docker_init() {
         $wmaInitActive
         $wmaInitAgent
         $wmaInitConfig
+        $wmaInitRuntime
         $wmaInitUpload
         $wmaInitResourceControl
+        $wmaInitResourceOpp
         $wmaInitCouchDB
         $wmaInitSqlDB
         $wmaInitRucio
@@ -368,7 +402,7 @@ agent_tweakconfig() {
         # make this a docker agent
         sed -i "s+Agent.isDocker = False+Agent.isDocker = True+" $WMA_CONFIG_DIR/config.py
         # update the location of submit.sh for docker
-        sed -i "s+config.JobSubmitter.submitScript.*+config.JobSubmitter.submitScript = '$WMA_DEPLOY_DIR/etc/submit.sh'+" $WMA_CONFIG_DIR/config.py
+        sed -i "s+config.JobSubmitter.submitScript.*+config.JobSubmitter.submitScript = '$WMA_CONFIG_DIR/etc/submit_py3.sh'+" $WMA_CONFIG_DIR/config.py
         # replace all tags with current
         sed -i "s+$WMA_TAG+current+" $WMA_CONFIG_DIR/config.py
 
@@ -424,6 +458,45 @@ agent_resource_control() {
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
 }
+
+agent_resource_opp() {
+    ## In this function, the list of available opportunistic resources is added to the resource control
+    ## This is done fetching the env variables starting with RESOURCE_
+    ## that are associative arrays defined in WMAgent.secrets with the following schema:
+    ## RESOURCE_OPP<number>=([name]=<name of the site> [run]=<total number of available running slots> [pend]=<total number of available pending slots> [state]=<status of the site>)
+    local stepMsg="Performing $FUNCNAME"
+    echo "-------------------------------------------------------"
+    echo "Start: $stepMsg"
+    if _init_valid $wmaInitResourceOpp && \
+       _init_valid $wmaInitSqlDB
+    then
+        echo "$FUNCNAME: Agent Opportunistic Resource control has been populated already."
+    else
+        echo "$FUNCNAME: triggered."
+        local errVal=0
+        ## Populating opportunistic resource-control
+        echo "$FUNCNAME: Populating opportunistic resource-control"
+        ## Loop over the env variables starting with RESOURCE_*
+        for res in ${!RESOURCE_*}
+        do
+            ## Parsing of the information stored in RESOURCE_* env variable, according to the schema reported above
+            eval `declare -p $res | sed -e "s/$res/site/g"`
+            if [[ ${site[name]} =~ .*_US_.* ]] && [[ $HOSTNAME =~ .*cern\.ch ]]; then
+                echo "I am based at CERN, so I cannot use US opportunistic resources, moving to the next site"
+                continue
+            else
+                manage execute-agent wmagent-resource-control --plugin=SimpleCondorPlugin --opportunistic --pending-slots=${site[pend]} --running-slots=${site[run]} --add-one-site=${site[name]} ; let errVal+=$?
+            fi
+        done
+        [[ $errVal -eq 0 ]] || { echo "ERROR: Failed to populate WMAgent's opportunistic resource control!"; return $(false) ;}
+        echo $WMA_BUILD_ID > $wmaInitResourceOpp
+    fi
+
+    echo "Done: $stepMsg"
+    echo "-------------------------------------------------------"
+}
+
+
 
 agent_upload_config(){
     # A function to be used for uploading WMAgentConfig to AuxDB at Central CouchDB
@@ -482,6 +555,7 @@ main(){
         (init_agent)             || { err=$?; echo "ERROR: init_agent"; exit $err ;}
         (agent_tweakconfig)      || { err=$?; echo "ERROR: agent_tweakconfig"; exit $err ;}
         (agent_resource_control) || { err=$?; echo "ERROR: agent_resource_control"; exit $err ;}
+        (agent_resource_opp)     || { err=$?; echo "ERROR: agent_resource_opp"; exit $err ;}
         (agent_upload_config)    || { err=$?; echo "ERROR: agent_upload_config"; exit $err ;}
         echo $WMA_BUILD_ID > $wmaInitUsing
         (check_docker_init)      || { err=$?; echo "ERROR: DockerBuild vs. HostConfiguration version missmatch"; exit $err ; }
@@ -502,6 +576,7 @@ main(){
         echo "Have a nice day!" && echo
         return $(true)
     }
+    (set_cronjob)                || { err=$?; echo "ERROR: set_cronjob"; exit $err ;}
     (check_databases)            || { err=$?; echo "ERROR: check_databases"; exit $err ;}
     (_renew_proxy)               || { err=$?; echo "ERROR: _renew_proxy"; exit $err ;}
     (start_agent)                || { err=$?; echo "ERROR: start_agent"; exit $err ;}

@@ -136,6 +136,7 @@ init_wmagent(){
                        --reqmgr2_url=$REQMGR2_URL \
 	                   --acdc_url=$ACDC_URL \
 	                   --dbs3_url=$DBS3_URL \
+	                   --dbs3_reader_url=$DBS3_READER_URL \
 	                   --dqm_url=$DQM_URL \
 	                   --requestcouch_url=$REQUESTCOUCH_URL \
 	                   --central_logdb_url=$CENTRAL_LOGDB_URL \

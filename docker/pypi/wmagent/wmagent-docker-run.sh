@@ -43,9 +43,8 @@ while getopts ":t:hp" opt; do
     esac
 done
 
-
-wmaUser=cmst1
-wmaOpts=" --user $wmaUser"
+wmaUser=$(id -un)
+wmaGroup=$(id -gn)
 
 # This is the root at the host only, it may differ from the root inside the container.
 # NOTE: This is parametriesed, so that the container can run on a different mount point.
@@ -55,36 +54,54 @@ HOST_MOUNT_DIR=/data/dockerMount
 [[ -h /data/srv/wmagent ]] && rm -f /data/srv/wmagent
 ln -s $HOST_MOUNT_DIR/srv/wmagent /data/srv/wmagent
 
+# create the passwd and group mount point dynamically at runtime
+passwdEntry=$(getent passwd $wmaUser | awk -F : -v wmaHome="/home/$wmaUser" '{print $1 ":" $2 ":" $3 ":" $4 ":" $5 ":" wmaHome ":" $7}')
+groupEntry=$(getent group $wmaGroup)
 
+# workaround case where Unix account is not in the local system (e.g. sssd)
+[[ -d $HOST_MOUNT_DIR/admin/etc/ ]] || (mkdir -p $HOST_MOUNT_DIR/admin/etc) || exit $?
+if ! [ -f $HOST_MOUNT_DIR/admin/etc/passwd ]; then
+    echo "Creating passwd file"
+    getent passwd > $HOST_MOUNT_DIR/admin/etc/passwd
+    echo $passwdEntry >> $HOST_MOUNT_DIR/admin/etc/passwd
+fi
+if ! [ -f $HOST_MOUNT_DIR/admin/etc/group ]; then
+    echo "Creating group file"
+    getent group > $HOST_MOUNT_DIR/admin/etc/group
+    echo $groupEntry >> $HOST_MOUNT_DIR/admin/etc/group
+fi
+
+# create regular mount points at runtime
 [[ -d $HOST_MOUNT_DIR/certs ]] || (mkdir -p $HOST_MOUNT_DIR/certs) || exit $?
 [[ -d $HOST_MOUNT_DIR/admin/wmagent ]] || (mkdir -p $HOST_MOUNT_DIR/admin/wmagent) || exit $?
 [[ -d $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/install ]] || (mkdir -p $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/install) || exit $?
 [[ -d $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/config  ]] || (mkdir -p $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/config)  || exit $?
 [[ -d $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/logs ]] || { mkdir -p $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/logs ;} || exit $?
 
-chown -R $wmaUser $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG || exit $?
-
 # NOTE: Before mounting /etc/tnsnames.ora we should check it exists, otherwise the run will fail on the FNAL agents
 tnsMount=""
 [[ -f /etc/tnsnames.ora ]] && tnsMount="--mount type=bind,source=/etc/tnsnames.ora,target=/etc/tnsnames.ora,readonly "
 
 dockerOpts=" \
---detach
+--detach \
 --network=host \
 --rm \
---hostname=`hostname -f` \
+--hostname=$(hostname -f) \
+--user $(id -u):$(id -g) \
 --name=wmagent \
-$tnsMount
+$tnsMount \
 --mount type=bind,source=/etc/condor,target=/etc/condor,readonly \
 --mount type=bind,source=/tmp,target=/tmp \
 --mount type=bind,source=$HOST_MOUNT_DIR/certs,target=/data/certs \
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/install,target=/data/srv/wmagent/current/install \
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/config,target=/data/srv/wmagent/current/config \
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/logs,target=/data/srv/wmagent/current/logs \
---mount type=bind,source=$HOST_MOUNT_DIR/admin/wmagent,target=/data/admin/wmagent/ \
+--mount type=bind,source=$HOST_MOUNT_DIR/admin/wmagent,target=/data/admin/wmagent \
+--mount type=bind,source=$HOST_MOUNT_DIR/admin/etc/passwd,target=/etc/passwd,readonly \
+--mount type=bind,source=$HOST_MOUNT_DIR/admin/etc/group,target=/etc/group,readonly \
+--mount type=bind,source=/etc/sudoers,target=/etc/sudoers,readonly \
+--mount type=bind,source=/etc/sudoers.d,target=/etc/sudoers.d,readonly \
 "
-
-wmaOpts="$wmaOpt $*"
 
 $PULL && {
     echo "Pulling Docker image: registry.cern.ch/cmsweb/wmagent:$WMA_TAG"
@@ -95,9 +112,9 @@ $PULL && {
 }
 
 echo "Checking if there is no other wmagent container running and creating a link to the $WMA_TAG in the host mount area."
-[[ `docker container inspect -f '{{.State.Status}}' wmagent 2>/dev/null ` == 'running' ]] || (
+[[ $(docker container inspect -f '{{.State.Status}}' wmagent 2>/dev/null) == 'running' ]] || (
     [[ -h $HOST_MOUNT_DIR/srv/wmagent/current ]] && rm -f $HOST_MOUNT_DIR/srv/wmagent/current
     ln -s $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG $HOST_MOUNT_DIR/srv/wmagent/current )
 
-echo "Starting the wmagent:$WMA_TAG docker container with the following parameters: $wmaOpts"
-docker run $dockerOpts local/wmagent:$WMA_TAG $wmaOpts
+echo "Starting wmagent:$WMA_TAG docker container with user: $wmaUser:$wmaGroup"
+docker run $dockerOpts local/wmagent:$WMA_TAG
