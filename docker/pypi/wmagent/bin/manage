@@ -219,10 +219,11 @@ init_tier0(){
 
 init_agent(){
     if _init_valid $wmaInitActive ; then
-        echo "Initialising Agent..."
         if [[ "$TEAMNAME" == Tier0* ]]; then
+            echo "Initializing Tier0 Agent..."
             init_tier0
         else
+            echo "Initializing WMAgent..."
             init_wmagent
         fi
     else
