@@ -507,15 +507,16 @@ agent_resource_opp() {
         ## Populating opportunistic resource-control
         echo "$FUNCNAME: Populating opportunistic resource-control"
         ## Loop over the env variables starting with RESOURCE_*
-        for res in ${!RESOURCE_*}
+        for resRecord in ${!RESOURCE_*}
         do
+            local resOpt=""
             ## Parsing of the information stored in RESOURCE_* env variable, according to the schema reported above
-            eval `declare -p $res | sed -e "s/$res/site/g"`
-            if [[ ${site[name]} =~ .*_US_.* ]] && [[ $HOSTNAME =~ .*cern\.ch ]]; then
+            eval `declare -p $resRecord | sed -e "s/$resRecord/res/g"`
+            if [[ ${res[name]} =~ .*_US_.* ]] && [[ $HOSTNAME =~ .*cern\.ch ]]; then
                 echo "I am based at CERN, so I cannot use US opportunistic resources, moving to the next site"
                 continue
             else
-                manage execute-agent wmagent-resource-control --plugin=SimpleCondorPlugin --opportunistic --pending-slots=${site[pend]} --running-slots=${site[run]} --add-one-site=${site[name]} ; let errVal+=$?
+                manage execute-agent wmagent-resource-control --plugin=SimpleCondorPlugin --opportunistic --pending-slots=${res[pend]} --running-slots=${res[run]} --add-one-site=${res[name]} ; let errVal+=$?
             fi
         done
         [[ $errVal -eq 0 ]] || { echo "ERROR: Failed to populate WMAgent's opportunistic resource control!"; return $(false) ;}
