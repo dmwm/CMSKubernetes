@@ -185,9 +185,9 @@ init_tier0(){
                        --central_logdb_url=$CENTRAL_LOGDB_URL \
                        --wmarchive_url=$WMARCHIVE_URL \
                        --amq_credentials=$AMQ_CREDENTIALS \
-	                   --rucio_account=$RUCIO_ACCOUNT \
-	                   --rucio_host=$RUCIO_HOST \
-	                   --rucio_auth=$RUCIO_AUTH
+                       --rucio_account=$RUCIO_ACCOUNT \
+                       --rucio_host=$RUCIO_HOST \
+                       --rucio_auth=$RUCIO_AUTH
     let errVal+=$?
 
     # NOTE: For the next step relates to modifying the originally generated WMAgent config file
