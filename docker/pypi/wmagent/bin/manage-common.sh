@@ -31,6 +31,11 @@ wmaSchemaFile=$WMA_CONFIG_DIR/.wmaSchemaFile.sql
 wmaDBName=wmagent
 #-------------------------------------------------------------------------------
 
+_is_venv() {
+    # Auxiliary function to determine if we are running within a shell with active python virtual env
+    $(python3 -c 'import sys; isVenv = sys.prefix == sys.base_prefix;sys.exit(isVenv)')
+}
+
 _exec_mysql() {
     # Auxiliary function to avoid repetitive and long calls to the  mysql command
     # :param $1: SQL command to be executed passed a s single string

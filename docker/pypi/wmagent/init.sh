@@ -130,6 +130,13 @@ deploy_to_host(){
 
     echo "$FUNCNAME: Copy the Runtime scripts"
     _init_valid $wmaInitRuntime || {
+
+        # Avoid copying the run time scripts if not running from inside a Docker container
+        _is_venv && {
+            echo $WMA_BUILD_ID > $wmaInitRuntime
+            return
+        }
+
         # checking if $WMA_DEPLOY_DIR is root path for $pythonLib:
         if [[ $pythonLib =~ ^$WMA_DEPLOY_DIR ]]; then
             mkdir -p $WMA_INSTALL_DIR/Docker/
@@ -422,13 +429,17 @@ agent_tweakconfig() {
         echo "$FUNCNAME: triggered."
         [[ -f $WMA_CONFIG_DIR/config.py ]] || { echo "ERROR: Missing WMAgent config!"; return $(false) ;}
 
-        echo "$FUNCNAME: Making agent configuration changes needed for Docker"
-        # make this a docker agent
-        sed -i "s+Agent.isDocker = False+Agent.isDocker = True+" $WMA_CONFIG_DIR/config.py
-        # update the location of submit.sh for docker
-        sed -i "s+config.JobSubmitter.submitScript.*+config.JobSubmitter.submitScript = '$WMA_CONFIG_DIR/etc/submit_py3.sh'+" $WMA_CONFIG_DIR/config.py
-        # replace all tags with current
-        sed -i "s+$WMA_TAG+current+" $WMA_CONFIG_DIR/config.py
+        # NOTE: We are not about change the submit script and runtime sources
+        #       if we are  not running from inside a Docker container
+        _is_venv || {
+            echo "$FUNCNAME: Making agent configuration changes needed for Docker"
+            # make this a docker agent
+            sed -i "s+Agent.isDocker = False+Agent.isDocker = True+" $WMA_CONFIG_DIR/config.py
+            # update the location of submit.sh for docker
+            sed -i "s+config.JobSubmitter.submitScript.*+config.JobSubmitter.submitScript = '$WMA_CONFIG_DIR/etc/submit_py3.sh'+" $WMA_CONFIG_DIR/config.py
+            # replace all tags with current
+            sed -i "s+$WMA_TAG+current+" $WMA_CONFIG_DIR/config.py
+        }
 
         echo "$FUNCNAME: Making other agent configuration changes"
         sed -i "s+REPLACE_TEAM_NAME+$TEAMNAME+" $WMA_CONFIG_DIR/config.py
