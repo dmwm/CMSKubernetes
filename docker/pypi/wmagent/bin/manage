@@ -129,7 +129,7 @@ init_wmagent(){
 
     local errVal=0
     wmagent-mod-config $database_options \
-	                   --input=$WMA_CONFIG_DIR/config-template.py \
+                       --input=$WMA_CONFIG_DIR/config-template.py \
                        --output=$WMA_CONFIG_DIR/config.py \
                        --working_dir=$WMA_INSTALL_DIR \
                        --couch_url=http://$COUCH_USER:$COUCH_PASS@$COUCH_HOST:$COUCH_PORT \
@@ -139,17 +139,17 @@ init_wmagent(){
                        --grafana_token=$GRAFANA_TOKEN \
                        --wmstats_url=$WMSTATS_URL \
                        --reqmgr2_url=$REQMGR2_URL \
-	                   --acdc_url=$ACDC_URL \
-	                   --dbs3_url=$DBS3_URL \
-	                   --dbs3_reader_url=$DBS3_READER_URL \
-	                   --dqm_url=$DQM_URL \
-	                   --requestcouch_url=$REQUESTCOUCH_URL \
-	                   --central_logdb_url=$CENTRAL_LOGDB_URL \
-	                   --wmarchive_url=$WMARCHIVE_URL \
-	                   --amq_credentials=$AMQ_CREDENTIALS \
-	                   --rucio_account=$RUCIO_ACCOUNT \
-	                   --rucio_host=$RUCIO_HOST \
-	                   --rucio_auth=$RUCIO_AUTH
+                       --acdc_url=$ACDC_URL \
+                       --dbs3_url=$DBS3_URL \
+                       --dbs3_reader_url=$DBS3_READER_URL \
+                       --dqm_url=$DQM_URL \
+                       --requestcouch_url=$REQUESTCOUCH_URL \
+                       --central_logdb_url=$CENTRAL_LOGDB_URL \
+                       --wmarchive_url=$WMARCHIVE_URL \
+                       --amq_credentials=$AMQ_CREDENTIALS \
+                       --rucio_account=$RUCIO_ACCOUNT \
+                       --rucio_host=$RUCIO_HOST \
+                       --rucio_auth=$RUCIO_AUTH
     let errVal+=$?
 
     wmcore-db-init --config $WMA_CONFIG_DIR/config.py --create --modules=WMCore.WMBS,WMCore.Agent.Database,WMComponent.DBS3Buffer,WMCore.BossAir,WMCore.ResourceControl;
