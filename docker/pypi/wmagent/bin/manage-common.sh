@@ -36,6 +36,11 @@ _is_venv() {
     $(python3 -c 'import sys; isVenv = sys.prefix == sys.base_prefix;sys.exit(isVenv)')
 }
 
+_is_docker() {
+    # Auxiliary function to determine if we are running within a docker env
+    [[ -f /.dockerenv ]] && grep -q docker /proc/1/cgroup
+}
+
 _exec_mysql() {
     # Auxiliary function to avoid repetitive and long calls to the  mysql command
     # :param $1: SQL command to be executed passed a s single string

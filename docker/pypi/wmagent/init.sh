@@ -431,7 +431,7 @@ agent_tweakconfig() {
 
         # NOTE: We are not about change the submit script and runtime sources
         #       if we are  not running from inside a Docker container
-        _is_venv || {
+        _is_docker && {
             echo "$FUNCNAME: Making agent configuration changes needed for Docker"
             # make this a docker agent
             sed -i "s+Agent.isDocker = False+Agent.isDocker = True+" $WMA_CONFIG_DIR/config.py
