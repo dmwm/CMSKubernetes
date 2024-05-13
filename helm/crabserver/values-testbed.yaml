@@ -1,4 +1,4 @@
 environment: "preprod"
 
 image:
-  tag: "v3.240426"
+  tag: "v3.240508"
