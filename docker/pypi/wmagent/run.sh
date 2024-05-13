@@ -13,7 +13,7 @@ export WMA_USER=$wmaUser
 export USER=$wmaUser
 [[ -d ${HOME} ]] || mkdir -p ${HOME}
 
-mv ${WMA_CONFIG_DIR}/etc/wmagent_bashrc $HOME/.bashrc
+cp -f ${WMA_DEPLOY_DIR}/etc/wmagent_bashrc $HOME/.bashrc
 source $HOME/.bashrc
 
 echo "Start initialization"
