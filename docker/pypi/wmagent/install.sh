@@ -159,7 +159,7 @@ EOF
 }
 
 
-stepMsg="Tweaking runtime environment for user: $WMA_USER"
+stepMsg="Tweaking runtime environment."
 echo "-----------------------------------------------------------------------"
 echo "Start $stepMsg"
 tweakEnv || { err=$?; echo ""; exit $err ; }

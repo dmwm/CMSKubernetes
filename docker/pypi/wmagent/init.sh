@@ -1,6 +1,6 @@
 #!/bin/bash
 
-### This script is used to start the WMAgent services inside a Docker container
+### This script is used to start the WMAgent services deployed from Pypi
 ### * All agent related configuration parameters are read from WMAgent.secrets file
 ###   at runtime and are used to (re)generate the agent configuration files.
 ### * All service credentials and schedd caches are accessed via host mount points
@@ -34,8 +34,8 @@ AGENT_FLAVOR=mysql
 # are to be defined for the first time or otherwise their default values will be used
 [[ -f $WMA_SECRETS_FILE ]] && _load_wmasecrets
 
-# Find the current WMAgent Docker image BuildId:
-# NOTE: The $WMA_BUILD_ID is exported only from $WMA_USER/.bashrc but not from the Dockerfile ENV command
+# Find the current WMAgent BuildId:
+# NOTE: The $WMA_BUILD_ID is exported from $WMA_ENV_FILE but not from the Dockerfile ENV command
 [[ -n $WMA_BUILD_ID ]] || WMA_BUILD_ID=$(cat $WMA_ROOT_DIR/.dockerBuildId) || { echo "ERROR: Cuold not find/set WMA_UILD_ID"; exit 1 ;}
 
 # Check runtime arguments:
@@ -101,22 +101,32 @@ basic_checks() {
     echo
 }
 
+_copy_runtime() {
+    # Auxiliary function to copy all scripts needed at runtime from the WMAgent image to the host
+
+    # Avoid copying the run time scripts if not running from inside a Docker container
+    _is_venv && {
+        echo $WMA_BUILD_ID > $wmaInitRuntime
+        return
+    }
+
+    # checking if $WMA_DEPLOY_DIR is root path for $pythonLib:
+    if [[ $pythonLib =~ ^$WMA_DEPLOY_DIR ]]; then
+        mkdir -p $WMA_INSTALL_DIR/Docker/
+        cp -rav $pythonLib/WMCore/WMRuntime $WMA_INSTALL_DIR/Docker/
+        cp -rav $WMA_DEPLOY_DIR/etc/ $WMA_CONFIG_DIR/
+        echo $WMA_BUILD_ID > $wmaInitRuntime
+    else
+        echo "$FUNCNAME: ERROR: \$WMA_DEPLOY_DIR: $WMA_DEPLOY_DIR is not a root path for \$pythonLib: $pithonLib"
+        echo "$FUNCNAME: ERROR: We cannot find the correct WMCore/WMRuntime source to copy at the current host!"
+        return $(false)
+    fi
+}
+
 deploy_to_host(){
-    # This function does all the needed Docker image to Host modifications at Runtime
-    # DONE: Here to execute all local config and manage/copy opertaions from the image deploy area of the container to the host
-    #       * creation of all config directories if missing at the mount point
-    #          * reimplement init_install_dir
-    #          * reimplement init_config_dir
-    #       * copy/override the manage file at the host mount point with the manage file from the image deployment area
-    #       * copy/override all config files if the agent have never been initialised
-    #       * create/touch a .dockerInit file containing the WMA_BUILD_ID of the current docker image
-    #         * eventually the docker container Id may be considered in the future as well (the unique hash id to be used not the contaner name)
-    #
-    # NOTE: On every step we need to check the .dockerInit file content. There are two level of comparision we can make:
-    #       * the current container Id with the already intialised one: if we want reinitailisation on every container kill/start
-    #       * the current image Id with the already initialised one: if we want reinitialisation only on docker image rebuild (New WMAgent deployment).
-    #       THE implementation considers the later - reinitialisation on container rebuild
-    local stepMsg="Performing Docker image to Host initialisation steps"
+    # This function does all Host modifications needed at Runtime
+
+    local stepMsg="Performing Host initialization steps"
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
 
@@ -131,37 +141,18 @@ deploy_to_host(){
     ln -s $WMA_MANAGE_DIR/manage $WMA_CONFIG_DIR/manage
 
     echo "$FUNCNAME: Copy the Runtime scripts"
-    _init_valid $wmaInitRuntime || {
-
-        # Avoid copying the run time scripts if not running from inside a Docker container
-        _is_venv && {
-            echo $WMA_BUILD_ID > $wmaInitRuntime
-            return
-        }
-
-        # checking if $WMA_DEPLOY_DIR is root path for $pythonLib:
-        if [[ $pythonLib =~ ^$WMA_DEPLOY_DIR ]]; then
-            mkdir -p $WMA_INSTALL_DIR/Docker/
-            cp -rav $pythonLib/WMCore/WMRuntime $WMA_INSTALL_DIR/Docker/
-            cp -rav $WMA_DEPLOY_DIR/etc/ $WMA_CONFIG_DIR/
-            echo $WMA_BUILD_ID > $wmaInitRuntime
-        else
-            echo "$FUNCNAME: ERROR: \$WMA_DEPLOY_DIR: $WMA_DEPLOY_DIR is not a root path for \$pythonLib: $pithonLib"
-            echo "$FUNCNAME: ERROR: We cannot find the correct WMCore/WMRuntime source to copy at the current host!"
-            return $(false)
-        fi
-    }
+    _init_valid $wmaInitRuntime || _copy_runtime
 
     # Check if the host has a basic WMAgent.secrets file and copy a template if missing
     # NOTE: Here we never overwrite any existing WMAGent.secrets file: We follow:
     #       * Check if there is any at the host, and if so, is it a blank template or a fully configured one
-    #       * In case we find a legit WMAgent.secrets file we set the .dockerInit and move on
+    #       * In case we find a legit WMAgent.secrets file we set the .initAdmin and move on
     #       * In case we need to copy a brand new template (based on the agent type - test/prod )
-    #         or a blank one found at the host we halt without updating the .dockerInit file
+    #         or a blank one found at the host we halt without updating the .initAdmin file
     #         and we ask the user to examine/update the file.
     #       (Re)Initialization should never pass beyond that step unless properly
     #       configured WMAgent.secrets file being provided at the host.
-    echo "$FUNCNAME: Initialise && Validate && Load WMAgent.secrets"
+    echo "$FUNCNAME: Initialize && Validate && Load WMAgent.secrets"
     _init_valid $wmaInitAdmin || {
         if [[ ! -f $WMA_SECRETS_FILE ]]; then
             # NOTE: we consider production templates for relval agents and testbed templates for dev- agents
@@ -205,16 +196,9 @@ deploy_to_host(){
         echo $WMA_BUILD_ID > $wmaInitRucio
     }
 
-    echo "Done: $stepMsg"
-    echo "-------------------------------------------------------"
-
-    local stepMsg="Performing local Docker image initialisation steps"
-    echo "-------------------------------------------------------"
-    echo "Start: $stepMsg"
-
-    # Checking Certificates and proxy;
     echo "$FUNCNAME: Checking Certificates and Proxy"
     _renew_proxy
+
     echo "Done: $stepMsg"
     echo "-------------------------------------------------------"
 }
@@ -240,8 +224,8 @@ check_wmasecrets(){
 
 _check_oracle() {
     # Auxiliary function to check if the oracle database configured for the current agent is empty
-    # NOTE: Oracle is centraly provided - we require an empty database for every account/agent
-    #       otherwise we cannot guarantie this is the only agent to connect to the so configured database
+    # NOTE: Oracle is centrally provided - we require an empty database for every account/agent
+    #       otherwise we cannot guarantee this is the only agent to connect to the so configured database
     # NOTE: Here to check if the wmagent database exists and if so to check if it was done from
     #       a container with the current $WMA_BUILD_ID
     echo "$FUNCNAME: Checking whether the Oracle server is reachable ..."
@@ -346,10 +330,25 @@ EOF
 }
 
 check_docker_init() {
-    # A function to check all previously populated */.dockerInit files
+    # A function to check all previously populated */.init<step> files
     # from all previous steps and compare them with the /data/.dockerBuildId
     # if all do not match we cannot continue - we consider configuration/version
     # mismatch between the host and the container
+
+    # NOTE: On every step we need to check the .init<step> file content. We always compare
+    #       the current $WMA_BUILD_ID with the one previously initialized at the host.
+    #       The WMA_BUILD_ID is generated during the execution of `install.sh`
+    #       at build time (for docker images) or deploy time for virtual env
+    #       There are three levels of comparison we can make:
+    #       * if we want to trigger re-initialization on any WMAgent image rebuild,
+    #         then the $WMA_BUILD_ID should contain a sha256sum of a random variable
+    #       * if we want to trigger re-initialization only on new WMAgent tag builds,
+    #         then the $WMA_BUILD_ID should contain a sha256sum of whole $WMA_TAG
+    #       * if we want to trigger re-initialization only on version change (not on patches),
+    #         then we should split $WMA_TAG in major and minor part and the $WMA_BUILD_ID
+    #         should contain a sha256sum only of the major part, e.g.:
+    #         WMA_TAG=2.3.3.1; WMA_TAG_MAJOR=2.3.3; WMA_TAG_MINOR=1
+    #       The current implementation considers the first one - re-initialization on any WMAgent rebuild
 
     local initFilesList="
         $wmaInitAdmin
@@ -365,20 +364,20 @@ check_docker_init() {
         $wmaInitRucio
         $wmaInitUsing
         "
-    local stepMsg="Performing checks for successful Docker initialisation steps..."
+    local stepMsg="Performing checks for successful WMAgent initialisation steps..."
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
-    local dockerInitId=""
-    local dockerInitIdValues=""
+    local initId=""
+    local initIdValues=""
     local idValue=""
     for initFile in $initFilesList; do
         _init_valid $initFile && idValue=$(cat $initFile 2>&1) || idValue=$initFile
-        dockerInitIdValues="$dockerInitIdValues $idValue"
+        initIdValues="$initIdValues $idValue"
     done
-    dockerInitId=$(for id in $dockerInitIdValues; do echo $id; done |sort|uniq)
+    initId=$(for id in $initIdValues; do echo $id; done |sort|uniq)
     echo "WMA_BUILD_ID: $WMA_BUILD_ID"
-    echo "dockerInitId: $dockerInitId"
-    [[ $dockerInitId == $WMA_BUILD_ID ]] && { echo "OK"; return $(true) ;} || { echo "WARNING: dockerInit vs buildId mismatch"; return $(false) ;}
+    echo "initId: $initId"
+    [[ $initId == $WMA_BUILD_ID ]] && { echo "OK"; return $(true) ;} || { echo "WARNING: initID vs buildId mismatch"; return $(false) ;}
 }
 
 activate_agent() {
@@ -431,7 +430,7 @@ agent_tweakconfig() {
         echo "$FUNCNAME: triggered."
         [[ -f $WMA_CONFIG_DIR/config.py ]] || { echo "ERROR: Missing WMAgent config!"; return $(false) ;}
 
-        # NOTE: We are not about change the submit script and runtime sources
+        # NOTE: We are not about to change the submit script and runtime sources
         #       if we are  not running from inside a Docker container
         _is_docker && {
             echo "$FUNCNAME: Making agent configuration changes needed for Docker"
@@ -553,20 +552,20 @@ agent_resource_opp() {
 
 agent_upload_config(){
     # A function to be used for uploading WMAgentConfig to AuxDB at Central CouchDB
-    # NOTE: The final config/.dockerInit is to be set here after full agent initialisation.
+    # NOTE: The final config/.initUsing is to be set in the main() function after full agent initialization.
     #       Once we have reached to the step of uploading the agent config to Cerntral CouchDB
-    #       we consider all previous reintialisation and config steps as successfully complpeted.
+    #       we consider all previous re-internationalist and config steps as successfully completed.
     #       Steps to follow:
-    #       * Checking if the current image WMA_BUILD_ID matches the last one successfully initialised at the host
+    #       * Checking if the current image WMA_BUILD_ID matches the last one successfully initialized at the host
     #       * If not, tries to upload the current config to Central CouchDB
     #       * If agent config successfully uploaded, preserve the WMA_BUILD_ID at config/.dockerInit
-    #       With that, we consider the agent initialisation fully complete. The init steps will not be
-    #       repeated on further container restarts unless any of the */.dockerInit files at the host is altered.
+    #       With that, we consider the agent initialization fully complete. The init steps will not be
+    #       repeated on further container restarts unless any of the */.init<step> files at the host is altered.
     local stepMsg="Performing $FUNCNAME"
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
 
-    _init_valid $wmaInitUploaded || {
+    _init_valid $wmaInitUpload || {
         echo "$FUNCNAME: triggered."
         echo "$FUNCNAME: Tweaking central agent configuration befre uploading"
         if [[ "$TEAMNAME" == production ]]; then
