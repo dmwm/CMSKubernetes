@@ -214,6 +214,8 @@ init_tier0(){
     wmagent-couchapp-init;
     let errVal+=$?
     unset WMAGENT_CONFIG
+
+    return $errVal
 }
 
 

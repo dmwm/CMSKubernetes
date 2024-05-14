@@ -539,7 +539,7 @@ agent_resource_opp() {
                 manage execute-agent wmagent-resource-control $resOpt || let errVal+=$?
             fi
         done
-        [[ $errVal -eq 0 ]] || { echo "ERROR: Failed to populate WMAgent's opportunistic resource control!"; return $(false) ;}
+        [[ $errVal -eq 0 ]] || { echo "ERROR: Failed to populate WMAgent's opportunistic resource control!"; return $errVal ;}
         echo $WMA_BUILD_ID > $wmaInitResourceOpp
     fi
 
