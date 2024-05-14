@@ -62,11 +62,13 @@ echo "======================================================="
 echo
 
 _check_mounts() {
-    [[ "$TEAMNAME" == Tier0* ]] && return $(true)
     # An auxiliary function to check if a given mountpoint is among the actually
     # bind mounted volumes from the host
     # :param $1: The mountpoint to be checked
     # :return: true/false
+
+    # Avoid checking for mounts when not running from docker
+    _is_venv && return $(true)
     local mounts=$(mount |grep -E "(/data|/etc/condor|/tmp)" |awk '{print $3}')
     local mountPoint=$(realpath $1 2>/dev/null)
     [[ " $mounts " =~  ^.*[[:space:]]+$mountPoint[[:space:]]+.*$  ]] && return $(true) || return $(false)
