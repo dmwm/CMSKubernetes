@@ -289,6 +289,8 @@ _renew_proxy(){
     # Here to check certificates and proxy lifetime and update myproxy if needed:
     local certMinLifetimeHours=168
     local certMinLifetimeSec=$(($certMinLifetimeHours*60*60))
+    local myproxyMinLifetimeHours=48
+    local myproxyMinLifetimeSec=$(($myproxyMinLifetimeHours*60*60))
 
     if [[ -f $WMA_CERTS_DIR/servicecert.pem ]] && [[ -f $WMA_CERTS_DIR/servicekey.pem ]]; then
 
@@ -313,11 +315,12 @@ _renew_proxy(){
         [[ -n $myproxyEndDate ]] || ($myproxyCmd && $vomsproxyCmd) || {
                 echo "$FUNCNAME: ERROR: Failed to renew invalid myproxy"; return $(false) ;}
         myproxyEndDate=$(date --date="$myproxyEndDate" +%s)
-        [[ $myproxyEndDate -gt $(($now + 7*24*60*60)) ]] || ($myproxyCmd && $vomsproxyCmd) || {
+        [[ $myproxyEndDate -gt $(($now + $myproxyMinLifetimeSec)) ]] || ($myproxyCmd && $vomsproxyCmd) || {
                 echo "$FUNCNAME: ERROR: Failed to renew expired myproxy"; return $(false) ;}
 
         # Stay safe and always change the service {cert,key} and myproxy mode here:
         chmod 400 $WMA_CERTS_DIR/*
+        chmod 600 $WMA_CERTS_DIR/*proxy*.pem
         echo "$FUNCNAME: OK"
     else
         echo "$FUNCNAME: ERROR: We found no service certificate installed at $WMA_CERTS_DIR!"

@@ -24,6 +24,8 @@ HOSTIP=`hostname -i`
     WMA_TAG=$WMCoreVersion
 }
 
+[[ -z $WMA_USER ]] && export WMA_USER=$(id -un)
+
 TEAMNAME=testbed-${HOSTNAME%%.*}
 AGENT_NUMBER=0
 AGENT_FLAVOR=mysql
@@ -299,7 +301,7 @@ set_cronjob() {
     stepMsg="Populating cronjob with utilitarian scripts for the $WMA_USER"
     echo "-----------------------------------------------------------------------"
     echo "Start: $stepMsg"
-
+    local errVal=0
     chmod +x $WMA_DEPLOY_DIR/deploy/renew_proxy.sh $WMA_DEPLOY_DIR/deploy/restartComponent.sh
 
     crontab -u $WMA_USER - <<EOF
@@ -307,7 +309,11 @@ set_cronjob() {
 58 */12 * * * python $WMA_DEPLOY_DIR/deploy/checkProxy.py --proxy /data/certs/myproxy.pem --time 120 --send-mail True --mail alan.malta@cern.ch
 */15 * * * *  source $WMA_DEPLOY_DIR/deploy/restartComponent.sh > /dev/null
 EOF
-
+    let errVal+=$?
+    [[ $errVal -eq 0 ]] || {
+        echo "$FUNCNAME: ERROR: Failed to populate WMAgent's cron jobs for user: $WMA_USER"
+        return $errVal
+    }
     echo "Done: $stepMsg!" && echo
     echo "-----------------------------------------------------------------------"
 }
