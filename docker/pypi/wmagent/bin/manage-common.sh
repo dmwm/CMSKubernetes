@@ -276,21 +276,24 @@ _renew_proxy(){
         return $(false)
     fi
 
+    # Setting the Prolxy and certificate minimal lifetime
+    local certMinLifetimeHours=168
+    local certMinLifetimeSec=$(($certMinLifetimeHours*60*60))
+    local myproxyLifetimHours=168
+    local myproxyMinLifetimeHours=48
+    local myproxyMinLifetimeSec=$(($myproxyMinLifetimeHours*60*60))
+
     # Here to forge the myproxy command string to be used for the operation.
     local myproxyCmd="myproxy-get-delegation \
-                    -v -l amaltaro -t 168 -s myproxy.cern.ch -k $myproxyCredName -n \
+                    -v -l amaltaro -t $myproxyLifetimHours -s myproxy.cern.ch -k $myproxyCredName -n \
                     -o $WMA_CERTS_DIR/mynewproxy.pem"
     local vomsproxyCmd="voms-proxy-init -rfc \
-                    -voms cms:/cms/Role=production -valid 168:00 -bits 2048 -noregen \
+                    -voms cms:/cms/Role=production -valid $myproxyLifetimHours -bits 2048 -noregen \
                     -cert $WMA_CERTS_DIR/mynewproxy.pem \
                     -key  $WMA_CERTS_DIR/mynewproxy.pem \
                     -out  $WMA_CERTS_DIR/myproxy.pem"
 
     # Here to check certificates and proxy lifetime and update myproxy if needed:
-    local certMinLifetimeHours=168
-    local certMinLifetimeSec=$(($certMinLifetimeHours*60*60))
-    local myproxyMinLifetimeHours=48
-    local myproxyMinLifetimeSec=$(($myproxyMinLifetimeHours*60*60))
 
     if [[ -f $WMA_CERTS_DIR/servicecert.pem ]] && [[ -f $WMA_CERTS_DIR/servicekey.pem ]]; then
 
