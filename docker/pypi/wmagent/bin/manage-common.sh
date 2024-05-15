@@ -276,7 +276,7 @@ _renew_proxy(){
         return $(false)
     fi
 
-    # Setting the Prolxy and certificate minimal lifetime
+    # Setting the Proxy and certificate minimal lifetime
     local certMinLifetimeHours=168
     local certMinLifetimeSec=$(($certMinLifetimeHours*60*60))
     local myproxyLifetimHours=168
@@ -294,7 +294,6 @@ _renew_proxy(){
                     -out  $WMA_CERTS_DIR/myproxy.pem"
 
     # Here to check certificates and proxy lifetime and update myproxy if needed:
-
     if [[ -f $WMA_CERTS_DIR/servicecert.pem ]] && [[ -f $WMA_CERTS_DIR/servicekey.pem ]]; then
 
         echo "$FUNCNAME: Checking Certificate lifetime:"
