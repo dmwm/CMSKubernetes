@@ -276,59 +276,18 @@ _renew_proxy(){
         return $(false)
     fi
 
-    # Setting the Proxy and certificate minimal lifetime
-    local certMinLifetimeHours=168
-    local certMinLifetimeSec=$(($certMinLifetimeHours*60*60))
-    local myproxyLifetimHours=168
-    local myproxyMinLifetimeHours=156
-    local myproxyMinLifetimeSec=$(($myproxyMinLifetimeHours*60*60))
-
     # Here to forge the myproxy command string to be used for the operation.
     local myproxyCmd="myproxy-get-delegation \
-                    -v -l amaltaro -t $myproxyLifetimHours -s myproxy.cern.ch -k $myproxyCredName -n \
+                    -v -l amaltaro -t 168 -s myproxy.cern.ch -k $myproxyCredName -n \
                     -o $WMA_CERTS_DIR/mynewproxy.pem"
     local vomsproxyCmd="voms-proxy-init -rfc \
-                    -voms cms:/cms/Role=production -valid $myproxyLifetimHours -bits 2048 -noregen \
+                    -voms cms:/cms/Role=production -valid 168:00 -bits 2048 -noregen \
                     -cert $WMA_CERTS_DIR/mynewproxy.pem \
                     -key  $WMA_CERTS_DIR/mynewproxy.pem \
                     -out  $WMA_CERTS_DIR/myproxy.pem"
 
-    # Here to check certificates and proxy lifetime and update myproxy if needed:
-    if [[ -f $WMA_CERTS_DIR/servicecert.pem ]] && [[ -f $WMA_CERTS_DIR/servicekey.pem ]]; then
-
-        echo "$FUNCNAME: Checking Certificate lifetime:"
-        local now=$(date +%s)
-        local certEndDate=$(openssl x509 -in $WMA_CERTS_DIR/servicecert.pem -noout -enddate)
-        certEndDate=${certEndDate##*=}
-        echo "$FUNCNAME: Certificate end date: $certEndDate"
-        [[ -z $certEndDate ]] && {
-            echo "$FUNCNAME: ERROR: Failed to determine certificate end date!"; return $(false) ;}
-        certEndDate=$(date --date="$certEndDate" +%s)
-        [[ $certEndDate -le $now ]] && {
-            echo "$FUNCNAME: ERROR: Expired certificate at $WMA_CERTS_DIR/servicecert.pem!"; return $(false) ;}
-        [[ $(($certEndDate -$now)) -le $certMinLifetimeSec ]] && {
-            echo "$FUNCNAME: WARNING: The service certificate lifetime is less than certMinLifetimeHours: $certMinLifetimeHours! Please update it ASAP!" ;}
-
-        # Renew myproxy if needed:
-        echo "$FUNCNAME: Checking myproxy lifetime:"
-        local myproxyEndDate=$(openssl x509 -in $WMA_CERTS_DIR/myproxy.pem -noout -enddate)
-        myproxyEndDate=${myproxyEndDate##*=}
-        echo "$FUNCNAME: myproxy end date: $myproxyEndDate"
-        [[ -n $myproxyEndDate ]] || ($myproxyCmd && $vomsproxyCmd) || {
-                echo "$FUNCNAME: ERROR: Failed to renew invalid myproxy"; return $(false) ;}
-        myproxyEndDate=$(date --date="$myproxyEndDate" +%s)
-        [[ $myproxyEndDate -gt $(($now + $myproxyMinLifetimeSec)) ]] || ($myproxyCmd && $vomsproxyCmd) || {
-                echo "$FUNCNAME: ERROR: Failed to renew expired myproxy"; return $(false) ;}
-
-        # Stay safe and always change the service {cert,key} and myproxy mode here:
-        chmod 400 $WMA_CERTS_DIR/*
-        chmod 600 $WMA_CERTS_DIR/*proxy*.pem
-        echo "$FUNCNAME: OK"
-    else
-        echo "$FUNCNAME: ERROR: We found no service certificate installed at $WMA_CERTS_DIR!"
-        echo "$FUNCNAME: ERROR: Please install proper cert and key files before restarting the WMAgent container!"
-        return $(false)
-    fi
+    $myproxyCmd && $vomsproxyCmd
+    return $?
 }
 
 
