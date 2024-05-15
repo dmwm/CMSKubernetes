@@ -305,7 +305,8 @@ set_cronjob() {
     chmod +x $WMA_DEPLOY_DIR/deploy/renew_proxy.sh $WMA_DEPLOY_DIR/deploy/restartComponent.sh
 
     crontab -u $WMA_USER - <<EOF
-55 */12 * * * $WMA_MANAGE_DIR/manage renew-proxy
+$(crontab -l)
+55  */1 * * * $WMA_MANAGE_DIR/manage renew-proxy
 58 */12 * * * python $WMA_DEPLOY_DIR/deploy/checkProxy.py --proxy /data/certs/myproxy.pem --time 120 --send-mail True --mail alan.malta@cern.ch
 */15 * * * *  source $WMA_DEPLOY_DIR/deploy/restartComponent.sh > /dev/null
 EOF

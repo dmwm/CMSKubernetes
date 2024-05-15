@@ -280,7 +280,7 @@ _renew_proxy(){
     local certMinLifetimeHours=168
     local certMinLifetimeSec=$(($certMinLifetimeHours*60*60))
     local myproxyLifetimHours=168
-    local myproxyMinLifetimeHours=48
+    local myproxyMinLifetimeHours=156
     local myproxyMinLifetimeSec=$(($myproxyMinLifetimeHours*60*60))
 
     # Here to forge the myproxy command string to be used for the operation.
