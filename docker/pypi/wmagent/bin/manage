@@ -149,10 +149,9 @@ init_wmagent(){
 
     wmcore-db-init --config $WMA_CONFIG_DIR/config.py --create --modules=WMCore.WMBS,WMCore.Agent.Database,WMComponent.DBS3Buffer,WMCore.BossAir,WMCore.ResourceControl;
     let errVal+=$?
-    export WMAGENT_CONFIG=$WMA_CONFIG_DIR/config.py
+
     wmagent-couchapp-init
     let errVal+=$?
-    unset WMAGENT_CONFIG
 
     return $errVal
 }

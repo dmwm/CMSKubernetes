@@ -298,19 +298,23 @@ check_databases() {
 }
 
 set_cronjob() {
-    stepMsg="Populating cronjob with utilitarian scripts for the $WMA_USER"
+    stepMsg="Populating cronjob with utilitarian scripts for user: $WMA_USER"
     echo "-----------------------------------------------------------------------"
     echo "Start: $stepMsg"
     local errVal=0
-    chmod +x $WMA_DEPLOY_DIR/deploy/renew_proxy.sh $WMA_DEPLOY_DIR/deploy/restartComponent.sh
 
+    # Populating proxy related cronjobs
     crontab -u $WMA_USER - <<EOF
-$(crontab -l)
 55 */12 * * * $WMA_MANAGE_DIR/manage renew-proxy
 58 */12 * * * python $WMA_DEPLOY_DIR/deploy/checkProxy.py --proxy /data/certs/myproxy.pem --time 120 --send-mail True --mail alan.malta@cern.ch
 */15 * * * *  source $WMA_DEPLOY_DIR/deploy/restartComponent.sh > /dev/null
 EOF
     let errVal+=$?
+
+    # Populating CouchDB related cronjobs
+    wmagent-couchapp-init
+    let errVal+=$?
+
     [[ $errVal -eq 0 ]] || {
         echo "$FUNCNAME: ERROR: Failed to populate WMAgent's cron jobs for user: $WMA_USER"
         return $errVal
