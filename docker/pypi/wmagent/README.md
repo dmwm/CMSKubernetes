@@ -322,7 +322,7 @@ They are set at different moments along the process: i.e. at `buildtime` - when 
    * config=$WMA_CONFIG_DIR
    * manage=$WMA_MANAGE_DIR/manage
    * RUCIO_HOME=$WMA_CONFIG_DIR
-   * WMA_BUILD_ID=$(cat $WMA_ROOT_DIR/.dockerBuildId)
+   * WMA_BUILD_ID=$(cat $WMA_ROOT_DIR/.wmaBuildId)
    * WMCORE_ROOT=$WMA_DEPLOY_DIR
    * WMAGENTPY3_ROOT=$WMA_INSTALL_DIR
    * WMAGENTPY3_VERSION=$WMA_TAG

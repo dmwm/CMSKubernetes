@@ -36,7 +36,7 @@ AGENT_FLAVOR=mysql
 
 # Find the current WMAgent BuildId:
 # NOTE: The $WMA_BUILD_ID is exported from $WMA_ENV_FILE but not from the Dockerfile ENV command
-[[ -n $WMA_BUILD_ID ]] || WMA_BUILD_ID=$(cat $WMA_ROOT_DIR/.dockerBuildId) || { echo "ERROR: Cuold not find/set WMA_UILD_ID"; exit 1 ;}
+[[ -n $WMA_BUILD_ID ]] || WMA_BUILD_ID=$(cat $WMA_ROOT_DIR/.wmaBuildId) || { echo "ERROR: Cuold not find/set WMA_UILD_ID"; exit 1 ;}
 
 # Check runtime arguments:
 TEAMNAME_REG="(^production$|^testbed-.*$|^dev-.*$|^relval.*$|^Tier0.*$)"
@@ -329,9 +329,9 @@ EOF
     echo "-----------------------------------------------------------------------"
 }
 
-check_docker_init() {
+check_wmagnet_init() {
     # A function to check all previously populated */.init<step> files
-    # from all previous steps and compare them with the /data/.dockerBuildId
+    # from all previous steps and compare them with the /data/.wmaBuildId
     # if all do not match we cannot continue - we consider configuration/version
     # mismatch between the host and the container
 
@@ -367,17 +367,17 @@ check_docker_init() {
     local stepMsg="Performing checks for successful WMAgent initialisation steps..."
     echo "-------------------------------------------------------"
     echo "Start: $stepMsg"
-    local initId=""
-    local initIdValues=""
+    local wmaInitId=""
+    local wmaInitIdValues=""
     local idValue=""
     for initFile in $initFilesList; do
         _init_valid $initFile && idValue=$(cat $initFile 2>&1) || idValue=$initFile
-        initIdValues="$initIdValues $idValue"
+        wmaInitIdValues="$wmaInitIdValues $idValue"
     done
-    initId=$(for id in $initIdValues; do echo $id; done |sort|uniq)
+    wmaInitId=$(for id in $wmaInitIdValues; do echo $id; done |sort|uniq)
     echo "WMA_BUILD_ID: $WMA_BUILD_ID"
-    echo "initId: $initId"
-    [[ $initId == $WMA_BUILD_ID ]] && { echo "OK"; return $(true) ;} || { echo "WARNING: initID vs buildId mismatch"; return $(false) ;}
+    echo "wmaInitId: $wmaInitId"
+    [[ $wmaInitId == $WMA_BUILD_ID ]] && { echo "OK"; return $(true) ;} || { echo "WARNING: wmaInitId vs. wmaBuildId mismatch"; return $(false) ;}
 }
 
 activate_agent() {
@@ -558,7 +558,7 @@ agent_upload_config(){
     #       Steps to follow:
     #       * Checking if the current image WMA_BUILD_ID matches the last one successfully initialized at the host
     #       * If not, tries to upload the current config to Central CouchDB
-    #       * If agent config successfully uploaded, preserve the WMA_BUILD_ID at config/.dockerInit
+    #       * If agent config successfully uploaded, preserve the WMA_BUILD_ID at config/.initUpload
     #       With that, we consider the agent initialization fully complete. The init steps will not be
     #       repeated on further container restarts unless any of the */.init<step> files at the host is altered.
     local stepMsg="Performing $FUNCNAME"
@@ -604,7 +604,7 @@ start_agent() {
 main(){
     basic_checks
     check_wmasecrets
-    check_docker_init || {
+    check_wmagnet_init || {
         (deploy_to_host)         || { err=$?; echo "ERROR: deploy_to_host"; exit $err ;}
         (check_databases)        || { err=$?; echo "ERROR: check_databases"; exit $err ;}
         (activate_agent)         || { err=$?; echo "ERROR: activate_agent"; exit $err ;}
@@ -614,7 +614,7 @@ main(){
         (agent_resource_opp)     || { err=$?; echo "ERROR: agent_resource_opp"; exit $err ;}
         (agent_upload_config)    || { err=$?; echo "ERROR: agent_upload_config"; exit $err ;}
         echo $WMA_BUILD_ID > $wmaInitUsing
-        (check_docker_init)      || { err=$?; echo "ERROR: DockerBuild vs. HostConfiguration version missmatch"; exit $err ; }
+        (check_wmagnet_init)     || { err=$?; echo "ERROR: Unresolved wmaInitId vs. wmaBuildId mismatch"; exit $err ; }
         echo && echo "Docker container has been initialised! However you still need to:"
         echo "  1) Double check agent configuration: less /data/[dockerMount]/srv/wmagent/current/config/config.py"
         echo "  2) Start the agent by either of the methods bellow:"
@@ -629,6 +629,13 @@ main(){
         echo "            docker kill wmagent"
         echo "          * Start a fresh instance of wmagent:"
         echo "            ./wmagent-docker-run.sh -t <WMA_TAG> && docker logs -f wmagent"
+        echo
+        echo "     d) If you are deploying inside a virtual environment"
+        echo "          * Activate the environment:"
+        echo "            cd <Deployment_dir> && . bin/activate"
+        echo "          * Use the regular manage script inside the virtual environment:"
+        echo "            manage start-agent"
+        echo
         echo "Have a nice day!" && echo
         return $(true)
     }
