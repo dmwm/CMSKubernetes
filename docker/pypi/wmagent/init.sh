@@ -423,8 +423,8 @@ agent_tweakconfig() {
             sed -i "s+DBSInterface.DBSUrl = 'https://cmsweb.cern.ch/dbs/prod/global/DBSReader'+DBSInterface.DBSUrl = '$GLOBAL_DBS_URL'+" $WMA_CONFIG_DIR/config.py
             rucio_host=http://cms-rucio.cern.ch
             rucio_auth=https://cms-rucio-auth.cern.ch
-            sed -i "s+WorkQueueManager.rucioUrl =.*+WorkQueueManager.rucioUrl+WorkQueueManager.rucioUrl = $rucio_host'+" $WMA_CONFIG_DIR/config.py
-            sed -i "s+WorkQueueManager.rucioAuthUrl =.*+WorkQueueManager.rucioUrl+WorkQueueManager.rucioAuthUrl = $rucio_auth'+" $WMA_CONFIG_DIR/config.py
+            sed -i "s+WorkQueueManager.rucioUrl = .*+WorkQueueManager.rucioUrl = $rucio_host+" $WMA_CONFIG_DIR/config.py
+            sed -i "s+WorkQueueManager.rucioAuthUrl = .*+WorkQueueManager.rucioAuthUrl = $rucio_auth+" $WMA_CONFIG_DIR/config.py
         fi
 
         local forceSiteDown=""
