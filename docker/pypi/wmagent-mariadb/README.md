@@ -67,6 +67,18 @@ local/mariadb              latest    4efa646aea3e   6 minutes ago    950MB
 ./mariadb-docker-build.sh -t 10.6.5 -p
 ```
 
+#### Building MariaDB on small nodes (e.g.: testbed)
+
+If you test on a machine/VM with less than 10G of memory, uncomment the following lines in my.cnf configuration
+(and comment the production ones for the same settings)
+
+```
+# Testbed (small nodes) with low memory
+#innodb_log_file_size=512M
+#innodb_log_buffer_size=8M
+#innodb_buffer_pool_size=2G
+```
+
 ### Running a MariaDB container
 
 We can run from the local repository or from upstream CERN registry. The typical
