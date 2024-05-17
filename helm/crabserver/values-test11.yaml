@@ -1,7 +1,7 @@
 environment: "test"
 
 image:
-  tag: "v3.240325"
+  tag: "v3.240515"
 
 livenessProbeTest:
   failureThreshold: 3
