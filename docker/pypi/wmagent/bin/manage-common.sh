@@ -286,44 +286,8 @@ _renew_proxy(){
                     -key  $WMA_CERTS_DIR/mynewproxy.pem \
                     -out  $WMA_CERTS_DIR/myproxy.pem"
 
-    # Here to check certificates and proxy lifetime and update myproxy if needed:
-    local certMinLifetimeHours=168
-    local certMinLifetimeSec=$(($certMinLifetimeHours*60*60))
-
-    if [[ -f $WMA_CERTS_DIR/servicecert.pem ]] && [[ -f $WMA_CERTS_DIR/servicekey.pem ]]; then
-
-        echo "$FUNCNAME: Checking Certificate lifetime:"
-        local now=$(date +%s)
-        local certEndDate=$(openssl x509 -in $WMA_CERTS_DIR/servicecert.pem -noout -enddate)
-        certEndDate=${certEndDate##*=}
-        echo "$FUNCNAME: Certificate end date: $certEndDate"
-        [[ -z $certEndDate ]] && {
-            echo "$FUNCNAME: ERROR: Failed to determine certificate end date!"; return $(false) ;}
-        certEndDate=$(date --date="$certEndDate" +%s)
-        [[ $certEndDate -le $now ]] && {
-            echo "$FUNCNAME: ERROR: Expired certificate at $WMA_CERTS_DIR/servicecert.pem!"; return $(false) ;}
-        [[ $(($certEndDate -$now)) -le $certMinLifetimeSec ]] && {
-            echo "$FUNCNAME: WARNING: The service certificate lifetime is less than certMinLifetimeHours: $certMinLifetimeHours! Please update it ASAP!" ;}
-
-        # Renew myproxy if needed:
-        echo "$FUNCNAME: Checking myproxy lifetime:"
-        local myproxyEndDate=$(openssl x509 -in $WMA_CERTS_DIR/myproxy.pem -noout -enddate)
-        myproxyEndDate=${myproxyEndDate##*=}
-        echo "$FUNCNAME: myproxy end date: $myproxyEndDate"
-        [[ -n $myproxyEndDate ]] || ($myproxyCmd && $vomsproxyCmd) || {
-                echo "$FUNCNAME: ERROR: Failed to renew invalid myproxy"; return $(false) ;}
-        myproxyEndDate=$(date --date="$myproxyEndDate" +%s)
-        [[ $myproxyEndDate -gt $(($now + 7*24*60*60)) ]] || ($myproxyCmd && $vomsproxyCmd) || {
-                echo "$FUNCNAME: ERROR: Failed to renew expired myproxy"; return $(false) ;}
-
-        # Stay safe and always change the service {cert,key} and myproxy mode here:
-        chmod 400 $WMA_CERTS_DIR/*
-        echo "$FUNCNAME: OK"
-    else
-        echo "$FUNCNAME: ERROR: We found no service certificate installed at $WMA_CERTS_DIR!"
-        echo "$FUNCNAME: ERROR: Please install proper cert and key files before restarting the WMAgent container!"
-        return $(false)
-    fi
+    $myproxyCmd && $vomsproxyCmd
+    return $?
 }
 
 
