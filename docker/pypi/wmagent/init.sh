@@ -178,8 +178,14 @@ deploy_to_host(){
         [[ -d $WMA_CONFIG_DIR/etc ]] || mkdir -p $WMA_CONFIG_DIR/etc
         cp -f $WMA_DEPLOY_DIR/etc/rucio.cfg $WMA_CONFIG_DIR/etc/
         # update the rucio.cfg file with the proper parameters from the secrets file
-        sed -i "s+RUCIO_HOST_OVERWRITE+$RUCIO_HOST+" $WMA_CONFIG_DIR/etc/rucio.cfg
-        sed -i "s+RUCIO_AUTH_OVERWRITE+$RUCIO_AUTH+" $WMA_CONFIG_DIR/etc/rucio.cfg
+        local rucio_host=$RUCIO_HOST
+        local rucio_auth=$RUCIO_AUTH
+        if [[ "$TEAMNAME" == *testbed* ]] || [[ "$TEAMNAME" == *dev* ]]; then
+            rucio_host=http://cms-rucio.cern.ch
+            rucio_auth=https://cms-rucio-auth.cern.ch
+        fi
+        sed -i "s+RUCIO_HOST_OVERWRITE+$rucio_host+" $WMA_CONFIG_DIR/etc/rucio.cfg
+        sed -i "s+RUCIO_AUTH_OVERWRITE+$rucio_auth+" $WMA_CONFIG_DIR/etc/rucio.cfg
         echo $WMA_BUILD_ID > $wmaInitRucio
     }
 
@@ -426,6 +432,10 @@ agent_tweakconfig() {
             GLOBAL_DBS_URL=https://cmsweb-testbed.cern.ch/dbs/int/global/DBSReader
             sed -i "s+DBSInterface.globalDBSUrl = 'https://cmsweb.cern.ch/dbs/prod/global/DBSReader'+DBSInterface.globalDBSUrl = '$GLOBAL_DBS_URL'+" $WMA_CONFIG_DIR/config.py
             sed -i "s+DBSInterface.DBSUrl = 'https://cmsweb.cern.ch/dbs/prod/global/DBSReader'+DBSInterface.DBSUrl = '$GLOBAL_DBS_URL'+" $WMA_CONFIG_DIR/config.py
+            rucio_host=http://cms-rucio.cern.ch
+            rucio_auth=https://cms-rucio-auth.cern.ch
+            sed -i "s+WorkQueueManager.rucioUrl = .*+WorkQueueManager.rucioUrl = '$rucio_host'+" $WMA_CONFIG_DIR/config.py
+            sed -i "s+WorkQueueManager.rucioAuthUrl = .*+WorkQueueManager.rucioAuthUrl = '$rucio_auth'+" $WMA_CONFIG_DIR/config.py
         fi
 
         local forceSiteDown=""
