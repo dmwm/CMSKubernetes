@@ -92,7 +92,7 @@ dockerOpts=" \
 $tnsMount \
 --mount type=bind,source=/etc/condor,target=/etc/condor,readonly \
 --mount type=bind,source=/tmp,target=/tmp \
---mount type=bind,source=$HOST_MOUNT_DIR/certs,target=/data/certs \
+--mount type=bind,source=/data/certs,target=/data/certs \
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/install,target=/data/srv/wmagent/current/install \
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/config,target=/data/srv/wmagent/current/config \
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/logs,target=/data/srv/wmagent/current/logs \
