@@ -144,6 +144,8 @@ export CRYPTOGRAPHY_ALLOW_OPENSSL_102=true
 export YUI_ROOT=$WMA_DEPLOY_DIR/yui/
 export PATH=\$WMA_INSTALL_DIR/bin\${PATH:+:\$PATH}
 export PATH=\$WMA_DEPLOY_DIR/bin\${PATH:+:\$PATH}
+export USER=\$(id -un)
+export WMA_USER=\$(id -un)
 EOF
 }
 
