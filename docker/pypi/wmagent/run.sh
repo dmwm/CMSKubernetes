@@ -1,5 +1,29 @@
 #!/bin/bash
 
+_find_child_pss() {
+    # An auxiliary function to find all processes forked from the shell parrent
+    # of the current process
+    cat  /proc/$PPID/task/*/children
+}
+
+_service_gracefull_exit() {
+    # An auxiliary function to handle the WMAgent service graceful exit
+    manage stop-agent
+    wait
+
+    for proc in _find_child_pss
+    do
+        kill -9 $proc
+    done
+}
+
+# Here to define the signal we are about to trap for handling WMAgent graceful exit
+# NOTE: curently (just for testing purposes) we stick to `SIGUSR1` later we should
+#       move to SIGTERM and/or SIGKILL. In order to test the current implementation execute:
+#       docker exec -it wmagent bash
+#       kill -s 10 1
+trap _service_gracefull_exit SIGUSR1
+
 ### Basic initialization wrapper for WMAgent to serve as the main entry point for the WMAgent Docker container
 wmaUser=$(id -un)
 wmaGroup=$(id -gn)
@@ -20,4 +44,5 @@ echo "Start initialization"
 $WMA_ROOT_DIR/init.sh | tee -a $WMA_LOG_DIR/init.log || true
 
 echo "Start sleeping now ...zzz..."
-sleep infinity
+sleep infinity  &
+wait
