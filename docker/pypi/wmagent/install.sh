@@ -48,11 +48,19 @@ done
 WMA_TAG_REG="^[0-9]+\.[0-9]+\.[0-9]{1,2}((\.|rc)[0-9]{1,2})?$"
 [[ $WMA_TAG =~ $WMA_TAG_REG ]] || { echo "WMA_TAG: $WMA_TAG does not match requered expression: $WMA_TAG_REG"; echo "EXIT with Error 1"  ; exit 1 ;}
 
+# Parsing the WMA_TAG
+declare -A WMA_VER
+WMA_VER[release]=$(echo $WMA_TAG| sed -nr 's/.*(^[0-9]+\.[0-9]+\.[0-9]+).*$/\1/p')
+WMA_VER[patch]=$(echo $WMA_TAG| sed -nr 's/.*(^[0-9]+\.[0-9]+\.[0-9]+)//p')
+WMA_VER[major]=$(echo $WMA_TAG| sed -nr 's/.*(^[0-9]+\.[0-9]+).*/\1/p')
+WMA_VER[minor]=$(echo $WMA_TAG| sed -nr 's/^[0-9]+\.[0-9]+\.([0-9]+).*$/\1/p')
+
 echo
 echo "======================================================================="
 echo "Starting new WMAgent deployment with the following initialisation data:"
 echo "-----------------------------------------------------------------------"
 echo " - WMAgent Version            : $WMA_TAG"
+echo " - WMAgent Release Cycle      : ${WMA_VER[release]}"
 echo " - WMAgent User               : $WMA_USER"
 echo " - WMAgent Root path          : $WMA_ROOT_DIR"
 echo " - Python  Version            : $(python --version)"
@@ -105,7 +113,8 @@ echo "-----------------------------------------------------------------------"
 stepMsg="Generating and preserving current build id"
 echo "-----------------------------------------------------------------------"
 echo "Start $stepMsg"
-echo $RANDOM |sha256sum |awk '{print $1}' > $WMA_ROOT_DIR/.dockerBuildId
+
+echo ${WMA_VER[release]}| sha256sum |awk '{print $1}' > $WMA_ROOT_DIR/.dockerBuildId
 echo "WMA_BUILD_ID:`cat $WMA_ROOT_DIR/.dockerBuildId`"
 echo "WMA_BUILD_ID preserved at: $WMA_ROOT_DIR/.dockerBuildId "
 echo "Done $stepMsg!" && echo
