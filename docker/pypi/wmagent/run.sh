@@ -20,8 +20,8 @@ _service_gracefull_exit() {
     echo "Stopping WMAgent"
     manage stop-agent
 
-    echo "List of all child processes upon agent graceful exit: $childPss"
     _find_child_pss childPss
+    echo "List of all child processes upon agent graceful exit: $childPss"
 
     echo "Killing all chilld Processes ..."
     for proc in $childPss
