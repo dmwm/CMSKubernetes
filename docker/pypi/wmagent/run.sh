@@ -13,16 +13,20 @@ _find_child_pss() {
 _service_gracefull_exit() {
     # An auxiliary function to handle the WMAgent service graceful exit
     local childPss
-    _find_child_pss childPss
+
+    echo "Full list of currently running processes:"
+    ps auxf
 
     echo "Stopping WMAgent"
     manage stop-agent
 
-    echo "Killing all chilld Processes"
+    echo "List of all child processes upon agent graceful exit: $childPss"
+    _find_child_pss childPss
+
+    echo "Killing all chilld Processes ..."
     for proc in $childPss
     do
         echo killing process $proc
-        ps auxf |grep $proc
         kill -9 $proc
     done
 }
