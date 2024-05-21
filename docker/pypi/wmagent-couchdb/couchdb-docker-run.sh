@@ -73,7 +73,6 @@ groupEntry=$(getent group $thisGroup)
     echo $groupEntry >> $HOST_MOUNT_DIR/admin/etc/group
 }
 
-[[ -d $HOST_MOUNT_DIR/certs ]] || mkdir -p $HOST_MOUNT_DIR/certs || exit $?
 [[ -d $HOST_MOUNT_DIR/admin/couchdb ]] || mkdir -p $HOST_MOUNT_DIR/admin/couchdb || exit $?
 [[ -d $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/config  ]] || mkdir -p $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/config  || exit $?
 [[ -d $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/install ]] || mkdir -p $HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/install || exit $?
@@ -89,7 +88,7 @@ dockerOpts="
 --user $(id -u):$(id -g) \
 --name=couchdb \
 --mount type=bind,source=/tmp,target=/tmp \
---mount type=bind,source=$HOST_MOUNT_DIR/certs,target=/data/certs \
+--mount type=bind,source=/data/certs,target=/data/certs \
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/install,target=/data/srv/couchdb/current/install \
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/logs,target=/data/srv/couchdb/current/logs \
 --mount type=bind,source=$HOST_MOUNT_DIR/srv/couchdb/$COUCH_TAG/state,target=/data/srv/couchdb/current/state \
