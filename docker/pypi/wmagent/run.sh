@@ -3,16 +3,26 @@
 _find_child_pss() {
     # An auxiliary function to find all processes forked from the shell parrent
     # of the current process
-    cat  /proc/$PPID/task/*/children
+    # :param $1: The name of a variable to which the process list would be asssigned
+    # :return:   A list of child processes forked from the current one
+    local -n outList=$1;
+    local currPid=$$
+    outList=$(cat  /proc/$currPid/task/*/children)
 }
 
 _service_gracefull_exit() {
     # An auxiliary function to handle the WMAgent service graceful exit
-    manage stop-agent
-    wait
+    local childPss
+    _find_child_pss childPss
 
-    for proc in _find_child_pss
+    echo "Stopping WMAgent"
+    manage stop-agent
+
+    echo "Killing all chilld Processes"
+    for proc in $childPss
     do
+        echo killing process $proc
+        ps auxf |grep $proc
         kill -9 $proc
     done
 }
