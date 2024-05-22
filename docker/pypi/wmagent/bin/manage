@@ -149,7 +149,9 @@ init_wmagent(){
                        --amq_credentials=$AMQ_CREDENTIALS \
                        --rucio_account=$RUCIO_ACCOUNT \
                        --rucio_host=$RUCIO_HOST \
-                       --rucio_auth=$RUCIO_AUTH
+                       --rucio_auth=$RUCIO_AUTH \
+                       --mspileup_url=$MSPILEUP_URL
+
     let errVal+=$?
 
     wmcore-db-init --config $WMA_CONFIG_DIR/config.py --create --modules=WMCore.WMBS,WMCore.Agent.Database,WMComponent.DBS3Buffer,WMCore.BossAir,WMCore.ResourceControl;
