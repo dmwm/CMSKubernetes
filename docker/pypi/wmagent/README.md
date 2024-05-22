@@ -88,7 +88,7 @@ Single host Mount area:
 * /data/dockerMount/
 
 List of host mounts:
-* /data/dockerMount/certs
+* /data/certs
 * /etc/condor (schedd runs on the host, not the container)
 * /etc/tnsnames.ora  (for agents using Oracle database)
 * /tmp
@@ -149,7 +149,7 @@ Docker container has been initialized! However you still need to:
        manage start-agent
 
      * From the host:
-       docker kill wmagent
+       docker stop wmagent
        ./wmagent-docker-run.sh -t <WMA_TAG> &
 Have a nice day!
 
@@ -313,11 +313,11 @@ They are set at different moments along the process: i.e. at `buildtime` - when 
 * **List of variables set at `runtime` by sourcing `$WMA_ENV_FILE`:**
 
    * WMAGENT_SECRETS_LOCATION=$WMA_ROOT_DIR/admin/wmagent/WMAgent.secrets
-   * X509_HOST_CERT=$WMA_ROOT_DIR/certs/servicecert.pem
-   * X509_HOST_KEY=$WMA_ROOT_DIR/certs/servicekey.pem
-   * X509_USER_CERT=$WMA_ROOT_DIR/certs/servicecert.pem
-   * X509_USER_KEY=$WMA_ROOT_DIR/certs/servicekey.pem
-   * X509_USER_PROXY=$WMA_ROOT_DIR/certs/myproxy.pem
+   * X509_HOST_CERT=$WMA_CERTS_DIR/servicecert.pem
+   * X509_HOST_KEY=$WMA_CERTS_DIR/servicekey.pem
+   * X509_USER_CERT=$WMA_CERTS_DIR/servicecert.pem
+   * X509_USER_KEY=$WMA_CERTS_DIR/servicekey.pem
+   * X509_USER_PROXY=$WMA_CERTS_DIR/myproxy.pem
    * install=$WMA_INSTALL_DIR
    * config=$WMA_CONFIG_DIR
    * manage=$WMA_MANAGE_DIR/manage
