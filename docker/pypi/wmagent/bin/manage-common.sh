@@ -384,16 +384,18 @@ _load_wmasecrets(){
     do
         value=`grep -E "^[[:blank:]]*$varName=" $secretsFile | sed "s/ *$varName=//"`
         if [[ $varName =~ ^RESOURCE_ ]]; then
-	    declare -g -A $varName
+	        declare -g -A $varName
             eval $varName=$value || {
-		echo "$FUNCNAME: ERROR: Could not evaluate: ${varName}=${!varName}"
-		return
-	    }
-	else
+                let errVal+=$?
+                echo "$FUNCNAME: ERROR: Could not evaluate: ${varName}=${!varName}"
+		        return $errVal
+	        }
+	    else
             eval $varName='$value' || {
-		echo "$FUNCNAME: ERROR: Could not evaluate: ${varName}=${!varName}"
-		return
-	    }
+                let errVal+=$?
+		        echo "$FUNCNAME: ERROR: Could not evaluate: ${varName}=${!varName}"
+		        return $errVal
+	        }
 	fi
 	# echo ${varName}=${!varName}
         [[ -n $varName ]] || { echo "$FUNCNAME: ERROR: Empty value for: $varName=$value"; let errVal+=1 ;}

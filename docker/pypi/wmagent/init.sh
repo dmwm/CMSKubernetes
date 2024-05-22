@@ -36,7 +36,7 @@ AGENT_FLAVOR=mysql
 
 # Find the current WMAgent BuildId:
 # NOTE: The $WMA_BUILD_ID is exported from $WMA_ENV_FILE but not from the Dockerfile ENV command
-[[ -n $WMA_BUILD_ID ]] || WMA_BUILD_ID=$(cat $WMA_ROOT_DIR/.wmaBuildId) || { echo "ERROR: Cuold not find/set WMA_UILD_ID"; exit 1 ;}
+[[ -n $WMA_BUILD_ID ]] || WMA_BUILD_ID=$(cat $WMA_ROOT_DIR/.wmaBuildId) || { echo "ERROR: Cuold not find/set WMA_BUILD_ID"; exit 1 ;}
 
 # Check runtime arguments:
 TEAMNAME_REG="(^production$|^testbed-.*$|^dev-.*$|^relval.*$|^Tier0.*$)"
@@ -113,11 +113,13 @@ _copy_runtime() {
     # checking if $WMA_DEPLOY_DIR is root path for $pythonLib:
     if [[ $pythonLib =~ ^$WMA_DEPLOY_DIR ]]; then
         mkdir -p $WMA_INSTALL_DIR/Docker/
-        cp -rav $pythonLib/WMCore/WMRuntime $WMA_INSTALL_DIR/Docker/
-        cp -rav $WMA_DEPLOY_DIR/etc/ $WMA_CONFIG_DIR/
+        echo "$FUNCNAME: Copying content from: $pythonLib/WMCore/WMRuntime to: $WMA_INSTALL_DIR/Docker/"
+        cp -ra $pythonLib/WMCore/WMRuntime $WMA_INSTALL_DIR/Docker/
+        echo "$FUNCNAME: Copying content from: $WMA_DEPLOY_DIR/etc/ to: $WMA_CONFIG_DIR/"
+        cp -ra $WMA_DEPLOY_DIR/etc/ $WMA_CONFIG_DIR/
         echo $WMA_BUILD_ID > $wmaInitRuntime
     else
-        echo "$FUNCNAME: ERROR: \$WMA_DEPLOY_DIR: $WMA_DEPLOY_DIR is not a root path for \$pythonLib: $pithonLib"
+        echo "$FUNCNAME: ERROR: \$WMA_DEPLOY_DIR: $WMA_DEPLOY_DIR is not a root path for \$pythonLib: $pythonLib"
         echo "$FUNCNAME: ERROR: We cannot find the correct WMCore/WMRuntime source to copy at the current host!"
         return $(false)
     fi
@@ -329,7 +331,7 @@ EOF
     echo "-----------------------------------------------------------------------"
 }
 
-check_wmagnet_init() {
+check_wmagent_init() {
     # A function to check all previously populated */.init<step> files
     # from all previous steps and compare them with the /data/.wmaBuildId
     # if all do not match we cannot continue - we consider configuration/version
@@ -339,15 +341,20 @@ check_wmagnet_init() {
     #       the current $WMA_BUILD_ID with the one previously initialized at the host.
     #       The WMA_BUILD_ID is generated during the execution of `install.sh`
     #       at build time (for docker images) or deploy time for virtual env
-    #       There are three levels of comparison we can make:
+    #       There are few levels of comparison we can make:
     #       * if we want to trigger re-initialization on any WMAgent image rebuild,
     #         then the $WMA_BUILD_ID should contain a sha256sum of a random variable
     #       * if we want to trigger re-initialization only on new WMAgent tag builds,
     #         then the $WMA_BUILD_ID should contain a sha256sum of whole $WMA_TAG
     #       * if we want to trigger re-initialization only on version change (not on patches),
-    #         then we should split $WMA_TAG in major and minor part and the $WMA_BUILD_ID
-    #         should contain a sha256sum only of the major part, e.g.:
-    #         WMA_TAG=2.3.3.1; WMA_TAG_MAJOR=2.3.3; WMA_TAG_MINOR=1
+    #         then we should split $WMA_TAG in parts: major, minor and patch(release candidate)
+    #         part and the $WMA_BUILD_ID should contain a sha256sum only of the major + minor
+    #         part excluding the patch version, e.g.:
+    #         WMA_TAG=2.3.3.1;
+    #         WMA_VER[release]=2.3.3
+    #         WMA_VER[major]=2.3
+    #         WMA_VER[minor]=3
+    #         WMA_VER[patch]=1
     #       The current implementation considers the first one - re-initialization on any WMAgent rebuild
 
     local initFilesList="
@@ -489,7 +496,7 @@ agent_resource_control() {
             manage execute-agent wmagent-resource-control --add-T1s --plugin=SimpleCondorPlugin --pending-slots=50 --running-slots=50 --down ; let errVal+=$?
             manage execute-agent wmagent-resource-control --add-T2s --plugin=SimpleCondorPlugin --pending-slots=50 --running-slots=50 --down ; let errVal+=$?
         elif [[ "$TEAMNAME" == Tier0* ]]; then
-            echo "$FUNCNAME: Tier0 agent not populating resource countrol for this agent"
+            echo "$FUNCNAME: Tier0 agent not populating resource control for this agent"
         else
             echo "$FUNCNAME: Adding ALL sites to resource-control..."
             manage execute-agent wmagent-resource-control --add-all-sites --plugin=SimpleCondorPlugin --pending-slots=50 --running-slots=50 --down ; let errVal+=$?
@@ -523,21 +530,11 @@ agent_resource_opp() {
         do
             ## Parsing of the information stored in RESOURCE_* env variable, according to the schema reported above
             eval `declare -p $resRecord | sed -e "s/$resRecord/res/g"`
-            local resOpt=""
-            for opt in ${!res[*]}
-            do
-                if [[ ${res[$opt]} =~ true|false ]]; then
-                    ${res[$opt]} && { resOpt="$resOpt --$opt" ; continue ;}
-                else
-                    resOpt="$resOpt --$opt=${res[$opt]}"
-                fi
-            done
-
             if [[ ${res[name]} =~ .*_US_.* ]] && [[ $HOSTNAME =~ .*cern\.ch ]]; then
                 echo "I am based at CERN, so I cannot use US opportunistic resources, moving to the next site"
                 continue
             else
-                manage execute-agent wmagent-resource-control $resOpt || let errVal+=$?
+                manage execute-agent wmagent-resource-control --plugin=SimpleCondorPlugin --opportunistic --pending-slots=${res[pend]} --running-slots=${res[run]} --add-one-site=${res[name]} ; let errVal+=$?
             fi
         done
         [[ $errVal -eq 0 ]] || { echo "ERROR: Failed to populate WMAgent's opportunistic resource control!"; return $errVal ;}
@@ -554,7 +551,7 @@ agent_upload_config(){
     # A function to be used for uploading WMAgentConfig to AuxDB at Central CouchDB
     # NOTE: The final config/.initUsing is to be set in the main() function after full agent initialization.
     #       Once we have reached to the step of uploading the agent config to Cerntral CouchDB
-    #       we consider all previous re-internationalist and config steps as successfully completed.
+    #       we consider all previous re-initialization and config steps as successfully completed.
     #       Steps to follow:
     #       * Checking if the current image WMA_BUILD_ID matches the last one successfully initialized at the host
     #       * If not, tries to upload the current config to Central CouchDB
@@ -604,7 +601,7 @@ start_agent() {
 main(){
     basic_checks
     check_wmasecrets
-    check_wmagnet_init || {
+    check_wmagent_init || {
         (deploy_to_host)         || { err=$?; echo "ERROR: deploy_to_host"; exit $err ;}
         (check_databases)        || { err=$?; echo "ERROR: check_databases"; exit $err ;}
         (activate_agent)         || { err=$?; echo "ERROR: activate_agent"; exit $err ;}
@@ -614,7 +611,7 @@ main(){
         (agent_resource_opp)     || { err=$?; echo "ERROR: agent_resource_opp"; exit $err ;}
         (agent_upload_config)    || { err=$?; echo "ERROR: agent_upload_config"; exit $err ;}
         echo $WMA_BUILD_ID > $wmaInitUsing
-        (check_wmagnet_init)     || { err=$?; echo "ERROR: Unresolved wmaInitId vs. wmaBuildId mismatch"; exit $err ; }
+        (check_wmagent_init)     || { err=$?; echo "ERROR: Unresolved wmaInitId vs. wmaBuildId mismatch"; exit $err ; }
         echo && echo "Docker container has been initialised! However you still need to:"
         echo "  1) Double check agent configuration: less /data/[dockerMount]/srv/wmagent/current/config/config.py"
         echo "  2) Start the agent by either of the methods bellow:"
