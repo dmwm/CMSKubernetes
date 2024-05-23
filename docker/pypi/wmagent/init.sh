@@ -36,7 +36,7 @@ AGENT_FLAVOR=mysql
 
 # Find the current WMAgent BuildId:
 # NOTE: The $WMA_BUILD_ID is exported from $WMA_ENV_FILE but not from the Dockerfile ENV command
-[[ -n $WMA_BUILD_ID ]] || WMA_BUILD_ID=$(cat $WMA_ROOT_DIR/.wmaBuildId) || { echo "ERROR: Cuold not find/set WMA_BUILD_ID"; exit 1 ;}
+[[ -n $WMA_BUILD_ID ]] || WMA_BUILD_ID=$(cat $WMA_ROOT_DIR/.wmaBuildId) || { echo "ERROR: Could not find/set WMA_BUILD_ID"; exit 1 ;}
 
 # Check runtime arguments:
 TEAMNAME_REG="(^production$|^testbed-.*$|^dev-.*$|^relval.*$|^Tier0.*$)"
@@ -342,20 +342,21 @@ check_wmagent_init() {
     #       The WMA_BUILD_ID is generated during the execution of `install.sh`
     #       at build time (for docker images) or deploy time for virtual env
     #       There are few levels of comparison we can make:
-    #       * if we want to trigger re-initialization on any WMAgent image rebuild,
-    #         then the $WMA_BUILD_ID should contain a sha256sum of a random variable
-    #       * if we want to trigger re-initialization only on new WMAgent tag builds,
-    #         then the $WMA_BUILD_ID should contain a sha256sum of whole $WMA_TAG
-    #       * if we want to trigger re-initialization only on version change (not on patches),
-    #         then we should split $WMA_TAG in parts: major, minor and patch(release candidate)
-    #         part and the $WMA_BUILD_ID should contain a sha256sum only of the major + minor
-    #         part excluding the patch version, e.g.:
-    #         WMA_TAG=2.3.3.1;
-    #         WMA_VER[release]=2.3.3
-    #         WMA_VER[major]=2.3
-    #         WMA_VER[minor]=3
-    #         WMA_VER[patch]=1
-    #       The current implementation considers the first one - re-initialization on any WMAgent rebuild
+    #       1. If we want to trigger re-initialization on any WMAgent image rebuild,
+    #          then the $WMA_BUILD_ID should contain a sha256sum of a random variable
+    #       2. If we want to trigger re-initialization only on new WMAgent tag builds,
+    #          then the $WMA_BUILD_ID should contain a sha256sum of whole $WMA_TAG
+    #       3. If we want to trigger re-initialization only on release change (not on
+    #          patch version or release candidate change), then we should split
+    #          $WMA_TAG in parts: major, minor and patch(release candidate) part and the
+    #          $WMA_BUILD_ID should contain a sha256sum only of the release = major + minor
+    #          parts excluding the patch version (release candidate) part, e.g.:
+    #          WMA_TAG=2.3.3.1;
+    #          WMA_VER[release]=2.3.3
+    #          WMA_VER[major]=2.3
+    #          WMA_VER[minor]=3
+    #          WMA_VER[patch]=1
+    #       The current implementation considers option 3 - trigger full initialization only on WMAgent release change
 
     local initFilesList="
         $wmaInitAdmin
@@ -568,16 +569,16 @@ agent_upload_config(){
         if [[ "$TEAMNAME" == production ]]; then
             echo "$FUNCNAME: Agent connected to the production team, setting it to drain mode"
             agentExtraConfig='{"UserDrainMode":true}'
+        elif [[ "$TEAMNAME" == Tier0* ]]; then
+            echo "$FUNCNAME: Tier0 agent not uploading configuration"
+            echo $WMA_BUILD_ID > $wmaInitUpload
+            return
         elif [[ "$TEAMNAME" == *testbed* ]]; then
             echo "$FUNCNAME: Testbed agent, setting MaxRetries to 0..."
             agentExtraConfig='{"MaxRetries":0}'
         elif [[ "$TEAMNAME" == *dev* ]]; then
             echo "$FUNCNAME: Dev agent, setting MaxRetries to 0..."
             agentExtraConfig='{"MaxRetries":0}'
-        elif [[ "$TEAMNAME" == Tier0* ]]; then
-            echo "$FUNCNAME: Tier0 agent not uploading configuration"
-            echo $WMA_BUILD_ID > $wmaInitUpload
-            return
         fi
         ### Upload WMAgentConfig to AuxDB
         echo "*** Upload WMAgentConfig to AuxDB ***"
@@ -627,7 +628,7 @@ main(){
         echo "          * Start a fresh instance of wmagent:"
         echo "            ./wmagent-docker-run.sh -t <WMA_TAG> && docker logs -f wmagent"
         echo
-        echo "     d) If you are deploying inside a virtual environment"
+        echo "     c) If you are deploying inside a virtual environment"
         echo "          * Activate the environment:"
         echo "            cd <Deployment_dir> && . bin/activate"
         echo "          * Use the regular manage script inside the virtual environment:"

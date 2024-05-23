@@ -262,7 +262,7 @@ _status_of_oracle(){
     # Auxiliary function to check if the oracle database configured for the current agent is empty
     echo "$FUNCNAME:"
     _exec_oracle "select 1 from dual;"
-#	sqlplus $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS <<EOF
+#   sqlplus $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS <<EOF
 #     whenever sqlerror exit sql.sqlcode;
 #     select 1 from dual;
 #     exit;
@@ -279,15 +279,15 @@ _renew_proxy(){
 
     # Here to find out if the agent is CERN or FNAL and use the proper credentials name for _renew_proxy
     [[ "$TEAMNAME" == Tier0* ]] &&  {
-	echo "$FUNCNAME: This is a Tier0 agent"
-	local vomsproxyCmd="voms-proxy-init -rfc \
-	            -voms cms:/cms/Role=production -valid 168:00 -bits 2048 \
-		    -cert $X509_USER_CERT -key $X509_USER_KEY \
-                    -out  $X509_USER_PROXY"
-	$vomsproxyCmd || {
-	    echo "$FUNCNAME: ERROR: Failed to renew invalid myproxy"
-	    return $(false)
-	}
+    echo "$FUNCNAME: This is a Tier0 agent"
+    local vomsproxyCmd="voms-proxy-init -rfc \
+                     -voms cms:/cms/Role=production -valid 168:00 -bits 2048 \
+                     -cert $X509_USER_CERT -key $X509_USER_KEY \
+                     -out  $X509_USER_PROXY"
+    $vomsproxyCmd || {
+        echo "$FUNCNAME: ERROR: Failed to renew invalid myproxy"
+        return $(false)
+    }
     return
     }
 
@@ -384,20 +384,20 @@ _load_wmasecrets(){
     do
         value=`grep -E "^[[:blank:]]*$varName=" $secretsFile | sed "s/ *$varName=//"`
         if [[ $varName =~ ^RESOURCE_ ]]; then
-	        declare -g -A $varName
+            declare -g -A $varName
             eval $varName=$value || {
                 let errVal+=$?
                 echo "$FUNCNAME: ERROR: Could not evaluate: ${varName}=${!varName}"
-		        return $errVal
-	        }
-	    else
+                return $errVal
+            }
+        else
             eval $varName='$value' || {
                 let errVal+=$?
-		        echo "$FUNCNAME: ERROR: Could not evaluate: ${varName}=${!varName}"
-		        return $errVal
-	        }
-	fi
-	# echo ${varName}=${!varName}
+                echo "$FUNCNAME: ERROR: Could not evaluate: ${varName}=${!varName}"
+                return $errVal
+            }
+    fi
+    # echo ${varName}=${!varName}
         [[ -n $varName ]] || { echo "$FUNCNAME: ERROR: Empty value for: $varName=$value"; let errVal+=1 ;}
     done
 
