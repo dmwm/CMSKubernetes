@@ -48,13 +48,6 @@ done
 WMA_TAG_REG="^[0-9]+\.[0-9]+\.[0-9]{1,2}((\.|rc)[0-9]{1,2})?$"
 [[ $WMA_TAG =~ $WMA_TAG_REG ]] || { echo "WMA_TAG: $WMA_TAG does not match requered expression: $WMA_TAG_REG"; echo "EXIT with Error 1"  ; exit 1 ;}
 
-# Parsing the WMA_TAG
-# declare -A WMA_VER
-# WMA_VER[release]=$(echo $WMA_TAG| sed -nr 's/.*(^[0-9]+\.[0-9]+\.[0-9]+).*$/\1/p')
-# WMA_VER[patch]=$(echo $WMA_TAG| sed -nr 's/.*(^[0-9]+\.[0-9]+\.[0-9]+)//p')
-# WMA_VER[major]=$(echo $WMA_TAG| sed -nr 's/.*(^[0-9]+\.[0-9]+).*/\1/p')
-# WMA_VER[minor]=$(echo $WMA_TAG| sed -nr 's/^[0-9]+\.[0-9]+\.([0-9]+).*$/\1/p')
-
 echo
 echo "======================================================================="
 echo "Starting new WMAgent deployment with the following initialisation data:"

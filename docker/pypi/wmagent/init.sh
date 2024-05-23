@@ -50,6 +50,7 @@ echo "======================================================="
 echo "Starting WMAgent with the following initialisation data:"
 echo "-------------------------------------------------------"
 echo " - WMAgent Version            : $WMA_TAG"
+echo " - WMAgent Release Cycle      : $WMA_VER_RELEASE"
 echo " - WMAgent User               : $WMA_USER"
 echo " - WMAgent Root path          : $WMA_ROOT_DIR"
 echo " - WMAgent Host               : $HOSTNAME"
@@ -118,6 +119,15 @@ _copy_runtime() {
         echo "$FUNCNAME: Copying content from: $WMA_DEPLOY_DIR/etc/ to: $WMA_CONFIG_DIR/"
         cp -ra $WMA_DEPLOY_DIR/etc/ $WMA_CONFIG_DIR/
         echo $WMA_BUILD_ID > $wmaInitRuntime
+
+        # NOTE: If the sql database have been previously initialized, then the
+        #       current call of _copy_runtime has been due to a change of the
+        #       $WMA_TAG - either a patch version or a release candidate change
+        #       and we need to update the record at the database as well
+        _init_valid $wmaInitSqlDB && {
+            echo "$FUNCNAME: Preserving the current WMA_TAG at the wma_init database"
+            _exec_sql "update wma_init set init_value='$WMA_TAG' where init_param='wma_tag';"
+        }
     else
         echo "$FUNCNAME: ERROR: \$WMA_DEPLOY_DIR: $WMA_DEPLOY_DIR is not a root path for \$pythonLib: $pythonLib"
         echo "$FUNCNAME: ERROR: We cannot find the correct WMCore/WMRuntime source to copy at the current host!"
@@ -332,12 +342,16 @@ EOF
 }
 
 check_wmatag() {
-    # NOTE: Before even start checking all the rest of the initialization flags we should
-    #       check if this agent has ever been used and if there is any patch version
+    # A function to check if there have been any change in the WMA_TAG since last
+    # WMAgent initialization at the host. It does the check by comparing the whole
+    # WMA_TAG from the environment and the one previously recorded at relational
+    # database in the table `wma_init`.
+    #
+    # NOTE: Before we even start checking all the rest of the initialization flags, we should
+    #       check if this agent has ever been used, and if there is any patch version
     #       or release candidate change between the current one and the one previously
-    #       initialized at the host. If so we should enforce Run time code copy.
-    # eval local -A wmaCurrVer=$(_parse_wmatag $WMA_TAG)
-    # eval local -A wmaPrevVer=$()
+    #       initialized at the host. If such discrepancy is confirmed, we should enforce Runtime
+    #       code copy by deleting only the $wmaInitSqlDB and let the rest of the init process take over.
     _init_valid $wmaInitSqlDB && {
         echo "$FUNCNAME: This agent has been previously initialize. Checking for WMAgent version change since last run."
         local wmaTagCurr=$WMA_TAG
@@ -348,7 +362,6 @@ check_wmatag() {
             rm $wmaInitSqlDB
         }
     }
-    # Here we check the consistency of all initialization flags
 }
 
 check_wmagent_init() {
@@ -622,6 +635,7 @@ start_agent() {
 main(){
     basic_checks
     check_wmasecrets
+    check_wmatag
     check_wmagent_init || {
         (deploy_to_host)         || { err=$?; echo "ERROR: deploy_to_host"; exit $err ;}
         (check_databases)        || { err=$?; echo "ERROR: check_databases"; exit $err ;}
