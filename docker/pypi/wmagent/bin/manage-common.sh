@@ -121,9 +121,9 @@ _exec_oracle() {
 _exec_sql() {
     case $AGENT_FLAVOR in
         'mysql')
-           _exec_mysql $*  ;;
+           _exec_mysql "$@" $wmaDBName ;;
         'oracle')
-           _exec_oracle $* ;;
+           _exec_oracle "$@" ;;
     esac
 }
 

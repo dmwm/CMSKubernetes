@@ -353,13 +353,13 @@ check_wmatag() {
     #       initialized at the host. If such discrepancy is confirmed, we should enforce Runtime
     #       code copy by deleting only the $wmaInitSqlDB and let the rest of the init process take over.
     _init_valid $wmaInitSqlDB && {
-        echo "$FUNCNAME: This agent has been previously initialize. Checking for WMAgent version change since last run."
+        echo "$FUNCNAME: This agent has been previously initialized. Checking for WMAgent version change since last run."
         local wmaTagCurr=$WMA_TAG
         local wmaTagSqlDB=$(_exec_sql "select init_value from wma_init where init_param = 'wma_tag';")
         [[ $wmaTagCurr == $wmaTagSqlDB ]] || {
             echo "$FUNCNAME: Found version change since last run: $wmaTagCurr vs. $wmaTagSqlDB"
             echo "$FUNCNAME: Enforcing Runtime code check and copy if needed."
-            rm $wmaInitSqlDB
+            rm $wmaInitRuntime
         }
     }
 }
