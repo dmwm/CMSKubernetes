@@ -43,6 +43,15 @@ while getopts ":t:hp" opt; do
     esac
 done
 
+# Parsing the WMA_TAG in parts step by step
+WMA_VER_MINOR=${WMA_TAG#*.*.}
+WMA_VER_MAJOR=${WMA_TAG%.$WMA_VER_MINOR}
+WMA_VER_MINOR=${WMA_VER_MINOR%rc*}
+WMA_VER_MINOR=${WMA_VER_MINOR%.*}
+WMA_VER_RELEASE=${WMA_VER_MAJOR}.${WMA_VER_MINOR}
+WMA_VER_PATCH=${WMA_TAG#$WMA_VER_RELEASE}
+WMA_VER_PATCH=${WMA_VER_PATCH#.}
+
 wmaUser=$(id -un)
 wmaGroup=$(id -gn)
 
@@ -73,9 +82,9 @@ fi
 
 # create regular mount points at runtime
 [[ -d $HOST_MOUNT_DIR/admin/wmagent ]] || (mkdir -p $HOST_MOUNT_DIR/admin/wmagent) || exit $?
-[[ -d $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/install ]] || (mkdir -p $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/install) || exit $?
-[[ -d $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/config  ]] || (mkdir -p $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/config)  || exit $?
-[[ -d $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/logs ]] || { mkdir -p $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/logs ;} || exit $?
+[[ -d $HOST_MOUNT_DIR/srv/wmagent/$WMA_VER_RELEASE/install ]] || (mkdir -p $HOST_MOUNT_DIR/srv/wmagent/$WMA_VER_RELEASE/install) || exit $?
+[[ -d $HOST_MOUNT_DIR/srv/wmagent/$WMA_VER_RELEASE/config  ]] || (mkdir -p $HOST_MOUNT_DIR/srv/wmagent/$WMA_VER_RELEASE/config)  || exit $?
+[[ -d $HOST_MOUNT_DIR/srv/wmagent/$WMA_VER_RELEASE/logs ]] || { mkdir -p $HOST_MOUNT_DIR/srv/wmagent/$WMA_VER_RELEASE/logs ;} || exit $?
 
 # NOTE: Before mounting /etc/tnsnames.ora we should check it exists, otherwise the run will fail on the FNAL agents
 tnsMount=""
@@ -92,9 +101,9 @@ $tnsMount \
 --mount type=bind,source=/etc/condor,target=/etc/condor,readonly \
 --mount type=bind,source=/tmp,target=/tmp \
 --mount type=bind,source=/data/certs,target=/data/certs \
---mount type=bind,source=$HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/install,target=/data/srv/wmagent/current/install \
---mount type=bind,source=$HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/config,target=/data/srv/wmagent/current/config \
---mount type=bind,source=$HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG/logs,target=/data/srv/wmagent/current/logs \
+--mount type=bind,source=$HOST_MOUNT_DIR/srv/wmagent/$WMA_VER_RELEASE/install,target=/data/srv/wmagent/current/install \
+--mount type=bind,source=$HOST_MOUNT_DIR/srv/wmagent/$WMA_VER_RELEASE/config,target=/data/srv/wmagent/current/config \
+--mount type=bind,source=$HOST_MOUNT_DIR/srv/wmagent/$WMA_VER_RELEASE/logs,target=/data/srv/wmagent/current/logs \
 --mount type=bind,source=$HOST_MOUNT_DIR/admin/wmagent,target=/data/admin/wmagent \
 --mount type=bind,source=$HOST_MOUNT_DIR/admin/etc/passwd,target=/etc/passwd,readonly \
 --mount type=bind,source=$HOST_MOUNT_DIR/admin/etc/group,target=/etc/group,readonly \
@@ -103,17 +112,17 @@ $tnsMount \
 "
 
 $PULL && {
-    echo "Pulling Docker image: registry.cern.ch/cmsweb/wmagent:$WMA_TAG"
+    echo "Pulling Docker image: registry.cern.ch/cmsweb/wmagent:$WMA_VER_RELEASE"
     docker login registry.cern.ch
-    docker pull registry.cern.ch/cmsweb/wmagent:$WMA_TAG
-    docker tag registry.cern.ch/cmsweb/wmagent:$WMA_TAG local/wmagent:$WMA_TAG
-    docker tag registry.cern.ch/cmsweb/wmagent:$WMA_TAG local/wmagent:latest
+    docker pull registry.cern.ch/cmsweb/wmagent:$WMA_VER_RELEASE
+    docker tag registry.cern.ch/cmsweb/wmagent:$WMA_VER_RELEASE local/wmagent:$WMA_VER_RELEASE
+    docker tag registry.cern.ch/cmsweb/wmagent:$WMA_VER_RELEASE local/wmagent:latest
 }
 
-echo "Checking if there is no other wmagent container running and creating a link to the $WMA_TAG in the host mount area."
+echo "Checking if there is no other wmagent container running and creating a link to the $WMA_VER_RELEASE in the host mount area."
 [[ $(docker container inspect -f '{{.State.Status}}' wmagent 2>/dev/null) == 'running' ]] || (
     [[ -h $HOST_MOUNT_DIR/srv/wmagent/current ]] && rm -f $HOST_MOUNT_DIR/srv/wmagent/current
-    ln -s $HOST_MOUNT_DIR/srv/wmagent/$WMA_TAG $HOST_MOUNT_DIR/srv/wmagent/current )
+    ln -s $HOST_MOUNT_DIR/srv/wmagent/$WMA_VER_RELEASE $HOST_MOUNT_DIR/srv/wmagent/current )
 
 echo "Starting wmagent:$WMA_TAG docker container with user: $wmaUser:$wmaGroup"
 docker run $dockerOpts local/wmagent:$WMA_TAG

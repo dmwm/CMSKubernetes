@@ -331,6 +331,26 @@ EOF
     echo "-----------------------------------------------------------------------"
 }
 
+check_wmatag() {
+    # NOTE: Before even start checking all the rest of the initialization flags we should
+    #       check if this agent has ever been used and if there is any patch version
+    #       or release candidate change between the current one and the one previously
+    #       initialized at the host. If so we should enforce Run time code copy.
+    # eval local -A wmaCurrVer=$(_parse_wmatag $WMA_TAG)
+    # eval local -A wmaPrevVer=$()
+    _init_valid $wmaInitSqlDB && {
+        echo "$FUNCNAME: This agent has been previously initialize. Checking for WMAgent version change since last run."
+        local wmaTagCurr=$WMA_TAG
+        local wmaTagSqlDB=$(_exec_sql "select init_value from wma_init where init_param = 'wma_tag';")
+        [[ $wmaTagCurr == $wmaTagSqlDB ]] || {
+            echo "$FUNCNAME: Found version change since last run: $wmaTagCurr vs. $wmaTagSqlDB"
+            echo "$FUNCNAME: Enforcing Runtime code check and copy if needed."
+            rm $wmaInitSqlDB
+        }
+    }
+    # Here we check the consistency of all initialization flags
+}
+
 check_wmagent_init() {
     # A function to check all previously populated */.init<step> files
     # from all previous steps and compare them with the /data/.wmaBuildId

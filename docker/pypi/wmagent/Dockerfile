@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile-upstream:master
 FROM registry.cern.ch/cmsweb/wmagent-base:pypi-20230705
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
@@ -7,6 +8,15 @@ ARG WMA_TAG=$TAG
 ENV WMA_TAG=$WMA_TAG
 ENV WMA_ROOT_DIR=/data
 
+# Parsing the WMA_TAG in parts step by step
+ENV WMA_VER_MINOR=${WMA_TAG#*.*.}
+ENV WMA_VER_MAJOR=${WMA_TAG%.$WMA_VER_MINOR}
+ENV WMA_VER_MINOR=${WMA_VER_MINOR%rc*}
+ENV WMA_VER_MINOR=${WMA_VER_MINOR%.*}
+ENV WMA_VER_RELEASE=${WMA_VER_MAJOR}.${WMA_VER_MINOR}
+ENV WMA_VER_PATCH=${WMA_TAG#$WMA_VER_RELEASE}
+ENV WMA_VER_PATCH=${WMA_VER_PATCH#.}
+
 # Basic WMAgent directory structure passed to all scripts through env variables:
 # NOTE: Those should be static and depend only on $WMA_BASE_DIR
 ENV WMA_BASE_DIR=$WMA_ROOT_DIR/srv/wmagent
@@ -14,7 +24,7 @@ ENV WMA_ADMIN_DIR=$WMA_ROOT_DIR/admin/wmagent
 ENV WMA_CERTS_DIR=$WMA_ROOT_DIR/certs
 
 # ENV WMA_HOSTADMIN_DIR=$WMA_ADMIN_DIR/hostadmin
-ENV WMA_CURRENT_DIR=$WMA_BASE_DIR/$WMA_TAG
+ENV WMA_CURRENT_DIR=$WMA_BASE_DIR/$WMA_VER_RELEASE
 ENV WMA_AUTH_DIR=$WMA_CURRENT_DIR/auth/
 ENV WMA_INSTALL_DIR=$WMA_CURRENT_DIR/install
 ENV WMA_STATE_DIR=$WMA_CURRENT_DIR/state
