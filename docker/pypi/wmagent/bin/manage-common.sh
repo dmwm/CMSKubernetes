@@ -274,21 +274,21 @@ _status_of_oracle(){
 
 _renew_proxy(){
     # Auxiliary function to renew agent proxy
-    local hostName=`hostname -f`
+    local hostName=$(hostname -f)
     _load_wmasecrets
 
     # Here to find out if the agent is CERN or FNAL and use the proper credentials name for _renew_proxy
     [[ "$TEAMNAME" == Tier0* ]] &&  {
-    echo "$FUNCNAME: This is a Tier0 agent"
-    local vomsproxyCmd="voms-proxy-init -rfc \
-                     -voms cms:/cms/Role=production -valid 168:00 -bits 2048 \
-                     -cert $X509_USER_CERT -key $X509_USER_KEY \
-                     -out  $X509_USER_PROXY"
-    $vomsproxyCmd || {
-        echo "$FUNCNAME: ERROR: Failed to renew invalid myproxy"
-        return $(false)
-    }
-    return
+        echo "$FUNCNAME: This is a Tier0 agent"
+        local vomsproxyCmd="voms-proxy-init -rfc \
+                         -voms cms:/cms/Role=production -valid 168:00 -bits 2048 \
+                         -cert $X509_USER_CERT -key $X509_USER_KEY \
+                         -out  $X509_USER_PROXY"
+        $vomsproxyCmd || {
+            echo "$FUNCNAME: ERROR: Failed to renew invalid myproxy"
+            return $(false)
+        }
+        return
     }
 
     if [[ "$hostName" == *cern.ch ]]; then
@@ -396,8 +396,8 @@ _load_wmasecrets(){
                 echo "$FUNCNAME: ERROR: Could not evaluate: ${varName}=${!varName}"
                 return $errVal
             }
-    fi
-    # echo ${varName}=${!varName}
+        fi
+        # echo ${varName}=${!varName}
         [[ -n $varName ]] || { echo "$FUNCNAME: ERROR: Empty value for: $varName=$value"; let errVal+=1 ;}
     done
 
