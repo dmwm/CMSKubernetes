@@ -74,7 +74,12 @@ activate_agent(){
     # The very first step of activating the WMAgent upon all needed checks and
     # validations performed during the initialization process.
     # No .init* flags are checked at this stage.
-    cp -vf $WMA_DEPLOY_DIR/etc/WMAgentConfig.py $WMA_CONFIG_DIR/config-template.py
+    if [[ "$TEAMNAME" == Tier0* ]]; then
+	cat $WMA_DEPLOY_DIR/etc/WMAgentConfig.py $WMA_DEPLOY_DIR/etc/Tier0Config.py > $WMA_CONFIG_DIR/config-template.py 
+    else
+	cp -vf $WMA_DEPLOY_DIR/etc/WMAgentConfig.py $WMA_CONFIG_DIR/config-template.py
+    fi
+
 }
 
 #
@@ -103,7 +108,7 @@ db_prompt(){
 #  Agent stuff               #
 ##############################
 
-# generate the agent config from the basic template
+# generate the WMAgent config from the basic template
 init_wmagent(){
 
     case $AGENT_FLAVOR in
@@ -124,7 +129,7 @@ init_wmagent(){
 
     local errVal=0
     wmagent-mod-config $database_options \
-	                   --input=$WMA_CONFIG_DIR/config-template.py \
+                       --input=$WMA_CONFIG_DIR/config-template.py \
                        --output=$WMA_CONFIG_DIR/config.py \
                        --working_dir=$WMA_INSTALL_DIR \
                        --couch_url=http://$COUCH_USER:$COUCH_PASS@$COUCH_HOST:$COUCH_PORT \
@@ -134,17 +139,17 @@ init_wmagent(){
                        --grafana_token=$GRAFANA_TOKEN \
                        --wmstats_url=$WMSTATS_URL \
                        --reqmgr2_url=$REQMGR2_URL \
-	                   --acdc_url=$ACDC_URL \
-	                   --dbs3_url=$DBS3_URL \
-	                   --dbs3_reader_url=$DBS3_READER_URL \
-	                   --dqm_url=$DQM_URL \
-	                   --requestcouch_url=$REQUESTCOUCH_URL \
-	                   --central_logdb_url=$CENTRAL_LOGDB_URL \
-	                   --wmarchive_url=$WMARCHIVE_URL \
-	                   --amq_credentials=$AMQ_CREDENTIALS \
-	                   --rucio_account=$RUCIO_ACCOUNT \
-	                   --rucio_host=$RUCIO_HOST \
-	                   --rucio_auth=$RUCIO_AUTH
+                       --acdc_url=$ACDC_URL \
+                       --dbs3_url=$DBS3_URL \
+                       --dbs3_reader_url=$DBS3_READER_URL \
+                       --dqm_url=$DQM_URL \
+                       --requestcouch_url=$REQUESTCOUCH_URL \
+                       --central_logdb_url=$CENTRAL_LOGDB_URL \
+                       --wmarchive_url=$WMARCHIVE_URL \
+                       --amq_credentials=$AMQ_CREDENTIALS \
+                       --rucio_account=$RUCIO_ACCOUNT \
+                       --rucio_host=$RUCIO_HOST \
+                       --rucio_auth=$RUCIO_AUTH
     let errVal+=$?
 
     wmcore-db-init --config $WMA_CONFIG_DIR/config.py --create --modules=WMCore.WMBS,WMCore.Agent.Database,WMComponent.DBS3Buffer,WMCore.BossAir,WMCore.ResourceControl;
@@ -157,10 +162,71 @@ init_wmagent(){
 }
 
 
+##############################
+#  Tier0 stuff               #
+##############################
+
+
+# generate the tier0 config from the basic template
+init_tier0(){
+    local errVal=0
+    wmagent-mod-config --input=$WMA_CONFIG_DIR/config-template.py \
+                       --output=$WMA_CONFIG_DIR/config-agent.py \
+                       --coredb_url=oracle://$ORACLE_USER:$ORACLE_PASS@$ORACLE_TNS \
+                       --working_dir=$WMA_INSTALL_DIR \
+                       --couch_url=http://$COUCH_USER:$COUCH_PASS@$COUCH_HOST:$COUCH_PORT \
+                       --workqueue_db_name=$LOCAL_WORKQUEUE_DBNAME \
+                       --workload_summary_url=$WORKLOAD_SUMMARY_URL \
+                       --grafana_token=$GRAFANA_TOKEN \
+                       --wmstats_url=$WMSTATS_URL \
+                       --dbs3_url=$DBS3_URL \
+                       --dqm_url=$DQM_URL \
+                       --requestcouch_url=$REQUESTCOUCH_URL \
+                       --central_logdb_url=$CENTRAL_LOGDB_URL \
+                       --wmarchive_url=$WMARCHIVE_URL \
+                       --amq_credentials=$AMQ_CREDENTIALS \
+                       --rucio_account=$RUCIO_ACCOUNT \
+                       --rucio_host=$RUCIO_HOST \
+                       --rucio_auth=$RUCIO_AUTH
+    let errVal+=$?
+
+    # NOTE: For the next step relates to modifying the originally generated WMAgent config file
+    #       from $WMA_CONFIG_DIR/config-agent.py
+    #       to $WMA_CONFIG_DIR/config.py
+    #       It removes the components not relevant for T0 and adds the additional DB credentials
+    #       used at Tier0Feeder. In order for it to be executed properly we need to download the
+    #       tier0-mod-config script from https://github.com/dmwm/T0/blob/master/bin/tier0-mod-config
+    optargs=""
+    [[ -n $CONFDB_URL ]]      && optargs="$optargs --confdb_url=$CONFDB_URL"
+    [[ -n $SMDB_URL ]]        && optargs="$optargs --smdb_url=$SMDB_URL"
+    [[ -n $POPCONLOGDB_URL ]] && optargs="$optargs --popconlogdb_url=$POPCONLOGDB_URL"
+    [[ -n $T0DATASVCDB_URL ]] && optargs="$optargs --t0datasvcdb_url=$T0DATASVCDB_URL"
+    [[ -n $SMNOTIFYDB_URL ]]  && optargs="$optargs --smnotifydb_url=$SMNOTIFYDB_URL"
+
+    tier0-mod-config --input=$WMA_CONFIG_DIR/config-agent.py \
+	                 --output=$WMA_CONFIG_DIR/config.py \
+                     $optargs
+    let errVal+=$?
+
+    wmcore-db-init --config $WMA_CONFIG_DIR/config.py --create --modules=WMCore.WMBS,WMCore.Agent.Database,WMComponent.DBS3Buffer,WMCore.BossAir,WMCore.ResourceControl,T0.WMBS;
+    let errVal+=$?
+
+    wmagent-couchapp-init;
+    let errVal+=$?
+
+    return $errVal
+}
+
+
 init_agent(){
     if _init_valid $wmaInitActive ; then
-        echo "Initialising Agent..."
-        init_wmagent
+        if [[ "$TEAMNAME" == Tier0* ]]; then
+            echo "Initializing Tier0 Agent..."
+            init_tier0
+        else
+            echo "Initializing WMAgent..."
+            init_wmagent
+        fi
     else
         echo "ERROR: This agent has not been activated yet. Cannot proceed."
         return $(false)

@@ -31,6 +31,16 @@ wmaSchemaFile=$WMA_CONFIG_DIR/.wmaSchemaFile.sql
 wmaDBName=wmagent
 #-------------------------------------------------------------------------------
 
+_is_venv() {
+    # Auxiliary function to determine if we are running within a shell with active python virtual env
+    $(python3 -c 'import sys; isVenv = sys.prefix == sys.base_prefix;sys.exit(isVenv)')
+}
+
+_is_docker() {
+    # Auxiliary function to determine if we are running within a docker env
+    [[ -f /.dockerenv ]] && grep -q docker /proc/1/cgroup
+}
+
 _exec_mysql() {
     # Auxiliary function to avoid repetitive and long calls to the  mysql command
     # :param $1: SQL command to be executed passed a s single string
@@ -252,7 +262,7 @@ _status_of_oracle(){
     # Auxiliary function to check if the oracle database configured for the current agent is empty
     echo "$FUNCNAME:"
     _exec_oracle "select 1 from dual;"
-#	sqlplus $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS <<EOF
+#   sqlplus $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS <<EOF
 #     whenever sqlerror exit sql.sqlcode;
 #     select 1 from dual;
 #     exit;
@@ -265,8 +275,22 @@ _status_of_oracle(){
 _renew_proxy(){
     # Auxiliary function to renew agent proxy
     local hostName=`hostname -f`
+    _load_wmasecrets
 
     # Here to find out if the agent is CERN or FNAL and use the proper credentials name for _renew_proxy
+    [[ "$TEAMNAME" == Tier0* ]] &&  {
+    echo "$FUNCNAME: This is a Tier0 agent"
+    local vomsproxyCmd="voms-proxy-init -rfc \
+                     -voms cms:/cms/Role=production -valid 168:00 -bits 2048 \
+                     -cert $X509_USER_CERT -key $X509_USER_KEY \
+                     -out  $X509_USER_PROXY"
+    $vomsproxyCmd || {
+        echo "$FUNCNAME: ERROR: Failed to renew invalid myproxy"
+        return $(false)
+    }
+    return
+    }
+
     if [[ "$hostName" == *cern.ch ]]; then
         local myproxyCredName="amaltaroCERN"
     elif [[ "$hostName" == *fnal.gov ]]; then
@@ -306,7 +330,7 @@ _parse_wmasecrets(){
 
     # Building the list by parsing the secrets file itself.
     [[ -n $varsToCheck ]] || {
-       varsToCheck=`grep -v "^[[:blank:]]#" $secretsFile  |grep \= | awk -F\= '{print $1}'`
+       varsToCheck=`grep -v "^[[:blank:]]*#" $secretsFile  |grep \= | awk -F\= '{print $1}'`
     }
 
     for var in $varsToCheck
@@ -342,7 +366,7 @@ _load_wmasecrets(){
     # If no list of variables to be loaded was given assume all of them.
     # Building the list by parsing the secrets file itself.
     [[ -n $varsToLoad ]] || {
-       varsToLoad=`grep -v "^[[:blank:]]#" $secretsFile  |grep \= | awk -F\= '{print $1}'`
+       varsToLoad=`grep -v "^[[:blank:]]*#" $secretsFile  |grep \= | awk -F\= '{print $1}'`
     }
 
     # Here we validate every variable for itself before loading it
@@ -359,8 +383,21 @@ _load_wmasecrets(){
     for varName in $varsToLoad
     do
         value=`grep -E "^[[:blank:]]*$varName=" $secretsFile | sed "s/ *$varName=//"`
-        [[ $varName =~ ^RESOURCE_ ]] && declare -g -A $varName
-        eval $varName=$value
+        if [[ $varName =~ ^RESOURCE_ ]]; then
+            declare -g -A $varName
+            eval $varName=$value || {
+                let errVal+=$?
+                echo "$FUNCNAME: ERROR: Could not evaluate: ${varName}=${!varName}"
+                return $errVal
+            }
+        else
+            eval $varName='$value' || {
+                let errVal+=$?
+                echo "$FUNCNAME: ERROR: Could not evaluate: ${varName}=${!varName}"
+                return $errVal
+            }
+    fi
+    # echo ${varName}=${!varName}
         [[ -n $varName ]] || { echo "$FUNCNAME: ERROR: Empty value for: $varName=$value"; let errVal+=1 ;}
     done
 
@@ -401,7 +438,7 @@ _print_settings(){
     env |grep ^WMA| sort
 
     echo "-------------- WMA_SECRETS_FILE  variables: --------------"
-    varsToPrint=`grep -v "^[[:blank:]]#" $WMA_SECRETS_FILE  |grep \= | awk -F\= '{print $1}'`
+    varsToPrint=`grep -v "^[[:blank:]]*#" $WMA_SECRETS_FILE  |grep \= | awk -F\= '{print $1}'`
 
     for varName in $varsToPrint
     do

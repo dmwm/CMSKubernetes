@@ -114,9 +114,9 @@ stepMsg="Generating and preserving current build id"
 echo "-----------------------------------------------------------------------"
 echo "Start $stepMsg"
 
-echo ${WMA_VER[release]}| sha256sum |awk '{print $1}' > $WMA_ROOT_DIR/.dockerBuildId
-echo "WMA_BUILD_ID:`cat $WMA_ROOT_DIR/.dockerBuildId`"
-echo "WMA_BUILD_ID preserved at: $WMA_ROOT_DIR/.dockerBuildId "
+echo ${WMA_VER[release]} | sha256sum | awk '{print $1}' > $WMA_ROOT_DIR/.wmaBuildId
+echo "WMA_BUILD_ID:`cat $WMA_ROOT_DIR/.wmaBuildId`"
+echo "WMA_BUILD_ID preserved at: $WMA_ROOT_DIR/.wmaBuildId "
 echo "Done $stepMsg!" && echo
 echo "-----------------------------------------------------------------------"
 
@@ -144,7 +144,7 @@ tweakEnv(){
 
     cat <<EOF >> $WMA_ENV_FILE
 
-export WMA_BUILD_ID=\$(cat \$WMA_ROOT_DIR/.dockerBuildId)
+export WMA_BUILD_ID=\$(cat \$WMA_ROOT_DIR/.wmaBuildId)
 export WMCORE_ROOT=\$WMA_DEPLOY_DIR
 export WMAGENT_CONFIG=\$WMA_CONFIG_FILE
 export WMAGENTPY3_ROOT=\$WMA_INSTALL_DIR
@@ -159,7 +159,7 @@ EOF
 }
 
 
-stepMsg="Tweaking runtime environment for user: $WMA_USER"
+stepMsg="Tweaking runtime environment."
 echo "-----------------------------------------------------------------------"
 echo "Start $stepMsg"
 tweakEnv || { err=$?; echo ""; exit $err ; }
