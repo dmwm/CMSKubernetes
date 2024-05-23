@@ -382,7 +382,7 @@ They are set at different moments along the process: i.e. at `buildtime` - when 
    * RUCIO_ACCOUNT=wma_test
    * RUCIO_HOST=http://cms-rucio-int.cern.ch
    * RUCIO_AUTH=https://cms-rucio-auth-int.cern.ch
-
+   * MSPILEUP_URL=https://cmsweb***.cern.ch/ms-pileup/data/pileup
 
 ## WMAgent operational actions
 Basic operational actions, such as agent restarts, may be performed from the host by killing or starting the docker container.
