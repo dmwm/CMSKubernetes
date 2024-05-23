@@ -8,6 +8,9 @@ RUN apt-get install -y libmariadb-dev-compat libmariadb-dev apache2-utils cron m
 # Install some debugging tools
 RUN apt-get install -y hostname net-tools iputils-ping procps && apt-get clean
 
+# Install recursive ps utility tool
+RUN apt-get install -y pslist && apt-get clean
+
 # copy oracle client:
 COPY --from=oracle /usr/lib/oracle /usr/lib/oracle
 ENV LD_LIBRARY_PATH=/usr/lib/oracle
