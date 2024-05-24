@@ -118,6 +118,15 @@ _exec_oracle() {
     fi
 }
 
+_exec_sql() {
+    case $AGENT_FLAVOR in
+        'mysql')
+           _exec_mysql "$@" $wmaDBName ;;
+        'oracle')
+           _exec_oracle "$@" ;;
+    esac
+}
+
 _init_valid(){
     # Auxiliary function to shorten repetitive compares of .init* files to the current WMA_BUILD_ID
     # :param $1: The full path to the .init* file to be checked.
