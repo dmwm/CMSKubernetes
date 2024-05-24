@@ -11,6 +11,9 @@ RUN apt-get update && apt-get install -y vim less sudo wget unzip python pip
 # # Install some debugging tools
 RUN apt-get install -y hostname net-tools iputils-ping procps emacs-nox tcpdump && apt-get clean
 
+# Install recursive ps utility tool
+RUN apt-get install -y pslist && apt-get clean
+
 RUN pip install CMSCouchapp
 
 ENV COUCH_PORT=5984
