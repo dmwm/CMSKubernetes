@@ -51,6 +51,7 @@ WMA_VER_MINOR=${WMA_VER_MINOR%.*}
 WMA_VER_RELEASE=${WMA_VER_MAJOR}.${WMA_VER_MINOR}
 WMA_VER_PATCH=${WMA_TAG#$WMA_VER_RELEASE}
 WMA_VER_PATCH=${WMA_VER_PATCH#.}
+echo -e "Using WMAgent version: $WMA_TAG under release: $WMA_VER_RELEASE\n"
 
 wmaUser=$(id -un)
 wmaGroup=$(id -gn)
@@ -112,11 +113,11 @@ $tnsMount \
 "
 
 $PULL && {
-    echo "Pulling Docker image: registry.cern.ch/cmsweb/wmagent:$WMA_VER_RELEASE"
+    echo "Pulling Docker image: registry.cern.ch/cmsweb/wmagent:$WMA_TAG"
     docker login registry.cern.ch
-    docker pull registry.cern.ch/cmsweb/wmagent:$WMA_VER_RELEASE
-    docker tag registry.cern.ch/cmsweb/wmagent:$WMA_VER_RELEASE local/wmagent:$WMA_VER_RELEASE
-    docker tag registry.cern.ch/cmsweb/wmagent:$WMA_VER_RELEASE local/wmagent:latest
+    docker pull registry.cern.ch/cmsweb/wmagent:$WMA_TAG
+    docker tag registry.cern.ch/cmsweb/wmagent:$WMA_TAG local/wmagent:$WMA_TAG
+    docker tag registry.cern.ch/cmsweb/wmagent:$WMA_TAG local/wmagent:latest
 }
 
 echo "Checking if there is no other wmagent container running and creating a link to the $WMA_VER_RELEASE in the host mount area."
