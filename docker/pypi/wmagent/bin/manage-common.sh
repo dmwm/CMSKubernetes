@@ -38,7 +38,7 @@ _is_venv() {
 
 _is_docker() {
     # Auxiliary function to determine if we are running within a docker env
-    [[ -f /.dockerenv ]] && grep -q docker /proc/1/cgroup
+    [[ -f /.dockerenv ]]
 }
 
 _exec_mysql() {
