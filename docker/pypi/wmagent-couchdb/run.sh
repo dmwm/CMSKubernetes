@@ -1,5 +1,26 @@
 #!/bin/bash
 
+_service_gracefull_exit() {
+    ppid=$$
+    echo "Full list of currently running processes:"
+    ps auxf
+
+    echo -e "\nStopping CouchDB"
+    manage stop
+
+    echo -e "\nList of all child processes of pid $ppid upon agent graceful exit:"
+    pslist $ppid
+
+    echo -e "\nKilling children proceses recursively"
+    rkill -9 $ppid
+
+    echo -e "\nFull list of currently running processes after killing children:"
+    ps auxf
+}
+
+# Trap SIGTERM signal (e.g.: when doing docker stop)
+trap _service_gracefull_exit SIGTERM
+
 # Basic initialization for CouchDB
 thisUser=$(id -un)
 thisGroup=$(id -gn)
@@ -30,7 +51,8 @@ manage start     | tee -a $COUCH_LOG_DIR/run.log
 manage pushapps  | tee -a $COUCH_LOG_DIR/run.log
 
 echo "start sleeping....zzz"
-sleep infinity
+sleep infinity &
+wait
 
 # # start the service
 # manage start

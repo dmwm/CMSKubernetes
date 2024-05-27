@@ -1,5 +1,26 @@
 #!/bin/bash
 
+_service_gracefull_exit() {
+    ppid=$$
+    echo "Full list of currently running processes:"
+    ps auxf
+
+    echo -e "\nStopping MariaDB"
+    manage stop-mariadb
+
+    echo -e "\nList of all child processes of pid $ppid upon agent graceful exit:"
+    pslist $ppid
+
+    echo -e "\nKilling children proceses recursively"
+    rkill -9 $ppid
+
+    echo -e "\nFull list of currently running processes after killing children:"
+    ps auxf
+}
+
+# Trap SIGTERM signal (e.g.: when doing docker stop)
+trap _service_gracefull_exit SIGTERM
+
 # Basic initialization for MariaDB
 thisUser=$(id -un)
 thisGroup=$(id -gn)
@@ -28,4 +49,5 @@ manage init-mariadb  2>&1 | tee -a $MDB_LOG_DIR/run.log
 manage start-mariadb 2>&1 | tee -a $MDB_LOG_DIR/run.log
 
 echo "Start sleeping....zzz"
-sleep infinity
+sleep infinity &
+wait

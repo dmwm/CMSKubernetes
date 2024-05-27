@@ -7,7 +7,7 @@ ENV MDB_TAG=$MDB_TAG
 RUN echo MDB_TAG=$MDB_TAG
 
 RUN apt-get update && apt-get install -y vim less sudo wget unzip python3 pip \
-    hostname net-tools iputils-ping procps emacs-nox tcpdump && apt-get clean
+    hostname net-tools iputils-ping procps emacs-nox tcpdump pslist && apt-get clean
 
 # ENV MDB_PORT=
 ENV MDB_ROOT_DIR=/data
