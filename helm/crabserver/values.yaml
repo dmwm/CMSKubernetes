@@ -18,6 +18,8 @@ image:
   env:
   - name: CRABSERVER_LOGSTDOUT
     value: "t"
+  - name: CRABSERVER_THREAD_POOL
+    value: "2"
 
 environment:
 
