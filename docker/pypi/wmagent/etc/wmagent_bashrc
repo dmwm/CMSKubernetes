@@ -12,6 +12,18 @@ alias condorqrunning='condor_q -constraint JobStatus==2 -format "%i." ClusterID 
 alias runningagent="ps aux | egrep 'couch|wmcore|mysql|beam'"
 alias foldersize="du -h --max-depth=1 | sort -hr"
 
+# agent operations
+alias wma_unregister='manage execute-agent wmagent-unregister-wmstats $(hostname -f)'
+alias wma_stop_component='manage execute-agent wmcoreD --shutdown --component '   # comma separated component names
+alias wma_start_component='manage execute-agent wmcoreD --start --component '     # comma separated component names
+alias wma_restart_component='manage execute-agent wmcoreD --restart --component ' # comma separated component names
+
+# agent drain check
+alias wma_drain='python /usr/local/bin/adhoc-scripts/drainAgent.py'
+
+# agent tail of all component logs
+alias wma_tail_logs='for comp in $(ls $WMA_INSTALL_DIR | grep -v Docker); do echo $comp; tail -n100 $WMA_INSTALL_DIR/$comp/ComponentLog; echo ""; done | less'
+
 # Better curl command
 alias scurl='curl -k --cert ${WMA_CERTS_DIR}/servicecert.pem --key ${WMA_CERTS_DIR}/servicekey.pem'
 
