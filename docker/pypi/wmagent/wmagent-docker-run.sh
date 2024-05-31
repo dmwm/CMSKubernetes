@@ -81,6 +81,12 @@ if ! [ -f $HOST_MOUNT_DIR/admin/etc/group ]; then
     echo $groupEntry >> $HOST_MOUNT_DIR/admin/etc/group
 fi
 
+# workaround for being able to start cron service with ordinary user
+if ! [ -f $HOST_MOUNT_DIR/admin/etc/sudoers ]; then
+    echo "Creating sudoers file"
+    echo "$wmaUser ALL=(ALL:ALL) NOPASSWD: ALL" >> $HOST_MOUNT_DIR/admin/etc/sudoers
+fi
+
 # create regular mount points at runtime
 [[ -d $HOST_MOUNT_DIR/admin/wmagent ]] || (mkdir -p $HOST_MOUNT_DIR/admin/wmagent) || exit $?
 [[ -d $HOST_MOUNT_DIR/srv/wmagent/$WMA_VER_RELEASE/install ]] || (mkdir -p $HOST_MOUNT_DIR/srv/wmagent/$WMA_VER_RELEASE/install) || exit $?
@@ -108,8 +114,7 @@ $tnsMount \
 --mount type=bind,source=$HOST_MOUNT_DIR/admin/wmagent,target=/data/admin/wmagent \
 --mount type=bind,source=$HOST_MOUNT_DIR/admin/etc/passwd,target=/etc/passwd,readonly \
 --mount type=bind,source=$HOST_MOUNT_DIR/admin/etc/group,target=/etc/group,readonly \
---mount type=bind,source=/etc/sudoers,target=/etc/sudoers,readonly \
---mount type=bind,source=/etc/sudoers.d,target=/etc/sudoers.d,readonly \
+--mount type=bind,source=$HOST_MOUNT_DIR/admin/etc/sudoers,target=/etc/sudoers,readonly \
 "
 
 $PULL && {

@@ -34,11 +34,17 @@ export WMA_USER=$wmaUser
 export USER=$wmaUser
 [[ -d ${HOME} ]] || mkdir -p ${HOME}
 
+echo "Saving environment variables into /etc/environment"
+printenv > /etc/environment && chmod 666 /etc/environment
+
 cp -f ${WMA_DEPLOY_DIR}/etc/wmagent_bashrc $HOME/.bashrc
 source $HOME/.bashrc
 
 echo "Start initialization"
 $WMA_ROOT_DIR/init.sh | tee -a $WMA_LOG_DIR/init.log || true
+
+echo "Starting cron service"
+sudo service cron restart
 
 echo "Start sleeping now ...zzz..."
 sleep infinity &
