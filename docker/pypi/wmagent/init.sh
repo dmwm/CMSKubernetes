@@ -313,6 +313,7 @@ check_databases() {
 
     # Checking CouchDB:
     _check_couch
+    echo "-----------------------------------------------------------------------"
 }
 
 set_cronjob() {
@@ -658,7 +659,7 @@ main(){
         echo
         echo "     b) From the host - by restarting the whole container"
         echo "          * Kill the currently running container:"
-        echo "            docker kill wmagent"
+        echo "            docker stop wmagent -t 30"
         echo "          * Start a fresh instance of wmagent:"
         echo "            ./wmagent-docker-run.sh -t <WMA_TAG> && docker logs -f wmagent"
         echo

@@ -17,6 +17,7 @@ alias wma_unregister='manage execute-agent wmagent-unregister-wmstats $(hostname
 alias wma_stop_component='manage execute-agent wmcoreD --shutdown --component '   # comma separated component names
 alias wma_start_component='manage execute-agent wmcoreD --start --component '     # comma separated component names
 alias wma_restart_component='manage execute-agent wmcoreD --restart --component ' # comma separated component names
+alias wma_resource_control='manage execute-agent wmagent-resource-control -p --site-name '  # + site name
 
 # agent drain check
 alias wma_drain='python /usr/local/bin/adhoc-scripts/drainAgent.py'
