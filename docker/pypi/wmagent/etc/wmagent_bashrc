@@ -20,7 +20,9 @@ alias wma_restart_component='manage execute-agent wmcoreD --restart --component 
 alias wma_resource_control='manage execute-agent wmagent-resource-control -p --site-name '  # + site name
 
 # agent drain check
-alias wma_drain='python /usr/local/bin/adhoc-scripts/drainAgent.py'
+alias wma_get_drain='python /usr/local/bin/adhoc-scripts/drainAgent.py'
+alias wma_set_drain="manage execute-agent wmagent-upload-config '{\"UserDrainMode\":true}'"
+alias wma_set_undrain="manage execute-agent wmagent-upload-config '{\"UserDrainMode\":false}'"
 
 # agent tail of all component logs
 alias wma_tail_logs='for comp in $(ls $WMA_INSTALL_DIR | grep -v Docker); do echo $comp; tail -n100 $WMA_INSTALL_DIR/$comp/ComponentLog; echo ""; done | less'
