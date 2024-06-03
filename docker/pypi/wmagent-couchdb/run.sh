@@ -48,7 +48,7 @@ source ${HOME}/.bashrc
 
 manage init      | tee -a $COUCH_LOG_DIR/run.log
 manage start     | tee -a $COUCH_LOG_DIR/run.log
-manage pushapps  | tee -a $COUCH_LOG_DIR/run.log
+#manage pushapps  | tee -a $COUCH_LOG_DIR/run.log
 
 echo "start sleeping....zzz"
 sleep infinity &
