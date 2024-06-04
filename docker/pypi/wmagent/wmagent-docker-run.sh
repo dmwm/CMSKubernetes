@@ -112,12 +112,17 @@ $tnsMount \
 --mount type=bind,source=/etc/sudoers.d,target=/etc/sudoers.d,readonly \
 "
 
+registry=local
+repository=wmagent
 $PULL && {
+    registry=registry.cern.ch
+    project=cmsweb
+    repository=wmagent
     echo "Pulling Docker image: registry.cern.ch/cmsweb/wmagent:$WMA_TAG"
     docker login registry.cern.ch
-    docker pull registry.cern.ch/cmsweb/wmagent:$WMA_TAG
-    docker tag registry.cern.ch/cmsweb/wmagent:$WMA_TAG local/wmagent:$WMA_TAG
-    docker tag registry.cern.ch/cmsweb/wmagent:$WMA_TAG local/wmagent:latest
+    docker pull $registry/$project/$repository:$WMA_TAG
+    docker tag $registry/$project/$repository:$WMA_TAG $registry/$repository:$WMA_TAG
+    docker tag $registry/$project/$repository:$WMA_TAG $registry/$repository:latest
 }
 
 echo "Checking if there is no other wmagent container running and creating a link to the $WMA_VER_RELEASE in the host mount area."
@@ -126,4 +131,4 @@ echo "Checking if there is no other wmagent container running and creating a lin
     ln -s $HOST_MOUNT_DIR/srv/wmagent/$WMA_VER_RELEASE $HOST_MOUNT_DIR/srv/wmagent/current )
 
 echo "Starting wmagent:$WMA_TAG docker container with user: $wmaUser:$wmaGroup"
-docker run $dockerOpts local/wmagent:$WMA_TAG
+docker run $dockerOpts $registry/$repository:$WMA_TAG
