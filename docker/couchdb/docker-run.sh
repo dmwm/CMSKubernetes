@@ -15,12 +15,6 @@ sudo chown -R $COUCH_USR $COUCH_DB_DIR/..
 COUCH_SECR_DIR=/data/srv/auth/couchdb/
 echo "Creating directory to store credentials and local.ini under: $COUCH_SECR_DIR"
 mkdir -p $COUCH_SECR_DIR
-
-# export the NODE variable before running it
-echo "Copying couch credentials from node: $NODE to $COUCH_SECR_DIR"
-scp $USER@$NODE:/data/srv/current/auth/couchdb/couch_creds $COUCH_SECR_DIR
-echo "Copying couch standard local.ini from node: $NODE to $COUCH_SECR_DIR"
-scp $USER@$NODE:/data/srv/current/config/couchdb/local.ini $COUCH_SECR_DIR
 sudo chown -R $COUCH_USR:zh $COUCH_SECR_DIR
 
 # Define command line arguments for docker run
