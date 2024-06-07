@@ -8,8 +8,8 @@ echo "Creating necessary directories on the host to persist logs and data"
 mkdir -p $COUCH_LOGS_DIR
 mkdir -p $COUCH_DB_DIR
 mkdir -p $COUCH_STAGING_DIR
-sudo chown $COUCH_USR $COUCH_LOGS_DIR
-sudo chown -R $COUCH_USR $COUCH_DB_DIR/..
+sudo chown $COUCH_USR:zh $COUCH_LOGS_DIR
+sudo chown -R $COUCH_USR:zh $COUCH_DB_DIR/..
 
 # Define directory to store credentials and standard configuration
 COUCH_SECR_DIR=/data/srv/auth/couchdb/
