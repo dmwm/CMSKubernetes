@@ -1,32 +1,40 @@
 #!/bin/bash
-echo "Creating necessary directories on the host to persist logs and data"
-mkdir -p /data/srv/logs/couchdb/
-mkdir -p /data/srv/state/couchdb/database/
-mkdir -p /data/srv/state/couchdb/stagingarea/
-sudo chown _couchdb /data/srv/logs/couchdb/
-sudo chown -R _couchdb /data/srv/state/couchdb
+COUCH_LOGS_DIR=/data/srv/logs/couchdb/
+COUCH_DB_DIR=/data/srv/state/couchdb/database/
+COUCH_STAGING_DIR=/data/srv/state/couchdb/stagingarea/
+COUCH_USR=_couchdb
 
-# TODO FIXME: this section needs to be fixed with a new destination directory
-secr_dir=/data/user/amaltaro/
+echo "Creating necessary directories on the host to persist logs and data"
+mkdir -p $COUCH_LOGS_DIR
+mkdir -p $COUCH_DB_DIR
+mkdir -p $COUCH_STAGING_DIR
+sudo chown $COUCH_USR $COUCH_LOGS_DIR
+sudo chown -R $COUCH_USR $COUCH_DB_DIR/..
+
+# Define directory to store credentials and standard configuration
+COUCH_SECR_DIR=/data/srv/auth/couchdb/
+echo "Creating directory to store credentials and local.ini under: $COUCH_SECR_DIR"
+mkdir -p $COUCH_SECR_DIR
+
 # export the NODE variable before running it
-echo "Copying couch credentials from node: $NODE to $secr_dir"
-scp $USER@$NODE:/data/srv/current/auth/couchdb/couch_creds $secr_dir
-echo "Copying couch standard local.ini from node: $NODE to $secr_dir"
-scp $USER@$NODE:/data/srv/current/config/couchdb/local.ini $secr_dir
+echo "Copying couch credentials from node: $NODE to $COUCH_SECR_DIR"
+scp $USER@$NODE:/data/srv/current/auth/couchdb/couch_creds $COUCH_SECR_DIR
+echo "Copying couch standard local.ini from node: $NODE to $COUCH_SECR_DIR"
+scp $USER@$NODE:/data/srv/current/config/couchdb/local.ini $COUCH_SECR_DIR
+sudo chown -R $COUCH_USR:zh $COUCH_SECR_DIR
 
 # Define command line arguments for docker run
 dockerOpts=" \
 --detach \
 --network=host \
---rm \
 --hostname=$(hostname -f) \
 --name=couchdb \
---mount type=bind,source=$secr_dir,target=/etc/secrets \
---mount type=bind,source=/data/srv/state/couchdb/database,target=/data/srv/state/couchdb/database \
---mount type=bind,source=/data/srv/state/couchdb/stagingarea,target=/data/srv/state/couchdb/stagingarea \
---mount type=bind,source=/data/srv/logs/couchdb,target=/data/srv/logs/couchdb \
+--mount type=bind,source=$COUCH_SECR_DIR,target=/etc/secrets \
+--mount type=bind,source=$COUCH_DB_DIR,target=$COUCH_DB_DIR \
+--mount type=bind,source=$COUCH_STAGING_DIR,target=$COUCH_STAGING_DIR \
+--mount type=bind,source=$COUCH_LOGS_DIR,target=$COUCH_LOGS_DIR \
 "
 
-couch_tag=3.2.2-alan1
+couch_tag=3.2.2-v6
 echo "Executing docker run for CouchDB tag: $couch_tag"
 docker run $dockerOpts registry.cern.ch/cmsweb/couchdb:$couch_tag && docker logs -f couchdb
