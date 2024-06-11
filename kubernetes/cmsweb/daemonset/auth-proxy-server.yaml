@@ -60,11 +60,15 @@ spec:
         # NOTE: to migrate CMSWEB frontend to Go APS using x509 auth on port 443
         #       we explicitly specify this port and -useX509 flag below
         #       when we'll transition to tokens we should remove these two options
+        # NOTE: we explicitly use port, metricsPort and logFile options
+        #       to re-use single config.json between APS and XPS
         args:
           - /data/auth-proxy-server
           - -config=/etc/secrets/config.json
           - -port=443
           - -useX509
+          - -metricsPort=9091
+          - -logFile=/data/srv/logs/frontend/auth-proxy-server.log
         resources:
           requests:
             memory: "50Mi"
