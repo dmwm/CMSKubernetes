@@ -66,10 +66,15 @@ spec:
       - image: registry.cern.ch/cmsweb/auth-proxy-server #imagetag
         name: x509-proxy-server
 #         imagePullPolicy: Always
+        # NOTE: we explicitly use port, metricsPort and logFile options
+        #       to re-use single config.json between APS and XPS
         args:
           - /data/auth-proxy-server
           - -config=/etc/secrets/config.json
           - -useX509
+          - -port=8443
+          - -metricsPort=9092
+          - -logFile=/data/srv/logs/frontend/x509-proxy-server.log
         resources:
           requests:
             memory: "50Mi"
