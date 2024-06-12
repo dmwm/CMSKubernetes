@@ -1,0 +1,23 @@
+---
+environment: "test"
+
+image:
+  path: registry.cern.ch/cmscrab/crabserver
+  pullPolicy: IfNotPresent
+  tag: "pypi-test2-1716890482"
+  command:
+  - /data/entrypoint.sh
+  args:
+  - /bin/bash
+  - -c
+  - |
+    sudo cp /host/etc/grid-security/* /etc/grid-security \
+    && echo 'INFO Files in /etc/grid-security' \
+    && ls -lahZ /etc/grid-security \
+    && /data/run.sh
+
+#https://helm.sh/docs/chart_template_guide/values_files/#deleting-a-default-key
+livenessProbePreProd: null
+readinessProbePreProd: null
+readinessProbe: null
+livenessProbe: null
