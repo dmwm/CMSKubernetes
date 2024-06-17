@@ -62,5 +62,8 @@ EOF
 # allow dynamic users to create homefolders and .bashrc
 RUN chmod 777 /home
 
+# preserve the whole env for later use by the cron daemon
+RUN env > /etc/environment
+
 # Define the entrypoint (Using exec form):
 ENTRYPOINT ["./run.sh", "2>&1"]

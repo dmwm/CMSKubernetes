@@ -59,6 +59,7 @@ echo " - WMAgent Number             : $AGENT_NUMBER"
 echo " - WMAgent Relational DB type : $AGENT_FLAVOR"
 echo " - Python  Version            : $(python --version)"
 echo " - Python  Module path        : $pythonLib"
+echo " - Current time               : $(date -Im)"
 echo "======================================================="
 echo
 
@@ -324,14 +325,14 @@ set_cronjob() {
 
     # Populating proxy related cronjobs
     crontab -u $WMA_USER - <<EOF
-55 */12 * * * $WMA_MANAGE_DIR/manage renew-proxy
+55 */12 * * * date -Im >> $WMA_LOG_DIR/renew-proxy.log && $WMA_MANAGE_DIR/manage renew-proxy 2>&1 >> $WMA_LOG_DIR/renew-proxy.log
 58 */12 * * * python $WMA_DEPLOY_DIR/deploy/checkProxy.py --proxy /data/certs/myproxy.pem --time 120 --send-mail True --mail alan.malta@cern.ch
 */15 * * * *  source $WMA_DEPLOY_DIR/deploy/restartComponent.sh > /dev/null
 EOF
     let errVal+=$?
 
     # Populating CouchDB related cronjobs
-    wmagent-couchapp-init
+    wmagent-couchapp-init --only-cron
     let errVal+=$?
 
     [[ $errVal -eq 0 ]] || {
