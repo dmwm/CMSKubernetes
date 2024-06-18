@@ -176,6 +176,16 @@ entries:
     version: 0.1.4
   crabserver:
   - apiVersion: v2
+    appVersion: v3.240530
+    created: "2024-06-18T09:41:24.288978313Z"
+    description: A Helm chart for Kubernetes
+    digest: 238a9195e5c912e84626be25134c7efe499fbacb4ae0d505ef4ab1f0da843e42
+    name: crabserver
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/crabserver-0.1.10/crabserver-0.1.10.tgz
+    version: 0.1.10
+  - apiVersion: v2
     appVersion: v3.240219.1
     created: "2024-05-15T12:44:05.330912785Z"
     description: A Helm chart for Kubernetes
@@ -2448,4 +2458,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
     version: 0.1.1
-generated: "2024-05-15T12:44:05.331372808Z"
+generated: "2024-06-18T09:41:24.289414368Z"
