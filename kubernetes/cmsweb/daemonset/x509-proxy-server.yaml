@@ -96,7 +96,7 @@ spec:
         - containerPort: 9092
           name: metrics
         volumeMounts:
-        - name: x509-proxy-server-secrets
+        - name: auth-proxy-server-secrets # use the same secrets as APS
           mountPath: /etc/secrets
           #defaultMode: 256
           readOnly: true
@@ -154,9 +154,9 @@ spec:
         - name: www-htdocs
           mountPath: /tmp/htdocs
       volumes:
-      - name: x509-proxy-server-secrets
+      - name: auth-proxy-server-secrets # use the same secrets as APS
         secret:
-          secretName: x509-proxy-server-secrets
+          secretName: auth-proxy-server-secrets # use the same secrets as APS
       - name: proxy-secrets
         secret:
           secretName: proxy-secrets
