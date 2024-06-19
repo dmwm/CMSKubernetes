@@ -29,6 +29,6 @@ dockerOpts=" \
 --mount type=bind,source=$COUCH_LOGS_DIR,target=$COUCH_LOGS_DIR \
 "
 
-couch_tag=3.2.2-v6
+couch_tag=3.2.2-stable
 echo "Executing docker run for CouchDB tag: $couch_tag"
 docker run $dockerOpts registry.cern.ch/cmsweb/couchdb:$couch_tag && docker logs -f couchdb
