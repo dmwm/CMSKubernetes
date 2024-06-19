@@ -17,6 +17,7 @@ data:
       scan_frequency: 10s
       backoff: 5s
       max_backoff: 10s
+      tags: ["aps"]
     output.console:
       codec.format:
         string: '%{[message]} - Podname=${MY_POD_NAME}'
