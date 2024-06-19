@@ -1,31 +1,28 @@
+### CouchDB image construction
+Image is built with the expected `_couchdb` user, also used to run the service.
+* latest version has been tagged as `3.2.2-stable`.
+* **configuration**: available under `/data/srv/auth/couchdb/`,
+* **database**: both database and views are available under `/data/srv/state/couchdb/database/`.
+* **couchapps**: couchapps libraries and code is available under `/data/srv/state/couchdb/stagingarea/`.
+* **logs**: finally, service logs can be found at `/data/srv/logs/couchdb/`.
 
+### Run CouchDB container
+Connect to the cmsweb backend VM with the cmsweb account and:
+```
+cd /data/srv
+curl https://raw.githubusercontent.com/dmwm/CMSKubernetes/ffb19657b8a768b5a03557bb97021006270fb28b/docker/couchdb/docker-run.sh > docker-run.sh
+chmod +x docker-run.sh 
+./docker-run.sh
+```
 
-### build image
-docker build -t cmssw/couchdb .
+### Stop CouchDB container
+Connect to the cmsweb backend VM with the cmsweb account and:
+```
+docker stop couchdb
+docker rm couchdb
+```
 
-### list images
-docker images
-
-### list of running containers
-docker ps --no-trunc -aq
-
-### remove all running containers
-docker rm -f `docker ps --no-trunc -aq`
-
-### run given image
-docker run --rm -h `hostname -f` -v /tmp/vk:/etc/secrets -i -t cmssw/couchdb /bin/bash
-
-### remove existing image
-docker rmi cmssw/couchdb
-
-### inspect running container
-docker ps # find docker id
-docker inspect <docker_id> | grep IPAddress
-
-### push image to docker.com
-docker push cmssw/couchdb
-
-### references
-https://stackoverflow.com/questions/18497688/run-a-docker-image-as-a-container#18498313
-https://stackoverflow.com/questions/17236796/how-to-remove-old-docker-containers#17237701
-http://goinbigdata.com/docker-run-vs-cmd-vs-entrypoint/
+### Checking status of CouchDB service
+```
+docker exec -it couchdb sh -c "/data/srv/current/config/couchdb/manage status"
+```
