@@ -10,7 +10,7 @@ Image is built with the expected `_couchdb` user, also used to run the service.
 Connect to the cmsweb backend VM with the cmsweb account and:
 ```
 cd /data/srv
-curl https://raw.githubusercontent.com/dmwm/CMSKubernetes/ffb19657b8a768b5a03557bb97021006270fb28b/docker/couchdb/docker-run.sh > docker-run.sh
+curl https://raw.githubusercontent.com/dmwm/CMSKubernetes/master/docker/couchdb/docker-run.sh > docker-run.sh
 chmod +x docker-run.sh 
 ./docker-run.sh
 ```
