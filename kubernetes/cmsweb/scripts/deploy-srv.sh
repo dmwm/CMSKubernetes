@@ -1,15 +1,40 @@
 #!/bin/bash
 # helper script to deploy given service with given tag to k8s infrastructure
 
-if [ $# -lt 2 ]; then
-     echo "The required parameters for service and tag are missing. Please use deploy-srv.sh <service> <tag> <env> "
+function Usage()
+{
+     echo "deploy-srv.sh -s <service> -t <tag> -e <env> -d <optional services directory>"
      exit 1;
-fi
+}
+srv=""
+tag=""
+env=""
+sdir=""
+
+while getopts "s:t:e:d:" opt; do
+    case $opt in
+    s)
+        srv=$OPTARG
+        ;;
+    t)
+        tag=$OPTARG
+        ;;
+    e)
+        env=$OPTARG
+        ;;
+    d)
+        sdir=$OPTARG
+        ;;
+    *)
+        Usage
+        ;;
+    esac
+done
 
 cluster_name=`kubectl config get-clusters | grep -v NAME`
 check=true
 
-if [ $# -ne 3 ]; then
+if [ "$env" == "" ]; then
 	if [[ "$cluster_name" == *"testbed"* ]] ; then
 		env="preprod"
 	fi
@@ -61,12 +86,25 @@ if [ $# -ne 3 ]; then
         fi
 	
 fi
-srv=$1
-cmsweb_image_tag=:$2
 
-if [ $# == 3 ]; then
-	env=$3
+# check mandatory option values
+if [ "$srv" == "" ]; then
+    echo "missing service value"
+    Usage
 fi
+if [ "$tag" == "" ]; then
+    echo "missing tag value"
+    Usage
+fi
+if [ "$env" == "" ]; then
+    echo "missing env value"
+    Usage
+fi
+echo "service=$srv tag=$tag env=$env sdir=$sdir"
+
+cmsweb_image_tag=":$tag"
+
+localServices=$sdir
 
 cmsweb_env=k8s-$env
 cmsweb_log=logs-cephfs-claim-$env
@@ -172,8 +210,15 @@ if [ -d $tmpDir ]; then
     rm -rf $tmpDir
 fi
 mkdir -p $tmpDir
-cd $tmpDir
-curl -ksLO https://raw.githubusercontent.com/dmwm/CMSKubernetes/master/kubernetes/cmsweb/services/$srv.yaml
+if [ "$localServices" != "" ] && [ -f $localServices/$srv.yaml ]; then
+    echo "copy $localServices/$srv.yaml to $tmpDir"
+    cp $localServices/$srv.yaml $tmpDir
+    cd $tmpDir
+else
+    cd $tmpDir
+    echo "fetch https://raw.githubusercontent.com/dmwm/CMSKubernetes/master/kubernetes/cmsweb/services/$srv.yaml to $tmpDir"
+    curl -ksLO https://raw.githubusercontent.com/dmwm/CMSKubernetes/master/kubernetes/cmsweb/services/$srv.yaml
+fi
 
 # check that service file has imagetag
 if [ -z "`grep imagetag $srv.yaml`" ]; then
