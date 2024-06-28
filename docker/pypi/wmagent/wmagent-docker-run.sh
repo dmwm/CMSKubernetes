@@ -110,6 +110,7 @@ $tnsMount \
 --mount type=bind,source=$HOST_MOUNT_DIR/admin/etc/group,target=/etc/group,readonly \
 --mount type=bind,source=/etc/sudoers,target=/etc/sudoers,readonly \
 --mount type=bind,source=/etc/sudoers.d,target=/etc/sudoers.d,readonly \
+--mount type=bind,source=/etc/vomses,target=/etc/vomses \
 "
 
 registry=local
