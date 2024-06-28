@@ -18,7 +18,7 @@ RUN apt-get update -y && \
     rm -rf stomp-v700
 
 # --------------------------------------------------------------------------------------------------
-FROM gitlab-registry.cern.ch/linuxsupport/cc7-base:20230503-1.x86_64
+FROM gitlab-registry.cern.ch/linuxsupport/cc7-base:20240611-1.x86_64
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 # Should be full version
@@ -26,7 +26,7 @@ ARG PY_VERSION=3.9.12
 
 ENV WDIR=/data
 WORKDIR $WDIR
-ADD http://repository.egi.eu/sw/production/cas/1/current/repo-files/EGI-trustanchors.repo /etc/yum.repos.d/egi.repo
+ADD http://repository.egi.eu/sw/production/cas/1/current/repo-files/egi-trustanchors.repo /etc/yum.repos.d/egi.repo
 ADD http://linuxsoft.cern.ch/wlcg/wlcg-centos7.repo /etc/yum.repos.d/wlcg-centos7.repo
 ADD hadoop.repo /etc/yum.repos.d/hadoop.repo
 ADD epel.repo /etc/yum.repos.d/epel.repo
@@ -40,7 +40,8 @@ RUN yum -y update && \
     yum install -y  \
         cern-get-certificate fetch-crl git-core zip unzip which file bzip2 e2fsprogs e2fsprogs-libs \
         compat-libstdc++-33 CERN-CA-certs ca-certificates dummy-ca-certs ca-policy-lcg ca-policy-egi-core \
-        ca_EG-GRID ca_CERN-GridCA ca_CERN-LCG-IOTA-CA ca_CERN-Root-2 wlcg-voms-cms krb5-workstation krb5-libs \
+        ca_EG-GRID ca_CERN-GridCA ca_CERN-LCG-IOTA-CA ca_CERN-Root-2 krb5-workstation krb5-libs \
+        wlcg-voms-cms wlcg-iam-lsc-cms wlcg-iam-vomses-cms \
         pam_krb5 myproxy voms-clients-cpp voms-clients-java sudo openssl openssl-devel openssl-libs openssh \
         openssh-clients python-backports-ssl_match_hostname cmake make voms voms-devel \
         globus-gsi-credential-devel globus-gsi-cert-utils-devel globus-common-devel globus-gsi-sysconfig \
@@ -52,7 +53,7 @@ RUN yum -y update && \
         libaio-devel net-tools lsof bind-utils initscripts patch voms-devel globus-gsi-credential-devel \
         globus-gsi-cert-utils-devel globus-common-devel globus-gsi-sysconfig-devel globus-gsi-callback-devel \
         oracle-instantclient-tnsnames.ora HEP_OSlibs python-pip libffi-devel gcc bzip2-devel zlib-devel wget sqlite-devel \
-        hadoop-bin-3.2 spark-bin-3.4 sqoop-bin-1.4 cern-hadoop-xrootd-connector cern-hadoop-config && \
+        hadoop-bin-3.3 spark-bin-3.5 sqoop-bin-1.4 cern-hadoop-xrootd-connector cern-hadoop-config && \
     yum clean all && rm -rf /var/cache/yum && \
 # Build Python3
     wget https://www.python.org/ftp/python/${PY_VERSION}/Python-${PY_VERSION}.tgz && \
@@ -67,22 +68,25 @@ RUN yum -y update && \
     cd $WDIR && \
     rm -rf Python-${PY_VERSION}.tgz Python-${PY_VERSION} && \
     unset PY_MAJOR && \
-# Adapt config to use hadoop-3.2 yarn mode
-    for f in /opt/hadoop/conf/etc/*/*/yarn-site.xml ; do sed -i 's/hadoop-2.7/hadoop-3.2/g' $f ; done && \
+# Adapt config to use hadoop-3.3 yarn mode
+    for f in /opt/hadoop/conf/etc/*/*/yarn-site.xml ; do sed -i 's/hadoop-2.7/hadoop-3.3/g' $f ; done && \
     hadoop-set-default-conf.sh analytix && \
-    source hadoop-setconf.sh analytix 3.2 spark3 && \
+    source hadoop-setconf.sh analytix 3.3 spark3 && \
     touch /etc/hadoop/conf/topology.table.file && ln -s /bin/bash /usr/bin/bashs && \
-    cp /usr/hdp/spark-3.4/kubernetes/dockerfiles/spark/entrypoint.sh /usr/bin/entrypoint.sh && \
+    cp /usr/hdp/spark-3.5/kubernetes/dockerfiles/spark/entrypoint.sh /usr/bin/entrypoint.sh && \
     echo "32 */6 * * * root ! /usr/sbin/fetch-crl -q -r 360" >/etc/cron.d/fetch-crl-docker
 # add fetch-crl to fetch all certificates
 
 ENV HADOOP_CONF_DIR=/etc/hadoop/conf
 ENV PYTHONPATH "${PYTHONPATH}:${WDIR}"
 
-ENV PYSPARK_PYTHON=/cvmfs/sft.cern.ch/lcg/releases/Python/3.9.12-9a1bc/x86_64-centos7-gcc8-opt/bin/python3
-ENV PYSPARK_DRIVER_PYTHON=/usr/bin/python
 ENV LC_ALL=en_US.utf-8 LANG=en_US.utf-8
+ENV KRB5CCNAME=FILE:$XDG_RUNTIME_DIR/krb5cc
+
+RUN source /cvmfs/sft.cern.ch/lcg/views/LCG_105a_swan/x86_64-centos7-gcc11-opt/setup.sh && \
+    source /cvmfs/sft.cern.ch/lcg/etc/hadoop-confext/hadoop-swan-setconf.sh analytix 3.3 spark3
 
 COPY --from=builder /data $WDIR
 
 WORKDIR ${WDIR}
+
