@@ -311,7 +311,7 @@ _renew_proxy(){
 
     # Here to forge the myproxy command string to be used for the operation.
     local myproxyCmd="myproxy-get-delegation \
-                    -v -l amaltaro -t 168 -s myproxy.cern.ch -k $myproxyCredName -n \
+                    -v -l amaltaro -t 169 -s myproxy.cern.ch -k $myproxyCredName -n \
                     -o $WMA_CERTS_DIR/mynewproxy.pem"
     local vomsproxyCmd="voms-proxy-init -rfc \
                     -voms cms:/cms/Role=production -valid 168:00 -bits 2048 -noregen \
