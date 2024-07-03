@@ -25,7 +25,4 @@ fi
 # -- Create zip file of only CMSMonitoring/src/python/CMSMonitoring to provide to Spark "--py-files"
 zip -r CMSMonitoring.zip CMSMonitoring/src/python/CMSMonitoring/*
 
-# -- Install python modules
-pip install --no-cache-dir click matplotlib numpy opensearch-py~=2.1 pandas plotly pyspark requests==2.29 schema seaborn stomp.py==7.0.0
-
 echo "Info: CMSSPARK_TAG=${CMSSPARK_TAG} , CMSMON_TAG=${CMSMON_TAG}, HADOOP_CONF_DIR=${HADOOP_CONF_DIR}, PATH=${PATH}, PYTHONPATH=${PYTHONPATH}, PYSPARK_PYTHON=${PYSPARK_PYTHON}, PYSPARK_DRIVER_PYTHON=${PYSPARK_DRIVER_PYTHON}"

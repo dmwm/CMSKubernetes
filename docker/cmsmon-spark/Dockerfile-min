@@ -1,0 +1,31 @@
+# cmsmon-spark
+FROM gitlab-registry.cern.ch/linuxsupport/alma9-base:20240703-1.x86_64
+
+ARG CMSSPARK_TAG
+ARG CMSMON_TAG
+
+ENV WDIR=/data \
+    PATH="${PATH}:${WDIR}/CMSSpark/bin" \
+    PYTHONPATH="${PYTHONPATH}:${WDIR}:${WDIR}/CMSSpark/src/python:${WDIR}/CMSMonitoring/src/python"
+
+# Add repository files and GPG key
+ADD http://repository.egi.eu/sw/production/cas/1/current/repo-files/egi-trustanchors.repo /etc/yum.repos.d/egi.repo
+ADD http://linuxsoft.cern.ch/wlcg/wlcg-el9.repo /etc/yum.repos.d/wlcg-el9.repo
+ADD RPM-GPG-KEY-wlcg /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg
+
+WORKDIR $WDIR
+
+ADD install.sh $WDIR/install.sh
+
+# Update and install necessary packages
+RUN dnf update -y && \
+    dnf upgrade -y && \
+    dnf install -y crontabs cronie cronie-anacron git-core zip unzip libGL libtirpc icu which \
+    wlcg-voms-cms wlcg-iam-lsc-cms wlcg-iam-vomses-cms && \
+    dnf clean all
+
+# Execute the installation script with the provided tags
+RUN CMSSPARK_TAG="$CMSSPARK_TAG" CMSMON_TAG="$CMSMON_TAG" ./install.sh
+
+CMD crond -n -s &
+
