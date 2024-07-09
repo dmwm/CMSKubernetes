@@ -362,6 +362,7 @@ check_wmatag() {
             echo "$FUNCNAME: Found version change since last run: $wmaTagCurr vs. $wmaTagSqlDB"
             echo "$FUNCNAME: Enforcing Runtime code check and copy if needed."
             rm $wmaInitRuntime
+            rm $wmaInitRucio
         }
     }
 }
