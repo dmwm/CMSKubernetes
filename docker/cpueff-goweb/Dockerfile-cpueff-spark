@@ -1,6 +1,6 @@
 # cpueff-spark
 FROM mongo:5.0.14 as builder
-FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-el9-20240708
+FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-el9-20240709
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 # tag to use
@@ -9,7 +9,7 @@ ENV WDIR=/data
 WORKDIR $WDIR
 
 ENV HADOOP_CONF_DIR=/etc/hadoop/conf
-ENV PATH="${PATH}:${WDIR}/CMSMonitoring/cpueff-goweb/spark"
+ENV PATH="${PATH}:${WDIR}:${WDIR}/CMSMonitoring/cpueff-goweb/spark"
 ENV PYTHONPATH "${PYTHONPATH}:${WDIR}:${WDIR}/CMSSpark/src/python:${WDIR}/CMSMonitoring/src/python:${WDIR}/CMSMonitoring/cpueff-goweb/spark"
 
 COPY --from=builder /usr/bin/mongoimport $WDIR

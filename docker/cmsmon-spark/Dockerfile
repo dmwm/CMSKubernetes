@@ -1,5 +1,5 @@
 # cmsmon-spark
-FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-el9-20240708
+FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-el9-20240709
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 # tag to use
