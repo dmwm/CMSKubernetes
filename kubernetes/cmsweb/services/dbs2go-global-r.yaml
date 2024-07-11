@@ -61,6 +61,13 @@ spec:
         prometheus.io/path: "/dbs/prod/global/DBSReader/metrics"
         prometheus.io/port: "9252"
     spec:
+      initContainers:
+      - name: init-chown
+        image: busybox
+        command: ["sh", "-c", "chown -R _dbs2go:_dbs2go /data/srv/logs/dbs"]
+        volumeMounts:
+        - name: logs
+          mountPath: /data/srv/logs/dbs
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
