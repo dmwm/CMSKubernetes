@@ -64,7 +64,7 @@ spec:
       initContainers:
       - name: init-chown
         image: busybox
-        command: ["sh", "-c", "chown -R _dbs2go:_dbs2go /data/srv/logs/dbs"]
+        command: ["sh", "-c", "chown -R 1000:2000 /data/srv/logs/dbs"]
         volumeMounts:
         - name: logs
           mountPath: /data/srv/logs/dbs
