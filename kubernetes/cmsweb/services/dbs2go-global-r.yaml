@@ -65,6 +65,8 @@ spec:
       - name: init-chown
         image: busybox
         command: ["sh", "-c", "chown -R 1000:2000 /data/srv/logs/dbs"]
+        securityContext:
+          runAsUser: 0
         volumeMounts:
         - name: logs
           mountPath: /data/srv/logs/dbs
