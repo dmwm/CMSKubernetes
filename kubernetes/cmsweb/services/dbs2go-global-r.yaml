@@ -67,13 +67,6 @@ spec:
         fsGroup: 2000
       containers:
       - image: registry.cern.ch/cmsweb/dbs2go #imagetag
-        lifecycle:
-          postStart:
-            exec:
-              command:
-              - bash
-              - -c
-              - sudo chmod 0777 /data/srv/logs/dbs; sudo chown _dbs2go:_dbs2go /data/srv/logs/dbs
         name: dbs2go-global-r
         imagePullPolicy: Always
         env:
