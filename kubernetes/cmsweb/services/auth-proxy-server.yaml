@@ -67,6 +67,9 @@ spec:
           defaultMode: 256
         - name: www-htdocs
           mountPath: /www
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
       initContainers:
       - name: htdocs
         image: registry.cern.ch/cmsweb/htdocs
@@ -80,3 +83,6 @@ spec:
           secretName: auth-secrets
       - name: www-htdocs
         emptyDir: {}
+      - name: etc-grid-security
+      hostPath:
+          path: /etc/grid-security
