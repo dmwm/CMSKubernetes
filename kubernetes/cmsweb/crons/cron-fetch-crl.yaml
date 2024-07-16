@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: fetch-crl-cronjob
+  namespace: auth
+  labels:
+    jobgroup: parallel
+spec:
+  schedule: "0 0 * * *"  # Runs daily at midnight
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      parallelism: 1  # Ensures one pod runs at a time
+      completions: 1  # Ensures each job runs to completion
+      template:
+        metadata:
+          labels:
+            jobgroup: parallel
+        spec:
+          containers:
+          - name: fetch-crl
+            image: registry.cern.ch/cmsweb/fetch-crl:latest
+            imagePullPolicy: Always
+            command: ["/usr/local/bin/update-crl.sh"]
+            volumeMounts:
+            - name: etc-grid-security
+              mountPath: /host/etc/grid-security
+          restartPolicy: OnFailure
+          terminationGracePeriodSeconds: 30
+          topologySpreadConstraints:
+          - maxSkew: 1
+            topologyKey: kubernetes.io/hostname
+            whenUnsatisfiable: DoNotSchedule
+            labelSelector:
+              matchLabels:
+                jobgroup: parallel
+          volumes:
+          - name: etc-grid-security
+            hostPath:
+              path: /etc/grid-security
+              type: Directory
+  concurrencyPolicy: Allow
+
