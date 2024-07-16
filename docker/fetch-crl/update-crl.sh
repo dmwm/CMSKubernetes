@@ -4,5 +4,6 @@
 /usr/sbin/fetch-crl
 
 # Copy updated CRLs to the appropriate directory
-cp /etc/grid-security/*.pem /host/etc/grid-security/
+mkdir -p /host/etc/grid-security/certificates/
+cp -rf /etc/grid-security/certificates/* /host/etc/grid-security/certificates/
 
