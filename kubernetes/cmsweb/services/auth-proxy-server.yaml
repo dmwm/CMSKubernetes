@@ -84,5 +84,5 @@ spec:
       - name: www-htdocs
         emptyDir: {}
       - name: etc-grid-security
-      hostPath:
-          path: /etc/grid-security
+        hostPath:
+            path: /etc/grid-security
