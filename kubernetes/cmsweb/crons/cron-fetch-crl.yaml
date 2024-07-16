@@ -1,4 +1,3 @@
-apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: fetch-crl-cronjob
@@ -6,13 +5,13 @@ metadata:
   labels:
     jobgroup: parallel
 spec:
-  schedule: "0 0 * * *"  # Runs daily at midnight
+  schedule: "24 * * * *"  # Runs daily at midnight
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
-      parallelism: 1  # Ensures one pod runs at a time
-      completions: 1  # Ensures each job runs to completion
+      parallelism: 5  # 8 for prod, Ensures one pod runs at a time
+      completions: 5  # 8 for prod, Ensures each job runs to completion
       template:
         metadata:
           labels:
@@ -22,7 +21,7 @@ spec:
           - name: fetch-crl
             image: registry.cern.ch/cmsweb/fetch-crl:latest
             imagePullPolicy: Always
-            command: ["/usr/local/bin/update-crl.sh"]
+            command: ["mkdir -p /host/etc/grid-security/certificates && /usr/local/bin/update-crl.sh"]
             volumeMounts:
             - name: etc-grid-security
               mountPath: /host/etc/grid-security
@@ -39,6 +38,7 @@ spec:
           - name: etc-grid-security
             hostPath:
               path: /etc/grid-security
-              type: Directory
   concurrencyPolicy: Allow
+
+
 
