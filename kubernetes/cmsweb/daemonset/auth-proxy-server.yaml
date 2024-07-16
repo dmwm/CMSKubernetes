@@ -100,16 +100,16 @@ spec:
           readOnly: true
         - name: www-htdocs
           mountPath: /www
-        - name: hostcert
-          mountPath: /etc/grid-security/hostcert.pem
-        - name: hostkey
-          mountPath: /etc/grid-security/hostkey.pem
         - name: token-secrets
           mountPath: /etc/token
           readOnly: true   
         - mountPath: /etc/grid-security/certificates
           name: etc-grid-security
-          readOnly: true       
+          readOnly: true   
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem    
 #PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/frontend
 #PROD#  - name: filebeat-cephfs
@@ -160,18 +160,18 @@ spec:
           secretName: proxy-secrets
       - name: www-htdocs
         emptyDir: {}
-      - name: hostcert
-        hostPath:
-            path: /etc/grid-security/hostcert.pem
-      - name: hostkey
-        hostPath:
-            path: /etc/grid-security/hostkey.pem
       - name: token-secrets
         secret:
           secretName: token-secrets
       - name: etc-grid-security
         hostPath:
             path: /etc/grid-security/certificates
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
 #PROD#- name: varlog
 #PROD#  hostPath:
 #PROD#    path: /var/log
