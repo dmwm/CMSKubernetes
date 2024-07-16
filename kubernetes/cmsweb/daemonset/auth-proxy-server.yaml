@@ -106,7 +106,10 @@ spec:
           mountPath: /etc/grid-security/hostkey.pem
         - name: token-secrets
           mountPath: /etc/token
-          readOnly: true          
+          readOnly: true   
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true       
 #PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/frontend
 #PROD#  - name: filebeat-cephfs
@@ -166,6 +169,9 @@ spec:
       - name: token-secrets
         secret:
           secretName: token-secrets
+      - name: etc-grid-security
+        hostPath:
+            path: /etc/grid-security
 #PROD#- name: varlog
 #PROD#  hostPath:
 #PROD#    path: /var/log
