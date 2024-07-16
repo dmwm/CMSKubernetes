@@ -5,7 +5,7 @@ metadata:
   labels:
     jobgroup: parallel
 spec:
-  schedule: "24 * * * *"  # Runs daily at midnight
+  schedule: "0 0 * * *"  # Runs daily at midnight
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
   jobTemplate:
