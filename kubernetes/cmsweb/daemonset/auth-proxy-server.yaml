@@ -18,10 +18,12 @@ data:
       backoff: 5s
       max_backoff: 10s
       tags: ["aps"]
-    output.console:
-      codec.format:
-        string: '%{[message]} - Podname=${MY_POD_NAME}'
-        pretty: false
+    output.logstash:
+      hosts: ["logstash.monitoring:5044"]
+      compression_level: 3
+      worker: 4
+      bulk_max_size: 4096
+      pipelining: 2
     queue.mem:
       events: 65536
     logging.metrics.enabled: false
