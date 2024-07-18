@@ -57,5 +57,4 @@ spec:
             secretName: alertmanager-secrets
         - name: cinder-volume
           persistentVolumeClaim:
-            claimName: am-volume-claim
-#             claimName: alertmanager-volume-claim
+            claimName: alertmanager-volume-claim

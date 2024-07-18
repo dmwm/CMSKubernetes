@@ -1,0 +1,44 @@
+### Template .bashrc file to be used for the user running WMAgent
+alias agentenv='source $WMA_ENV_FILE'
+alias manage=\$WMA_MANAGE_DIR/manage
+
+alias lll="ls -lathr"
+alias ls="ls --color=auto"
+alias ll='ls -la --color=auto'
+
+alias condorq='condor_q -format "%i." ClusterID -format "%s " ProcId -format " %i " JobStatus  -format " %d " ServerTime-EnteredCurrentStatus -format "%s" UserLog -format " %s\n" DESIRED_Sites'
+alias condorqrunning='condor_q -constraint JobStatus==2 -format "%i." ClusterID -format "%s " ProcId -format " %i " JobStatus  -format " %d " ServerTime-EnteredCurrentStatus -format "%s" UserLog -format " %s\n" DESIRED_Sites'
+
+alias runningagent="ps aux | egrep 'couch|wmcore|mysql|beam'"
+alias foldersize="du -h --max-depth=1 | sort -hr"
+
+# agent operations
+alias wma_unregister='manage execute-agent wmagent-unregister-wmstats $(hostname -f)'
+alias wma_stop_component='manage execute-agent wmcoreD --shutdown --component '   # comma separated component names
+alias wma_start_component='manage execute-agent wmcoreD --start --component '     # comma separated component names
+alias wma_restart_component='manage execute-agent wmcoreD --restart --component ' # comma separated component names
+alias wma_resource_control='manage execute-agent wmagent-resource-control -p --site-name '  # + site name
+
+# agent drain check
+alias wma_get_drain='python /usr/local/bin/adhoc-scripts/drainAgent.py'
+alias wma_set_drain="manage execute-agent wmagent-upload-config '{\"UserDrainMode\":true}'"
+alias wma_set_undrain="manage execute-agent wmagent-upload-config '{\"UserDrainMode\":false}'"
+
+# agent tail of all component logs
+alias wma_tail_logs='for comp in $(ls $WMA_INSTALL_DIR | grep -v Docker); do echo $comp; tail -n100 $WMA_INSTALL_DIR/$comp/ComponentLog; echo ""; done | less'
+
+# Better curl command
+alias scurl='curl -k --cert ${WMA_CERTS_DIR}/servicecert.pem --key ${WMA_CERTS_DIR}/servicekey.pem'
+
+# Set command prompt for the running user inside the container
+export PS1="(WMAgent-\$WMA_TAG) [\u@\h:\W]\$ "
+
+# debugging tool
+unpkl ()
+{
+    python3 -c 'import pickle,sys,pprint;d=pickle.load(open(sys.argv[1],"rb"));print(d);pprint.pprint(d)' "\$1"
+}
+
+# load the agent environment and utilitarian functions
+source $WMA_ENV_FILE
+source $WMA_DEPLOY_DIR/bin/manage-common.sh

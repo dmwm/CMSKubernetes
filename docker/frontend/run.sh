@@ -139,7 +139,7 @@ sed -i -e "s,access_log,access_log_${hname},g" \
 
 ### Following commands will generate authentication maps.
 
-/data/srv/current/config/frontend/mkvomsmap --key /data/srv/current/auth/proxy/proxy --cert /data/srv/current/auth/proxy/proxy -c /data/srv/current/config/frontend/mkgridmap.conf -o /data/srv/state/frontend/etc/voms-gridmap.txt --vo cms --git-token-path /data/srv/current/auth/frontend/gitlab_token.txt ; [ $? -ne 0 ] && /bin/bash /data/alerts.sh
+/data/srv/current/config/frontend/mkvomsmap  -c /data/srv/current/config/frontend/mkauth.conf -o /data/srv/state/frontend/etc/voms-gridmap.txt --cert /etc/robots/robotcert.pem --key /etc/robots/robotkey.pem --ca-cert /etc/ssl/certs/CERN-bundle.pem ; [ $? -ne 0 ] && /bin/bash /data/alerts.sh
 
 /data/srv/current/config/frontend/mkauthmap  -c /data/srv/current/config/frontend/mkauth.conf -o /data/srv/state/frontend/etc/authmap.json --cert /etc/robots/robotcert.pem --key /etc/robots/robotkey.pem --ca-cert /etc/ssl/certs/CERN-bundle.pem ; [ $? -ne 0 ] && /bin/bash /data/alerts.sh
 
@@ -166,6 +166,8 @@ ps auxw | grep httpd
 if [ -f /data/monitor.sh ]; then
     /data/monitor.sh
 fi
-
+crontab -l
+#fixing the crontab depending on the environment to avoid putting heavy load on CRIC servers.
+./copy_cron.sh && (crontab -l ; cat /tmp/authmap.cron) | crontab -
 # start cron daemon
 sudo /usr/sbin/crond -n

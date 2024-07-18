@@ -1,6 +1,6 @@
 # Auxiliary script to hold common function definitions between init.sh and manage scripts
 
-# NOTE: At the current stage none of the global variables like $AGENT_FLAVOR or $MYSQL_PASS are
+# NOTE: At the current stage none of the global variables like $AGENT_FLAVOR or $MDB_PASS are
 #       defined. All of those come not from the environment as $WMA_* variables, but rather
 #       from loading the WMAgent.secrets file.  So loading of this script as a primary source
 #       with definitions should work, but calling any of those functions without
@@ -20,13 +20,26 @@ wmaInitSqlDB=$WMA_CONFIG_DIR/.initSqlDB                     # set once the metad
 wmaInitCouchDB=$WMA_CONFIG_DIR/.initCouchDB                 # set immediately after agent initialization
 wmaInitConfig=$WMA_CONFIG_DIR/.initConfig                   # set upon final WMAgent config file tweaks have been applied
 wmaInitResourceControl=$WMA_CONFIG_DIR/.initResourceControl # set once the resource control of the agent has been populated
+wmaInitResourceOpp=$WMA_CONFIG_DIR/.initResourceOpp         # set once the resource control of the agent has been populated for opportunistic resources
 wmaInitUpload=$WMA_CONFIG_DIR/.initUpload                   # set once the agent config has been uploaded to central CouchDB
+wmaInitRuntime=$WMA_CONFIG_DIR/.initRuntime                 # set once the runtime scripts needed for HTCondor are copied at the host
 wmaInitUsing=$WMA_CONFIG_DIR/.initUsing                     # Final init flag to mark that the agent is fully activated, initialized, and already in use by the system
+
 
 # Setting database name and schema dump location.
 wmaSchemaFile=$WMA_CONFIG_DIR/.wmaSchemaFile.sql
 wmaDBName=wmagent
 #-------------------------------------------------------------------------------
+
+_is_venv() {
+    # Auxiliary function to determine if we are running within a shell with active python virtual env
+    $(python3 -c 'import sys; isVenv = sys.prefix == sys.base_prefix;sys.exit(isVenv)')
+}
+
+_is_docker() {
+    # Auxiliary function to determine if we are running within a docker env
+    [[ -f /.dockerenv ]]
+}
 
 _exec_mysql() {
     # Auxiliary function to avoid repetitive and long calls to the  mysql command
@@ -35,18 +48,84 @@ _exec_mysql() {
     local sqlStr=$1
     local dbName=$2
     if [[ -n $dbName ]]; then
-        mysql -sN -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --database=$dbName --execute="$sqlStr"
+        mysql -sN -u $MDB_USER --password=$MDB_PASS -h $MDB_HOST --database=$dbName --execute="$sqlStr"
     else
-        mysql -sN -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --execute="$sqlStr"
+        mysql -sN -u $MDB_USER --password=$MDB_PASS -h $MDB_HOST --execute="$sqlStr"
     fi
-}
 
+    ## TODO: To add the same functionality for recognizing the type of call, similar to _exec_oracle
+    #
+    # if $isPipe || $noArgs
+    # then
+    #     mysql -u $MDB_USER --password=$MDB_PASS -h $MDB_HOST --database=$wmaDBName --pager='less -SFX'
+    # else
+    #     local sqlStr=$1
+    #     local dbName=$2
+    #     if [[ -n $dbName ]]; then
+    #         mysql -sN -u $MDB_USER --password=$MDB_PASS -h $MDB_HOST --database=$dbName --execute="$sqlStr"
+    #     else
+    #         mysql -sN -u $MDB_USER --password=$MDB_PASS -h $MDB_HOST --execute="$sqlStr"
+    #     fi
+    # fi
+}
 
 _exec_oracle() {
     # Auxiliary function to avoid repetitive and long calls to the sqlplus command
-    echo "Not implemented"
+    # :param: $@ could be a sql string to execute or a file redirect or a here document
+
+    # We check for input arguments
+    local execStr=""
+    if [[ -z $* ]]
+    then
+        local hasArgs=false
+    else
+        local hasArgs=true
+        # Building a default executable string:
+        execStr="$execStr SET HEADING OFF;\n"
+        execStr="$execStr SET ECHO OFF;\n"
+        execStr="$execStr SET UNDERLINE OFF;\n"
+        execStr="$execStr SET LINESIZE 1024;\n"
+        execStr="$execStr SET FEEDBACK OFF;\n"
+        execStr="$execStr SET PAGESIZE 0;\n"
+        execStr="$execStr whenever sqlerror exit sql.sqlcode;\n"
+        execStr="$execStr $@"
+        execStr="${execStr%;};\n"
+        execStr="$execStr exit;\n"
+    fi
+
+    # First we need to know if we are running through a redirected input
+    # if fd 0 (stdin) is open and refers to a terminal - then we are running the script directly, without a pipe
+    # if fd 0 (stdin) is open but does not refer to the terminal - then we are running the script through a pipe
+    # NOTE: Docker by default redirects stdin
+    local isPipe=false
+    if [[ -t 0 ]] ; then isPipe=false; else isPipe=true ; fi
+
+    # Then we traverse the callstack to find if the original caller was init.sh
+    # if so - we never redirect
+    local isInitCall=false
+    for callSource in ${BASH_SOURCE[@]}
+    do
+        [[ $callSource =~ .*init\.sh ]] && isInitCall=true
+    done
+
+    if $isInitCall || $hasArgs; then
+        ( unset ORACLE_PATH; echo -e $execStr | sqlplus -NOLOGINTIME -S $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS )
+    elif $isPipe || ! $hasArgs; then
+        rlwrap -H $WMA_LOG_DIR/.sqlplus_history -pgreen sqlplus $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS
+    else
+        echo "$FUNCNAME: ERROR: Unhandled type of call with: isPipe: $isPipe &&  noArgs: $noArgs && isInitCall: $isInitCall"
+        return $(false)
+    fi
 }
 
+_exec_sql() {
+    case $AGENT_FLAVOR in
+        'mysql')
+           _exec_mysql "$@" $wmaDBName ;;
+        'oracle')
+           _exec_oracle "$@" ;;
+    esac
+}
 
 _init_valid(){
     # Auxiliary function to shorten repetitive compares of .init* files to the current WMA_BUILD_ID
@@ -55,7 +134,6 @@ _init_valid(){
     [[ -n $initFile ]] && [[ -f $initFile ]] && [[ `cat $initFile` == $WMA_BUILD_ID ]]
 }
 
-
 _sql_dumpSchema(){
     # Auxiliary function to dump the currently deployed schema into a file
     # :param $1: The location where to dump the schema (defaults to global $wmaSchemaFile)
@@ -63,7 +141,7 @@ _sql_dumpSchema(){
     echo "$FUNCNAME: Dumping the current SQL schema of database: $wmaDBName to $wmaSchemaFile"
     case $AGENT_FLAVOR in
         'mysql')
-            mysqldump -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST --no-data --skip-dump-date --compact --skip-opt wmagent > $wmaSchemaFile
+            mysqldump -u $MDB_USER --password=$MDB_PASS -h $MDB_HOST --no-data --skip-dump-date --compact --skip-opt wmagent > $wmaSchemaFile
             ;;
         'oracle')
             echo "$FUNCNAME: NOT implemented"
@@ -85,31 +163,33 @@ _sql_schema_valid(){
 
 _sql_dbid_valid(){
     # Auxiliary function to check if the build Id and hostname recorded in the database matches the $WMA_BUILD_ID
-    # :param $1: The database name to be checked (it will be ignored for Oracle)
+    # :param $1: The database name to be checked. It will be ignored for Oracle (Default: $wmaDBName)
     echo $FUNCNAME: "Checking if the current SQL Database Id matches the WMA_BUILD_ID and hostname of the agent."
     local wmaDBName=${1:-$wmaDBName}
+    local dbIdCmd="select init_value from wma_init where init_param='wma_build_id';"
+    local dbHostNameCmd="select init_value from wma_init where init_param='hostname';"
     case $AGENT_FLAVOR in
         'oracle')
-            echo "Not implemented"
+            local dbId=$(_exec_oracle "$dbIdCmd")
+            local dbHostName=$(_exec_oracle "$dbHostNameCmd")
             ;;
         'mysql')
-            local sqlCmd="select init_value from wma_init where init_param='wma_build_id';"
-            local dbId=$(_exec_mysql "$sqlCmd" $wmaDBName)
-            local sqlCmd="select init_value from wma_init where init_param='hostname';"
-            local dbHostname=$(_exec_mysql "$sqlCmd" $wmaDBName)
-            if [[ $dbId == $WMA_BUILD_ID ]] && [[ $dbHostname == $HOSTNAME ]]; then
-                echo "$FUNCNAME: OK: Database recorded and current agent's init parameters match."
-                return $(true)
-            else
-                echo "$FUNCNAME: WARNING: Database recorded and current agent's init parameters do NOT match."
-                return $(false)
-            fi
+            local dbId=$(_exec_mysql "$dbIdCmd" $wmaDBName)
+            local dbHostName=$(_exec_mysql "$dbHostNameCmd" $wmaDBName)
             ;;
         *)
             echo "$FUNCNAME: ERROR: Unknown or not set Agent Flavor"
             return $(false)
             ;;
     esac
+    # Perform the check:
+    if [[ $dbId == $WMA_BUILD_ID ]] && [[ $dbHostName == $HOSTNAME ]]; then
+        echo "$FUNCNAME: OK: Database recorded and current agent's init parameters match."
+        return $(true)
+    else
+        echo "$FUNCNAME: WARNING: Database recorded and current agent's init parameters do NOT match."
+        return $(false)
+    fi
 }
 
 _sql_db_isclean(){
@@ -119,7 +199,9 @@ _sql_db_isclean(){
     local wmaDBName=${1:-$wmaDBName}
     case $AGENT_FLAVOR in
         'oracle')
-            echo "Not implemented"
+            local sqlCmd="SELECT COUNT(table_name) FROM user_tables;"
+            local numTables=$(_exec_oracle "$sqlCmd")
+            [[ $numTables -eq 0 ]] || { echo "$FUNCNAME: WARNING: Nonclean database $wmaDBName: numTables=$numTables"; return $(false) ;}
             ;;
         'mysql')
             local sqlCmd="SELECT SCHEMA_NAME   FROM INFORMATION_SCHEMA.SCHEMATA  WHERE SCHEMA_NAME = '$wmaDBName'"
@@ -140,20 +222,27 @@ _sql_db_isclean(){
 _sql_write_agentid(){
     # Auxiliary function to write the current agent build id into the sql database
     echo "$FUNCNAME: Preserving the current WMA_BUILD_ID and HostName at database: $wmaDBName."
+    local createCmd="create table wma_init(init_param varchar(100) not null unique, init_value varchar(100) not null);"
     case $AGENT_FLAVOR in
         'oracle')
-            echo "Not implemented"
-            ;;
-        'mysql')
-            local sqlCmd=""
-
             echo "$FUNCNAME: Creating wma_init table at database: $wmaDBName"
-            sqlCmd="create table wma_init(init_param varchar(100) not null, init_value varchar(100));"
-            _exec_mysql "$sqlCmd" $wmaDBName || return
+            _exec_oracle "$createCmd" || return
 
             echo "$FUNCNAME: Inserting current Agent's build id and hostname at database: $wmaDBName"
-            sqlCmd="insert into wma_init (init_param, init_value) values ('wma_build_id', '$WMA_BUILD_ID'), ('hostname', '$HOSTNAME'), ('is_active', 'true');"
-            _exec_mysql "$sqlCmd" $wmaDBName || return
+            _exec_oracle "insert into wma_init (init_param, init_value) values ('wma_build_id', '$WMA_BUILD_ID');" || return
+            _exec_oracle "insert into wma_init (init_param, init_value) values ('wma_tag', '$WMA_TAG');"           || return
+            _exec_oracle "insert into wma_init (init_param, init_value) values ('hostname', '$HOSTNAME');"         || return
+            _exec_oracle "insert into wma_init (init_param, init_value) values ('is_active', 'true');"             || return
+            ;;
+        'mysql')
+            echo "$FUNCNAME: Creating wma_init table at database: $wmaDBName"
+            _exec_mysql "$createCmd" $wmaDBName || return
+
+            echo "$FUNCNAME: Inserting current Agent's build id and hostname at database: $wmaDBName"
+            _exec_mysql "insert into wma_init (init_param, init_value) values ('wma_build_id', '$WMA_BUILD_ID');" $wmaDBName || return
+            _exec_mysql "insert into wma_init (init_param, init_value) values ('wma_tag', '$WMA_TAG');"           $wmaDBName || return
+            _exec_mysql "insert into wma_init (init_param, init_value) values ('hostname', '$HOSTNAME');"         $wmaDBName || return
+            _exec_mysql "insert into wma_init (init_param, init_value) values ('is_active', 'true');"             $wmaDBName || return
             ;;
         *)
             echo "$FUNCNAME: ERROR: Unknown or not set Agent Flavor"
@@ -172,7 +261,7 @@ _status_of_couch(){
 
 _status_of_mysql(){
     echo "$FUNCNAME:"
-    mysqladmin -u $MYSQL_USER --password=$MYSQL_PASS -h $MYSQL_HOST  status
+    mysqladmin -u $MDB_USER --password=$MDB_PASS -h $MDB_HOST  status
     local errVal=$?
     [[ $errVal -ne 0 ]] && { echo "$FUNCNAME: ERROR: MySQL database unreachable!"; return $(false) ;}
     echo "$FUNCNAME: MySQL connection is OK!"
@@ -181,11 +270,12 @@ _status_of_mysql(){
 _status_of_oracle(){
     # Auxiliary function to check if the oracle database configured for the current agent is empty
     echo "$FUNCNAME:"
-	sqlplus $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS <<EOF
-    whenever sqlerror exit sql.sqlcode;
-    select 1 from dual;
-    exit;
-EOF
+    _exec_oracle "select 1 from dual;"
+#   sqlplus $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS <<EOF
+#     whenever sqlerror exit sql.sqlcode;
+#     select 1 from dual;
+#     exit;
+# EOF
     local errVal=$?
     [[ $errVal -ne 0 ]] && { echo "$FUNCNAME: ERROR: Oracle database unreachable!"; return $(false) ;}
     echo "$FUNCNAME: Oracle connection is OK!"
@@ -193,9 +283,23 @@ EOF
 
 _renew_proxy(){
     # Auxiliary function to renew agent proxy
-    local hostName=`hostname -f`
+    local hostName=$(hostname -f)
+    _load_wmasecrets
 
     # Here to find out if the agent is CERN or FNAL and use the proper credentials name for _renew_proxy
+    [[ "$TEAMNAME" == Tier0* ]] &&  {
+        echo "$FUNCNAME: This is a Tier0 agent"
+        local vomsproxyCmd="voms-proxy-init -rfc \
+                         -voms cms:/cms/Role=production -valid 168:00 -bits 2048 \
+                         -cert $X509_USER_CERT -key $X509_USER_KEY \
+                         -out  $X509_USER_PROXY"
+        $vomsproxyCmd || {
+            echo "$FUNCNAME: ERROR: Failed to renew invalid myproxy"
+            return $(false)
+        }
+        return
+    }
+
     if [[ "$hostName" == *cern.ch ]]; then
         local myproxyCredName="amaltaroCERN"
     elif [[ "$hostName" == *fnal.gov ]]; then
@@ -207,7 +311,7 @@ _renew_proxy(){
 
     # Here to forge the myproxy command string to be used for the operation.
     local myproxyCmd="myproxy-get-delegation \
-                    -v -l amaltaro -t 168 -s myproxy.cern.ch -k $myproxyCredName -n \
+                    -v -l amaltaro -t 169 -s myproxy.cern.ch -k $myproxyCredName -n \
                     -o $WMA_CERTS_DIR/mynewproxy.pem"
     local vomsproxyCmd="voms-proxy-init -rfc \
                     -voms cms:/cms/Role=production -valid 168:00 -bits 2048 -noregen \
@@ -215,60 +319,33 @@ _renew_proxy(){
                     -key  $WMA_CERTS_DIR/mynewproxy.pem \
                     -out  $WMA_CERTS_DIR/myproxy.pem"
 
-    # Here to check certificates and proxy lifetime and update myproxy if needed:
-    local certMinLifetimeHours=168
-    local certMinLifetimeSec=$(($certMinLifetimeHours*60*60))
-
-    if [[ -f $WMA_CERTS_DIR/servicecert.pem ]] && [[ -f $WMA_CERTS_DIR/servicekey.pem ]]; then
-
-        echo "$FUNCNAME: Checking Certificate lifetime:"
-        local now=$(date +%s)
-        local certEndDate=$(openssl x509 -in $WMA_CERTS_DIR/servicecert.pem -noout -enddate)
-        certEndDate=${certEndDate##*=}
-        echo "$FUNCNAME: Certificate end date: $certEndDate"
-        [[ -z $certEndDate ]] && {
-            echo "$FUNCNAME: ERROR: Failed to determine certificate end date!"; return $(false) ;}
-        certEndDate=$(date --date="$certEndDate" +%s)
-        [[ $certEndDate -le $now ]] && {
-            echo "$FUNCNAME: ERROR: Expired certificate at $WMA_CERTS_DIR/servicecert.pem!"; return $(false) ;}
-        [[ $(($certEndDate -$now)) -le $certMinLifetimeSec ]] && {
-            echo "$FUNCNAME: WARNING: The service certificate lifetime is less than certMinLifetimeHours: $certMinLifetimeHours! Please update it ASAP!" ;}
-
-        # Renew myproxy if needed:
-        echo "$FUNCNAME: Checking myproxy lifetime:"
-        local myproxyEndDate=$(openssl x509 -in $WMA_CERTS_DIR/myproxy.pem -noout -enddate)
-        myproxyEndDate=${myproxyEndDate##*=}
-        echo "$FUNCNAME: myproxy end date: $myproxyEndDate"
-        [[ -n $myproxyEndDate ]] || ($myproxyCmd && $vomsproxyCmd) || {
-                echo "$FUNCNAME: ERROR: Failed to renew invalid myproxy"; return $(false) ;}
-        myproxyEndDate=$(date --date="$myproxyEndDate" +%s)
-        [[ $myproxyEndDate -gt $(($now + 7*24*60*60)) ]] || ($myproxyCmd && $vomsproxyCmd) || {
-                echo "$FUNCNAME: ERROR: Failed to renew expired myproxy"; return $(false) ;}
-
-        # Stay safe and always change the service {cert,key} and myproxy mode here:
-        sudo chmod 400 $WMA_CERTS_DIR/*
-        echo "$FUNCNAME: OK"
-    else
-        echo "$FUNCNAME: ERROR: We found no service certificate installed at $WMA_CERTS_DIR!"
-        echo "$FUNCNAME: ERROR: Please install proper cert and key files before restarting the WMAgent container!"
-        return $(false)
-    fi
+    $myproxyCmd && $vomsproxyCmd
+    return $?
 }
 
 
 _parse_wmasecrets(){
     # Auxiliary function to provide basic parsing of the WMAgent.secrets file
-    # :param $1: path to WMAgent.secrets file
+    # :param $1: path to WMAgent.secrets file (Default: $WMA_SECRETS_FILE)
+    # :param $2: a particular value to check (Default: *)
     local errVal=0
     local value=""
-    local secretsFile=$1
+    local secretsFile=${1:-$WMA_SECRETS_FILE}
+    local varsToCheck=${2:-""}
+
     # All variables need to be fetched in lowercase through: ${var,,}
     local badValuesReg="(update-me|updateme|<update-me>|<updateme>|fix-me|fixme|<fix-me>|<fixme>|^$)"
-    local varsToCheck=`awk -F\= '{print $1}' $secretsFile | grep -vE "^[[:blank:]]*#.*$"`
+    # local varsToCheck=`awk -F\= '{print $1}' $secretsFile | grep -vE "^[[:blank:]]*#.*$"`
+
+    # Building the list by parsing the secrets file itself.
+    [[ -n $varsToCheck ]] || {
+       varsToCheck=`grep -v "^[[:blank:]]*#" $secretsFile  |grep \= | awk -F\= '{print $1}'`
+    }
+
     for var in $varsToCheck
     do
         value=`grep -E "^[[:blank:]]*$var" $secretsFile | awk -F\= '{print $2}'`
-        [[ ${value,,} =~ $badValuesReg ]] && { echo "$FUNCNAME: Bad value for: $var=$value"; let errVal+=1 ;}
+        [[ ${value,,} =~ $badValuesReg ]] && { echo "$FUNCNAME: ERROR: Bad value for: $var=$value"; let errVal+=1 ;}
     done
     return $errVal
 }
@@ -278,150 +355,107 @@ _parse_wmasecrets(){
 # Passwords/Secrets handling
 #
 _load_wmasecrets(){
-    if [ "x$WMA_SECRETS_FILE" == "x" ]; then
-        WMA_SECRETS_FILE=$HOME/WMAgent.secrets;
-    fi
-    if [ ! -e $WMA_SECRETS_FILE ]; then
-        echo "$FUNCNAME: Password file: $WMA_SECRETS_FILE does not exist"
-        echo "$FUNCNAME: Either set WMA_SECRETS_FILE environment variable to a valid file or check that $HOME/WMAgent.secrets exists"
-        return 1;
-    fi
 
-    _parse_wmasecrets $WMA_SECRETS_FILE || { echo "$FUNCNAME: WARNING: Not loading raw or not updated secrets file at $WMA_SECRETS_FILE"; return $(false) ;}
+    # Auxiliary function to parse WMAgent.secrets or MariaDB.secrets files
+    # and load a set of variables from them
+    # :param $1: Path to WMAgent.secrets or file (Default: $WMA_SECRETS_FILE)
+    # :param $2: String with variable names to be checked (Default: *)
+    # :return:   Error value if one or more values have been left unset in the secrets file
+    local errVal=0
+    local value=""
+    local secretsFile=${1:-$WMA_SECRETS_FILE}
+    local varsToLoad=${2:-""}
 
-    local MATCH_ORACLE_USER=`cat $WMA_SECRETS_FILE | grep ORACLE_USER | sed s/ORACLE_USER=//`
-    local MATCH_ORACLE_PASS=`cat $WMA_SECRETS_FILE | grep ORACLE_PASS | sed s/ORACLE_PASS=//`
-    local MATCH_ORACLE_TNS=`cat $WMA_SECRETS_FILE | grep ORACLE_TNS | sed s/ORACLE_TNS=//`
-    local MATCH_GRAFANA_TOKEN=`cat $WMA_SECRETS_FILE | grep GRAFANA_TOKEN | sed s/GRAFANA_TOKEN=//`
-    local MATCH_MYSQL_USER=`cat $WMA_SECRETS_FILE | grep MYSQL_USER | sed s/MYSQL_USER=//`
-    local MATCH_MYSQL_PASS=`cat $WMA_SECRETS_FILE | grep MYSQL_PASS | sed s/MYSQL_PASS=//`
-    local MATCH_MYSQL_HOST=`cat $WMA_SECRETS_FILE | grep MYSQL_HOST | sed s/MYSQL_HOST=//`
-    local MATCH_COUCH_USER=`cat $WMA_SECRETS_FILE | grep COUCH_USER | sed s/COUCH_USER=//`
-    local MATCH_COUCH_PASS=`cat $WMA_SECRETS_FILE | grep COUCH_PASS | sed s/COUCH_PASS=//`
-    local MATCH_COUCH_PORT=`cat $WMA_SECRETS_FILE | grep COUCH_PORT | sed s/COUCH_PORT=//`
-    local MATCH_COUCH_HOST=`cat $WMA_SECRETS_FILE | grep COUCH_HOST | sed s/COUCH_HOST=//`
-    local MATCH_COUCH_CERT_FILE=`cat $WMA_SECRETS_FILE | grep COUCH_CERT_FILE | sed s/COUCH_CERT_FILE=//`
-    local MATCH_COUCH_KEY_FILE=`cat $WMA_SECRETS_FILE | grep COUCH_KEY_FILE | sed s/COUCH_KEY_FILE=//`
-    local MATCH_GLOBAL_WORKQUEUE_URL=`cat $WMA_SECRETS_FILE | grep GLOBAL_WORKQUEUE_URL | sed s/GLOBAL_WORKQUEUE_URL=//`
-    local MATCH_LOCAL_WORKQUEUE_DBNAME=`cat $WMA_SECRETS_FILE | grep LOCAL_WORKQUEUE_DBNAME | sed s/LOCAL_WORKQUEUE_DBNAME=//`
-    local MATCH_WORKLOAD_SUMMARY_URL=`cat $WMA_SECRETS_FILE | grep WORKLOAD_SUMMARY_URL | sed s/WORKLOAD_SUMMARY_URL=//`
-    local MATCH_WORKLOAD_SUMMARY_DBNAME=`cat $WMA_SECRETS_FILE | grep WORKLOAD_SUMMARY_DBNAME | sed s/WORKLOAD_SUMMARY_DBNAME=//`
-    local MATCH_WMSTATS_URL=`cat $WMA_SECRETS_FILE | grep WMSTATS_URL | sed s/WMSTATS_URL=//`
-    local MATCH_REQMGR2_URL=`cat $WMA_SECRETS_FILE | grep REQMGR2_URL | sed s/REQMGR2_URL=//`
-    local MATCH_ACDC_URL=`cat $WMA_SECRETS_FILE | grep ACDC_URL | sed s/ACDC_URL=//`
-    local MATCH_DBS3_URL=`cat $WMA_SECRETS_FILE | grep DBS3_URL | sed s/DBS3_URL=//`
-    local MATCH_DQM_URL=`cat $WMA_SECRETS_FILE | grep DQM_URL | sed s/DQM_URL=//`
-    local MATCH_REQUESTCOUCH_URL=`cat $WMA_SECRETS_FILE | grep REQUESTCOUCH_URL | sed s/REQUESTCOUCH_URL=//`
-    local MATCH_CENTRAL_LOGDB_URL=`cat $WMA_SECRETS_FILE | grep CENTRAL_LOGDB_URL | sed s/CENTRAL_LOGDB_URL=//`
-    local MATCH_WMARCHIVE_URL=`cat $WMA_SECRETS_FILE | grep WMARCHIVE_URL | sed s/WMARCHIVE_URL=//`
-    local MATCH_AMQ_CREDENTIALS=`cat $WMA_SECRETS_FILE | grep AMQ_CREDENTIALS | sed s/AMQ_CREDENTIALS=//`
-    local MATCH_RUCIO_HOST=`cat $WMA_SECRETS_FILE | grep RUCIO_HOST | sed s/RUCIO_HOST=//`
-    local MATCH_RUCIO_AUTH=`cat $WMA_SECRETS_FILE | grep RUCIO_AUTH | sed s/RUCIO_AUTH=//`
-    local MATCH_RUCIO_ACCOUNT=`cat $WMA_SECRETS_FILE | grep RUCIO_ACCOUNT | sed s/RUCIO_ACCOUNT=//`
-    local MATCH_TEAMNAME=`cat $WMA_SECRETS_FILE | grep TEAMNAME | sed s/TEAMNAME=//`
-    local MATCH_AGENT_NUMBER=`cat $WMA_SECRETS_FILE | grep AGENT_NUMBER | sed s/AGENT_NUMBER=//`
+    [[ -f $secretsFile ]] || {
+        echo "$FUNCNAME: ERROR: Secrets file $secretsFile does not exist"
+        echo "$FUNCNAME: ERROR: Either set WMA_SECRETS_FILE environment variable to a valid file or check that $HOME/WMAgent.secrets exists"
+        return $(false)
+    }
 
+    # If no list of variables to be loaded was given assume all of them.
+    # Building the list by parsing the secrets file itself.
+    [[ -n $varsToLoad ]] || {
+       varsToLoad=`grep -v "^[[:blank:]]*#" $secretsFile  |grep \= | awk -F\= '{print $1}'`
+    }
 
-    # database settings (mysql or oracle)
-    if [ "x$MATCH_ORACLE_USER" == "x" ]; then
+    # Here we validate every variable for itself before loading it
+    for varName in $varsToLoad
+    do
+        _parse_wmasecrets $secretsFile $varName || {
+            let errVal+=1
+            echo "$FUNCNAME: ERROR: Bad value found for $varName"
+            return $errVal
+        }
+    done
+
+    # Now load them all
+    for varName in $varsToLoad
+    do
+        value=`grep -E "^[[:blank:]]*$varName=" $secretsFile | sed "s/ *$varName=//"`
+        if [[ $varName =~ ^RESOURCE_ ]]; then
+            declare -g -A $varName
+            eval $varName=$value || {
+                let errVal+=$?
+                echo "$FUNCNAME: ERROR: Could not evaluate: ${varName}=${!varName}"
+                return $errVal
+            }
+        else
+            eval $varName='$value' || {
+                let errVal+=$?
+                echo "$FUNCNAME: ERROR: Could not evaluate: ${varName}=${!varName}"
+                return $errVal
+            }
+        fi
+        # echo ${varName}=${!varName}
+        [[ -n $varName ]] || { echo "$FUNCNAME: ERROR: Empty value for: $varName=$value"; let errVal+=1 ;}
+    done
+
+    # Finaly check and set defaults:
+
+    # Relational database settings (mariaDB or oracle)
+    if [[ -z $ORACLE_USER ]]; then
         AGENT_FLAVOR=mysql
-        MYSQL_USER=${MATCH_MYSQL_USER:-$USER};
-        MYSQL_PASS=${MATCH_MYSQL_PASS:-$MYSQL_PASS};
-        MYSQL_HOST=${MATCH_MYSQL_HOST:-127.0.0.1};
+        MDB_USER=${MDB_USER:-$USER};
+        MDB_HOST=${MDB_HOST:-127.0.0.1};
     else
         AGENT_FLAVOR=oracle
-        ORACLE_USER=$MATCH_ORACLE_USER;
-        ORACLE_PASS=$MATCH_ORACLE_PASS;
-        ORACLE_TNS=$MATCH_ORACLE_TNS;
-        if [ "x$ORACLE_PASS" == "x" ] || [ "x$ORACLE_TNS" == "x" ]; then
-            echo "$FUNCNAME: Secrets file doesnt contain ORACLE_PASS or ORACLE_TNS";
-            exit 1
+        if [[ -z $ORACLE_PASS ]] || [[ -z $ORACLE_TNS ]]; then
+            echo "$FUNCNAME: ERROR: Secrets file doesnt contain ORACLE_PASS or ORACLE_TNS"; let errVal+=1
         fi
     fi
 
-    GRAFANA_TOKEN=${MATCH_GRAFANA_TOKEN:-$GRAFANA_TOKEN};
-    if [ "x$GRAFANA_TOKEN" == "x" ]; then
-        echo "$FUNCNAME: Secrets file doesnt contain GRAFANA_TOKEN";
-        exit 1
+    if [[  -z $GRAFANA_TOKEN ]]; then
+        echo "$FUNCNAME: ERROR: Secrets file doesnt contain GRAFANA_TOKEN"; let errVal+=1
     fi
 
-    # basic couch settings
-    COUCH_USER=${MATCH_COUCH_USER:-wmagentcouch};
-    COUCH_PASS=${MATCH_COUCH_PASS:-$COUCH_PASS};
-    if [ "x$COUCH_PASS" == "x" ]; then
-        echo "$FUNCNAME: Secrets file doesnt contain COUCH_PASS";
-        exit 1
-    fi
-
-    COUCH_PORT=${MATCH_COUCH_PORT:-$COUCH_PORT};
-    COUCH_HOST=${MATCH_COUCH_HOST:-127.0.0.1};
+    # CouchDB settings
     # if couch ssl certificate not specified check X509_USER_CERT and X509_USER_PROXY
-    COUCH_CERT_FILE=${MATCH_COUCH_CERT_FILE:-${X509_USER_CERT:-$X509_USER_PROXY}};
-
     # if couch ssl key not specified check X509_USER_KEY and X509_USER_PROXY
-    COUCH_KEY_FILE=${MATCH_COUCH_KEY_FILE:-${X509_USER_KEY:-$X509_USER_PROXY}};
+    COUCH_USER=${COUCH_USER:-wmagentcouch};
+    COUCH_HOST=${COUCH_HOST:-127.0.0.1};
+    COUCH_CERT_FILE=${COUCH_CERT_FILE:-${X509_USER_CERT:-$X509_USER_PROXY}};
+    COUCH_KEY_FILE=${COUCH_KEY_FILE:-${X509_USER_KEY:-$X509_USER_PROXY}};
+    if [[ -z $COUCH_PASS ]]; then
+        echo "$FUNCNAME: ERROR: Secrets file doesnt contain COUCH_PASS"; let errVal+=1
+    fi
 
-    GLOBAL_WORKQUEUE_URL=${MATCH_GLOBAL_WORKQUEUE_URL:-$GLOBAL_WORKQUEUE_URL};
-
-    LOCAL_WORKQUEUE_DBNAME=${MATCH_LOCAL_WORKQUEUE_DBNAME:-$LOCAL_WORKQUEUE_DBNAME};
-
-    WORKLOAD_SUMMARY_URL=${MATCH_WORKLOAD_SUMMARY_URL:-$WORKLOAD_SUMMARY_URL};
-
-    WMSTATS_URL=${MATCH_WMSTATS_URL:-$WMSTATS_URL}
-
-    REQMGR2_URL=${MATCH_REQMGR2_URL:-$REQMGR2_URL}
-
-    ACDC_URL=${MATCH_ACDC_URL:-$ACDC_URL}
-
-    DBS3_URL=${MATCH_DBS3_URL:-$DBS3_URL}
-
-    DQM_URL=${MATCH_DQM_URL:-$DQM_URL}
-
-    REQUESTCOUCH_URL=${MATCH_REQUESTCOUCH_URL:-$REQUESTCOUCH_URL}
-
-    CENTRAL_LOGDB_URL=${MATCH_CENTRAL_LOGDB_URL:-$CENTRAL_LOGDB_URL}
-
-    WMARCHIVE_URL=${MATCH_WMARCHIVE_URL:-$WMARCHIVE_URL}
-
-    AMQ_CREDENTIALS=${MATCH_AMQ_CREDENTIALS:-$AMQ_CREDENTIALS}
-    RUCIO_HOST=${MATCH_RUCIO_HOST:-$RUCIO_HOST}
-    RUCIO_AUTH=${MATCH_RUCIO_AUTH:-$RUCIO_AUTH}
-    RUCIO_ACCOUNT=${MATCH_RUCIO_ACCOUNT:-$RUCIO_ACCOUNT}
-    TEAMNAME=${MATCH_TEMANAME:-$TEAMNAME}
-    AGENT_NUMBER=${MATCH_AGENT_NUMBER:-$AGENT_NUMBER}
+    return $errVal
 }
 
 _print_settings(){
+    echo "-------------- WMA_* environment variables: --------------"
     env |grep ^WMA| sort
-    echo "ORACLE_USER=               $ORACLE_USER               "
-    echo "ORACLE_PASS=               $ORACLE_PASS               "
-    echo "ORACLE_TNS=                $ORACLE_TNS                "
-    echo "GRAFANA_TOKEN=             $GRAFANA_TOKEN             "
-    echo "MYSQL_USER=                $MYSQL_USER                "
-    echo "MYSQL_PASS=                $MYSQL_PASS                "
-    echo "MYSQL_HOST=                $MYSQL_HOST                "
-    echo "COUCH_USER=                $COUCH_USER                "
-    echo "COUCH_PASS=                $COUCH_PASS                "
-    echo "COUCH_PORT=                $COUCH_PORT                "
-    echo "COUCH_HOST=                $COUCH_HOST                "
-    echo "COUCH_CERT_FILE=           $COUCH_CERT_FILE           "
-    echo "COUCH_KEY_FILE=            $COUCH_KEY_FILE            "
-    echo "GLOBAL_WORKQUEUE_URL=      $GLOBAL_WORKQUEUE_URL      "
-    echo "LOCAL_WORKQUEUE_DBNAME=    $LOCAL_WORKQUEUE_DBNAME    "
-    echo "WORKLOAD_SUMMARY_URL=      $WORKLOAD_SUMMARY_URL      "
-    echo "WORKLOAD_SUMMARY_DBNAME=   $WORKLOAD_SUMMARY_DBNAME   "
-    echo "WMSTATS_URL=               $WMSTATS_URL               "
-    echo "REQMGR2_URL=               $REQMGR2_URL               "
-    echo "ACDC_URL=                  $ACDC_URL                  "
-    echo "DBS3_URL=                  $DBS3_URL                  "
-    echo "DQM_URL=                   $DQM_URL                   "
-    echo "REQUESTCOUCH_URL=          $REQUESTCOUCH_URL          "
-    echo "CENTRAL_LOGDB_URL=         $CENTRAL_LOGDB_URL         "
-    echo "WMARCHIVE_URL=             $WMARCHIVE_URL             "
-    echo "AMQ_CREDENTIALS=           $AMQ_CREDENTIALS           "
-    echo "RUCIO_HOST=                $RUCIO_HOST                "
-    echo "RUCIO_AUTH=                $RUCIO_AUTH                "
-    echo "RUCIO_ACCOUNT=             $RUCIO_ACCOUNT             "
-    echo "TEAMNAME=                  $TEAMNAME                  "
-    echo "AGENT_NUMBER=              $AGENT_NUMBER              "
+
+    echo "-------------- WMA_SECRETS_FILE  variables: --------------"
+    varsToPrint=`grep -v "^[[:blank:]]*#" $WMA_SECRETS_FILE  |grep \= | awk -F\= '{print $1}'`
+
+    for varName in $varsToPrint
+    do
+        if [[ $varName =~ ^RESOURCE_ ]]; then
+            declare -p $varName
+        else
+            echo $varName=${!varName}
+        fi
+    done
+    echo "---------------------------------------------------------"
 }

@@ -66,10 +66,15 @@ spec:
       - image: registry.cern.ch/cmsweb/auth-proxy-server #imagetag
         name: x509-proxy-server
 #         imagePullPolicy: Always
+        # NOTE: we explicitly use port, metricsPort and logFile options
+        #       to re-use single config.json between APS and XPS
         args:
           - /data/auth-proxy-server
           - -config=/etc/secrets/config.json
           - -useX509
+          - -port=8443
+          - -metricsPort=9092
+          - -logFile=/data/srv/logs/frontend/x509-proxy-server.log
         resources:
           requests:
             memory: "50Mi"
@@ -91,7 +96,7 @@ spec:
         - containerPort: 9092
           name: metrics
         volumeMounts:
-        - name: x509-proxy-server-secrets
+        - name: auth-proxy-server-secrets # use the same secrets as APS
           mountPath: /etc/secrets
           #defaultMode: 256
           readOnly: true
@@ -106,7 +111,10 @@ spec:
           mountPath: /etc/grid-security/hostkey.pem
         - name: token-secrets
           mountPath: /etc/token
-          readOnly: true          
+          readOnly: true 
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
 #PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/frontend
 #PROD#  - name: filebeat-cephfs
@@ -149,9 +157,9 @@ spec:
         - name: www-htdocs
           mountPath: /tmp/htdocs
       volumes:
-      - name: x509-proxy-server-secrets
+      - name: auth-proxy-server-secrets # use the same secrets as APS
         secret:
-          secretName: x509-proxy-server-secrets
+          secretName: auth-proxy-server-secrets # use the same secrets as APS
       - name: proxy-secrets
         secret:
           secretName: proxy-secrets
@@ -165,7 +173,10 @@ spec:
             path: /etc/grid-security/hostkey.pem
       - name: token-secrets
         secret:
-          secretName: token-secrets            
+          secretName: token-secrets    
+      - name: etc-grid-security
+        hostPath:
+            path: /etc/grid-security
 #PROD#- name: varlog
 #PROD#  hostPath:
 #PROD#    path: /var/log

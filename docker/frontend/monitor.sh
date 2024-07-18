@@ -49,6 +49,8 @@ if [ -f /data/filebeat.yaml ] && [ -f /usr/bin/filebeat ]; then
     fi
     ldir=/data/filebeat/${NAME}
     mkdir -p $ldir/data
+    sudo mkdir -p /var/log/filebeat/
+    sudo chown _frontend:_frontend /var/log/filebeat/
     nohup /usr/bin/filebeat \
         -c /data/filebeat.yaml \
         --path.data $ldir/data --path.logs $ldir -e 2>&1 1>& $ldir/log < /dev/null &

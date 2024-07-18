@@ -1,6 +1,6 @@
 # cpueff-spark
 FROM mongo:5.0.14 as builder
-FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-latest
+FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark3-el9-20240709
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 # tag to use
@@ -9,13 +9,8 @@ ENV WDIR=/data
 WORKDIR $WDIR
 
 ENV HADOOP_CONF_DIR=/etc/hadoop/conf
-ENV PATH="${PATH}:${WDIR}/CMSMonitoring/cpueff-goweb/spark"
+ENV PATH="${PATH}:${WDIR}:${WDIR}/CMSMonitoring/cpueff-goweb/spark"
 ENV PYTHONPATH "${PYTHONPATH}:${WDIR}:${WDIR}/CMSSpark/src/python:${WDIR}/CMSMonitoring/src/python:${WDIR}/CMSMonitoring/cpueff-goweb/spark"
-
-# How to find: source LCG102 hadoop setup, which python, ln -ls python, voila!
-ENV PYSPARK_PYTHON=/cvmfs/sft.cern.ch/lcg/releases/Python/3.9.12-9a1bc/x86_64-centos7-gcc8-opt/bin/python3
-ENV PYSPARK_DRIVER_PYTHON=/usr/bin/python3
-ENV LC_ALL=en_US.utf-8 LANG=en_US.utf-8
 
 COPY --from=builder /usr/bin/mongoimport $WDIR
 COPY --from=builder /usr/bin/mongosh $WDIR
@@ -26,7 +21,7 @@ RUN mkdir -p $WDIR/logs && \
     cd CMSMonitoring && git checkout tags/$CMSMON_TAG -b build && cd .. && \
     zip -r CMSMonitoring.zip CMSMonitoring/src/python/CMSMonitoring/* && \
     pip install --no-cache-dir stomp.py==7.0.0 click pyspark pandas numpy schema seaborn matplotlib plotly && \
-    hadoop-set-default-conf.sh analytix && source hadoop-setconf.sh analytix 3.2 spark3
+    hadoop-set-default-conf.sh analytix && source hadoop-setconf.sh analytix 3.3 spark3
 
 WORKDIR $WDIR
 

@@ -88,7 +88,7 @@ spec:
         name: t0wmadatasvc
 #PROD#  resources:
 #PROD#    requests:
-#PROD#      memory: "256Mi"
+#PROD#      memory: "512Mi"
 #PROD#      cpu: "50m"
 #PROD#    limits:
 #PROD#      memory: "2Gi"

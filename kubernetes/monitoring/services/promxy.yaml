@@ -36,7 +36,7 @@ spec:
           - /data/promxy
           - --config=/etc/promxy/config.yaml
           name: promxy
-          image: registry.cern.ch/cmsmonitoring/promxy:v0.0.77
+          image: registry.cern.ch/cmsmonitoring/promxy:v0.0.84
           ports:
           - containerPort: 8082
             protocol: TCP

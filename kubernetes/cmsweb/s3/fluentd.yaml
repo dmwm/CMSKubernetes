@@ -78,7 +78,7 @@ spec:
           privileged: true          
       containers:
       - name: fluentd
-        image: gitlab-registry.cern.ch/cloud/atomic-system-containers/fluentd-elasticsearch:v2.4.0
+        image: registry.cern.ch/cmsweb/fluentd-container:v0.0.1
         command: ["/bin/sh", "-c", "/etc/fluent/config.d/install-plugins.sh"]
         env:
           - name: FLUENTD_ARGS

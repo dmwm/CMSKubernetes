@@ -3,11 +3,11 @@ quickSetting:
   namespace: default
   env: test-rs
   image:
-    mongodb: registry.cern.ch/cmsweb/cmsmongo:HG2303b
+    mongodb: registry.cern.ch/cmsweb/cmsmongo:HG2311a
   pvc:
     storageClassName: cpio1
-    accessMode: ReadWriteOnce
-    storageSize: 1Ti
+    accessMode: ReadWriteMany
+    storageSize: 1Ti       
     mongodbMountPath: "/mnt/NFS1/cluster5/defacement-detection-test-deployment-with-helm/"
 monitoring:
   jobName: "mongodb-exporter"
@@ -25,21 +25,36 @@ db:
       one: cms-mongo-preprod-node-0.cern.ch
       two: cms-mongo-preprod-node-1.cern.ch
       three: cms-mongo-preprod-node-2.cern.ch
+    test:
+      one: cmsmongo-test-node-0.cern.ch
+      two: cmsmongo-test-node-1.cern.ch
+      three: cmsmongo-test-node-2.cern.ch
   auth:
     password: password
     keyfile: keyfile
   service:
     port: 27017
   pod:
-    resources:
-      requests:
-        ephemeralStorage: "1Gi"
-        cpu: "100m"
-        memory: "1Gi"
-      limits:
-        ephemeralStorage: "2Gi"
-        cpu: "200m"
-        memory: "2Gi"
+    prod:
+      resources:
+        requests:
+          ephemeralStorage: "1Gi"
+          cpu: "1000m"
+          memory: "3Gi"
+        limits:
+          ephemeralStorage: "2Gi"
+          cpu: "3000m"
+          memory: "8Gi"
+    preprod:
+      resources:
+        requests:
+          ephemeralStorage: "1Gi"
+          cpu: "100m"
+          memory: "1Gi"
+        limits:
+          ephemeralStorage: "2Gi"
+          cpu: "200m"
+          memory: "2Gi"
   probes:
     livenessProbe:
       initialDelaySeconds: 90

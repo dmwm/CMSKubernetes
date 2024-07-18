@@ -2,7 +2,7 @@ FROM registry.cern.ch/cmsweb/exporters:20231002-stable as exporters-builder
 RUN mkdir -p /data
 
 
-FROM cern/cc7-base:20230901-2
+FROM cern/cc7-base:20240501-1
 
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
@@ -24,7 +24,8 @@ RUN yum install -y cern-get-certificate fetch-crl \
     git-core zip unzip which file bzip2 e2fsprogs e2fsprogs-libs compat-libstdc++-33 \
     CERN-CA-certs ca-certificates dummy-ca-certs ca-policy-lcg ca-policy-egi-core \
     ca_EG-GRID ca_CERN-GridCA ca_CERN-LCG-IOTA-CA ca_CERN-Root-2 \
-    wlcg-voms-cms krb5-workstation krb5-libs pam_krb5 myproxy voms-clients-cpp voms-clients-java \
+    wlcg-voms-cms wlcg-iam-lsc-cms wlcg-iam-vomses-cms \
+    krb5-workstation krb5-libs pam_krb5 myproxy voms-clients-cpp voms-clients-java \
     sudo openssl openssl-devel openssl-libs openssh openssh-clients python-backports-ssl_match_hostname \
     cmake voms voms-devel globus-gsi-credential-devel globus-gsi-cert-utils-devel \
     globus-common-devel globus-gsi-sysconfig globus-gsi-sysconfig-devel globus-gsi-callback-devel \

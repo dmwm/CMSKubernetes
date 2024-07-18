@@ -8,8 +8,10 @@ metadata:
   namespace: crab
 spec:
   {{- if not .Values.autoscaling.enabled }}
-  {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+  {{- if (eq (toString $environment) "prod") }}
   replicas: {{ .Values.replicaCount.prod }}
+  {{- else if (eq (toString $environment) "preprod")}}
+  replicas: {{ .Values.replicaCount.preprod }}
   {{- else }}
   replicas: {{ .Values.replicaCount.test }}
   {{- end }}
@@ -48,8 +50,14 @@ spec:
             name: crabserver-mon
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          {{- if .Values.image.command }}
           command:
           {{- toYaml .Values.image.command | nindent 10 }}
+          {{- end }}
+          {{- if .Values.image.args }}
+          args:
+          {{- toYaml .Values.image.args | nindent 10 }}
+          {{- end }}
           env:
           {{- toYaml .Values.image.env | nindent 10 }}
           livenessProbe:

@@ -1,0 +1,75 @@
+# Ref: https://gitlab.cern.ch/db/cerndb-infra-hadoop-conf/-/blob/qa/docker/Dockerfile-HDP3
+FROM python:3.9 as builder
+
+ENV WDIR=/data
+WORKDIR $WDIR
+
+# Create zip files of stomp.py=7.0.0 to submit Spark workers
+RUN apt-get update -y && \
+    apt-get install -y zip subversion && \
+#   Install python stomp.py==7.0.0 module which is the latest working version with StompAMQ7
+    pip install --no-cache-dir -t stomp-v700 https://github.com/jasonrbriggs/stomp.py/archive/refs/tags/v7.0.0.zip && \
+#   Create zip file to send to Spark workers, because workers have old version of it (v3 or v4)
+    cd stomp-v700 && \
+    zip -r ../stomp-v700.zip . && \
+    cd .. && \
+    rm -rf stomp-v700
+
+# -----------------------------------------------------------------------------------------
+FROM gitlab-registry.cern.ch/linuxsupport/alma9-base:20240703-1.x86_64
+
+ENV WDIR=/data
+WORKDIR $WDIR
+
+ARG stage=stable
+
+# Create YUM generic repository for Hadoop
+RUN touch /etc/yum.repos.d/Cern-Hadoop-Components.repo && \
+    echo -e "[hdp9al-$(echo $stage)]\n\
+name=CERN Hadoop repository [$(echo $stage)]\n\
+baseurl=http://linuxsoft.cern.ch/internal/repos/hdp9al-$(echo $stage)/x86_64/os\n\
+enabled=1\n\
+gpgcheck=0\n\
+priority=6" > /etc/yum.repos.d/Cern-Hadoop-Components.repo
+
+# Other YUM repos needed
+RUN touch /etc/yum.repos.d/config9al-$(echo $stage).repo && \
+    echo -e "[config9al-$(echo $stage)]\n\
+name=Utilities for Configuration [$(echo $stage)]\n\
+baseurl=http://linuxsoft.cern.ch/internal/repos/config9al-$(echo $stage)/x86_64/os\n\
+enabled=1\n\
+gpgcheck=True\n\
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-kojiv2\n\
+priority=30" > /etc/yum.repos.d/config9al-$(echo $stage).repo
+
+# Define EPEL repository
+RUN touch /etc/yum.repos.d/epel.repo && \
+    echo -e "[epel]\n\
+name=Extra Packages for Enterprise Linux 9 [HEAD]\n\
+baseurl=http://linuxsoft.cern.ch/epel/9/Everything/x86_64\n\
+enabled=1\n\
+gpgcheck=1\n\
+gpgkey=http://linuxsoft.cern.ch/epel/RPM-GPG-KEY-EPEL-9\n\
+exclude=collectd*,libcollectd*,mcollective,perl-Authen-Krb5,perl-Collectd,puppet,python*collectd_systemd*,koji*,python*koji*\n\
+priority=20" > /etc/yum.repos.d/epel.repo
+
+
+# Add repository files and GPG key
+ADD http://repository.egi.eu/sw/production/cas/1/current/repo-files/egi-trustanchors.repo /etc/yum.repos.d/egi.repo
+ADD http://linuxsoft.cern.ch/wlcg/wlcg-el9.repo /etc/yum.repos.d/wlcg-el9.repo
+ADD RPM-GPG-KEY-wlcg /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg
+
+# Update and install necessary packages
+RUN dnf update -y && \
+    dnf upgrade -y && \
+    dnf install -y crontabs cronie cronie-anacron git-core zip unzip mesa-libGL pcre2-utf16 \
+    libXrender libSM libtirpc libicu ncurses which \
+    wlcg-voms-cms wlcg-iam-lsc-cms wlcg-iam-vomses-cms voms-clients \
+    python-pip python3-setuptools \
+    hadoop-bin-3.3 spark-bin-3.5 sqoop-bin-1.4 python3 cern-hadoop-config \
+    jq trustedbag-client cern-hadoop-xrootd-connector && \
+    dnf clean all
+
+RUN hadoop-set-default-conf.sh analytix
+
+COPY --from=builder /data $WDIR

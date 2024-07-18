@@ -88,7 +88,7 @@ Single host Mount area:
 * /data/dockerMount/
 
 List of host mounts:
-* /data/dockerMount/certs
+* /data/certs
 * /etc/condor (schedd runs on the host, not the container)
 * /etc/tnsnames.ora  (for agents using Oracle database)
 * /tmp
@@ -149,7 +149,7 @@ Docker container has been initialized! However you still need to:
        manage start-agent
 
      * From the host:
-       docker kill wmagent
+       docker stop wmagent
        ./wmagent-docker-run.sh -t <WMA_TAG> &
 Have a nice day!
 
@@ -313,16 +313,16 @@ They are set at different moments along the process: i.e. at `buildtime` - when 
 * **List of variables set at `runtime` by sourcing `$WMA_ENV_FILE`:**
 
    * WMAGENT_SECRETS_LOCATION=$WMA_ROOT_DIR/admin/wmagent/WMAgent.secrets
-   * X509_HOST_CERT=$WMA_ROOT_DIR/certs/servicecert.pem
-   * X509_HOST_KEY=$WMA_ROOT_DIR/certs/servicekey.pem
-   * X509_USER_CERT=$WMA_ROOT_DIR/certs/servicecert.pem
-   * X509_USER_KEY=$WMA_ROOT_DIR/certs/servicekey.pem
-   * X509_USER_PROXY=$WMA_ROOT_DIR/certs/myproxy.pem
+   * X509_HOST_CERT=$WMA_CERTS_DIR/servicecert.pem
+   * X509_HOST_KEY=$WMA_CERTS_DIR/servicekey.pem
+   * X509_USER_CERT=$WMA_CERTS_DIR/servicecert.pem
+   * X509_USER_KEY=$WMA_CERTS_DIR/servicekey.pem
+   * X509_USER_PROXY=$WMA_CERTS_DIR/myproxy.pem
    * install=$WMA_INSTALL_DIR
    * config=$WMA_CONFIG_DIR
    * manage=$WMA_MANAGE_DIR/manage
    * RUCIO_HOME=$WMA_CONFIG_DIR
-   * WMA_BUILD_ID=$(cat $WMA_ROOT_DIR/.dockerBuildId)
+   * WMA_BUILD_ID=$(cat $WMA_ROOT_DIR/.wmaBuildId)
    * WMCORE_ROOT=$WMA_DEPLOY_DIR
    * WMAGENTPY3_ROOT=$WMA_INSTALL_DIR
    * WMAGENTPY3_VERSION=$WMA_TAG
@@ -348,8 +348,8 @@ They are set at different moments along the process: i.e. at `buildtime` - when 
 
 * **List  of variables set at `configtime` defined in $WMAgent.secrets file:**
 
-   * MYSQL_USER=*****
-   * MYSQL_PASS=*****
+   * MDB_USER=*****
+   * MDB_PASS=*****
 
     or
 
@@ -382,7 +382,7 @@ They are set at different moments along the process: i.e. at `buildtime` - when 
    * RUCIO_ACCOUNT=wma_test
    * RUCIO_HOST=http://cms-rucio-int.cern.ch
    * RUCIO_AUTH=https://cms-rucio-auth-int.cern.ch
-
+   * MSPILEUP_URL=https://cmsweb***.cern.ch/ms-pileup/data/pileup
 
 ## WMAgent operational actions
 Basic operational actions, such as agent restarts, may be performed from the host by killing or starting the docker container.

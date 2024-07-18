@@ -93,7 +93,7 @@ spec:
       serviceAccountName: sa-kube-eagle
       containers:
         - name: kube-eagle
-          image: "quay.io/google-cloud-tools/kube-eagle:1.1.0"
+          image: "quay.io/google-cloud-tools/kube-eagle:1.1.4"
           imagePullPolicy: IfNotPresent
           env:
             - name: TELEMETRY_HOST

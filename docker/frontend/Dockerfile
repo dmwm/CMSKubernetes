@@ -54,6 +54,12 @@ RUN crontab /data/crontab.txt
 ADD run.sh $WDIR/run.sh
 ADD monitor.sh $WDIR/monitor.sh
 ADD alerts.sh $WDIR/alerts.sh
+COPY authmap-prod.sh /tmp/authmap-prod.sh
+COPY authmap-preprod.sh /tmp/authmap-preprod.sh
+COPY authmap-test.sh /tmp/authmap-test.sh
+COPY copy_cron.sh $WDIR/copy_cron.sh
+
+
 
 ENV PATH="${WDIR}/cmsweb/bin:${WDIR}:${WDIR}/gopath/bin:${PATH}"
 

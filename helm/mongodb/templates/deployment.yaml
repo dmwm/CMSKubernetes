@@ -54,16 +54,31 @@ spec:
       containers:
         - image: {{.Values.quickSetting.image.mongodb}}
           name: {{.Values.db.instance0.podName}}
+          imagePullPolicy: Always
+          {{- if  (eq (toString $environment) "prod") }}
           resources:
             requests:
-              ephemeral-storage: {{.Values.db.pod.resources.requests.ephemeralStorage}}
-              cpu: {{.Values.db.pod.resources.requests.cpu}}
-              memory: {{.Values.db.pod.resources.requests.memory}}
+              ephemeral-storage: {{.Values.db.pod.prod.resources.requests.ephemeralStorage}}
+              cpu: {{.Values.db.pod.prod.resources.requests.cpu}}
+              memory: {{.Values.db.pod.prod.resources.requests.memory}}
             limits:
-              ephemeral-storage: {{.Values.db.pod.resources.limits.ephemeralStorage}}
-              cpu: {{.Values.db.pod.resources.requests.cpu}}
-              memory: {{.Values.db.pod.resources.limits.memory}}
+              ephemeral-storage: {{.Values.db.pod.prod.resources.limits.ephemeralStorage}}
+              cpu: {{.Values.db.pod.prod.resources.limits.cpu}}
+              memory: {{.Values.db.pod.prod.resources.limits.memory}}
+          {{- else }}
+          resources:
+            requests:
+              ephemeral-storage: {{.Values.db.pod.preprod.resources.requests.ephemeralStorage}}
+              cpu: {{.Values.db.pod.preprod.resources.requests.cpu}}
+              memory: {{.Values.db.pod.preprod.resources.requests.memory}}
+            limits:
+              ephemeral-storage: {{.Values.db.pod.preprod.resources.limits.ephemeralStorage}}
+              cpu: {{.Values.db.pod.preprod.resources.limits.cpu}}
+              memory: {{.Values.db.pod.preprod.resources.limits.memory}}
+           {{- end }}
           env:
+            - name: "ENVIRONMENT"
+              value: {{ (toString $environment) }}
             - name: "RS_NAME"
               value: {{.Values.db.rsname}}
           {{- if  (eq (toString $environment) "prod") }}
@@ -81,6 +96,14 @@ spec:
               value: {{.Values.db.nodeName.preprod.two}}
             - name: "NODE_HOSTNAME_THREE"
               value: {{.Values.db.nodeName.preprod.three}}
+            {{- end }}
+           {{- if  (eq (toString $environment) "test")}}
+            - name: "NODE_HOSTNAME_ONE"
+              value: {{.Values.db.nodeName.test.one}}
+            - name: "NODE_HOSTNAME_TWO"
+              value: {{.Values.db.nodeName.test.two}}
+            - name: "NODE_HOSTNAME_THREE"
+              value: {{.Values.db.nodeName.test.three}}
             {{- end }}
             - name: "MONGODB_ID"
               value: {{.Values.db.instance0.mongoId | quote}}
@@ -101,13 +124,21 @@ spec:
           volumeMounts:
             - name: {{.Values.db.instance0.pvName}}
               mountPath: "/data/db"
+            - name: {{.Values.db.instance0.pvName}}-eos
+              mountPath: "/eos"
             - name: mongo-keyfile
               mountPath: "/etc/secrets"
-
+            - name: eos-krb
+              mountPath: /etc/krb
+            - name: mongodb-secrets
+              mountPath: "/etc/mongodb-secret"
       volumes:
         - name: {{.Values.db.instance0.pvName}}
           persistentVolumeClaim:
             claimName: {{.Values.db.instance0.pvName}}
+        - name: {{.Values.db.instance0.pvName}}-eos
+          persistentVolumeClaim:
+            claimName: {{.Values.db.instance0.pvName}}-eos
         - name: mongo-keyfile
           secret:
             secretName: mongodb-auth
@@ -115,7 +146,12 @@ spec:
             items:
               - key: keyfile
                 path: mongokeyfile
-
+        - name: eos-krb
+          secret:
+            secretName: eos-krb
+        - name: mongodb-secrets
+          secret:
+            secretName: mongodb-secrets
 ---
 apiVersion: v1
 kind: Service
@@ -158,20 +194,28 @@ spec:
       containers:
         - image: {{.Values.quickSetting.image.mongodb}}
           name: {{.Values.db.instance1.podName}}
+          imagePullPolicy: Always
+          {{- if  (eq (toString $environment) "prod") }}
           resources:
             requests:
-              ephemeral-storage: {{.Values.db.pod.resources.requests.ephemeralStorage}}
-              cpu: {{.Values.db.pod.resources.requests.cpu}}
-              memory: {{.Values.db.pod.resources.requests.memory}}
+              ephemeral-storage: {{.Values.db.pod.prod.resources.requests.ephemeralStorage}}
+              cpu: {{.Values.db.pod.prod.resources.requests.cpu}}
+              memory: {{.Values.db.pod.prod.resources.requests.memory}}
             limits:
-              ephemeral-storage: {{.Values.db.pod.resources.limits.ephemeralStorage}}
-              cpu: {{.Values.db.pod.resources.requests.cpu}}
-              memory: {{.Values.db.pod.resources.limits.memory}}
-          env:
-            - name: "RS_NAME"
-              value: {{.Values.db.rsname}}
-            - name: "MONGODB_ID"
-              value: {{.Values.db.instance1.mongoId | quote}}
+              ephemeral-storage: {{.Values.db.pod.prod.resources.limits.ephemeralStorage}}
+              cpu: {{.Values.db.pod.prod.resources.limits.cpu}}
+              memory: {{.Values.db.pod.prod.resources.limits.memory}}
+          {{- else }}
+          resources:
+            requests:
+              ephemeral-storage: {{.Values.db.pod.preprod.resources.requests.ephemeralStorage}}
+              cpu: {{.Values.db.pod.preprod.resources.requests.cpu}}
+              memory: {{.Values.db.pod.preprod.resources.requests.memory}}
+            limits:
+              ephemeral-storage: {{.Values.db.pod.preprod.resources.limits.ephemeralStorage}}
+              cpu: {{.Values.db.pod.preprod.resources.limits.cpu}}
+              memory: {{.Values.db.pod.preprod.resources.limits.memory}}
+           {{- end }}
           livenessProbe:
             exec:
               command:
@@ -184,12 +228,21 @@ spec:
           volumeMounts:
             - name: {{.Values.db.instance1.pvName}}
               mountPath: "/data/db"
+            - name: {{.Values.db.instance1.pvName}}-eos
+              mountPath: "/eos"
             - name: mongo-keyfile
               mountPath: "/etc/secrets"
+            - name: eos-krb
+              mountPath: /etc/krb
+            - name: mongodb-secrets
+              mountPath: "/etc/mongodb-secret"
       volumes:
         - name: {{.Values.db.instance1.pvName}}
           persistentVolumeClaim:
             claimName: {{.Values.db.instance1.pvName}}
+        - name: {{.Values.db.instance1.pvName}}-eos
+          persistentVolumeClaim:
+            claimName: {{.Values.db.instance1.pvName}}-eos
         - name: mongo-keyfile
           secret:
             secretName: mongodb-auth
@@ -197,6 +250,12 @@ spec:
             items:
               - key: keyfile
                 path: mongokeyfile
+        - name: eos-krb
+          secret:
+            secretName: eos-krb
+        - name: mongodb-secrets
+          secret:
+            secretName: mongodb-secrets
 ---
 apiVersion: v1
 kind: Service
@@ -239,16 +298,31 @@ spec:
       containers:
         - image: {{.Values.quickSetting.image.mongodb}}
           name: {{.Values.db.instance2.podName}}
+          imagePullPolicy: Always
+          {{- if  (eq (toString $environment) "prod") }}
           resources:
             requests:
-              ephemeral-storage: {{.Values.db.pod.resources.requests.ephemeralStorage}}
-              cpu: {{.Values.db.pod.resources.requests.cpu}}
-              memory: {{.Values.db.pod.resources.requests.memory}}
+              ephemeral-storage: {{.Values.db.pod.prod.resources.requests.ephemeralStorage}}
+              cpu: {{.Values.db.pod.prod.resources.requests.cpu}}
+              memory: {{.Values.db.pod.prod.resources.requests.memory}}
             limits:
-              ephemeral-storage: {{.Values.db.pod.resources.limits.ephemeralStorage}}
-              cpu: {{.Values.db.pod.resources.requests.cpu}}
-              memory: {{.Values.db.pod.resources.limits.memory}}
+              ephemeral-storage: {{.Values.db.pod.prod.resources.limits.ephemeralStorage}}
+              cpu: {{.Values.db.pod.prod.resources.limits.cpu}}
+              memory: {{.Values.db.pod.prod.resources.limits.memory}}
+          {{- else }}
+          resources:
+            requests:
+              ephemeral-storage: {{.Values.db.pod.preprod.resources.requests.ephemeralStorage}}
+              cpu: {{.Values.db.pod.preprod.resources.requests.cpu}}
+              memory: {{.Values.db.pod.preprod.resources.requests.memory}}
+            limits:
+              ephemeral-storage: {{.Values.db.pod.preprod.resources.limits.ephemeralStorage}}
+              cpu: {{.Values.db.pod.preprod.resources.limits.cpu}}
+              memory: {{.Values.db.pod.preprod.resources.limits.memory}}
+           {{- end }}
           env:
+            - name: "ENVIRONMENT"
+              value: {{ (toString $environment) }}
             - name: "RS_NAME"
               value: {{.Values.db.rsname}}
             - name: "MONGODB_ID"
@@ -265,12 +339,21 @@ spec:
           volumeMounts:
             - name: {{.Values.db.instance2.pvName}}
               mountPath: "/data/db"
+            - name: {{.Values.db.instance2.pvName}}-eos
+              mountPath: "/eos"
             - name: mongo-keyfile
               mountPath: "/etc/secrets"
+            - name: eos-krb
+              mountPath: /etc/krb
+            - name: mongodb-secrets
+              mountPath: "/etc/mongodb-secret"
       volumes:
         - name: {{.Values.db.instance2.pvName}}
           persistentVolumeClaim:
             claimName: {{.Values.db.instance2.pvName}}
+        - name: {{.Values.db.instance2.pvName}}-eos
+          persistentVolumeClaim:
+            claimName: {{.Values.db.instance2.pvName}}-eos
         - name: mongo-keyfile
           secret:
             secretName: mongodb-auth
@@ -278,3 +361,10 @@ spec:
             items:
               - key: keyfile
                 path: mongokeyfile
+        - name: eos-krb
+          secret:
+            secretName: eos-krb
+        - name: mongodb-secrets
+          secret:
+            secretName: mongodb-secrets
+

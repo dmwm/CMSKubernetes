@@ -6,11 +6,14 @@ RUN pip install CMSCouchapp
 
 ENV WDIR=/data
 ENV USER=_couchdb
+ENV UGID=100022
 
 RUN mkdir -p /etc/grid-security
 
 # add new user
-RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
+RUN groupadd -g ${UGID} ${USER}
+RUN useradd -m ${USER} -u ${UGID} -g ${UGID}
+RUN install -o ${USER} -d ${WDIR}
 # add user to sudoers file
 RUN echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 # switch to user
@@ -19,14 +22,6 @@ USER ${USER}
 # start the setup
 RUN mkdir -p $WDIR
 WORKDIR ${WDIR}
-
-# pass env variable to the build
-ARG CMSK8S
-ENV CMSK8S=$CMSK8S
-ARG COUCH_USER
-ENV COUCH_USER=$COUCH_USER
-ARG COUCH_PASS
-ENV COUCH_PASS=$COUCH_PASS
 
 # get binary build of couchdb exporter
 RUN curl -ksLO https://github.com/gesellix/couchdb-prometheus-exporter/releases/download/v27.0.0/couchdb-prometheus-exporter_27.0.0_Linux_x86_64.tar.gz
@@ -49,7 +44,6 @@ RUN mkdir -p /data/srv/current/config/couchdb \
     && ln -s /etc/secrets/couch_creds /data/srv/current/auth/couchdb/couch_creds \
     && ln -s /etc/secrets/local.ini /data/srv/current/config/couchdb/local.ini
 ADD manage /data/srv/current/config/couchdb/manage
-ADD couchdb-logrotate.conf /data/srv/current/config/couchdb/couchdb-logrotate.conf
 
 ENV PATH="/opt/couchdb/bin:/usr/local/bin/:${PATH}"
 

@@ -3,7 +3,8 @@
 # Declare variables to be passed into your templates.
 
 replicaCount: 
-  prod: 8
+  prod: 15
+  preprod: 1
   test: 1
 
 image:
@@ -17,6 +18,8 @@ image:
   env:
   - name: CRABSERVER_LOGSTDOUT
     value: "t"
+  - name: CRABSERVER_THREAD_POOL
+    value: "2"
 
 environment:
 

@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: pv-am-volume-claim
+  name: pv-alertmanager-volume-claim
 spec:
-  storageClassName: sc-am-volume-claim
+  storageClassName: sc-alertmanager-volume-claim
   accessModes:
     - ReadWriteOnce
   capacity:
@@ -17,10 +17,10 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: am-volume-claim
+  name: alertmanager-volume-claim
 spec:
   # The class must be the same as in the PV
-  storageClassName: sc-am-volume-claim
+  storageClassName: sc-alertmanager-volume-claim
   accessModes:
     - ReadWriteOnce
   resources:
@@ -31,9 +31,9 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: pv-prom-volume-claim
+  name: pv-prometheus-volume-claim
 spec:
-  storageClassName: sc-prom-volume-claim
+  storageClassName: sc-prometheus-volume-claim
   accessModes:
     - ReadWriteOnce
   capacity:
@@ -47,10 +47,10 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: prom-volume-claim
+  name: prometheus-volume-claim
 spec:
   # The class must be the same as in the PV
-  storageClassName: sc-prom-volume-claim
+  storageClassName: sc-prometheus-volume-claim
   accessModes:
     - ReadWriteOnce
   resources:
