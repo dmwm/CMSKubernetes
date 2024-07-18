@@ -112,7 +112,7 @@ spec:
         - name: token-secrets
           mountPath: /etc/token
           readOnly: true 
-        - mountPath: /etc/grid-security/certificates
+        - mountPath: /host/etc/grid-security
           name: etc-grid-security
           readOnly: true
 #PROD#  - name: logs
@@ -176,7 +176,7 @@ spec:
           secretName: token-secrets    
       - name: etc-grid-security
         hostPath:
-            path: /etc/grid-security/certificates
+            path: /etc/grid-security
 #PROD#- name: varlog
 #PROD#  hostPath:
 #PROD#    path: /var/log
