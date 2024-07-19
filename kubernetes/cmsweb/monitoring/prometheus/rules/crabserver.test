@@ -25,27 +25,8 @@ tests:
                  description: "prod has been down for more than 5m"
 - interval: 1m
   input_series:
-  - series: 'avg_open_fds_10m{env="prod",instance="test-instance",host="k8s-test"}'
-    values: '76+1x100'
-  alert_rule_test:
-      - eval_time: 10m
-        alertname: CRAB server service has large number of fds
-        exp_alerts:
-            - exp_labels:
-                 severity: warning
-                 tag: cmsweb
-                 service: crab
-                 host: k8s-test
-                 action: Please check CRAB server on test-instance and possibly restart it
-                 instance: test-instance
-                 env: prod
-              exp_annotations:
-                 summary: "CRAB prod environment"
-                 description: "prod has large level of fds 86 (avg 10m) for more than 1m"
-- interval: 1m
-  input_series:
-  - series: 'avg_open_fds_30m{env="prod",instance="test-instance",host="k8s-test"}'
-    values: '101+1x100'
+  - series: 'avg_open_fds_8m{env="prod",instance="test-instance",host="k8s-test"}'
+    values: '51+1x100'
   alert_rule_test:
       - eval_time: 10m
         alertname: CRAB server service has high number of fds
@@ -60,4 +41,4 @@ tests:
                  env: prod
               exp_annotations:
                  summary: "CRAB prod environment"
-                 description: "prod has high level of fds 111 (avg 30m) for more than 1m"
+                 description: "prod has high level of fds 61 (avg 8m) for more than 1m"
