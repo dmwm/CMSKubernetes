@@ -17,7 +17,7 @@ data:
       scan_frequency: 10s
       backoff: 5s
       max_backoff: 10s
-      tags: ["xps"]
+      tags: ["aps"]
     output.logstash:
       hosts: ["logstash.monitoring:5044"]
       compression_level: 3
