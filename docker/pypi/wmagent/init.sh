@@ -324,10 +324,10 @@ set_cronjob() {
     local errVal=0
 
     # Populating proxy related cronjobs
-    crontab -u $WMA_USER - <<EOF
-55 */12 * * * date -Im >> $WMA_LOG_DIR/renew-proxy.log && $WMA_MANAGE_DIR/manage renew-proxy 2>&1 >> $WMA_LOG_DIR/renew-proxy.log
-58 */12 * * * python $WMA_DEPLOY_DIR/deploy/checkProxy.py --proxy /data/certs/myproxy.pem --time 120 --send-mail True --mail alan.malta@cern.ch
-*/15 * * * *  source $WMA_DEPLOY_DIR/deploy/restartComponent.sh > /dev/null
+    cat > /etc/cron.d/wmagent <<EOF
+55 */12 * * * sudo -u $WMA_USER date -Im >> $WMA_LOG_DIR/renew-proxy.log && sudo -u $WMA_USER -E $WMA_MANAGE_DIR/manage renew-proxy 2>&1 >> $WMA_LOG_DIR/renew-proxy.log
+58 */12 * * * sudo -u $WMA_USER -E python $WMA_DEPLOY_DIR/deploy/checkProxy.py --proxy /data/certs/myproxy.pem --time 120 --send-mail True --mail alan.malta@cern.ch
+*/15 * * * *  sudo -u $WMA_USER -E source $WMA_DEPLOY_DIR/deploy/restartComponent.sh > /dev/null
 EOF
     let errVal+=$?
 
