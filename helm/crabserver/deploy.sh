@@ -11,7 +11,7 @@ desired_cluster=$1
 current_cluster=$(kubectl config view -o json | jq '.["current-context"] as $context | .["contexts"][] | select(.name | contains($context))| .context.cluster')
 if [[ $current_cluster =~ $desired_cluster ]]; then 
   echo "deploying to $desired_cluster"; 
-  helm template crabserver . -f values.yaml -f values-$desired_cluster.yaml | kubectl -n crab apply -f -
+  helm template crabserver . -f values.yaml -f values-${desired_cluster}-pypi.yaml | kubectl -n crab apply -f -
 else 
   echo "wrong cluster: your are connected to $current_cluster"; 
 fi

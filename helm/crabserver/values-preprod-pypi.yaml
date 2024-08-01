@@ -1,10 +1,10 @@
 ---
-environment: "test"
+environment: "preprod"
 
 image:
   path: registry.cern.ch/cmscrab/crabserver
   pullPolicy: IfNotPresent
-  tag: "pypi-test2-1716890482"
+  tag: "v3.240731-stable"
   command:
   - /data/entrypoint.sh
   args:
@@ -16,8 +16,3 @@ image:
     && ls -lahZ /etc/grid-security \
     && /data/run.sh
 
-#https://helm.sh/docs/chart_template_guide/values_files/#deleting-a-default-key
-livenessProbePreProd: null
-readinessProbePreProd: null
-readinessProbe: null
-livenessProbe: null
