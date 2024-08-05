@@ -1,5 +1,5 @@
-environment: "prod"
+environment: "preprod"
 
 image:
-  tag: "v3.240508"
+  tag: "v3.240731-stable"
 
