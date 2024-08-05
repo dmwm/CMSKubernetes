@@ -36,6 +36,10 @@ export X509_USER_KEY=$AUTHDIR/dmwm-service-key.pem
 export X509_USER_CERT=$AUTHDIR/dmwm-service-cert.pem
 export REQMGR_CACHE_DIR=$STATEDIR
 export WMCORE_CACHE_DIR=$STATEDIR
+# MSUnmerged also needs to access a proxy with additional voms roles
+if [ -f $AUTHDIR/proxy.cert ]; then
+    export X509_USER_PROXY=$AUTHDIR/proxy.cert
+fi
 
 # by default Rucio relies on /opt/rucio/etc/config.cfg
 # if necessary we may setup RUCIO_HOME which should provide this location
