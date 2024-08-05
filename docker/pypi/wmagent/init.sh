@@ -324,10 +324,25 @@ set_cronjob() {
     local errVal=0
 
     # Populating proxy related cronjobs
-    cat > /etc/cron.d/wmagent <<EOF
-55 */12 * * * sudo -u $WMA_USER date -Im >> $WMA_LOG_DIR/renew-proxy.log && sudo -u $WMA_USER -E $WMA_MANAGE_DIR/manage renew-proxy 2>&1 >> $WMA_LOG_DIR/renew-proxy.log
-58 */12 * * * sudo -u $WMA_USER -E python $WMA_DEPLOY_DIR/deploy/checkProxy.py --proxy /data/certs/myproxy.pem --time 120 --send-mail True --mail alan.malta@cern.ch
-*/15 * * * *  sudo -u $WMA_USER -E source $WMA_DEPLOY_DIR/deploy/restartComponent.sh > /dev/null
+    renew_proxy_cmd="date -Im >> $WMA_LOG_DIR/renew-proxy.log && $WMA_MANAGE_DIR/manage renew-proxy 2>&1 >> $WMA_LOG_DIR/renew-proxy.log"
+    check_proxy_cmd="python $WMA_DEPLOY_DIR/deploy/checkProxy.py --proxy /data/certs/myproxy.pem --time 120 --send-mail True --mail alan.malta@cern.ch"
+    restart_components_cmd="source $WMA_DEPLOY_DIR/deploy/restartComponent.sh > /dev/null"
+
+    # Tier0 agent deployment is currently not docker based
+    if [[ "$TEAMNAME" == Tier0* ]]; then
+        crontab -u $WMA_USER - <<EOF
+55 */12 * * * eval "$renew_proxy_cmd"
+58 */12 * * * eval "$check_proxy_cmd"
+*/15 * * * *  eval "$restart_components_cmd" 
+
+EOF
+    else
+        # with docker, execute root+sudo to workaround su authentication issues with user crontabs at FNAL 
+        cat > /etc/cron.d/wmagent <<EOF
+55 */12 * * * sudo -u $WMA_USER eval "$renew_proxy_cmd"
+58 */12 * * * sudo -u $WMA_USER -E eval "$check_proxy_cmd"
+*/15 * * * *  sudo -u $WMA_USER -E eval "$restart_components_cmd" 
+
 EOF
     let errVal+=$?
 
