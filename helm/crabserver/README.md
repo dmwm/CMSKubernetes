@@ -8,26 +8,12 @@ for some context.
 We like to use helm for templating, using the helm charts to generate the 
 manifest file, then applying it with `kubectl apply`.
 
-We therefore ask cmsweb operators to deploy crab with the following procedure:
-
-Generate the manifest with
-
-```bash
-# testbed
-helm template crabserver . -f values.yaml -f values-testbed.yaml > ../../kubernetes/cmsweb/services/crabserver.yaml
-
-# prod
-helm template crabserver . -f values.yaml -f values-prod.yaml > ../../kubernetes/cmsweb/services/crabserver.yaml
-```
-
-Then to deploy it with the usual `deploy-srv.sh` script
-
-```bash
-# testbed
-./scripts/deploy-srv.sh crabserver v3.231006 preprod
-
-# prod
-./scripts/deploy-srv.sh crabserver v3.231006 prod
-```
+We therefore ask cmsweb operators to deploy crab following the procedure at
+[1].
 
 Changes to `../../kubernetes/cmsweb/services/crabserver.yaml` should not be committed.
+
+---
+
+[1] https://cmscrab.docs.cern.ch/technical/crab-rest/deploy.html#deploy-on-kubernetes-use-helm-template-to-generate-manifest-preferred
+
