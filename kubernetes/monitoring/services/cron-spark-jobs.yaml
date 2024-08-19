@@ -73,7 +73,7 @@ spec:
       hostname: cron-spark-jobs
       containers:
         - name: cron-spark-jobs
-          image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.5.0.0
+          image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.5.0.2
           env:
             - name: MY_NODE_NAME
               valueFrom:
@@ -90,6 +90,7 @@ spec:
               exec:
                 command:
                   - "sh"
+                  - "-l"
                   - "-c"
                   - >
                     export > /etc/environment;
