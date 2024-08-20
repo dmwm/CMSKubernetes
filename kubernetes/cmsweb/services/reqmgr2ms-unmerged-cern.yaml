@@ -1,0 +1,222 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ms-unmer-cern-filebeat-config
+  namespace: dmwm
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/reqmgr2ms/*${MY_POD_NAME}*.log
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: ms-unmer-cern
+  namespace: dmwm
+spec:
+  selector:
+    app: ms-unmer-cern
+  ports:
+    - port: 8242
+      targetPort: 8242
+      name: ms-unmer-cern
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: ms-unmer-cern
+  labels:
+    app: ms-unmer-cern
+  namespace: dmwm
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+    sudo cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    # su  -c "cd /data && /data/run.sh -e '(((cms_type=real|cms_type=int)&rse_type=DISK&(tier=2|tier=3))\country=US)' " --preserve-environment _reqmgr2ms
+    cd /data && /data/run.sh -e '(rse=T2_CH_CERN|rse=T2_US_Wisconsin|rse=T2_US_Caltech)'
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: ms-unmer-cern
+  name: ms-unmer-cern
+  namespace: dmwm
+spec:
+  selector:
+    matchLabels:
+      app: ms-unmer-cern
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ms-unmer-cern
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18242"
+    spec:
+      # use hostNetwork to allow communication between reqmgr2ms/reqmon/workqueue and couch
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 2000
+      containers:
+      - image: registry.cern.ch/cmsweb/reqmgr2ms-unmerged #imagetag
+        name: ms-unmer-cern
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - bash
+              - -c
+              - sudo chmod 0777 /data/srv/logs/reqmgr2ms; sudo chown _reqmgr2ms:_reqmgr2ms /data/srv/logs/reqmgr2ms
+#PROD#  resources:
+#PROD#    requests:
+#PROD#      memory: "1Gi"
+#PROD#      cpu: "1000m"
+#PROD#    limits:
+#PROD#      memory: "2Gi"
+#PROD#      cpu: "1000m"
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8242/ms-unmerged/data/status"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 5
+        ports:
+        - containerPort: 8242
+          protocol: TCP
+          name: ms-unmer-cern
+        - containerPort: 18242
+          protocol: TCP
+          name: unmerged-mon
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        volumeMounts:
+        - name: rucio-secrets
+          mountPath: /opt/rucio/etc
+          readOnly: true
+        - name: proxy-secrets-ms-unmerged
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true          
+#PROD#  - name: logs
+#PROD#    mountPath: /data/srv/logs/reqmgr2ms
+        securityContext:
+          privileged: true
+#PROD#- name: ms-unmer-cern-filebeat
+#PROD#  image: docker.elastic.co/beats/filebeat:7.12.0
+#PROD#  args: [
+#PROD#    "-c", "/etc/filebeat.yml",
+#PROD#    "-e",
+#PROD#  ]
+#PROD#  env:
+#PROD#  - name: MY_POD_NAME
+#PROD#    valueFrom:
+#PROD#      fieldRef:
+#PROD#        apiVersion: v1
+#PROD#        fieldPath: metadata.name
+#PROD#  resources:
+#PROD#    requests:
+#PROD#      memory: "50Mi"
+#PROD#      cpu: "50m"
+#PROD#  volumeMounts:
+#PROD#  - name: logs
+#PROD#    mountPath: /data/srv/logs/reqmgr2ms
+#PROD#  - name: config
+#PROD#    mountPath: /etc/filebeat.yml
+#PROD#    readOnly: true
+#PROD#    subPath: filebeat.yml
+#PROD#  - name: data
+#PROD#    mountPath: /usr/share/filebeat/data
+#PROD#  - name: varlog
+#PROD#    mountPath: /var/log
+#PROD#  - name: varlibdockercontainers
+#PROD#    mountPath: /var/lib/docker/containers
+#PROD#    readOnly: true
+#PROD#  securityContext:
+#PROD#    allowPrivilegeEscalation: false
+      volumes:
+      - name: rucio-secrets
+        secret:
+          secretName: rucio-secrets
+      - name: proxy-secrets-ms-unmerged
+        secret:
+          secretName: proxy-secrets-ms-unmerged
+      - name: secrets
+        secret:
+          secretName: reqmgr2ms-unmerged-cern-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: etc-grid-security
+        hostPath:
+            path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: ms-unmer-cern
+      - name: token-secrets
+        secret:
+          secretName: token-secrets          
+#PROD#- name: logs
+#PROD#  persistentVolumeClaim:
+#PROD#      claimName: logs-cephfs-claim-dmwm
+#PROD#- name: varlog
+#PROD#  hostPath:
+#PROD#    path: /var/log
+#PROD#- name: varlibdockercontainers
+#PROD#  hostPath:
+#PROD#    path: /var/lib/docker/containers
+#PROD#- name: config
+#PROD#  configMap:
+#PROD#    defaultMode: 0640
+#PROD#    name: ms-unmer-cern-filebeat-config
+#PROD#- name: data
+#PROD#  emptyDir: {}
