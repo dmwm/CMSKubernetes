@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"net/http/httputil"
+	"sort"
+	"strings"
 )
 
 func RequestHandler(w http.ResponseWriter, r *http.Request) {
@@ -13,9 +15,17 @@ func RequestHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("TLS:", r.TLS)
 		fmt.Println("Header:", r.Header)
 
+		// get all HTTP headers and sort them out
+		var headers []string
+		for k, _ := range r.Header {
+			headers = append(headers, k)
+		}
+		sort.Strings(headers)
+
 		// print out all request headers
 		fmt.Fprintf(w, "%s %s %s \n", r.Method, r.URL, r.Proto)
-		for k, v := range r.Header {
+		for _, k := range headers {
+			v, _ := r.Header[k]
 			h := strings.ToLower(k)
 			if strings.Contains(h, "hmac") || strings.Contains(h, "cookie") {
 				continue

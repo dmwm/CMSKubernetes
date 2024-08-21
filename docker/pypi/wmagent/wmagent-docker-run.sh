@@ -135,3 +135,6 @@ echo "Checking if there is no other wmagent container running and creating a lin
 echo "Starting wmagent:$WMA_TAG docker container with user: $wmaUser:$wmaGroup"
 docker run $dockerOpts $registry/$repository:$WMA_TAG
 docker exec -u root -it wmagent service cron start
+
+# Workaround su authentication issue (cron uses setuid via su)
+docker exec -u root -it wmagent sh -c "echo $wmaUser:$wmaUser | chpasswd"

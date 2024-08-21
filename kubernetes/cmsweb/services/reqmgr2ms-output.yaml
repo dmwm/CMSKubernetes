@@ -97,7 +97,7 @@ spec:
 #PROD#      memory: "250Mi"
 #PROD#      cpu: "100m"
 #PROD#    limits:
-#PROD#      memory: "750Mi"
+#PROD#      memory: "1Gi"
 #PROD#      cpu: "1000m"
         livenessProbe:
           exec:
