@@ -84,7 +84,7 @@ spec:
             cpu: "30m"
           limits:
             memory: "10Gi"
-            cpu: "4000m" # we can add higher limit here
+            cpu: "8000m" # we can add higher limit here
         env:
         - name: X509_USER_PROXY
           value: /etc/proxy/proxy
