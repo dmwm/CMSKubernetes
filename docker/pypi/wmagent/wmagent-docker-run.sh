@@ -137,4 +137,11 @@ docker run $dockerOpts $registry/$repository:$WMA_TAG
 docker exec -u root -it wmagent service cron start
 
 # Workaround su authentication issue (cron uses setuid via su)
-docker exec -u root -it wmagent sh -c "echo $wmaUser:$wmaUser | chpasswd"
+# We inherit user accounts from the host (binding files in read-only mode)
+# including the password mode (L=locked, P=password)
+# If we are in password mode, reset it so we do not get authentication
+# errors.
+userStatus="$(docker exec -u root -it wmagent sh -c "passwd -S $wmaUser" | awk '{print $2}')"
+if [ "${userStatus:0:1}" == "P" ]; then
+    docker exec -u root -it wmagent sh -c "echo $wmaUser:$wmaUser | chpasswd"
+fi
