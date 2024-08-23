@@ -327,7 +327,7 @@ set_cronjob() {
     crontab -u $WMA_USER - <<EOF
 55 */12 * * * date -Im >> $WMA_LOG_DIR/renew-proxy.log && $WMA_MANAGE_DIR/manage renew-proxy 2>&1 >> $WMA_LOG_DIR/renew-proxy.log
 58 */12 * * * python $WMA_DEPLOY_DIR/deploy/checkProxy.py --proxy /data/certs/myproxy.pem --time 120 --send-mail True --mail alan.malta@cern.ch
-*/15 * * * *  source $WMA_DEPLOY_DIR/deploy/restartComponent.sh > /dev/null
+*/15 * * * *  source $WMA_DEPLOY_DIR/deploy/restartComponent.sh 2>&1 >> $WMA_LOG_DIR/component-restart.log
 EOF
     let errVal+=$?
 
