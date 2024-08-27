@@ -34,7 +34,7 @@ data:
         cat ${temp_output}
     fi
 
-    echo "Script completed."
+    echo "\nScript completed."
 ---
 apiVersion: v1
 kind: PersistentVolume
