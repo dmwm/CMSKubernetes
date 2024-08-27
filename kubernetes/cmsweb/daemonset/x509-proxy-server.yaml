@@ -64,7 +64,6 @@ spec:
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
-
       containers:
       - image: registry.cern.ch/cmsweb/auth-proxy-server #imagetag
         name: x509-proxy-server
@@ -99,6 +98,8 @@ spec:
         - containerPort: 9092
           name: metrics
         volumeMounts:
+        - mountPath: /etc/cric
+          name: cric-volume
         - name: auth-proxy-server-secrets # use the same secrets as APS
           mountPath: /etc/secrets
           #defaultMode: 256
@@ -160,6 +161,9 @@ spec:
         - name: www-htdocs
           mountPath: /tmp/htdocs
       volumes:
+      - name: cric-volume
+        persistentVolumeClaim:
+          claimName: cric-pvc
       - name: auth-proxy-server-secrets # use the same secrets as APS
         secret:
           secretName: auth-proxy-server-secrets # use the same secrets as APS
