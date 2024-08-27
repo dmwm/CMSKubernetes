@@ -9,23 +9,31 @@ data:
     echo "Starting CRIC fetch script..."
     odir=/etc/cric/cric.json
     tstamp=`date "+%Y%m%d_%H%M%S"`
+    temp_output=/tmp/cric_output_${tstamp}.json
+    
+    # Run curl command and capture the HTTP status code
     response_code=$(curl --cert /etc/robots/robotcert.pem --key /etc/robots/robotkey.pem \
-        -k -L -s -w "%{response_code}" \
-        "https://cms-cric.cern.ch/api/accounts/user/query/?json&preset=roles123" -o ${odir}.${tstamp})
-    echo "Curl command executed with response code: $response_code"
+        -k -L -s -w "%{http_code}" \
+        -o ${temp_output} "https://cms-cric.cern.ch/api/accounts/user/query/?json&preset=roles123")
+    
+    curl_exit_code=$?
 
-    if [ "$?" == "0" ] && [ "$response_code" == "200" ]; then
-        mv ${odir}.${tstamp} ${odir}
+    if [ "$curl_exit_code" -eq 0 ] && [ "$response_code" -eq 200 ]; then
+        mv ${temp_output} ${odir}
         echo "CRIC data fetched successfully and moved to ${odir}."
+        
+        # Show the head and tail of the file
+        echo "=== First 10 lines of ${odir} ==="
+        head -n 10 ${odir}
+        
+        echo "=== Last 10 lines of ${odir} ==="
+        tail -n 10 ${odir}
     else
-        echo "Failed to fetch CRIC data or invalid response code: $response_code"
+        echo "Failed to fetch CRIC data. Curl exit code: $curl_exit_code, Response code: $response_code"
+        echo "Partial or error output:"
+        cat ${temp_output}
     fi
 
-    echo "=== Head of ${odir} ==="
-    head -n 10 ${odir}
-
-    echo "=== Tail of ${odir} ==="
-    tail -n 10 ${odir}
     echo "Script completed."
 ---
 apiVersion: v1
