@@ -14,7 +14,7 @@ data:
     # Run curl command and capture the HTTP status code
     response_code=$(curl --cert /etc/robots/robotcert.pem --key /etc/robots/robotkey.pem \
         -k -L -s -w "%{http_code}" \
-        -o ${temp_output} "https://cms-cric.cern.ch/api/accounts/user/query/?json&preset=roles123")
+        -o ${temp_output} "https://cms-cric.cern.ch/api/accounts/user/query/?json&preset=roles")
     
     curl_exit_code=$?
 
