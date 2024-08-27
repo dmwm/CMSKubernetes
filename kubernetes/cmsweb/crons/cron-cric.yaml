@@ -39,7 +39,7 @@ spec:
             fsGroup: 0
           containers:
           - name: cric-fetch
-            image: curlimages/curl:latest
+            image: registry.cern.ch/cmsweb/curl:latest-stable
             args:
             - /bin/sh
             - -c
