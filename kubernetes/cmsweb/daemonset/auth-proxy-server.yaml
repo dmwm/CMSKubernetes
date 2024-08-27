@@ -93,6 +93,8 @@ spec:
         - containerPort: 9091
           name: metrics
         volumeMounts:
+        - mountPath: /etc/cric
+          name: cric-volume
         - name: auth-proxy-server-secrets
           mountPath: /etc/secrets
           #defaultMode: 256
@@ -154,6 +156,9 @@ spec:
         - name: www-htdocs
           mountPath: /tmp/htdocs
       volumes:
+      - name: cric-volume
+        persistentVolumeClaim:
+          claimName: cric-pvc
       - name: auth-proxy-server-secrets
         secret:
           secretName: auth-proxy-server-secrets
