@@ -1,8 +1,13 @@
----
 environment: "test"
 
 image:
   tag: "pypi-test12-manual1"
+
+canary:
+  enabled: true
+  replicaCount: 1
+  image:
+    tag: "pypi-test12-manual1"
 
 # disable liveness/readiness
 # https://helm.sh/docs/chart_template_guide/values_files/#deleting-a-default-key

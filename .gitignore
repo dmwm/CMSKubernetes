@@ -15,7 +15,7 @@ hmac
 # 3rd party packages
 kubernetes-prometheus
 
-# docker area 
+# docker area
 docker/sqoop/awg-ETL-crons/
 
 # skip configs/secrets
@@ -81,3 +81,5 @@ kubernetes/rucio/futureprod-db.yaml
 
 
 kubernetes/rucio/dev_grafana_password.txt
+
+!helm/crabserver/config

@@ -1,0 +1,6 @@
+environment: "test"
+
+enabled: false
+
+logPipeline:
+  enabled: true

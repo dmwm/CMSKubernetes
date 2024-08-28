@@ -1,21 +1,15 @@
 {{- $environment := .Values.environment | default dict }}
-{{- if .Values.enabled }}
+{{- if and (.Values.enabled) (.Values.canary.enabled) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: crabserver
+  name: crabserver-canary
   labels:
-    app: crabserver
+    app: crabserver-canary
   namespace: crab
 spec:
   {{- if not .Values.autoscaling.enabled }}
-  {{- if (eq (toString $environment) "prod") }}
-  replicas: {{ .Values.replicaCount.prod }}
-  {{- else if (eq (toString $environment) "preprod")}}
-  replicas: {{ .Values.replicaCount.preprod }}
-  {{- else }}
-  replicas: {{ .Values.replicaCount.test }}
-  {{- end }}
+  replicas: {{ .Values.canary.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
@@ -38,8 +32,8 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: crabserver
-          image: "{{ .Values.image.path }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.canary.image.path }}:{{ .Values.canary.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.canary.image.pullPolicy }}
           securityContext:
            {{- toYaml .Values.securityContext | nindent 12 }}
           ports:
@@ -51,16 +45,16 @@ spec:
             name: crabserver-mon
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- if .Values.image.command }}
+          {{- if .Values.canary.image.command }}
           command:
-          {{- toYaml .Values.image.command | nindent 10 }}
+          {{- toYaml .Values.canary.image.command | nindent 10 }}
           {{- end }}
-          {{- if .Values.image.args }}
+          {{- if .Values.canary.image.args }}
           args:
-          {{- toYaml .Values.image.args | nindent 10 }}
+          {{- toYaml .Values.canary.image.args | nindent 10 }}
           {{- end }}
           env:
-          {{- toYaml .Values.image.env | nindent 10 }}
+          {{- toYaml .Values.canary.image.env | nindent 10 }}
           livenessProbe:
           {{- if eq (toString $environment) "prod" }}
           {{- toYaml .Values.livenessProbe | nindent 12 }}

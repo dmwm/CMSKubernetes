@@ -1,3 +1,5 @@
+{{- $environment := .Values.environment | default dict }}
+{{- if .Values.enabled -}}
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -6,48 +8,15 @@ metadata:
     app: crabserver
   namespace: crab
 data:
-  setup-certs-and-run.sh: |
-    #!/bin/bash
-    sudo cp /host/etc/grid-security/* /etc/grid-security
-    echo 'INFO Files in /etc/grid-security'
-    ls -lahZ /etc/grid-security
-    #su  -c "cd /data && /data/run.sh" --preserve-environment  _crabserver
-    if command -v tini &> /dev/null; then
-      /data/entrypoint.sh /data/run.sh
-    else
-      cd /data && /data/run.sh
-    fi
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  labels:
-    k8s-app: filebeat
-  name: filebeat-crab-config
-  namespace: crab
-data:
-  filebeat.yml: |-
-    filebeat.inputs:
-    - type: container
-      paths:
-        - /var/log/pods/crab_crabserver*/crabserver/*.log
-      include_lines:
-        - '\] crabserver-\w+-\w+ \d'
-      tags:
-        - "crabhttpcall"
-    - type: container
-      paths:
-        - /var/log/pods/crab_crabserver*/crabserver/*.log
-      include_lines:
-        - 'MeasureTime:seconds - '
-        - 'MeasureSize:bytes - '
-      tags:
-        - "crabrest"
-    output.logstash:
-      hosts: ["logstash:5044"]
-      compression_level: 3
-      bulk_max_size: 4096
-    queue.mem:
-      events: 65536
-    logging.metrics.enabled: false
-    logging.level: info
+  setup.sh: |
+{{ (.Files.Get "scripts/setup.sh" | indent 4) }}
+  config.py: |
+{{- if (eq (toString $environment) "prod") }}
+{{ (.Files.Get "config/prod/config.py" | indent 4) }}
+{{- else if (eq (toString $environment) "preprod")}}
+{{ (.Files.Get "config/preprod/config.py" | indent 4) }}
+{{- else }}
+{{ (.Files.Get "config/test/config.py" | indent 4) }}
+{{- end }}
+
+{{- end }}
