@@ -1,3 +1,4 @@
+{{- if .Values.logPipeline.enabled -}}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -20,14 +21,14 @@ spec:
     spec:
       containers:
       - args:
-        {{- toYaml .Values.deamonset.args | nindent 8 }}
+        {{- toYaml .Values.logPipeline.filebeat.args | nindent 8 }}
         env:
-        {{- toYaml .Values.deamonset.env | nindent 8 }}
-        image: {{ .Values.deamonset.path }}
-        imagePullPolicy: {{ .Values.deamonset.policy }}
-        name: {{ .Values.deamonset.name }}
+        {{- toYaml .Values.logPipeline.filebeat.env | nindent 8 }}
+        image: {{ .Values.logPipeline.filebeat.path }}
+        imagePullPolicy: {{ .Values.logPipeline.filebeat.policy }}
+        name: {{ .Values.logPipeline.filebeat.name }}
         resources:
-        {{- toYaml .Values.deamonset.resources | nindent 10 }}
+        {{- toYaml .Values.logPipeline.filebeat.resources | nindent 10 }}
         volumeMounts:
         - mountPath: /var/log/pods
           name: varlogpods
@@ -59,3 +60,5 @@ spec:
           defaultMode: 416
           name: filebeat-crab-config
         name: config
+
+{{- end }}

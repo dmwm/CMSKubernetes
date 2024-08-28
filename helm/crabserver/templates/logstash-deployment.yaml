@@ -1,29 +1,46 @@
+{{- $environment := .Values.environment | default dict }}
+{{- if .Values.logPipeline.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: logstash
-  namespace: crab
+  name: logstash-crab
   labels:
-    app: logstash
+    app: logstash-crab
 spec:
   selector:
     matchLabels:
-      app: logstash
+      app: logstash-crab
   template:
     metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       labels:
-        app: logstash
+        app: logstash-crab
     spec:
       containers:
       - image: docker.elastic.co/logstash/logstash:8.1.3
         name: logstash
         env:
         - name: CMSWEB_CLUSTER
-          value: dev # cluster
+          {{- if (eq (toString $environment) "prod") }}
+          value: prod
+          {{- else if (eq (toString $environment) "preprod")}}
+          value: testbed
+          {{- else }}
+          value: dev
+          {{- end }}
         - name: CMSWEB_ENV
-          value: dev # cmsweb_env
+          {{- if (eq (toString $environment) "prod") }}
+          value: prod
+          {{- else if (eq (toString $environment) "preprod")}}
+          value: testbed
+          {{- else }}
+          value: dev
+          {{- end }}
         - name: LS_JAVA_OPTS
-          value: "-Xms4g -Xmx4g"
+          value: "-Xms256m -Xmx4g"
         ports:
         - name: logstash
           containerPort: 5044
@@ -39,41 +56,27 @@ spec:
         args:
         - -f
         - /usr/share/logstash/pipeline/logstash.conf
+        - -e
         #- --log.level=debug # in k8s, output stdout prints only in debug
         resources:
           requests:
-            memory: 4Gi
+            memory: 512Mi
             cpu: "400m"
           limits:
-            memory: 8Gi
+            memory: 5Gi
             cpu: "4000m"
       volumes:
       - name: pipeline
         configMap:
-          name: logstash
+          name: logstash-crab
           items:
           - key: logstash.conf
             path: logstash.conf
       - name: config
         configMap:
-          name: logstash
+          name: logstash-crab
           items:
           - key: logstash.yml
             path: logstash.yml
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: logstash
-  namespace: crab
-  labels:
-    app: logstash
-spec:
-  selector:
-    app: logstash
-  type: NodePort
-  ports:
-  - nodePort: 30044
-    targetPort: 5044
-    protocol: TCP
-    port: 5044
+
+{{- end }}

@@ -2,24 +2,42 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 
+enabled: true
+
+replicaCount:
   prod: 15
   preprod: 1
   test: 1
 
 image:
   path: registry.cern.ch/cmscrab/crabserver
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "v3.231006"
   command:
   - /bin/bash
-  - /opt/setup-certs-and-run/setup-certs-and-run.sh
+  - /opt/config/setup.sh
   env:
   - name: CRABSERVER_LOGSTDOUT
     value: "t"
   - name: CRABSERVER_THREAD_POOL
     value: "2"
+
+canary:
+  enabled: false
+  image:
+    path: registry.cern.ch/cmscrab/crabserver
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "v3.231006"
+    command:
+    - /bin/bash
+    - /opt/config/setup.sh
+    env:
+    - name: CRABSERVER_LOGSTDOUT
+      value: "t"
+    - name: CRABSERVER_THREAD_POOL
+      value: "2"
 
 environment:
 
@@ -36,7 +54,7 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-podAnnotations: 
+podAnnotations:
   prometheus.io/scrape: 'true'
   prometheus.io/port: "18270"
 
@@ -48,7 +66,7 @@ podSecurityContext:
 imageFilebeatSecurityContext:
   allowPrivilegeEscalation: false
 
-securityContext: 
+securityContext:
   privileged: true
 
 serviceMon:
@@ -62,45 +80,13 @@ ingress:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
 
-resources: 
+resources:
   limits:
     cpu: 1500m
     memory: 3Gi
   requests:
     cpu: 200m
     memory: 256Mi
-
-
-deamonset:
-  name: filebeat
-  path: docker.elastic.co/beats/filebeat:8.5.1
-  policy: IfNotPresent
-  args:
-  - bash
-  - -c
-  - filebeat -c /etc/filebeat.yml --path.data /data/filebeat/${MY_NODE_NAME}/data -e
-  env: 
-  - name: MY_NODE_NAME
-    valueFrom:
-      fieldRef:
-        fieldPath: spec.nodeName
-  - name: NODE_NAME
-    valueFrom:
-      fieldRef:
-        fieldPath: spec.nodeName
-  - name: MY_NAMESPACE
-    valueFrom:
-      fieldRef:
-        apiVersion: v1
-        fieldPath: metadata.namespace
-  resources:
-    requests:
-      memory: "128Mi"
-      cpu: "200m"
-    limits: 
-      cpu: "1"
-      memory: "1Gi"
-
 
 livenessProbe:
   exec:
@@ -121,7 +107,7 @@ readinessProbe:
     - -c
     - |
       cmsweb-ping --url=http://localhost:8270/crabserver/prod/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
-  periodSeconds: 60  
+  periodSeconds: 60
   timeoutSeconds: 60
 
 livenessProbePreProd:
@@ -143,7 +129,7 @@ readinessProbePreProd:
     - -c
     - |
       cmsweb-ping --url=http://localhost:8270/crabserver/preprod/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
-  periodSeconds: 60  
+  periodSeconds: 60
   timeoutSeconds: 60
 
 livenessProbeTest:
@@ -165,7 +151,7 @@ readinessProbeTest:
     - -c
     - |
       cmsweb-ping --url=http://localhost:8270/crabserver/dev/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
-  periodSeconds: 60  
+  periodSeconds: 60
   timeoutSeconds: 60
 
 autoscaling:
@@ -180,3 +166,39 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+
+ciServiceAccount:
+  enabled: false
+
+logPipeline:
+  enabled: false
+  filebeat:
+    name: filebeat
+    path: docker.elastic.co/beats/filebeat:8.5.1
+    policy: IfNotPresent
+    args:
+    - bash
+    - -c
+    - filebeat -c /etc/filebeat.yml --path.data /data/filebeat/${MY_NODE_NAME}/data -e
+    env:
+    - name: MY_NODE_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: spec.nodeName
+    - name: NODE_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: spec.nodeName
+    - name: MY_NAMESPACE
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.namespace
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "200m"
+      limits:
+        cpu: "1"
+        memory: "1Gi"
