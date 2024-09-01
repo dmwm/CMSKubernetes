@@ -1,5 +1,5 @@
 #!/bin/bash
-##H Usage: test_k8s.sh <base_url>
+##H Usage: test_k8s_aps.sh <base_url>
 ##H
 
 if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ] || [ "$1" == "" ]; then
