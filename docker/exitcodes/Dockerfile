@@ -1,13 +1,16 @@
-# Start from the latest golang base image
-FROM golang:latest
+FROM golang:latest as go-builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 ENV WDIR=/data
 WORKDIR $WDIR
-RUN go get github.com/sirupsen/logrus
-RUN go get -d github.com/shirou/gopsutil/...
-RUN go get github.com/vkuznet/CMSExitCodes
-#RUN go mod init github.com/vkuznet/CMSExitCodes
-#RUN go list -m all
-#RUN go get -d -v github.com/vkuznet/CMSExitCodes
-RUN sed -i -e "s,ROOT,/go/src/github.com/vkuznet/CMSExitCodes,g" /go/src/github.com/vkuznet/CMSExitCodes/server.json
-CMD ["CMSExitCodes", "-config", "/go/src/github.com/vkuznet/CMSExitCodes/server.json"]
+ARG CGO_ENABLED=0
+ENV TAG=v0.1.0
+RUN git clone https://github.com/vkuznet/CMSExitCodes.git
+WORKDIR $WDIR/CMSExitCodes
+RUN git checkout tags/$TAG -b build && make
+RUN sed -i -e "s,ROOT,/data/CMSExitCodes,g" /data/CMSExitCodes/server.json
+
+# https://blog.baeke.info/2021/03/28/distroless-or-scratch-for-go-apps/
+FROM alpine
+# FROM gcr.io/distroless/static AS final
+COPY --from=go-builder /data/CMSExitCodes /data/CMSExitCodes
+CMD ["/data/CMSExitCodes/CMSExitCodes", "-config", "/data/CMSExitCodes/server.json"]

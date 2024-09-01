@@ -5,5 +5,5 @@
     "jscripts": "js",
     "styles": "css",
     "images": "images",
-    "verbose": 0
+    "verbose": 1
 }
