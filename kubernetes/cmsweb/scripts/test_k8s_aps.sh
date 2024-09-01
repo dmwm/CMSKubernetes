@@ -66,7 +66,6 @@ echo
 # DMWM
 echo "DMWM:"
 urls_dmwm="
-/couchdb/ 
 /acdcserver/_all_docs
 /reqmgr2/data/info 
 /workqueue/index.html
