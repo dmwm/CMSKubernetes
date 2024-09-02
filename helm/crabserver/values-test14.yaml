@@ -1,4 +1,0 @@
-environment: "test"
-
-image:
-  tag: "v3.240709"
