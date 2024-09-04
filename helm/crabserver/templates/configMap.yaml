@@ -8,8 +8,8 @@ metadata:
     app: crabserver
   namespace: crab
 data:
-  setup.sh: |
-{{ (.Files.Get "scripts/setup.sh" | indent 4) }}
+  entrypoint.sh: |
+{{ (.Files.Get "scripts/entrypoint.sh" | indent 4) }}
   config.py: |
 {{- if (eq (toString $environment) "prod") }}
 {{ (.Files.Get "config/prod/config.py" | indent 4) }}
