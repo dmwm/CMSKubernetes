@@ -11,5 +11,5 @@ odir=$3
 files=`kubectl describe secrets -n $1 $2 | grep bytes | awk '{print $1}' | sed -e "s/://g"`
 for sfile in $files; do
     echo "extract $sfile"
-    kubectl get secrets -n $ns $secret -o yaml | grep $sfile | head -1 | awk '{print $2}' | base64 -d > $odir/$sfile
+    kubectl get secrets -n $ns $secret -o yaml | grep "  $sfile" | head -1 | awk '{print $2}' | base64 -d > $odir/$sfile
 done
