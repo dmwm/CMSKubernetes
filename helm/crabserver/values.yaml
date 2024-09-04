@@ -16,7 +16,9 @@ image:
   tag: "v3.231006"
   command:
   - /bin/bash
-  - /opt/config/setup.sh
+  - /opt/config/entrypoint.sh
+  args:
+  - /data/run.sh
   env:
   - name: CRABSERVER_LOGSTDOUT
     value: "t"
@@ -32,7 +34,9 @@ canary:
     tag: "v3.231006"
     command:
     - /bin/bash
-    - /opt/config/setup.sh
+    - /opt/config/entrypoint.sh
+    args:
+    - /data/run.sh
     env:
     - name: CRABSERVER_LOGSTDOUT
       value: "t"
