@@ -1,0 +1,49 @@
+# CouchDB
+/couchdb/
+
+# Crabserver
+/crabserver/preprod/info
+/scheddmon/059/crabint1/
+
+# DAS
+/das
+
+# DBS
+/dbs/int/global/DBSReader/serverinfo
+/dbs/int/global/DBSReader/datasets?dataset=%2FWplusToJJZToLNuJJ_mjj100_pTj10_QCD_LO_TuneCP5_13TeV-madgraph-pythia8%2FRunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2%2FMINIAODSIM&dataset_access_type=%2A&detail=False
+/dbs/int/global/DBSReader/blocks?dataset=%2FWplusToJJZToLNuJJ_mjj100_pTj10_QCD_LO_TuneCP5_13TeV-madgraph-pythia8%2FRunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2%2FMINIAODSIM&detail=False
+/dbs/int/global/DBSReader/blocks?block_name=%2FWplusToJJZToLNuJJ_mjj100_pTj10_QCD_LO_TuneCP5_13TeV-madgraph-pythia8%2FRunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2%2FMINIAODSIM%23f6557ea8-2493-4644-90a2-8a2fbb070abc
+
+# DMWM
+/acdcserver/_all_docs
+/reqmgr2/data/info
+/workqueue/index.html
+/t0_reqmon/data/info
+/wmstatsserver/data/info
+/wmstats/index.html
+/exitcodes
+/wmarchive/data
+/ms-transferor/data/status
+/ms-monitor/data/status
+/ms-output/data/status
+/ms-rulecleaner/data/status
+/ms-unmerged/data/status?rse_type=t1
+/ms-unmerged/data/status?rse_type=t2t3
+/ms-unmerged/data/status?rse_type=t2t3us
+
+# DQM
+/dqm/dqm-square/
+/dqm/online/
+/dqm/online-playback/
+/dqm/offline/
+/dqm/relval/
+/dqm/dev/
+/dqm/offline-test/
+/dqm/relval-test/
+
+# T0
+/t0wmadatasvc/prod/firstconditionsaferun
+/t0wmadatasvc/prod/config
+/t0wmadatasvc/prod/express_config
+/t0wmadatasvc/prod/reco_config
+
