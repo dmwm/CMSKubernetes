@@ -2,7 +2,6 @@
 ##H Usage: test_k8s_aps.sh <base_url> <url_list_file>
 ##H
 
-# Replace Perl usage with standard UNIX tools
 if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ] || [ "$1" == "help" ] || [ "$1" == "" ]; then
     grep "##H" $0 | sed -e "s,##H,,g"
     exit 1
