@@ -1,5 +1,5 @@
 FROM registry.cern.ch/cmsweb/oracle:21_5-stable as oracle
-FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20230525
+FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20230912
 
 # Install basic OS package dependencies
 RUN apt-get update

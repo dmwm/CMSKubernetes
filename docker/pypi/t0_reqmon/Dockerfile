@@ -1,4 +1,4 @@
-FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20230525
+FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20230912
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 # TAG to be passed at build time through `--build-arg TAG=<PYPI_TAG>`. Default: None
 ARG TAG=None
