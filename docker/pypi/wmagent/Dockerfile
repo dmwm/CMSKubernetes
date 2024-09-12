@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile-upstream:master
-FROM registry.cern.ch/cmsweb/wmagent-base:pypi-20240604
+FROM registry.cern.ch/cmsweb/wmagent-base:pypi-20240912-stable
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 # TAG to be passed at build time through `--build-arg TAG=<WMA_TAG>`. Default: None
@@ -61,10 +61,6 @@ EOF
 
 # allow dynamic users to create homefolders and .bashrc
 RUN chmod 777 /home
-
-# given that we have to mount up-to-date /etc/vomses and we have a different setup for CERN
-# - being a directory - and FNAL being a file; just delete it from the image
-RUN rm -rf /etc/vomses
 
 # preserve the whole env for later use by the cron daemon
 RUN env > /etc/environment
