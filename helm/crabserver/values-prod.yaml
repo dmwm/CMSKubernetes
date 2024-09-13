@@ -1,4 +1,4 @@
 environment: "prod"
 
 image:
-  tag: "v3.240809-stable"
+  tag: "v3.240904-stable"

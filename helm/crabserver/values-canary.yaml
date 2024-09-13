@@ -1,10 +1,12 @@
-environment: "test"
+---
+# Deploying canary together with normal deployment
+environment: "preprod"
 
 image:
-  tag: "v3.240809-stable"
+  tag: "v3.240904-stable"
 
 canary:
   enabled: true
   replicaCount: 1
   image:
-    tag: "v3.240809-stable"
+    tag: "v3.240904-stable"

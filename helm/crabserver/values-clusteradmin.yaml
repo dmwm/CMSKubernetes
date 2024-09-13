@@ -1,0 +1,14 @@
+---
+enabled: true
+environment: "preprod"
+
+crabserver:
+  image:
+    tag: "v3.240904-stable"
+  canary:
+    enabled: false
+
+ciServiceAccount:
+  enabled: true
+logPipeline:
+  enabled: true
