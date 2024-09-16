@@ -1,4 +1,4 @@
-{{- if .Values.ingress.enabled -}}
+{{- if and (.Values.enabled) (.Values.ingress.enabled) -}}
 {{- $fullName := include "crabserver.fullname" . -}}
 {{- $svcPort := .Values.service.port -}}
 {{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}

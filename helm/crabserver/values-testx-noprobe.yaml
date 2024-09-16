@@ -2,7 +2,7 @@
 environment: "test"
 
 image:
-  tag: "v3.240530"
+  tag: "v3.240809-stable"
 
 # disable liveness/readiness
 # https://helm.sh/docs/chart_template_guide/values_files/#deleting-a-default-key

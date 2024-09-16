@@ -1,5 +1,4 @@
 environment: "prod"
 
 image:
-  tag: "v3.240731"
-  path: "registry.cern.ch/cmsweb/crabserver"
+  tag: "v3.240904-stable"

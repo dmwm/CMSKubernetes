@@ -1,0 +1,18 @@
+---
+# For debugging only. Generate all resources in this chart.
+enabled: true
+environment: "test"
+
+crabserver:
+  image:
+    tag: "pypi-test12-manual1"
+  canary:
+    enabled: true
+    replicaCount: 1
+    image:
+      tag: "pypi-test12-manual1"
+
+ciServiceAccount:
+  enabled: true
+logPipeline:
+  enabled: true
