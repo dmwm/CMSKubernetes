@@ -43,7 +43,7 @@
 
 # T0
 /t0wmadatasvc/prod/firstconditionsaferun
-/t0wmadatasvc/prod/config
+/t0wmadatasvc/prod/run_config
 /t0wmadatasvc/prod/express_config
 /t0wmadatasvc/prod/reco_config
 
