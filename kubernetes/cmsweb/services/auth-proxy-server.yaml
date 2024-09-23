@@ -36,7 +36,7 @@ spec:
 #         prometheus.io/scrape: 'true'
     spec:
       containers:
-      - image: registry.cern.ch/cmsweb/auth-proxy-server:0.3.09
+      - image: registry.cern.ch/cmsweb/auth-proxy-server #imagetag
         name: auth-proxy-server
         imagePullPolicy: Always
         # NOTE: to migrate CMSWEB frontend to Go APS using x509 auth on port 443
