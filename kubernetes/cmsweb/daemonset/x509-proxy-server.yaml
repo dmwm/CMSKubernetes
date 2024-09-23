@@ -115,8 +115,8 @@ spec:
           mountPath: /etc/grid-security/hostkey.pem
         - name: token-secrets
           mountPath: /etc/token
-          readOnly: true 
-        - mountPath: /host/etc/grid-security
+          readOnly: true
+        - mountPath: /etc/grid-security
           name: etc-grid-security
           readOnly: true
 #PROD#  - name: logs
