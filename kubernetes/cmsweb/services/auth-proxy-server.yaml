@@ -64,7 +64,6 @@ spec:
         volumeMounts:
         - name: auth-secrets
           mountPath: /etc/secrets
-          defaultMode: 256
         - name: www-htdocs
           mountPath: /www
         - mountPath: /host/etc/grid-security
