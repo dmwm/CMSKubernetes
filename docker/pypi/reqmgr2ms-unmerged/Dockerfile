@@ -14,7 +14,7 @@ ADD run.sh $WDIR/run.sh
 RUN curl -ksLO https://raw.githubusercontent.com/dmwm/WMCore/$TAG/requirements.txt
 RUN cat requirements.txt | grep -v gfal2 > req.txt
 RUN pip install -r req.txt
-RUN pip install --no-deps reqmgr2ms-unmerged==$TAG dbs3-client
+RUN pip install --no-deps reqmgr2ms-unmerged==$TAG 
 RUN sed -i -e "s,-config.py,-config-unmerged.py,g" /data/run.sh
 RUN sed -i -e "s,config.py,config-unmerged.py,g" /data/manage
 ENV WDIR=/data

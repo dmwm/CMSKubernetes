@@ -11,7 +11,6 @@ COPY --from=cmsweb-base /etc/grid-security/vomsdir /etc/grid-security/vomsdir
 COPY --from=exporters /data/cmsweb-ping /usr/bin/cmsweb-ping
 COPY --from=exporters /data/process_exporter /usr/bin/process_exporter
 COPY --from=exporters /data/cpy_exporter /usr/bin/cpy_exporter
-RUN pip install dbs3-client
 ADD run.sh /data/run.sh
 ADD monitor.sh /data/monitor.sh
 ADD manage /data/manage

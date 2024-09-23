@@ -15,7 +15,6 @@ WORKDIR reqmgr2ms-unmerged-$TAG
 # add requirements.txt file which should exclude gfal2 package
 RUN cat requirements.txt | grep -v gfal2 > req.txt
 RUN pip install -r req.txt
-RUN pip install dbs3-client
 RUN python3 setup.py develop --no-deps
 RUN sed -i -e "s,-config.py,-config-unmerged.py,g" /data/run.sh
 ENV WDIR=/data
