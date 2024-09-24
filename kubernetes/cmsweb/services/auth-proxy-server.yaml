@@ -6,8 +6,8 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 443
-    targetPort: 8443
+  - port: 7443
+    targetPort: 7443
     protocol: TCP
     name: https
   selector:
@@ -24,7 +24,7 @@ spec:
   selector:
     matchLabels:
       app: auth-proxy-server
-  replicas: 1 #PROD# 4
+  replicas: 1 #PROD# 1
   template:
     metadata:
       labels:
@@ -38,50 +38,89 @@ spec:
       containers:
       - image: registry.cern.ch/cmsweb/auth-proxy-server #imagetag
         name: auth-proxy-server
-        imagePullPolicy: Always
+#         imagePullPolicy: Always
         # NOTE: to migrate CMSWEB frontend to Go APS using x509 auth on port 443
         #       we explicitly specify this port and -useX509 flag below
         #       when we'll transition to tokens we should remove these two options
         # NOTE: we explicitly use port, metricsPort and logFile options
         #       to re-use single config.json between APS and XPS
+        # NOTE: we use logFile=stdout to force APS logs yield to stdout
         args:
           - /data/auth-proxy-server
           - -config=/etc/secrets/config.json
-          - -port=443
+          - -port=7443
           - -useX509
           - -metricsPort=9091
-          - -logFile=/data/srv/logs/frontend/auth-proxy-server.log
+          - -logFile=stdout
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "300m"
+            memory: "50Mi"
+            cpu: "30m"
           limits:
-            memory: "3Gi"
-            cpu: "8000m"
+            memory: "10Gi"
+            cpu: "4000m" # we can add higher limit here
+        env:
+        - name: X509_USER_PROXY
+          value: /etc/proxy/proxy
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
         ports:
-        - containerPort: 8181
+        - containerPort: 443
           name: https
+        - containerPort: 9091
+          name: metrics
         volumeMounts:
-        - name: auth-secrets
+        - mountPath: /etc/cric
+          name: cric-volume
+        - name: auth-proxy-server-secrets
           mountPath: /etc/secrets
+          readOnly: true
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
         - name: www-htdocs
           mountPath: /www
-        - mountPath: /host/etc/grid-security
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true   
+        - mountPath: /etc/grid-security
           name: etc-grid-security
-          readOnly: true
+          readOnly: true   
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem    
       initContainers:
       - name: htdocs
-        image: registry.cern.ch/cmsweb/htdocs
+        image: registry.cern.ch/cmsweb/htdocs:0.0.2
         command: ['sh', '-c', 'cp -r /www/* /tmp/htdocs']
         volumeMounts:
         - name: www-htdocs
           mountPath: /tmp/htdocs
       volumes:
-      - name: auth-secrets
+      - name: cric-volume
+        persistentVolumeClaim:
+          claimName: cric-pvc
+      - name: auth-proxy-server-secrets
         secret:
-          secretName: auth-secrets
+          secretName: auth-proxy-server-secrets
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
       - name: www-htdocs
         emptyDir: {}
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
       - name: etc-grid-security
         hostPath:
             path: /etc/grid-security
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
