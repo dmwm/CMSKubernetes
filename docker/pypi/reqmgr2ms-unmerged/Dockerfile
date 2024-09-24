@@ -1,5 +1,5 @@
 FROM registry.cern.ch/cmsweb/gfal:latest as gfal
-FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20240912-stable
+FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20240923-stable
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 COPY --from=gfal /data/miniconda /data/miniconda
 ENV WDIR=/data
@@ -14,7 +14,7 @@ ADD run.sh $WDIR/run.sh
 RUN curl -ksLO https://raw.githubusercontent.com/dmwm/WMCore/$TAG/requirements.txt
 RUN cat requirements.txt | grep -v gfal2 > req.txt
 RUN pip install -r req.txt
-RUN pip install --no-deps reqmgr2ms-unmerged==$TAG dbs3-client
+RUN pip install --no-deps reqmgr2ms-unmerged==$TAG 
 RUN sed -i -e "s,-config.py,-config-unmerged.py,g" /data/run.sh
 RUN sed -i -e "s,config.py,config-unmerged.py,g" /data/manage
 ENV WDIR=/data
