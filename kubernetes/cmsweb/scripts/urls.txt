@@ -9,10 +9,10 @@
 /das
 
 # DBS
-/dbs/int/global/DBSReader/serverinfo
-/dbs/int/global/DBSReader/datasets?dataset=%2FWplusToJJZToLNuJJ_mjj100_pTj10_QCD_LO_TuneCP5_13TeV-madgraph-pythia8%2FRunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2%2FMINIAODSIM&dataset_access_type=%2A&detail=False
-/dbs/int/global/DBSReader/blocks?dataset=%2FWplusToJJZToLNuJJ_mjj100_pTj10_QCD_LO_TuneCP5_13TeV-madgraph-pythia8%2FRunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2%2FMINIAODSIM&detail=False
-/dbs/int/global/DBSReader/blocks?block_name=%2FWplusToJJZToLNuJJ_mjj100_pTj10_QCD_LO_TuneCP5_13TeV-madgraph-pythia8%2FRunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2%2FMINIAODSIM%23f6557ea8-2493-4644-90a2-8a2fbb070abc
+/dbs/prod/global/DBSReader/serverinfo
+/dbs/prod/global/DBSReader/datasets?dataset=%2FWplusToJJZToLNuJJ_mjj100_pTj10_QCD_LO_TuneCP5_13TeV-madgraph-pythia8%2FRunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2%2FMINIAODSIM&dataset_access_type=%2A&detail=False
+/dbs/prod/global/DBSReader/blocks?dataset=%2FWplusToJJZToLNuJJ_mjj100_pTj10_QCD_LO_TuneCP5_13TeV-madgraph-pythia8%2FRunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2%2FMINIAODSIM&detail=False
+/dbs/prod/global/DBSReader/blocks?block_name=%2FWplusToJJZToLNuJJ_mjj100_pTj10_QCD_LO_TuneCP5_13TeV-madgraph-pythia8%2FRunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2%2FMINIAODSIM%23f6557ea8-2493-4644-90a2-8a2fbb070abc
 
 # DMWM
 /acdcserver/_all_docs
