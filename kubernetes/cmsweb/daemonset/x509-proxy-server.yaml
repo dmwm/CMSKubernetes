@@ -201,7 +201,7 @@ spec:
 #PROD#      claimName: filebeat-cephfs-claim-default
 #PROD#- name: logs
 #PROD#  persistentVolumeClaim:
-#PROD#      claimName: logs-cephfs-claim-default
+#PROD#      claimName: logs-cephfs-claim-prod-aps
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
