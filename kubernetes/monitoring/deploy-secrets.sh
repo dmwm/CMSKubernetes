@@ -148,11 +148,9 @@ elif [ "$secret" == "cron-size-quotas-secrets" ]; then
     files="--from-file=${sdir}/cmsmonit-keytab/keytab"
 elif [ "$secret" == "cron-spark-jobs-secrets" ]; then
     # file in secrets mount : keytab          -> cmsmonit-keytab
-    # file in secrets mount : cmspopdb-keytab -> cmspopdb-keytab
     cmsmonit_k="--from-file=${sdir}/cmsmonit-keytab/keytab"
-    cmspopdb_k="--from-file=cmspopdb-keytab=${sdir}/cmspopdb-keytab/keytab"
     test_tenant_secret="--from-file=${sdir}/es-cms-opensearch/test_tenant_secret"
-    files="${cmsmonit_k} ${cmspopdb_k} ${test_tenant_secret}"
+    files="${cmsmonit_k} ${test_tenant_secret}"
 elif [ "$secret" == "cms-eos-mon-secrets" ]; then
     files="--from-file=${sdir}/cms-eos-mon/amq_broker.json"
 elif [ "$secret" == "hpc-usage-secrets" ]; then
@@ -193,10 +191,9 @@ elif [ "$secret" == "certcheck-secrets" ]; then
     cms_dm_monitoring_s="--from-file=cms_dm_monitoring_key=${sdir}/cms-dm-monitoring-auth/tls.key ${cms_dm_monitoring_s}"
     #
     cmsmonit_k="--from-file=cmsmonit_keytab=${sdir}/cmsmonit-keytab/keytab"
-    cmspopdb_k="--from-file=cmspopdb_keytab=${sdir}/cmspopdb-keytab/keytab"
     cmssqoop_k="--from-file=cmssqoop_keytab=${sdir}/cmssqoop-keytab/keytab"
     training_s="--from-file=${sdir}/cms-training/robot-training-cert.pem --from-file=${sdir}/cms-training/robot-training-key.pem"
-    files="${robot_s} ${cms_monitoring_s} ${cms_dm_monitoring_s} ${cmsmonit_k} ${cmspopdb_k} ${cmssqoop_k} ${training_s}"
+    files="${robot_s} ${cms_monitoring_s} ${cms_dm_monitoring_s} ${cmsmonit_k} ${cmssqoop_k} ${training_s}"
 fi
 echo "files: \"$files\""
 #echo "literals: $literals"
