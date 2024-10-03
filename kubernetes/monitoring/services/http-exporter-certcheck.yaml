@@ -28,7 +28,6 @@ data:
       {"cert": "/etc/secrets/cms_dm_monitoring_cert", "ckey": "/etc/secrets/cms_dm_monitoring_key"},
       {"cert": "/etc/secrets/robot-training-cert.pem", "ckey": "/etc/secrets/robot-training-key.pem"},
       {"keytab": "/etc/secrets/cmsmonit_keytab"},
-      {"keytab": "/etc/secrets/cmspopdb_keytab"},
       {"keytab": "/etc/secrets/cmssqoop_keytab"}
     ]
 ---
