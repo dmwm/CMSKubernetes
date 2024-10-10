@@ -27,7 +27,7 @@ ls /etc/proxy/proxy
 export X509_USER_PROXY=/etc/proxy/proxy
 
 # grid security
-sudo cp /host/etc/grid-security/* /etc/grid-security
+sudo cp -r /host/etc/grid-security/* /etc/grid-security
 echo 'INFO Files in /etc/grid-security'
 ls -lahZ /etc/grid-security
 
