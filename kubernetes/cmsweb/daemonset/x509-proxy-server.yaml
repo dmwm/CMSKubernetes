@@ -76,7 +76,7 @@ spec:
           - -useX509
           - -port=8443
           - -metricsPort=9092
-          - -logFile=/data/srv/logs/frontend/x509-proxy-server.log
+#PROD#          - -logFile=/data/srv/logs/frontend/x509-proxy-server.log
         resources:
           requests:
             memory: "50Mi"
