@@ -71,7 +71,7 @@ spec:
           - -port=443
           - -useX509
           - -metricsPort=9091
-          - -logFile=/data/srv/logs/frontend/auth-proxy-server.log
+#PROD#          - -logFile=/data/srv/logs/frontend/auth-proxy-server.log
         resources:
           requests:
             memory: "50Mi"
