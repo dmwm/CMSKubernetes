@@ -1,13 +1,23 @@
-FROM golang:1
-MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
-ENV WDIR=/data
-ENV USER=http
-EXPOSE 9331
-WORKDIR $WDIR
-# DAS tag to use
-ENV TAG=v00.00.04
+FROM golang:1.18 AS build
+LABEL maintainer="Nikodemas Tuckus <tuckus.nikodemas@cern.ch>"
 
-RUN git clone https://github.com/dmwm/udp-collector
-WORKDIR $WDIR/udp-collector
-ARG CGO_ENABLED=0
-RUN git checkout tags/$TAG -b build && make
+ARG TAG=v00.00.00
+ENV WDIR=/data \
+    CGO_ENABLED=0
+
+WORKDIR $WDIR
+
+RUN git clone https://github.com/dmwm/udp-collector && \
+    cd udp-collector && \
+    if [ "$TAG" = "v00.00.00" ]; then git checkout master; else git checkout tags/$TAG -b build; fi && \
+    make
+
+FROM alpine:3.14
+LABEL maintainer="Nikodemas Tuckus <tuckus.nikodemas@cern.ch>"
+
+ENV WDIR=/data
+WORKDIR $WDIR
+EXPOSE 9331
+EXPOSE 9330
+
+COPY --from=build /data/udp-collector/udp_server /data/udp_server

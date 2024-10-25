@@ -1,17 +1,3 @@
-kind: Service
-apiVersion: v1
-metadata:
-  name: udp-server
-spec:
-  selector:
-    app: udp-server
-  type: ClusterIP
-  ports:
-  - port: 9331
-    targetPort: 9331
-    protocol: UDP
-    name: udp
----
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -28,8 +14,13 @@ spec:
       labels:
         app: udp-server
     spec:
+      tolerations:
+      - key: "udp-server"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
       containers:
-      - image: cmssw/udp-server
+      - image: registry.cern.ch/cmsmonitoring/udp-server:v0.0.4
         name: udp-server
         args:
           - /data/udp_server
@@ -45,11 +36,21 @@ spec:
         - containerPort: 9331
           protocol: UDP
           name: udp
+          hostPort: 9331
+        - containerPort: 9330
+          protocol: TCP
+          name: health
         volumeMounts:
         - name: udp-secrets
           mountPath: /etc/secrets
-          defaultMode: 256
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 9330
+          initialDelaySeconds: 10
+          periodSeconds: 60
       volumes:
       - name: udp-secrets
         secret:
           secretName: udp-secrets
+---
