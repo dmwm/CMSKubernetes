@@ -30,6 +30,11 @@ usage(){
 
 PULL=false
 WMA_TAG=latest
+# This is the root at the host only, it may differ from the root inside the container.
+# NOTE: This is parametriesed, so that the container can run on a different mount point.
+#       A soft link is needed to mimic the same /data tree as inside the container so
+#       that condor may find the job cache and working directories:
+HOST_MOUNT_DIR=/data/dockerMount
 
 ### Argument parsing:
 while getopts ":t:hp" opt; do
@@ -51,16 +56,15 @@ WMA_VER_MINOR=${WMA_VER_MINOR%.*}
 WMA_VER_RELEASE=${WMA_VER_MAJOR}.${WMA_VER_MINOR}
 WMA_VER_PATCH=${WMA_TAG#$WMA_VER_RELEASE}
 WMA_VER_PATCH=${WMA_VER_PATCH#.}
+if [[ "$WMA_TAG" == latest ]]; then
+    # If it is 'latest', we have to find out what is the actual release version for that
+    WMA_VER_RELEASE=$(ls -l $HOST_MOUNT_DIR/srv/wmagent  | grep -v ^l | grep -v total | awk '{print $9}')
+fi
 echo -e "Using WMAgent version: $WMA_TAG under release: $WMA_VER_RELEASE\n"
 
 wmaUser=$(id -un)
 wmaGroup=$(id -gn)
 
-# This is the root at the host only, it may differ from the root inside the container.
-# NOTE: This is parametriesed, so that the container can run on a different mount point.
-#       A soft link is needed to mimic the same /data tree as inside the container so
-#       that condor may find the job cache and working directories:
-HOST_MOUNT_DIR=/data/dockerMount
 [[ -h /data/srv/wmagent ]] && rm -f /data/srv/wmagent
 ln -s $HOST_MOUNT_DIR/srv/wmagent /data/srv/wmagent
 
@@ -114,10 +118,9 @@ $tnsMount \
 --mount type=bind,source=/etc/vomses,target=/etc/vomses,readonly \
 "
 
-registry=local
+registry=registry.cern.ch
 repository=wmagent
 $PULL && {
-    registry=registry.cern.ch
     project=cmsweb
     repository=wmagent
     echo "Pulling Docker image: registry.cern.ch/cmsweb/wmagent:$WMA_TAG"
