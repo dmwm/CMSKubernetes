@@ -6,7 +6,7 @@ RUN apt-get update
 RUN apt-get install -y libmariadb-dev-compat libmariadb-dev apache2-utils cron mariadb-server myproxy voms-clients voms-clients-java rlwrap libaio1 && apt-get clean
 
 # Install some debugging tools
-RUN apt-get install -y hostname net-tools iputils-ping procps && apt-get clean
+RUN apt-get install -y hostname net-tools iputils-ping procps jq && apt-get clean
 
 # Install recursive ps utility tool
 RUN apt-get install -y pslist && apt-get clean
