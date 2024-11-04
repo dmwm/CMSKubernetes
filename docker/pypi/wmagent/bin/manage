@@ -331,6 +331,10 @@ clean_oracle(){
     return $errVal
 }
 
+clean_couch(){
+  echo "$FUNCNAME: automatic cleaning of local CouchDB is not implemented, yet"
+}
+
 status(){
     echo "----------------------------------------------------------------------"
     echo "Status of services:"

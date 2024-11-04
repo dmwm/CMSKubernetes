@@ -284,8 +284,10 @@ _check_couch() {
     echo "$FUNCNAME: Checking whether the CouchDB database is reachable..."
     _status_of_couch || return $(false)
 
-    # echo "$FUNCNAME: Additional checks for CouchDB:"
+    echo "$FUNCNAME: Additional checks for CouchDB:"
+    local cleanMessage="You may consider cleaning local couchdb with 'rm -rf /data/dockerMount/srv/couchdb/'"
     # NOTE: To implement any additional check to the CouchDB similar to the relational databases
+    _couch_db_isclean || { echo "$FUNCNAME: Error: non empty local CouchDB. $cleanMessage"; return $(false); }
 }
 
 check_databases() {
@@ -313,7 +315,10 @@ check_databases() {
     esac
 
     # Checking CouchDB:
-    _check_couch
+    [[ -n $COUCH_HOST ]] && [[ -n $COUCH_PORT ]] && [[ -n $COUCH_USER ]] && [[ -n $COUCH_PASS ]] &&
+      couchdbCred=true
+    $couchdbCred || { echo "$FUNCNAME: ERROR: No local CouchDB credentials provided at $WMA_SECRETS_FILE" ; return $(false); }
+    _check_couch 
     echo "-----------------------------------------------------------------------"
 }
 
