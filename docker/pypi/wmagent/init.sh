@@ -648,6 +648,7 @@ main(){
         (agent_resource_control) || { err=$?; echo "ERROR: agent_resource_control"; exit $err ;}
         (agent_resource_opp)     || { err=$?; echo "ERROR: agent_resource_opp"; exit $err ;}
         (agent_upload_config)    || { err=$?; echo "ERROR: agent_upload_config"; exit $err ;}
+        (set_cronjob)            || { err=$?; echo "ERROR: set_cronjob"; exit $err ;}
         echo $WMA_BUILD_ID > $wmaInitUsing
         (check_wmagent_init)     || { err=$?; echo "ERROR: Unresolved wmaInitId vs. wmaBuildId mismatch"; exit $err ; }
         echo && echo "Docker container has been initialised! However you still need to:"
