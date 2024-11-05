@@ -95,8 +95,6 @@ spec:
         - containerPort: 9091
           name: metrics
         volumeMounts:
-        - mountPath: /etc/cric
-          name: cric-volume
         - name: auth-proxy-server-secrets
           mountPath: /etc/secrets
           #defaultMode: 256
@@ -115,7 +113,9 @@ spec:
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
         - name: hostkey
-          mountPath: /etc/grid-security/hostkey.pem    
+          mountPath: /etc/grid-security/hostkey.pem 
+#PROD#  - mountPath: /etc/cric
+#PROD#    name: cric-volume
 #PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/frontend
 #PROD#  - name: filebeat-cephfs
@@ -158,9 +158,6 @@ spec:
         - name: www-htdocs
           mountPath: /tmp/htdocs
       volumes:
-      - name: cric-volume
-        persistentVolumeClaim:
-          claimName: cric-pvc
       - name: auth-proxy-server-secrets
         secret:
           secretName: auth-proxy-server-secrets
@@ -181,6 +178,9 @@ spec:
       - name: hostkey
         hostPath:
             path: /etc/grid-security/hostkey.pem
+#PROD#- name: cric-volume
+#PROD#  persistentVolumeClaim:
+#PROD#    claimName: cric-pvc
 #PROD#- name: varlog
 #PROD#  hostPath:
 #PROD#    path: /var/log
