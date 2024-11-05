@@ -99,9 +99,6 @@ spec:
           name: https
         - containerPort: 9092
           name: metrics
-        volumeMounts:
-        - mountPath: /etc/cric
-          name: cric-volume
         - name: auth-proxy-server-secrets # use the same secrets as APS
           mountPath: /etc/secrets
           #defaultMode: 256
@@ -121,6 +118,9 @@ spec:
         - mountPath: /etc/grid-security
           name: etc-grid-security
           readOnly: true
+        volumeMounts:
+#PROD#  - mountPath: /etc/cric
+#PROD#    name: cric-volume
 #PROD#  - name: logs
 #PROD#    mountPath: /data/srv/logs/frontend
 #PROD#  - name: filebeat-cephfs
@@ -163,9 +163,6 @@ spec:
         - name: www-htdocs
           mountPath: /tmp/htdocs
       volumes:
-      - name: cric-volume
-        persistentVolumeClaim:
-          claimName: cric-pvc
       - name: auth-proxy-server-secrets # use the same secrets as APS
         secret:
           secretName: auth-proxy-server-secrets # use the same secrets as APS
@@ -186,6 +183,9 @@ spec:
       - name: etc-grid-security
         hostPath:
             path: /etc/grid-security
+#PROD#- name: cric-volume
+#PROD#  persistentVolumeClaim:
+#PROD#    claimName: cric-pvc
 #PROD#- name: varlog
 #PROD#  hostPath:
 #PROD#    path: /var/log
