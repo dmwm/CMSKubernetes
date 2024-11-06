@@ -118,11 +118,11 @@ $tnsMount \
 --mount type=bind,source=/etc/vomses,target=/etc/vomses,readonly \
 "
 
-registry=registry.cern.ch
+registry=local
 repository=wmagent
 $PULL && {
+    registry=registry.cern.ch
     project=cmsweb
-    repository=wmagent
     echo "Pulling Docker image: registry.cern.ch/cmsweb/wmagent:$WMA_TAG"
     docker login registry.cern.ch
     docker pull $registry/$project/$repository:$WMA_TAG
@@ -135,7 +135,7 @@ echo "Checking if there is no other wmagent container running and creating a lin
     [[ -h $HOST_MOUNT_DIR/srv/wmagent/current ]] && rm -f $HOST_MOUNT_DIR/srv/wmagent/current
     ln -s $HOST_MOUNT_DIR/srv/wmagent/$WMA_VER_RELEASE $HOST_MOUNT_DIR/srv/wmagent/current )
 
-echo "Starting wmagent:$WMA_TAG docker container with user: $wmaUser:$wmaGroup"
+echo "Starting $registry/$repository:$WMA_TAG docker container with user: $wmaUser:$wmaGroup"
 docker run $dockerOpts $registry/$repository:$WMA_TAG
 docker exec -u root -it wmagent service cron start
 
