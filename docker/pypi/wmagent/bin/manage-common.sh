@@ -219,6 +219,31 @@ _sql_db_isclean(){
     esac
 }
 
+_couch_db_isclean(){
+  # assume that we can connect to local CouchDB
+  # assume that env contains local couch user and password.
+  echo "$FUNCNAME: Checking if local CouchDB is empty (curl to wmagent_summary db name)"
+  agent_summary=$(curl -s -u "$COUCH_USER:$COUCH_PASS" http://$COUCH_HOST:$COUCH_PORT/wmagent_summary)
+
+  if ! type jq > /dev/null ; then
+    echo "$FUNCNAME: jq is not installed, we cannot check if CouchDB is empty. Skipping this step."
+    return $(true)
+  fi
+  agent_summary_notclean=$(jq "select(.doc_count > 1 or .doc_del_count > 0)" <<< $agent_summary)
+  
+  if [ -n "${agent_summary_notclean}" ]; then
+    # the variable is not empty -> means that couch is not empty
+    echo "$FUNCNAME: local CouchDB is not empty. We cannot init WMAgent"
+    doc_count=$(jq ".doc_count" <<< $agent_summary)
+    doc_del_count=$(jq ".doc_del_count" <<< $agent_summary)
+    echo "$FUNCNAME: it contains $doc_count docs, $doc_del_count deleted docs"
+    return $(false)
+  else
+    # the variable is empty -> means that couch is empty
+    echo "$FUNCNAME: local CouchDB is empty. We can init WMAgent"
+  fi
+}
+
 _sql_write_agentid(){
     # Auxiliary function to write the current agent build id into the sql database
     echo "$FUNCNAME: Preserving the current WMA_BUILD_ID and HostName at database: $wmaDBName."
