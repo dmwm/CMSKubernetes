@@ -225,10 +225,7 @@ _couch_db_isclean(){
   echo "$FUNCNAME: Checking if local CouchDB is empty (curl to wmagent_summary db name)"
   agent_summary=$(curl -s -u "$COUCH_USER:$COUCH_PASS" http://$COUCH_HOST:$COUCH_PORT/wmagent_summary)
 
-  if ! type jq > /dev/null ; then
-    echo "$FUNCNAME: jq is not installed, we cannot check if CouchDB is empty. Skipping this step."
-    return $(true)
-  fi
+  type jq > /dev/null || { echo "$FUNCNAME: jq is not installed, we cannot check if CouchDB is empty. Skipping this step."; return $(true); }
   agent_summary_notclean=$(jq "select(.doc_count > 1 or .doc_del_count > 0)" <<< $agent_summary)
   
   if [ -n "${agent_summary_notclean}" ]; then

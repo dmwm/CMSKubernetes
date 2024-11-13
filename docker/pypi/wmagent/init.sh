@@ -315,6 +315,7 @@ check_databases() {
     esac
 
     # Checking CouchDB:
+    couchdbCred=false
     [[ -n $COUCH_HOST ]] && [[ -n $COUCH_PORT ]] && [[ -n $COUCH_USER ]] && [[ -n $COUCH_PASS ]] &&
       couchdbCred=true
     $couchdbCred || { echo "$FUNCNAME: ERROR: No local CouchDB credentials provided at $WMA_SECRETS_FILE" ; return $(false); }
