@@ -1,8 +1,8 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: grafana-backup
-  namespace: hdfs
+  name: grafana-dashboard-exporter
+  namespace: default
 spec:
   schedule: "1 4 * * *"
   jobTemplate:
@@ -10,13 +10,13 @@ spec:
       template:
         spec:
           containers:
-          - name: grafana-backup
-            image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.5.0.0
+          - name: grafana-dashboard-exporter
+            image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.5.0.2
             command: [ "bash", "-c"]
             args:
             - date; echo "run dashboard-exporter.py through run.sh";
-              cd /data/CMSMonitoring/grafana-backup/;
-              ./run.sh /etc/secrets/keytab /etc/secrets/token_backup.json $FILESYSTEM_PATH
+              cd /data/CMSMonitoring/grafana-backup/dashboard-exporter/;
+              ./run.sh /etc/secrets/keytab /etc/secrets/token.json $FILESYSTEM_PATH
             env:
               - name: FILESYSTEM_PATH
                 value: "/eos/cms/store/group/offcomp_monit/grafana_backup/"
