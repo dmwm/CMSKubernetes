@@ -72,17 +72,37 @@ ln -s $HOST_MOUNT_DIR/srv/wmagent /data/srv/wmagent
 passwdEntry=$(getent passwd $wmaUser | awk -F : -v wmaHome="/home/$wmaUser" '{print $1 ":" $2 ":" $3 ":" $4 ":" $5 ":" wmaHome ":" $7}')
 groupEntry=$(getent group $wmaGroup)
 
+# @TODO: Create needed unix accounts in container, rather than bind mounting files from the host
 # workaround case where Unix account is not in the local system (e.g. sssd)
 [[ -d $HOST_MOUNT_DIR/admin/etc/ ]] || (mkdir -p $HOST_MOUNT_DIR/admin/etc) || exit $?
+
+# Validation step
+# Delete local docker passwd/group files if uucp is not present (so it can be recreated)
+[[ -f "$HOST_MOUNT_DIR/admin/etc/passwd" ]] && ! grep -q uucp "$HOST_MOUNT_DIR/admin/etc/passwd" &&  {
+        rm $HOST_MOUNT_DIR/admin/etc/passwd
+}
+[[ -f "$HOST_MOUNT_DIR/admin/etc/group" ]] && ! grep -q uucp "$HOST_MOUNT_DIR/admin/etc/group" &&  {
+        rm $HOST_MOUNT_DIR/admin/etc/group
+}
+
 if ! [ -f $HOST_MOUNT_DIR/admin/etc/passwd ]; then
     echo "Creating passwd file"
     getent passwd > $HOST_MOUNT_DIR/admin/etc/passwd
     echo $passwdEntry >> $HOST_MOUNT_DIR/admin/etc/passwd
+    # add back original system related unix users
+    echo "Debian-exim:x:103:105::/var/spool/exim4:/usr/sbin/nologin" >> $HOST_MOUNT_DIR/admin/etc/passwd
+    echo "_apt:x:100:65534::/nonexistent:/usr/sbin/nologin" >> $HOST_MOUNT_DIR/admin/etc/passwd
+    echo "uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin" >> $HOST_MOUNT_DIR/admin/etc/passwd
 fi
 if ! [ -f $HOST_MOUNT_DIR/admin/etc/group ]; then
     echo "Creating group file"
     getent group > $HOST_MOUNT_DIR/admin/etc/group
     echo $groupEntry >> $HOST_MOUNT_DIR/admin/etc/group
+    # add back original system related groups
+    echo "Debian-exim:x:105:" >> $HOST_MOUNT_DIR/admin/etc/group
+    echo "messagebus:x:104:" >> $HOST_MOUNT_DIR/admin/etc/group
+    echo "crontab:x:103:" >> $HOST_MOUNT_DIR/admin/etc/group
+    echo "uucp:x:10:" >> $HOST_MOUNT_DIR/admin/etc/group
 fi
 
 # create regular mount points at runtime
@@ -116,6 +136,7 @@ $tnsMount \
 --mount type=bind,source=/etc/sudoers.d,target=/etc/sudoers.d,readonly \
 --mount type=bind,source=/etc/grid-security,target=/etc/grid-security,readonly \
 --mount type=bind,source=/etc/vomses,target=/etc/vomses,readonly \
+--mount type=bind,source=/etc/s-nail.rc,target=/etc/s-nail_host.rc,readonly \
 "
 
 registry=local
@@ -148,3 +169,10 @@ userStatus="$(docker exec -u root -it wmagent sh -c "passwd -S $wmaUser" | awk '
 if [ "${userStatus:0:1}" == "P" ]; then
     docker exec -u root -it wmagent sh -c "echo $wmaUser:$wmaUser | chpasswd"
 fi
+
+# Configure s-nail to use the host s-nail mail server
+docker exec -u root -it wmagent cp /etc/s-nail_host.rc /etc/s-nail.rc
+docker exec -u root -it wmagent sh -c "printf 'set v15-compat\nset smtp-auth=none\nset mta=smtp://127.0.0.1:25' >> /etc/s-nail.rc"
+# Change mail to use s-nail
+docker exec -u root -it wmagent update-alternatives --install /usr/bin/mailx mailx /usr/bin/s-nail 50 --slave /usr/bin/mail mail /usr/bin/s-nail
+
