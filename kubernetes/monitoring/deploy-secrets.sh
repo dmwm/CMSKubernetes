@@ -80,7 +80,7 @@ elif [ "$secret" == "promxy-secrets" ]; then
 elif [ "$secret" == "vmalert-secrets" ]; then
     files=`ls $cdir/vmalert/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$cdir/vmalert | sed "s, $,,g"`
 elif [ "$secret" == "grafana-backup-secrets" ]; then
-    token="--from-file=${sdir}/grafana-backup/token_backup.json"
+    token="--from-file=${sdir}/grafana-backup/token.json"
     cmsmonit_k="--from-file=${sdir}/cmsmonit-keytab/keytab"
     files="${token} ${cmsmonit_k}"
 elif [ "$secret" == "s3-keys-secrets" ]; then
