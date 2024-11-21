@@ -332,11 +332,14 @@ set_cronjob() {
     # Avoid -u parameter when using the OS crontab
     _is_venv && crontabParams="" || crontabParams="-u $WMA_USER"
 
+    # Activate the environment if cronjobs are to run under virtual env
+    _is_venv && crontabEnvStr="source $WMA_ROOT_DIR/bin/activate > /dev/null && " || crontabEnvStr=""
+
     # Populating proxy related cronjobs
     crontab $crontabParams - <<EOF
-55 */12 * * * date -Im >> $WMA_LOG_DIR/renew-proxy.log && $WMA_MANAGE_DIR/manage renew-proxy 2>&1 >> $WMA_LOG_DIR/renew-proxy.log
-58 */12 * * * python $WMA_DEPLOY_DIR/deploy/checkProxy.py --proxy $X509_USER_PROXY --time 120 --send-mail True --mail alan.malta@cern.ch
-*/15 * * * *  source $WMA_DEPLOY_DIR/deploy/restartComponent.sh 2>&1 >> $WMA_LOG_DIR/component-restart.log
+55 */12 * * * $crontabEnvStr date -Im >> $WMA_LOG_DIR/renew-proxy.log && $WMA_MANAGE_DIR/manage renew-proxy 2>&1 >> $WMA_LOG_DIR/renew-proxy.log
+58 */12 * * * $crontabEnvStr python $WMA_DEPLOY_DIR/deploy/checkProxy.py --proxy $X509_USER_PROXY --time 120 --send-mail True --mail alan.malta@cern.ch
+*/15 * * * *  $crontabEnvStr source $WMA_DEPLOY_DIR/deploy/restartComponent.sh 2>&1 >> $WMA_LOG_DIR/component-restart.log
 EOF
     let errVal+=$?
 
