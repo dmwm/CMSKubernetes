@@ -72,18 +72,27 @@ ln -s $HOST_MOUNT_DIR/srv/wmagent /data/srv/wmagent
 passwdEntry=$(getent passwd $wmaUser | awk -F : -v wmaHome="/home/$wmaUser" '{print $1 ":" $2 ":" $3 ":" $4 ":" $5 ":" wmaHome ":" $7}')
 groupEntry=$(getent group $wmaGroup)
 
+# @TODO: Create needed unix accounts in container, rather than bind mounting files from the host
 # workaround case where Unix account is not in the local system (e.g. sssd)
 [[ -d $HOST_MOUNT_DIR/admin/etc/ ]] || (mkdir -p $HOST_MOUNT_DIR/admin/etc) || exit $?
 if ! [ -f $HOST_MOUNT_DIR/admin/etc/passwd ]; then
     echo "Creating passwd file"
     getent passwd > $HOST_MOUNT_DIR/admin/etc/passwd
     echo $passwdEntry >> $HOST_MOUNT_DIR/admin/etc/passwd
+    # add back exim4 related unix users
+    echo "Debian-exim:x:103:105::/var/spool/exim4:/usr/sbin/nologin" >> $HOST_MOUNT_DIR/admin/etc/passwd
+    echo "uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin" >> $HOST_MOUNT_DIR/admin/etc/passwd
 fi
 if ! [ -f $HOST_MOUNT_DIR/admin/etc/group ]; then
     echo "Creating group file"
     getent group > $HOST_MOUNT_DIR/admin/etc/group
     echo $groupEntry >> $HOST_MOUNT_DIR/admin/etc/group
+    # add back exim4 related unix groups
+    echo "Debian-exim:x:105:" >> $HOST_MOUNT_DIR/admin/etc/group
+    echo "uucp:x:10:" >> $HOST_MOUNT_DIR/admin/etc/group
 fi
+
+# workaround for exim4 service, add back unix users needed into system files
 
 # create regular mount points at runtime
 [[ -d $HOST_MOUNT_DIR/admin/wmagent ]] || (mkdir -p $HOST_MOUNT_DIR/admin/wmagent) || exit $?
@@ -148,3 +157,7 @@ userStatus="$(docker exec -u root -it wmagent sh -c "passwd -S $wmaUser" | awk '
 if [ "${userStatus:0:1}" == "P" ]; then
     docker exec -u root -it wmagent sh -c "echo $wmaUser:$wmaUser | chpasswd"
 fi
+
+# Configure exim4 server in non-local mode and start the service
+docker exec -u root -it wmagent sed -ie "s/dc_eximconfig_configtype='local'/dc_eximconfig_configtype='internet'/g" /etc/exim4/update-exim4.conf.conf
+docker exec -u root -it wmagent service exim4 start
