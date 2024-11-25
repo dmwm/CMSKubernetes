@@ -1,0 +1,76 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: udp-server
+spec:
+  selector:
+    app: udp-server
+  type: NodePort
+  ports:
+    - name: udp-server-metrics
+      nodePort: 30330
+      port: 9330
+      protocol: TCP
+      targetPort: 9330
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: udp-server
+  name: udp-server
+spec:
+  selector:
+    matchLabels:
+      app: udp-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: udp-server
+        env: prod
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9330"
+        prometheus.io/path: "/metrics"
+    spec:
+      tolerations:
+      - key: "udp-server"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      containers:
+      - image: registry.cern.ch/cmsmonitoring/udp-server:v0.0.14
+        name: udp-server
+        command: ["/data/udp_collector"]
+        args: ["-config", "/etc/secrets/udp_server.json"]
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 9331
+          protocol: UDP
+          name: udp
+          hostPort: 9331
+        - containerPort: 9330
+          protocol: TCP
+          name: health
+        volumeMounts:
+        - name: udp-secrets
+          mountPath: /etc/secrets
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 9330
+          initialDelaySeconds: 10
+          periodSeconds: 60
+      volumes:
+      - name: udp-secrets
+        secret:
+          secretName: udp-secrets
+---
