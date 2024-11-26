@@ -1,5 +1,8 @@
 contents/
 ContainerScripts/LatestUnitTests
 .DS_Store
+examples
+
+# virtualenvs
 */**/venv
-requirements.txt
+.venv
