@@ -97,6 +97,8 @@ function rm_temp_deploy_secrets_sh() {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 function deploy_secrets() {
     create_temp_deploy_secrets_sh
+    # default
+    "$deploy_secrets_sh" default grafana-backup-secrets
     # hdfs
     "$deploy_secrets_sh" hdfs proxy-secrets
     "$deploy_secrets_sh" hdfs robot-secrets
@@ -105,13 +107,14 @@ function deploy_secrets() {
     "$deploy_secrets_sh" hdfs cron-size-quotas-secrets
     "$deploy_secrets_sh" hdfs cms-eos-mon-secrets
     "$deploy_secrets_sh" hdfs cron-spark-jobs-secrets
-    "$deploy_secrets_sh" hdfs grafana-backup-secrets
     # sqoop
     "$deploy_secrets_sh" sqoop sqoop-secrets
     #
     rm_temp_deploy_secrets_sh
 }
 function clean_secrets() {
+    # default
+    kubectl -n default --ignore-not-found=true delete secret grafana-backup-secrets
     # hdfs
     kubectl -n hdfs --ignore-not-found=true delete secret proxy-secrets
     kubectl -n hdfs --ignore-not-found=true delete secret robot-secrets
@@ -120,16 +123,16 @@ function clean_secrets() {
     kubectl -n hdfs --ignore-not-found=true delete secret cron-size-quotas-secrets
     kubectl -n hdfs --ignore-not-found=true delete secret cms-eos-mon-secrets
     kubectl -n hdfs --ignore-not-found=true delete secret cron-spark-jobs-secrets
-    kubectl -n hdfs --ignore-not-found=true delete secret grafana-backup-secrets
     # sqoop
     kubectl -n sqoop --ignore-not-found=true delete secret sqoop-secrets
 }
 function deploy_services() {
     # default
     kubectl -n default apply -f services/pushgateway.yaml
+    kubectl -n default apply -f crons/grafana-dashboard-exporter.yaml
+    kubectl -n default apply -f crons/grafana-dashboard-copy.yaml
     # hdfs
     kubectl -n hdfs apply -f crons/cron-proxy.yaml
-    kubectl -n hdfs apply -f crons/grafana-backup.yaml
     kubectl -n hdfs apply -f services/cmsmon-hpc-usage.yaml
     kubectl -n hdfs apply -f services/cmsmon-rucio-ds.yaml
     kubectl -n hdfs apply -f services/cron-size-quotas.yaml
@@ -140,9 +143,10 @@ function deploy_services() {
 function clean_services() {
     # default
     kubectl -n default --ignore-not-found=true delete -f services/pushgateway.yaml
+    kubectl -n default --ignore-not-found=true delete -f crons/grafana-dashboard-exporter.yaml
+    kubectl -n default --ignore-not-found=true delete -f crons/grafana-dashboard-copy.yaml
     # hdfs
     kubectl -n hdfs --ignore-not-found=true delete -f crons/cron-proxy.yaml
-    kubectl -n hdfs --ignore-not-found=true delete -f crons/grafana-backup.yaml
     kubectl -n hdfs --ignore-not-found=true delete -f services/cmsmon-hpc-usage.yaml
     kubectl -n hdfs --ignore-not-found=true delete -f services/cmsmon-rucio-ds.yaml
     kubectl -n hdfs --ignore-not-found=true delete -f services/cron-size-quotas.yaml

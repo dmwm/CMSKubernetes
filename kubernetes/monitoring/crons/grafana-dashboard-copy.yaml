@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: grafana-dashboard-copy
+  namespace: default
+spec:
+  schedule: "1 5 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: grafana-dashboard-copy
+            image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.5.0.3
+            command: [ "bash", "-c"]
+            args:
+            - date; echo "run dashboard-copy.py through run.sh";
+              cd /data/CMSMonitoring/grafana-backup/production-copy/;
+              ./run.sh $GRAFANA_URL /etc/secrets/token.json
+            env:
+              - name: GRAFANA_URL
+                value: "https://monit-grafana.cern.ch"
+            volumeMounts:
+              - name: grafana-backup-secrets
+                mountPath: /etc/secrets
+                readOnly: true
+          restartPolicy: OnFailure
+          volumes:
+          - name: grafana-backup-secrets
+            secret:
+              secretName: grafana-backup-secrets
