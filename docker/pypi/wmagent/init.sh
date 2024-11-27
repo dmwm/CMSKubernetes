@@ -339,7 +339,7 @@ set_cronjob() {
     crontab $crontabParams - <<EOF
 55 */12 * * * $crontabEnvStr date -Im >> $WMA_LOG_DIR/renew-proxy.log && $WMA_MANAGE_DIR/manage renew-proxy >> $WMA_LOG_DIR/renew-proxy.log 2>&1
 58 */12 * * * $crontabEnvStr python $WMA_DEPLOY_DIR/deploy/checkProxy.py --proxy $X509_USER_PROXY --time 120 --send-mail True --mail alan.malta@cern.ch
-*/15 * * * *  $crontabEnvStr source $WMA_DEPLOY_DIR/deploy/restartComponent.sh >> $WMA_LOG_DIR/component-restart.log 2>&1
+*/15 * * * *  $crontabEnvStr $WMA_DEPLOY_DIR/deploy/restartComponent.sh >> $WMA_LOG_DIR/component-restart.log 2>&1
 EOF
     let errVal+=$?
 
