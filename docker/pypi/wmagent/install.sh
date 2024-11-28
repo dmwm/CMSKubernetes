@@ -130,11 +130,6 @@ tweakEnv(){
     sed -i "s|install=.*|install=\$WMA_INSTALL_DIR|g" $WMA_ENV_FILE
     sed -i "s|config=.*|config=\$WMA_CONFIG_DIR|g" $WMA_ENV_FILE
     sed -i "s|manage=.*|manage=\$WMA_MANAGE_DIR/manage|g" $WMA_ENV_FILE
-    sed -i "s|RUCIO_HOME=.*|RUCIO_HOME=\$WMA_CONFIG_DIR|g" $WMA_ENV_FILE
-
-    echo "Edit $WMA_DEPLOY_DIR/deploy/renew_proxy.sh script to point to \$WMA_ROOT_DIR"
-    sed -i "s|/data/|\$WMA_ROOT_DIR/|g" $WMA_DEPLOY_DIR/deploy/renew_proxy.sh
-    sed -i "s|source.*env\.sh|source \$WMA_ENV_FILE|g" $WMA_DEPLOY_DIR/deploy/renew_proxy.sh
 
     cat <<EOF >> $WMA_ENV_FILE
 
