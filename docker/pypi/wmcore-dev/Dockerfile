@@ -1,4 +1,3 @@
-# FROM --platform=linux/amd64 registry.cern.ch/cmsweb/alma-base:alma9-20240305
 FROM --platform=linux/amd64 registry.cern.ch/cmsweb/cmsweb-alma9-base:20240530
 
 # Install cern repo
@@ -40,6 +39,8 @@ RUN dnf install -y \
         voms-clients-cpp && \
     dnf clean all
 
+# Create the working directory
+RUN mkdir -p /home/cmsbld
 WORKDIR /home/cmsbld
 
 # get requirements.txt and remove gfal2 to use RPM gfal2
@@ -52,11 +53,7 @@ RUN curl -O https://raw.githubusercontent.com/dmwm/WMCore/master/requirements.tx
 
 RUN pip3 install --no-cache-dir --upgrade pip setuptools wheel && \
     pip3 install --no-cache-dir --ignore-installed -r /home/cmsbld/requirements-dev.txt
-#    pip3 install --no-cache-dir --ignore-installed -r /home/cmsbld/WMCore/requirements-dev.txt
 
-ADD TestScripts /home/cmsbld/TestScripts
-ADD ContainerScripts /home/cmsbld/ContainerScripts
-ADD etc /home/cmsbld/etc
 ADD entrypoint.sh /entrypoint.sh
 
 ENV X509_HOST_CERT=/data/certs/servicecert.pem
