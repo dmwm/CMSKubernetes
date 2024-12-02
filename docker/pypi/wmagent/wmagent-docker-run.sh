@@ -136,7 +136,10 @@ echo "Checking if there is no other wmagent container running and creating a lin
     ln -s $HOST_MOUNT_DIR/srv/wmagent/$WMA_VER_RELEASE $HOST_MOUNT_DIR/srv/wmagent/current )
 
 echo "Starting $registry/$repository:$WMA_TAG docker container with user: $wmaUser:$wmaGroup"
-docker run $dockerOpts $registry/$repository:$WMA_TAG
+docker run $dockerOpts $registry/$repository:$WMA_TAG || {
+    echo "ERROR: WMAgent already running at this machine. Execution HALTED!"
+    exit 1
+}
 docker exec -u root -it wmagent service cron start
 
 # Workaround su authentication issue (cron uses setuid via su)
