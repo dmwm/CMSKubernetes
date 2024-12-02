@@ -4,21 +4,21 @@
 if [[ -z "${BUILD_ID}" ]]; then
     echo "No BUILD_ID set"
 else
-    echo "BUILD_ID set, cloning dmwm/WMCore"
-    git clone https://github.com/dmwm/WMCore
-
+    echo "BUILD_ID set, setting up for CI/CD"
     # give proper permissions to home directory
     chown -R ${MY_ID}:${MY_GROUP} /home/cmsbld
 
     USERN=$(id -un ${MY_ID})
 
-    su - $USERN
+    su - $USERN << EOSU
+    git clone https://github.com/dmwm/WMCore
+
+    pushd /home/cmsbld
+
+    # clone jenkins-test scripts
+    git clone https://github.com/dmwm/WMCore-Jenkins .
+    popd
+EOSU
 fi
-
-pushd /home/cmsbld
-
-# clone jenkins-test scripts
-git clone https://github.com/d-ylee/jenkins-test
-popd
 
 $@
