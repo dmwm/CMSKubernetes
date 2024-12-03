@@ -1,5 +1,7 @@
 FROM --platform=linux/amd64 registry.cern.ch/cmsweb/cmsweb-alma9-base:20240530
 
+LABEL version="0.0.2"
+
 # Install cern repo
 RUN dnf install -y 'dnf-command(config-manager)' && \
     dnf config-manager --add-repo https://linuxsoft.cern.ch/cern/alma/9/devel/x86_64/os
