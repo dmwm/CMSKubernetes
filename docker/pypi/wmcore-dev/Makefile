@@ -14,6 +14,10 @@ push:
 	docker tag registry.cern.ch/cmsweb/wmcore-dev registry.cern.ch/cmsweb/wmcore-dev:latest
 	docker push registry.cern.ch/cmsweb/wmcore-dev:latest
 
+push-preprod:
+	docker tag registry.cern.ch/cmsweb/wmcore-dev registry.cern.ch/cmsweb/wmcore-dev:$(VERSION)
+	docker push registry.cern.ch/cmsweb/wmcore-dev:$(VERSION)
+
 push-stable:
 	docker tag registry.cern.ch/cmsweb/wmcore-dev registry.cern.ch/cmsweb/wmcore-dev:$(VERSION)-stable
-	docker push registry.cern.ch/cmsweb/wmcore-dev:$(DATE)-stable
+	docker push registry.cern.ch/cmsweb/wmcore-dev:$(VERSION)-stable
