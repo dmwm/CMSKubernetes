@@ -6,11 +6,9 @@ if [[ -z "${BUILD_ID}" ]]; then
 else
     echo "BUILD_ID set, setting up for CI/CD"
     # give proper permissions to home directory
-    chown -R ${MY_ID}:${MY_GROUP} /home/cmsbld
+    #chown -R ${MY_ID}:${MY_GROUP} /home/cmsbld
 
-    USERN=$(id -un ${MY_ID})
-
-    su - $USERN << EOSU
+    #USERN=$(id -un ${MY_ID})
 
     pushd /home/cmsbld
 
@@ -25,7 +23,7 @@ else
     cp -r WMCore-Jenkins/docker/wmcore-dev/ContainerScripts .
     cp -r WMCore-Jenkins/docker/wmcore-dev/etc .
     popd
-EOSU
+
 fi
 
 $@
