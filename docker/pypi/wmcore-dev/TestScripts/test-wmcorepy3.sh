@@ -15,6 +15,9 @@ echo "Sourcing a python3 unittest environment"
 # load wmagent secrets
 . /data/admin/wmagent/WMAgent.secrets
 
+# Load CMS environment from CVMFS
+source /cvmfs/cms.cern.ch/cmsset_default.sh
+
 # This is what the production wmagent-mariadb image defines (via WMA_DATABASE) has as of 2024/07/15
 # TODO: We should either make an option in the mariadb image to define the default WMA_DATABASE or make a custom test mariadb image
 MDB_UNITTEST_DB=wmagent
