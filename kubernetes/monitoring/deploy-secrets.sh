@@ -31,6 +31,7 @@ set -e
 ##H        sqoop-secrets
 ##H        vmalert-secrets
 ##H        grafana-backup-secrets
+##H        udp-secrets
 ##H Examples:
 ##H        deploy-secrets.sh default prometheus-secrets ha
 
@@ -83,6 +84,8 @@ elif [ "$secret" == "grafana-backup-secrets" ]; then
     token="--from-file=${sdir}/grafana-backup/token_backup.json"
     cmsmonit_k="--from-file=${sdir}/cmsmonit-keytab/keytab"
     files="${token} ${cmsmonit_k}"
+elif [ "$secret" == "udp-secrets" ]; then
+    files="--from-file=${sdir}/udp/udp_server.json"
 elif [ "$secret" == "s3-keys-secrets" ]; then
     files=`ls $sdir/victoria-metrics/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/victoria-metrics | sed "s, $,,g"`
 elif [ "$secret" == "robot-secrets" ]; then
