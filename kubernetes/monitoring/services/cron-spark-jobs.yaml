@@ -21,7 +21,6 @@ data:
     # each Monday at 10 AM
     00 10 * * 1 . /data/cronjob/s.sh; $B_/cron4wma_agent_count.sh $A_ --conf /etc/secrets/test_tenant_secret >>$O_ 2>&1
     # MONTHLY
-    00 16 03  *  * . /data/cronjob/s.sh; $B_/cron4hpc_at_cms.sh        $A_ --output $EOS_/hpc             >>$O_ 2>&1
     00 16 05  *  * . /data/cronjob/s.sh; $B_/cron4crab_popularity.sh   $A_ --output $EOS_/crabPop/data    >>$O_ 2>&1
     00 16 07  *  * . /data/cronjob/s.sh; $B_/cron4gen_crsg_plots.sh    $A_ --output $EOS_/EventCountPlots >>$O_ 2>&1
     00 16 19  *  * . /data/cronjob/s.sh; $B_/cron4hs06_cputime_plot.sh $A_ --output $EOS_/hs06cputime     >>$O_ 2>&1
@@ -71,7 +70,7 @@ spec:
       hostname: cron-spark-jobs
       containers:
         - name: cron-spark-jobs
-          image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.5.0.2
+          image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.5.0.5
           env:
             - name: MY_NODE_NAME
               valueFrom:
