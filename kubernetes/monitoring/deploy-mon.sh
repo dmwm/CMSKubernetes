@@ -103,13 +103,13 @@ function check_configs_am() {
 # Check status of the cluster
 function cluster_check() {
     echo -e "\n*** check secrets"
-    kubectl get secrets -A | grep -E "default  *|http *|alerts *" | grep Opaque
+    kubectl get secrets -A | grep -E "default *|http *|cpueff *|udp *" | grep Opaque
     echo -e "\n*** check svc"
-    kubectl get svc -A | grep -E "default  *|http *|alerts *"
+    kubectl get svc -A | grep -E "default *|http *|cpueff *|udp *"
     echo -e "\n*** node status"
     kubectl top node
     echo -e "\n*** pods status"
-    kubectl top pods --sort-by=memory -A | grep -E "default  *|http *|alerts *"
+    kubectl top pods --sort-by=memory -A | grep -E "default *|http *|cpueff *|udp *"
 }
 
 # Test VictoriaMetrics
@@ -170,6 +170,8 @@ function deploy_secrets() {
     "$deploy_secrets_sh" http krb5cc-secrets
     "$deploy_secrets_sh" http proxy-secrets
     "$deploy_secrets_sh" http robot-secrets
+    # udp
+    "$deploy_secrets_sh" udp udp-secrets
     #
     rm_temp_deploy_secrets_sh
 }
@@ -195,6 +197,8 @@ function clean_secrets() {
     kubectl -n http --ignore-not-found=true delete secret krb5cc-secrets
     kubectl -n http --ignore-not-found=true delete secret proxy-secrets
     kubectl -n http --ignore-not-found=true delete secret robot-secrets
+    # udp
+    kubectl -n udp --ignore-not-found=true delete secret udp-secrets
 }
 function deploy_services() {
     # auth
@@ -207,6 +211,8 @@ function deploy_services() {
     kubectl -n default apply -f kmon/kube-eagle.yaml
     # http
     find "${script_dir}"/services/ -name "*-exp*.yaml" | awk '{print "kubectl apply -f "$1""}' | /bin/sh
+    # udp
+    kubectl -n udp apply -f services/udp-collector/udp-server.yaml
 }
 function clean_all_services() {
     # auth
@@ -225,6 +231,8 @@ function clean_all_services() {
     kubectl -n default --ignore-not-found=true delete -f services/victoria-metrics.yaml
     # http
     find "${script_dir}"/services/ -name "*-exp*.yaml" | awk '{print "kubectl --ignore-not-found=true delete -f "$1""}' | /bin/sh
+    # udp
+    kubectl -n default --ignore-not-found=true delete -f services/udp-collector/udp-server.yaml
 }
 
 function deploy_storage_services() {
@@ -274,7 +282,7 @@ deploy_ingress()
     kubectl apply -f ingress/ingress.yaml
 }
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ MAIN ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-namespaces="auth cpueff http "
+namespaces="auth cpueff http udp"
 deploy_all() {
     for _ns in $namespaces; do
         if ! kubectl get ns | grep -q $_ns; then
