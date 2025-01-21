@@ -40,7 +40,7 @@ spec:
         value: "true"
         effect: "NoSchedule"
       containers:
-      - image: registry.cern.ch/cmsmonitoring/udp-server:v0.0.14
+      - image: registry.cern.ch/cmsmonitoring/udp-server:v0.0.16
         name: udp-server
         command: ["/data/udp_collector"]
         args: ["-config", "/etc/secrets/udp_server.json"]
