@@ -11,6 +11,9 @@ RUN apt-get install -y hostname net-tools iputils-ping procps jq && apt-get clea
 # Install recursive ps utility tool
 RUN apt-get install -y pslist && apt-get clean
 
+# Install s-nail package
+RUN apt-get install -y s-nail && apt-get clean
+
 # copy oracle client:
 COPY --from=oracle /usr/lib/oracle /usr/lib/oracle
 ENV LD_LIBRARY_PATH=/usr/lib/oracle
