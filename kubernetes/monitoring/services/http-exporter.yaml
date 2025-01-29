@@ -33,7 +33,7 @@ spec:
         - args:
           - /data/http_exporter
           - -uri
-          - "http://cms-monitoring.cern.ch:30900/graph"
+          - "http://cms-monitoring.cern.ch:30900/query"
           - -namespace
           - "cms_monitoring"
           - -port

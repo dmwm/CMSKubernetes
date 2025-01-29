@@ -23,7 +23,7 @@ docker run -it test-http-exporters /data/http_exporter --help
 
 # Run http-expoerter in host network
 docker run -it --network host test-http-exporters /data/http_exporter \
-    -uri "http://cms-monitoring.cern.ch:30900/graph" \
+    -uri "http://cms-monitoring.cern.ch:30900/query" \
     -namespace "cms_monitoring" -port ":18000" -agent "monitoring" -verbose 3
 
 # Curl in another shell
