@@ -1,7 +1,8 @@
 FROM golang:latest as go-builder
 
 # tag to use
-ENV CMSMON_TAG=sqoop-0.0.0
+ARG CMSMON_TAG=sqoop-0.0.0
+ENV CMSMON_TAG=$CMSMON_TAG
 
 ENV WDIR=/data
 WORKDIR $WDIR
