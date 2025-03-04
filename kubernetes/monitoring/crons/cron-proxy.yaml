@@ -30,7 +30,7 @@ spec:
           serviceAccountName: proxy-account
           containers:
           - name: proxy
-            image: registry.cern.ch/cmsweb/proxy:20240501-stable
+            image: registry.cern.ch/cmsweb/proxy:20240611-stable
             args:
             - /bin/sh
             - -c
