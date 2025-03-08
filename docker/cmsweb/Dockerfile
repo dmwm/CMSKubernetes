@@ -2,7 +2,7 @@ FROM registry.cern.ch/cmsweb/exporters:20231002-stable AS exporters-builder
 RUN mkdir -p /data
 
 
-FROM cern/cc7-base:20240611-1
+FROM cern/cc7-base:20240611-stable
 
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
