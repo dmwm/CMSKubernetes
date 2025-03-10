@@ -1,5 +1,5 @@
 # Ref: https://gitlab.cern.ch/db/cerndb-infra-hadoop-conf/-/blob/qa/docker/Dockerfile-HDP3
-FROM python:3.9 as builder
+FROM python:3.9 AS builder
 
 ENV WDIR=/data
 WORKDIR $WDIR
@@ -16,7 +16,7 @@ RUN apt-get update -y && \
     rm -rf stomp-v700
 
 # -----------------------------------------------------------------------------------------
-FROM gitlab-registry.cern.ch/linuxsupport/alma9-base:20240703-1.x86_64
+FROM gitlab-registry.cern.ch/linuxsupport/alma9-base:latest
 
 ENV WDIR=/data
 WORKDIR $WDIR
@@ -64,9 +64,9 @@ RUN dnf update -y && \
     dnf upgrade -y && \
     dnf install -y crontabs cronie cronie-anacron git-core zip unzip mesa-libGL pcre2-utf16 \
     libXrender libSM libtirpc libicu ncurses which \
-    wlcg-voms-cms wlcg-iam-lsc-cms wlcg-iam-vomses-cms voms-clients \
+    wlcg-voms-cms wlcg-iam-lsc-cms-2.0.0 wlcg-iam-vomses-cms voms-clients \
     python-pip python3-setuptools \
-    hadoop-bin-3.3 spark-bin-3.5 sqoop-bin-1.4 python3 cern-hadoop-config \
+    hadoop-bin-3.3 spark-bin-3.5 hbase-bin-2.5 sqoop-bin-1.4 python3 cern-hadoop-config \
     jq trustedbag-client cern-hadoop-xrootd-connector && \
     dnf clean all
 
