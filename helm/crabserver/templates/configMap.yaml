@@ -18,5 +18,15 @@ data:
 {{- else }}
 {{ (.Files.Get "config/test/config.py" | indent 4) }}
 {{- end }}
-
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: tnsnames-config
+  labels:
+    app: crabserver
+  namespace: crab
+data:
+  tnsnames.ora: |
+{{ (.Files.Get "config/tnsnames.ora" | indent 4) }}
 {{- end }}

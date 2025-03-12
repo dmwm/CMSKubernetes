@@ -89,6 +89,9 @@ spec:
             readOnly: true
           - name: config
             mountPath: /opt/config
+          - name: tnsnames
+            mountPath: /etc/tnsnames.ora
+            subPath: tnsnames.ora          
           - name: token-secrets
             mountPath: /etc/token
             readOnly: true
@@ -113,6 +116,9 @@ spec:
       - name: config
         configMap:
           name: crabserver
+      - name: tnsnames
+        configMap:
+          name: tnsnames-config
       - name: token-secrets
         secret:
           secretName: token-secrets
