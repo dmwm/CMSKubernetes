@@ -12,7 +12,7 @@ spec:
           serviceAccountName: proxy-account
           containers:
           - name: proxy
-            image: registry.cern.ch/cmsweb/proxy-ms-unmerged
+            image: registry.cern.ch/cmsweb/proxy-ms-unmerged:latest
             args:
             - /bin/sh
             - -c
