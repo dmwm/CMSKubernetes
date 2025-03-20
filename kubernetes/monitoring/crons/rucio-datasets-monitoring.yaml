@@ -1,0 +1,111 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: rucio-datasetmon
+  namespace: hdfs
+spec:
+  selector:
+    app: rucio-datasetmon
+  type: NodePort
+  ports:
+    - name: port-0 # spark.driver.port
+      nodePort: 31207
+      port: 31207
+      protocol: TCP
+      targetPort: 31207
+    - name: port-1 # spark.driver.blockManager.port
+      nodePort: 31208
+      port: 31208
+      protocol: TCP
+      targetPort: 31208
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-rucio-datasetmon
+  namespace: hdfs
+  labels:
+    app: rucio-datasetmon
+data:
+  run_datasetmon.sh: |
+    #!/bin/bash
+    . /etc/environment
+    echo "Starting run_datasetmon.sh ..."
+    /data/CMSSpark/bin/cron4rucio_datasets_monitoring.sh \
+      --keytab /etc/secrets/keytab --hdfs /cms/rucio_datasets_monitoring \
+      --p1 31207 --p2 31208 \
+      --host $MY_NODE_NAME --wdir $WDIR --conf /etc/secrets/cms_rucio_secret
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: rucio-datasetmon
+  namespace: hdfs
+spec:
+  # UTC
+  schedule: "30 07 * * *"
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            app: rucio-datasetmon
+        spec:
+          restartPolicy: Never
+          hostname: rucio-datasetmon
+          containers:
+            - name: rucio-datasetmon
+              image: registry.cern.ch/cmsmonitoring/cmsmon-spark:latest
+              command: [ "/bin/bash", "-c" ]
+              args:
+                - source /etc/environment;
+                  /data/cronjob/run_datasetmon.sh;
+              env:
+                - name: MY_NODE_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: spec.nodeName
+                - name: K8S_ENV
+                  value: "prod"
+                - name: PUSHGATEWAY_URL
+                  # value: pushgateway.default.svc.cluster.local:9091
+                  value: "cms-monitoring:30091"
+              ports:
+                - containerPort: 31207 # spark.driver.port
+                  name: port-0
+                - containerPort: 31208 # spark.driver.blockManager.port
+                  name: port-1
+              lifecycle:
+                postStart:
+                  exec:
+                    command:
+                      - "sh"
+                      - "-c"
+                      - >
+                        export > /etc/environment;
+              resources:
+                limits:
+                  cpu: 2000m
+                  memory: 6Gi
+                requests:
+                  cpu: 500m
+                  memory: 750Mi
+              stdin: true
+              tty: true
+              volumeMounts:
+                - name: rucio-datasets-monitoring-secrets
+                  mountPath: /etc/secrets
+                  readOnly: true
+                - name: cronjobs-configmap
+                  mountPath: /data/cronjob
+          volumes:
+            - name: cronjobs-configmap
+              configMap:
+                name: cm-rucio-datasetmon
+                defaultMode: 0777
+            - name: rucio-datasets-monitoring-secrets
+              secret:
+                secretName: rucio-datasets-monitoring-secrets
