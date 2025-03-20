@@ -11,11 +11,9 @@ set -e
 ##H        cern-certificates
 ##H        certcheck-secrets
 ##H        cms-eos-mon-secrets
-##H        cmsmon-mongo-secrets
 ##H        cpueff-mongo-secrets
 ##H        cron-size-quotas-secrets
 ##H        cron-spark-jobs-secrets
-##H        dm-auth-secrets
 ##H        es-wma-secrets
 ##H        hpc-usage-secrets
 ##H        karma-secrets
@@ -32,6 +30,7 @@ set -e
 ##H        vmalert-secrets
 ##H        grafana-backup-secrets
 ##H        udp-secrets
+##H        rucio-datasets-monitoring-secrets
 ##H Examples:
 ##H        deploy-secrets.sh default prometheus-secrets ha
 
@@ -102,18 +101,6 @@ elif [ "$secret" == "auth-secrets" ]; then
     clientSECRET=`cat $sdir/cmsmon-auth/secrets | grep CLIENT_SECRET | awk '{print $2}'`
     content=`cat $cdir/cmsmon-auth/config.json | sed -e "s,__CLIENT_ID__,$clientID,g" -e "s,__CLIENT_SECRET__,$clientSECRET,g"`
     literals="--from-literal=config.json=$content"
-elif [ "$secret" == "dm-auth-secrets" ]; then
-    _s_dir=$sdir/cms-dm-monitoring-auth
-    if [ ! -e $_s_dir/hmac ] || [ ! -e $_s_dir/tls.crt  ] || [ ! -e $_s_dir/tls.key  ]; then
-        # Can be in https://gitlab.cern.ch/cmsweb-k8s-admin/k8s_admin_config, or copy from old cluster.
-        echo "Please make sure hmac, tls.crt and tls.key are copied from cms-dm-monitoring cluster secrets. Exiting..."
-        exit 1
-    fi
-    files=`ls $sdir/cms-dm-monitoring-auth/ | egrep -v "config.json|secrets$" | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cms-dm-monitoring-auth | sed "s, $,,g"`
-    clientID=`cat $sdir/cms-dm-monitoring-auth/secrets | grep CLIENT_ID | awk '{print $2}'`
-    clientSECRET=`cat $sdir/cms-dm-monitoring-auth/secrets | grep CLIENT_SECRET | awk '{print $2}'`
-    content=`cat $cdir/cms-dm-monitoring-auth/config.json | sed -e "s,__CLIENT_ID__,$clientID,g" -e "s,__CLIENT_SECRET__,$clientSECRET,g"`
-    literals="--from-literal=config.json=$content"
 elif [ "$secret" == "cern-certificates" ]; then
     files=`ls $sdir/CERN_CAs/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/CERN_CAs | sed "s, $,,g"`
 elif [ "$secret" == "alerts-secrets" ]; then
@@ -125,17 +112,6 @@ elif [ "$secret" == "proxy-secrets" ]; then
     _robot_key=$sdir/robot/robotkey.pem
     voms-proxy-init -voms cms -rfc --key $_robot_key --cert $_robot_crt -valid 95:50 --out "$temp_proxy"
     files="--from-file=${temp_proxy}"
-elif [ "$secret" == "cmsmon-mongo-secrets" ]; then
-    mongo_envs="MONGO_ROOT_USERNAME MONGO_ROOT_PASSWORD MONGO_USERNAME MONGO_PASSWORD MONGO_USERS_LIST"
-    literals=""
-    for mongo_env in $mongo_envs; do
-        temp_env_val=`grep $mongo_env $sdir/cmsmon-mongo-secrets/secrets | awk '{print $2}'`
-        literals="--from-literal=${mongo_env}=${temp_env_val} ${literals}"
-    done
-    cmsmonit_f="--from-file=${sdir}/cmsmonit-keytab/keytab"
-    mongo_f=`ls $sdir/cmsmon-mongo-secrets/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/cmsmon-mongo-secrets | sed "s, $,,g"`
-    files="${mongo_f} ${cmsmonit_f} ${literals}"
-    unset literals
 elif [ "$secret" == "cpueff-mongo-secrets" ]; then
     mongo_envs="MONGO_ROOT_USERNAME MONGO_ROOT_PASSWORD MONGO_USERNAME MONGO_PASSWORD MONGO_USERS_LIST"
     literals=""
@@ -177,6 +153,10 @@ elif [ "$secret" == "rucio-daily-stats-secrets" ]; then
     amq_training_cert="--from-file=${sdir}/cms-training/robot-training-cert.pem"
     amq_training_key="--from-file=${sdir}/cms-training/robot-training-key.pem"
     files="${sqoop_f} ${rucio_f} ${amq_creds_f} ${cmsmonit_f} ${amq_training_creds_f} ${amq_training_cert} ${amq_training_key}"
+elif [ "$secret" == "rucio-datasets-monitoring-secrets" ]; then
+    cmsmonit_k="--from-file=${sdir}/cmsmonit-keytab/keytab"
+    cms_rucio_secret="--from-file=${sdir}/es-cms-opensearch/cms_rucio_secret"
+    files="${cmsmonit_k} ${cms_rucio_secret}"
 elif [ "$secret" == "sqoop-secrets" ]; then
     cmssqoop_f="--from-file=${sdir}/cmssqoop-keytab/keytab"
     s_files=`ls $sdir/sqoop/ | awk '{ORS=" " ; print "--from-file="D"/"$1""}' D=$sdir/sqoop | sed "s, $,,g"`
