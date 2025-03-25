@@ -70,6 +70,6 @@ RUN dnf update -y && \
     jq trustedbag-client cern-hadoop-xrootd-connector && \
     dnf clean all
 
-RUN hadoop-set-default-conf.sh analytix
+RUN hadoop-set-default-conf.sh hadoop-analytix
 
 COPY --from=builder /data $WDIR
