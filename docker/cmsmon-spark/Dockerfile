@@ -15,7 +15,7 @@ ENV PATH="${PATH}:${WDIR}/CMSSpark/bin"
 ENV PYTHONPATH="${PYTHONPATH}:${WDIR}:${WDIR}/CMSSpark/src/python:${WDIR}/CMSMonitoring/src/python"
 
 RUN CMSSPARK_TAG="$CMSSPARK_TAG" CMSMON_TAG="$CMSMON_TAG" ./install.sh && \
-    hadoop-set-default-conf.sh analytix && source hadoop-setconf.sh analytix 3.3 spark3
+    hadoop-set-default-conf.sh hadoop-analytix && source hadoop-setconf.sh hadoop-analytix 3.3 spark3
 
 # Run crond
 CMD ["crond", "-n", "-s", "&"]
