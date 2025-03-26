@@ -83,7 +83,7 @@ spec:
         runAsGroup: 1000
         fsGroup: 2000
       containers:
-      - image: registry.cern.ch/cmsweb/reqmgr2ms-output #imagetag
+      - image: registry.cern.ch/cmsweb/msoutput #imagetag
         name: ms-output
         lifecycle:
           postStart:

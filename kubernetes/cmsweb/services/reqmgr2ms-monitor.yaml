@@ -83,7 +83,7 @@ spec:
         runAsGroup: 1000
         fsGroup: 2000
       containers:
-      - image: registry.cern.ch/cmsweb/reqmgr2ms-monitor #imagetag
+      - image: registry.cern.ch/cmsweb/msmonitor #imagetag
         name: ms-monitor
         lifecycle:
           postStart:
