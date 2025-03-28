@@ -1,22 +1,11 @@
 ### cmsmon-hadoop-base
 
-This docker image is created as a base image for cern analytix cluster; which includes:
+This docker image is created as a base image for cern analytix cluster(`hadoop-analytix`); which includes:
 
 - hadoop
 - spark (spark-submit, spark-shell, etc)
 - hbase
 - sqoop
-
-Since there are different versions of Analytix cluster, this image also has spark2 and spark3 versions
-
-### Attention for `-spark3` image
-
-This docker image uses `python 3.9` as default python executable in `/usr/bin/python`. Because of this fact be careful for:
-- You cannot use `yum`, which requires python2, if you use this image as base.
-- Your spark job should use python3
-- You need to set `PYSPARK_DRIVER_PYTHON` and `PYSPARK_PYTHON` in your Spark jobs. 
-  - `PYSPARK_DRIVER_PYTHON` should be set as `/usr/bin/python` which is python3.9
-  - `PYSPARK_PYTHON` should be set according to your Spark worker python3.9 path. Recommended to set `/cvmfs` python3.9 path.
 
 #### How to build
 
