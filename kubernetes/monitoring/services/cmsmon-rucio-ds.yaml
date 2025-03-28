@@ -36,8 +36,6 @@ data:
     # Run and print all results(except for Spark logs) to stdout
     /data/CMSSpark/bin/cron4rucio_datasets_stats.sh \
       --keytab /etc/secrets/keytab \
-      --cmsr /etc/secrets/cmsr_cstring \
-      --rucio /etc/secrets/rucio \
       --amq /etc/secrets/amq_broker.json \
       --cmsmonitoring /data/CMSMonitoring.zip \
       --stomp /data/stomp-v700.zip \
@@ -65,7 +63,8 @@ spec:
       hostname: cmsmon-rucio-ds
       containers:
         - name: cmsmon-rucio-ds
-          image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.5.0.5
+          image: registry.cern.ch/cmsmonitoring/cmsmon-spark:v0.5.0.10
+          imagePullPolicy: Always
           env:
             - name: MY_NODE_NAME
               valueFrom:
