@@ -1,8 +1,8 @@
 FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20221129
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 ENV TAG=X.Y.Z
-ADD reqmgr2ms-rulecleaner-$TAG.tar.gz $WORKDIR
-WORKDIR reqmgr2ms-rulecleaner-$TAG
+ADD msrulecleaner-$TAG.tar.gz $WORKDIR
+WORKDIR msrulecleaner-$TAG
 RUN pip install -r requirements.txt
 RUN python3 setup.py install
 RUN sed -i -e "s,-config.py,-config-rulecleaner.py,g" /data/run.sh
