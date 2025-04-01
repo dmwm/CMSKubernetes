@@ -1,0 +1,17 @@
+FROM --platform=linux/amd64 registry.cern.ch/cmsweb/wmcore-dev:latest
+
+LABEL version="0.3.0-dev"
+
+RUN dnf install -y https://repo.osg-htc.org/osg/24-main/osg-24-main-el9-release-latest.rpm
+
+RUN dnf install -y \
+        osg-ca-certs && \
+    dnf clean all
+
+# Creat wmdev user
+RUN useradd -m -u 1000 wmdev
+USER wmdev
+
+WORKDIR /workspaces/WMCore
+
+ENV SHELL /bin/bash
