@@ -1,6 +1,6 @@
 FROM --platform=linux/amd64 registry.cern.ch/cmsweb/cmsweb-alma9-base:20240530
 
-LABEL version="0.2.0"
+LABEL version="0.3.0"
 
 # Install cern repo
 RUN dnf install -y 'dnf-command(config-manager)' && \
@@ -45,16 +45,18 @@ RUN dnf install -y \
 RUN mkdir -p /home/cmsbld
 WORKDIR /home/cmsbld
 
+RUN pip3 install uv
+
 # get requirements.txt and remove gfal2 to use RPM gfal2
 RUN curl -O https://raw.githubusercontent.com/dmwm/WMCore/master/requirements.txt && \
     sed '/gfal2/d' /home/cmsbld/requirements.txt > /home/cmsbld/requirements-dev.txt
 
-# clone dmwm/WMCore repo and remove gfal2 to use RPM gfal2
-# RUN git clone https://github.com/dmwm/WMCore && \
-#     sed '/gfal2/d' /home/cmsbld/WMCore/requirements.txt > /home/cmsbld/WMCore/requirements-dev.txt
+ENV VIRTUAL_ENV="/home/cmsbld/.local/wmcore-venv"
+RUN uv venv ${VIRTUAL_ENV}
+ENV PATH="${VIRTUAL_ENV}/bin:$PATH"
 
-RUN pip3 install --no-cache-dir --upgrade pip setuptools wheel && \
-    pip3 install --no-cache-dir --ignore-installed -r /home/cmsbld/requirements-dev.txt
+RUN uv pip install --upgrade pip setuptools wheel && \
+    uv pip install -r /home/cmsbld/requirements-dev.txt
 
 ADD entrypoint.sh /entrypoint.sh
 
