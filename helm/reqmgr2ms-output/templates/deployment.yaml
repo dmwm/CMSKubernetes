@@ -25,12 +25,7 @@ spec:
       - image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         name: ms-output
         lifecycle:
-          postStart:
-            exec:
-              command:
-              - bash
-              - -c
-              - sudo chmod 0777 /data/srv/logs/reqmgr2ms; sudo chown _reqmgr2ms:_reqmgr2ms /data/srv/logs/reqmgr2ms
+        {{- toYaml .Values.lifecycle | nindent 10 }}
         {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
         resources:
         {{- toYaml .Values.resources | nindent 12 }}

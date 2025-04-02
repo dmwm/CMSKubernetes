@@ -1,0 +1,5 @@
+environment: test
+
+image:
+  # tag: 2.3.8.4
+  tag: "2.4.0rc4"
