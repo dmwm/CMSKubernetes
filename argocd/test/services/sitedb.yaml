@@ -1,0 +1,76 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: sitedb
+spec:
+  selector:
+    app: sitedb
+  ports:
+  - port: 8051
+    targetPort: 8051
+    name: sitedb
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: sitedb
+  name: sitedb
+spec:
+  selector:
+    matchLabels:
+      app: sitedb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sitedb
+    spec:
+      #       dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: cmssw/sitedb #imagetag
+        name: sitedb
+        ports:
+        - containerPort: 8051
+          protocol: TCP
+          name: sitedb
+        - containerPort: 18051
+          protocol: TCP
+          name: sitedb-mon
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true
+      #       hostNetwork: true
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: sitedb-secrets
+          # https://github.com/kubernetes/kubernetes/issues/34982
+          # readOnly: true
+          items:
+          - key: "robotcert.pem"
+            path: "robotcert.pem"
+            mode: 0640
+          - key: "robotkey.pem"
+            path: "robotkey.pem"
+      - name: hostkey
+        hostPath:
+          path: /etc/grid-security/hostkey.pem
+          type: File
+      - name: hostcert
+        hostPath:
+          path: /etc/grid-security/hostcert.pem
+          type: File

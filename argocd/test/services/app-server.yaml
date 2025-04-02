@@ -1,0 +1,50 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: app-server
+  name: app-server
+  namespace: http
+spec:
+  selector:
+    matchLabels:
+      app: app-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: app-server
+    spec:
+      containers:
+      - image: busybox
+        name: app-server
+        args:
+        - /bin/sh
+        - -c
+        - >
+          i=0; while true; do
+              echo "$i: $(date)" >> /var/log/1.log;
+              echo "$(date) INFO $i" >> /var/log/2.log;
+              i=$((i+1));
+              sleep 60;
+          done
+        volumeMounts:
+        - name: varlog
+          mountPath: /var/log
+      - image: veknet/promtail
+        name: promtail
+        args:
+        - /data/promtail
+        - -config.file
+        - /etc/secrets/promtail-config.yaml
+        volumeMounts:
+        - name: secrets
+          mountPath: /etc/secrets
+        - name: varlog
+          mountPath: /var/log
+      volumes:
+      - name: secrets
+        secret:
+          secretName: promtail-secrets
+      - name: varlog
+        emptyDir: {}

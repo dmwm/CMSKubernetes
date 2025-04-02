@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cmskv
+  name: cmskv
+  namespace: http
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+      - name: cmskv
+        volumeMounts:
+        - name: logs-cephfs
+          mountPath: /data/db
+      - name: logs-cephfs
+      persistentVolumeClaim:
+        claimName: logs-cephfs-claim-prod-cmskv

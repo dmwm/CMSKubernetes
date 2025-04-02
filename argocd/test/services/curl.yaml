@@ -1,0 +1,33 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: curl
+  name: curl
+spec:
+  selector:
+    matchLabels:
+      app: curl
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: curl
+    spec:
+      containers:
+      - image: veknet/curl
+        name: curl
+        volumeMounts:
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+      volumes:
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets

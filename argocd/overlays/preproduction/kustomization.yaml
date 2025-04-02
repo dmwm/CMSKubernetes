@@ -1,0 +1,183 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+patches:
+- path: alert_overlay.yaml
+  target:
+    kind: Deployment
+    name: alertscollector
+- path: cmskv_overlay.yaml
+  target:
+    kind: Deployment
+    name: cmskv
+- path: crabserver_overlay.yaml
+  target:
+    kind: Deployment
+    name: crabserver
+- path: dbs-global-r_overlay.yaml
+  target:
+    kind: Deployment
+    name: dbs-global-r
+- path: dbs-global-w_overlay.yaml
+  target:
+    kind: Deployment
+    name: dbs-global-w
+- path: dbs-phys03-r_overlay.yaml
+  target:
+    kind: Deployment
+    name: dbs-phys03-r
+- path: dbs2go-global-m_overlay.yaml
+  target:
+    kind: Deployment
+    name: dbs2go-global-m
+- path: dbs2go-global-r_overlay.yaml
+  target:
+    kind: Deployment
+    name: dbs2go-global-r
+- path: dbs2go-global-w_overlay.yaml
+  target:
+    kind: Deployment
+    name: dbs2go-global-w
+- path: dbs2go-phys03-r_overlay.yaml
+  target:
+    kind: Deployment
+    name: dbs2go-phys03-r
+- path: dbs2go-phys03-w_overlay.yaml
+  target:
+    kind: Deployment
+    name: dbs2go-phys03-w
+- path: dbs2go-server_overlay.yaml
+  target:
+    kind: Deployment
+    name: dbs2go-server
+- path: dmwmmon_overlay.yaml
+  target:
+    kind: Deployment
+    name: dmwmmon
+- path: dqmgui_overlay.yaml
+  target:
+    kind: Deployment
+    name: dqmgui
+- path: filebeat_overlay.yaml
+  target:
+    kind: Deployment
+    name: filebeat
+- path: frontend-ds_overlay.yaml
+  target:
+    kind: DaemonSet
+    name: frontend-ds
+- path: frontend_overlay.yaml
+  target:
+    kind: Deployment
+    name: frontend
+- path: ms-output-mongo_overlay.yaml
+  target:
+    kind: Deployment
+    name: ms-output-mongo
+- path: newdqmgui_overlay.yaml
+  target:
+    kind: Deployment
+    name: newdqmgui
+- path: phedex_overlay.yaml
+  target:
+    kind: Deployment
+    name: phedex
+- path: reqmgr2-tasks_overlay.yaml
+  target:
+    kind: Deployment
+    name: reqmgr2-tasks
+- path: reqmgr2_overlay.yaml
+  target:
+    kind: Deployment
+    name: reqmgr2
+- path: reqmgr2ms-monitor_overlay.yaml
+  target:
+    kind: Deployment
+    name: reqmgr2ms-monitor
+- path: reqmgr2ms-output_overlay.yaml
+  target:
+    kind: Deployment
+    name: reqmgr2ms-output
+- path: reqmgr2ms-pileup-tasks_overlay.yaml
+  target:
+    kind: Deployment
+    name: reqmgr2ms-pileup-tasks
+- path: reqmgr2ms-pileup_overlay.yaml
+  target:
+    kind: Deployment
+    name: reqmgr2ms-pileup
+- path: reqmgr2ms-rulecleaner_overlay.yaml
+  target:
+    kind: Deployment
+    name: reqmgr2ms-rulecleaner
+- path: reqmgr2ms-transferor_overlay.yaml
+  target:
+    kind: Deployment
+    name: reqmgr2ms-transferor
+- path: reqmgr2ms-unmerged-t1_overlay.yaml
+  target:
+    kind: Deployment
+    name: reqmgr2ms-unmerged-t1
+- path: reqmgr2ms-unmerged-t2t3_overlay.yaml
+  target:
+    kind: Deployment
+    name: reqmgr2ms-unmerged-t2t3
+- path: reqmgr2ms-unmerged-t2t3us_overlay.yaml
+  target:
+    kind: Deployment
+    name: reqmgr2ms-unmerged-t2t3us
+- path: reqmon-tasks_overlay.yaml
+  target:
+    kind: Deployment
+    name: reqmon-tasks
+- path: reqmon_overlay.yaml
+  target:
+    kind: Deployment
+    name: reqmon
+- path: rucio-con-mon_overlay.yaml
+  target:
+    kind: Deployment
+    name: rucio-con-mon
+- path: rucio-tracer_overlay.yaml
+  target:
+    kind: Deployment
+    name: rucio-tracer
+- path: runregistry_overlay.yaml
+  target:
+    kind: Deployment
+    name: runregistry
+- path: t0_reqmon-tasks_overlay.yaml
+  target:
+    kind: Deployment
+    name: t0_reqmon-tasks
+- path: t0_reqmon_overlay.yaml
+  target:
+    kind: Deployment
+    name: t0_reqmon
+- path: t0wmadatasvc_overlay.yaml
+  target:
+    kind: Deployment
+    name: t0wmadatasvc
+- path: wmarchive_overlay.yaml
+  target:
+    kind: Deployment
+    name: wmarchive
+- path: wmstats_overlay.yaml
+  target:
+    kind: Deployment
+    name: wmstats
+- path: workqueue-tasks_overlay.yaml
+  target:
+    kind: Deployment
+    name: workqueue-tasks
+- path: workqueue_overlay.yaml
+  target:
+    kind: Deployment
+    name: workqueue
+- path: x509-proxy-server_overlay.yaml
+  target:
+    kind: Deployment
+    name: x509-proxy-server
+
+resources:
+- "../base"

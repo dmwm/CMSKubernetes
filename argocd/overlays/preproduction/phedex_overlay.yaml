@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: phedex
+  name: phedex
+  namespace: phedex
+spec:
+  template:
+    spec:
+      containers:
+      - name: phedex
+        volumeMounts:
+        - name: logs-cephfs
+          mountPath: /data/srv/logs/phedex
+        - name: logs-cephfs
+          persistentVolumeClaim:
+            claimName: logs-cephfs-claim-preprod-phedex

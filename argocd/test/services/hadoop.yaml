@@ -1,0 +1,50 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: hadoop
+  name: hadoop
+spec:
+  selector:
+    matchLabels:
+      app: hadoop
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hadoop
+    spec:
+      containers:
+      - image: cmssw/crabcache
+        name: hadoop
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "2Gi"
+            cpu: "800m"
+        volumeMounts:
+        - name: hadoop-analytix
+          mountPath: /etc/hadoop/conf
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+      volumes:
+      - name: hadoop-analytix
+        configMap:
+          name: hadoop-analytix
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem

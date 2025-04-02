@@ -1,0 +1,146 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wmarchive-filebeat-config
+  namespace: wma
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/wmarchive/*${MY_POD_NAME}*
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: wmarchive
+  namespace: wma
+spec:
+  type: ClusterIP
+  ports:
+  selector:
+    app: wmarchive
+  ports:
+  - port: 8200
+    targetPort: 8200
+    name: wma
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: wmarchive
+  labels:
+    app: wmarchive
+  namespace: wma
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/sh
+    sudo mkdir -p /etc/grid-security
+    sudo cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lah /etc/grid-security
+    #su  -c "cd /data && /data/run.sh" --preserve-environment _wmarchive
+    sudo chown -R wmarchive:wmarchive /data/srv/logs/wmarchive
+    cd /data && /data/run.sh
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: wmarchive
+  name: wmarchive
+  namespace: wma
+spec:
+  selector:
+    matchLabels:
+      app: wmarchive
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wmarchive
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18200"
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 2000
+      containers:
+      - image: registry.cern.ch/cmsweb/wmarchive #imagetag
+        name: wmarchive
+        command:
+        - /bin/sh
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        livenessProbe:
+          httpGet:
+            path: /wmarchive/data
+            port: 8200
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 8200
+          protocol: TCP
+          name: wma
+        - containerPort: 18200
+          protocol: TCP
+          name: wma-mon
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true
+
+        securityContext:
+          privileged: true
+
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: wmarchive-secrets
+      - name: etc-grid-security
+        hostPath:
+          path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: wmarchive
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+

@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ms-output-share
+  namespace: dmwm
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 25G
+  csi:
+    driver: cephfs.manila.csi.openstack.org
+    volumeHandle: afa7ae89-9724-40ce-8d09-44006d37e134
+    nodeStageSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    nodePublishSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    volumeAttributes:
+      shareID: afa7ae89-9724-40ce-8d09-44006d37e134
+      shareAccessID: 035f6885-f2e0-4ef5-ad6a-753d53ba0c82
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ms-output-claim
+  namespace: dmwm
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 25G
+  storageClassName: ""
+  volumeName: ms-output-share
+---

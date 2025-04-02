@@ -1,0 +1,64 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: das-mongo-exporter
+  namespace: das
+spec:
+  selector:
+    app: das-mongo-exporter
+  ports:
+    - port: 18230
+      targetPort: 18230
+      name: das-mongo-p
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: das-mongo-exporter
+  name: das-mongo-exporter
+  namespace: das
+spec:
+  selector:
+    matchLabels:
+      app: das-mongo-exporter
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: das-mongo-exporter
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18230"
+    spec:
+      containers:
+      - image: registry.cern.ch/cmsweb/exporters #imagetag
+        name: das-mongo-exporter
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "200m"
+          limits:
+            memory: "100Mi"
+            cpu: "400m"
+        command:
+        - /data/mongodb_exporter
+        - -web.listen-address
+        - ":18230"
+        - -mongodb.uri
+        - "mongodb://das-mongo.das.svc.cluster.local:8230"
+        - -mongodb.collect.replset=false
+        - -mongodb.collect.oplog=false
+        - -mongodb.collect.database
+        - "das"
+        - -groups.enabled
+        - "asserts,durability,background_flushing,connections,extra_info,global_lock,index_counters,network,op_counters,memory,locks,metrics"
+        ports:
+        - containerPort: 18230
+          protocol: TCP
+          name: das-mongo-p
+      initContainers:
+      - name: checkcouchdb
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nslookup das-mongo.das; do echo "Waiting for das-mongo"; sleep 10; done;']

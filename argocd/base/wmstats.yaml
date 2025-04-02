@@ -1,0 +1,151 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wmstats-filebeat-config
+  namespace: dmwm
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/wmstats/*${MY_POD_NAME}*
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: wmstats
+  namespace: dmwm
+spec:
+  type: ClusterIP
+  ports:
+  selector:
+    app: wmstats
+  ports:
+  - port: 8360
+    targetPort: 8360
+    name: dmwm
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: wmstats
+  labels:
+    app: wmstats
+  namespace: dmwm
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+    sudo cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    #su  -c "cd /data && /data/wmstats -config /etc/secrets/config.json" --preserve-environment _wmstats
+    cd /data && /data/wmstats -config /etc/secrets/config.json
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: wmstats
+  name: wmstats
+  namespace: dmwm
+spec:
+  selector:
+    matchLabels:
+      app: wmstats
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wmstats
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/path: "/wmstats2go/metrics"
+        prometheus.io/port: "18360"
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - image: registry.cern.ch/cmsweb/wmstats #imagetag
+        name: wmstats
+        imagePullPolicy: Always
+        env:
+        - name: X509_USER_PROXY
+          value: /etc/proxy/proxy
+        args:
+        - /data/wmstats
+        - -config
+        - /etc/secrets/config.json
+        livenessProbe:
+          httpGet:
+            path: /wmstats2go/healthz
+            port: 8360
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 5
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        ports:
+        - containerPort: 8360
+          protocol: TCP
+          name: dmwm
+        - containerPort: 18360
+          protocol: TCP
+          name: dmwm-mon
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true
+
+        securityContext:
+          privileged: true
+
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: wmstats-secrets
+      - name: etc-grid-security
+        hostPath:
+          path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: wmstats
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+

@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cron-frontend-scaler
+spec:
+  # run crontab job every hour
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: scaler-account
+          containers:
+          - name: monitor
+            image: cmssw/monitor
+            args:
+            - /bin/sh
+            - -c
+            - /data/monitor.sh prometheus-service.monitoring:8080 frontend 'rate(apache_accesses_total{job="frontend-prod"}[5m])' 50 100 1 5
+          restartPolicy: Never

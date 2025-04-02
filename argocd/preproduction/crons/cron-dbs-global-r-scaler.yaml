@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cron-dbs-global-r-scaler
+spec:
+  # run crontab job every hour
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: scaler-account
+          containers:
+          - name: monitor
+            image: cmssw/monitor
+            args:
+            - /bin/sh
+            - -c
+            - /data/monitor.sh prometheus-service.monitoring:8080 dbs-global-r dbs_global_exporter_process_open_fds 20 100 2 5
+          restartPolicy: Never

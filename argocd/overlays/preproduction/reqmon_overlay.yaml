@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: reqmon
+  name: reqmon
+  namespace: dmwm
+spec:
+  replicas: 5
+  template:
+    spec:
+      containers:
+      - name: reqmon
+    resources:
+      requests:
+        memory: "5Gi"
+        cpu: "1"
+      limits:
+        memory: "10Gi"
+        cpu: "2"
+    volumeMounts:
+    - name: logs
+      mountPath: /data/srv/logs/reqmon
+    - name: reqmon-filebeat
+    image: docker.elastic.co/beats/filebeat:7.12.0
+    args: ["-c", "/etc/filebeat.yml", "-e"]
+    env:
+    - name: MY_POD_NAME
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.name
+  resources:
+    requests:
+      memory: "50Mi"
+      cpu: "50m"
+  volumeMounts:
+  - name: logs
+    mountPath: /data/srv/logs/reqmon
+  - name: config
+    mountPath: /etc/filebeat.yml
+    readOnly: true
+    subPath: filebeat.yml
+  - name: data
+    mountPath: /usr/share/filebeat/data
+  - name: varlog
+    mountPath: /var/log
+  - name: varlibdockercontainers
+    mountPath: /var/lib/docker/containers
+    readOnly: true
+    securityContext:
+      allowPrivilegeEscalation: false
+
+  - name: logs
+    persistentVolumeClaim:
+      claimName: logs-cephfs-claim-preprod-dmwm
+  - name: varlog
+    hostPath:
+      path: /var/log
+  - name: varlibdockercontainers
+    hostPath:
+      path: /var/lib/docker/containers
+  - name: config
+    configMap:
+      defaultMode: 0640
+      name: reqmon-filebeat-config
+  - name: data
+    emptyDir: {}

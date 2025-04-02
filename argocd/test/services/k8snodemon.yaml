@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: k8snodemon-sa
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: k8snodemon
+subjects:
+- kind: ServiceAccount
+  name: k8snodemon-sa
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: k8snodemon
+  labels:
+    app: k8snodemon
+data:
+  setup-and-run.sh: |
+    #!/bin/sh
+
+    source /etc/secrets/env.sh
+    appid=`env | grep OS_APPLICATION_CREDENTIAL_ID | awk '{split($0,a,"="); print a[2]}'`
+    secret=`env | grep OS_APPLICATION_CREDENTIAL_SECRET | awk '{split($0,a,"="); print a[2]}'`
+    endpoint=`env | grep OS_AUTH_URL | awk '{split($0,a,"="); print a[2]}'`
+    name=`env | grep OS_APP_NAME | awk '{split($0,a,"="); print a[2]}'`
+    project=`env | grep OS_PROJECT_NAME | awk '{split($0,a,"="); print a[2]}'`
+    while true; do
+       /data/k8snodemon -endpoint=$endpoint -appid=$appid -password=$secret -k8s -name=$name -project=$project
+       sleep 10
+    done
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: k8snodemon
+  name: k8snodemon
+spec:
+  selector:
+    matchLabels:
+      app: k8snodemon
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: k8snodemon
+    spec:
+      serviceAccountName: k8snodemon-sa
+      containers:
+      - image: registry.cern.ch/cmsweb/k8snodemon #imagetag
+        name: k8snodemon
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        command:
+        - /bin/sh
+        - /opt/setup-and-run.sh
+        volumeMounts:
+        - name: setup-and-run
+          mountPath: /opt
+        - name: k8snodemon-secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true          
+      volumes:
+      - name: setup-and-run
+        configMap:
+          name: k8snodemon
+      - name: k8snodemon-secrets
+        secret:
+          secretName: k8snodemon-secrets
+      - name: token-secrets
+        secret:
+          secretName: token-secrets          

@@ -1,0 +1,159 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dbs-phys03-w-filebeat-config
+  namespace: dbs
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/dbs/*${MY_POD_NAME}*.log
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: dbs-phys03-w
+  namespace: dbs
+spec:
+  selector:
+    app: dbs-phys03-w
+  ports:
+    - port: 8255
+      targetPort: 8255
+      name: dbs-phys03-w
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: dbs-phys03-w
+  labels:
+    app: dbs-phys03-w
+  namespace: dbs
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+
+    sudo cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    #su  -c "cd /data && /data/run.sh" --preserve-environment _dbs
+    cd /data && /data/run.sh
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: dbs-phys03-w
+  name: dbs-phys03-w
+  namespace: dbs
+spec:
+  selector:
+    matchLabels:
+      app: dbs-phys03-w
+  replicas: 1   
+  template:
+    metadata:
+      labels:
+        app: dbs-phys03-w
+        env: k8s #k8s#
+        job: dbs-phys03-w
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18255"
+#         prometheus.io/port: "19255"
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 2000
+      containers:
+      - image: registry.cern.ch/cmsweb/dbs #imagetag
+        name: dbs-phys03-w
+        resources:
+          requests:
+            memory: "500Mi"
+            cpu: "300m"
+          limits:
+            memory: "10Gi"
+            cpu: "2000m"
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8255/dbs/prod/phys03/DBSWriter/"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        ports:
+        - containerPort: 8255
+          protocol: TCP
+          name: dbs-phys03-w
+        - containerPort: 18255
+          protocol: TCP
+          name: dbs-pw-mon
+        - containerPort: 19255
+          protocol: TCP
+          name: dbs-pw-cpy-mon
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+ 
+        securityContext:
+          privileged: true
+
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: dbs-phys03-w-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: etc-grid-security
+        hostPath:
+            path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: dbs-phys03-w
+

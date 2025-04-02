@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ms-output-mongo
+  name: ms-output-mongo
+  namespace: dmwm
+spec:
+  template:
+    spec:
+      containers:
+      - name: ms-output-mongo
+        volumeMounts:
+        - name: ms-output-mongo-data
+          mountPath: /data/mongodb
+        - name: ms-output-mongo-data
+          persistentVolumeClaim:
+            claimName: ms-output-claim-preprod
+
+

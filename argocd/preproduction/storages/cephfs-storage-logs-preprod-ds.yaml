@@ -1,0 +1,270 @@
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: couchdb-share
+  namespace: couchdb
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: 1fda8f60-b14d-4852-ac89-a83c3fdc1959
+  osShareAccessID: 522ecb9b-1fe2-43a8-96dd-08e76d8b9550
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-couchdb
+  namespace: couchdb
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 50G
+  storageClassName: couchdb-share
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: das-share
+  namespace: das
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: b3cfea20-2940-4d6f-9997-3d28aefecbb8
+  osShareAccessID: 9f48afc9-eadc-43ef-8a99-b681a77dd5f7
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-das
+  namespace: das
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 22G
+  storageClassName: das-share
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: dbs-share
+  namespace: dbs
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: 4493f013-78ca-4044-805d-c885986cbea9
+  osShareAccessID: a33b62ba-d197-42a8-9110-99ca3d14dbba
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-dbs
+  namespace: dbs
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 100G
+  storageClassName: dbs-share
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: crab-share
+  namespace: crab
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: eda25576-25c3-4c00-8f68-05b54f90baab
+  osShareAccessID: 775f53f2-cdf6-4204-bda5-816b140ce10b
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-crab
+  namespace: crab
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 22G
+  storageClassName: crab-share
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: dmwm-share
+  namespace: dmwm
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: 7576f243-3c68-4eb0-8be9-14ef23c87960
+  osShareAccessID: be19b296-6de0-497f-8049-1f94656e526e
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-dmwm
+  namespace: dmwm
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 22G
+  storageClassName: dmwm-share
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: dqm-share
+  namespace: dqm
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: d4554eee-5b92-4af6-8d73-cbb4c536bac1
+  osShareAccessID: f6a5c6cd-3465-4418-858f-174e07b65d4b
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-dqm
+  namespace: dqm
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 22G
+  storageClassName: dqm-share
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: tzero-share
+  namespace: tzero
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: 005c1bf3-0d66-4f1a-9ca1-77d61110abd7
+  osShareAccessID: 852f385f-1eeb-4116-8863-9244c063d5e9
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-tzero
+  namespace: tzero
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 22G
+  storageClassName: tzero-share
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: wma-share
+  namespace: wma
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: 50eb4f6b-09fe-481c-a3ed-2b871cd0c21a
+  osShareAccessID: 3beb8243-cd2a-43bd-9cdf-387deb4e3f14
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-wma
+  namespace: wma
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 22G
+  storageClassName: wma-share
+---
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: cmskv-share
+  namespace: http
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: 0ace8286-0d00-4e93-be38-5c194b92d27d
+  osShareAccessID: f63102f9-1ad3-4d25-a5cd-888fb99875b4
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-cmskv
+  namespace: http
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 10G
+  storageClassName: cmskv-share

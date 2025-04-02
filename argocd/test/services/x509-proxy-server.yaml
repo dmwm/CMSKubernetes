@@ -1,0 +1,74 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: x509-proxy-server
+  namespace: auth
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8443
+    targetPort: 8443
+    protocol: TCP
+    name: https2
+  selector:
+    app: x509-proxy-server
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: x509-proxy-server
+  name: x509-proxy-server
+  namespace: auth
+spec:
+  selector:
+    matchLabels:
+      app: x509-proxy-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: x509-proxy-server
+        env: k8s #k8s#
+    # should be enabled once we'll have exporter running with this sercice
+    # we should also add prometheus.io/port in that case
+    #       annotations:
+    #         prometheus.io/scrape: 'true'
+    spec:
+      containers:
+      - image: registry.cern.ch/cmsweb/auth-proxy-server:20200714-x509
+        name: x509-proxy-server
+        imagePullPolicy: Always
+        args:
+        - /data/auth-proxy-server
+        - -config=/etc/secrets/config.json
+        - -useX509
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "8000m"
+        ports:
+        - containerPort: 8443
+          name: https2
+        volumeMounts:
+        - name: auth-secrets
+          mountPath: /etc/secrets
+          # defaultMode: 256
+        - name: www-htdocs
+          mountPath: /www
+      initContainers:
+      - name: htdocs
+        image: registry.cern.ch/cmsweb/htdocs
+        command: ['sh', '-c', 'cp -r /www/* /tmp/htdocs']
+        volumeMounts:
+        - name: www-htdocs
+          mountPath: /tmp/htdocs
+      volumes:
+      - name: auth-secrets
+        secret:
+          secretName: auth-secrets
+      - name: www-htdocs
+        emptyDir: {}

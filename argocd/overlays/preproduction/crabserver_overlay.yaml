@@ -1,0 +1,14 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: crabserver
+  name: crabserver
+  namespace: crab
+spec:
+  replicas: 8
+  template:
+    spec:
+      containers:
+      - name: crabserver
+

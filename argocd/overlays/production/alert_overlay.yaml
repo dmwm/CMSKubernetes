@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: alertscollector
+  name: alertscollector
+  namespace: dmwm
+spec:
+  template:
+    spec:
+      containers:
+      - name: alertscollector
+        volumeMounts:
+        - name: logs-cephfs
+          mountPath: /data/srv/logs/alertscollector
+      - name: logs-cephfs
+        persistentVolumeClaim:
+          claimName: logs-cephfs-claim-prod-dmwm

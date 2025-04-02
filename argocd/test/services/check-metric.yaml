@@ -1,0 +1,42 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: check-metric
+  name: check-metric
+  namespace: dbs
+spec:
+  selector:
+    matchLabels:
+      app: check-metric
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: check-metric
+    spec:
+      containers:
+      - image: registry.cern.ch/cmsweb/check-metric #imagetag
+        name: check-metric
+        args:
+          - /data/check-metric
+          - -url
+          - "http://prometheus-service.monitoring.svc.cluster.local:8080"
+          - -metric
+          - "dbsmigration_process_open_fds,dbs_migrate_exporter_process_open_fds,dbs_global_exporter_process_open_fds,dbs_globalW_exporter_process_open_fds,dbs_phys03R_exporter_process_open_fds,dbs_phys03W_exporter_process_open_fds"
+          - -value
+          - "1000,1000,1000,1000,1000,1000"
+          - -kubectl
+          - "/data/kubectl"
+          - -interval
+          - "60"
+          - verbose
+          - "2"
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "100m"
+          limits:
+            memory: "64Mi"
+            cpu: "200m"

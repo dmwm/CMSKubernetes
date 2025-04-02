@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dqmgui
+  name: dqmgui
+  namespace: dqm
+spec:
+  replecas: 1
+  template:
+    spec:
+      containers:
+      - name: dqmgui
+        volumeMounts:
+        - name: dqmgui-storage
+          mountPath: /data/srv/state/dqmgui/data
+        - name: logs-cephfs
+          mountPath: /data/srv/logs/dqmgui
+        - name: dqmgui-storage
+          persistentVolumeClaim:
+            claimName: dqmgui-claim-prod
+        - name: logs-cephfs
+          persistentVolumeClaim:
+            claimName: logs-cephfs-claim-prod-dqm

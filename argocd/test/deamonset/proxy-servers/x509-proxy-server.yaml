@@ -1,0 +1,174 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: xps-s3-filebeat-config
+  namespace: auth
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/frontend/*${MY_POD_NAME}*
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+---
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: x509-proxy-server
+  name: x509-proxy-server
+  namespace: auth
+spec:
+  selector:
+    matchLabels:
+      app: x509-proxy-server
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: x509-proxy-server
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "9092"
+    spec:
+      serviceAccountName: x509-proxy-server-sa
+      terminationGracePeriodSeconds: 60
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      # this daemonset will be applied to all nodes which will have role=autha label
+      # kubectl label node <node-name> role=auth --overwrite
+      nodeSelector:
+        role: auth
+      priorityClassName: system-node-critical
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+
+      containers:
+      - image: registry.cern.ch/cmsweb/auth-proxy-server #imagetag
+        name: x509-proxy-server
+#         imagePullPolicy: Always
+        args:
+          - /data/auth-proxy-server
+          - -config=/etc/secrets/config.json
+          - -useX509
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "30m"
+          limits:
+            memory: "10Gi"
+            cpu: "4000m" # we can add higher limit here
+        env:
+        - name: X509_USER_PROXY
+          value: /etc/proxy/proxy
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        ports:
+        - containerPort: 8443
+          name: https
+        - containerPort: 9092
+          name: metrics
+        volumeMounts:
+        - name: x509-proxy-server-secrets
+          mountPath: /etc/secrets
+          #defaultMode: 256
+          readOnly: true
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: www-htdocs
+          mountPath: /www
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true          
+
+      initContainers:
+      - name: htdocs
+        image: registry.cern.ch/cmsweb/htdocs:0.0.2
+        command: ['sh', '-c', 'cp -r /www/* /tmp/htdocs']
+        volumeMounts:
+        - name: www-htdocs
+          mountPath: /tmp/htdocs
+      volumes:
+      - name: x509-proxy-server-secrets
+        secret:
+          secretName: x509-proxy-server-secrets
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: www-htdocs
+        emptyDir: {}
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+      - name: token-secrets
+        secret:
+          secretName: token-secrets            
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: x509-proxy-server
+subjects:
+- kind: ServiceAccount
+  name: x509-proxy-server-sa
+  namespace: auth
+roleRef:
+  kind: ClusterRole
+  name: x509-proxy-server
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: x509-proxy-server
+  labels:
+    k8s-app: x509-proxy-server
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources:
+  - namespaces
+  - pods
+  verbs:
+  - get
+  - watch
+  - list
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: x509-proxy-server-sa
+  namespace: auth
+  labels:
+    k8s-app: x509-proxy-server
+---

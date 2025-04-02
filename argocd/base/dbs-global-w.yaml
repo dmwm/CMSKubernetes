@@ -1,0 +1,156 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dbs-global-w-filebeat-config
+  namespace: dbs
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/dbs/*${MY_POD_NAME}*.log
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: dbs-global-w
+  namespace: dbs
+spec:
+  selector:
+    app: dbs-global-w
+  ports:
+  - port: 8253
+    targetPort: 8253
+    name: dbs-global-w
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: dbs-global-w
+  labels:
+    app: dbs-global-w
+  namespace: dbs
+data:
+  setup-certs-and-run.sh: "#!/bin/bash\nsudo cp /host/etc/grid-security/* /etc/grid-security\necho 'INFO Files in /etc/grid-security'\nls -lahZ /etc/grid-security\n#su  -c \"cd /data && /data/run.sh\" --preserve-environment _dbs\ncd /data && /data/run.sh     \n"
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: dbs-global-w
+  name: dbs-global-w
+  namespace: dbs
+spec:
+  selector:
+    matchLabels:
+      app: dbs-global-w
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dbs-global-w
+        env: k8s #k8s#
+        job: dbs-global-w
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18253"
+    #         prometheus.io/port: "19253"
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 2000
+      containers:
+      - image: registry.cern.ch/cmsweb/dbs #imagetag
+        name: dbs-global-w
+        resources:
+          requests:
+            memory: "500Mi"
+            cpu: "300m"
+          limits:
+            memory: "10Gi"
+            cpu: "2000m"
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8253/dbs/prod/global/DBSWriter/"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        ports:
+        - containerPort: 8253
+          protocol: TCP
+          name: dbs-global-w
+        - containerPort: 18253
+          protocol: TCP
+          name: dbs-gw-mon
+        - containerPort: 19253
+          protocol: TCP
+          name: dbs-gw-cpy-mon
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true
+
+        securityContext:
+          privileged: true
+
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: dbs-global-w-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: etc-grid-security
+        hostPath:
+          path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: dbs-global-w
+      - name: token-secrets
+        secret:
+          secretName: token-secrets

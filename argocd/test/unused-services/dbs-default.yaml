@@ -1,0 +1,81 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: dbs-default
+  namespace: dbs
+spec:
+  selector:
+    app: dbs-default
+  ports:
+    - port: 8250
+      targetPort: 8250
+      name: dbs-default
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: dbs-default
+  name: dbs-default
+  namespace: dbs
+spec:
+  selector:
+    matchLabels:
+      app: dbs-default
+  replicas: 1   
+  template:
+    metadata:
+      labels:
+        app: dbs-default
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18250"
+#         prometheus.io/port: "19250"
+    spec:
+      containers:
+      - image: registry.cern.ch/cmsweb/dbs #imagetag
+        name: dbs-default
+        ports:
+        - containerPort: 8250
+          protocol: TCP
+          name: dbs-default
+        - containerPort: 18250
+          protocol: TCP
+          name: dbs-default-mon
+        - containerPort: 19250
+          protocol: TCP
+          name: dbs-d-cpy-mon
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+   - name: logs-cephfs
+     mountPath: /data/srv/logs/dbs
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: dbs-default-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File
+ - name: logs-cephfs
+   persistentVolumeClaim:
+       claimName: logs-cephfs-claim-dbs

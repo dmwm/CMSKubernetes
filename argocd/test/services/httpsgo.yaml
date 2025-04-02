@@ -1,0 +1,67 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: httpsgo
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 443
+    protocol: TCP
+    name: http
+  selector:
+    app: httpsgo
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: httpsgo
+  name: httpsgo
+  namespace: http
+spec:
+  selector:
+    matchLabels:
+      app: httpsgo
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: httpsgo
+    spec:
+      containers:
+      - image: registry.cern.ch/cmsweb/httpsgo #imagetag
+        name: httpsgo
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 443
+          protocol: TCP
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: etc-grid-security
+          mountPath: /etc/grid-security
+        securityContext:
+          privileged: true
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: httpsgo-secrets
+          defaultMode: 256
+          # https://github.com/kubernetes/kubernetes/issues/34982
+      - name: etc-grid-security
+        hostPath:
+            path: /etc/grid-security

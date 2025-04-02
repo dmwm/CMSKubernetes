@@ -1,0 +1,104 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: dbs
+  namespace: dbs
+spec:
+  selector:
+    app: dbs
+  ports:
+    - port: 8250
+      targetPort: 8250
+      name: dbs
+    - port: 8252
+      targetPort: 8252
+      name: dbs-global-r
+    - port: 8253
+      targetPort: 8253
+      name: dbs-global-w
+    - port: 8254
+      targetPort: 8254
+      name: dbs-phys03-r
+    - port: 8255
+      targetPort: 8255
+      name: dbs-phys03-w
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: dbs
+  name: dbs
+  namespace: dbs
+spec:
+  selector:
+    matchLabels:
+      app: dbs
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dbs
+    spec:
+      containers:
+      - image: registry.cern.ch/cmsweb/dbs #imagetag
+        name: dbs
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "10Gi"
+            cpu: "800m"
+        ports:
+        - containerPort: 8250
+          protocol: TCP
+          name: dbs
+        - containerPort: 8252
+          protocol: TCP
+          name: dbs-global-r
+        - containerPort: 8253
+          protocol: TCP
+          name: dbs-global-w
+        - containerPort: 8254
+          protocol: TCP
+          name: dbs-phys03-r
+        - containerPort: 8255
+          protocol: TCP
+          name: dbs-phys03-w
+        - containerPort: 18250
+          protocol: TCP
+          name: dbs-mon
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+   - name: logs-cephfs
+     mountPath: /data/srv/logs/dbs
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: dbs-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File
+ - name: logs-cephfs
+   persistentVolumeClaim:
+       claimName: logs-cephfs-claim-dbs

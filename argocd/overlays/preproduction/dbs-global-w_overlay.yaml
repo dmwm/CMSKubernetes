@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dbs-global-w
+  name: dbs-global-w
+  namespace: dbs
+spec:
+  replicas: 5
+  template:
+    spec:
+      containers:
+      - name: dbs-global-w
+    volumeMounts:
+    - name: logs
+      mountPath: /data/srv/logs/dbs
+    - name: dbs-global-w-filebeat
+      image: docker.elastic.co/beats/filebeat:7.12.0
+      args: ["-c", "/etc/filebeat.yml", "-e"]
+      env:
+      - name: MY_POD_NAME
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.name
+      resources:
+        requests:
+          memory: "50Mi"
+          cpu: "50m"
+      volumeMounts:
+      - name: logs
+        mountPath: /data/srv/logs/dbs
+      - name: config
+        mountPath: /etc/filebeat.yml
+        readOnly: true
+        subPath: filebeat.yml
+      - name: data
+        mountPath: /usr/share/filebeat/data
+      - name: varlog
+        mountPath: /var/log
+      - name: varlibdockercontainers
+        mountPath: /var/lib/docker/containers
+        readOnly: true
+      securityContext:
+        allowPrivilegeEscalation: false
+
+    - name: logs
+      persistentVolumeClaim:
+        claimName: logs-cephfs-claim-preprod-dbs
+    - name: varlog
+      hostPath:
+        path: /var/log
+    - name: varlibdockercontainers
+      hostPath:
+        path: /var/lib/docker/containers
+    - name: config
+      configMap:
+        defaultMode: 0640
+        name: dbs-global-r-filebeat-config
+    - name: data
+      emptyDir: {}

@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cron-proxy-ms-unmerged
+spec:
+  # run crontab job every hour
+  schedule: "5 */6 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: proxy-account
+          containers:
+          - name: proxy
+            image: registry.cern.ch/cmsweb/proxy-ms-unmerged
+            args:
+            - /bin/sh
+            - -c
+            - echo "run proxy.sh"; ls -al ; echo "### /etc/robots"; ls -la /etc/robots; echo "### /tmp"; ls -al /tmp; cat /data/proxy.sh; /data/proxy.sh; echo "### /tmp"; ls -al /tmp;
+            volumeMounts:
+            - name: robot-secrets
+              mountPath: /etc/robots
+          restartPolicy: Never
+          volumes:
+          - name: proxy-secrets-ms-unmerged
+            secret:
+              secretName: proxy-secrets-ms-unmerged
+          - name: robot-secrets
+            secret:
+              secretName: robot-secrets

@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cron-token
+spec:
+  # run crontab job every hour
+  schedule: "*/15 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: token-account
+          containers:
+          - name: cron
+            image: registry.cern.ch/cmsweb/token:00.00.06-stable
+            args:
+            - /bin/sh
+            - -c
+            - echo "run token.sh"; ls -al ; echo "### /etc/client"; ls -la /etc/client; echo "### /tmp"; ls -al /tmp; cat /data/token.sh; /data/token.sh; echo "### /tmp"; ls -al /tmp;
+            volumeMounts:
+            - name: client-secrets
+              mountPath: /etc/client
+          restartPolicy: Never
+          volumes:
+          - name: token-secrets
+            secret:
+              secretName: token-secrets
+          - name: client-secrets
+            secret:
+              secretName: client-secrets

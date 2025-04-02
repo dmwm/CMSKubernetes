@@ -1,0 +1,369 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: proxy-server-share
+  namespace: auth
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 150G
+  csi:
+    driver: cephfs.manila.csi.openstack.org
+    volumeHandle: 20be2f54-6900-4d95-9cd6-6f67325d0b37
+    nodeStageSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    nodePublishSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    volumeAttributes:
+      shareID: 20be2f54-6900-4d95-9cd6-6f67325d0b37
+      shareAccessID: 5d48d242-29ef-410a-8834-032e577852d6 
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-aps
+  namespace: auth
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 150G
+  storageClassName: ""
+  volumeName: proxy-server-share
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: default-share
+  namespace: auth
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 22G
+  csi:
+    driver: cephfs.manila.csi.openstack.org
+    volumeHandle: d39837fe-67c9-4440-9f37-6a6bbbf60494
+    nodeStageSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    nodePublishSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    volumeAttributes:
+      shareID: d39837fe-67c9-4440-9f37-6a6bbbf60494
+      shareAccessID: 955321c0-2af2-40fc-bc60-5e3b7cdb9746
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-default
+  namespace: auth
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 22G
+  storageClassName: ""
+  volumeName: default-share
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: dbs-share
+  namespace: dbs
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 100G
+  csi:
+    driver: cephfs.manila.csi.openstack.org
+    volumeHandle: 4493f013-78ca-4044-805d-c885986cbea9
+    nodeStageSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    nodePublishSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    volumeAttributes:
+      shareID: 4493f013-78ca-4044-805d-c885986cbea9
+      shareAccessID: a33b62ba-d197-42a8-9110-99ca3d14dbba
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-dbs
+  namespace: dbs
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 100G
+  storageClassName: ""
+  volumeName: dbs-share
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: das-share
+  namespace: das
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 22G
+  csi:
+    driver: cephfs.manila.csi.openstack.org
+    volumeHandle: b3cfea20-2940-4d6f-9997-3d28aefecbb8
+    nodeStageSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    nodePublishSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    volumeAttributes:
+      shareID: b3cfea20-2940-4d6f-9997-3d28aefecbb8
+      shareAccessID: 9f48afc9-eadc-43ef-8a99-b681a77dd5f7
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-das
+  namespace: das
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 22G
+  storageClassName: ""
+  volumeName: das-share
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: crab-share
+  namespace: crab
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 22G
+  csi:
+    driver: cephfs.manila.csi.openstack.org
+    volumeHandle: eda25576-25c3-4c00-8f68-05b54f90baab
+    nodeStageSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    nodePublishSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    volumeAttributes:
+      shareID: eda25576-25c3-4c00-8f68-05b54f90baab
+      shareAccessID: 775f53f2-cdf6-4204-bda5-816b140ce10b
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-crab
+  namespace: crab
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 22G
+  storageClassName: ""
+  volumeName: crab-share
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: dmwm-share
+  namespace: dmwm
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 22G
+  csi:
+    driver: cephfs.manila.csi.openstack.org
+    volumeHandle: 7576f243-3c68-4eb0-8be9-14ef23c87960
+    nodeStageSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    nodePublishSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    volumeAttributes:
+      shareID: 7576f243-3c68-4eb0-8be9-14ef23c87960
+      shareAccessID: be19b296-6de0-497f-8049-1f94656e526e
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-dmwm
+  namespace: dmwm
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 22G
+  storageClassName: ""
+  volumeName: dmwm-share
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: tzero-share
+  namespace: tzero
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 22G
+  csi:
+    driver: cephfs.manila.csi.openstack.org
+    volumeHandle: 005c1bf3-0d66-4f1a-9ca1-77d61110abd7
+    nodeStageSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    nodePublishSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    volumeAttributes:
+      shareID: 005c1bf3-0d66-4f1a-9ca1-77d61110abd7
+      shareAccessID: 852f385f-1eeb-4116-8863-9244c063d5e9
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-tzero
+  namespace: tzero
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 22G
+  storageClassName: ""
+  volumeName: tzero-share
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: wma-share
+  namespace: wma
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 22G
+  csi:
+    driver: cephfs.manila.csi.openstack.org
+    volumeHandle: 50eb4f6b-09fe-481c-a3ed-2b871cd0c21a
+    nodeStageSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    nodePublishSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    volumeAttributes:
+      shareID: 50eb4f6b-09fe-481c-a3ed-2b871cd0c21a
+      shareAccessID: 3beb8243-cd2a-43bd-9cdf-387deb4e3f14
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-wma
+  namespace: wma
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 22G
+  storageClassName: ""
+  volumeName: wma-share
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cmskv-share
+  namespace: http
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 10G
+  csi:
+    driver: cephfs.manila.csi.openstack.org
+    volumeHandle: 0ace8286-0d00-4e93-be38-5c194b92d27d
+    nodeStageSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    nodePublishSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    volumeAttributes:
+      shareID: 0ace8286-0d00-4e93-be38-5c194b92d27d
+      shareAccessID: f63102f9-1ad3-4d25-a5cd-888fb99875b4
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-cmskv
+  namespace: http
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 10G
+  storageClassName: ""
+  volumeName: cmskv-share
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: dqm-share-testbed
+  namespace: dqm
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 22G
+  csi:
+    driver: cephfs.manila.csi.openstack.org
+    volumeHandle: d4554eee-5b92-4af6-8d73-cbb4c536bac1
+    nodeStageSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    nodePublishSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    volumeAttributes:
+      shareID: d4554eee-5b92-4af6-8d73-cbb4c536bac1
+      shareAccessID: f6a5c6cd-3465-4418-858f-174e07b65d4b
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-preprod-dqm
+  namespace: dqm
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 22G
+  storageClassName: ""
+  volumeName: dqm-share-testbed

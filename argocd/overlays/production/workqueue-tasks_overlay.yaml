@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: workqueue-tasks
+  name: workqueue-tasks
+  namespace: dmwm
+spec:
+  template:
+    spec:
+      containers:
+      - name: workqueue-tasks
+    volumeMounts:
+    - name: logs-cephfs
+      mountPath: /data/srv/logs/workqueue
+    - name: logs-cephfs
+      persistentVolumeClaim:
+        claimName: logs-cephfs-claim-prod-dmwm

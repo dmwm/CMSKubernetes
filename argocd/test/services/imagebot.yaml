@@ -1,0 +1,111 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: imagebot
+  name: imagebot-sa
+  namespace: http
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app: imagebot
+  name: imagebot
+  namespace: http
+rules:
+- apiGroups: [ "", "apps" ]
+  resources: [ "deployments", "namespaces", "pods" ]
+  verbs: [ "get", "list", "apply", "create", "update", "delete", "patch" ]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: imagebot
+  name: imagebot
+subjects:
+  - kind: ServiceAccount
+    name: imagebot-sa
+    namespace: http
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: imagebot
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: imagebot
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8111
+    protocol: TCP
+    name: http
+    nodePort: 30111
+  type: NodePort
+  selector:
+    app: imagebot
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: imagebot
+  name: imagebot
+  namespace: http
+spec:
+  selector:
+    matchLabels:
+      app: imagebot
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: imagebot
+        env: k8s #k8s#
+# should be enabled once we'll have exporter running with this sercice
+# we should also add prometheus.io/port in that case
+#       annotations:
+#         prometheus.io/scrape: 'true'
+    spec:
+      serviceAccountName: imagebot-sa
+      containers:
+      - image: registry.cern.ch/cmsweb/imagebot #imagetag
+        args:
+        - /data/imagebot
+        - -config
+        - /etc/secrets/config.json
+        name: imagebot
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /imagebot/status
+            port: 8111
+          initialDelaySeconds: 120
+          periodSeconds: 60
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "300m"
+        ports:
+        - containerPort: 8111
+        volumeMounts:
+        - name: secrets
+          mountPath: /etc/secrets
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true          
+      volumes:
+      - name: secrets
+        secret:
+          secretName: imagebot-secrets
+      - name: token-secrets
+        secret:
+          secretName: token-secrets          

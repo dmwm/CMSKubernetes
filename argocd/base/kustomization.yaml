@@ -1,0 +1,49 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+
+
+resources:
+- alertscollector.yaml
+- cmskv.yaml
+- crabserver.yaml
+- dbs-global-r.yaml
+- dbs-global-w.yaml
+- dbs-phys03-r.yaml
+- dbs2go-global-m.yaml
+- dbs2go-global-r.yaml
+- dbs2go-global-w.yaml
+- dbs2go-phys03-r.yaml
+- dbs2go-phys03-w.yaml
+- dbs2go-server.yaml
+- dmwmmon.yaml
+- dqmgui.yaml
+- filebeat.yaml
+- frontend-ds.yaml
+- frontend.yaml
+- ms-output-mongo.yaml
+- newdqmgui.yaml
+- phedex.yaml
+- reqmgr2-tasks.yaml
+- reqmgr2.yaml
+- reqmgr2ms-monitor.yaml
+- reqmgr2ms-output.yaml
+- reqmgr2ms-pileup-tasks.yaml
+- reqmgr2ms-pileup.yaml
+- reqmgr2ms-rulecleaner.yaml
+- reqmgr2ms-transferor.yaml
+- reqmgr2ms-unmerged-t1.yaml
+- reqmgr2ms-unmerged-t2t3.yaml
+- reqmgr2ms-unmerged-t2t3us.yaml
+- reqmon-tasks.yaml
+- reqmon.yaml
+- rucio-con-mon.yaml
+- rucio-tracer.yaml
+- runregistry.yaml
+- t0_reqmon-tasks.yaml
+- t0_reqmon.yaml
+- t0wmadatasvc.yaml
+- wmarchive.yaml
+- wmstats.yaml
+- workqueue-tasks.yaml
+- x509-proxy-server.yaml

@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: newdqmgui
+  name: newdqmgui
+  namespace: dqm
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: newdqmgui
+        volumeMounts:
+        - name: logs
+          mountPath: /home/cmsusr/dqmgui
+        - name: logs
+          persistentVolumeClaim:
+            claimName: logs-cephfs-claim-preprod-dqm

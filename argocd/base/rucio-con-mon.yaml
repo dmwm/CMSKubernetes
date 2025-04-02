@@ -1,0 +1,51 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: monitor
+  name: monitor
+  namespace: ruciocm
+spec:
+  selector:
+    matchLabels:
+      app: monitor
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: monitor
+    spec:
+      containers:
+      - image: ivmfnal/rucio_consistency_monitor #imagetag
+        name: monitor
+        livenessProbe:
+          httpGet:
+            path: /rucioconmon/probe
+            port: 8400
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        command: ["/root/start.sh", "-r", "/rucioconmon"]
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 8400
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: monitor
+  namespace: ruciocm
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8400
+    protocol: TCP
+    name: http
+  selector:
+    app: monitor  

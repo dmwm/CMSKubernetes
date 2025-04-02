@@ -1,0 +1,210 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dbs-migrate-filebeat-config
+  namespace: dbs
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/dbs/*${MY_POD_NAME}*.log
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: dbs-migrate
+  namespace: dbs
+spec:
+  selector:
+    app: dbs-migrate
+  ports:
+    - port: 8257
+      targetPort: 8257
+      name: dbs-migrate
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: dbs-migrate
+  labels:
+    app: dbs-migrate
+  namespace: dbs
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+    sudo cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    #su  -c "cd /data && /data/run.sh" --preserve-environment _dbs
+    cd /data && /data/run.sh
+---    
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: dbs-migrate
+  name: dbs-migrate
+  namespace: dbs
+spec:
+  selector:
+    matchLabels:
+      app: dbs-migrate
+  replicas: 1   
+  template:
+    metadata:
+      labels:
+        app: dbs-migrate
+        env: k8s #k8s#
+        job: dbs-migrate
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18257"
+#         prometheus.io/port: "19257"
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 2000
+      containers:
+      - image: registry.cern.ch/cmsweb/dbs #imagetag
+        name: dbs-migrate
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "10Gi"
+            cpu: "800m"
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8257/dbs/prod/global/DBSMigrate/"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        ports:
+        - containerPort: 8257
+          protocol: TCP
+          name: dbs-migrate
+        - containerPort: 18257
+          protocol: TCP
+          name: dbs-mig-mon
+        - containerPort: 19257
+          protocol: TCP
+          name: dbs-mig-cpy-mon
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true          
+   - name: logs
+     mountPath: /data/srv/logs/dbs
+        securityContext:
+          privileged: true
+ - name: dbs-migrate-filebeat
+   image: docker.elastic.co/beats/filebeat:7.12.0
+   args: [
+     "-c", "/etc/filebeat.yml",
+     "-e",
+   ]
+   env:
+   - name: MY_POD_NAME
+     valueFrom:
+       fieldRef:
+         apiVersion: v1
+         fieldPath: metadata.name
+   resources:
+     requests:
+       memory: "50Mi"
+       cpu: "50m"
+   volumeMounts:
+   - name: logs
+     mountPath: /data/srv/logs/dbs
+   - name: config
+     mountPath: /etc/filebeat.yml
+     readOnly: true
+     subPath: filebeat.yml
+   - name: data
+     mountPath: /usr/share/filebeat/data
+   - name: varlog
+     mountPath: /var/log
+   - name: varlibdockercontainers
+     mountPath: /var/lib/docker/containers
+     readOnly: true
+   securityContext:
+     allowPrivilegeEscalation: false
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: dbs-migrate-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: etc-grid-security
+        hostPath:
+            path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: dbs-migrate
+      - name: token-secrets
+        secret:
+          secretName: token-secrets          
+ - name: logs
+   persistentVolumeClaim:
+       claimName: logs-cephfs-claim-dbs
+ - name: varlog
+   hostPath:
+     path: /var/log
+ - name: varlibdockercontainers
+   hostPath:
+     path: /var/lib/docker/containers
+ - name: config
+   configMap:
+     defaultMode: 0640
+     name: dbs-migrate-filebeat-config
+ - name: data
+   emptyDir: {}

@@ -1,0 +1,137 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: das
+  namespace: das
+spec:
+  selector:
+    app: das
+  ports:
+    - port: 8217
+      targetPort: 8217
+      name: das
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: das
+  labels:
+    app: das
+  namespace: das
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+
+    cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    cd /data
+    su  -c "cd /data && /data/run.sh" --preserve-environment  _das
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: das
+  name: das
+  namespace: das
+spec:
+  selector:
+    matchLabels:
+      app: das
+  replicas: 1   
+  template:
+    metadata:
+      labels:
+        app: das
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18230"
+        prometheus.io/port: "18217"
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      containers:
+      - image: registry.cern.ch/cmsweb/das #imagetag
+        name: das
+        tty: true
+        stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - bash
+              - -c
+              - sudo chmod 0777 /data/srv/logs/das; sudo chown _das:_das /data/srv/logs/das; 
+        resources:
+          requests:
+            memory: "500Mi"
+            cpu: "2000m"
+          limits:
+            memory: "3Gi"
+            cpu: "4000m"
+        ports:
+        - containerPort: 8217
+          protocol: TCP
+          name: das
+        - containerPort: 18217
+          protocol: TCP
+          name: das-mon
+        - containerPort: 18230
+          protocol: TCP
+          name: das-mongo-mon
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+   - name: logs-cephfs
+     mountPath: /data/srv/logs/das
+#       livenessProbe:
+#         httpGet:
+#           path: /das/status
+#           port: 8217
+#         initialDelaySeconds: 3
+#         periodSeconds: 3
+        securityContext:
+          privileged: true
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: das-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: etc-grid-security
+        hostPath:
+            path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: das
+ - name: logs-cephfs
+   persistentVolumeClaim:
+       claimName: logs-cephfs-claim-das
