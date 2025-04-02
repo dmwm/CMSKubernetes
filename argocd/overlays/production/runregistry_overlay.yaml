@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: rr-prod-fe
+  name: rr-prod-fe
+  namespace: runregistry
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: rr-prod-fe
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: rr-prod-api
+  name: rr-prod-api
+  namespace: runregistry
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: rr-prod-api
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: rr-prod-redis
+  name: rr-prod-redis
+  namespace: runregistry
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: rr-prod-redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dqmgui-pinging
+  name: dqmgui-pinging
+  namespace: runregistry
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: dqmgui-pinging
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: rr-dev-fe
+  name: rr-dev-fe
+  namespace: runregistry
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: rr-dev-fe
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: rr-dev-api
+  name: rr-dev-api
+  namespace: runregistry
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: rr-dev-api
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: rr-dev-redis
+  name: rr-dev-redis
+  namespace: runregistry
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: rr-dev-redis
+---

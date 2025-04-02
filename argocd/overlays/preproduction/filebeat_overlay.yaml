@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: filebeat
+  name: filebeat
+  namespace: auth
+spec:
+  template:
+    spec:
+      containers:
+      - name: filebeat
+        volumeMounts:
+        # we need persistent volume here to store filebeat data
+        - name: filebeat-data-cephfs
+          mountPath: /usr/share/filebeat/data
+        # define which logs we'll scrape, in this case our FE logs
+        - name: logs-cephfs
+          mountPath: /data/srv/logs/frontend
+        - name: logs-cephfs
+          persistentVolumeClaim:
+            claimName: logs-cephfs-claim-preprod-default
+        - name: filebeat-data-cephfs
+          persistentVolumeClaim:
+             claimName: filebeat-cephfs-claim-preprod-default
+

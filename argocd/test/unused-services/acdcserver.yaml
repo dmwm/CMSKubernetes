@@ -1,0 +1,107 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: acdcserver
+  namespace: dmwm
+spec:
+  selector:
+    app: acdcserver
+  ports:
+    - port: 5984
+      targetPort: 5984
+      name: acdcserver
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: acdcserver
+  labels:
+    app: acdcserver
+  namespace: dmwm
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+
+    cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    su  -c "cd /data && /data/run.sh" --preserve-environment  _acdcserver
+---    
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: acdcserver
+  name: acdcserver
+  namespace: dmwm
+spec:
+  selector:
+    matchLabels:
+      app: acdcserver
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: acdcserver
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "15984"
+    spec:
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      containers:
+      - image: registry.cern.ch/cmsweb/acdcserver #imagetag
+        name: acdcserver
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 5984
+          protocol: TCP
+          name: acdcserver
+        - containerPort: 15984
+          protocol: TCP
+          name: acdcserver-mon
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+        securityContext:
+          privileged: true
+#      initContainers:
+#      - name: checkcouchdb
+#        image: busybox:1.28
+#        command: ['sh', '-c', 'until nslookup couchdb.couchdb; do echo "Waiting for couchdb"; sleep 10; done;']
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: acdcserver-secrets
+      - name: etc-grid-security
+        hostPath:
+          path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: acdcserver
+

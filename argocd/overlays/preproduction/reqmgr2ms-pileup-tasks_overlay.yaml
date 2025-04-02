@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ms-pileup-tasks
+  name: ms-pileup-tasks
+  namespace: dmwm
+spec:
+  template:
+    spec:
+      containers:
+      - name: ms-pileup-tasks
+    resources:
+      requests:
+        memory: "250Mi"
+        cpu: "100m"
+      limits:
+        memory: "750Mi"
+        cpu: "1000m"
+    volumeMounts:
+    - name: logs
+      mountPath: /data/srv/logs/reqmgr2ms
+    - name: ms-pileup-tasks-fb
+    image: docker.elastic.co/beats/filebeat:7.12.0
+    args: ["-c", "/etc/filebeat.yml", "-e"]
+    env:
+    - name: MY_POD_NAME
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.name
+  resources:
+    requests:
+      memory: "50Mi"
+      cpu: "50m"
+  volumeMounts:
+  - name: logs
+    mountPath: /data/srv/logs/reqmgr2ms
+  - name: config
+    mountPath: /etc/filebeat.yml
+    readOnly: true
+    subPath: filebeat.yml
+  - name: data
+    mountPath: /usr/share/filebeat/data
+  - name: varlog
+    mountPath: /var/log
+  - name: varlibdockercontainers
+    mountPath: /var/lib/docker/containers
+    readOnly: true
+    securityContext:
+      allowPrivilegeEscalation: false
+
+  - name: logs
+    persistentVolumeClaim:
+      claimName: logs-cephfs-claim-preprod-dmwm
+  - name: varlog
+    hostPath:
+      path: /var/log
+  - name: varlibdockercontainers
+    hostPath:
+      path: /var/lib/docker/containers
+  - name: config
+    configMap:
+      defaultMode: 0640
+      name: ms-pileup-tasks-fb-config
+  - name: data
+    emptyDir: {}

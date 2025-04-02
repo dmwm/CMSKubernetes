@@ -1,0 +1,61 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: dqm-square-k8
+  namespace: dqm
+spec:
+  selector:
+    app: dqm-square-mirror-server
+  ports:
+    - port: 8084
+      targetPort: 8084
+      name: dqmsquare
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata: 
+  name: dqm-square-mirror-server
+  namespace: dqm
+  labels:
+    app: dqm-square-mirror-server
+spec:
+  selector:
+    matchLabels:
+      app: dqm-square-mirror-server
+  replicas: 1
+  template: # This is the pod template
+    metadata:
+      labels:
+        app: dqm-square-mirror-server
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+      - name: dqm-square-mirror-server
+        image: registry.cern.ch/cmsweb/dqmsquare_mirror #imagetag
+        command: ["./dqmsquare_k8_wrapper.sh", "server"]
+        args: []
+        envFrom:
+        - secretRef:
+            name: dqmsecret
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "400m"
+          limits:
+            memory: "2Gi"
+            cpu: "800m"
+        volumeMounts:
+          - name: robot-secrets
+            mountPath: /etc/robots
+          - name: dqmgui
+            mountPath: /cinder/dqmsquare
+      volumes:
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: dqmgui
+        persistentVolumeClaim:
+          claimName: dqmgui
+

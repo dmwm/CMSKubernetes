@@ -1,0 +1,78 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: cmskv
+  namespace: http
+spec:
+  selector:
+    app: cmskv
+  ports:
+    - port: 9212
+      targetPort: 9212
+      name: cmskv
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: cmskv
+  name: cmskv
+  namespace: http
+spec:
+  selector:
+    matchLabels:
+      app: cmskv
+  replicas: 1   
+  template:
+    metadata:
+      labels:
+        app: cmskv
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "19212"
+    spec:
+      containers:
+      - image: registry.cern.ch/cmsweb/cmskv #imagetag
+        name: cmskv
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "200m"
+          limits:
+            memory: "3Gi"
+            cpu: "4000m"
+        livenessProbe:
+          httpGet:
+            path: /cmskv/info
+            port: 9212
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        ports:
+        - containerPort: 9212
+          protocol: TCP
+          name: cmskv
+        - containerPort: 19212
+          protocol: TCP
+          name: cmskv-mon
+        args:
+          - /data/run.sh
+#         command:
+#           - /data/cmskv
+#           - -config
+#           - /etc/secrets/config.json
+        volumeMounts:
+        - name: secrets
+          mountPath: /etc/secrets
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true          
+      volumes:
+      - name: secrets
+        secret:
+          secretName: cmskv-secrets
+      - name: token-secrets
+        secret:
+          secretName: token-secrets          
+

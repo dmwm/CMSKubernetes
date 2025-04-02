@@ -1,0 +1,168 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontendx509-filebeat-config
+  namespace: auth
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/frontendx509/*${MY_POD_NAME}*.txt
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+---
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: frontendx509
+  name: frontendx509
+  namespace: auth
+spec:
+  selector:
+    matchLabels:
+      app: frontendx509
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: frontendx509
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18443"
+    spec:
+      serviceAccountName: frontendx509-ds-sa
+      terminationGracePeriodSeconds: 60
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: registry.cern.ch/cmsweb/frontendx509 #imagetag
+        name: frontendx509
+        #         imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "30m"
+          limits:
+            memory: "20Gi"
+            cpu: "4000m" # we can add higher limit here
+        env:
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 8443
+          name: services
+        - containerPort: 18443
+          name: monitoring
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true
+
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: frontendx509-ds-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: hostcert
+        hostPath:
+          path: /etc/grid-security/hostcert.pem
+      - name: hostkey
+        hostPath:
+          path: /etc/grid-security/hostkey.pem
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+
+      nodeSelector:
+        role: auth
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: frontendx509
+subjects:
+- kind: ServiceAccount
+  name: frontendx509-ds-sa
+  namespace: auth
+roleRef:
+  kind: ClusterRole
+  name: frontendx509
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: frontendx509
+  labels:
+    k8s-app: frontendx509
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources:
+  - namespaces
+  - pods
+  verbs:
+  - get
+  - watch
+  - list
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: frontendx509-ds-sa
+  namespace: auth
+  labels:
+    k8s-app: frontendx509
+---

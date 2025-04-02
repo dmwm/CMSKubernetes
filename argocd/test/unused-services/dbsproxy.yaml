@@ -1,0 +1,167 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dbsproxy-filebeat-config
+  namespace: dbs
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/logs/*${MY_POD_NAME}*
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: dbsproxy
+  namespace: dbs
+spec:
+  selector:
+    app: dbsproxy
+  ports:
+    - port: 8222
+      targetPort: 8222
+      name: dbs
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: dbsproxy
+  name: dbsproxy
+  namespace: dbs
+spec:
+  selector:
+    matchLabels:
+      app: dbsproxy
+  replicas: 1   
+  template:
+    metadata:
+      labels:
+        app: dbsproxy
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18222"
+    spec:
+      containers:
+      - image: registry.cern.ch/cmsweb/dbsproxy #imagetag
+        name: dbsproxy
+        imagePullPolicy: Always
+        env:
+        - name: X509_USER_PROXY
+          value: /etc/proxy/proxy
+        args:
+          - /data/dbsproxy
+          - -config=/etc/secrets/config.json
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "200m"
+          limits:
+            memory: "500Mi"
+            cpu: "8000m"
+#         livenessProbe:
+#           httpGet:
+#             path: /dbsproxy/status
+#             port: 8222
+#             httpHeaders:
+#             - name: Accept
+#               value: application/json
+#          initialDelaySeconds: 120
+#          periodSeconds: 10
+        ports:
+        - containerPort: 8222
+          protocol: TCP
+          name: dbs
+        - containerPort: 18222
+          protocol: TCP
+          name: dbs-mon
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
+   - name: logs
+     mountPath: /data/logs
+ - name: dbsproxy-filebeat
+   image: docker.elastic.co/beats/filebeat:7.12.0
+   args: [
+     "-c", "/etc/filebeat.yml",
+     "-e",
+   ]
+   env:
+   - name: MY_POD_NAME
+     valueFrom:
+       fieldRef:
+         apiVersion: v1
+         fieldPath: metadata.name
+   resources:
+     requests:
+       memory: "50Mi"
+       cpu: "50m"
+   volumeMounts:
+   - name: logs
+     mountPath: /data/logs
+   - name: config
+     mountPath: /etc/filebeat.yml
+     readOnly: true
+     subPath: filebeat.yml
+   - name: data
+     mountPath: /usr/share/filebeat/data
+   - name: varlog
+     mountPath: /var/log
+   - name: varlibdockercontainers
+     mountPath: /var/lib/docker/containers
+     readOnly: true
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: secrets
+        secret:
+          secretName: dbsproxy-secrets
+ - name: logs
+   persistentVolumeClaim:
+       claimName: logs-cephfs-claim-dbs
+ - name: varlog
+   hostPath:
+     path: /var/log
+ - name: varlibdockercontainers
+   hostPath:
+     path: /var/lib/docker/containers
+ - name: config
+   configMap:
+     defaultMode: 0640
+     name: dbsproxy-filebeat-config
+ - name: data
+   emptyDir: {}

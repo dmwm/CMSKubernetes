@@ -1,0 +1,160 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: reqmon-filebeat-config
+  namespace: dmwm
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/reqmon/*${MY_POD_NAME}*.log
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: reqmon
+  namespace: dmwm
+spec:
+  selector:
+    app: reqmon
+  ports:
+  - port: 8249
+    targetPort: 8249
+    name: reqmon
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: reqmon
+  labels:
+    app: reqmon
+  namespace: dmwm
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+
+    sudo cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    #su  -c "cd /data && /data/run.sh" --preserve-environment _reqmon
+    cd /data && /data/run.sh
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: reqmon
+  name: reqmon
+  namespace: dmwm
+spec:
+  selector:
+    matchLabels:
+      app: reqmon
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: reqmon
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18249"
+    spec:
+      #       hostNetwork: true
+      #       dnsPolicy: ClusterFirstWithHostNet
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 2000
+      # use hostNetwork to allow communication between reqmgr/reqmon/workqueue and couch
+      containers:
+      - image: registry.cern.ch/cmsweb/reqmon #imagetag
+        name: reqmon
+
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8249/wmstatsserver/data/info"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 5
+        ports:
+        - containerPort: 8249
+          protocol: TCP
+          name: reqmon
+        - containerPort: 18249
+          protocol: TCP
+          name: reqmon-mon
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true
+
+        securityContext:
+          privileged: true
+
+      #      initContainers:
+      #      - name: checkcouchdb
+      #        image: busybox:1.28
+      #        command: ['sh', '-c', 'until nslookup couchdb.couchdb; do echo "Waiting for couchdb"; sleep 10; done;']
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: reqmon-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: etc-grid-security
+        hostPath:
+          path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: reqmon
+      - name: token-secrets
+        secret:
+          secretName: token-secrets

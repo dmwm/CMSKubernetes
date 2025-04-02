@@ -1,0 +1,86 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: alertscollector
+  namespace: dmwm
+spec:
+  selector:
+    app: alertscollector
+  ports:
+    - port: 5984
+      targetPort: 5984
+      name: alertscollector
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: alertscollector
+  name: alertscollector
+  namespace: dmwm
+spec:
+  selector:
+    matchLabels:
+      app: alertscollector
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: alertscollector
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "15984"
+    spec:
+#       hostNetwork: true
+#       dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - image: registry.cern.ch/cmsweb/alertscollector #imagetag
+        name: alertscollector
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 5984
+          protocol: TCP
+          name: alertscollector
+        - containerPort: 15984
+          protocol: TCP
+          name: alertscol-mon
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+
+      initContainers:
+      - name: checkcouchdb
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nslookup couchdb.couchdb; do echo "Waiting for couchdb"; sleep 10; done;']
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: alertscollector-secrets
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File

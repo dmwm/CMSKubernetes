@@ -1,0 +1,50 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: httppy
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080 # the port here is matching port used in registry.cern.ch/cmsweb/httppy cotainer
+    protocol: TCP
+    name: http
+  selector:
+    app: httppy
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: httppy
+  name: httppy
+  namespace: http
+spec:
+  selector:
+    matchLabels:
+      app: httppy
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: httppy
+    spec:
+      containers:
+      - image: registry.cern.ch/cmsweb/httppy #imagetag
+        name: httppy
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /httppy/healthz
+            port: 8080
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 8080

@@ -1,0 +1,38 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: cert-manager
+  name: cert-manager
+  namespace: auth
+spec:
+  selector:
+    matchLabels:
+      app: cert-manager
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cert-manager
+    spec:
+      containers:
+      - image: registry.cern.ch/cmsweb/cert-manager:latest
+        name: cert-manager
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "300m"
+        command:
+        - /bin/sh
+        - -c
+        - /data/run.sh /etc/grid-security/hostcert.pem
+        volumeMounts:
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+      volumes:
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem

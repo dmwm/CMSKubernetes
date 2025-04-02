@@ -1,0 +1,13 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: rucio-tracer
+  name: rucio-tracer
+  namespace: rucio
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+      - name: rucio-tracer

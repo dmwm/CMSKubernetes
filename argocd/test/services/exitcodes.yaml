@@ -1,0 +1,54 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: exitcodes
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 9201
+    protocol: TCP
+    name: http
+  selector:
+    app: exitcodes
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: exitcodes
+  name: exitcodes
+  namespace: http
+spec:
+  selector:
+    matchLabels:
+      app: exitcodes
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: exitcodes
+        env: k8s #k8s#
+# should be enabled once we'll have exporter running with this sercice
+# we should also add prometheus.io/port in that case
+#       annotations:
+#         prometheus.io/scrape: 'true'
+    spec:
+      containers:
+      - image: registry.cern.ch/cmsweb/exitcodes #imagetag
+        name: exitcodes
+        livenessProbe:
+          httpGet:
+            path: /exitcodes/status
+            port: 9201
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "300m"
+        ports:
+        - containerPort: 9201

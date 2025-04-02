@@ -1,0 +1,98 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: workqueue-tasks
+  labels:
+    app: workqueue-tasks
+  namespace: dmwm
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+    cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    su  -c "cd /data && /data/run.sh" --preserve-environment _workqueue
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: workqueue-tasks
+  name: workqueue-tasks
+  namespace: dmwm
+spec:
+  selector:
+    matchLabels:
+      app: workqueue-tasks
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: workqueue-tasks
+        env: k8s #k8s#
+    # should be enabled once we'll have exporter running with this sercice
+    # we should also add prometheus.io/port in that case
+    #       annotations:
+    #         prometheus.io/scrape: 'true'
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      containers:
+      - image: registry.cern.ch/cmsweb/workqueue #imagetag
+        name: workqueue-tasks
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+
+        securityContext:
+          privileged: true
+      #      initContainers:
+      #      - name: checkcouchdb
+      #        image: busybox:1.28
+      #        command: ['sh', '-c', 'until nslookup couchdb.couchdb; do echo "Waiting for couchdb"; sleep 10; done;']
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: workqueue-tasks-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: etc-grid-security
+        hostPath:
+          path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: workqueue-tasks
+

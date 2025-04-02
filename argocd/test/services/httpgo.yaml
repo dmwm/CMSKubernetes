@@ -1,0 +1,63 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: httpgo
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8888 # the port here is matching port used in registry.cern.ch/cmsweb/httpgo cotainer
+    protocol: TCP
+    name: http
+  selector:
+    app: httpgo
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: httpgo
+  name: httpgo
+  namespace: http
+spec:
+  selector:
+    matchLabels:
+      app: httpgo
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: httpgo
+    spec:
+      containers:
+      - image: registry.cern.ch/cmsweb/httpgo #imagetag
+        name: httpgo
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8888
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        # here is an example how to run post command
+        tty: true
+        stdin: true
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "ls"]
+        ports:
+        - containerPort: 8888
+#        volumeMounts:
+#        - name: testvolume
+#          mountPath: /tmp/share
+#      volumes:
+#      - name: testvolume
+#        persistentVolumeClaim:
+#          claimName: cinder-volume-claim          

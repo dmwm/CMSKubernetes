@@ -1,0 +1,80 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: tfaas
+  namespace: tfaas
+spec:
+  selector:
+    app: tfaas
+  ports:
+    - port: 8083
+      targetPort: 8083
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: tfaas
+  name: tfaas
+  namespace: tfaas
+spec:
+  selector:
+    matchLabels:
+      app: tfaas
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: tfaas
+        env: k8s #k8s#
+# should be enabled once we'll have exporter running with this sercice
+# we should also add prometheus.io/port in that case
+#       annotations:
+#         prometheus.io/scrape: 'true'
+    spec:
+#       hostNetwork: true
+      containers:
+      - image: veknet/tfaas
+        name: tfaas
+#         tty: true
+#         stdin: true
+#         lifecycle:
+#           postStart:
+#             exec:
+#               command:
+#               - bash
+#               - -c
+#               - sudo chmod 0400 /etc/secrets/server.key /etc/secrets/robotkey.pem
+        ports:
+        - containerPort: 8083
+          protocol: TCP
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: hostkey
+          mountPath: /etc/grid-security/hostkey.pem
+          readOnly: true 
+        - name: hostcert
+          mountPath: /etc/grid-security/hostcert.pem
+          readOnly: true 
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: tfaas-secrets
+          # readOnly: true
+          # https://github.com/kubernetes/kubernetes/issues/34982
+      - name: hostkey
+        hostPath:
+            path: /etc/grid-security/hostkey.pem
+            type: File
+      - name: hostcert
+        hostPath:
+            path: /etc/grid-security/hostcert.pem
+            type: File

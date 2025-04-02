@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: monitor
+  name: monitor
+  namespace: ruciocm
+spec:
+  template:
+    spec:
+      containers:
+      - name: monitor
+      volumeMounts:
+      - mountPath: /reports
+        name: consistency-reports
+      volumes:
+      - name: consistency-reports
+        persistentVolumeClaim:
+          claimName: consistency-report-prod-pvc

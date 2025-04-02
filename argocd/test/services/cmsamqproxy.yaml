@@ -1,0 +1,68 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: cmsamqproxy
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8300 # the port here is matching port used in registry.cern.ch/cmsweb/cmsamqproxy cotainer
+    protocol: TCP
+    name: http
+  selector:
+    app: cmsamqproxy
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: cmsamqproxy
+  name: cmsamqproxy
+  namespace: http
+spec:
+  selector:
+    matchLabels:
+      app: cmsamqproxy
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cmsamqproxy
+    spec:
+      containers:
+      - image: registry.cern.ch/cmsweb/cmsamqproxy #imagetag
+        name: cmsamqproxy
+        args:
+          - /data/cmsamqproxy
+          - -config
+          - /etc/secrets/config.json
+        livenessProbe:
+          httpGet:
+            path: /cmsamqproxy/status
+            port: 8300
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 8300
+        volumeMounts:
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true          
+      volumes:
+      - name: secrets
+        secret:
+          secretName: cmsamqproxy-secrets
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+          

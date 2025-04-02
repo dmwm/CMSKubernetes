@@ -1,0 +1,172 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dbs2go-global-migration-filebeat-config
+  namespace: dbs
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/dbs/*${MY_POD_NAME}*
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: dbs2go-global-migration
+  name: dbs2go-global-migration
+  namespace: dbs
+spec:
+  selector:
+    matchLabels:
+      app: dbs2go-global-migration
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dbs2go-global-migration
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/path: "/dbs/prod/global/DBSMigration/metrics"
+        prometheus.io/port: "9251"
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 2000            
+      containers:
+      - image: registry.cern.ch/cmsweb/dbs2go #imagetag
+        name: dbs2go-global-migration
+        imagePullPolicy: Always
+        env:
+        - name: X509_USER_PROXY
+          value: /etc/proxy/proxy
+        - name: TNS_ADMIN
+          value: /etc/tnsnames.ora
+        command:
+        - /data/run.sh
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "200m"
+          limits:
+            memory: "1000Mi"
+            cpu: "4000m"
+        livenessProbe:
+          httpGet:
+            path: /dbs/prod/global/DBSMigration/healthz
+            port: 9251
+            httpHeaders:
+            - name: Accept
+              value: application/json
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        ports:
+        - containerPort: 9251
+          protocol: TCP
+          name: dbs
+        - containerPort: 19251
+          protocol: TCP
+          name: dbs-mon
+        command:
+        - /data/run.sh
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
+        - name: tnsnames
+          mountPath: /etc/tnsnames.ora
+          subPath: tnsnames.ora
+   - name: logs
+     mountPath: /data/srv/logs/dbs
+        securityContext:
+          allowPrivilegeEscalation: false
+ - name: dbs2go-global-migration-filebeat
+   image: docker.elastic.co/beats/filebeat:7.12.0
+   args: [
+     "-c", "/etc/filebeat.yml",
+     "-e",
+   ]
+   env:
+   - name: MY_POD_NAME
+     valueFrom:
+       fieldRef:
+         apiVersion: v1
+         fieldPath: metadata.name
+   resources:
+     requests:
+       memory: "50Mi"
+       cpu: "50m"
+   volumeMounts:
+   - name: logs
+     mountPath: /data/srv/logs/dbs
+   - name: config
+     mountPath: /etc/filebeat.yml
+     readOnly: true
+     subPath: filebeat.yml
+   - name: data
+     mountPath: /usr/share/filebeat/data
+   - name: varlog
+     mountPath: /var/log
+   - name: varlibdockercontainers
+     mountPath: /var/lib/docker/containers
+     readOnly: true
+   securityContext:
+     allowPrivilegeEscalation: false
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: secrets
+        secret:
+          secretName: dbs2go-global-migration-secrets
+      - name: tnsnames
+        configMap:
+          name: tnsnames-config
+ - name: logs
+   persistentVolumeClaim:
+       claimName: logs-cephfs-claim-dbs
+ - name: varlog
+   hostPath:
+     path: /var/log
+ - name: varlibdockercontainers
+   hostPath:
+     path: /var/lib/docker/containers
+ - name: config
+   configMap:
+     defaultMode: 0640
+     name: dbs2go-global-migration-filebeat-config
+ - name: data
+   emptyDir: {}

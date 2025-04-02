@@ -1,0 +1,300 @@
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: confdb-share
+  namespace: confdb
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: 1eaee1df-ee89-4410-8aa9-9e9f705576cf
+  osShareAccessID: dbfa5086-a8ab-4da3-b826-7e5e9f5dc6ce
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-prod-confdb
+  namespace: confdb
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 150G
+  storageClassName: confdb-share
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: couchdb-share
+  namespace: couchdb
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: a5714d25-66d0-4094-b2b6-90eaba2fe0f2
+  osShareAccessID: 94d68824-56fc-4f0e-be12-a6c52861ace1
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-prod-couchdb
+  namespace: couchdb
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 150G
+  storageClassName: couchdb-share
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: das-share
+  namespace: das
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: 171e6c42-62ea-414d-8bd8-4a6d0e0a867e
+  osShareAccessID: a2a3d749-25fa-44d2-8d8f-d0bb7aa649dc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-prod-das
+  namespace: das
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 150G
+  storageClassName: das-share
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: dbs-share
+  namespace: dbs
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: 34de4411-6172-428c-91e0-16fb1acabf9e
+  osShareAccessID: 14f9069e-69e4-4284-83bf-f620be1e701f
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-prod-dbs
+  namespace: dbs
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 150G
+  storageClassName: dbs-share
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: crab-share
+  namespace: crab
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: 807e551b-ae09-46b6-9484-c7b21135038c
+  osShareAccessID: 2f582590-7a60-40f9-8271-17abfdfcbe6a
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-prod-crab
+  namespace: crab
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 500G
+  storageClassName: crab-share
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: dmwm-share
+  namespace: dmwm
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: 67eee3c6-916e-4f37-a575-fb705c3acac2
+  osShareAccessID: 3050eff3-80ab-43e9-a42e-0437c7956cd7
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-prod-dmwm
+  namespace: dmwm
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 150G
+  storageClassName: dmwm-share
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: dqm-share
+  namespace: dqm
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: f3ceddba-ae27-4dd4-a4f5-19fbd0210cb5
+  osShareAccessID: 44aac54a-33d2-48d2-a35a-ad1b45c67c8c
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-prod-dqm
+  namespace: dqm
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 150G
+  storageClassName: dqm-share
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: tzero-share
+  namespace: tzero
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: 5d7b6533-1fcd-49fc-9435-032c38741c9e
+  osShareAccessID: 66dea9d8-2b74-442a-8ac3-984ca55aa5e5
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-prod-tzero
+  namespace: tzero
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 150G
+  storageClassName: tzero-share
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: wma-share
+  namespace: wma
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: e120ab68-b5d8-4e30-b26c-287bf3a03a07
+  osShareAccessID: 02c53882-c93d-44c0-94d5-dd1c5c85107d
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-prod-wma
+  namespace: wma
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 150G
+  storageClassName: wma-share
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: cmskv-share
+  namespace: http
+provisioner: manila-provisioner
+parameters:
+  type: "Meyrin CephFS"
+  zones: nova
+  osSecretName: os-trustee
+  osSecretNamespace: kube-system
+  protocol: CEPHFS
+  backend: csi-cephfs
+  csi-driver: cephfs.csi.ceph.com
+  osShareID: 171a6647-498f-42b4-9467-0ce8c7f3eabd
+  osShareAccessID: 50bf0536-5724-494b-bd90-8be5a3debb41
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-cephfs-claim-prod-cmskv
+  namespace: http
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 20G
+  storageClassName: cmskv-share
+---

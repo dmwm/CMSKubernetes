@@ -1,0 +1,53 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: httpgo-exporter
+  namespace: http
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8888 # the port here is matching port used in cmssw/httpgo cotainer
+    protocol: TCP
+    name: http
+    nodePort: 30200
+  type: NodePort
+  selector:
+    app: httpgo-exporter
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: httpgo-exporter
+  name: httpgo-exporter
+  namespace: http
+spec:
+  selector:
+    matchLabels:
+      app: httpgo-exporter
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: httpgo-exporter
+        env: k8s #k8s#
+        # must specify for hpa, otherwise it will be job="kubernetes-pods"
+        # assigned automatically by prometheus
+        job: httpgo-exporter
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18883"
+    spec:
+      containers:
+      - image: ttedesch/httpgo_exporter:latest
+        name: httpgo-exporter
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 8888
+        - containerPort: 18883

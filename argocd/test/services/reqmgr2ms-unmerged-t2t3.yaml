@@ -1,0 +1,169 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ms-unmer-t2t3-filebeat-config
+  namespace: dmwm
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /data/srv/logs/reqmgr2ms/*${MY_POD_NAME}*.log
+      ignore_older: 1h
+      scan_frequency: 10s
+      backoff: 5s
+      max_backoff: 10s
+    output.console:
+      codec.format:
+        string: '%{[message]} - Podname=${MY_POD_NAME}'
+        pretty: false
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: ms-unmer-t2t3
+  namespace: dmwm
+spec:
+  selector:
+    app: ms-unmer-t2t3
+  ports:
+  - port: 8242
+    targetPort: 8242
+    name: ms-unmer-t2t3
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: ms-unmer-t2t3
+  labels:
+    app: ms-unmer-t2t3
+  namespace: dmwm
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+    sudo cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    # su  -c "cd /data && /data/run.sh -e '(((cms_type=real|cms_type=int)&rse_type=DISK&(tier=2|tier=3))\country=US)' " --preserve-environment _reqmgr2ms
+    cd /data && /data/run.sh -e '(((cms_type=real|cms_type=int)&rse_type=DISK&(tier=2|tier=3))\country=US)'
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: ms-unmer-t2t3
+  name: ms-unmer-t2t3
+  namespace: dmwm
+spec:
+  selector:
+    matchLabels:
+      app: ms-unmer-t2t3
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ms-unmer-t2t3
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18242"
+    spec:
+      #       hostNetwork: true
+      #       dnsPolicy: ClusterFirstWithHostNet
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 2000
+      # use hostNetwork to allow communication between reqmgr2ms/reqmon/workqueue and couch
+      containers:
+      - image: registry.cern.ch/cmsweb/reqmgr2ms-unmerged #imagetag
+        name: ms-unmer-t2t3
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - bash
+              - -c
+              - sudo chmod 0777 /data/srv/logs/reqmgr2ms; sudo chown _reqmgr2ms:_reqmgr2ms /data/srv/logs/reqmgr2ms
+
+        livenessProbe:
+          exec:
+            command:
+            - cmsweb-ping
+            - "--url=http://localhost:8242/ms-unmerged/data/status"
+            - "--authz=/etc/hmac/hmac"
+            - -verbose
+            - "0"
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 5
+        ports:
+        - containerPort: 8242
+          protocol: TCP
+          name: ms-unmer-t2t3
+        - containerPort: 18242
+          protocol: TCP
+          name: unmerged-mon
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        volumeMounts:
+        - name: rucio-secrets
+          mountPath: /opt/rucio/etc
+          readOnly: true
+        - name: proxy-secrets-ms-unmerged
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true
+
+        securityContext:
+          privileged: true
+
+      volumes:
+      - name: rucio-secrets
+        secret:
+          secretName: rucio-secrets
+      - name: proxy-secrets-ms-unmerged
+        secret:
+          secretName: proxy-secrets-ms-unmerged
+      - name: secrets
+        secret:
+          secretName: reqmgr2ms-unmerged-t2t3-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: etc-grid-security
+        hostPath:
+          path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: ms-unmer-t2t3
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+

@@ -1,0 +1,63 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: das-exporter
+  namespace: das
+spec:
+  selector:
+    app: das-exporter
+  ports:
+    - port: 18217
+      targetPort: 18217
+      name: das-exporter
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: das-exporter
+  name: das-exporter
+  namespace: das
+spec:
+  selector:
+    matchLabels:
+      app: das-exporter
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: das-exporter
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18217"
+    spec:
+      containers:
+      - image: registry.cern.ch/cmsweb/exporters #imagetag
+        name: das-exporter
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "200m"
+          limits:
+            memory: "100Mi"
+            cpu: "400m"
+        env:
+          - name: X509_USER_PROXY
+            value: "/etc/proxy/proxy"
+        command:
+        - /data/das2go_exporter
+        - -address
+        - ":18217"
+        ports:
+        - containerPort: 18217
+          protocol: TCP
+          name: das-exporter
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets

@@ -1,0 +1,69 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: rucio-tracer
+  labels:
+    app: rucio-tracer
+  namespace: rucio
+data:
+  run.sh: |
+    #!/bin/sh
+    cd /data
+    echo $PWD
+    ls
+    ls /etc/secrets
+    ls -l /data/rucio-tracer
+    /data/rucio-tracer -help
+    /data/rucio-tracer -config /etc/secrets/config.json -sitemap /etc/secrets/sitemap.json
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: rucio-tracer
+  name: rucio-tracer
+  namespace: rucio
+spec:
+  selector:
+    matchLabels:
+      app: rucio-tracer
+  replicas: 1   
+  template:
+    metadata:
+      labels:
+        app: rucio-tracer
+        env: k8s #k8s#
+    spec:
+      containers:
+      - image: registry.cern.ch/cmsweb/rucio-tracer #imagetag
+        name: rucio-tracer
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "200m"
+          limits:
+            memory: "3Gi"
+            cpu: "4000m"
+        command:
+#         - /data/rucio-tracer
+#         - -config
+#         - /etc/secrets/config.json
+#         - -sitemap
+#         - /etc/secrets/sitemap.json
+        - /bin/sh
+        - /data/run/run.sh
+        volumeMounts:
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: setup-and-run
+          mountPath: /data/run
+      volumes:
+      - name: secrets
+        secret:
+          secretName: rucio-tracer-secrets
+      - name: setup-and-run
+        configMap:
+          name: rucio-tracer

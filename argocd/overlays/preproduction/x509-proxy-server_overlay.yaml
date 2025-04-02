@@ -1,0 +1,13 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: x509-proxy-server
+  name: x509-proxy-server
+  namespace: auth
+spec:
+  replicas: 4
+  template:
+    spec:
+      containers:
+      - name: x509-proxy-server
