@@ -71,7 +71,7 @@ fi
 cmsweb_env=k8s-$env
 cmsweb_log=logs-cephfs-claim-$env
 
-if [[ "$cluster_name" == *"testbed"* ]] ; then
+if [[ "$cluster_name" == *"prodsrv-v1.22.9"* ]] ; then
         if [[ "$env" != "preprod" ]] ; then
         check=false
         fi
