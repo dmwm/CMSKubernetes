@@ -44,7 +44,7 @@ spec:
           - --web.route-prefix=/
           - --cluster.peer=cms-monitoring-ha2:30094 # to mesh with AM on HA2
           name: alertmanager
-          image: prom/alertmanager
+          image: prom/alertmanager:v0.28.1
           ports:
           - containerPort: 9093
             protocol: TCP
