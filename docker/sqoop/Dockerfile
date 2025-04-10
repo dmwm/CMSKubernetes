@@ -26,8 +26,8 @@ RUN CGO_ENABLED=0 go build -ldflags "-s -w -extldflags '-static'" monit.go && \
 WORKDIR $WDIR
 
 # get amtool
-RUN curl -ksLO https://github.com/prometheus/alertmanager/releases/download/v0.24.0/alertmanager-0.24.0.linux-amd64.tar.gz
-RUN tar xfz alertmanager-0.24.0.linux-amd64.tar.gz && mv alertmanager-0.24.0.linux-amd64/amtool $WDIR/ && rm -rf alertmanager-0.24.0.linux-amd64*
+RUN curl -ksLO https://github.com/prometheus/alertmanager/releases/download/v0.28.1/alertmanager-0.28.1.linux-amd64.tar.gz
+RUN tar xfz alertmanager-0.28.1.linux-amd64.tar.gz && mv alertmanager-0.28.1.linux-amd64/amtool $WDIR/ && rm -rf alertmanager-0.28.1.linux-amd64*
 
 
 FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark2-latest
