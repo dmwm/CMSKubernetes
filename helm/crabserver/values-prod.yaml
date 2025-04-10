@@ -4,7 +4,7 @@ image:
   tag: "v3.241211-stable"
   
 canary:
-  enabled: true
+  enabled: false
   replicaCount: 1
   image:
-    tag: "v3.241211-stable"
+    tag: "v3-250204"
