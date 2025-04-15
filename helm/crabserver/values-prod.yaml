@@ -1,10 +1,10 @@
 environment: "prod"
 
 image:
-  tag: "v3.241211-stable"
+  tag: "v3.250401-stable"
   
 canary:
   enabled: true
   replicaCount: 1
   image:
-    tag: "v3.241211-stable"
+    tag: "v3.250401-stable"
