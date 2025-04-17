@@ -66,7 +66,7 @@ RUN dnf update -y && \
     libXrender libSM libtirpc libicu ncurses which \
     wlcg-voms-cms wlcg-iam-lsc-cms-3.0.0 wlcg-iam-vomses-cms voms-clients \
     python-pip python3-setuptools \
-    hadoop-bin-3.3 spark-bin-3.5 hbase-bin-2.5 sqoop-bin-1.4 python3 cern-hadoop-config \
+    hadoop-bin-3.3 spark-bin-3.5 hbase-bin-2.5 sqoop-bin-1.4 java-11-openjdk python3 cern-hadoop-config \
     jq trustedbag-client cern-hadoop-xrootd-connector && \
     dnf clean all
 
