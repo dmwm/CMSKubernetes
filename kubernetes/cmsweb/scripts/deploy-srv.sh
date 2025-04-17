@@ -10,10 +10,10 @@ cluster_name=`kubectl config get-clusters | grep -v NAME`
 check=true
 
 if [ $# -ne 3 ]; then
-	if [[ "$cluster_name" == *"testbed"* ]] ; then
+	if [[ "$cluster_name" == *"prodsrv-v1.22.9" ]] ; then
 		env="preprod"
 	fi
-	if [[ "$cluster_name" == *"prod"* ]] ; then
+	if [[ "$cluster_name" == *"prodsrv" ]] ; then
                 env="prod"
         fi
         if [[ "$cluster_name" == *"cmsweb-auth"* ]] ; then
@@ -71,12 +71,12 @@ fi
 cmsweb_env=k8s-$env
 cmsweb_log=logs-cephfs-claim-$env
 
-if [[ "$cluster_name" == *"prodsrv-v1.22.9"* ]] ; then
+if [[ "$cluster_name" == *"prodsrv-v1.22.9" ]] ; then
         if [[ "$env" != "preprod" ]] ; then
         check=false
         fi
 fi
-if [[ "$cluster_name" == *"prod"* ]] ; then
+if [[ "$cluster_name" == *"prodsrv" ]] ; then
         if [[ "$env" != "prod" ]] ; then
         check=false
         fi
