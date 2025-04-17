@@ -30,12 +30,17 @@ RUN curl -ksLO https://github.com/prometheus/alertmanager/releases/download/v0.2
 RUN tar xfz alertmanager-0.28.1.linux-amd64.tar.gz && mv alertmanager-0.28.1.linux-amd64/amtool $WDIR/ && rm -rf alertmanager-0.28.1.linux-amd64*
 
 
-FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:spark2-latest
-# Do not use spark3, it requires additional settings
+FROM registry.cern.ch/cmsmonitoring/cmsmon-hadoop-base:latest
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 ENV WDIR=/data
 WORKDIR $WDIR
+
+RUN dnf install -y java-11-openjdk
+
+# Find the most recent Java 11 version installed and create a symlink
+RUN LATEST_JAVA_DIR=$(ls -d /usr/lib/jvm/java-11-openjdk-* | sort -V | tail -n 1) && \
+    ln -sfn $LATEST_JAVA_DIR /usr/lib/jvm/java-11-openjdk
 
 COPY --from=go-builder /data/amtool /data
 COPY --from=go-builder /data/hdfs_exporter /data
