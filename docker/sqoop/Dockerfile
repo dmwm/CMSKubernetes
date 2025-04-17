@@ -40,6 +40,9 @@ WORKDIR $WDIR
 RUN LATEST_JAVA_DIR=$(ls -d /usr/lib/jvm/java-11-openjdk-* | sort -V | tail -n 1) && \
     ln -sfn $LATEST_JAVA_DIR /usr/lib/jvm/java-11-openjdk
 
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk
+ENV PATH="${PATH}:${JAVA_HOME}/bin"
+
 COPY --from=go-builder /data/amtool /data
 COPY --from=go-builder /data/hdfs_exporter /data
 COPY --from=go-builder /data/monit /data
