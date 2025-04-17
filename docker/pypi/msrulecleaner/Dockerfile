@@ -2,7 +2,7 @@ FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20240923-stable
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 # TAG to be passed at build time through `--build-arg TAG=<PYPI_TAG>`. Default: None
 ARG TAG=None
-RUN pip install reqmgr2ms-rulecleaner==$TAG
+RUN pip install msrulecleaner==$TAG
 RUN sed -i -e "s,-config.py,-config-ruleCleaner.py,g" /data/run.sh
 RUN sed -i -e "s,config.py,config-ruleCleaner.py,g" /data/manage
 ENV WDIR=/data
