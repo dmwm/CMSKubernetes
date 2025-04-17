@@ -36,8 +36,6 @@ MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 ENV WDIR=/data
 WORKDIR $WDIR
 
-RUN dnf install -y java-11-openjdk
-
 # Find the most recent Java 11 version installed and create a symlink
 RUN LATEST_JAVA_DIR=$(ls -d /usr/lib/jvm/java-11-openjdk-* | sort -V | tail -n 1) && \
     ln -sfn $LATEST_JAVA_DIR /usr/lib/jvm/java-11-openjdk
