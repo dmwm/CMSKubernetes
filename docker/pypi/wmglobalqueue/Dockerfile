@@ -2,7 +2,7 @@ FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20240923-stable
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 # TAG to be passed at build time through `--build-arg TAG=<PYPI_TAG>`. Default: None
 ARG TAG=None
-RUN pip install global-workqueue==$TAG
+RUN pip install wmglobalqueue==$TAG
 ENV WDIR=/data
 ENV USER=_workqueue
 RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
