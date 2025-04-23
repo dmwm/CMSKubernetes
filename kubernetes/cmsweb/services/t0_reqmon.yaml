@@ -84,7 +84,7 @@ spec:
         runAsGroup: 1000
         fsGroup: 2000
       containers:
-      - image: registry.cern.ch/cmsweb/t0_reqmon #imagetag
+      - image: registry.cern.ch/cmsweb/t0reqmon #imagetag
         name: t0reqmon
 #PROD#  resources:
 #PROD#    requests:
