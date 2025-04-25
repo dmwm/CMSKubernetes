@@ -511,6 +511,9 @@ agent_tweakconfig() {
             rucio_auth=https://cms-rucio-auth.cern.ch
             sed -i "s+WorkQueueManager.rucioUrl = .*+WorkQueueManager.rucioUrl = '$rucio_host'+" $WMA_CONFIG_DIR/config.py
             sed -i "s+WorkQueueManager.rucioAuthUrl = .*+WorkQueueManager.rucioAuthUrl = '$rucio_auth'+" $WMA_CONFIG_DIR/config.py
+            # Tweak rule lifetime, see https://github.com/dmwm/WMCore/issues/12316
+            sed -i "s+RucioInjector.blockRuleParams = {}+RucioInjector.blockRuleParams = {'lifetime': 14 * 24 * 60 * 60}+" $WMA_CONFIG_DIR/config.py
+            sed -i "s+RucioInjector.containerDiskRuleParams = {+RucioInjector.containerDiskRuleParams = {'lifetime': 14 * 24 * 60 * 60, +" $WMA_CONFIG_DIR/config.py
         fi
 
         local forceSiteDown=""
