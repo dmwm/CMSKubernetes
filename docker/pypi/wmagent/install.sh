@@ -76,6 +76,22 @@ pip install wmagent==$WMA_TAG || { err=$?; echo "Failed to install wmagent:$WMA_
 echo "Done $stepMsg!" && echo
 echo "-----------------------------------------------------------------------"
 
+echo "-----------------------------------------------------------------------"
+echo "PATCH WMCOREDB: Starting ad-hoc database schema setup..."
+git clone https://github.com/amaltaro/wmcoredb.git
+mv wmcoredb/sql $WMA_DEPLOY_DIR/sql
+ls -lt $WMA_DEPLOY_DIR/sql
+
+echo "Now applying SQL patch #12341 ..."
+curl https://patch-diff.githubusercontent.com/raw/dmwm/WMCore/pull/12341.patch | patch -p 3 -d /usr/local/lib/python3.8/site-packages
+echo "Done applying patch #12341"
+
+echo "Looking for file create_wmbs_indexes.sql"
+find $WMA_DEPLOY_DIR -name create_wmbs_indexes.sql
+
+echo "PATCH WMCOREDB: Done with SQL files setup"
+echo "-----------------------------------------------------------------------"
+
 # Setup required directories
 stepMsg="Creating required directory structure in the WMAgent image"
 echo "-----------------------------------------------------------------------"
