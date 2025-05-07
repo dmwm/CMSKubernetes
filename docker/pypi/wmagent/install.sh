@@ -83,7 +83,7 @@ mv wmcoredb/sql $WMA_DEPLOY_DIR/sql
 ls -lt $WMA_DEPLOY_DIR/sql
 
 echo "Now applying SQL patch #12341 ..."
-curl https://patch-diff.githubusercontent.com/raw/dmwm/WMCore/pull/12341.patch | patch -p 3 -d /usr/local/lib/python3.8/site-packages
+curl https://patch-diff.githubusercontent.com/raw/dmwm/WMCore/pull/12341.patch | patch -p 3 -d $WMA_DEPLOY_DIR/lib/python3.*/site-packages
 echo "Done applying patch #12341"
 
 echo "Looking for file create_wmbs_indexes.sql"
