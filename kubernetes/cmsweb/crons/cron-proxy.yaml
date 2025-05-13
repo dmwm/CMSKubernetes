@@ -3,10 +3,15 @@ kind: CronJob
 metadata:
   name: cron-proxy
 spec:
-  # run crontab job every hour
   schedule: "5 */6 * * *"
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 300
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
+      backoffLimit: 2
+      ttlSecondsAfterFinished: 600
       template:
         spec:
           serviceAccountName: proxy-account
