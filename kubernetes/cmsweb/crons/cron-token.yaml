@@ -3,10 +3,15 @@ kind: CronJob
 metadata:
   name: cron-token
 spec:
-  # run crontab job every hour
   schedule: "*/15 * * * *"
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 300
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
+      backoffLimit: 2
+      ttlSecondsAfterFinished: 600
       template:
         spec:
           serviceAccountName: token-account
@@ -25,6 +30,9 @@ spec:
           - name: token-secrets
             secret:
               secretName: token-secrets
+          - name: client-secrets
+            secret:
+              secretName: client-secrets
           - name: client-secrets
             secret:
               secretName: client-secrets
