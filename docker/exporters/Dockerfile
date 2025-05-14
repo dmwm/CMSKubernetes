@@ -4,10 +4,14 @@ ENV GOPATH=/data/gopath
 RUN mkdir -p $GOPATH
 RUN mkdir /build
 
+ARG NODEEXP_VER=1.9.1
+ARG APACHEEXP_VER=1.0.10
+ARG MONGOEXP_EVR=1.0.0
+
 # download node exporter
-RUN curl -ksLO https://github.com/prometheus/node_exporter/releases/download/v1.1.2/node_exporter-1.1.2.linux-amd64.tar.gz
-RUN tar xfz node_exporter-1.1.2.linux-amd64.tar.gz
-RUN cp node_exporter*/node_exporter /build
+RUN curl -ksLO https://github.com/prometheus/node_exporter/releases/download/v${NODEEXP_VER}/node_exporter-${NODEEXP_VER}.linux-amd64.tar.gz && \
+    tar xfz node_exporter-${NODEEXP_VER}.linux-amd64.tar.gz && \
+    cp node_exporter*/node_exporter /build 
 
 # build cmsweb exporters
 WORKDIR $GOPATH/src/github.com/vkuznet/cmsweb-exporters
@@ -25,16 +29,22 @@ RUN cd cmsweb-exporters && \
     cp process_monitor.sh /build
 
 # Adding apache exporter
-
-RUN wget https://github.com/Lusitaniae/apache_exporter/releases/download/v0.9.0/apache_exporter-0.9.0.linux-amd64.tar.gz && tar -xvzf apache_exporter-0.9.0.linux-amd64.tar.gz --directory /data/gopath && cp /data/gopath/apache_exporter-0.9.0.linux-amd64/apache_exporter /build
+#        https://github.com/Lusitaniae/apache_exporter/releases/download/v1.0.10/apache_exporter-1.0.10.linux-amd64.tar.gz
+RUN wget https://github.com/Lusitaniae/apache_exporter/releases/download/v${APACHEEXP_VER}/apache_exporter-${APACHEEXP_VER}.linux-amd64.tar.gz && \
+  tar -xvzf apache_exporter-${APACHEEXP_VER}.linux-amd64.tar.gz --directory /data/gopath && \
+  cp /data/gopath/apache_exporter-${APACHEEXP_VER}.linux-amd64/apache_exporter /build
 
 # build mongo exporter
+# TODO: consider using an actively developed exporter, such as
+#   https://github.com/percona/mongodb_exporter
+#   dcu/mongo_exporter seems stale since 2016
+#   related ticket: https://its.cern.ch/jira/projects/CMSMONIT/issues/CMSMONIT-650
 WORKDIR /tmp
-RUN curl -ksLO https://github.com/dcu/mongodb_exporter/releases/download/v1.0.0/mongodb_exporter-linux-amd64
+RUN curl -ksLO https://github.com/dcu/mongodb_exporter/releases/download/v${MONGOEXP_EVR}/mongodb_exporter-linux-amd64
 RUN cp mongodb_exporter-linux-amd64 /build/mongodb_exporter
 
 #FROM alpine
-FROM debian:stable-slim
+FROM debian:12-slim
 RUN apt-get update && apt-get install -y procps
 
 RUN mkdir -p /data
