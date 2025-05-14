@@ -1,6 +1,6 @@
-FROM registry.cern.ch/cmsweb/cmsweb-base as cmsweb-base
-FROM registry.cern.ch/cmsweb/exporters as exporters
-FROM python:3.8-bullseye
+FROM registry.cern.ch/cmsweb/cmsweb-alma9-base:20250506-stable as cmsweb-base
+FROM registry.cern.ch/cmsweb/exporters:20231002-stable as exporters
+FROM python:3.12-bookworm
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 RUN apt-get update && \
     apt-get install -y curl vim libcurl4 libcurl4-openssl-dev python3-pycurl pip apache2-utils sudo less && \
