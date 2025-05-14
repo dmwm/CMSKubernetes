@@ -59,6 +59,6 @@ spec:
           protocol: TCP
           name: das-mongo-p
       initContainers:
-      - name: checkcouchdb
+      - name: checkmongodb
         image: busybox:1.36.1 #the stable tag
         command: ['sh', '-c', 'until nslookup das-mongo.das.svc.cluster.local; do echo "Waiting for das-mongo"; sleep 10; done;']
