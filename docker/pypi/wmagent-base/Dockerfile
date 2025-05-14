@@ -1,18 +1,23 @@
 FROM registry.cern.ch/cmsweb/oracle:21_5-stable as oracle
-FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20240923-stable
+FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20250523-stable
 
-# Install basic OS package dependencies
-RUN apt-get update
-RUN apt-get install -y libmariadb-dev-compat libmariadb-dev apache2-utils cron mariadb-server myproxy voms-clients voms-clients-java rlwrap libaio1 && apt-get clean
-
-# Install some debugging tools
-RUN apt-get install -y hostname net-tools iputils-ping procps jq && apt-get clean
-
-# Install recursive ps utility tool
-RUN apt-get install -y pslist && apt-get clean
-
-# Install s-nail package
-RUN apt-get install -y s-nail && apt-get clean
+# see https://docs.docker.com/build/building/best-practices/#apt-get
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    # basic OS packages
+    cron \
+    mariadb-server libmariadb-dev-compat libmariadb-dev \
+    myproxy voms-clients voms-clients-java \
+    rlwrap libaio1 \
+    # required for cx_oracle
+    build-essential \
+    # required for yui 
+    wget unzip \
+    # debugging 
+    hostname net-tools iputils-ping procps jq \
+    # Install recursive ps utility tool
+    pslist \
+    s-nail \
+    && rm -rf /var/lib/apt/lists/*
 
 # copy oracle client:
 COPY --from=oracle /usr/lib/oracle /usr/lib/oracle

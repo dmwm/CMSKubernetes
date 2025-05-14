@@ -96,7 +96,7 @@ echo "-----------------------------------------------------------------------"
 echo "Start $stepMsg"
 
 # Fix for outdated yui library - A really bad workaround. We should get rid of it ASAP:
-wget -nv -P $WMA_DEPLOY_DIR  https://yui.github.io/yui2/archives/yui_2.9.0.zip || { err=$?; echo "Error downloading yui_2.9.0.zip"; exit $err ; }
+curl  https://yui.github.io/yui2/archives/yui_2.9.0.zip -o $WMA_DEPLOY_DIR/yui_2.9.0.zip || { err=$?; echo "Error downloading yui_2.9.0.zip"; exit $err ; }
 unzip -d $WMA_DEPLOY_DIR $WMA_DEPLOY_DIR/yui_2.9.0.zip yui/build/*
 rm -f $WMA_DEPLOY_DIR/yui_2.9.0.zip
 
