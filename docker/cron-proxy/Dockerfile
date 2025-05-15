@@ -39,23 +39,17 @@ ADD http://linuxsoft.cern.ch/wlcg/RPM-GPG-KEY-wlcg /etc/pki/rpm-gpg/RPM-GPG-KEY-
 
 # Install necessary dependencies for the proxy script
 RUN yum install -y \
-    cern-get-certificate \
     python-dateutil \
-    ca-certificates\
     fetch-crl \
-    wlcg-voms-cms \
-    wlcg-iam-vomses-cms \
-    myproxy voms-clients-cpp \
+    myproxy \
     voms \
-    voms-clients-cpp voms-clients voms-clients-java\
-    CERN-CA-certs \
+    voms-clients-cpp \
     && yum clean all
 
 RUN dnf install -y \
     bash \
     curl \
     sudo \
-    voms-clients \
     wlcg-voms-cms \
     wlcg-iam-lsc-cms-3.0.0 \
     wlcg-iam-vomses-cms \
