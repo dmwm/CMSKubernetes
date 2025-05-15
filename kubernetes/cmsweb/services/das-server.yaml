@@ -197,9 +197,9 @@ spec:
 #PROD#  securityContext:
 #PROD#    allowPrivilegeEscalation: false
       initContainers:
-      - name: checkcouchdb
-        image: busybox:1.28
-        command: ['sh', '-c', 'until nslookup das-mongo.das; do echo "Waiting for das-mongo"; sleep 10; done;']
+      - name: checkmongodb
+        image: busybox:1.36.1
+        command: ['sh', '-c', 'until nslookup das-mongo.das.svc.cluster.local; do echo "Waiting for das-mongo"; sleep 10; done;']
       volumes:
       - name: proxy-secrets
         secret:
