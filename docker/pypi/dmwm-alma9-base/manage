@@ -52,7 +52,7 @@ usage()
 
 start_srv()
 {
-    wmc-httpd -r -d $STATEDIR -l "|rotatelogs $LOGDIR/$srv-%Y%m%d-`hostname -s`.log 86400" $CFGFILE
+    wmc-httpd -r -d $STATEDIR -l "$LOGDIR/$srv-`hostname -s`.log" $CFGFILE
 }
 
 stop_srv()

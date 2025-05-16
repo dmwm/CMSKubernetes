@@ -142,7 +142,7 @@ fi
 [[ -n $rseExpr ]] && sed -i -e "s/^[[:blank:]]*RSEEXPR.*/RSEEXPR = \"${rseExpr}\"/g" $CFGFILE
 
 # start the service
-wmc-httpd -r -d $STATEDIR -l "|rotatelogs $LOGDIR/$srv-%Y%m%d-`hostname -s`.log 86400" $CFGFILE
+wmc-httpd -r -d $STATEDIR -l "$LOGDIR/$srv-`hostname -s`.log" $CFGFILE
 
 # start monitor.sh script
 if [ -f /data/monitor.sh ]; then

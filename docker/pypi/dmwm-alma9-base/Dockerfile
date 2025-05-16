@@ -1,4 +1,4 @@
-FROM registry.cern.ch/cmsweb/cmsweb-alma9-base:20250506 AS cmsweb-base
+FROM registry.cern.ch/cmsweb/cmsweb-alma9-base:20250515 AS cmsweb-base
 FROM registry.cern.ch/cmsweb/exporters AS exporters
 FROM almalinux:latest
 LABEL org.opencontainers.image.authors="Alan Malta alan.malta@cern.ch"
