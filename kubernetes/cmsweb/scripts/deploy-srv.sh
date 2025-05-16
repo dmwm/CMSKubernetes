@@ -69,7 +69,7 @@ if [ $# == 3 ]; then
 fi
 
 cmsweb_env=k8s-$env
-cmsweb_log=logs-cephfs-claim-$env
+cmsweb_log=logs-cephfs-claim-prod
 
 if [[ "$cluster_name" == *"prodsrv-v1.22.9" ]] ; then
         if [[ "$env" != "preprod" ]] ; then
@@ -196,12 +196,15 @@ elif  [ "$cmsweb_env" == "k8s-preprod" ] ; then
             cat $srv.yaml | sed -e "s,1 #PROD#,,g" | sed -e "s,#PROD#,      ,g" |  sed -e "s,logs-cephfs-claim,$cmsweb_log,g" | sed -e "s, #imagetag,$cmsweb_image_tag,g" | sed -e "s,k8s #k8s#,$cmsweb_env,g" | sed -e 's+crabserver/prod+crabserver/preprod+g' >  $srv.yaml.new
 
             cat $srv.yaml | sed -e "s,1 #PROD#,,g" | sed -e "s,#PROD#,      ,g" |  sed -e "s,logs-cephfs-claim,$cmsweb_log,g" | sed -e "s, #imagetag,$cmsweb_image_tag,g" | sed -e "s,k8s #k8s#,$cmsweb_env,g" | sed -e 's+crabserver/prod+crabserver/preprod+g' |  kubectl apply -f -
- 
+
         elif [[ "$srv" == "dbs-global-r"  || "$srv" == "dbs-global-w"  ||  "$srv" == "dbs-migrate"  ||  "$srv" == "dbs-phys03-r" || "$srv" == "dbs-phys03-w" || "$srv" == "dbs2go-global-r" || "$srv" == "dbs2go-global-w" || "$srv" == "dbs2go-phys03-r" || "$srv" == "dbs2go-phys03-w" || "$srv" == "dbs2go-global-m" || "$srv" == "dbs2go-phys03-m" || "$srv" == "dbs2go-global-migration" || "$srv" == "dbs2go-phys03-migration" ]] ; then
             cat $srv.yaml | sed -e "s,1 #PROD#,,g" | sed -e "s,#PROD#,      ,g" |  sed -e "s,logs-cephfs-claim,$cmsweb_log,g" | sed -e "s, #imagetag,$cmsweb_image_tag,g" | sed -e "s,k8s #k8s#,$cmsweb_env,g" | sed -e 's+dbs/prod+dbs/int+g' >  $srv.yaml.new
 
             cat $srv.yaml | sed -e "s,1 #PROD#,,g" | sed -e "s,#PROD#,      ,g" |  sed -e "s,logs-cephfs-claim,$cmsweb_log,g" | sed -e "s, #imagetag,$cmsweb_image_tag,g" | sed -e "s,k8s #k8s#,$cmsweb_env,g" | sed -e 's+dbs/prod+dbs/int+g' |  kubectl apply -f -
-	
+        elif [[ "$srv" == "reqmgr2"  || "$srv" == "reqmon"  ||  "$srv" == "t0_reqmon" ||  "$srv" == "t0wmadatasvc" ]] ; then
+            cat $srv.yaml | sed -e "s,1 #PROD# 5,2,g" | sed -e "s,#PROD#,      ,g" |  sed -e "s,logs-cephfs-claim,$cmsweb_log,g" | sed -e "s, #imagetag,$cmsweb_image_tag,g" | sed -e "s,k8s #k8s#,$cmsweb_env,g" >  $srv.yaml.new
+
+            cat $srv.yaml | sed -e "s,1 #PROD# 5,2,g" | sed -e "s,#PROD#,      ,g" |  sed -e "s,logs-cephfs-claim,$cmsweb_log,g" | sed -e "s, #imagetag,$cmsweb_image_tag,g" | sed -e "s,k8s #k8s#,$cmsweb_env,g" | kubectl apply -f -
 	else
             cat $srv.yaml | sed -e "s,1 #PROD#,,g" | sed -e "s,#PROD#,      ,g" |  sed -e "s,logs-cephfs-claim,$cmsweb_log,g" | sed -e "s, #imagetag,$cmsweb_image_tag,g" | sed -e "s,k8s #k8s#,$cmsweb_env,g" >  $srv.yaml.new
 

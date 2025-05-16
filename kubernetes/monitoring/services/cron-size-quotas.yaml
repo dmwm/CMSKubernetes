@@ -39,8 +39,6 @@ data:
   crons.txt: |
     7       * * * * . /data/cronjob/s.sh; $B_/cron4rucio_quotas.sh $EOS_/rucio/quotas.html                               >>$O_ 2>&1
     1       * * * * . /data/cronjob/s.sh; $B_/cron4openstack_accounting.sh $EOS_/eos_openstack/openstack_accounting.html >>$O_ 2>&1
-    5-59/10 * * * * . /data/cronjob/s.sh; $B_/cron4eos_usage.sh    $EOS_/eos-path-size/size.html                         >>$O_ 2>&1
-    2-59/10 * * * * . /data/cronjob/s.sh; $B_/cron4eos_usage_es.sh /etc/secrets-amq/amq_broker.json                      >>$O_ 2>&1
 ---
 apiVersion: apps/v1
 kind: Deployment

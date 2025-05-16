@@ -4,6 +4,21 @@
 # Crabserver
 /crabserver/preprod/info
 /scheddmon/059/crabint1/
+/scheddmon/0106/sciaba/
+/scheddmon/0107/sciaba/
+/scheddmon/0119/sciaba/
+/scheddmon/0120/sciaba/
+/scheddmon/0121/sciaba/
+/scheddmon/0122/sciaba/
+/scheddmon/0137/sciaba/
+/scheddmon/0144/sciaba/
+/scheddmon/0155/sciaba/
+/scheddmon/0194/sciaba/
+/scheddmon/0195/sciaba/
+/scheddmon/0196/sciaba/
+/scheddmon/0197/sciaba/
+/scheddmon/0198/sciaba/
+/scheddmon/0199/sciaba/
 
 # DAS
 /das
