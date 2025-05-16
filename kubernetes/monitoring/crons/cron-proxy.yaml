@@ -30,7 +30,7 @@ spec:
           serviceAccountName: proxy-account
           containers:
           - name: proxy
-            image: registry.cern.ch/cmsweb/proxy:20240611-stable
+            image: registry.cern.ch/cmsmonitoring/cron-proxy:20250514 
             args:
             - /bin/sh
             - -c
@@ -38,6 +38,9 @@ spec:
             volumeMounts:
             - name: robot-secrets
               mountPath: /etc/secrets
+            - name: grid-security
+              mountPath: /etc/grid-security/certificates
+              readOnly: true
           restartPolicy: Never
           volumes:
           - name: proxy-secrets
@@ -46,3 +49,7 @@ spec:
           - name: robot-secrets
             secret:
               secretName: robot-secrets
+          - name: grid-security
+            hostPath:
+              path: /etc/grid-security/certificates
+
