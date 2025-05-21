@@ -33,15 +33,23 @@ gpgkey=http://linuxsoft.cern.ch/epel/RPM-GPG-KEY-EPEL-9\n\
 exclude=collectd*,libcollectd*,mcollective,perl-Authen-Krb5,perl-Collectd,puppet,python*collectd_systemd*,koji*,python*koji*\n\
 priority=20" > /etc/yum.repos.d/epel.repo
 
-ADD http://linuxsoft.cern.ch/wlcg/wlcg-el9.repo /etc/yum.repos.d/wlcg.repo	
-ADD RPM-GPG-KEY-wlcg /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg
+ADD http://linuxsoft.cern.ch/wlcg/wlcg-el9.repo /etc/yum.repos.d/wlcg.repo
+ADD http://repository.egi.eu/sw/production/cas/1/current/repo-files/egi-trustanchors.repo /etc/yum.repos.d/egi.repo
+ADD http://linuxsoft.cern.ch/wlcg/RPM-GPG-KEY-wlcg /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg
 
 # Install necessary dependencies for the proxy script
+RUN yum install -y \
+    python-dateutil \
+    fetch-crl \
+    myproxy \
+    voms \
+    voms-clients-cpp \
+    && yum clean all
+
 RUN dnf install -y \
     bash \
     curl \
     sudo \
-    voms-clients \
     wlcg-voms-cms \
     wlcg-iam-lsc-cms-3.0.0 \
     wlcg-iam-vomses-cms \
