@@ -1,0 +1,23 @@
+FROM registry.cern.ch/cmsweb/dmwm-base:alma9-py3.12-20250515
+
+WORKDIR /tmp
+RUN dnf install epel-release -y && dnf clean all && \
+    dnf -y install git bzip2 gfal2-devel python3.12-devel
+
+RUN git clone --branch v1.13.0 https://github.com/cern-fts/gfal2-python.git
+
+WORKDIR /tmp/gfal2-python
+RUN ./ci/fedora-packages.sh
+
+WORKDIR /tmp
+# get and install boost
+RUN curl -ksL https://archives.boost.io/release/1.82.0/source/boost_1_82_0.tar.bz2 -o boost_1_82_0.tar.bz2 && \
+    tar --bzip2 -xf /tmp/boost_1_82_0.tar.bz2 && \
+    cd boost_1_82_0 && \
+    ./bootstrap.sh --with-python=/usr/bin/python3.12 && \
+    ./b2 install
+
+RUN python -m venv .venv
+ENV PATH="$WDIR/.venv/bin:$PATH"
+
+RUN .venv/bin/pip install -v gfal2-python
