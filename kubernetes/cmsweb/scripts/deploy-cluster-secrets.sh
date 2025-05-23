@@ -6,7 +6,7 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-namespaces="auth default crab das dbs dmwm http tzero wma dqm rucio ruciocm"
+namespaces="auth default crab couchdb das dbs dmwm http tzero wma dqm rucio ruciocm"
 
 
 certificates=$1
