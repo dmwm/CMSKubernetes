@@ -3,7 +3,7 @@ environment:
 replicaCount: 1
 
 image:
-  repository: registry.cern.ch/cmsweb/reqmgr2ms-pileup
+  repository: registry.cern.ch/cmsweb/mspileup
   tag: "2.2.0.2"
   pullPolicy: IfNotPresent
   annotations:

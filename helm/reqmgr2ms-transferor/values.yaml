@@ -4,7 +4,7 @@
 replicaCount: 1
 
 image:
-  repository: registry.cern.ch/cmsweb/reqmgr2ms-transferor
+  repository: registry.cern.ch/cmsweb/mstransferor
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "HG2208d"
