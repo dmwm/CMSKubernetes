@@ -1,5 +1,5 @@
-FROM registry.cern.ch/cmsweb/gfal:alma9-py3.12-v1.82.0 AS gfal2
-FROM registry.cern.ch/cmsweb/dmwm-base:alma9-py3.12-20250515
+FROM registry.cern.ch/cmsweb/gfal:alma9-py3.12-1.13.0 AS gfal2
+FROM registry.cern.ch/cmsweb/dmwm-base:alma9-py3.12-20250522
 LABEL org.opencontainers.image.authors="Alan Malta alan.malta@cern.ch, Dennis Lee dylee@fnal.gov"
 
 # Specific MSUnmerged requirements from epel repository
@@ -35,9 +35,9 @@ ENV PATH="$WDIR/.venv/bin:$PATH"
 
 # patch dmwm/WMCore https://github.com/dmwm/WMCore/pull/11955
 ADD 11955.patch $WDIR/11955.patch
-RUN pushd $WDIR/.venv/lib/python3.12/site-packages/WMCore && \
-    patch -p 4 -i $WDIR/11955.patch && \
-    popd
+RUN cd $WDIR/.venv/lib/python3.12/site-packages/WMCore && \
+    patch -p 4 -t -i $WDIR/11955.patch && \
+    cd $WDIR
 
 # Specific run.sh for MSUnmerged
 ADD run.sh $WDIR/run.sh
