@@ -1,5 +1,5 @@
 FROM registry.cern.ch/cmsweb/gfal:alma9-py3.12-1.13.0 AS gfal2
-FROM registry.cern.ch/cmsweb/dmwm-base:alma9-py3.12-20250522
+FROM registry.cern.ch/cmsweb/dmwm-base:alma9-py3.12-20250529
 LABEL org.opencontainers.image.authors="Alan Malta alan.malta@cern.ch, Dennis Lee dylee@fnal.gov"
 
 # Specific MSUnmerged requirements from epel repository

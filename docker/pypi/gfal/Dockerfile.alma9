@@ -1,4 +1,4 @@
-FROM registry.cern.ch/cmsweb/dmwm-base:alma9-py3.12-20250522
+FROM registry.cern.ch/cmsweb/dmwm-base:alma9-py3.12-20250529
 LABEL org.opencontainers.image.authors="Dennis Lee dylee@fnal.gov"
 
 WORKDIR /tmp
