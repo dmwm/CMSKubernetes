@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile-upstream:master
-FROM registry.cern.ch/cmsweb/wmagent-base:pypi-20250523-stable
+FROM registry.cern.ch/cmsweb/wmagent-base:pypi-20250611-stable
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 # TAG to be passed at build time through `--build-arg TAG=<WMA_TAG>`. Default: None
