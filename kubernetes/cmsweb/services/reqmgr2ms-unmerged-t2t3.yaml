@@ -48,7 +48,6 @@ metadata:
 data:
   setup-certs-and-run.sh: |
     #!/bin/bash
-    sudo cp /host/etc/grid-security/* /etc/grid-security
     echo 'INFO Files in /etc/grid-security'
     ls -lahZ /etc/grid-security
     # su  -c "cd /data && /data/run.sh -e '(((cms_type=real|cms_type=int)&rse_type=DISK&(tier=2|tier=3))\country=US)' " --preserve-environment _reqmgr2ms
@@ -136,7 +135,7 @@ spec:
         - name: hmac-secrets
           mountPath: /etc/hmac
           readOnly: true
-        - mountPath: /host/etc/grid-security
+        - mountPath: /etc/grid-security
           name: etc-grid-security
           readOnly: true
         - name: setup-certs-and-run

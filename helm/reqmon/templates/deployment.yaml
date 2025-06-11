@@ -59,7 +59,7 @@ spec:
         - name: hmac-secrets
           mountPath: /etc/hmac
           readOnly: true
-        - mountPath: /host/etc/grid-security
+        - mountPath: /etc/grid-security
           name: etc-grid-security
           readOnly: true
         - name: setup-certs-and-run
