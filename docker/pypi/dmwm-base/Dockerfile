@@ -4,9 +4,10 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 # see https://docs.docker.com/build/building/best-practices/#apt-get
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl libcurl4 libcurl4-openssl-dev python3-pycurl \ 
+    curl libcurl4 libcurl4-openssl-dev \ 
     apache2-utils \
     sudo less vim git \
+    procps \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
