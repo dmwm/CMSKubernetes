@@ -1,6 +1,7 @@
-FROM registry.cern.ch/cmsweb/cmsweb:202503110-stable
+FROM registry.cern.ch/cmsweb/dmwm-base:alma9-py3.12-20250529
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
+RUN yum install -y git
 ENV WDIR=/data
 ENV USER=_t0wmadatasvc
 ADD install.sh $WDIR/install.sh
@@ -30,3 +31,4 @@ ADD monitor.sh $WDIR/monitor.sh
 USER $USER
 WORKDIR $WDIR
 CMD ["./run.sh"]
+
