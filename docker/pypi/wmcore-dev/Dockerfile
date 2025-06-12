@@ -1,9 +1,12 @@
 ARG PYTHON_VERSION=3.12
+ARG IMAGE_VERSION=0.4.0
 
 FROM --platform=linux/amd64 registry.cern.ch/cmsweb/gfal:alma9-py${PYTHON_VERSION}-1.13.0 as gfal2
 FROM --platform=linux/amd64 registry.cern.ch/cmsweb/cmsweb-alma9-base:20240530
 
-LABEL version="0.4.0"
+ARG PYTHON_VERSION
+
+LABEL version=${IMAGE_VERSION}
 
 ENV WDIR="/home/cmsbld"
 
@@ -47,21 +50,25 @@ RUN dnf install -y \
     dnf clean all
 
 # Create the working directory
-RUN mkdir -p ${WDIR}
+RUN mkdir -p ${WDIR}/.local
 WORKDIR $WDIR
 
 # Install uv and make a venv based on the python version
-RUN pip3 install uv
-ENV VIRTUAL_ENV="${WDIR}/.local/wmcore-venv"
-RUN uv venv --python ${PYTHON_VERSION} ${VIRTUAL_ENV}
+ENV UV_PYTHON_INSTALL_DIR=$WDIR/.local/bin
+RUN pip3 install uv && \
+    uv python install ${PYTHON_VERSION}
+ENV VIRTUAL_ENV="$WDIR/.local/wmcore-venv"
+RUN uv venv -p ${PYTHON_VERSION} ${VIRTUAL_ENV}
 ENV PATH="${VIRTUAL_ENV}/bin:$PATH"
 
 # get requirements.txt and remove gfal2 to use RPM gfal2
 RUN curl -O https://raw.githubusercontent.com/dmwm/WMCore/master/requirements.txt && \
-    sed '/gfal2/d' /home/cmsbld/requirements.txt > /home/cmsbld/requirements-dev.txt
+    sed '/gfal2/d' /home/cmsbld/requirements.txt > /home/cmsbld/requirements-dev.txt && \
+    sed -i '/nose~/d' /home/cmsbld/requirements-dev.txt
 
 RUN uv pip install --no-cache-dir --upgrade pip setuptools wheel && \
-    uv pip install --no-cache-dir --ignore-installed -r /home/cmsbld/requirements-dev.txt
+    uv pip install --no-cache-dir -r /home/cmsbld/requirements-dev.txt && \
+    uv pip install --no-cache-dir pynose~=1.5.4
 
 # copy gfal2 and libboost
 COPY --from=gfal2 /tmp/.venv/lib/python3.12/site-packages/gfal2.so $WDIR/.local/wmcore-venv/lib/python3.12/site-packages/gfal2.so
