@@ -10,17 +10,17 @@ else
     chown -R ${MY_ID}:${MY_GROUP} /home/cmsbld
     chmod -R 755 /home/cmsbld
 
+    su - cmsbld
+
     pushd /home/cmsbld
 
     # clone main repo
     git clone https://github.com/${WMCORE_ORG:-dmwm}/WMCore
 
     # clone jenkins-test scripts
-    git clone --depth 1 --branch ${WMCORE_JENKINS_TAG:-master} https://github.com/${WMCORE_JENKINS_ORG:-dmwm}/WMCore-Jenkins
+    git clone --depth 1 --branch ${WMCORE_JENKINS_TAG:-main} https://github.com/${WMCORE_JENKINS_ORG:-dmwm}/WMCore-Jenkins
 
-    cp -r WMCore-Jenkins/TestScripts .
-    cp -r WMCore-Jenkins/ContainerScripts .
-    cp -r WMCore-Jenkins/etc .
+    cp -r WMCore-Jenkins/{TestScripts,ContainerScripts,etc} .
 
     popd
 
