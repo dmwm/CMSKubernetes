@@ -63,12 +63,10 @@ ENV PATH="${VIRTUAL_ENV}/bin:$PATH"
 
 # get requirements.txt and remove gfal2 to use RPM gfal2
 RUN curl -O https://raw.githubusercontent.com/dmwm/WMCore/master/requirements.txt && \
-    sed '/gfal2/d' /home/cmsbld/requirements.txt > /home/cmsbld/requirements-dev.txt && \
-    sed -i '/nose~/d' /home/cmsbld/requirements-dev.txt
+    sed '/gfal2/d' /home/cmsbld/requirements.txt > /home/cmsbld/requirements-dev.txt
 
 RUN uv pip install --no-cache-dir --upgrade pip setuptools wheel && \
-    uv pip install --no-cache-dir -r /home/cmsbld/requirements-dev.txt && \
-    uv pip install --no-cache-dir pynose~=1.5.4
+    uv pip install --no-cache-dir -r /home/cmsbld/requirements-dev.txt
 
 # copy gfal2 and libboost
 COPY --from=gfal2 /tmp/.venv/lib/python3.12/site-packages/gfal2.so $WDIR/.local/wmcore-venv/lib/python3.12/site-packages/gfal2.so

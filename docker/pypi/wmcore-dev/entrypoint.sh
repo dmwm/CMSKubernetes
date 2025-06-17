@@ -6,12 +6,6 @@ if [[ -z "${BUILD_ID}" ]]; then
 else
     echo "BUILD_ID set, setting up for CI/CD"
 
-    # give proper ownership and permissions to home directory
-    chown -R ${MY_ID}:${MY_GROUP} /home/cmsbld
-    chmod -R 755 /home/cmsbld
-
-    su - cmsbld
-
     pushd /home/cmsbld
 
     # clone main repo
@@ -20,9 +14,14 @@ else
     # clone jenkins-test scripts
     git clone --depth 1 --branch ${WMCORE_JENKINS_TAG:-main} https://github.com/${WMCORE_JENKINS_ORG:-dmwm}/WMCore-Jenkins
 
+    # copy scripts
     cp -r WMCore-Jenkins/{TestScripts,ContainerScripts,etc} .
 
     popd
+
+    # give proper ownership and permissions to home directory
+    chown -R ${MY_ID}:${MY_GROUP} /home/cmsbld
+    chmod -R 755 /home/cmsbld
 
 fi
 
