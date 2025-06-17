@@ -12,6 +12,17 @@ This image is used for running unit tests and linting for the [WMCore](https://g
     * `make push-preprod`: Pushes the current version
     * `make push-stable`: Pushes the current version, appended with `-stable`
 
+## Environment Variables
+These are the environment variables used in `entrypoint.sh`.
+
+| Variable             | Description                                                                         |
+| :------------------- | :---------------------------------------------------------------------------------- |
+| `BUILD_ID`           | Set when run from Jenkins. Indicates whether we are in Jenkins or in developer mode |
+| `MY_ID`, `MY_GROUP`  | Used in Jenkins. The id and group of the user running tests                         |
+| `WMCORE_ORG`         | default: `dmwm`, the organization/user of the cloned WMCore repository              |
+| `WMCORE_JENKINS_TAG` | default: `master`, the tag of the WMCore-Jenkins repository to use scripts from     |
+| `WMCORE_JENKINS_ORG` | default: `dmwm`, the organization/user of the cloned WMCore-Jenkins repository      |
+
 ## Maintainers
 [@d-ylee](https://github.com/d-ylee)
 [@khurtado](https://github.com/khurtado)
