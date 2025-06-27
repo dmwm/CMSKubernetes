@@ -382,7 +382,6 @@ execute_command_agent(){
         exit 1
     }
     shift
-    export WMAGENT_CONFIG=$WMA_CONFIG_DIR/config.py
     echo "$FUNCNAME: Executing: $RUNTHIS $@ ..."
     $RUNTHIS $@;
 }
