@@ -6,7 +6,7 @@ MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl libcurl4 libcurl4-openssl-dev \ 
     apache2-utils \
-    sudo less vim git \
+    sudo less vim git patch \
     procps \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
