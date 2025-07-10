@@ -21,7 +21,6 @@ else
 
     # give proper ownership and permissions to home directory
     chown -R ${MY_ID}:${MY_GROUP} /home/cmsbld
-    chmod -R 755 /home/cmsbld
 
 fi
 
