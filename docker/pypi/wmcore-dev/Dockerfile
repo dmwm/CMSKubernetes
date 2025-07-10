@@ -5,6 +5,7 @@ FROM --platform=linux/amd64 registry.cern.ch/cmsweb/gfal:alma9-py${PYTHON_VERSIO
 FROM --platform=linux/amd64 registry.cern.ch/cmsweb/cmsweb-alma9-base:20240530
 
 ARG PYTHON_VERSION
+ARG WMCORE_TAG=2.4.1
 
 LABEL version=${IMAGE_VERSION}
 
@@ -62,22 +63,24 @@ RUN uv venv -p ${PYTHON_VERSION} ${VIRTUAL_ENV}
 ENV PATH="${VIRTUAL_ENV}/bin:$PATH"
 
 # get requirements.txt and remove gfal2 to use RPM gfal2
-RUN curl -O https://raw.githubusercontent.com/dmwm/WMCore/master/requirements.txt && \
-    sed '/gfal2/d' /home/cmsbld/requirements.txt > /home/cmsbld/requirements-dev.txt
+RUN curl -O "https://raw.githubusercontent.com/dmwm/WMCore/$WMCORE_TAG/requirements.txt" && \
+    sed -i '/gfal2/d' /home/cmsbld/requirements.txt
 
 RUN uv pip install --no-cache-dir --upgrade pip setuptools wheel && \
-    uv pip install --no-cache-dir -r /home/cmsbld/requirements-dev.txt
+    uv pip install --no-cache-dir -r /home/cmsbld/requirements.txt
 
 # copy gfal2 and libboost
-COPY --from=gfal2 /tmp/.venv/lib/python3.12/site-packages/gfal2.so $WDIR/.local/wmcore-venv/lib/python3.12/site-packages/gfal2.so
+COPY --from=gfal2 /tmp/.venv/lib/python${PYTHON_VERSION}/site-packages/gfal2.so $WDIR/.local/wmcore-venv/lib/python${PYTHON_VERSION}/site-packages/gfal2.so
 COPY --from=gfal2 /usr/local/lib/* /usr/local/lib/.
 
 ADD entrypoint.sh /entrypoint.sh
+ADD etc ${WDIR}/etc
 
 ENV X509_HOST_CERT=/data/certs/servicecert.pem
 ENV X509_HOST_KEY=/data/certs/servicekey.pem
 ENV X509_USER_CERT=/data/certs/servicecert.pem
 ENV X509_USER_KEY=/data/certs/servicekey.pem
+ENV WMCORE_TAG=$WMCORE_TAG
 
 ENTRYPOINT ["/entrypoint.sh"]
 
