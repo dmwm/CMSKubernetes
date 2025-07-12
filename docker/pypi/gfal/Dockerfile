@@ -5,7 +5,7 @@ RUN conda install -y -c conda-forge \
       python=3.12 \
       gfal2 \
       python-gfal2 \
-      openssl=3.2 \
+      openssl \
       libcurl && \
     conda clean -afy
 
