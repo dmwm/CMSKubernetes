@@ -12,10 +12,10 @@ else
     git clone https://github.com/${WMCORE_ORG:-dmwm}/WMCore
 
     # clone jenkins-test scripts
-    git clone --depth 1 --branch ${WMCORE_JENKINS_TAG:-main} https://github.com/${WMCORE_JENKINS_ORG:-dmwm}/WMCore-Jenkins
+    git clone --depth 1 --branch ${WMCORE_JENKINS_REF:-main} https://github.com/${WMCORE_JENKINS_ORG:-dmwm}/WMCore-Jenkins
 
     # copy scripts
-    cp -r WMCore-Jenkins/{TestScripts,ContainerScripts,etc} .
+    cp -r WMCore-Jenkins/{TestScripts,ContainerScripts} .
 
     popd
 
