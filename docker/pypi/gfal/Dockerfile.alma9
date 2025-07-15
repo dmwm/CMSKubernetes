@@ -1,0 +1,27 @@
+FROM registry.cern.ch/cmsweb/dmwm-base:alma9-py3.12-20250522
+LABEL org.opencontainers.image.authors="Dennis Lee dylee@fnal.gov"
+
+WORKDIR /tmp
+RUN dnf -y upgrade && \
+    dnf install epel-release -y && dnf clean all && \
+    dnf -y install git bzip2 gfal2-devel python3.12-devel
+
+RUN git clone --branch v1.13.0 https://github.com/cern-fts/gfal2-python.git
+
+WORKDIR /tmp/gfal2-python
+RUN ./ci/fedora-packages.sh
+
+WORKDIR /tmp
+# get and install boost
+RUN git clone https://github.com/boostorg/boost.git -b boost-1.85.0 boost_1_85_0 --depth 1 && \
+    cd boost_1_85_0 && \
+    git submodule update --depth 1 -q --init tools/boostdep && \
+    git submodule update --depth 1 -q --init libs/python && \
+    python tools/boostdep/depinst/depinst.py -X test -g "--depth 1" python && \
+    ./bootstrap.sh --with-python=/usr/bin/python3.12 && \
+    ./b2 install --with-python
+
+RUN python -m venv .venv
+ENV PATH="$WDIR/.venv/bin:$PATH"
+
+RUN .venv/bin/pip install -v gfal2-python
