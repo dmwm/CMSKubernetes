@@ -1,5 +1,5 @@
 FROM registry.cern.ch/cmsweb/oracle:21_5-stable as oracle
-FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20250611-stable
+FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20250716-stable
 
 # see https://docs.docker.com/build/building/best-practices/#apt-get
 RUN apt-get update && apt-get install -y --no-install-recommends \
