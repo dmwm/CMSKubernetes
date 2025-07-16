@@ -1,0 +1,22 @@
+ARG WMCORE_DEV_TAG=0.4.0
+ARG PYTHON_VERSION=3.12
+FROM --platform=linux/amd64 registry.cern.ch/cmsweb/wmcore-dev:py${PYTHON_VERSION}-${WMCORE_DEV_TAG}
+
+LABEL version="${WMCORE_DEV_TAG}-dev"
+
+RUN dnf install -y https://repo.osg-htc.org/osg/24-main/osg-24-main-el9-release-latest.rpm
+
+RUN dnf install -y \
+        osg-ca-certs && \
+    dnf clean all
+
+# Creat wmdev user
+RUN useradd -m -u 1000 wmdev && \
+    chown -R wmdev /home/cmsbld && \
+    chmod -R 755 /home/cmsbld
+
+USER wmdev
+
+WORKDIR /workspaces/WMCore
+
+ENV SHELL /bin/bash
