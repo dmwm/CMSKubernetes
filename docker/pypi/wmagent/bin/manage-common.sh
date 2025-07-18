@@ -244,11 +244,9 @@ _couch_db_isclean(){
 _sql_write_agentid(){
     # Auxiliary function to write the current agent build id into the sql database
     echo "$FUNCNAME: Preserving the current WMA_BUILD_ID and HostName at database: $wmaDBName."
-    local createCmd="create table wma_init(init_param varchar(100) not null unique, init_value varchar(100) not null);"
     case $AGENT_FLAVOR in
         'oracle')
             echo "$FUNCNAME: Creating wma_init table at database: $wmaDBName"
-            _exec_oracle "$createCmd" || return
 
             echo "$FUNCNAME: Inserting current Agent's build id and hostname at database: $wmaDBName"
             _exec_oracle "insert into wma_init (init_param, init_value) values ('wma_build_id', '$WMA_BUILD_ID');" || return
@@ -258,7 +256,6 @@ _sql_write_agentid(){
             ;;
         'mysql')
             echo "$FUNCNAME: Creating wma_init table at database: $wmaDBName"
-            _exec_mysql "$createCmd" $wmaDBName || return
 
             echo "$FUNCNAME: Inserting current Agent's build id and hostname at database: $wmaDBName"
             _exec_mysql "insert into wma_init (init_param, init_value) values ('wma_build_id', '$WMA_BUILD_ID');" $wmaDBName || return
