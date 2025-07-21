@@ -1,4 +1,4 @@
-FROM registry.cern.ch/cmsweb/dmwm-base:alma9-py3.12-20250529
+FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20250716-stable
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 RUN yum install -y git
