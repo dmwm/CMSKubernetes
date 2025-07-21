@@ -1,34 +1,13 @@
-FROM registry.cern.ch/cmsweb/dmwm-base:alma9-py3.12-20250529
+FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20250716-stable
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
-
-RUN yum install -y git
+# TAG to be passed at build time through `--build-arg TAG=<PYPI_TAG>`. Default: None
+ARG TAG=2.1.1
+RUN pip install git+https://github.com/dmwm/t0wmadatasvc.git@$TAG
 ENV WDIR=/data
 ENV USER=_t0wmadatasvc
-ADD install.sh $WDIR/install.sh
-
-# add new user
 RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
-# add user to sudoers file
 RUN echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-# switch to user
 USER ${USER}
-
-# start the setup
-RUN mkdir -p $WDIR
-WORKDIR ${WDIR}
-
-# pass env variable to the build
-ARG CMSK8S
-ENV CMSK8S=$CMSK8S
-
-# install
-RUN $WDIR/install.sh
-
-# run the service
-ADD run.sh $WDIR/run.sh
-ADD monitor.sh $WDIR/monitor.sh
-
-USER $USER
+RUN sudo chown -R $USER.$USER $WDIR
 WORKDIR $WDIR
-CMD ["./run.sh"]
-
+CMD ["python3"]
