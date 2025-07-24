@@ -2,8 +2,11 @@
 
 # start couchdb exporter
 COUCH_CONFIG=/data/srv/current/auth/couchdb/couchdb_config.ini
+export COUCHDB_NODE_NAME="couchdb@$(hostname)"
 # test if file is not zero size
 if [ -s "${COUCH_CONFIG}" ]; then
+    sudo cp /etc/secrets/$fname /data/srv/current/auth/$srv/$fname
+    sudo chown $USER.$USER /data/srv/current/auth/$srv/$fname
     nohup /data/couchdb-prometheus-exporter -telemetry.address=":9984" \
       --config=$COUCH_CONFIG -databases.views=false --databases=_all_dbs 2>&1 1>& \
       /data/couchdb_exporter.log < /dev/null &
