@@ -8,7 +8,7 @@ echo "Creating necessary directories on the host to persist logs and data"
 mkdir -p $COUCH_LOGS_DIR
 mkdir -p $COUCH_DB_DIR
 mkdir -p $COUCH_STAGING_DIR
-sudo chown $COUCH_USR:zh $COUCH_LOGS_DIR
+sudo chown -R $COUCH_USR:zh $COUCH_LOGS_DIR
 sudo chown -R $COUCH_USR:zh $COUCH_DB_DIR/..
 
 # Define directory to store credentials and standard configuration
@@ -32,3 +32,4 @@ dockerOpts=" \
 couch_tag=3.2.2-stable
 echo "Executing docker run for CouchDB tag: $couch_tag"
 docker run $dockerOpts registry.cern.ch/cmsweb/couchdb:$couch_tag && docker logs -f couchdb
+
