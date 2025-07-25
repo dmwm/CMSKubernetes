@@ -67,8 +67,7 @@ RUN curl -O "https://raw.githubusercontent.com/dmwm/WMCore/$WMCORE_TAG/requireme
     sed -i '/gfal2/d' /home/cmsbld/requirements.txt
 
 RUN uv pip install --no-cache-dir --upgrade pip setuptools wheel && \
-    uv pip install --no-cache-dir -r /home/cmsbld/requirements.txt && \
-    uv pip install --no-cache-dir mongomock
+    uv pip install --no-cache-dir -r /home/cmsbld/requirements.txt
 
 # copy gfal2 and libboost
 COPY --from=gfal2 /tmp/.venv/lib/python${PYTHON_VERSION}/site-packages/gfal2.so $WDIR/.local/wmcore-venv/lib/python${PYTHON_VERSION}/site-packages/gfal2.so
