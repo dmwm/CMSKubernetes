@@ -1,8 +1,8 @@
 ARG PYTHON_VERSION=3.12
 ARG IMAGE_VERSION=0.4.0
 
-FROM --platform=linux/amd64 registry.cern.ch/cmsweb/gfal:alma9-py${PYTHON_VERSION}-1.13.0 as gfal2
-FROM --platform=linux/amd64 registry.cern.ch/cmsweb/cmsweb-alma9-base:20240530
+FROM --platform=linux/amd64 registry.cern.ch/cmsweb/gfal:alma9-py${PYTHON_VERSION}-gfal-1.13.0 as gfal2
+FROM --platform=linux/amd64 registry.cern.ch/cmsweb/dmwm-base:alma9-py3.12-20250728
 
 ARG PYTHON_VERSION
 ARG WMCORE_TAG=2.4.1
@@ -11,9 +11,16 @@ LABEL version=${IMAGE_VERSION}
 
 ENV WDIR="/home/cmsbld"
 
+# Install EPEL repository (required for voms, fetch-crl and CA-related packages)
+RUN dnf -y install epel-release && dnf -y upgrade && \
+    dnf install -y http://linuxsoft.cern.ch/wlcg/el9/x86_64/wlcg-repo-1.0.0-1.el9.noarch.rpm && \
+    dnf clean all
+
 # Install cern repo
 RUN dnf install -y 'dnf-command(config-manager)' && \
     dnf config-manager --add-repo https://linuxsoft.cern.ch/cern/alma/9/devel/x86_64/os
+
+ADD http://repository.egi.eu/sw/production/cas/1/current/repo-files/egi-trustanchors.repo /etc/yum.repos.d/egi.repo
 
 # Install basic tools
 RUN dnf upgrade -y && \
@@ -47,6 +54,9 @@ RUN dnf install -y http://linuxsoft.cern.ch/wlcg/el9/x86_64/wlcg-repo-1.0.0-1.el
 # Tools for getting proxies
 RUN dnf install -y \
         wlcg-voms-cms \
+        fetch-crl cern-get-certificate CERN-CA-certs ca-certificates \
+        dummy-ca-certs ca-policy-lcg ca-policy-egi-core \
+        ca_CERN-GridCA ca_CERN-Root-2 \
         voms-clients-cpp && \
     dnf clean all
 
