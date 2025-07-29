@@ -1,8 +1,8 @@
 ARG PYTHON_VERSION=3.12
 ARG IMAGE_VERSION=0.4.0
 
-FROM --platform=linux/amd64 registry.cern.ch/cmsweb/gfal:alma9-py${PYTHON_VERSION}-gfal-1.13.0 as gfal2
-FROM --platform=linux/amd64 registry.cern.ch/cmsweb/dmwm-base:alma9-py3.12-20250728
+FROM --platform=linux/amd64 registry.cern.ch/cmsweb/gfal:alma9-py${PYTHON_VERSION}-gfal-1.13.0-stable as gfal2
+FROM --platform=linux/amd64 registry.cern.ch/cmsweb/dmwm-base:alma9-py3.12-20250728-stable
 
 ARG PYTHON_VERSION
 ARG WMCORE_TAG=2.4.1

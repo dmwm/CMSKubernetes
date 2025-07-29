@@ -28,9 +28,7 @@ push-preprod:
 
 push-stable:
 	docker tag registry.cern.ch/cmsweb/wmcore-dev:py3.12-$(WMCORE_TAG) registry.cern.ch/cmsweb/wmcore-dev:py3.12-$(WMCORE_TAG)-stable
-	docker tag registry.cern.ch/cmsweb/wmcore-dev:py3.12-$(WMCORE_TAG) registry.cern.ch/cmsweb/wmcore-dev:latest-stable
 	docker push registry.cern.ch/cmsweb/wmcore-dev:py3.12-$(WMCORE_TAG)-stable
-	docker push registry.cern.ch/cmsweb/wmcore-dev:latest-stable
 
 push-dev:
 	docker tag registry.cern.ch/cmsweb/wmcore-development registry.cern.ch/cmsweb/wmcore-development:latest-stable
