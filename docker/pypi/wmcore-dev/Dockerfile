@@ -89,6 +89,7 @@ ENV X509_HOST_CERT=/data/certs/servicecert.pem
 ENV X509_HOST_KEY=/data/certs/servicekey.pem
 ENV X509_USER_CERT=/data/certs/servicecert.pem
 ENV X509_USER_KEY=/data/certs/servicekey.pem
+ENV USER=cmsbld
 ENV WMCORE_TAG=$WMCORE_TAG
 
 ENTRYPOINT ["/entrypoint.sh"]
