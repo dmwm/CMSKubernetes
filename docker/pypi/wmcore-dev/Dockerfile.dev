@@ -1,6 +1,7 @@
 ARG WMCORE_TAG=2.4.2rc7
 ARG PYTHON_VERSION=3.12
 FROM --platform=linux/amd64 registry.cern.ch/cmsweb/wmcore-dev:py${PYTHON_VERSION}-${WMCORE_TAG}-stable
+LABEL org.opencontainers.image.authors="Dennis Lee dylee@fnal.gov"
 
 RUN dnf install -y https://repo.osg-htc.org/osg/24-main/osg-24-main-el9-release-latest.rpm
 
