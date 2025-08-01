@@ -1,4 +1,4 @@
-WMCORE_TAG=2.4.2rc7
+WMCORE_TAG=2.4.2rc8
 DATE := $(shell date +%Y%m%d)
 
 build:
