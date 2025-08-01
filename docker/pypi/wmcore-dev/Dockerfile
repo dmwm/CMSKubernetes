@@ -6,7 +6,8 @@ FROM --platform=linux/amd64 registry.cern.ch/cmsweb/dmwm-base:alma9-py3.12-20250
 ARG PYTHON_VERSION
 ARG WMCORE_TAG=2.4.1
 
-LABEL version=${IMAGE_VERSION}
+LABEL org.opencontainers.image.authors="Dennis Lee dylee@fnal.gov"
+
 
 ENV WDIR="/home/cmsbld"
 
