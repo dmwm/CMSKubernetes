@@ -59,7 +59,15 @@ if [ $# -ne 3 ]; then
         if [[ "$cluster_name" == *"cmsweb-test13" ]] ; then
                 env="test13"
         fi
-	
+        if [[ "$cluster_name" == *"cmsweb-test14" ]] ; then
+                env="test14"
+        fi
+        if [[ "$cluster_name" == *"cmsweb-test15" ]] ; then
+                env="test15"
+        fi
+        if [[ "$cluster_name" == *"cmsweb-test16" ]] ; then
+                env="test16"
+        fi
 fi
 srv=$1
 cmsweb_image_tag=:$2
@@ -153,7 +161,21 @@ if [[ "$cluster_name"  == *"cmsweb-test13" ]] ; then
         check=false
         fi
 fi
-
+if [[ "$cluster_name"  == *"cmsweb-test14" ]] ; then
+        if [[ "$env" != "test14" ]] ; then
+        check=false
+        fi
+fi
+if [[ "$cluster_name"  == *"cmsweb-test15" ]] ; then
+        if [[ "$env" != "test15" ]] ; then
+        check=false
+        fi
+fi
+if [[ "$cluster_name"  == *"cmsweb-test16" ]] ; then
+        if [[ "$env" != "test16" ]] ; then
+        check=false
+        fi
+fi
 if [[ $check == false ]] ; then
 
         echo "The environment and config did not match. Please check."
