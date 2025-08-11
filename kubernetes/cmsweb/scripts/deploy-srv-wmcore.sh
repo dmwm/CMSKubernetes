@@ -59,8 +59,15 @@ if [ $# -ne 2 ]; then
         if [[ "$cluster_name" == *"cmsweb-test13" ]] ; then
                 env="test13"
         fi
-
-	
+        if [[ "$cluster_name" == *"cmsweb-test14" ]] ; then
+                env="test14"
+        fi
+        if [[ "$cluster_name" == *"cmsweb-test15" ]] ; then
+                env="test15"
+        fi
+        if [[ "$cluster_name" == *"cmsweb-test16" ]] ; then
+                env="test16"
+        fi
 fi
 srv=( "reqmgr2ms-output" "reqmgr2ms-rulecleaner" "reqmgr2ms-transferor" "reqmgr2ms-unmerged-t1" "reqmgr2ms-unmerged-t2t3" "reqmgr2ms-unmerged-t2t3us" "reqmgr2ms-pileup" "reqmgr2ms-pileup-tasks" "reqmgr2" "reqmgr2-tasks" "reqmon" "reqmon-tasks" "workqueue" "t0_reqmon" "t0_reqmon-tasks" )
 echo ${srv[*]}
@@ -157,7 +164,21 @@ if [[ "$cluster_name"  == *"cmsweb-test13" ]] ; then
         check=false
         fi
 fi
-
+if [[ "$cluster_name"  == *"cmsweb-test14" ]] ; then
+        if [[ "$env" != "test14" ]] ; then
+        check=false
+        fi
+fi
+if [[ "$cluster_name"  == *"cmsweb-test15" ]] ; then
+        if [[ "$env" != "test15" ]] ; then
+        check=false
+        fi
+fi
+if [[ "$cluster_name"  == *"cmsweb-test16" ]] ; then
+        if [[ "$env" != "test16" ]] ; then
+        check=false
+        fi
+fi
 if [[ $check == false ]] ; then
 
         echo "The environment and config did not match. Please check."
