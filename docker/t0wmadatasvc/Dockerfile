@@ -18,11 +18,6 @@ ENV WDIR=/data
 ENV USER=_t0wmadatasvc
 RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
 RUN echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-
-# Hardcode fix missing config.py, overwrite run.sh
-COPY run.sh /data/run.sh
-COPY config.py /data/config.py
-
 USER ${USER}
 RUN sudo chown -R $USER.$USER $WDIR
 WORKDIR $WDIR
