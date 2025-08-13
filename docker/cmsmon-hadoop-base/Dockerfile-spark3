@@ -1,5 +1,6 @@
 # Ref: https://gitlab.cern.ch/hadoop/utils/hadoop-conf/-/blob/master/docker/Dockerfile
-FROM python:3.9 AS builder
+FROM registry.cern.ch/docker.io/library/python:3.9 AS builder
+USER root
 
 ENV WDIR=/data
 WORKDIR $WDIR
