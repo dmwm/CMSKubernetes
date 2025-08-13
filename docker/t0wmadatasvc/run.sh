@@ -6,7 +6,7 @@ STATEDIR=/data/srv/state/$srv
 LOGDIR=/data/srv/logs/$srv
 AUTHDIR=/data/srv/current/auth/$srv
 CONFIGDIR=/data/srv/current/config/$srv
-CONFIGFILE=${CONFIGFILE:-config.py}
+CONFIGFILE=${CONFIGFILE:-t0auth.py}
 CFGFILE=/etc/secrets/$CONFIGFILE
 
 ### permission update to workaround issues with mounting logs volume
@@ -73,10 +73,6 @@ if [ -d /usr/local/data ] && [ "$USER" == "_reqmgr2" ]; then
    sudo mkdir -p /data/srv/current/apps/reqmgr2
    sudo ln -s /usr/local/data /data/srv/current/apps/reqmgr2
 fi
-
-# Hardcode 
-set -x
-cp /data/config.py $CONFIGDIR/$CONFIGFILE
 
 # start the service
 wmc-httpd -r -d $STATEDIR -l "|rotatelogs $LOGDIR/$srv-%Y%m%d-`hostname -s`.log 86400" $CFGFILE
