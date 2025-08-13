@@ -1,0 +1,60 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: promxy-to-opensearch
+  namespace: hdfs
+  labels:
+    app: promxy-to-opensearch
+    environment: production
+    service_type: cronjob
+spec:
+  schedule: "0 2 * * *"  # daily 02:00 UTC
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 3600
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: promxy-exporter
+              image: registry.cern.ch/cmsmonitoring/promxy-to-opensearch:test
+              imagePullPolicy: Always
+              command: ["/bin/bash"]
+              args:
+                - "/app/entrypoint.sh"
+              env:
+                - name: PROMXY_URL
+                  value: "http://cms-monitoring.cern.ch:30082/api/v1/query_range"
+                - name: PROM_QUERY
+                  value: "avg_over_time:rucio_report_used_space:1d"
+                - name: OPENSEARCH_HOST
+                  value: "https://os-cms.cern.ch:443/os"
+                - name: OPENSEARCH_INDEX
+                  value: "rucio-used-space-1d"
+                - name: EXTRA_LABELS
+                  value: '{"source":"promxy","instance":"prod"}'
+                - name: KRB5_CLIENT_KTNAME
+                  value: "/etc/secrets/keytab"
+                - name: START_DATE
+                  value: "2024-01-01"
+                - name: END_DATE
+                  value: "2024-12-31"
+                - name: STEP
+                  value: "86400"
+                - name: DEBUG_MODE
+                  value: "true"
+                - name: DRY_RUN
+                  value: "false"
+              volumeMounts:
+                - name: promxy-keytab-secret
+                  mountPath: /etc/secrets
+                  readOnly: true
+          volumes:
+            - name: promxy-keytab-secret
+              secret:
+                secretName: keytab-secret
+
