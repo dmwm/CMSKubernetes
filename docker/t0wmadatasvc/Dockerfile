@@ -1,32 +1,24 @@
-FROM registry.cern.ch/cmsweb/cmsweb:202503110-stable
+FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20250716-stable
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
+# TAG to be passed at build time through `--build-arg TAG=<PYPI_TAG>`. Default: None
+ARG TAG=2.1.1
 
+# Start Workaround missing WMCore deps. (this could be removed later, when T0 found out way to included WMCore as their t0wmadatasvc package deps.
+ARG WMCORE_VERSION=2.4.1
+RUN sudo apt update -y && sudo apt install -y \
+  build-essential \
+  libmariadb-dev \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+RUN pip install wmcore==$WMCORE_VERSION
+# End Workaround
+
+RUN pip install git+https://github.com/dmwm/t0wmadatasvc.git@$TAG
 ENV WDIR=/data
 ENV USER=_t0wmadatasvc
-ADD install.sh $WDIR/install.sh
-
-# add new user
 RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
-# add user to sudoers file
 RUN echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-# switch to user
 USER ${USER}
-
-# start the setup
-RUN mkdir -p $WDIR
-WORKDIR ${WDIR}
-
-# pass env variable to the build
-ARG CMSK8S
-ENV CMSK8S=$CMSK8S
-
-# install
-RUN $WDIR/install.sh
-
-# run the service
-ADD run.sh $WDIR/run.sh
-ADD monitor.sh $WDIR/monitor.sh
-
-USER $USER
+RUN sudo chown -R $USER.$USER $WDIR
 WORKDIR $WDIR
-CMD ["./run.sh"]
+CMD ["python3"]
