@@ -19,7 +19,7 @@ DOCKER_REGISTRY=registry.cern.ch/cmsmonitoring
 # Build
 image_tag="spark3-${CURRENT_DATE}"
 echo "Building ${image_tag}"
-docker build -t "${DOCKER_REGISTRY}/cmsmon-hadoop-base:${image_tag}" -t "${DOCKER_REGISTRY}/cmsmon-hadoop-base:latest" -f Dockerfile-spark3 .
+docker build --user root -t "${DOCKER_REGISTRY}/cmsmon-hadoop-base:${image_tag}" -t "${DOCKER_REGISTRY}/cmsmon-hadoop-base:latest" -f Dockerfile-spark3 .
 echo Build finished: "${DOCKER_REGISTRY}/cmsmon-hadoop-base:${image_tag}"
 # Push
 docker push "${DOCKER_REGISTRY}/cmsmon-hadoop-base:${image_tag}"
