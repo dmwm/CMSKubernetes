@@ -1,4 +1,4 @@
-ARG MDB_TAG=10.6.19
+ARG MDB_TAG=11.8.2
 FROM mariadb:$MDB_TAG
 MAINTAINER Todor Ivanov todor.ivanov@cern.ch
 
