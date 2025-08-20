@@ -16,6 +16,7 @@ RUN pip install wmcore==$WMCORE_VERSION
 RUN pip install git+https://github.com/dmwm/t0wmadatasvc.git@$TAG
 ENV WDIR=/data
 ADD ./config.py $WDIR/config.py
+COPY ./run.sh $WDIR/run.sh
 ENV USER=_t0wmadatasvc
 RUN useradd ${USER} && install -o ${USER} -d ${WDIR}
 RUN echo "%$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
