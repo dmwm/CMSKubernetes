@@ -67,7 +67,7 @@ for fname in $files; do
 done
 
 # Hardcoded copying
-sudo cp /data/config.py $CFGFILE
+sudo cp /data/config.py $CONFIGDIR/config.py
 
 export PYTHONPATH=$PYTHONPATH:/etc/secrets:$AUTHDIR/$fname
 
@@ -78,7 +78,7 @@ if [ -d /usr/local/data ] && [ "$USER" == "_reqmgr2" ]; then
 fi
 
 # start the service
-wmc-httpd -r -d $STATEDIR -l "|rotatelogs $LOGDIR/$srv-%Y%m%d-`hostname -s`.log 86400" $CFGFILE
+wmc-httpd -r -d $STATEDIR -l "|rotatelogs $LOGDIR/$srv-%Y%m%d-`hostname -s`.log 86400" $CONFIGDIR/config.py
 
 # start monitor.sh script
 if [ -f /data/monitor.sh ]; then
