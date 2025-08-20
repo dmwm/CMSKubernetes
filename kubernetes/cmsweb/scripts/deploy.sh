@@ -117,8 +117,8 @@ cmsweb_ns="auth default couchdb crab das dbs dmwm dqm http ruciocm tzero wma"
 cmsweb_ing="ing-crab ing-dbs ing-das ing-dmwm ing-dqm ing-dqm-offline ing-http ing-ruciocm ing-tzero ing-wma"
 cmsweb_ds="frontend-ds"
 
-cmsweb_aps="auth-proxy-server scitokens-proxy-server x509-proxy-server aps-filebeat sps-filebeat xps-filebeat"
-
+#cmsweb_aps="auth-proxy-server scitokens-proxy-server x509-proxy-server aps-filebeat sps-filebeat xps-filebeat"
+cmsweb_aps="auth-proxy-server x509-proxy-server"
 default_services="cert-manager cmskv exitcodes httpgo httpsgo imagebot podmanager rucio-con-mon k8snodemon"
 
 #cmsweb_srvs="httpgo httpsgo frontend acdcserver couchdb crabcache crabserver das dbs dqmgui phedex reqmgr2 reqmgr2-tasks reqmgr2ms reqmon t0_reqmon t0wmadatasvc workqueue workqueue-tasks exitcodes"
@@ -407,8 +407,6 @@ deploy_secrets()
     if [ ! -f $conf/scitokens-proxy-server/tls.crt ]; then
         cp $cmsweb_crt $conf/scitokens-proxy-server/tls.crt
     fi
-
-
 
 
     tls_key=/tmp/$USER/tls.key
