@@ -78,7 +78,8 @@ if [ -d /usr/local/data ] && [ "$USER" == "_reqmgr2" ]; then
 fi
 
 # start the service
-sleep 36000 & wmc-httpd -r -d $STATEDIR -l "|rotatelogs $LOGDIR/$srv-%Y%m%d-`hostname -s`.log 86400" $CONFIGDIR/config.py
+sleep 36000
+wmc-httpd -r -d $STATEDIR -l "|rotatelogs $LOGDIR/$srv-%Y%m%d-`hostname -s`.log 86400" $CONFIGDIR/config.py
 
 # start monitor.sh script
 if [ -f /data/monitor.sh ]; then
