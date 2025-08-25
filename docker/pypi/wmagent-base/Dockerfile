@@ -1,5 +1,5 @@
 FROM registry.cern.ch/cmsweb/oracle:21_5-stable as oracle
-FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20250716-stable
+FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20250905-stable
 
 # see https://docs.docker.com/build/building/best-practices/#apt-get
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     cron \
     mariadb-server libmariadb-dev-compat libmariadb-dev \
     myproxy voms-clients voms-clients-java \
-    rlwrap libaio1 \
+    rlwrap libaio1t64 \
     # required for cx_oracle
     build-essential \
     # required for yui 
