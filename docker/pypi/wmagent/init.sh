@@ -39,7 +39,7 @@ AGENT_FLAVOR=mysql
 [[ -n $WMA_BUILD_ID ]] || WMA_BUILD_ID=$(cat $WMA_ROOT_DIR/.wmaBuildId) || { echo "ERROR: Could not find/set WMA_BUILD_ID"; exit 1 ;}
 
 # Check runtime arguments:
-TEAMNAME_REG="(^production$|^highprio$|^testbed-.*$|^dev-.*$|^relval.*$|^Tier0.*$)"
+TEAMNAME_REG="(^production$|^highprio$|^loweff$|^testbed-.*$|^dev-.*$|^relval.*$|^Tier0.*$)"
 [[ $TEAMNAME =~ $TEAMNAME_REG ]] || { echo "TEAMNAME: $TEAMNAME does not match required expression: $TEAMNAME_REG"; echo "EXIT with Error 1"  ; exit 1 ;}
 
 FLAVOR_REG="(^oracle$|^mysql$)"
