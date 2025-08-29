@@ -448,7 +448,6 @@ _load_wmasecrets(){
     fi
     if [[  -z $OAUTH_CMS_TOKEN_NAME ]]; then
         echo "$FUNCNAME: WARNING: Secrets file doesnt contain OAUTH_CMS_TOKEN_NAME, disabling tokens in remote jobs."; 
-        OAUTH_CMS_TOKEN_NAME=none
     fi
 
     # CouchDB settings
