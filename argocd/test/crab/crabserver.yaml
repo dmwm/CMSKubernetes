@@ -1,0 +1,260 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: crabserver
+  namespace: crab
+spec:
+  selector:
+    app: crabserver
+  ports:
+    - port: 8270
+      targetPort: 8270
+      name: crabserver
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: crabserver
+  labels:
+    app: crabserver
+  namespace: crab
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+
+    sudo cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    #su  -c "cd /data && /data/run.sh" --preserve-environment  _crabserver
+    cd /data && /data/run.sh
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: crabserver
+  name: crabserver
+  namespace: crab
+spec:
+  selector:
+    matchLabels:
+      app: crabserver
+  replicas: 1 
+  template:
+    metadata:
+      labels:
+        app: crabserver
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "18270"
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 2000
+      containers:
+      #- image: sbelforte/crabserver:3.3.1911.rc3
+      - image: registry.cern.ch/cmsweb/crabserver #imagetag
+        name: crabserver
+        env:
+        - name: CRABSERVER_LOGSTDOUT
+          value: "t"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "3Gi"
+            cpu: "1500m"
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - |
+              cmsweb-ping --url=http://localhost:8270/crabserver/prod/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
+          initialDelaySeconds: 120
+          failureThreshold: 3
+          periodSeconds: 60
+          timeoutSeconds: 60
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - |
+              cmsweb-ping --url=http://localhost:8270/crabserver/prod/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
+          periodSeconds: 60
+          timeoutSeconds: 60
+        ports:
+        - containerPort: 8270
+          protocol: TCP
+          name: crabserver
+        - containerPort: 18270
+          protocol: TCP
+          name: crabserver-mon
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true
+        securityContext:
+          privileged: true
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: crabserver-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: etc-grid-security
+        hostPath:
+            path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: crabserver
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    k8s-app: filebeat
+  name: filebeat-crab-config
+  namespace: crab
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: container
+      paths:
+        - /var/log/pods/crab_crabserver*/crabserver/*.log
+      include_lines:
+        - '\] crabserver-\w+-\w+ \d'
+      tags:
+        - "crabhttpcall"
+    - type: container
+      paths:
+        - /var/log/pods/crab_crabserver*/crabserver/*.log
+      include_lines:
+        - 'MeasureTime:seconds - '
+        - 'MeasureSize:bytes - '
+      tags:
+        - "crabrest"
+    output.logstash:
+      hosts: ["logstash:5044"]
+      compression_level: 3
+      bulk_max_size: 4096
+    queue.mem:
+      events: 65536
+    logging.metrics.enabled: false
+    logging.level: info
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: filebeat-crab
+  name: filebeat-crab
+  namespace: crab
+spec:
+  selector:
+    matchLabels:
+      app: filebeat-crab
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: "18270"
+        prometheus.io/scrape: "true"
+      labels:
+        app: filebeat-crab
+    spec:
+      containers:
+      - args:
+        - bash
+        - -c
+        - filebeat -c /etc/filebeat.yml --path.data /data/filebeat/${MY_NODE_NAME}/data -e
+        env:
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: MY_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        image: docker.elastic.co/beats/filebeat:8.5.1
+        imagePullPolicy: IfNotPresent
+        name: filebeat
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+          requests:
+            cpu: 200m
+            memory: 128Mi
+        volumeMounts:
+        - mountPath: /var/log/pods
+          name: varlogpods
+          readOnly: true
+        - mountPath: /var/log/containers
+          name: varlogcontainers
+          readOnly: true
+        - mountPath: /etc/filebeat.yml
+          name: config
+          subPath: filebeat.yml
+        - mountPath: /data
+          name: data
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - hostPath:
+          path: /var/log/pods
+          type: ""
+        name: varlogpods
+      - hostPath:
+          path: /var/log/containers
+          type: ""
+        name: varlogcontainers
+      - emptyDir: {}
+        name: data
+      - configMap:
+          defaultMode: 416
+          name: filebeat-crab-config
+        name: config

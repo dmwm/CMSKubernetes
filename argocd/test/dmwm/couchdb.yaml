@@ -1,0 +1,112 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: couchdb
+  namespace: couchdb
+spec:
+  selector:
+    app: couchdb
+  ports:
+    - port: 5984
+      targetPort: 5984
+      name: couchdb
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: couchdb
+  labels:
+    app: couchdb
+  namespace: couchdb
+data:
+  setup-certs-and-run.sh: |
+    #!/bin/bash
+
+    cp /host/etc/grid-security/* /etc/grid-security
+    echo 'INFO Files in /etc/grid-security'
+    ls -lahZ /etc/grid-security
+    echo "content of secrets"
+    ls -al /etc/secrets
+    su  -c "cd /data && COUCH_CREDS=/etc/secrets/couch_creds /data/run.sh" --preserve-environment _couchdb
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: couchdb
+  name: couchdb
+  namespace: couchdb
+spec:
+  selector:
+    matchLabels:
+      app: couchdb
+  replicas: 1   
+  template:
+    metadata:
+      labels:
+        app: couchdb
+        env: k8s #k8s#
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "9984"
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      containers:
+      - image: registry.cern.ch/cmsweb/couchdb #imagetag
+        imagePullPolicy: Always
+        name: couchdb
+        tty: true
+        stdin: true
+#        lifecycle:
+#          postStart:
+#            exec:
+#              command:
+#              - bash
+#              - -c
+#              - sudo chmod 0777 /data/srv/state/couchdb/database; sudo chown _couchdb:_couchdb /data/srv/state/couchdb/database
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "1000m"
+          limits:
+            memory: "3Gi"
+            cpu: "4000m"
+        ports:
+        - containerPort: 5984
+          protocol: TCP
+          name: couchdb
+        - containerPort: 9984
+          protocol: TCP
+          name: couchdb-mon
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - mountPath: /host/etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+        securityContext:
+          privileged: true
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: couchdb-secrets
+      - name: etc-grid-security
+        hostPath:
+            path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: couchdb
