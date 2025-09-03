@@ -60,6 +60,11 @@ spec:
         args:
           - /data/auth-proxy-server
           - -config=/etc/secrets/config.json
+          - -port=443
+          - -useX509
+          - -metricsPort=9091
+          - -testRule
+          - ""
         resources:
           requests:
             memory: "50Mi"
@@ -90,6 +95,9 @@ spec:
           readOnly: true
         - name: www-htdocs
           mountPath: /www
+        - mountPath: /etc/grid-security
+          name: etc-grid-security
+          readOnly: true   
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
         - name: hostkey
@@ -97,7 +105,6 @@ spec:
         - name: token-secrets
           mountPath: /etc/token
           readOnly: true          
-
       initContainers:
       - name: htdocs
         image: registry.cern.ch/cmsweb/htdocs:0.0.2
@@ -114,6 +121,9 @@ spec:
           secretName: proxy-secrets
       - name: www-htdocs
         emptyDir: {}
+      - name: etc-grid-security
+        hostPath:
+            path: /etc/grid-security
       - name: hostcert
         hostPath:
             path: /etc/grid-security/hostcert.pem

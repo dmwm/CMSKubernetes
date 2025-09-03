@@ -17,10 +17,13 @@ data:
       scan_frequency: 10s
       backoff: 5s
       max_backoff: 10s
-    output.console:
-      codec.format:
-        string: '%{[message]} - Podname=${MY_POD_NAME}'
-        pretty: false
+      tags: ["aps"]
+    output.logstash:
+      hosts: ["logstash.monitoring:5044"]
+      compression_level: 3
+      worker: 4
+      bulk_max_size: 4096
+      pipelining: 2
     queue.mem:
       events: 65536
     logging.metrics.enabled: false
@@ -53,30 +56,30 @@ spec:
       terminationGracePeriodSeconds: 60
       dnsPolicy: ClusterFirstWithHostNet
       hostNetwork: true
-      # this daemonset will be applied to all nodes which will have role=autha label
-      # kubectl label node <node-name> role=auth --overwrite
       nodeSelector:
         role: auth
       priorityClassName: system-node-critical
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
-
       containers:
       - image: registry.cern.ch/cmsweb/auth-proxy-server #imagetag
         name: x509-proxy-server
-#         imagePullPolicy: Always
         args:
           - /data/auth-proxy-server
           - -config=/etc/secrets/config.json
           - -useX509
+          - -port=8443
+          - -metricsPort=9092
+          - -testRule
+          - ""
         resources:
           requests:
             memory: "50Mi"
             cpu: "30m"
           limits:
             memory: "10Gi"
-            cpu: "4000m" # we can add higher limit here
+            cpu: "8000m"
         env:
         - name: X509_USER_PROXY
           value: /etc/proxy/proxy
@@ -91,9 +94,8 @@ spec:
         - containerPort: 9092
           name: metrics
         volumeMounts:
-        - name: x509-proxy-server-secrets
+        - name: auth-proxy-server-secrets
           mountPath: /etc/secrets
-          #defaultMode: 256
           readOnly: true
         - name: proxy-secrets
           mountPath: /etc/proxy
@@ -106,8 +108,10 @@ spec:
           mountPath: /etc/grid-security/hostkey.pem
         - name: token-secrets
           mountPath: /etc/token
-          readOnly: true          
-
+          readOnly: true
+        - name: etc-grid-security
+          mountPath: /etc/grid-security
+          readOnly: true
       initContainers:
       - name: htdocs
         image: registry.cern.ch/cmsweb/htdocs:0.0.2
@@ -116,9 +120,9 @@ spec:
         - name: www-htdocs
           mountPath: /tmp/htdocs
       volumes:
-      - name: x509-proxy-server-secrets
+      - name: auth-proxy-server-secrets
         secret:
-          secretName: x509-proxy-server-secrets
+          secretName: auth-proxy-server-secrets
       - name: proxy-secrets
         secret:
           secretName: proxy-secrets
@@ -126,14 +130,16 @@ spec:
         emptyDir: {}
       - name: hostcert
         hostPath:
-            path: /etc/grid-security/hostcert.pem
+          path: /etc/grid-security/hostcert.pem
       - name: hostkey
         hostPath:
-            path: /etc/grid-security/hostkey.pem
+          path: /etc/grid-security/hostkey.pem
       - name: token-secrets
         secret:
-          secretName: token-secrets            
-
+          secretName: token-secrets
+      - name: etc-grid-security
+        hostPath:
+          path: /etc/grid-security
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -155,7 +161,7 @@ metadata:
   labels:
     k8s-app: x509-proxy-server
 rules:
-- apiGroups: [""] # "" indicates the core API group
+- apiGroups: [""]
   resources:
   - namespaces
   - pods
@@ -172,3 +178,4 @@ metadata:
   labels:
     k8s-app: x509-proxy-server
 ---
+
