@@ -28,15 +28,11 @@ ui.object = 'CRABInterface.Pages.FrontPage.FrontPage'
 
 data = views.section_('data')
 data.object = 'CRABInterface.RESTBaseAPI.RESTBaseAPI'
-data.phedexurl = 'https://cmsweb.cern.ch/phedex/datasvc/xml/prod/'
-data.dbsurl = 'http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet'
-data.defaultBlacklist = ['T0_CH_CERN']
-data.serverhostcert = "%s/auth/crabserver/dmwm-service-cert.pem" % __file__.rsplit('/', 3)[0]
-data.serverhostkey = "%s/auth/crabserver/dmwm-service-key.pem" % __file__.rsplit('/', 3)[0]
 data.credpath = '%s/state/crabserver/proxy/' % __file__.rsplit('/', 4)[0]
 data.backend = 'oracle'
 data.db = 'CRABServerAuth.dbconfig'
 data.s3 = 'CRABServerAuth.s3'
+data.s3_bucket = 'crabcache_dev'
 data.workflowManager = 'HTCondorDataWorkflow'
 
 data.extconfigurl = 'http://gitlab.cern.ch/crab3/CRAB3ServerConfig/raw/master/cmsweb-rest-config.json'
@@ -48,4 +44,4 @@ data.mode = "cmsweb-test"
 
 data.enableQueryLoadAllRows = os.getenv('CRABSERVER_ENABLE_QUERY_LOAD_ALL_ROWS', 'True').lower() in ('true', '1', 't')
 
-data.delegateDN = "/DC=ch/DC=cern/OU=computers/CN=crab-(preprod|prod)-tw(01|02).cern.ch|/DC=ch/DC=cern/OU=computers/CN=crab-dev-tw(01|02|03|04).cern.ch|/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=cmscrab/CN=(817881|373708)/CN=Robot: cms crab|/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=crabint1/CN=373708/CN=Robot: CMS CRAB Integration 1"
+data.delegateDN = "/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=cmscrab/CN=(817881|373708)/CN=Robot: cms crab|/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=crabint1/CN=373708/CN=Robot: CMS CRAB Integration 1"
