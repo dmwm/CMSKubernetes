@@ -29,6 +29,7 @@ jobs:
         with:
           charts_dir: helm
           charts_repo_url: https://dmwm.github.io/CMSKubernetes
+          skip_existing: true
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
   cern-registry:
