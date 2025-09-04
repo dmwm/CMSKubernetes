@@ -1,0 +1,42 @@
+{{- range $ns := .Values.namespaces }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cron-token
+  namespace: {{ $ns }}
+spec:
+  schedule: "*/15 * * * *"
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 300
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      ttlSecondsAfterFinished: 600
+      template:
+        spec:
+          serviceAccountName: token-account
+          containers:
+          - name: cron
+            image: registry.cern.ch/cmsweb/token:00.00.06-stable
+            args:
+            - /bin/sh
+            - -c
+            - echo "run token.sh"; ls -al ; echo "### /etc/client"; ls -la /etc/client; echo "### /tmp"; ls -al /tmp; cat /data/token.sh; /data/token.sh; echo "### /tmp"; ls -al /tmp;
+            volumeMounts:
+            - name: client-secrets
+              mountPath: /etc/client
+          restartPolicy: Never
+          volumes:
+          - name: token-secrets
+            secret:
+              secretName: token-secrets
+          - name: client-secrets
+            secret:
+              secretName: client-secrets
+          - name: client-secrets
+            secret:
+              secretName: client-secrets
+---
+{{- end }}
