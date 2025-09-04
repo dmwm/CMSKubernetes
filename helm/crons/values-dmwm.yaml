@@ -1,0 +1,7 @@
+namespaces:
+  - auth
+  - http
+  - dmwm
+  - wma
+  - couchdb
+  
