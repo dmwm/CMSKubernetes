@@ -1,0 +1,4 @@
+namespaces:
+  - auth
+  - http
+  - dbs

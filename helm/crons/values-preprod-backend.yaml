@@ -1,0 +1,12 @@
+namespaces:
+  - default
+  - couchdb
+  - crab
+  - das
+  - dbs
+  - dmwm
+  - dqm
+  - http
+  - ruciocm
+  - tzero
+  - wma
