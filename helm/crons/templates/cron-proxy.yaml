@@ -1,0 +1,39 @@
+{{- range $ns := .Values.namespaces }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cron-proxy
+  namespace: {{ $ns }}
+spec:
+  schedule: "5 */6 * * *"
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 300
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      ttlSecondsAfterFinished: 600
+      template:
+        spec:
+          serviceAccountName: proxy-account
+          containers:
+          - name: proxy
+            image: registry.cern.ch/cmsweb/proxy
+            args:
+            - /bin/sh
+            - -c
+            - echo "run proxy.sh"; ls -al ; echo "### /etc/robots"; ls -la /etc/robots; echo "### /tmp"; ls -al /tmp; cat /data/proxy.sh; /data/proxy.sh; echo "### /tmp"; ls -al /tmp;
+            volumeMounts:
+            - name: robot-secrets
+              mountPath: /etc/robots
+          restartPolicy: Never
+          volumes:
+          - name: proxy-secrets
+            secret:
+              secretName: proxy-secrets
+          - name: robot-secrets
+            secret:
+              0secretName: robot-secrets
+---
+{{- end }}

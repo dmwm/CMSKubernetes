@@ -1,0 +1,6 @@
+namespaces:
+  - auth
+  - http
+serviceAccounts:
+  - proxy-account
+  - token-account
