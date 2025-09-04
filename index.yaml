@@ -305,6 +305,17 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/crabserver-0.1.1/crabserver-0.1.1.tgz
     version: 0.1.1
+  crons:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2025-09-04T13:23:31.034780168Z"
+    description: A Helm chart for Kubernetes
+    digest: 60a761407fa4285cd3bce81c2b206667952c413df708a948efb0b231b6f6961d
+    name: crons
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/crons-0.1.0/crons-0.1.0.tgz
+    version: 0.1.0
   das-exporter:
   - apiVersion: v2
     appVersion: HG2011h-stable
@@ -2498,4 +2509,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
     version: 0.1.1
-generated: "2025-09-04T09:19:19.779144065Z"
+generated: "2025-09-04T13:23:31.500361216Z"
