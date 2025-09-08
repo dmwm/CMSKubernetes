@@ -827,6 +827,17 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/imagebot-0.1.1/imagebot-0.1.1.tgz
     version: 0.1.1
+  ingress:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2025-09-08T15:10:24.748439471Z"
+    description: A Helm chart for Kubernetes
+    digest: 1632d2f83de4f34748a3322f00840b92e2d54fe0bcf795481260b934db9ed2a9
+    name: ingress
+    type: application
+    urls:
+    - https://github.com/dmwm/CMSKubernetes/releases/download/ingress-0.1.0/ingress-0.1.0.tgz
+    version: 0.1.0
   k8snodemon:
   - apiVersion: v2
     appVersion: 20220404-stable
@@ -2509,4 +2520,4 @@ entries:
     urls:
     - https://github.com/dmwm/CMSKubernetes/releases/download/x509-proxy-server-0.1.1/x509-proxy-server-0.1.1.tgz
     version: 0.1.1
-generated: "2025-09-04T13:23:31.500361216Z"
+generated: "2025-09-08T15:10:24.748874431Z"
