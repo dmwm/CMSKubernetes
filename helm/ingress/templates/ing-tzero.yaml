@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-tzero
+  namespace: tzero
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/whitelist-source-range: {{ include "list.whitelist" . | quote  }}
+spec:
+  rules:
+  - host: {{ .Values.hostname }}
+    http:
+      paths:
+      - path: /t0wmadatasvc
+        pathType: Prefix
+        backend:
+          service:
+            name: t0wmadatasvc
+            port:
+              number: 8308

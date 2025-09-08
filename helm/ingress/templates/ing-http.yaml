@@ -1,0 +1,48 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-http
+  namespace: http
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/whitelist-source-range: {{ include "list.whitelist" . | quote  }}
+spec:
+  rules:
+  - host: {{ .Values.hostname }}
+    http:
+      paths:
+      - path: /exitcodes
+        pathType: Prefix
+        backend:
+          service:
+            name: exitcodes
+            port: 
+              number: 9201
+      - path: /httpgo
+        pathType: Prefix
+        backend:
+          service:
+            name: httpgo
+            port:
+              number: 8888
+      - path: /httpsgo
+        pathType: Prefix
+        backend:
+          service:
+            name: httpsgo
+            port:
+              number: 443
+      - path: /cmskv
+        pathType: Prefix
+        backend:
+          service:
+            name: cmskv
+            port:
+              number: 9212
+      - path: /cmsamqproxy
+        pathType: Prefix
+        backend:
+          service:
+            name: cmsamqproxy
+            port:
+              number: 8300
