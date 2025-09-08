@@ -1,0 +1,97 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-dmwm
+  namespace: dmwm
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/whitelist-source-range: {{ include "list.whitelist" . | quote  }}
+spec:
+  rules:
+  - host: {{ .Values.hostname }}
+    http:
+      paths:
+      - path: /reqmgr2
+        pathType: Prefix
+        backend:
+          service:
+            name: reqmgr2
+            port: 
+              number: 8246
+      - path: /wmstatsserver
+        pathType: Prefix
+        backend:
+          service:
+            name: reqmon
+            port:
+              number: 8249
+      - path: /ms-transferor
+        pathType: Prefix
+        backend:
+          service:
+            name: ms-transferor
+            port:
+              number: 8247
+      - path: /ms-monitor
+        pathType: Prefix
+        backend:
+          service:
+            name: ms-monitor
+            port:
+              number: 8248
+      - path: /ms-output
+        pathType: Prefix
+        backend:
+          service:
+            name: ms-output
+            port:
+              number: 8245
+      - path: /ms-rulecleaner
+        pathType: Prefix
+        backend:
+          service:
+            name: ms-rulecleaner
+            port:
+              number: 8244
+      - path: /ms-unmerged
+        pathType: Prefix
+        backend:
+          service:
+            name: ms-unmer-t1
+            port:
+              number: 8242
+      - path: /ms-unmerged/t2t3us/data
+        pathType: Prefix
+        backend:
+          service:
+            name: ms-unmer-t2t3us
+            port:
+              number: 8242
+      - path: /ms-unmerged/t2t3/data
+        pathType: Prefix
+        backend:
+          service:
+            name: ms-unmer-t2t3
+            port:
+              number: 8242
+      - path: /ms-pileup
+        pathType: Prefix
+        backend:
+          service:
+            name: ms-pileup
+            port:
+              number: 8241
+      - path: /ms-pileup-tasks
+        pathType: Prefix
+        backend:
+          service:
+            name: ms-pileup-tasks
+            port:
+              number: 8361
+      - path: /t0_reqmon
+        pathType: Prefix
+        backend:
+          service:
+            name: t0reqmon
+            port: 
+              number: 8243
