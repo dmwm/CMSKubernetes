@@ -435,7 +435,7 @@ spec:
       - image: percona/mongodb_exporter:0.30
         name: mongodb-exporter
         args:
-        - --mongodb.uri=mongodb://clusterAdmin:{{.Values.db.auth.password | replace "@" "%40"}}@{{.Values.db.nodeHostname}}:32001,{{.Values.db.nodeHostname}}:32002,{{.Values.db.nodeHostname}}:32003/admin?replicaSet={{.Values.db.rsname}}
+        - --mongodb.uri=mongodb://clusterAdmin:{{.Values.db.auth.password | replace "@" "%40"}}@{{.Values.instance0.serviceName}}.default.svc.cluster.local:27017,{{.Values.instance1.serviceName}}.default.svc.cluster.local:27017,{{.Values.instance2.serviceName}}.default.svc.cluster.local:27017/?replicaSet={{.Values.db.rsname}}&authSource=admin
         - --mongodb.direct-connect=false
         - --discovering-mode
         - --compatible-mode

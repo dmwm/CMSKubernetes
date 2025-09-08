@@ -1,5 +1,5 @@
 FROM registry.cern.ch/cmsweb/gfal:deb-py312-113-stable as gfal
-FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20250716-stable
+FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20250905-stable
 ENV WDIR=/data
 WORKDIR $WDIR
 

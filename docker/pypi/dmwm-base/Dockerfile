@@ -1,5 +1,5 @@
 FROM registry.cern.ch/cmsweb/exporters:20250519-stable as exporters
-FROM python:3.12-slim-bookworm
+FROM python:3.12-trixie
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 # see https://docs.docker.com/build/building/best-practices/#apt-get
