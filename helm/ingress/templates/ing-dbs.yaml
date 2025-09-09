@@ -1,3 +1,4 @@
+{{- $env := .Values.env | default "int" -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -5,93 +6,95 @@ metadata:
   namespace: dbs
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/whitelist-source-range: {{ include "list.whitelist" . | quote  }}
+    nginx.ingress.kubernetes.io/whitelist-source-range: {{ include "list.whitelist" . | quote }}
 spec:
   rules:
   - host: {{ .Values.hostname }}
     http:
       paths:
-      - path: /dbs/prod/global/DBSReader
+      - path: /dbs/{{$env}}/global/DBSReader
         pathType: Prefix
         backend:
           service:
             name: dbs2go-global-r
-            port: 
+            port:
               number: 9252
-      - path: /dbs/prod/phys03/DBSReader
+      - path: /dbs/{{$env}}/phys03/DBSReader
         pathType: Prefix
         backend:
           service:
             name: dbs2go-phys03-r
             port:
               number: 9254
-      - path: /dbs/prod/global/DBSWriter
+      - path: /dbs/{{$env}}/global/DBSWriter
         pathType: Prefix
         backend:
           service:
             name: dbs2go-global-w
             port:
               number: 9253
-      - path: /dbs/prod/phys03/DBSWriter
+      - path: /dbs/{{$env}}/phys03/DBSWriter
         pathType: Prefix
         backend:
           service:
             name: dbs2go-phys03-w
             port:
               number: 9255
-      - path: /dbs/prod/global/DBSMigrate
+      - path: /dbs/{{$env}}/global/DBSMigrate
         pathType: Prefix
         backend:
           service:
             name: dbs2go-global-m
             port:
               number: 9257
-      - path: /dbs/prod/phys03/DBSMigrate
+      - path: /dbs/{{$env}}/phys03/DBSMigrate
         pathType: Prefix
         backend:
           service:
             name: dbs2go-phys03-m
             port:
               number: 9257
-      - path: /dbspy/prod/global/DBSMigrate
+
+      - path: /dbspy/{{$env}}/global/DBSMigrate
         pathType: Prefix
         backend:
           service:
             name: dbs-migrate
             port:
               number: 8257
-      - path: /dbspy/prod/phys03/DBSMigrate
+      - path: /dbspy/{{$env}}/phys03/DBSMigrate
         pathType: Prefix
         backend:
           service:
             name: dbs-migrate
             port:
               number: 8257
-      - path: /dbspy/prod/global/DBSReader
+      - path: /dbspy/{{$env}}/global/DBSReader
         pathType: Prefix
         backend:
           service:
             name: dbs-global-r
             port:
               number: 8252
-      - path: /dbspy/prod/phys03/DBSReader
+      - path: /dbspy/{{$env}}/phys03/DBSReader
         pathType: Prefix
         backend:
           service:
             name: dbs-phys03-r
             port:
               number: 8254
-      - path: /dbspy/prod/global/DBSWriter
+      - path: /dbspy/{{$env}}/global/DBSWriter
         pathType: Prefix
         backend:
           service:
             name: dbs-global-w
             port:
               number: 8253
-      - path: /dbspy/prod/phys03/DBSWriter
+      - path: /dbspy/{{$env}}/phys03/DBSWriter
         pathType: Prefix
         backend:
           service:
             name: dbs-phys03-w
             port:
               number: 8255
+
