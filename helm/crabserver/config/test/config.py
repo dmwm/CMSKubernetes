@@ -9,7 +9,7 @@ myhost = socket.getfqdn().lower()
 conf = Configuration()
 main = conf.section_('main')
 srv = main.section_('server')
-srv.thread_pool = int(os.getenv('CRABSERVER_THREAD_POOL', 25))
+srv.thread_pool = int(os.getenv('CRABSERVER_THREAD_POOL', 15))
 main.application = 'crabserver'
 main.port = 8270
 main.index = 'data'
@@ -45,3 +45,5 @@ data.mode = "cmsweb-test"
 data.enableQueryLoadAllRows = os.getenv('CRABSERVER_ENABLE_QUERY_LOAD_ALL_ROWS', 'True').lower() in ('true', '1', 't')
 
 data.delegateDN = "/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=cmscrab/CN=(817881|373708)/CN=Robot: cms crab|/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=crabint1/CN=373708/CN=Robot: CMS CRAB Integration 1"
+data.compatibleClientVersions = ["v3", "development"]
+
