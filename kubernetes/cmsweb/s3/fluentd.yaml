@@ -40,7 +40,7 @@ subjects:
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: cmsweb-test
+  name: cmsweb-k8s-prodsrv2
   namespace: kube-system
   labels:
     k8s-app: fluentd-logging
@@ -75,11 +75,17 @@ spec:
         image: ubuntu:20.04
         command: ["/bin/bash", "-c", "sysctl -w net.ipv6.conf.all.disable_ipv6=1"]
         securityContext:
-          privileged: true          
+            runAsUser: 0        # run as root
+            runAsGroup: 0
+            allowPrivilegeEscalation: true
       containers:
       - name: fluentd
-        image: registry.cern.ch/cmsweb/fluentd-container:v0.0.1
-        command: ["/bin/sh", "-c", "/etc/fluent/config.d/install-plugins.sh"]
+        image: fluent/fluentd-kubernetes-daemonset:v1.16.2-debian-s3
+        command: ["/bin/sh", "-c", "/etc/fluent/install-plugins.sh"]
+        securityContext:
+            runAsUser: 0        # run as root
+            runAsGroup: 0
+            allowPrivilegeEscalation: true
         env:
           - name: FLUENTD_ARGS
             value: --no-supervisor
@@ -100,7 +106,7 @@ spec:
           mountPath: /var/lib/docker/containers
           readOnly: true
         - name: etcfluentd
-          mountPath: /etc/fluent/config.d/
+          mountPath: /etc/fluent/
       terminationGracePeriodSeconds: 30
       volumes:
       - name: s3-data
