@@ -179,3 +179,5 @@ docker exec -u root -it wmagent sh -c "printf 'set v15-compat\nset smtp-auth=non
 # Change mail to use s-nail
 docker exec -u root -it wmagent update-alternatives --install /usr/bin/mailx mailx /usr/bin/s-nail 50 --slave /usr/bin/mail mail /usr/bin/s-nail
 
+# Workaround for libaio1 package renamed in Debian trixie
+docker exec -u root -it wmagent ln -s /usr/lib/x86_64-linux-gnu/libaio.so.1t64.0.2 /usr/lib/x86_64-linux-gnu/libaio.so.1
