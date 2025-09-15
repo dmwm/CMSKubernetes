@@ -35,8 +35,5 @@ spec:
           - name: client-secrets
             secret:
               secretName: client-secrets
-          - name: client-secrets
-            secret:
-              secretName: client-secrets
 ---
 {{- end }}
