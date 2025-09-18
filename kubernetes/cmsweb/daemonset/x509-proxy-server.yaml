@@ -119,7 +119,7 @@ spec:
 #PROD#    mountPath: /data/srv/logs/frontend
 #PROD#  - name: filebeat-cephfs
 #PROD#    mountPath: /data/filebeat
-#PROD#- name: aps-s3-filebeat
+#PROD#- name: xps-s3-filebeat
 #PROD#  image: docker.elastic.co/beats/filebeat:7.12.0
 #PROD#  args: [
 #PROD#    "-c", "/etc/filebeat.yml",
