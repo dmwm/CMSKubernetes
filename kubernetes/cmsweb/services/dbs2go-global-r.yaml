@@ -68,18 +68,18 @@ spec:
 #PROD#        - |
 #PROD#          apt-get update && apt-get install -y sudo && apt-get clean && \
 #PROD#          chmod 0777 /data/srv/logs/dbs && chown 1000:1000 /data/srv/logs/dbs
-        image: ubuntu
-        imagePullPolicy: Always
-        name: init-install-sudo
-        resources: {}
-        securityContext:
-          runAsGroup: 0
-          runAsUser: 0
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
-        volumeMounts:
-        - mountPath: /data/srv/logs/dbs
-          name: logs
+#PROD#        image: ubuntu
+#PROD#        imagePullPolicy: Always
+#PROD#        name: init-install-sudo
+#PROD#        resources: {}
+#PROD#        securityContext:
+#PROD#          runAsGroup: 0
+#PROD#          runAsUser: 0
+#PROD#        terminationMessagePath: /dev/termination-log
+#PROD#        terminationMessagePolicy: File
+#PROD#        volumeMounts:
+#PROD#        - mountPath: /data/srv/logs/dbs
+#PROD#          name: logs
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
