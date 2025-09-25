@@ -61,13 +61,13 @@ spec:
         prometheus.io/path: "/dbs/prod/global/DBSReader/metrics"
         prometheus.io/port: "9252"
     spec:
-      initContainers:
-      - command:
-        - sh
-        - -c
-        - |
-          apt-get update && apt-get install -y sudo && apt-get clean && \
-          chmod 0777 /data/srv/logs/dbs && chown 1000:1000 /data/srv/logs/dbs
+#PROD#      initContainers:
+#PROD#      - command:
+#PROD#        - sh
+#PROD#        - -c
+#PROD#        - |
+#PROD#          apt-get update && apt-get install -y sudo && apt-get clean && \
+#PROD#          chmod 0777 /data/srv/logs/dbs && chown 1000:1000 /data/srv/logs/dbs
         image: ubuntu
         imagePullPolicy: Always
         name: init-install-sudo
