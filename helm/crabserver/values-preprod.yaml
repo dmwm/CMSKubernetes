@@ -31,3 +31,4 @@ readinessProbe:
 
 logPipeline:
   enabled: true
+  # logstashNamespace: logging

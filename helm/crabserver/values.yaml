@@ -126,6 +126,7 @@ ciServiceAccount:
 
 logPipeline:
   enabled: false
+  logstashNamespace: crab
   filebeat:
     name: filebeat
     path: docker.elastic.co/beats/filebeat:8.5.1

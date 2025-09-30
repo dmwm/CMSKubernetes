@@ -1,0 +1,14 @@
+{{- $environment := .Values.environment | default dict }}
+{{- if .Values.logPipeline.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    k8s-app: logstash-config
+  name: logstash-config
+  namespace: {{ .Values.logPipeline.logstashNamespace }}
+data:
+  # logstash config
+  logstash.yml: |
+{{ (.Files.Get "config/logstash.yml" | indent 4) }}
+{{- end }}
