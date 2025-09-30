@@ -1,0 +1,33 @@
+environment: "preprod"
+
+image:
+  tag: "v3-250929-1"
+
+ciServiceAccount:
+  enabled: false
+
+
+livenessProbe:
+  exec:
+    command:
+    - /bin/sh
+    - -c
+    - |
+      cmsweb-ping --url=http://localhost:8270/crabserver/preprod/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
+  failureThreshold: 3
+  initialDelaySeconds: 120
+  periodSeconds: 60
+  timeoutSeconds: 60
+
+readinessProbe:
+  exec:
+    command:
+    - /bin/sh
+    - -c
+    - |
+      cmsweb-ping --url=http://localhost:8270/crabserver/preprod/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
+  periodSeconds: 60
+  timeoutSeconds: 60
+
+logPipeline:
+  enabled: true

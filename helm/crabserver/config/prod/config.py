@@ -37,6 +37,7 @@ data.credpath = '%s/state/crabserver/proxy/' % __file__.rsplit('/', 4)[0]
 data.backend = 'oracle'
 data.db = 'CRABServerAuth.dbconfig'
 data.s3 = 'CRABServerAuth.s3'
+data.s3_bucket = 'crabcache_prod'
 data.workflowManager = 'HTCondorDataWorkflow'
 
 data.extconfigurl = 'http://gitlab.cern.ch/crab3/CRAB3ServerConfig/raw/master/cmsweb-rest-config.json'
@@ -47,3 +48,4 @@ data.keptLogDays = 7
 data.mode = "cmsweb-prod"
 
 data.delegateDN = "/DC=ch/DC=cern/OU=computers/CN=crab-(preprod|prod)-tw(01|02).cern.ch|/DC=ch/DC=cern/OU=computers/CN=crab-dev-tw(01|02|03|04).cern.ch|/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=cmscrab/CN=(817881|373708)/CN=Robot: cms crab|/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=crabint1/CN=373708/CN=Robot: CMS CRAB Integration 1"
+data.compatibleClientVersions = ["v3", "development"]

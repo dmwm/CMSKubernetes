@@ -1,10 +1,37 @@
 environment: "prod"
 
+replicaCount: 12
+
 image:
-  tag: "v3.250401-stable"
+  tag: "v3.250812-stable"
   
 canary:
   enabled: true
-  replicaCount: 1
+  replicaCount: 4
   image:
-    tag: "v3.250401-stable"
+    tag: "v3.250812-stable"
+
+livenessProbe:
+  exec:
+    command:
+    - /bin/sh
+    - -c
+    - |
+      cmsweb-ping --url=http://localhost:8270/crabserver/prod/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
+  failureThreshold: 3
+  initialDelaySeconds: 120
+  periodSeconds: 60
+  timeoutSeconds: 60
+
+readinessProbe:
+  exec:
+    command:
+    - /bin/sh
+    - -c
+    - |
+      cmsweb-ping --url=http://localhost:8270/crabserver/prod/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
+  periodSeconds: 60
+  timeoutSeconds: 60
+
+logPipeline:
+  enabled: true

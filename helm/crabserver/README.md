@@ -24,12 +24,6 @@ Default: `false`
 
 Enable canary deployment, a.k.a. the `crabserver-canary` Deployment manifest.
 
-#### logPipeline.enabled
-
-Default: `false`
-
-Generate `logPipeline` resources group.
-
 #### ciServiceAccount.enabled
 
 Generate `ciServiceAccount` resources group. Need cluster admin for applying `role` and `rolebinding` of k8s service account.
