@@ -28,14 +28,13 @@ ui.object = 'CRABInterface.Pages.FrontPage.FrontPage'
 
 data = views.section_('data')
 data.object = 'CRABInterface.RESTBaseAPI.RESTBaseAPI'
-data.credpath = '%s/state/crabserver/proxy/' % __file__.rsplit('/', 4)[0]
 data.backend = 'oracle'
 data.db = 'CRABServerAuth.dbconfig'
 data.s3 = 'CRABServerAuth.s3'
 data.s3_bucket = 'crabcache_preprod'
 data.workflowManager = 'HTCondorDataWorkflow'
 
-data.extconfigurl = 'http://gitlab.cern.ch/crab3/CRAB3ServerConfig/raw/master/cmsweb-rest-config.json'
+data.extconfigurl = 'http://gitlab.cern.ch/crab3/CRAB3ServerConfig/raw/master/cmsweb-rest-config-test.json'
 
 data.loggingLevel = 10
 data.loggingFile = '%s/logs/crabserver/CRAB-%s.log' % (__file__.rsplit('/', 4)[0], myhost)
