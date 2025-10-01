@@ -1,15 +1,15 @@
 environment: "prod"
 
-replicaCount: 12
+replicaCount: 15
 
 image:
-  tag: "v3.250812-stable"
+  tag: "v3.250929.1-stable"
   
 canary:
   enabled: true
-  replicaCount: 4
+  replicaCount: 1
   image:
-    tag: "v3.250812-stable"
+    tag: "v3.250929.1-stable"
 
 livenessProbe:
   exec:
