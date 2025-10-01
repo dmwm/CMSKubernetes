@@ -39,7 +39,6 @@ data.extconfigurl = 'http://gitlab.cern.ch/crab3/CRAB3ServerConfig/raw/master/cm
 data.loggingLevel = 10
 data.loggingFile = '%s/logs/crabserver/CRAB-%s.log' % (__file__.rsplit('/', 4)[0], myhost)
 data.keptLogDays = 7
-data.mode = "cmsweb-test"
 
 data.enableQueryLoadAllRows = os.getenv('CRABSERVER_ENABLE_QUERY_LOAD_ALL_ROWS', 'True').lower() in ('true', '1', 't')
 
