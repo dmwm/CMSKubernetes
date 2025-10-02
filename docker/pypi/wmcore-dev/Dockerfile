@@ -1,6 +1,5 @@
 ARG PYTHON_VERSION=3.12
 
-FROM --platform=linux/amd64 registry.cern.ch/cmsweb/oracle:21_5-stable as oracle
 FROM --platform=linux/amd64 registry.cern.ch/cmsweb/gfal:alma9-py${PYTHON_VERSION}-gfal-1.13.0-stable as gfal2
 FROM --platform=linux/amd64 registry.cern.ch/cmsweb/dmwm-base:alma9-py3.12-20250728-stable
 
@@ -61,6 +60,12 @@ RUN dnf install -y \
         voms-clients-cpp && \
     dnf clean all
 
+# Install Oracle Instant Client:
+RUN dnf config-manager --add-repo https://linuxsoft.cern.ch/mirror/yum.oracle.com/repo/OracleLinux/OL9/oracle/instantclient/x86_64/ && \
+    rpm --import http://linuxsoft.cern.ch/mirror/yum.oracle.com/RPM-GPG-KEY-oracle-ol9 && \
+    dnf install -y oracle-instantclient19.19-basic && \
+    dnf clean all
+
 # Create the working directory
 RUN mkdir -p ${WDIR}/.local
 WORKDIR $WDIR
@@ -83,9 +88,6 @@ RUN uv pip install --no-cache-dir --upgrade pip setuptools wheel && \
 # copy gfal2 and libboost
 COPY --from=gfal2 /tmp/.venv/lib/python${PYTHON_VERSION}/site-packages/gfal2.so $WDIR/.local/wmcore-venv/lib/python${PYTHON_VERSION}/site-packages/gfal2.so
 COPY --from=gfal2 /usr/local/lib/* /usr/local/lib/.
-
-# copy Oracle libraries:
-COPY --from=oracle /usr/lib/oracle /usr/lib/oracle
 
 ADD entrypoint.sh /entrypoint.sh
 ADD etc ${WDIR}/etc
