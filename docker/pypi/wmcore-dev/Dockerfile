@@ -4,7 +4,7 @@ FROM --platform=linux/amd64 registry.cern.ch/cmsweb/gfal:alma9-py${PYTHON_VERSIO
 FROM --platform=linux/amd64 registry.cern.ch/cmsweb/dmwm-base:alma9-py3.12-20250728-stable
 
 ARG PYTHON_VERSION
-ARG WMCORE_TAG=2.4.1
+ARG WMCORE_TAG=2.4.4rc5
 
 LABEL org.opencontainers.image.authors="Dennis Lee dylee@fnal.gov"
 
@@ -58,6 +58,12 @@ RUN dnf install -y \
         dummy-ca-certs ca-policy-lcg ca-policy-egi-core \
         ca_CERN-GridCA ca_CERN-Root-2 \
         voms-clients-cpp && \
+    dnf clean all
+
+# Install Oracle Instant Client:
+RUN dnf config-manager --add-repo https://linuxsoft.cern.ch/mirror/yum.oracle.com/repo/OracleLinux/OL9/oracle/instantclient/x86_64/ && \
+    rpm --import http://linuxsoft.cern.ch/mirror/yum.oracle.com/RPM-GPG-KEY-oracle-ol9 && \
+    dnf install -y oracle-instantclient19.19-basic && \
     dnf clean all
 
 # Create the working directory
