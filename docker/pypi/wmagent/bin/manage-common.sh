@@ -280,7 +280,7 @@ _status_of_couch(){
 
 _status_of_mysql(){
     echo "$FUNCNAME:"
-    mysqladmin -u $MDB_USER --password=$MDB_PASS -h $MDB_HOST  status
+    mysqladmin -u $MDB_USER --skip-ssl --password=$MDB_PASS -h $MDB_HOST  status
     local errVal=$?
     [[ $errVal -ne 0 ]] && { echo "$FUNCNAME: ERROR: MySQL database unreachable!"; return $(false) ;}
     echo "$FUNCNAME: MySQL connection is OK!"
