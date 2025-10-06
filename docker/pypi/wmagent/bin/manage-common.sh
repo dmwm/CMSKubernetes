@@ -48,9 +48,9 @@ _exec_mysql() {
     local sqlStr=$1
     local dbName=$2
     if [[ -n $dbName ]]; then
-        mysql -sN -u $MDB_USER --password=$MDB_PASS -h $MDB_HOST --database=$dbName --execute="$sqlStr"
+        mysql -sN -u $MDB_USER --skip-ssl --password=$MDB_PASS -h $MDB_HOST --database=$dbName --execute="$sqlStr"
     else
-        mysql -sN -u $MDB_USER --password=$MDB_PASS -h $MDB_HOST --execute="$sqlStr"
+        mysql -sN -u $MDB_USER --skip-ssl --password=$MDB_PASS -h $MDB_HOST --execute="$sqlStr"
     fi
 
     ## TODO: To add the same functionality for recognizing the type of call, similar to _exec_oracle
@@ -141,7 +141,7 @@ _sql_dumpSchema(){
     echo "$FUNCNAME: Dumping the current SQL schema of database: $wmaDBName to $wmaSchemaFile"
     case $AGENT_FLAVOR in
         'mysql')
-            mysqldump -u $MDB_USER --password=$MDB_PASS -h $MDB_HOST --no-data --skip-dump-date --compact --skip-opt wmagent > $wmaSchemaFile
+            mysqldump --skip-ssl -u $MDB_USER --password=$MDB_PASS -h $MDB_HOST --no-data --skip-dump-date --compact --skip-opt wmagent > $wmaSchemaFile
             ;;
         'oracle')
             echo "$FUNCNAME: NOT implemented"
