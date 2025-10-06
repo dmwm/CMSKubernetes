@@ -90,7 +90,7 @@ db_prompt(){
     case $AGENT_FLAVOR in
         'mysql')
             # _exec_mysql $@
-            mysql -u $MDB_USER --password=$MDB_PASS -h $MDB_HOST --database=$wmaDBName --pager='less -SFX'
+            mysql --skip-ssl -u $MDB_USER --password=$MDB_PASS -h $MDB_HOST --database=$wmaDBName --pager='less -SFX'
             ;;
         'oracle')
             _exec_oracle $@
