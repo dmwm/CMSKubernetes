@@ -22,6 +22,7 @@ ADD oci8.pc /usr/lib/oracle/instantclient_21.5/oci8.pc
 FROM debian:stable-slim
 RUN apt-get update && apt-get -y install libaio1t64 procps
 COPY --from=builder /usr/lib/oracle/instantclient_21_5 /usr/lib/oracle/
+RUN ln -s /usr/lib/x86_64-linux-gnu/libaio.so.1t64.0.2 /usr/lib/x86_64-linux-gnu/libaio.so.1
 ENV LD_LIBRARY_PATH=/usr/lib/oracle
 ENV PATH=$PATH:/usr/lib/oracle
 ENV PKG_CONFIG_PATH=/usr/lib/oracle
