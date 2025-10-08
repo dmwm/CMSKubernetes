@@ -3,6 +3,6 @@ includedir=/usr/lib/oracle/sdk/include
 
 Name: oci8
 Description: oci8 library
-Version: 21.1
+Version: 23.9
 Cflags: -I${includedir}
 Libs: -L${libdir} -lclntsh
