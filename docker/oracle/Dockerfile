@@ -1,8 +1,8 @@
-FROM golang:latest as builder
+FROM golang:1.25-trixie as builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
 # update apt
-RUN apt-get update && apt-get -y install unzip libaio1 wget
+RUN apt-get update && apt-get -y install unzip libaio1t64 wget
 
 # ORACLE: replace version and put it appropriately in oci8.pc
 RUN \
@@ -20,8 +20,9 @@ ADD oci8.pc /usr/lib/oracle/instantclient_21.5/oci8.pc
 
 # for gibc library we will use debian:stable-slim
 FROM debian:stable-slim
-RUN apt-get update && apt-get -y install libaio1 procps
+RUN apt-get update && apt-get -y install libaio1t64 procps
 COPY --from=builder /usr/lib/oracle/instantclient_21_5 /usr/lib/oracle/
+RUN ln -s /usr/lib/x86_64-linux-gnu/libaio.so.1t64.0.2 /usr/lib/x86_64-linux-gnu/libaio.so.1
 ENV LD_LIBRARY_PATH=/usr/lib/oracle
 ENV PATH=$PATH:/usr/lib/oracle
 ENV PKG_CONFIG_PATH=/usr/lib/oracle
