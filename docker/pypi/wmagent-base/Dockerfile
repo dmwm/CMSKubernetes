@@ -1,4 +1,4 @@
-FROM registry.cern.ch/cmsweb/oracle:21_5-stable as oracle
+FROM registry.cern.ch/cmsweb/oracle:23_9-go1.25-oci8-deb13-aio-stable
 FROM registry.cern.ch/cmsweb/dmwm-base:pypi-20250905-stable
 
 # see https://docs.docker.com/build/building/best-practices/#apt-get
