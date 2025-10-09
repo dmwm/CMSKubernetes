@@ -5,17 +5,12 @@ kind: Deployment
 metadata:
   name: crabserver
   labels:
+    env: k8s-{{.Values.environment}}
     app: crabserver
   namespace: crab
 spec:
   {{- if not .Values.autoscaling.enabled }}
-  {{- if (eq (toString $environment) "prod") }}
-  replicas: {{ .Values.replicaCount.prod }}
-  {{- else if (eq (toString $environment) "preprod")}}
-  replicas: {{ .Values.replicaCount.preprod }}
-  {{- else }}
-  replicas: {{ .Values.replicaCount.test }}
-  {{- end }}
+  replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
@@ -28,7 +23,7 @@ spec:
       {{- end }}
       labels:
         app: crabserver
-        env: k8s-{{.Values.environment}}
+        env: k8s-{{$environment}}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -62,21 +57,9 @@ spec:
           env:
           {{- toYaml .Values.image.env | nindent 10 }}
           livenessProbe:
-          {{- if eq (toString $environment) "prod" }}
           {{- toYaml .Values.livenessProbe | nindent 12 }}
-          {{- else if eq (toString $environment) "preprod" }}
-          {{- toYaml .Values.livenessProbePreProd | nindent 12 }}
-          {{- else }}
-          {{- toYaml .Values.livenessProbeTest | nindent 12 }}
-          {{- end }}
           readinessProbe:
-          {{- if eq (toString $environment) "prod" }}
           {{- toYaml .Values.readinessProbe | nindent 12 }}
-          {{- else if eq (toString $environment) "preprod" }}
-          {{- toYaml .Values.readinessProbePreProd | nindent 12 }}
-          {{- else }}
-          {{- toYaml .Values.readinessProbeTest | nindent 12 }}
-          {{- end }}
           volumeMounts:
           - name: proxy-secrets
             mountPath: /etc/proxy

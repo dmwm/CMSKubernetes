@@ -26,7 +26,7 @@ data:
       tags:
         - "crabrest"
     output.logstash:
-      hosts: ["logstash-crab:5044"]
+      hosts: ["logstash:5044"]
       compression_level: 3
       bulk_max_size: 4096
     queue.mem:
