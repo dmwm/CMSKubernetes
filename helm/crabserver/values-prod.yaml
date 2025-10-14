@@ -3,13 +3,13 @@ environment: "prod"
 replicaCount: 15
 
 image:
-  tag: "v3.250929.1-stable"
+  tag: "v3.251002-stable"
   
 canary:
   enabled: true
   replicaCount: 1
   image:
-    tag: "v3.250929.1-stable"
+    tag: "v3.251002-stable"
 
 livenessProbe:
   exec:
