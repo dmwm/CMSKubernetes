@@ -69,6 +69,38 @@ _exec_mysql() {
     # fi
 }
 
+_connect_oracle(){
+    # Auxiliary function to establish an interactive oracle connection and to
+    # provide all needed parameters to the default @login script
+    # :param None: All needed variables are fetch from the environment
+    #
+    #  NOTE: This requires parsing and loading $WMA_SECRETS_FILE in
+    #        advance with: _load_wmasecrets
+
+    # Setting the owner to match the current user.
+    # NOTE: This is not the case for how we connect to DBS
+    local owner=$ORACLE_USER
+
+    # Setting the connection string:
+    local connStr=$ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS
+
+    # creating all temporary paths per owner and dictionary files if missing at
+    # the $WMA_LOG_DIR area:
+    local oraTmpPath=$WMA_LOG_DIR/tmp/
+    mkdir -p $oraTmpPath/${owner^^}
+
+    local oraHistFile=$WMA_LOG_DIR/.sqlplus_history
+    local oraDictFile=$ORACLE_PATH/.autocomp.txt
+    local oraDictFileDBObj=$oraTmpPath/${owner^^}/.autocompDBObj.txt
+    local prompt="SQL [$ORACLE_USER@$ORACLE_TNS]> "
+    touch $oraHistFile
+    touch $oraDictFile
+    touch $oraDictFileDBObj
+
+    # Starting the interactive session:
+    rlwrap -U --always-readline --no-children -H $oraHistFile -pgreen -S "$prompt" -z pipeto -D2 -i -r -c -f $oraDictFileDBObj -f $oraDictFile -f . -- sqlplus $connStr @login "${owner^^}" "${oraTmpPath}" "$oraDictFileDBObj"
+}
+
 _exec_oracle() {
     # Auxiliary function to avoid repetitive and long calls to the sqlplus command
     # :param: $@ could be a sql string to execute or a file redirect or a here document
@@ -111,7 +143,7 @@ _exec_oracle() {
     if $isInitCall || $hasArgs; then
         ( unset ORACLE_PATH; echo -e $execStr | sqlplus -NOLOGINTIME -S $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS )
     elif $isPipe || ! $hasArgs; then
-        rlwrap -H $WMA_LOG_DIR/.sqlplus_history -pgreen sqlplus $ORACLE_USER/$ORACLE_PASS@$ORACLE_TNS
+        _connect_oracle
     else
         echo "$FUNCNAME: ERROR: Unhandled type of call with: isPipe: $isPipe &&  noArgs: $noArgs && isInitCall: $isInitCall"
         return $(false)
