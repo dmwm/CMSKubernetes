@@ -1,11 +1,11 @@
 #!/bin/bash
 
-### The main manage script for WMAgent
-WMCoreVersion=$(python -c "from WMCore import __version__ as WMCoreVersion; print(WMCoreVersion)")
-
 # Load common definitions and environment:
 source $WMA_DEPLOY_DIR/bin/manage-common.sh
 source $WMA_ENV_FILE
+
+### The main manage script for WMAgent
+WMCoreVersion=$(python -c "from WMCore import __version__ as WMCoreVersion; print(WMCoreVersion)")
 
 #
 # Global variables etc
