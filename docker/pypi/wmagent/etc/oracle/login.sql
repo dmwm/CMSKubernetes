@@ -123,6 +123,7 @@ set xmloptimizationcheck OFF
 define owner=&1
 define oracle_tmp_path=&2
 define db_obj_autocomp=&3
+@stats_refresh
 @col_width_all
 @fill_db_obj_autocomp
 set editfile &oracle_tmp_path/afiedt.buf
