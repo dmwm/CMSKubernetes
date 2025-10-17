@@ -92,13 +92,12 @@ _connect_oracle(){
     local oraHistFile=$WMA_LOG_DIR/.sqlplus_history
     local oraDictFile=$ORACLE_PATH/.autocomp.txt
     local oraDictFileDBObj=$oraTmpPath/${owner^^}/.autocompDBObj.txt
-    local prompt="SQL [$ORACLE_USER@$ORACLE_TNS]> "
+    local prompt="ORA [$ORACLE_USER@$ORACLE_TNS]> "
     touch $oraHistFile
-    touch $oraDictFile
     touch $oraDictFileDBObj
 
     # Starting the interactive session:
-    rlwrap -U --always-readline --no-children -H $oraHistFile -pgreen -S "$prompt" -z pipeto -D2 -i -r -c -f $oraDictFileDBObj -f $oraDictFile -f . -- sqlplus $connStr @login "${owner^^}" "${oraTmpPath}" "$oraDictFileDBObj"
+    rlwrap -U -H $oraHistFile -pgreen -S "$prompt" -z pipeto -D2 -i -r -c -f $oraDictFileDBObj -f $oraDictFile -f . -- sqlplus $connStr @login "${owner^^}" "${oraTmpPath}" "$oraDictFileDBObj"
 }
 
 _exec_oracle() {
