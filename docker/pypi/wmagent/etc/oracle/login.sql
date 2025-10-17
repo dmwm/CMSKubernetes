@@ -118,10 +118,11 @@ set verify ON
 --set wrap ON
 set xmloptimizationcheck OFF
 
--- setup/run/define dbs-inventory related scripts and variables
-define _editor=emacs
+-- setup/run/define interactive db sessions related scripts and variables
+-- define _editor=emacs
 define owner=&1
 define oracle_tmp_path=&2
 define db_obj_autocomp=&3
 @col_width_all
 @fill_db_obj_autocomp
+set editfile &oracle_tmp_path/afiedt.buf
