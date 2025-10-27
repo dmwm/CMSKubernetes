@@ -30,7 +30,7 @@ docker exec -it couchdb sh -c "/data/srv/current/config/couchdb/manage status"
 
 ## Rotate CouchDB logs
 
-Ideally, this procedure should be done once every month. We also have a Prometheus alert that comes from the following [configuration](https://its.cern.ch/jira/browse/CMSMONIT-673) -- when the storage reaches 80%, cmsweb-operator and cms-wmcore-team e-groups get the alerts.
+Ideally, this procedure should be done likely once or twice a year (whenever disk utiization is high). We also have a Prometheus alert that comes from the following [configuration](https://its.cern.ch/jira/browse/CMSMONIT-673) -- when the storage reaches 80%, cmsweb-operator and cms-wmcore-team e-groups get the alerts.
 
 ### Preparation
 ```
