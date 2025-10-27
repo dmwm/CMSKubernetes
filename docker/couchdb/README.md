@@ -13,13 +13,14 @@ cd /data/srv
 curl https://raw.githubusercontent.com/dmwm/CMSKubernetes/master/docker/couchdb/docker-run.sh > docker-run.sh
 chmod +x docker-run.sh 
 ./docker-run.sh
+
 ```
 
 ### Stop CouchDB container
 Connect to the cmsweb backend VM with the cmsweb account and:
 ```
 docker stop couchdb
-docker rm couchdb
+docker rm couchdb //it is best to do it with [docker-run.sh](https://raw.githubusercontent.com/dmwm/CMSKubernetes/2857afd72352e08d1ee34f7af9b06141ec811835/docker/couchdb/docker-run.sh) script which sets up the environment variables
 ```
 
 ### Checking status of CouchDB service
@@ -52,9 +53,10 @@ docker image ls
 sudo chown -R cmsweb:zh /data/srv/logs/couchdb
 tail -n100000 /data/srv/logs/couchdb/couch.log >  /data/srv/logs/couchdb/couchnew.log && mv /data/srv/logs/couchdb/couchnew.log /data/srv/logs/couchdb/couch.log
 ls -ltha /data/srv/logs/couchdb/
+./docker-run.sh
 ```
 
-./docker-run.sh
+
 
 ### Post checks
 ```
