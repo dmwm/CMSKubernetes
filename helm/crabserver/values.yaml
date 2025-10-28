@@ -43,7 +43,7 @@ canary:
     - name: CRABSERVER_THREAD_POOL
       value: "2"
 
-environment:
+environment: "test"
 
 imagePullSecrets: []
 nameOverride: ""

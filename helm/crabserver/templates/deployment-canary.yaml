@@ -16,10 +16,10 @@ spec:
       app: crabserver
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- $base := dict "configHash" (include "crabserver.configHash" .) -}}
+        {{- $merged := merge $base (.Values.podAnnotations | default dict) -}}
+        {{- toYaml $merged | nindent 8 }}
       labels:
         app: crabserver
         env: k8s-{{.Values.environment}}
