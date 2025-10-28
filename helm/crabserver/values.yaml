@@ -1,13 +1,12 @@
-# Default values for crabserver.
-# This is a YAML-formatted file.
+# Default values for crabserver.# This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 enabled: true
 
-replicaCount:
-  prod: 15
-  preprod: 1
-  test: 1
+replicaCount: 1
+
+crabserver:
+  configPy: null
 
 image:
   path: registry.cern.ch/cmscrab/crabserver
@@ -27,6 +26,7 @@ image:
 
 canary:
   enabled: false
+  replicaCount: 1
   image:
     path: registry.cern.ch/cmscrab/crabserver
     pullPolicy: IfNotPresent
@@ -43,7 +43,7 @@ canary:
     - name: CRABSERVER_THREAD_POOL
       value: "2"
 
-environment:
+environment: "test"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -78,12 +78,6 @@ serviceMon:
   port: 18720
   protocol: TCP
 
-ingress:
-  enabled: false
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-
 resources:
   limits:
     cpu: 1500m
@@ -98,57 +92,13 @@ livenessProbe:
     - /bin/sh
     - -c
     - |
-      cmsweb-ping --url=http://localhost:8270/crabserver/prod/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
-  failureThreshold: 3
-  initialDelaySeconds: 120
-  periodSeconds: 60
-  timeoutSeconds: 60
-
-readinessProbe:
-  exec:
-    command:
-    - /bin/sh
-    - -c
-    - |
-      cmsweb-ping --url=http://localhost:8270/crabserver/prod/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
-  periodSeconds: 60
-  timeoutSeconds: 60
-
-livenessProbePreProd:
-  exec:
-    command:
-    - /bin/sh
-    - -c
-    - |
-      cmsweb-ping --url=http://localhost:8270/crabserver/preprod/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
-  failureThreshold: 3
-  initialDelaySeconds: 120
-  periodSeconds: 60
-  timeoutSeconds: 60
-
-readinessProbePreProd:
-  exec:
-    command:
-    - /bin/sh
-    - -c
-    - |
-      cmsweb-ping --url=http://localhost:8270/crabserver/preprod/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
-  periodSeconds: 60
-  timeoutSeconds: 60
-
-livenessProbeTest:
-  exec:
-    command:
-    - /bin/sh
-    - -c
-    - |
       cmsweb-ping --url=http://localhost:8270/crabserver/dev/info --authz=/etc/hmac/hmac -verbose 0 | egrep "^[2-4]"
   failureThreshold: 3
   initialDelaySeconds: 120
   periodSeconds: 60
   timeoutSeconds: 60
 
-readinessProbeTest:
+readinessProbe:
   exec:
     command:
     - /bin/sh
@@ -171,12 +121,12 @@ tolerations: []
 
 affinity: {}
 
-
 ciServiceAccount:
   enabled: false
 
 logPipeline:
   enabled: false
+  logstashNamespace: crab
   filebeat:
     name: filebeat
     path: docker.elastic.co/beats/filebeat:8.5.1

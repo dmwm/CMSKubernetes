@@ -5,18 +5,16 @@ apiVersion: v1
 metadata:
   name: crabserver
   labels:
+    env: k8s-{{$environment}}
     app: crabserver
   namespace: crab
 data:
   entrypoint.sh: |
 {{ (.Files.Get "scripts/entrypoint.sh" | indent 4) }}
   config.py: |
-{{- if (eq (toString $environment) "prod") }}
-{{ (.Files.Get "config/prod/config.py" | indent 4) }}
-{{- else if (eq (toString $environment) "preprod")}}
-{{ (.Files.Get "config/preprod/config.py" | indent 4) }}
+{{- if .Values.crabserver.configPy }}
+{{ .Values.crabserver.configPy | nindent 4 }}
 {{- else }}
-{{ (.Files.Get "config/test/config.py" | indent 4) }}
+{{ (.Files.Get (printf "config/%s/config.py" $environment) | indent 4) }}
 {{- end }}
-
 {{- end }}

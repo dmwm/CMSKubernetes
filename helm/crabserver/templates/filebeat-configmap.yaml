@@ -9,29 +9,5 @@ metadata:
   namespace: crab
 data:
   filebeat.yml: |-
-    filebeat.inputs:
-    - type: container
-      paths:
-        - /var/log/pods/crab_crabserver*/crabserver/*.log
-      include_lines:
-        - '\] (crabserver|crabserver-canary)-\w+-\w+ \d'
-      tags:
-        - "crabhttpcall"
-    - type: container
-      paths:
-        - /var/log/pods/crab_crabserver*/crabserver/*.log
-      include_lines:
-        - 'MeasureTime:seconds - '
-        - 'MeasureSize:bytes - '
-      tags:
-        - "crabrest"
-    output.logstash:
-      hosts: ["logstash-crab:5044"]
-      compression_level: 3
-      bulk_max_size: 4096
-    queue.mem:
-      events: 65536
-    logging.metrics.enabled: false
-    logging.level: info
-
+{{ (.Files.Get "config/filebeat.yml" | indent 4) }}
 {{- end }}

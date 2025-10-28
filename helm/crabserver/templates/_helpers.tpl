@@ -60,3 +60,24 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Create a configHash for ConfigMap content-based versioning to trigger automatic rollouts.
+*/}}
+{{- define "crabserver.configHash" -}}
+{{- $content := "" -}}
+{{- if .Values.crabserver.configPy }}
+{{- $content = .Values.crabserver.configPy -}}
+{{- else }}
+{{- $path := printf "config/%s/config.py" .Values.environment -}}
+{{- $content = .Files.Get $path -}}
+{{- end }}
+{{- $hash := sha256sum $content | trunc 8 -}}
+{{- $hash -}}
+{{- end }}
+
+{{- define "filebeat.configHash" -}}
+{{- $content := .Files.Get "config/filebeat.yml" -}}
+{{- $hash := sha256sum $content | trunc 8 -}}
+{{- $hash -}}
+{{- end }}
