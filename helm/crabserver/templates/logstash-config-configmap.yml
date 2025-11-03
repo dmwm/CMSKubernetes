@@ -4,8 +4,8 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   labels:
-    k8s-app: logstash-config
-  name: logstash-config
+    k8s-app: logstash-crab
+  name: logstash-config-crab
   namespace: {{ .Values.logPipeline.logstashNamespace }}
 data:
   # logstash config
