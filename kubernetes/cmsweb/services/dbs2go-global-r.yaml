@@ -61,25 +61,25 @@ spec:
         prometheus.io/path: "/dbs/prod/global/DBSReader/metrics"
         prometheus.io/port: "9252"
     spec:
-#PROD#  initContainers:
-#PROD#  - name: init-install-sudo
-#PROD#    image: ubuntu
-#PROD#    imagePullPolicy: Always
-#PROD#    command:
-#PROD#    - sh
-#PROD#    - -c
-#PROD#    - |
-#PROD#      apt-get update && apt-get install -y sudo && apt-get clean && \
-#PROD#      chmod 0777 /data/srv/logs/dbs && chown 1000:1000 /data/srv/logs/dbs
-#PROD#    resources: {}
-#PROD#    securityContext:
-#PROD#      runAsUser: 0
-#PROD#      runAsGroup: 0
-#PROD#    terminationMessagePath: /dev/termination-log
-#PROD#    terminationMessagePolicy: File
-#PROD#    volumeMounts:
-#PROD#    - mountPath: /data/srv/logs/dbs
-#PROD#      name: logs
+#PROD#initContainers:
+#PROD#- name: init-install-sudo
+#PROD#  image: ubuntu
+#PROD#  imagePullPolicy: Always
+#PROD#  command:
+#PROD#  - sh
+#PROD#  - -c
+#PROD#  - |
+#PROD#    apt-get update && apt-get install -y sudo && apt-get clean && \
+#PROD#    chmod 0777 /data/srv/logs/dbs && chown 1000:1000 /data/srv/logs/dbs
+#PROD#  resources: {}
+#PROD#  securityContext:
+#PROD#    runAsUser: 0
+#PROD#    runAsGroup: 0
+#PROD#  terminationMessagePath: /dev/termination-log
+#PROD#  terminationMessagePolicy: File
+#PROD#  volumeMounts:
+#PROD#  - mountPath: /data/srv/logs/dbs
+#PROD#    name: logs
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
