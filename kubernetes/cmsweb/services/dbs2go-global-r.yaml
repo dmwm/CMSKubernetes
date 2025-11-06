@@ -60,7 +60,7 @@ spec:
         prometheus.io/scrape: 'true'
         prometheus.io/path: "/dbs/prod/global/DBSReader/metrics"
         prometheus.io/port: "9252"
-#PROD#    spec:
+    spec:
 #PROD#      initContainers:
 #PROD#      - command:
 #PROD#        - sh
