@@ -38,13 +38,13 @@ spec:
       targetPort: 9252
       name: dbs
 ---
-kind: Deployment
 apiVersion: apps/v1
+kind: Deployment
 metadata:
-  labels:
-    app: dbs2go-global-r
   name: dbs2go-global-r
   namespace: dbs
+  labels:
+    app: dbs2go-global-r
 spec:
   selector:
     matchLabels:
@@ -85,14 +85,14 @@ spec:
         runAsGroup: 1000
         fsGroup: 2000
       containers:
-      - image: registry.cern.ch/cmsweb/dbs2go #imagetag
-        name: dbs2go-global-r
+      - name: dbs2go-global-r
+        image: registry.cern.ch/cmsweb/dbs2go #imagetag
         imagePullPolicy: Always
         env:
         - name: X509_USER_PROXY
           value: /etc/proxy/proxy
         - name: TNS_ADMIN
-          value: /etc/tnsnames.ora          
+          value: /etc/tnsnames.ora
         command:
         - /data/run.sh
         resources:
@@ -115,8 +115,6 @@ spec:
         - containerPort: 9252
           protocol: TCP
           name: dbs
-        command:
-        - /data/run.sh
         volumeMounts:
         - name: proxy-secrets
           mountPath: /etc/proxy
@@ -135,43 +133,43 @@ spec:
           readOnly: true
         - name: tnsnames
           mountPath: /etc/tnsnames.ora
-          subPath: tnsnames.ora          
-#PROD#  - name: logs
-#PROD#    mountPath: /data/srv/logs/dbs
+          subPath: tnsnames.ora
+#PROD#      - name: logs
+#PROD#        mountPath: /data/srv/logs/dbs
         securityContext:
           allowPrivilegeEscalation: false
-#PROD#- name: dbs2go-global-r-filebeat
-#PROD#  image: docker.elastic.co/beats/filebeat:7.12.0
-#PROD#  args: [
-#PROD#    "-c", "/etc/filebeat.yml",
-#PROD#    "-e",
-#PROD#  ]
-#PROD#  env:
-#PROD#  - name: MY_POD_NAME
-#PROD#    valueFrom:
-#PROD#      fieldRef:
-#PROD#        apiVersion: v1
-#PROD#        fieldPath: metadata.name
-#PROD#  resources:
-#PROD#    requests:
-#PROD#      memory: "50Mi"
-#PROD#      cpu: "50m"
-#PROD#  volumeMounts:
-#PROD#  - name: logs
-#PROD#    mountPath: /data/srv/logs/dbs
-#PROD#  - name: config
-#PROD#    mountPath: /etc/filebeat.yml
-#PROD#    readOnly: true
-#PROD#    subPath: filebeat.yml
-#PROD#  - name: data
-#PROD#    mountPath: /usr/share/filebeat/data
-#PROD#  - name: varlog
-#PROD#    mountPath: /var/log
-#PROD#  - name: varlibdockercontainers
-#PROD#    mountPath: /var/lib/docker/containers
-#PROD#    readOnly: true
-#PROD#  securityContext:
-#PROD#    allowPrivilegeEscalation: false
+#PROD#      - name: dbs2go-global-r-filebeat
+#PROD#        image: docker.elastic.co/beats/filebeat:7.12.0
+#PROD#        args: [
+#PROD#          "-c", "/etc/filebeat.yml",
+#PROD#          "-e",
+#PROD#        ]
+#PROD#        env:
+#PROD#        - name: MY_POD_NAME
+#PROD#          valueFrom:
+#PROD#            fieldRef:
+#PROD#              apiVersion: v1
+#PROD#              fieldPath: metadata.name
+#PROD#        resources:
+#PROD#          requests:
+#PROD#            memory: "50Mi"
+#PROD#            cpu: "50m"
+#PROD#        volumeMounts:
+#PROD#        - name: logs
+#PROD#          mountPath: /data/srv/logs/dbs
+#PROD#        - name: config
+#PROD#          mountPath: /etc/filebeat.yml
+#PROD#          readOnly: true
+#PROD#          subPath: filebeat.yml
+#PROD#        - name: data
+#PROD#          mountPath: /usr/share/filebeat/data
+#PROD#        - name: varlog
+#PROD#          mountPath: /var/log
+#PROD#        - name: varlibdockercontainers
+#PROD#          mountPath: /var/lib/docker/containers
+#PROD#          readOnly: true
+#PROD#        securityContext:
+#PROD#          allowPrivilegeEscalation: false
       volumes:
       - name: proxy-secrets
         secret:
@@ -190,19 +188,19 @@ spec:
           name: tnsnames-config
       - name: token-secrets
         secret:
-          secretName: token-secrets          
-#PROD#- name: logs
-#PROD#  persistentVolumeClaim:
-#PROD#      claimName: logs-cephfs-claim-dbs
-#PROD#- name: varlog
-#PROD#  hostPath:
-#PROD#    path: /var/log
-#PROD#- name: varlibdockercontainers
-#PROD#  hostPath:
-#PROD#    path: /var/lib/docker/containers
-#PROD#- name: config
-#PROD#  configMap:
-#PROD#    defaultMode: 0640
-#PROD#    name: dbs2go-global-r-filebeat-config
-#PROD#- name: data
-#PROD#  emptyDir: {}
+          secretName: token-secrets
+#PROD#      - name: logs
+#PROD#        persistentVolumeClaim:
+#PROD#          claimName: logs-cephfs-claim-dbs
+#PROD#      - name: varlog
+#PROD#        hostPath:
+#PROD#          path: /var/log
+#PROD#      - name: varlibdockercontainers
+#PROD#        hostPath:
+#PROD#          path: /var/lib/docker/containers
+#PROD#      - name: config
+#PROD#        configMap:
+#PROD#          defaultMode: 0640
+#PROD#          name: dbs2go-global-r-filebeat-config
+#PROD#      - name: data
+#PROD#        emptyDir: {}
