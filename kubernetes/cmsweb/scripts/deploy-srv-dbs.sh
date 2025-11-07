@@ -3,17 +3,20 @@
 # Define the target namespace in the new cluster
 target_namespace="dbs"
 
+# Fetch the tag from command prompt
+tag=$1
+
 # Mapping of service names to their full image tags
 declare -A service_image_tags=(
     ["check-metric"]="registry.cern.ch/cmsweb/check-metric:20220404-stable"
-    ["dbs2go-global-m"]="registry.cern.ch/cmsweb/dbs2go:v00.06.42-stable"
-    ["dbs2go-global-migration"]="registry.cern.ch/cmsweb/dbs2go:v00.06.42-stable"
-    ["dbs2go-global-r"]="registry.cern.ch/cmsweb/dbs2go:v00.06.42-stable"
-    ["dbs2go-global-w"]="registry.cern.ch/cmsweb/dbs2go:v00.06.43-stable"
-    ["dbs2go-phys03-m"]="registry.cern.ch/cmsweb/dbs2go:v00.06.42-stable"
-    ["dbs2go-phys03-migration"]="registry.cern.ch/cmsweb/dbs2go:v00.06.42-stable"
-    ["dbs2go-phys03-r"]="registry.cern.ch/cmsweb/dbs2go:v00.06.42-stable"
-    ["dbs2go-phys03-w"]="registry.cern.ch/cmsweb/dbs2go:v00.06.43-stable"
+    ["dbs2go-global-m"]="registry.cern.ch/cmsweb/dbs2go:${tag:-v00.06.44-stable}"
+    ["dbs2go-global-migration"]="registry.cern.ch/cmsweb/dbs2go:${tag:-v00.06.44-stable}"
+    ["dbs2go-global-r"]="registry.cern.ch/cmsweb/dbs2go:${tag:-v00.06.44-stable}"
+    ["dbs2go-global-w"]="registry.cern.ch/cmsweb/dbs2go:${tag:-v00.06.44-stable}"
+    ["dbs2go-phys03-m"]="registry.cern.ch/cmsweb/dbs2go:${tag:-v00.06.44-stable}"
+    ["dbs2go-phys03-migration"]="registry.cern.ch/cmsweb/dbs2go:${tag:-v00.06.44-stable}"
+    ["dbs2go-phys03-r"]="registry.cern.ch/cmsweb/dbs2go:${tag:-v00.06.44-stable}"
+    ["dbs2go-phys03-w"]="registry.cern.ch/cmsweb/dbs2go:${tag:-v00.06.44-stable}"
 )
 
 # Loop through the service names and their full image tags
