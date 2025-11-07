@@ -1,0 +1,68 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: openstack-accounting
+  namespace: hdfs
+spec:
+  schedule: "1 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: openstack-accounting
+            image: registry.cern.ch/cmsmonitoring/openstack-accounting:test
+            imagePullPolicy: Always
+            command:
+            - /bin/bash
+            - /data/cron4openstack_accounting.sh
+            - /eos/user/c/cmsmonit/www/eos_openstack/openstack_accounting_cron.html
+            env:
+            - name: K8S_ENV
+              value: prod
+            - name: PUSHGATEWAY_URL
+              value: pushgateway.default.svc.cluster.local:9091
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            volumeMounts:
+            - name: eos
+              mountPath: /eos
+            - name: keytab-secret
+              mountPath: /etc/secrets
+              readOnly: true
+            - name: cms-pvc
+              mountPath: /cvmfs/cms.cern.ch
+            - name: proxy-secrets
+              mountPath: /etc/proxy
+              readOnly: true
+            resources:
+              limits:
+                cpu: "2"
+                memory: 6Gi
+              requests:
+                cpu: 100m
+                memory: 100Mi
+          restartPolicy: OnFailure
+          terminationGracePeriodSeconds: 30
+          volumes:
+          - name: eos
+            hostPath:
+              path: /var/eos
+          - name: keytab-secret
+            secret:
+              secretName: keytab-secret
+              defaultMode: 420
+          - name: cms-pvc
+            persistentVolumeClaim:
+              claimName: csi-cvmfs-cms-pvc
+              readOnly: true
+          - name: proxy-secrets
+            secret:
+              secretName: proxy-secrets
+              defaultMode: 420
