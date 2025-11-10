@@ -1,0 +1,5 @@
+---
+environment: "test"
+
+image:
+  tag: "v3.250929.1-stable"
