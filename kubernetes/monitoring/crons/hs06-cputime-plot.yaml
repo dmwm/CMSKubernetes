@@ -1,0 +1,76 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: hs06-cputime-plot
+  namespace: hdfs
+  labels:
+    app: hs06-cputime-plot
+spec:
+  schedule: "00 22 19 * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: hs06-cputime-plot
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: hs06-cputime-plot
+            image: registry.cern.ch/cmsmonitoring/hs06-cputime-plot:test
+            imagePullPolicy: Always
+            command: ["/bin/bash", "/opt/spark-apps/hs06-cputime-plot/cron4hs06_cputime_plot.sh"]
+            args:
+              - "--keytab"
+              - "/etc/secrets/keytab"
+              - "--output"
+              - "/eos/user/c/cmsmonit/www/hs06cputime_cron"
+              - "--p1"
+              - "32608"
+              - "--p2"
+              - "32609"
+              - "--host"
+              - "$(MY_NODE_NAME)"
+              - "--wdir"
+              - "/opt/spark-apps/hs06-cputime-plot"
+            ports:
+            - containerPort: 32608
+              hostPort: 32608
+              protocol: TCP
+            - containerPort: 32609
+              hostPort: 32609
+              protocol: TCP
+            env:
+            - name: K8S_ENV
+              value: prod
+            - name: HOSTNAME
+              value: hs06-cputime-plot
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: PUSHGATEWAY_URL
+              value: pushgateway.default.svc.cluster.local:9091
+            volumeMounts:
+            - name: eos
+              mountPath: /eos
+              mountPropagation: HostToContainer
+            - name: cron-spark-jobs-secrets
+              mountPath: /etc/secrets
+              readOnly: true
+            resources:
+              limits:
+                cpu: "2"
+                memory: 6Gi
+              requests:
+                cpu: 100m
+                memory: 100Mi
+          volumes:
+          - name: eos
+            hostPath:
+              path: /var/eos
+          - name: cron-spark-jobs-secrets
+            secret:
+              secretName: cron-spark-jobs-secrets
+              defaultMode: 420
+
