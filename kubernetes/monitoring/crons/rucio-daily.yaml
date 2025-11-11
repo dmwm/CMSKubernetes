@@ -1,0 +1,76 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: rucio-daily
+  namespace: hdfs
+  labels:
+    app: rucio-daily
+spec:
+  schedule: "07 08 * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: rucio-daily
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: rucio-daily
+            image: registry.cern.ch/cmsmonitoring/rucio-daily:test
+            imagePullPolicy: Always
+            command: ["/bin/bash", "/opt/spark-apps/rucio-daily/cron4rucio_daily.sh"]
+            args:
+              - "--keytab"
+              - "/etc/secrets/keytab"
+              - "--output"
+              - "/cms/rucio_daily_cron"
+              - "--p1"
+              - "32612"
+              - "--p2"
+              - "32613"
+              - "--host"
+              - "$(MY_NODE_NAME)"
+              - "--wdir"
+              - "/opt/spark-apps/rucio-daily"
+            ports:
+            - containerPort: 32612
+              hostPort: 32612
+              protocol: TCP
+            - containerPort: 32613
+              hostPort: 32613
+              protocol: TCP
+            env:
+            - name: K8S_ENV
+              value: prod
+            - name: HOSTNAME
+              value: rucio-daily
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: PUSHGATEWAY_URL
+              value: pushgateway.default.svc.cluster.local:9091
+            volumeMounts:
+            - name: eos
+              mountPath: /eos
+              mountPropagation: HostToContainer
+            - name: cmsmonit-keytab
+              mountPath: /etc/secrets
+              readOnly: true
+            resources:
+              limits:
+                cpu: "2"
+                memory: 6Gi
+              requests:
+                cpu: 100m
+                memory: 100Mi
+          volumes:
+          - name: eos
+            hostPath:
+              path: /var/eos
+          - name: cmsmonit-keytab
+            secret:
+              secretName: keytab-secret
+              defaultMode: 420
+
