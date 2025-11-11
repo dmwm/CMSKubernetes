@@ -1,0 +1,63 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cmsmon-rucio-ds
+  namespace: hdfs
+  labels:
+    app: cmsmon-rucio-ds
+spec:
+  schedule: "45 6 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  suspend: false
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: cmsmon-rucio-ds
+        spec:
+          restartPolicy: OnFailure
+          volumes:
+          - name: rucio-daily-stats-secrets
+            secret:
+              secretName: rucio-daily-stats-secrets
+              defaultMode: 420
+          - name: eos
+            hostPath:
+              path: /var/eos
+          containers:
+          - name: cmsmon-rucio-ds
+            image: registry.cern.ch/cmsmonitoring/rucio_daily_stats:test
+            imagePullPolicy: Always
+            command:
+            - /bin/bash
+            - -c
+            - |
+              #!/bin/bash
+              . /etc/environment
+              ./cron4rucio_datasets_stats.sh \
+                --keytab /etc/secrets/keytab \
+                --amq /etc/secrets/amq_broker.json \
+                --cmsmonitoring /data/CMSMonitoring.zip \
+                --stomp /data/stomp-v700.zip \
+                --eos /eos/user/c/cmsmonit/www/rucio_daily_ds_stats \
+                --p1 31201 --p2 31202 --host $MY_NODE_NAME --wdir $WDIR
+            env:
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: WDIR
+              value: /tmp
+            - name: PUSHGATEWAY_URL
+              value: pushgateway.default.svc.cluster.local:9091
+            volumeMounts:
+            - name: rucio-daily-stats-secrets
+              mountPath: /etc/secrets
+              readOnly: true
+            - name: eos
+              mountPath: /eos
+          terminationGracePeriodSeconds: 30

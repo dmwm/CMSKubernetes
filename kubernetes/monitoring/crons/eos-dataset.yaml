@@ -1,0 +1,78 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: eos-dataset
+  namespace: hdfs
+  labels:
+    app: eos-dataset
+spec:
+  schedule: "00 22 24 * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: eos-dataset
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: eos-dataset
+            image: registry.cern.ch/cmsmonitoring/eos-dataset:test
+            imagePullPolicy: Always
+            command: ["/bin/bash", "/opt/spark-apps/eos-dataset/cron4eos_dataset.sh"]
+            args:
+              - "--keytab"
+              - "/etc/secrets/keytab"
+              - "--output"
+              - "/eos/user/c/cmsmonit/www/EOS/cron_data"
+              - "--p1"
+              - "32610"
+              - "--p2"
+              - "32611"
+              - "--host"
+              - "$(MY_NODE_NAME)"
+              - "--wdir"
+              - "/opt/spark-apps/eos-dataset"
+            ports:
+            - containerPort: 32610
+              hostPort: 32610
+              protocol: TCP
+            - containerPort: 32611
+              hostPort: 32611
+              protocol: TCP
+            env:
+            - name: K8S_ENV
+              value: prod
+            - name: HOSTNAME
+              value: eos-dataset
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: PUSHGATEWAY_URL
+              value: pushgateway.default.svc.cluster.local:9091
+            - name: PARQUET_LOCATION
+              value: /tmp/cmsmonit/test_parquet_eos_dataset
+            volumeMounts:
+            - name: eos
+              mountPath: /eos
+              mountPropagation: HostToContainer
+            - name: cron-spark-jobs-secrets
+              mountPath: /etc/secrets
+              readOnly: true
+            resources:
+              limits:
+                cpu: "2"
+                memory: 6Gi
+              requests:
+                cpu: 100m
+                memory: 100Mi
+          volumes:
+          - name: eos
+            hostPath:
+              path: /var/eos
+          - name: cron-spark-jobs-secrets
+            secret:
+              secretName: cron-spark-jobs-secrets
+              defaultMode: 420
+
