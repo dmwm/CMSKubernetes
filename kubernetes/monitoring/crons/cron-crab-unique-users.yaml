@@ -1,0 +1,85 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: crab-unique-users
+  namespace: hdfs
+spec:
+  schedule: "00 22 27 * *"  # Run on 27th of each month at 22:00
+  concurrencyPolicy: Allow
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 3
+  suspend: false
+  jobTemplate:
+    metadata:
+      labels:
+        app: crab-unique-users
+    spec:
+      template:
+        metadata:
+          labels:
+            app: crab-unique-users
+        spec:
+          containers:
+          - name: crab-unique-users
+            image: registry.cern.ch/cmsmonitoring/crab-unique-users:test
+            imagePullPolicy: Always
+            command: ["/bin/bash", "/opt/spark-apps/crab-unique-users/cron4crab_unique_users.sh"]
+            args:
+              - "--keytab"
+              - "/etc/secrets/keytab"
+              - "--output"
+              - "/eos/user/c/cmsmonit/www/crab_uu_cron"
+              - "--p1"
+              - "32604"
+              - "--p2"
+              - "32605"
+              - "--host"
+              - "$(MY_NODE_NAME)"
+              - "--wdir"
+              - "/opt/spark-apps/crab-unique-users"
+            ports:
+            - containerPort: 32604
+              hostPort: 32604
+              protocol: TCP
+            - containerPort: 32605
+              hostPort: 32605
+              protocol: TCP
+            env:
+            - name: K8S_ENV
+              value: prod
+            - name: HOSTNAME
+              value: crab-unique-users
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: PUSHGATEWAY_URL
+              value: pushgateway.default.svc.cluster.local:9091
+            volumeMounts:
+            - name: eos
+              mountPath: /eos
+              mountPropagation: HostToContainer
+            - name: cron-spark-jobs-secrets
+              mountPath: /etc/secrets
+              readOnly: true
+            resources:
+              limits:
+                cpu: "2"
+                memory: 6Gi
+              requests:
+                cpu: 100m
+                memory: 100Mi
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+          restartPolicy: Never
+          terminationGracePeriodSeconds: 30
+          volumes:
+          - name: eos
+            hostPath:
+              path: /var/eos
+              type: ""
+          - name: cron-spark-jobs-secrets
+            secret:
+              secretName: cron-spark-jobs-secrets
+              defaultMode: 420
