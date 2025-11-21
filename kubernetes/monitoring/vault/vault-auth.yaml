@@ -1,13 +1,13 @@
 apiVersion: secrets.hashicorp.com/v1beta1
 kind: VaultAuth
 metadata:
-  name: vault-auth                           # Name for this VaultAuth resource
-  namespace: vault-secrets-operator   # Namespace where the Vault Secrets Operator is installed
+  name: vault-auth
+  namespace: vault-secrets-operator
 spec:
-  vaultConnectionRef: vault-connection       # Reference to  VaultConnection resource
-  method: kubernetes                         # Authentication method
-  mount: vault-operator                      # Name of the Kubernetes auth mount in Vault
-  allowedNamespaces: [default,vault-secrets-operator]  # List of namespaces allowed to use this auth
+  vaultConnectionRef: vault-connection
+  method: kubernetes
+  mount: cms-monitoring
+  allowedNamespaces: [default,vault-secrets-operator]
   kubernetes:
-    role: vaultrole  # Vault role configured for this operator
-    serviceAccount: vault-auth  # ServiceAccount used for authentication
+    role: vaultrole
+    serviceAccount: vault-auth
