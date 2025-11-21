@@ -6,6 +6,8 @@ The manifests are meant to be applied to the same cluster where the operator run
 
 This documentation and setup refers specifically to the deployment of the VSO integration of Vault into Kubernetes. For a comprehensive comparison between the different methods and their benefits, see [the official Vault@CERN documentation](https://vault.docs.cern.ch/docs/integration/comparison/), and for documentation about how to set up each of the different approaches for integration, [this other section of the documentation](https://vault.docs.cern.ch/docs/integration/).
 
+If you have any questions about setting up Vault within your infrastructure after going through this documentation (and the official one linked above), feel free to contact us for help, or to send a message in the official [Vault Mattermost channel](https://mattermost.web.cern.ch/it-dep/channels/vault).
+
 ## Prerequisites
 
 - Access to the Vault cluster (`woger-vault.cern.ch` for test environment or `vault-it.cern.ch` prod). You can get it by [creating a SNOW ticket to CERN IT Vault team](https://cern.service-now.com/service-portal?id=sc_cat_item&name=Configuration-Management-Incident&se=Configuration-Management) (it says the ticket is for reporting a Configuration Management issue but they do not have a specific SNOW space at the moment).
