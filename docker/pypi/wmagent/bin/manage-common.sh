@@ -477,6 +477,9 @@ _load_wmasecrets(){
     if [[  -z $GRAFANA_TOKEN ]]; then
         echo "$FUNCNAME: ERROR: Secrets file doesnt contain GRAFANA_TOKEN"; let errVal+=1
     fi
+    if [[  -z $OAUTH_CMS_TOKEN_NAME ]]; then
+        echo "$FUNCNAME: WARNING: Secrets file doesnt contain OAUTH_CMS_TOKEN_NAME, disabling tokens in remote jobs."; 
+    fi
 
     # CouchDB settings
     # if couch ssl certificate not specified check X509_USER_CERT and X509_USER_PROXY
