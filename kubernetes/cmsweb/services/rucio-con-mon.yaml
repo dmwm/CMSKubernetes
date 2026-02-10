@@ -16,7 +16,7 @@ spec:
         app: monitor
     spec:
       containers:
-      - image: ivmfnal/rucio_consistency_monitor #imagetag
+      - image: registry.cern.ch/cmsrucio/rucio-con-mon:2.0.0  #imagetag
         name: monitor
         livenessProbe:
           httpGet:
