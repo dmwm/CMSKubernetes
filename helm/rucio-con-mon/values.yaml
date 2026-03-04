@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: ivmfnal/rucio_consistency_monitor
+  repository: registry.cern.ch/cmsrucio/rucio-con-mon
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
