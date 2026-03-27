@@ -1,6 +1,6 @@
 environment: "preprod"
 image:
-  repository: ivmfnal/rucio_consistency_monitor
+  repository: repository: registry.cern.ch/cmsrucio/rucio-con-mon
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+  tag: "2.1.1"
