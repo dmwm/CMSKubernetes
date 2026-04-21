@@ -54,7 +54,13 @@ spec:
             name: dbs2go-phys03-m
             port:
               number: 9257
-
+      - path: /dbs/{{$env}}/global/DBSMigration
+        pathType: Prefix
+        backend:
+          service:
+            name: dbs2go-global-migration
+            port:
+              number: 9251
       - path: /dbspy/{{$env}}/global/DBSMigrate
         pathType: Prefix
         backend:
