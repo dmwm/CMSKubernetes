@@ -152,7 +152,7 @@ spec:
 #PROD#    readOnly: true
       initContainers:
       - name: htdocs
-        image: registry.cern.ch/cmsweb/htdocs:0.0.2
+        image: registry.cern.ch/cmsweb/htdocs:0.0.3
         command: ['sh', '-c', 'cp -r /www/* /tmp/htdocs']
         volumeMounts:
         - name: www-htdocs
