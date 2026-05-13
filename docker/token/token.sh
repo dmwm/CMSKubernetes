@@ -3,7 +3,7 @@
 if [ -f /etc/client/client_id ] && [ -f /etc/client/client_secret ]; then
     export client_id=`cat /etc/client/client_id`
     export client_secret=`cat /etc/client/client_secret`
-    curl -s -d grant_type=client_credentials -d scope="profile" -u ${client_id}:${client_secret} https://cms-auth.web.cern.ch/token | jq -r '.access_token' > /tmp/token
+    curl -s -d grant_type=client_credentials -d scope="profile" -u ${client_id}:${client_secret} https://cms-auth.cern.ch/token | jq -r '.access_token' > /tmp/token
 
     now=$(date +'%Y%m%d %H:%M')
     if [ -f /tmp/token ]; then
