@@ -17,7 +17,7 @@ spec:
           serviceAccountName: token-account
           containers:
           - name: cron
-            image: registry.cern.ch/cmsweb/token:00.00.06-stable
+            image: registry.cern.ch/cmsweb/token:00.00.07
             args:
             - /bin/sh
             - -c
@@ -30,9 +30,6 @@ spec:
           - name: token-secrets
             secret:
               secretName: token-secrets
-          - name: client-secrets
-            secret:
-              secretName: client-secrets
           - name: client-secrets
             secret:
               secretName: client-secrets
