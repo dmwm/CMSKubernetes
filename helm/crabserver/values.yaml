@@ -6,6 +6,8 @@ enabled: true
 replicaCount: 1
 
 crabserver:
+  configMap:
+    enabled: true
   configPy: null
 
 image:

@@ -1,5 +1,5 @@
 {{- $environment := .Values.environment | default dict }}
-{{- if .Values.enabled -}}
+{{- if .Values.crabserver.configMap.enabled -}}
 kind: ConfigMap
 apiVersion: v1
 metadata:

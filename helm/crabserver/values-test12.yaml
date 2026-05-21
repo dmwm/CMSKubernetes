@@ -1,5 +1,3 @@
----
-environment: "test"
-
+environment: test
 image:
-  tag: "pypi-test12-290925-4"
+  tag: pypi-test12-180426-1
