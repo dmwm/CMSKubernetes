@@ -1,0 +1,10 @@
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultConnection
+metadata:
+  name: vault-connection
+  namespace: vault-secrets-operator
+spec:
+  address: "https://woger-vault.cern.ch:8200" # Test vault server address
+  # address: "https://vault-it.cern.ch:8200" # Production vault server address
+  skipTLSVerify: false
+  caCertSecretRef: "vault-ca-cert"

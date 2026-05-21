@@ -2,6 +2,9 @@
 kind: Service
 apiVersion: v1
 metadata:
+  labels:
+    env: k8s-{{.Values.environment}}
+    app: crabserver
   name: crabserver
   namespace: crab
 spec:

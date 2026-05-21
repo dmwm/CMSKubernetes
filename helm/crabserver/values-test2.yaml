@@ -1,0 +1,3 @@
+environment: test
+image:
+  tag: v3.260428-stable
