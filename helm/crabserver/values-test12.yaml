@@ -1,3 +1,3 @@
 environment: test
 image:
-  tag: pypi-test12-260526
+  tag: pypi-test12-280526
