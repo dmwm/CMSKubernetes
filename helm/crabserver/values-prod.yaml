@@ -3,7 +3,7 @@ environment: "prod"
 replicaCount: 15
 
 image:
-  tag: v3.251015-stable
+  tag: v3.260407-stable
   
 canary:
   enabled: true
