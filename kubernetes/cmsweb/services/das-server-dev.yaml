@@ -1,0 +1,133 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: das-server-dev
+  namespace: das
+spec:
+  selector:
+    app: das-server-dev
+  ports:
+  - name: das
+    port: 8217
+    targetPort: 8217
+    protocol: TCP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: das-server-dev
+  namespace: das
+  labels:
+    app: das-server-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: das-server-dev
+  template:
+    metadata:
+      labels:
+        app: das-server-dev
+    spec:
+      initContainers:
+      - name: checkmongodb
+        image: registry.cern.ch/docker.io/library/busybox:1.36.1
+        command:
+        - sh
+        - -c
+        - |
+          until nslookup das-mongo.das.svc.cluster.local; do
+            echo "Waiting for das-mongo.das.svc.cluster.local"
+            sleep 10
+          done
+
+      containers:
+      - name: dev
+        image: registry.cern.ch/docker.io/library/debian:stable-slim
+        imagePullPolicy: IfNotPresent
+
+        command:
+        - /bin/bash
+        - -lc
+        - |
+          set -e
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            ca-certificates \
+            curl \
+            procps \
+            netcat-openbsd \
+            iputils-ping \
+            dnsutils
+          rm -rf /var/lib/apt/lists/*
+          echo "das-server-dev pod is ready."
+          echo "Copy das2go runtime payload into /data, then run:"
+          echo "  cd /data && ./das2go -config /etc/secrets/dasconfig.json"
+          sleep infinity
+
+        ports:
+        - name: das
+          containerPort: 8217
+          protocol: TCP
+
+        env:
+        - name: X509_USER_PROXY
+          value: /etc/proxy/proxy
+
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "100m"
+          limits:
+            memory: "3Gi"
+            cpu: "4000m"
+
+        volumeMounts:
+        - name: data
+          mountPath: /data
+
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
+
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true
+
+      volumes:
+      - name: data
+        emptyDir: {}
+
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+
+      - name: secrets
+        secret:
+          secretName: das-server-secrets
+
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
