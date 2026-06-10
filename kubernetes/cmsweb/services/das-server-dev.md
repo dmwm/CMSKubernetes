@@ -1,23 +1,56 @@
+# Use case:
+
+The following instructions are intended to satisfy a fast pace, fine grained
+`code-build-test` development cycle. Aiming to avoid the need of pushing upstream
+and creating images and redeploying on every single code change. While at the
+same time provide an environment and external services connections as close as possible
+to the production setup.
+
+# High level overview:
+
+* Bring up a hollow dev container with empty executable
+* Redirect the service ingress by changing the service `app-selector` so that it starts pointing to the new and still empty container
+* Investigate/code in your local tree - use AI tools for assistance if you'd like (no pushes, no commits, no tags or whatever upstream)
+* Build locally for the proper arch you are about to test
+* Push the binary into the container
+* Test/validate with real data
+* Repeat until you reach code quality satisfactory level
+* Revert the redirection
+* Commit/push upstream, tag, create images, redeploy fresh
+
+# Procedure:
+
 # 1. Checkout to the proper CMSKubernetes branch and move to the correct working directory
+
 ```bash
 cd CMSKubernetes/kubernetes/cmsweb/services/
 ```
 
-# 2. Kubernetes operational instructions with for deploying and running das-server-dev
+# 2. Kubernetes operational instructions for deploying and running a das-server-dev container
 
 ## 2.0 Set the proper K8 environment
 
-```bash
-k8init preprod
+ - For working on the testbed cluster:
 
+```bash
+export KUBECONFIG=users_config/config.preprod/config.cmsweb-testbed-backend
+```
+
+or
+
+ - For working on one of the developer's  clusters:
+
+```bash
+export OS_PROJECT_NAME="CMS Webtools Mig";
+export KUBECONFIG=$workPath/users_config/config.test1/config.cmsweb-test1
 ```
 
 ## 2.1 Verify existing dependencies
 
 ```bash
-kctl -n das get service das-mongo
-kctl -n das get service das-server
-kctl -n das get secret das-server-secrets proxy-secrets robot-secrets hmac-secrets token-secrets
+kubectl -n das get service das-mongo
+kubectl -n das get service das-server
+kubectl -n das get secret das-server-secrets proxy-secrets robot-secrets hmac-secrets token-secrets
 ```
 
 Expected: all should exist.
@@ -25,28 +58,28 @@ Expected: all should exist.
 ## 2.2 Bring up `das-server-dev`
 
 ```bash
-kctl -n das apply -f das-server-dev.yaml
-kctl -n das rollout status deployment/das-server-dev
+kubectl -n das apply -f das-server-dev.yaml
+kubectl -n das rollout status deployment/das-server-dev
 ```
 
 Check pod:
 
 ```bash
-kctl -n das get pods -l app=das-server-dev -o wide
+kubectl -n das get pods -l app=das-server-dev -o wide
 ```
 
 Set helper variable:
 
 ```bash
-POD=$(kctl -n das get pod -l app=das-server-dev -o jsonpath='{.items[0].metadata.name}')
+POD=$(kubectl -n das get pod -l app=das-server-dev -o jsonpath='{.items[0].metadata.name}')
 echo "$POD"
 ```
 
 Check mounted secrets and DNS:
 
 ```bash
-kctl -n das exec "$POD" -c dev -- ls -l /etc/secrets /etc/proxy /etc/robots /etc/hmac /etc/token
-kctl -n das exec "$POD" -c dev -- nslookup das-mongo.das.svc.cluster.local
+kubectl -n das exec "$POD" -c dev -- ls -l /etc/secrets /etc/proxy /etc/robots /etc/hmac /etc/token
+kubectl -n das exec "$POD" -c dev -- nslookup das-mongo.das.svc.cluster.local
 ```
 
 ## 2.3 Optional: scale down current `das-server`
@@ -60,41 +93,21 @@ Do this only if you want to avoid two DAS servers running at once.
 Record current replica count first:
 
 ```bash
-kctl -n das get deployment das-server
+kubectl -n das get deployment das-server
 ```
 
 Scale production `das-server` down:
 
 ```bash
-kctl -n das scale deployment/das-server --replicas=0
-kctl -n das rollout status deployment/das-server
+kubectl -n das scale deployment/das-server --replicas=0
+kubectl -n das rollout status deployment/das-server
 ```
 
 Bring it back later:
 
 ```bash
-kctl -n das scale deployment/das-server --replicas=1
-kctl -n das rollout status deployment/das-server
-```
-
-## 2.4 Port-forward dev service
-
-After `/data/das2go` is copied and running inside the pod:
-
-```bash
-kctl -n das port-forward service/das-server-dev 8217:8217
-```
-
-In another terminal:
-
-```bash
-curl -sS http://127.0.0.1:8217/das
-```
-
-Other useful checks:
-
-```bash
-curl -v http://127.0.0.1:8217/das
+kubectl -n das scale deployment/das-server --replicas=1
+kubectl -n das rollout status deployment/das-server
 ```
 
 ## 2.5 Logs / shell
@@ -102,19 +115,19 @@ curl -v http://127.0.0.1:8217/das
 Shell into dev pod:
 
 ```bash
-kctl -n das exec -it "$POD" -c dev -- /bin/bash
+kubectl -n das exec -it "$POD" -c dev -- /bin/bash
 ```
 
 Follow pod output:
 
 ```bash
-kctl -n das logs deployment/das-server-dev -c dev -f
+kubectl -n das logs deployment/das-server-dev -c dev -f
 ```
 
 Delete dev deployment when finished:
 
 ```bash
-kctl -n das delete -f das-server-dev.yaml
+kubectl -n das delete -f das-server-dev.yaml
 ```
 
 ---
@@ -164,13 +177,13 @@ ls -ld ./js ./css ./images ./templates ./examples
 Refresh pod variable:
 
 ```bash
-POD=$(kctl -n das get pod -l app=das-server-dev -o jsonpath='{.items[0].metadata.name}')
+POD=$(kubectl -n das get pod -l app=das-server-dev -o jsonpath='{.items[0].metadata.name}')
 ```
 
 Clean `/data` first:
 
 ```bash
-kctl -n das exec "$POD" -c dev -- rm -rf \
+kubectl -n das exec "$POD" -c dev -- rm -rf \
   /data/das2go \
   /data/das2go_monitor \
   /data/js \
@@ -182,32 +195,36 @@ kctl -n das exec "$POD" -c dev -- rm -rf \
 
 Copy binaries:
 
+**NOTE:** It is supposed that before you start the deployment you've already
+    pre-compiled the service executable for the correct arch as it will be run
+    inside the container.
+
 ```bash
-kctl -n das cp ./das2go "$POD":/data/das2go -c dev
-kctl -n das cp ./das2go_monitor "$POD":/data/das2go_monitor -c dev
+kubectl -n das cp ./das2go "$POD":/data/das2go -c dev
+kubectl -n das cp ./das2go_monitor "$POD":/data/das2go_monitor -c dev
 ```
 
 Copy runtime directories:
 
 ```bash
-kctl -n das cp ./js "$POD":/data/js -c dev
-kctl -n das cp ./css "$POD":/data/css -c dev
-kctl -n das cp ./images "$POD":/data/images -c dev
-kctl -n das cp ./templates "$POD":/data/templates -c dev
-kctl -n das cp ./examples "$POD":/data/examples -c dev
+kubectl -n das cp ./js "$POD":/data/js -c dev
+kubectl -n das cp ./css "$POD":/data/css -c dev
+kubectl -n das cp ./images "$POD":/data/images -c dev
+kubectl -n das cp ./templates "$POD":/data/templates -c dev
+kubectl -n das cp ./examples "$POD":/data/examples -c dev
 ```
 
 Make binaries executable:
 
 ```bash
-kctl -n das exec "$POD" -c dev -- chmod +x /data/das2go /data/das2go_monitor
+kubectl -n das exec "$POD" -c dev -- chmod +x /data/das2go /data/das2go_monitor
 ```
 
 Verify inside pod:
 
 ```bash
-kctl -n das exec "$POD" -c dev -- ls -l /data
-kctl -n das exec "$POD" -c dev -- ls -ld /data/js /data/css /data/images /data/templates /data/examples
+kubectl -n das exec "$POD" -c dev -- ls -l /data
+kubectl -n das exec "$POD" -c dev -- ls -ld /data/js /data/css /data/images /data/templates /data/examples
 ```
 
 ## 3.3 Run manually inside pod
@@ -215,7 +232,7 @@ kctl -n das exec "$POD" -c dev -- ls -ld /data/js /data/css /data/images /data/t
 Open shell:
 
 ```bash
-kctl -n das exec -it "$POD" -c dev -- /bin/bash
+kubectl -n das exec -it "$POD" -c dev -- /bin/bash
 ```
 
 Inside pod:
@@ -224,6 +241,28 @@ Inside pod:
 cd /data
 ./das2go -config /etc/secrets/dasconfig.json
 ```
+
+
+### 3.3.1 Port-forward of the dev service to local host for access testing
+
+After `/data/das2go` is copied and running inside the pod:
+
+```bash
+kubectl -n das port-forward service/das-server-dev 8217:8217
+```
+
+In another terminal:
+
+```bash
+curl -sS http://127.0.0.1:8217/das
+```
+
+Other useful checks:
+
+```bash
+curl -v http://127.0.0.1:8217/das
+```
+
 
 ## 3.4 Rapid edit/build/test loop
 
@@ -235,10 +274,10 @@ cd ~/das2go
 # edit code
 make
 
-POD=$(kctl -n das get pod -l app=das-server-dev -o jsonpath='{.items[0].metadata.name}')
+POD=$(kubectl -n das get pod -l app=das-server-dev -o jsonpath='{.items[0].metadata.name}')
 
-kctl -n das cp ./das2go "$POD":/data/das2go -c dev
-kctl -n das exec "$POD" -c dev -- chmod +x /data/das2go
+kubectl -n das cp ./das2go "$POD":/data/das2go -c dev
+kubectl -n das exec "$POD" -c dev -- chmod +x /data/das2go
 ```
 
 Inside the pod shell where `das2go` is running:
@@ -252,11 +291,11 @@ cd /data
 Only recopy static/runtime directories when they changed:
 
 ```bash
-kctl -n das cp ./js "$POD":/data/js -c dev
-kctl -n das cp ./css "$POD":/data/css -c dev
-kctl -n das cp ./images "$POD":/data/images -c dev
-kctl -n das cp ./templates "$POD":/data/templates -c dev
-kctl -n das cp ./examples "$POD":/data/examples -c dev
+kubectl -n das cp ./js "$POD":/data/js -c dev
+kubectl -n das cp ./css "$POD":/data/css -c dev
+kubectl -n das cp ./images "$POD":/data/images -c dev
+kubectl -n das cp ./templates "$POD":/data/templates -c dev
+kubectl -n das cp ./examples "$POD":/data/examples -c dev
 ```
 
 ## 3.5 Optional: run `das2go_monitor`
@@ -275,7 +314,7 @@ cd /data
 ./das2go -config /etc/secrets/dasconfig.json
 ```
 
-# 4. Work around ingress rules and Frontend redirection paths
+# 4. Work around ingress rules and Frontend redirection paths so that you can test real access and service behavior from outside e.g. https://cmsweb-test1.cern.ch/das
 
 **NOTE:** The goal here is:
     * leave ingress untouched
@@ -291,21 +330,21 @@ So one does **not** need frontend/ingress access rights. The only need rights ar
 First record current selector:
 
 ```bash
-kctl -n das get service das-server -o yaml
+kubectl -n das get service das-server -o yaml
 ```
 
 Patch `service/das-server` to select dev pods:
 
 ```bash
-kctl -n das patch service das-server \
+kubectl -n das patch service das-server \
   -p '{"spec":{"selector":{"app":"das-server-dev"}}}'
 ```
 
 Verify endpoints switched:
 
 ```bash
-kctl -n das get endpoints das-server -o wide
-kctl -n das get pods -l app=das-server-dev -o wide
+kubectl -n das get endpoints das-server -o wide
+kubectl -n das get pods -l app=das-server-dev -o wide
 ```
 
 The endpoint IP behind `service/das-server` should now match the `das-server-dev` pod IP.
@@ -323,15 +362,15 @@ or whatever external test-cluster host maps to the same ingress/service path.
 ## Roll back to production pods
 
 ```bash
-kctl -n das patch service das-server \
+kubectl -n das patch service das-server \
   -p '{"spec":{"selector":{"app":"das-server"}}}'
 ```
 
 Verify:
 
 ```bash
-kctl -n das get endpoints das-server -o wide
-kctl -n das get pods -l app=das-server -o wide
+kubectl -n das get endpoints das-server -o wide
+kubectl -n das get pods -l app=das-server -o wide
 ```
 
 [1]: https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/cmsweb/ingress/ing-das.yaml "CMSKubernetes/kubernetes/cmsweb/ingress/ing-das.yaml at master · dmwm/CMSKubernetes · GitHub"
