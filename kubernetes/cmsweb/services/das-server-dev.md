@@ -359,7 +359,7 @@ curl -v https://cmsweb-testbed.cern.ch/das
 
 or whatever external test-cluster host maps to the same ingress/service path.
 
-## Roll back to production pods
+## Roll back to production/testbed pods
 
 ```bash
 kubectl -n das patch service das-server \
@@ -371,6 +371,68 @@ Verify:
 ```bash
 kubectl -n das get endpoints das-server -o wide
 kubectl -n das get pods -l app=das-server -o wide
+```
+
+
+# 5. In case one needs to test changes to das-maps as well:
+
+## 5.1 Generate new maps from local source tree and push them to das-mongo
+
+### local: build DASTools
+
+```bash
+cd /path/to/DASTools
+make
+export PATH="$PWD/bin:$PATH"
+```
+
+### local: generate maps from das2go
+
+```bash
+cd /path/to/das2go
+mkdir -p /tmp/das-maps-dev/js
+dasmaps_parser -input maps/dbs3.yml > /tmp/das-maps-dev/js/update_mapping_db.js
+dasmaps_parser -input maps/presentation.yml >> /tmp/das-maps-dev/js/update_mapping_db.js
+dasmaps_validator -dasmaps /tmp/das-maps-dev/js/update_mapping_db.js
+```
+
+### pod: identify mongo
+
+```bash
+MONGO_POD=$(kubectl -n das get pod -l app=das-mongo -o jsonpath='{.items[0].metadata.name}')
+```
+
+### pod: backup current maps
+
+```bash
+BACKUP_DIR="/data/backup-dasmaps-$(date +%Y%m%d-%H%M%S)"
+kubectl -n das exec "$MONGO_POD" -- mkdir -p "$BACKUP_DIR"
+kubectl -n das exec "$MONGO_POD" -- sh -lc "mongoexport --host localhost --port 8230 --db mapping --collection db --out ${BACKUP_DIR}/mapping_db.backup.json"
+```
+
+### local: keep backup copy
+
+```bash
+mkdir -p /tmp/das-maps-backup
+kubectl -n das cp "$MONGO_POD:${BACKUP_DIR}/mapping_db.backup.json" /tmp/das-maps-backup/mapping_db.backup.json
+```
+
+### pod: upload and import new maps
+
+```bash
+kubectl -n das exec "$MONGO_POD" -- mkdir -p /data/dev-dasmaps/js
+kubectl -n das cp /tmp/das-maps-dev/js/update_mapping_db.js "$MONGO_POD":/data/dev-dasmaps/js/update_mapping_db.js
+kubectl -n das exec "$MONGO_POD" -- sh -lc 'das_js_import /data/dev-dasmaps/js'
+```
+
+## 5.2 Revert maps
+
+```bash
+MONGO_POD=$(kubectl -n das get pod -l app=das-mongo -o jsonpath='{.items[0].metadata.name}')
+
+kubectl -n das cp /tmp/das-maps-backup/mapping_db.backup.json "$MONGO_POD":/data/dev-dasmaps/js/update_mapping_db.js
+kubectl -n das exec "$MONGO_POD" -- rm -f /data/dev-dasmaps/js/mapping-schema-stamp
+kubectl -n das exec "$MONGO_POD" -- sh -lc 'das_js_import /data/dev-dasmaps/js'
 ```
 
 [1]: https://github.com/dmwm/CMSKubernetes/blob/master/kubernetes/cmsweb/ingress/ing-das.yaml "CMSKubernetes/kubernetes/cmsweb/ingress/ing-das.yaml at master · dmwm/CMSKubernetes · GitHub"
