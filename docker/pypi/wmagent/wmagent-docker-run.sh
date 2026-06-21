@@ -48,6 +48,35 @@ while getopts ":t:hp" opt; do
     esac
 done
 
+## if the VM does not have a valid token from bastion, do not initialize the
+## WMAgent.
+## If a valid token is present, then the expected output is 
+# cmst1@vocms0262:dmapelli $ condor_store_cred query-oauth -u cmst1@cms
+# Account: cmst1@cms
+# CredType: oauth
+# A credential was stored and is valid.
+# Credential info:
+# cms_wmagent.top = 1756459330
+# cms_wmagent.use = 1756469269
+# fully_qualified_user = "cmst1@cms"
+# cmst1@vocms0262:dmapelli $ echo $?
+# 0
+## If there is no valid token, then the output is
+# cmst1@vocms0193:dmapelli $ condor_store_cred query-oauth -u cmst1@cms
+# Account: cmst1@cms
+# CredType: oauth
+# Operation failed.
+#     Make sure your ALLOW_WRITE setting includes this host.
+# cmst1@vocms0193:dmapelli $ echo $?
+# 1
+if condor_store_cred query-oauth -u cmst1@cms; then
+  echo "condor_store_cred found a valid token. WMAgent can be initialized"
+else
+  echo "WARNING! condor_store_cred did NOT find a valid token. The WMAgent can not be initialized"
+  exit 1
+fi 
+
+
 # Parsing the WMA_TAG in parts step by step
 WMA_VER_MINOR=${WMA_TAG#*.*.}
 WMA_VER_MAJOR=${WMA_TAG%.$WMA_VER_MINOR}
