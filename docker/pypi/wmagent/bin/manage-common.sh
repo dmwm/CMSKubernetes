@@ -336,41 +336,16 @@ _renew_proxy(){
     local hostName=$(hostname -f)
     _load_wmasecrets
 
-    # Here to find out if the agent is CERN or FNAL and use the proper credentials name for _renew_proxy
-    [[ "$TEAMNAME" == Tier0* ]] &&  {
-        echo "$FUNCNAME: This is a Tier0 agent"
-        local vomsproxyCmd="voms-proxy-init -rfc \
-                         -voms cms:/cms/Role=production -valid 168:00 -bits 2048 \
-                         -cert $X509_USER_CERT -key $X509_USER_KEY \
-                         -out  $X509_USER_PROXY"
-        $vomsproxyCmd || {
-            echo "$FUNCNAME: ERROR: Failed to renew invalid myproxy"
-            return $(false)
-        }
-        return
-    }
-
-    if [[ "$hostName" == *cern.ch ]]; then
-        local myproxyCredName="amaltaroCERN"
-    elif [[ "$hostName" == *fnal.gov ]]; then
-        local myproxyCredName="amaltaroFNAL"
-    else
-        echo "$FUNCNAME: ERROR: Sorry, we do not recognize the network domain of the current host: $hostName"
-        return $(false)
-    fi
-
-    # Here to forge the myproxy command string to be used for the operation.
-    local myproxyCmd="myproxy-get-delegation \
-                    -v -l amaltaro -t 169 -s myproxy.cern.ch -k $myproxyCredName -n \
-                    -o $WMA_CERTS_DIR/mynewproxy.pem"
+    echo "$FUNCNAME: This is a Tier0/cmst1 agent"
     local vomsproxyCmd="voms-proxy-init -rfc \
-                    -voms cms:/cms/Role=production -valid 168:00 -bits 2048 -noregen \
-                    -cert $WMA_CERTS_DIR/mynewproxy.pem \
-                    -key  $WMA_CERTS_DIR/mynewproxy.pem \
-                    -out  $WMA_CERTS_DIR/myproxy.pem"
-
-    $myproxyCmd && $vomsproxyCmd
-    return $?
+                        -voms cms:/cms/Role=production -valid 168:00 -bits 2048 \
+                        -cert $X509_USER_CERT -key $X509_USER_KEY \
+                        -out  $X509_USER_PROXY"
+    $vomsproxyCmd || {
+        echo "$FUNCNAME: ERROR: Failed to renew invalid myproxy"
+        return $(false)
+    }
+    return
 }
 
 
