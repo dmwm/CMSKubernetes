@@ -7,7 +7,7 @@ replicaCount:
   test: 1
 
 image:
-  repository: registry.cern.ch/cmsweb/reqmgr2
+  repository: registry.cern.ch/cmswmcore/reqmgr2
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "HG2208d"

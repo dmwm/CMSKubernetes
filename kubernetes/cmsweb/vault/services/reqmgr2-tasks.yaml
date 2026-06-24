@@ -76,7 +76,7 @@ spec:
       - command:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
-        image: registry.cern.ch/cmsweb/reqmgr2
+        image: registry.cern.ch/cmswmcore/reqmgr2
         livenessProbe:
           exec:
             command:

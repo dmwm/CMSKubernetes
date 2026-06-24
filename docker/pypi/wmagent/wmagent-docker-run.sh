@@ -144,7 +144,7 @@ repository=wmagent
 $PULL && {
     registry=registry.cern.ch
     project=cmsweb
-    echo "Pulling Docker image: registry.cern.ch/cmsweb/wmagent:$WMA_TAG"
+    echo "Pulling Docker image: registry.cern.ch/cmswmcore/wmagent:$WMA_TAG"
     docker login registry.cern.ch
     docker pull $registry/$project/$repository:$WMA_TAG
     docker tag $registry/$project/$repository:$WMA_TAG $registry/$repository:$WMA_TAG

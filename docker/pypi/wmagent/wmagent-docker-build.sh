@@ -56,12 +56,12 @@ docker build $dockerOpts -t local/wmagent:$WMA_TAG -t local/wmagent:latest  .
 
 $PUSH && {
     docker login registry.cern.ch
-    docker tag local/wmagent:$WMA_TAG registry.cern.ch/cmsweb/wmagent:$WMA_TAG
-    echo "Uploading image registry.cern.ch/cmsweb/wmagent:$WMA_TAG"
-    docker push registry.cern.ch/cmsweb/wmagent:$WMA_TAG
+    docker tag local/wmagent:$WMA_TAG registry.cern.ch/cmswmcore/wmagent:$WMA_TAG
+    echo "Uploading image registry.cern.ch/cmswmcore/wmagent:$WMA_TAG"
+    docker push registry.cern.ch/cmswmcore/wmagent:$WMA_TAG
     $LATEST &&  {
-        docker tag local/wmagent:$WMA_TAG registry.cern.ch/cmsweb/wmagent:latest
-        echo "Uploading image registry.cern.ch/cmsweb/wmagent:latest"
-        docker push registry.cern.ch/cmsweb/wmagent:latest
+        docker tag local/wmagent:$WMA_TAG registry.cern.ch/cmswmcore/wmagent:latest
+        echo "Uploading image registry.cern.ch/cmswmcore/wmagent:latest"
+        docker push registry.cern.ch/cmswmcore/wmagent:latest
     }
 }

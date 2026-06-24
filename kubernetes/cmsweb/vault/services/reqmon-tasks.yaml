@@ -70,7 +70,7 @@ spec:
       - command:
         - /bin/bash
         - /opt/setup-certs-and-run/setup-certs-and-run.sh
-        image: registry.cern.ch/cmsweb/reqmon
+        image: registry.cern.ch/cmswmcore/reqmon
         livenessProbe:
           exec:
             command:

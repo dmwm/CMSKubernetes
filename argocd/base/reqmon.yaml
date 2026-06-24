@@ -83,7 +83,7 @@ spec:
         fsGroup: 2000
       # use hostNetwork to allow communication between reqmgr/reqmon/workqueue and couch
       containers:
-      - image: registry.cern.ch/cmsweb/reqmon #imagetag
+      - image: registry.cern.ch/cmswmcore/reqmon #imagetag
         name: reqmon
 
         livenessProbe:
