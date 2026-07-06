@@ -4,7 +4,7 @@ apiVersion: apps/v1
 metadata:
   labels:
     app: auth-proxy-server
-  name: {{ include "auth-proxy-server.fullname" . }}
+  name: auth-proxy-server
 spec:
   selector:
     matchLabels:
