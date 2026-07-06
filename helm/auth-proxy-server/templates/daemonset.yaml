@@ -33,6 +33,12 @@ spec:
         args:
           - /data/auth-proxy-server
           - -config=/etc/secrets/config.json
+          - -port=443
+          - -useX509
+          - -metricsPort=9091
+          - -logFile=/data/srv/logs/frontend/auth-proxy-server.log
+          - -testRule
+          - ""
         resources:
         {{- toYaml .Values.resources | nindent 12 }}
         env:
@@ -49,6 +55,10 @@ spec:
         - containerPort: 9091
           name: metrics
         volumeMounts:
+{{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+        - name: cric-volume
+          mountPath: /etc/cric
+{{- end }}
         - name: auth-proxy-server-secrets
           mountPath: /etc/secrets
           #defaultMode: 256
@@ -58,13 +68,16 @@ spec:
           readOnly: true
         - name: www-htdocs
           mountPath: /www
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true
+        - name: etc-grid-security
+          mountPath: /etc/grid-security
+          readOnly: true
         - name: hostcert
           mountPath: /etc/grid-security/hostcert.pem
         - name: hostkey
           mountPath: /etc/grid-security/hostkey.pem
-        - name: token-secrets
-          mountPath: /etc/token
-          readOnly: true
 {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
         - name: logs
           mountPath: /data/srv/logs/frontend
@@ -95,7 +108,10 @@ spec:
           mountPath: /var/lib/docker/containers
           readOnly: true
         securityContext:
-          allowPrivilegeEscalation: false          
+          allowPrivilegeEscalation: false
+{{- else }}
+        - name: logs
+          mountPath: /data/srv/logs/frontend
 {{- end }}
       initContainers:
       {{- toYaml .Values.initContainers | nindent 6 }}
@@ -103,6 +119,11 @@ spec:
         - name: www-htdocs
           mountPath: /tmp/htdocs
       volumes:
+{{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+      - name: cric-volume
+        persistentVolumeClaim:
+          claimName: cric-pvc
+{{- end }}
       - name: auth-proxy-server-secrets
         secret:
           secretName: auth-proxy-server-secrets
@@ -111,15 +132,18 @@ spec:
           secretName: proxy-secrets
       - name: www-htdocs
         emptyDir: {}
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+      - name: etc-grid-security
+        hostPath:
+            path: /etc/grid-security
       - name: hostcert
         hostPath:
             path: /etc/grid-security/hostcert.pem
       - name: hostkey
         hostPath:
             path: /etc/grid-security/hostkey.pem
-      - name: token-secrets
-        secret:
-          secretName: token-secrets
 {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
       - name: varlog
         hostPath:
@@ -144,4 +168,7 @@ spec:
           {{- if eq (toString $environment) "prod" }}
           claimName: logs-cephfs-claim-prod-aps
           {{- end }}
+{{- else }}
+      - name: logs
+        emptyDir: {}
 {{- end }}

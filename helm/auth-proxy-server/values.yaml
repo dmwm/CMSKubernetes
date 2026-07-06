@@ -4,14 +4,15 @@
 environment:
 image:
   repository: registry.cern.ch/cmsweb/auth-proxy-server
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.2.34"
+  tag: "0.3.24"
 
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
   # Annotations to add to the service account
+  name: auth-proxy-server-sa
 
 
 securityContext: {}
@@ -72,5 +73,5 @@ imageFilebeatResources:
 
 initContainers:
 - name: htdocs
-  image: registry.cern.ch/cmsweb/htdocs:0.0.2
+  image: registry.cern.ch/cmsweb/htdocs:0.0.3
   command: ['sh', '-c', 'cp -r /www/* /tmp/htdocs']    

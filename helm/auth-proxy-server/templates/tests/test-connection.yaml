@@ -1,15 +1,27 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: "{{ include "auth-proxy-server.fullname" . }}-test-connection"
+  name: "{{ include "auth-proxy-server.fullname" . }}-test-metrics"
+  namespace: auth
   labels:
     {{- include "auth-proxy-server.labels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
 spec:
   containers:
-    - name: wget
-      image: busybox
-      command: ['wget']
-      args: ['auth-proxy-server:443']
+  - name: metrics-check
+    image: busybox
+    command:
+    - sh
+    - -c
+    - |
+      response=$(wget -qO- http://auth-proxy-server.auth.svc.cluster.local:9091/metrics)
+      if echo "$response" | grep -q "proxy_server_total_connections"; then
+        echo "OK: metrics endpoint is responding"
+        exit 0
+      else
+        echo "FAIL: metrics endpoint did not return expected output"
+        exit 1
+      fi
   restartPolicy: Never

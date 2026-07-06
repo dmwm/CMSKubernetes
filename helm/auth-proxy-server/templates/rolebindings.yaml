@@ -4,7 +4,7 @@ metadata:
   name: auth-proxy-server
 subjects:
 - kind: ServiceAccount
-  name: auth-proxy-server
+  name: {{ include "auth-proxy-server.serviceAccountName" . }}
   namespace: auth
 roleRef:
   kind: ClusterRole

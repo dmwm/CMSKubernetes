@@ -1,7 +1,10 @@
+{{- $environment := .Values.environment | default dict }}
+{{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: aps-s3-filebeat-config
+  namespace: auth
   labels:
     k8s-app: filebeat
 data:
@@ -15,10 +18,14 @@ data:
       scan_frequency: 10s
       backoff: 5s
       max_backoff: 10s
-    output.console:
-      codec.format:
-        string: '%{[message]} - Podname=${MY_POD_NAME}'
-        pretty: false
+      tags: ["aps"]
+    output.logstash:
+      hosts: ["logstash.monitoring:5044"]
+      compression_level: 3
+      worker: 4
+      bulk_max_size: 4096
+      pipelining: 2
     queue.mem:
       events: 65536
     logging.metrics.enabled: false
+{{- end }}
