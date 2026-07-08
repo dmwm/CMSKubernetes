@@ -8,7 +8,7 @@
 ### It takes a single parameter as first (and only) argument - The WMA_TAG
 ### Example: install.sh -t 2.2.0.2
 
-pythonLib=$(python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
+pythonLib=$(python -c "import sysconfig; print(sysconfig.get_paths()['purelib'])")
 
 help(){
     echo -e $1
