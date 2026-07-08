@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: registry.cern.ch/cmsweb/wmglobalqueue
+  repository: registry.cern.ch/cmswmcore/wmglobalqueue
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "HG2208d"

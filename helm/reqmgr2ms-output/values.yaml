@@ -4,7 +4,7 @@
 replicaCount: 1
 
 image:
-  repository: registry.cern.ch/cmsweb/msoutput
+  repository: registry.cern.ch/cmswmcore/msoutput
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "HG2208d"
