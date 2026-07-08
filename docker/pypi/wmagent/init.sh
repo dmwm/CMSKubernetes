@@ -7,7 +7,7 @@
 ### * The agent's hostname && HTCondor configuration are taken from the host
 
 WMCoreVersion=$(python -c "from WMCore import __version__ as WMCoreVersion; print(WMCoreVersion)")
-pythonLib=$(python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
+pythonLib=$(python -c "import sysconfig; print(sysconfig.get_paths()['purelib'])")
 
 # Load common definitions and environment:
 source $WMA_DEPLOY_DIR/bin/manage-common.sh
