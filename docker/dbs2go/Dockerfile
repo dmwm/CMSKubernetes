@@ -23,10 +23,10 @@ ENV PKG_CONFIG_PATH=$WDIR
 
 # build dbs2go with specific tag
 ENV TAG=v00.06.09
-WORKDIR $GOPATH/src/github.com/vkuznet
-RUN git clone https://github.com/vkuznet/dbs2go && \
-    git clone https://github.com/vkuznet/cmsweb-exporters
-WORKDIR $GOPATH/src/github.com/vkuznet/dbs2go
+WORKDIR $GOPATH/src/github.com/dmwm
+RUN git clone https://github.com/dmwm/dbs2go && \
+    git clone https://github.com/dmwm/cmsweb-exporters
+WORKDIR $GOPATH/src/github.com/dmwm/dbs2go
 
 # example how to checkout specific branch
 # RUN git checkout --track origin/api-struct && \
@@ -41,9 +41,9 @@ RUN curl -k -O -L https://storage.googleapis.com/kubernetes-release/release/$(cu
 RUN mv kubectl /usr/bin
 RUN chmod +x /usr/bin/kubectl
 
-# for gibc library we will use debian:stretch
-FROM debian:stable-slim
-RUN apt-get update && apt-get -y install libaio1 procps && mkdir -p /data
+# Pin the runtime distribution so its package names do not change underneath us.
+FROM debian:trixie-slim
+RUN apt-get update && apt-get -y install libaio1t64 procps && mkdir -p /data
 ENV WDIR=/data
 ENV USER=_dbs2go
 # add new user
