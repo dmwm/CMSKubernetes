@@ -1,10 +1,10 @@
 # syntax=docker/dockerfile-upstream:master
 FROM registry.cern.ch/cmsweb/oracle:21_5-stable as oracle
-#FROM cmssw/oracle:21_1 as oracle
+
 FROM cmssw/exporters:latest as exporters
 FROM cmssw/filebeat:latest as filebeat
 FROM golang:latest as builder
-MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
+MAINTAINER Todor Ivanov todor.ivanov@cern.ch
 
 # get oracle for our build
 COPY --from=oracle /usr/lib/oracle /usr/lib/oracle
