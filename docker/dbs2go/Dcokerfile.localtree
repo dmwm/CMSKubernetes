@@ -1,0 +1,66 @@
+# syntax=docker/dockerfile-upstream:master
+FROM registry.cern.ch/cmsweb/oracle:21_5-stable as oracle
+#FROM cmssw/oracle:21_1 as oracle
+FROM cmssw/exporters:latest as exporters
+FROM cmssw/filebeat:latest as filebeat
+FROM golang:latest as builder
+MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
+
+# get oracle for our build
+COPY --from=oracle /usr/lib/oracle /usr/lib/oracle
+ENV LD_LIBRARY_PATH=/usr/lib/oracle
+ENV PATH=$PATH:/usr/lib/oracle
+ENV PKG_CONFIG_PATH=/usr/lib/oracle
+
+# update apt
+#RUN apt-get update && apt-get -y install unzip
+
+# start the setup
+ENV WDIR=/data
+RUN mkdir -p $WDIR
+WORKDIR ${WDIR}
+ADD oracle-env/oci8.docker.pc $WDIR/oci8.pc
+ENV PKG_CONFIG_PATH=$WDIR
+
+# use dbs2go executable and static files built from the local tree
+ARG DBS2GO_BINARY=dbs2go
+ARG DBS2GO_BINARY_PATH=./${DBS2GO_BINARY}
+ARG DBS2GO_STATIC_PATH=${DBS2GO_BINARY_PATH%/*}/static
+ADD ${DBS2GO_BINARY_PATH} $WDIR/dbs2go
+ADD ${DBS2GO_STATIC_PATH} $WDIR/static
+
+# Install latest kubectl
+RUN curl -k -O -L https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+RUN mv kubectl /usr/bin
+RUN chmod +x /usr/bin/kubectl
+
+# Pin the runtime distribution so its package names do not change underneath us.
+FROM debian:trixie-slim
+RUN apt-get update && apt-get -y install libaio1t64 procps && mkdir -p /data
+ENV WDIR=/data
+ENV USER=_dbs2go
+# add new user
+RUN useradd -d ${WDIR} ${USER} # && install -o ${USER} -d ${WDIR}
+RUN mkdir -p /data
+COPY --from=builder /data /data
+COPY --from=exporters /data/process_exporter /data
+COPY --from=exporters /data/process_monitor.sh /data
+COPY --from=filebeat /usr/share/filebeat /usr/share/filebeat
+COPY --from=filebeat /usr/bin/filebeat /usr/bin/filebeat
+COPY --from=oracle /usr/lib/oracle /usr/lib/oracle
+ENV LD_LIBRARY_PATH=/usr/lib/oracle
+ENV PATH=$PATH:/usr/lib/oracle
+ENV PKG_CONFIG_PATH=/usr/lib/oracle
+
+COPY --from=builder /usr/bin/kubectl /usr/bin/kubectl
+
+# run the service
+ENV PATH="/data/gopath/bin:/data:${PATH}"
+ADD monitor.sh /data/monitor.sh
+ADD run.sh /data/run.sh
+ADD config.json /data/config.json
+RUN chown -R $USER.$USER /data && chown -R $USER.$USER /usr/lib/oracle && chown -R $USER.$USER /usr/bin/filebeat
+RUN chmod +x /data/*.sh
+USER $USER
+WORKDIR /data
+# CMD ["run.sh"]
