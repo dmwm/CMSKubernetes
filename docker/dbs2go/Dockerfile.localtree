@@ -1,4 +1,3 @@
-# syntax=docker/dockerfile-upstream:master
 FROM registry.cern.ch/cmsweb/oracle:21_5-stable as oracle
 
 FROM cmssw/exporters:latest as exporters
@@ -19,15 +18,20 @@ ENV PKG_CONFIG_PATH=/usr/lib/oracle
 ENV WDIR=/data
 RUN mkdir -p $WDIR
 WORKDIR ${WDIR}
-ADD oracle-env/oci8.docker.pc $WDIR/oci8.pc
+ADD oci8.pc $WDIR/oci8.pc
 ENV PKG_CONFIG_PATH=$WDIR
 
-# use dbs2go executable and static files built from the local tree
-ARG DBS2GO_BINARY=dbs2go
-ARG DBS2GO_BINARY_PATH=./${DBS2GO_BINARY}
-ARG DBS2GO_STATIC_PATH=${DBS2GO_BINARY_PATH%/*}/static
-ADD ${DBS2GO_BINARY_PATH} $WDIR/dbs2go
-ADD ${DBS2GO_STATIC_PATH} $WDIR/static
+# build dbs2go from the local source tree
+ARG DBS2GO_SOURCE=src
+ARG DBS2GO_SOURCE_PATH=./${DBS2GO_SOURCE}
+WORKDIR $GOPATH/src/github.com/dmwm
+COPY ${DBS2GO_SOURCE_PATH} dbs2go
+RUN git clone https://github.com/dmwm/cmsweb-exporters
+WORKDIR $GOPATH/src/github.com/dmwm/dbs2go
+RUN sed -i -e "s,_ \"gopkg.in/rana/ora.v4\",,g" web/server.go && \
+    sed -i -e "s,_ \"github.com/mattn/go-sqlite3\",,g" web/server.go && \
+    sed -i -e "s,_ \"github.com/go-sql-driver/mysql\",,g" web/server.go && \
+    make VERSION=localtree && cp -r dbs2go static $WDIR
 
 # Install latest kubectl
 RUN curl -k -O -L https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
