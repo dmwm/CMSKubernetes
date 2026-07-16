@@ -2,6 +2,8 @@ FROM registry.cern.ch/cmsweb/oracle:21_5-stable as oracle
 
 FROM cmssw/exporters:latest as exporters
 FROM cmssw/filebeat:latest as filebeat
+# The golang builder and Oracle client images are Debian-based and are
+# compatible with the debian:trixie-slim runtime used below.
 FROM golang:latest as builder
 MAINTAINER Todor Ivanov todor.ivanov@cern.ch
 
