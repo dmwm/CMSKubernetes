@@ -1,9 +1,11 @@
 FROM registry.cern.ch/cmsweb/oracle:21_5-stable as oracle
-#FROM cmssw/oracle:21_1 as oracle
+
 FROM cmssw/exporters:latest as exporters
 FROM cmssw/filebeat:latest as filebeat
+# The golang builder and Oracle client images are Debian-based and are
+# compatible with the debian:trixie-slim runtime used below.
 FROM golang:latest as builder
-MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
+MAINTAINER Todor Ivanov todor.ivanov@cern.ch
 
 # get oracle for our build
 COPY --from=oracle /usr/lib/oracle /usr/lib/oracle
@@ -21,20 +23,17 @@ WORKDIR ${WDIR}
 ADD oci8.pc $WDIR/oci8.pc
 ENV PKG_CONFIG_PATH=$WDIR
 
-# build dbs2go with specific tag
-ENV TAG=v00.06.09
+# build dbs2go from the local source tree
+ARG DBS2GO_SOURCE=src
+ARG DBS2GO_SOURCE_PATH=./${DBS2GO_SOURCE}
 WORKDIR $GOPATH/src/github.com/dmwm
-RUN git clone https://github.com/dmwm/dbs2go && \
-    git clone https://github.com/dmwm/cmsweb-exporters
+COPY ${DBS2GO_SOURCE_PATH} dbs2go
+RUN git clone https://github.com/dmwm/cmsweb-exporters
 WORKDIR $GOPATH/src/github.com/dmwm/dbs2go
-
-# example how to checkout specific branch
-# RUN git checkout --track origin/api-struct && \
-RUN git checkout tags/$TAG -b build && \
-    sed -i -e "s,_ \"gopkg.in/rana/ora.v4\",,g" web/server.go && \
+RUN sed -i -e "s,_ \"gopkg.in/rana/ora.v4\",,g" web/server.go && \
     sed -i -e "s,_ \"github.com/mattn/go-sqlite3\",,g" web/server.go && \
     sed -i -e "s,_ \"github.com/go-sql-driver/mysql\",,g" web/server.go && \
-    make && cp -r dbs2go static $WDIR
+    make VERSION=localtree && cp -r dbs2go static $WDIR
 
 # Install latest kubectl
 RUN curl -k -O -L https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
@@ -43,15 +42,26 @@ RUN chmod +x /usr/bin/kubectl
 
 # Pin the runtime distribution so its package names do not change underneath us.
 FROM debian:trixie-slim
-RUN apt-get update && apt-get -y install libaio1t64 procps && \
+RUN apt-get update && apt-get -y install --no-install-recommends \
+        libaio1t64 ca-certificates curl wget jq \
+        less vim-tiny emacs-nox \
+        file binutils strace lsof procps psmisc \
+        iproute2 iputils-ping dnsutils netcat-openbsd traceroute telnet \
+        sqlite3 && \
     test -e /usr/lib/x86_64-linux-gnu/libaio.so.1t64 && \
     ln -s libaio.so.1t64 /usr/lib/x86_64-linux-gnu/libaio.so.1 && \
-    ldconfig && mkdir -p /data
+    ldconfig && mkdir -p /data && \
+    rm -rf /var/lib/apt/lists/*
 ENV WDIR=/data
 ENV USER=_dbs2go
 # add new user
 RUN useradd -d ${WDIR} ${USER} # && install -o ${USER} -d ${WDIR}
 RUN mkdir -p /data
+RUN printf '%s\n' \
+    "alias ll='ls -alF --color=auto'" \
+    "alias la='ls -A --color=auto'" \
+    "alias l='ls -CF --color=auto'" \
+    > ${WDIR}/.bashrc && chown ${USER}.${USER} ${WDIR}/.bashrc
 COPY --from=builder /data /data
 COPY --from=exporters /data/process_exporter /data
 COPY --from=exporters /data/process_monitor.sh /data
@@ -74,3 +84,4 @@ RUN chmod +x /data/*.sh
 USER $USER
 WORKDIR /data
 # CMD ["run.sh"]
+CMD ["sleep", "infinity"]
