@@ -42,14 +42,25 @@ RUN chmod +x /usr/bin/kubectl
 
 # Pin the runtime distribution so its package names do not change underneath us.
 FROM debian:trixie-slim
-RUN apt-get update && apt-get -y install libaio1t64 procps && \
+RUN apt-get update && apt-get -y install --no-install-recommends \
+        libaio1t64 ca-certificates curl wget jq \
+        less vim-tiny emacs-nox \
+        file binutils strace lsof procps psmisc \
+        iproute2 iputils-ping dnsutils netcat-openbsd traceroute telnet \
+        sqlite3 && \
     ln -s libaio.so.1t64 /usr/lib/x86_64-linux-gnu/libaio.so.1 && \
-    ldconfig && mkdir -p /data
+    ldconfig && mkdir -p /data && \
+    rm -rf /var/lib/apt/lists/*
 ENV WDIR=/data
 ENV USER=_dbs2go
 # add new user
 RUN useradd -d ${WDIR} ${USER} # && install -o ${USER} -d ${WDIR}
 RUN mkdir -p /data
+RUN printf '%s\n' \
+    "alias ll='ls -alF --color=auto'" \
+    "alias la='ls -A --color=auto'" \
+    "alias l='ls -CF --color=auto'" \
+    > ${WDIR}/.bashrc && chown ${USER}.${USER} ${WDIR}/.bashrc
 COPY --from=builder /data /data
 COPY --from=exporters /data/process_exporter /data
 COPY --from=exporters /data/process_monitor.sh /data
