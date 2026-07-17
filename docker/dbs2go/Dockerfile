@@ -43,7 +43,9 @@ RUN chmod +x /usr/bin/kubectl
 
 # Pin the runtime distribution so its package names do not change underneath us.
 FROM debian:trixie-slim
-RUN apt-get update && apt-get -y install libaio1t64 procps && mkdir -p /data
+RUN apt-get update && apt-get -y install libaio1t64 procps && \
+    ln -s libaio.so.1t64 /usr/lib/x86_64-linux-gnu/libaio.so.1 && \
+    ldconfig && mkdir -p /data
 ENV WDIR=/data
 ENV USER=_dbs2go
 # add new user
