@@ -48,6 +48,7 @@ RUN apt-get update && apt-get -y install --no-install-recommends \
         file binutils strace lsof procps psmisc \
         iproute2 iputils-ping dnsutils netcat-openbsd traceroute telnet \
         sqlite3 && \
+    test -e /usr/lib/x86_64-linux-gnu/libaio.so.1t64 && \
     ln -s libaio.so.1t64 /usr/lib/x86_64-linux-gnu/libaio.so.1 && \
     ldconfig && mkdir -p /data && \
     rm -rf /var/lib/apt/lists/*
