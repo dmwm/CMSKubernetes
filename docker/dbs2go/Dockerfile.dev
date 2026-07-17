@@ -70,3 +70,4 @@ RUN chmod +x /data/*.sh
 USER $USER
 WORKDIR /data
 # CMD ["run.sh"]
+CMD ["sleep", "infinity"]
