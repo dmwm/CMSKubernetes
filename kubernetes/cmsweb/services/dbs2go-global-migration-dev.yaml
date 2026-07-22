@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dbs2go-global-migration-dev
+  namespace: dbs
+  labels:
+    app: dbs2go-global-migration-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dbs2go-global-migration-dev
+  template:
+    metadata:
+      labels:
+        app: dbs2go-global-migration-dev
+        job: dbs2go-global-migration-dev
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /dbs/prod/global/DBSMigration/metrics
+        prometheus.io/port: "9251"
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 2000
+      containers:
+      - name: dev
+        image: registry.cern.ch/cmsweb/dbs2go:dev
+        imagePullPolicy: Always
+        command:
+        - sleep
+        - infinity
+        env:
+        - name: X509_USER_PROXY
+          value: /etc/proxy/proxy
+        - name: TNS_ADMIN
+          value: /etc/tnsnames.ora
+        ports:
+        - containerPort: 9251
+          protocol: TCP
+          name: dbs
+        resources:
+          requests:
+            memory: 100Mi
+            cpu: 200m
+          limits:
+            memory: 500Mi
+            cpu: 4000m
+        volumeMounts:
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true
+        - name: tnsnames
+          mountPath: /etc/tnsnames.ora
+          subPath: tnsnames.ora
+        securityContext:
+          allowPrivilegeEscalation: false
+      volumes:
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: secrets
+        secret:
+          secretName: dbs2go-global-migration-secrets
+      - name: tnsnames
+        configMap:
+          name: tnsnames-config
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dbs2go-global-migration-dev-network-policy
+  namespace: dbs
+spec:
+  podSelector:
+    matchLabels:
+      app: dbs2go-global-migration-dev
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: auth
+      podSelector:
+        matchExpressions:
+        - key: app
+          operator: In
+          values:
+          - frontend
+          - auth-proxy-server
+          - scitokens-proxy-server
+          - x509-proxy-server
+    ports:
+    - protocol: TCP
+      port: 9251
