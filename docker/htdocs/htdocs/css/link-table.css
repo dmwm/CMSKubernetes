@@ -1,0 +1,31 @@
+.linkTable {
+  table-layout: fixed;
+  margin-top: 4px;
+  border-collapse: collapse;
+}
+
+.linkTable td {
+  width: 180px;
+  padding: 0;
+}
+
+.linkTable td.full {
+  width: 360px;
+  padding: 0;
+}
+
+.linkTable td a {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 8px;
+  padding-right: 20px;
+  border-left: 5px solid #eaa7a375;
+}
+
+.linkTable td a:hover {
+  background-color: #eaa7a333;
+  color: #550600;
+}
