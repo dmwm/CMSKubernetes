@@ -9,7 +9,7 @@ canary:
   enabled: true
   replicaCount: 1
   image:
-    tag: v3.260606-stable
+    tag: v3.260722-stable
 
 livenessProbe:
   exec:

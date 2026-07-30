@@ -1,9 +1,9 @@
 * {
-  margin:0;
-  padding:0;
-  font-size:12pt;
-  font-family:'Roboto', sans-serif;
-  line-height:1.22em;
+  margin: 0;
+  padding: 0;
+  font-size: 12pt;
+  font-family: 'Roboto', sans-serif;
+  line-height: 1.22em;
 }
 
 input {
@@ -12,23 +12,23 @@ input {
 }
 
 body {
-  background-image:url(../img/bk.gif);
+  background-image: url(../img/bk.gif);
   background-repeat: repeat;
 }
 
 ul {
-  list-style:none;
+  list-style: none;
 }
 
-a, a:link, a:visited, a:hover, a:active {
-  text-decoration:none;
-  border-bottom:1px dotted;
-  color:#823631;
+a,
+a:link,
+a:visited,
+a:hover,
+a:active {
+  text-decoration: none;
+  color: #823631;
 }
 
-a:hover {
-  color:#e248d3;
-}
 
 p {
   margin-top: 1em;
@@ -36,69 +36,74 @@ p {
 }
 
 #main {
-  padding:10px 0px 150px 50px;
-  margin:0 auto;
+  padding: 15px 0px 70px 50px;
+  margin: 0 auto;
   margin-top: 20px;
-  margin-bottom:50px;
-  width:600px;
-  background-color:#f7f7fd;
-  border:1px solid #9CA5B5;
-  position:relative;
+  margin-bottom: 50px;
+  width: 650px;
+  background-color: #f7f7fd;
+  border: 1px solid #c9c9c9;
+  border-bottom: 2px solid #c0c0c0;
+  border-right: 2px solid #c9c9c9;
+  position: relative;
 }
 
 .box {
-  color:#553;
+  color: #370502;
   padding-top: 20px;
 }
 
 .boxTitle {
-  float:right;
-  margin-right:50px;
+  float: right;
+  margin-right: 50px;
 }
 
 .boxSubtitle {
-  color:#663;
-  padding-top:20px;
+  color: #663;
+  padding-top: 20px;
 }
 
 .boxLinkContainer {
-  margin-top:100px;
+  margin-top: 100px;
 }
 
 .boxSubtitle {
-  font-weight:bold;
-  font-size:16px;
-  padding-top:20px;
-  padding-left:10px;
+  font-weight: bold;
+  font-size: 16px;
+  padding-top: 20px;
+  padding-left: 10px;
 }
 
 .boxLinks {
-  list-style:url(../img/dice.gif) circle;
-  padding-left:35px;
+  list-style: url(../img/dice.gif) circle;
+  padding-left: 35px;
 }
 
 #bottom {
-  position:absolute;
-  bottom:0;
-  left:0;
-  width:645px;
-  background-color:#E7DFEC;
-  padding:5px 0 5px 5px;
-  border-top:1px solid #9CA5B5;
-  color:#824040;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 694px;
+  background-color: #E7DFEC;
+  padding: 5px 0 5px 5px;
+  border-top: 1px solid #bdbdbe;
+  color: #824040;
 }
 
 .boxFooter {
-  float:right;
+  float: right;
 }
+
 code {
-
-font-weight: bolder;
-  color:#823631;
-
+  font-weight: bolder;
+  color: #823631;
 }
 
 .note {
-    text-align: right; 
-    color:#823631;
+  text-align: right;
+  color: #823631;
+}
+
+.note p {
+  margin-top: 50px;
 }
