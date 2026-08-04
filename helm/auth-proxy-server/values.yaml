@@ -6,7 +6,7 @@ image:
   repository: registry.cern.ch/cmsweb/auth-proxy-server
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.3.24"
+  tag: "0.3.25"
 
 serviceAccount:
   # Specifies whether a service account should be created
