@@ -45,27 +45,12 @@ spec:
 
       containers:
       - name: dev
-        image: registry.cern.ch/docker.io/library/debian:stable-slim
-        imagePullPolicy: IfNotPresent
+        image: registry.cern.ch/cmsweb/das-server:dev
+        imagePullPolicy: Always
 
         command:
-        - /bin/bash
-        - -lc
-        - |
-          set -e
-          apt-get update
-          apt-get install -y --no-install-recommends \
-            ca-certificates \
-            curl \
-            procps \
-            netcat-openbsd \
-            iputils-ping \
-            dnsutils
-          rm -rf /var/lib/apt/lists/*
-          echo "das-server-dev pod is ready."
-          echo "Copy das2go runtime payload into /data, then run:"
-          echo "  cd /data && ./das2go -config /etc/secrets/dasconfig.json"
-          sleep infinity
+        - sleep
+        - infinity
 
         ports:
         - name: das
@@ -85,9 +70,6 @@ spec:
             cpu: "4000m"
 
         volumeMounts:
-        - name: data
-          mountPath: /data
-
         - name: proxy-secrets
           mountPath: /etc/proxy
           readOnly: true
@@ -109,9 +91,6 @@ spec:
           readOnly: true
 
       volumes:
-      - name: data
-        emptyDir: {}
-
       - name: proxy-secrets
         secret:
           secretName: proxy-secrets
