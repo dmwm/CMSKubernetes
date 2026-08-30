@@ -1,8 +1,20 @@
-FROM couchdb:3.2.2
+FROM cmssw/filebeat:latest as filebeat
+FROM couchdb:3.4.1
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 
-RUN apt-get update && apt-get install -y vim less sudo wget unzip python pip
-RUN pip install CMSCouchapp
+RUN apt-get update && apt-get install -y vim less sudo wget unzip python3 pip
+# NOTE:
+# RUN pip install CMSCouchapp
+# when we install CMSCouchapp on Debian system it fails with PEP 668 error
+# which prevents installing external (Python packages from pip) on Debian system
+# there are two ways to resolve it:
+# - option A: install with (potential) break of system packages
+#   RUN pip install --break-system-packages CMSCouchapp
+# - option B: install in virtual environment
+RUN apt install -y python3.11-venv
+RUN python3 -m venv /data/venv
+ENV PATH="/data/venv/bin:$PATH"
+RUN pip install --no-cache-dir CMSCouchapp
 
 ENV WDIR=/data
 ENV USER=_couchdb
@@ -24,9 +36,10 @@ RUN mkdir -p $WDIR
 WORKDIR ${WDIR}
 
 # get binary build of couchdb exporter
-RUN curl -ksLO https://github.com/gesellix/couchdb-prometheus-exporter/releases/download/v27.0.0/couchdb-prometheus-exporter_27.0.0_Linux_x86_64.tar.gz
-RUN tar xfz couchdb-prometheus-exporter_27.0.0_Linux_x86_64.tar.gz
-RUN rm couchdb-prometheus-exporter_27.0.0_Linux_x86_64.tar.gz LICENSE README*.md
+ARG VER=30.14.0
+RUN curl -ksLO https://github.com/gesellix/couchdb-prometheus-exporter/releases/download/v${VER}/couchdb-prometheus-exporter_${VER}_Linux_x86_64.tar.gz
+RUN tar xfz couchdb-prometheus-exporter_${VER}_Linux_x86_64.tar.gz
+RUN rm couchdb-prometheus-exporter_${VER}_Linux_x86_64.tar.gz LICENSE README*.md
 ENV PATH="${WDIR}:${PATH}"
 
 # add necessary scripts
@@ -47,7 +60,12 @@ ADD manage /data/srv/current/config/couchdb/manage
 
 ENV PATH="/opt/couchdb/bin:/usr/local/bin/:${PATH}"
 
+# copy exporters
+COPY --from=filebeat /usr/share/filebeat /usr/share/filebeat
+COPY --from=filebeat /usr/bin/filebeat /usr/bin/filebeat
+
 # setup final environment
 USER $USER
 WORKDIR $WDIR
+ENV PATH="/data/venv/bin:$PATH"
 CMD ["./run.sh"]
