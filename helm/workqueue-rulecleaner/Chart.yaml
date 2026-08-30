@@ -1,0 +1,9 @@
+apiVersion: v2
+name: workqueue-rulecleaner
+description: A Helm chart for the standalone GlobalWorkQueue InputDataRucioRuleCleaner pod
+
+type: application
+
+version: 0.1.0
+
+appVersion: "2.4.4-stable"
