@@ -150,7 +150,8 @@ init_wmagent(){
                        --rucio_account=$RUCIO_ACCOUNT \
                        --rucio_host=$RUCIO_HOST \
                        --rucio_auth=$RUCIO_AUTH \
-                       --mspileup_url=$MSPILEUP_URL
+                       --mspileup_url=$MSPILEUP_URL \
+                       --oauth_cms_token_name=$OAUTH_CMS_TOKEN_NAME
 
     let errVal+=$?
 
