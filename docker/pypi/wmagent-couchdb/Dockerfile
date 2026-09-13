@@ -6,7 +6,7 @@ ARG TAG
 ENV TAG=${TAG}
 RUN echo TAG=$TAG
 
-RUN apt-get update && apt-get install -y vim less sudo wget unzip python pip
+RUN apt-get update && apt-get install -y vim less sudo wget unzip python3 pip
 
 # # Install some debugging tools
 RUN apt-get install -y hostname net-tools iputils-ping procps emacs-nox tcpdump && apt-get clean
@@ -14,7 +14,17 @@ RUN apt-get install -y hostname net-tools iputils-ping procps emacs-nox tcpdump 
 # Install recursive ps utility tool
 RUN apt-get install -y pslist && apt-get clean
 
-RUN pip install CMSCouchapp
+# RUN pip install CMSCouchapp
+# when we install CMSCouchapp on Debian system it fails with PEP 668 error
+# which prevents installing external (Python packages from pip) on Debian system
+# there are two ways to resolve it:
+# - option A: install with (potential) break of system packages
+#   RUN pip install --break-system-packages CMSCouchapp
+# - option B: install in virtual environment
+RUN apt install -y python3.11-venv
+RUN python3 -m venv /data/venv
+ENV PATH="/data/venv/bin:$PATH"
+RUN pip install --no-cache-dir CMSCouchapp
 
 ENV COUCH_PORT=5984
 ENV COUCH_ROOT_DIR=/data
