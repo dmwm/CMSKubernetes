@@ -1,0 +1,9 @@
+environment: "test2"
+
+image:
+  tag: "0.3.25"
+
+initContainers:
+- name: htdocs
+  image: registry.cern.ch/cmsweb/htdocs:0.0.5
+  command: ['sh', '-c', 'cp -r /www/* /tmp/htdocs']
