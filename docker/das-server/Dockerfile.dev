@@ -1,0 +1,65 @@
+FROM cmssw/exporters:latest as exporters
+FROM cmssw/filebeat:latest as filebeat
+# The golang builder image is Debian-based and is compatible with the
+# debian:trixie-slim runtime used below.
+FROM golang:latest as builder
+MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
+
+# Build das2go from the local source tree staged by the das2go Makefile.
+ENV WDIR=/data
+RUN mkdir -p $WDIR
+ARG DAS2GO_SOURCE=src
+ARG DAS2GO_SOURCE_PATH=./${DAS2GO_SOURCE}
+ARG CGO_ENABLED=0
+WORKDIR $GOPATH/src/github.com/dmwm
+COPY ${DAS2GO_SOURCE_PATH} das2go
+WORKDIR $GOPATH/src/github.com/dmwm/das2go
+RUN make VERSION=localtree && \
+    go build -o $WDIR/das2go_monitor -ldflags="-s -w -extldflags -static" monitor/das2go_monitor.go && \
+    cp -r das2go js css images templates examples $WDIR
+
+# Install the latest kubectl, matching the DBS development image utilities.
+RUN curl -k -O -L https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+RUN mv kubectl /usr/bin
+RUN chmod +x /usr/bin/kubectl
+
+# Pin the runtime distribution so its package names do not change underneath us.
+FROM debian:trixie-slim
+RUN apt-get update && apt-get -y install --no-install-recommends \
+        ca-certificates curl wget jq \
+        less vim-tiny emacs-nox \
+        file binutils strace lsof procps psmisc \
+        iproute2 iputils-ping dnsutils netcat-openbsd traceroute telnet \
+        sqlite3 && \
+    mkdir -p /data && \
+    rm -rf /var/lib/apt/lists/*
+ENV WDIR=/data
+ENV USER=_das2go
+
+# Add the unprivileged DAS development user and its shell conveniences.
+RUN useradd -d ${WDIR} ${USER}
+RUN mkdir -p /data
+RUN printf '%s\n' \
+    "alias ll='ls -alF --color=auto'" \
+    "alias la='ls -A --color=auto'" \
+    "alias l='ls -CF --color=auto'" \
+    > ${WDIR}/.bashrc && chown ${USER}.${USER} ${WDIR}/.bashrc
+
+# Install the DAS payload and the same operational utilities as the DBS image.
+COPY --from=builder /data /data
+COPY --from=exporters /data/das2go_exporter /data
+COPY --from=exporters /data/process_exporter /data
+COPY --from=exporters /data/process_monitor.sh /data
+COPY --from=filebeat /usr/share/filebeat /usr/share/filebeat
+COPY --from=filebeat /usr/bin/filebeat /usr/bin/filebeat
+COPY --from=builder /usr/bin/kubectl /usr/bin/kubectl
+
+# Keep the container ready for the devpush workflow, which replaces and starts
+# the locally built DAS payload in the running development pod.
+ENV PATH="/data/gopath/bin:/data:${PATH}"
+ADD run.sh /data/run.sh
+RUN chown -R $USER.$USER /data && chown -R $USER.$USER /usr/bin/filebeat
+RUN chmod +x /data/*.sh
+USER $USER
+WORKDIR /data
+CMD ["sleep", "infinity"]

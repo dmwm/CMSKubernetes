@@ -31,6 +31,10 @@ remote_write:
     queue_config:
       max_samples_per_send: 10000
       max_shards: 30
+  - url: http://cms-monitoring-test.cern.ch:30428/api/v1/write
+    queue_config:
+      max_samples_per_send: 10000
+      max_shards: 30
 scrape_configs:
 #first, we define all the custom jobs that we have for the services
   - job_name: cern-magnum-kube-state-metrics
