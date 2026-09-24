@@ -1,7 +1,7 @@
 environment: "test7"
 
 image:
-  tag: "0.3.25"
+  tag: "0.3.26"
 
 initContainers:
 - name: htdocs
