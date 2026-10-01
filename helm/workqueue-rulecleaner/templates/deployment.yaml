@@ -1,0 +1,147 @@
+{{- $environment := .Values.environment | default dict }}
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: workqueue-rulecleaner
+  name: {{ .Release.Name }}
+  namespace: dmwm
+spec:
+  selector:
+    matchLabels:
+      app: workqueue-rulecleaner
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: workqueue-rulecleaner
+        env: k8s-{{.Values.environment}}
+      annotations:
+      {{- toYaml .Values.podAnnotations | nindent 8 }}
+    spec:
+      securityContext:
+      {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+      - image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        name: workqueue-rulecleaner
+        {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+        resources:
+        {{- toYaml .Values.resources | nindent 12 }}
+        {{- end }}
+        livenessProbe:
+        {{- toYaml .Values.livenessProbe | nindent 12 }}
+        ports:
+        - containerPort: 8241
+          protocol: TCP
+          name: wq-rulecleaner
+        - containerPort: 18241
+          protocol: TCP
+          name: wq-rc-mon
+        command:
+        - /bin/bash
+        - /opt/setup-certs-and-run/setup-certs-and-run.sh
+        volumeMounts:
+        - name: rucio-secrets
+          mountPath: /opt/rucio/etc
+          readOnly: true
+        - name: proxy-secrets
+          mountPath: /etc/proxy
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: robot-secrets
+          mountPath: /etc/robots
+          readOnly: true
+        - name: hmac-secrets
+          mountPath: /etc/hmac
+          readOnly: true
+        - mountPath: /etc/grid-security
+          name: etc-grid-security
+          readOnly: true
+        - name: setup-certs-and-run
+          mountPath: /opt/setup-certs-and-run
+        - name: token-secrets
+          mountPath: /etc/token
+          readOnly: true
+        {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+        - name: logs
+          mountPath: /data/srv/logs/workqueue
+        {{- end }}
+        securityContext:
+          privileged: true
+        {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+      - name: workqueue-rulecleaner-filebeat
+        image: {{ .Values.imageFilebeat.path}}
+        args: [
+          "-c", "/etc/filebeat.yml",
+          "-e",
+        ]
+        env:
+        {{- toYaml .Values.imageFilebeat.env | nindent 10 }}
+        resources:
+        {{- toYaml .Values.imageFilebeatResources | nindent 12 }}
+        volumeMounts:
+        - name: logs
+          mountPath: /data/srv/logs/workqueue
+        - name: config
+          mountPath: /etc/filebeat.yml
+          readOnly: true
+          subPath: filebeat.yml
+        - name: data
+          mountPath: /usr/share/filebeat/data
+        - name: varlog
+          mountPath: /var/log
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+        securityContext:
+          allowPrivilegeEscalation: false
+        {{- end }}
+      volumes:
+      - name: rucio-secrets
+        secret:
+          secretName: rucio-secrets
+      - name: proxy-secrets
+        secret:
+          secretName: proxy-secrets
+      - name: secrets
+        secret:
+          secretName: workqueue-rulecleaner-secrets
+      - name: robot-secrets
+        secret:
+          secretName: robot-secrets
+      - name: hmac-secrets
+        secret:
+          secretName: hmac-secrets
+      - name: etc-grid-security
+        hostPath:
+            path: /etc/grid-security
+      - name: setup-certs-and-run
+        configMap:
+          name: workqueue-rulecleaner
+      - name: token-secrets
+        secret:
+          secretName: token-secrets
+      {{- if or (eq (toString $environment) "prod") (eq (toString $environment) "preprod") }}
+      - name: logs
+        persistentVolumeClaim:
+        {{- if eq (toString $environment) "preprod" }}
+          claimName: logs-cephfs-claim-preprod-dmwm
+          {{- end }}
+          {{- if eq (toString $environment) "prod" }}
+          claimName: logs-cephfs-claim-prod-dmwm
+        {{- end }}
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: config
+        configMap:
+          defaultMode: 0640
+          name: workqueue-rulecleaner-filebeat-config
+      - name: data
+        emptyDir: {}
+      {{- end }}
