@@ -41,11 +41,6 @@ scrape_configs:
     - source_labels: [__meta_kubernetes_pod_container_port_number]
       action: keep
       regex: ^(10254)
-  - job_name: 'quota-exporter'
-    scrape_interval: 120s
-    scrape_timeout: 110s
-    static_configs:
-      - targets: ['quota-exporter.http.svc.cluster.local:18000']
 #Then, the default job configs
 
   - job_name: "kubernetes-apiservers"
