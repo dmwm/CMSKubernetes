@@ -57,45 +57,22 @@ fi
 
 if [ "$env_prefix" != "k8s-preprod" ] && [  "$env_prefix" != "k8s-prod" ]; then
 
-    cluster_name=`kubectl config get-clusters | grep -v NAME`
-    if [[ "$cluster_name" == *"cmsweb-auth"* ]] ; then
-                env_prefix="auth"
-    fi
-    if [[ "$cluster_name" == *"cmsweb-test1"* ]] ; then
-                env_prefix="test1"
-    fi
-    if [[ "$cluster_name" == *"cmsweb-test2"* ]] ; then
-                env_prefix="test2"
-    fi
-    if [[ "$cluster_name" == *"cmsweb-test3"* ]] ; then
-                env_prefix="test3"
-    fi
-    if [[ "$cluster_name" == *"cmsweb-test4"* ]] ; then
-                env_prefix="test4"
-    fi
-    if [[ "$cluster_name" == *"cmsweb-test5"* ]] ; then
-                env_prefix="test5"
-    fi
-    if [[ "$cluster_name" == *"cmsweb-test6"* ]] ; then
-                env_prefix="test6"
-    fi
-    if [[ "$cluster_name" == *"cmsweb-test7"* ]] ; then
-                env_prefix="test7"
-    fi
-    if [[ "$cluster_name" == *"cmsweb-test8"* ]] ; then
-                env_prefix="test8"
-    fi
-    if [[ "$cluster_name" == *"cmsweb-test9"* ]] ; then
-                env_prefix="test9"
-    fi
-    if [[ "$cluster_name" == *"cmsweb-test10"* ]] ; then
-                env_prefix="test10"
-    fi
-    if [[ "$cluster_name" == *"cmsweb-test11"* ]] ; then
-                env_prefix="test11"
-    fi
-    if [[ "$cluster_name" == *"cmsweb-test12"* ]] ; then
-                env_prefix="test12"
+    # cluster-name -> env_prefix mapping lives in lib_env_prefix.sh (kept
+    # separate so it's unit-testable in isolation -- see test_env_prefix.sh)
+    source "$(dirname "${BASH_SOURCE[0]}")/lib_env_prefix.sh"
+    if [ -n "$FORCE_ENV_PREFIX" ]; then
+        env_prefix="$FORCE_ENV_PREFIX"
+    else
+        cluster_name=`kubectl config get-clusters | grep -v NAME`
+        env_prefix="$(compute_env_prefix "$cluster_name")"
+        if [ -z "$env_prefix" ]; then
+            echo "ERROR: could not determine env_prefix for cluster_name='$cluster_name'" >&2
+            echo "       (expected it to contain 'cmsweb-auth' or 'cmsweb-test<N>')." >&2
+            echo "       Refusing to deploy monitoring with an unrecognized env label." >&2
+            echo "       If this is a deliberate new cluster naming scheme, set" >&2
+            echo "       FORCE_ENV_PREFIX=<value> and re-run." >&2
+            exit 1
+        fi
     fi
     env_prefix="k8s-$env_prefix"
 fi
@@ -746,7 +723,9 @@ deploy_monitoring()
         # change "k8s" env label in prometheus.yaml files based on our cmsweb environment
         if [ -f monitoring/prometheus/$mon/prometheus.yaml ]; then
 
-            cat monitoring/prometheus/$mon/prometheus.yaml | sed -e 's,"k8s",$env_prefix,g' > /tmp/prometheus.yaml
+            cat monitoring/prometheus/$mon/prometheus.yaml | \
+                sed -e 's,"k8s",$env_prefix,g' | \
+                sed -e "s,dev # cluster,$cluster,g" > /tmp/prometheus.yaml
 
 ##            if [ "$CMSWEB_ENV" == "production" ] || [ "$CMSWEB_ENV" == "prod" ]; then
 ##                cat monitoring/prometheus/$mon/prometheus.yaml | sed -e 's,"k8s","k8s-prod",g' > /tmp/prometheus.yaml
