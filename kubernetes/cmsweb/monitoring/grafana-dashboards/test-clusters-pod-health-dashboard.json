@@ -36,7 +36,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "cfyev22k6t79cb"
+        "uid": "victoriametrics-tf"
       },
       "fieldConfig": {
         "defaults": {
@@ -125,7 +125,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "cfyev22k6t79cb"
+            "uid": "victoriametrics-tf"
           },
           "expr": "sum by (cluster, namespace, pod) (rate(container_cpu_usage_seconds_total{container!=\"\", container!=\"POD\", cluster=~\"$cluster\", namespace=~\"$namespace\", instance=~\"$node\"}[5m]))",
           "instant": false,
@@ -140,7 +140,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "cfyev22k6t79cb"
+        "uid": "victoriametrics-tf"
       },
       "fieldConfig": {
         "defaults": {
@@ -229,7 +229,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "cfyev22k6t79cb"
+            "uid": "victoriametrics-tf"
           },
           "expr": "sum by (cluster, namespace, pod) (container_memory_working_set_bytes{container!=\"\", container!=\"POD\", cluster=~\"$cluster\", namespace=~\"$namespace\", instance=~\"$node\"})",
           "instant": false,
@@ -244,7 +244,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "cfyev22k6t79cb"
+        "uid": "victoriametrics-tf"
       },
       "fieldConfig": {
         "defaults": {
@@ -333,7 +333,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "cfyev22k6t79cb"
+            "uid": "victoriametrics-tf"
           },
           "expr": "sum by (cluster, namespace) (rate(container_cpu_usage_seconds_total{container!=\"\", container!=\"POD\", cluster=~\"$cluster\", namespace=~\"$namespace\", instance=~\"$node\"}[5m]))",
           "instant": false,
@@ -348,7 +348,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "cfyev22k6t79cb"
+        "uid": "victoriametrics-tf"
       },
       "fieldConfig": {
         "defaults": {
@@ -437,7 +437,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "cfyev22k6t79cb"
+            "uid": "victoriametrics-tf"
           },
           "expr": "sum by (cluster, namespace) (container_memory_working_set_bytes{container!=\"\", container!=\"POD\", cluster=~\"$cluster\", namespace=~\"$namespace\", instance=~\"$node\"})",
           "instant": false,
@@ -465,33 +465,23 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "cfyev22k6t79cb"
+        "uid": "victoriametrics-tf"
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "thresholds"
           },
           "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
             },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
+            "filterable": false,
+            "footer": {
+              "reducers": []
             },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -502,8 +492,12 @@
                 "value": 0
               },
               {
+                "color": "orange",
+                "value": 0.2
+              },
+              {
                 "color": "red",
-                "value": 80
+                "value": 0.1
               }
             ]
           },
@@ -518,14 +512,11 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Used (cores)"
+                "value": "Used"
               },
               {
-                "id": "color",
-                "value": {
-                  "fixedColor": "orange",
-                  "mode": "fixed"
-                }
+                "id": "unit",
+                "value": "short"
               }
             ]
           },
@@ -537,54 +528,154 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Remaining (cores)"
+                "value": "Available"
               },
               {
-                "id": "color",
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Quota"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Quota"
+              },
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "custom.width",
+                "value": 71
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "% Available"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "custom.cellOptions",
                 "value": {
-                  "fixedColor": "green",
-                  "mode": "fixed"
+                  "mode": "gradient",
+                  "type": "color-background"
                 }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": 0
+                    },
+                    {
+                      "color": "orange",
+                      "value": 0.1
+                    },
+                    {
+                      "color": "green",
+                      "value": 0.2
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "instance"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Node"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Node"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 364
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Used"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 75
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Available"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 86
               }
             ]
           }
         ]
       },
       "gridPos": {
-        "h": 9,
+        "h": 15,
         "w": 12,
         "x": 0,
         "y": 20
       },
       "id": 5,
       "options": {
-        "barRadius": 0,
-        "barWidth": 0.97,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
         },
-        "orientation": "horizontal",
-        "showValue": "auto",
-        "stacking": "normal",
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "% Available"
+          }
+        ]
       },
       "pluginVersion": "12.4.5",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "cfyev22k6t79cb"
+            "uid": "victoriametrics-tf"
           },
           "expr": "sum by (instance) (rate(container_cpu_usage_seconds_total{container!=\"\", container!=\"POD\", cluster=~\"$cluster\", instance=~\"$node\"}[5m]))",
           "format": "table",
@@ -595,9 +686,9 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "cfyev22k6t79cb"
+            "uid": "victoriametrics-tf"
           },
-          "expr": "sum by (instance) (kube_node_status_capacity{resource=\"cpu\", unit=\"core\", cluster=~\"$cluster\", instance=~\"$node\"}) - sum by (instance) (rate(container_cpu_usage_seconds_total{container!=\"\", container!=\"POD\", cluster=~\"$cluster\", instance=~\"$node\"}[5m]))",
+          "expr": "sum by (instance) (label_replace(kube_node_status_capacity{resource=\"cpu\", unit=\"core\", cluster=~\"$cluster\", node=~\"$node\"}, \"instance\", \"$1\", \"node\", \"(.*)\")) - sum by (instance) (rate(container_cpu_usage_seconds_total{container!=\"\", container!=\"POD\", cluster=~\"$cluster\", instance=~\"$node\"}[5m]))",
           "format": "table",
           "instant": true,
           "range": false,
@@ -614,13 +705,55 @@
           }
         },
         {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time 1": true,
+              "Time 2": true
+            },
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {}
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Quota",
+            "binary": {
+              "left": "Value #A",
+              "operator": "+",
+              "right": "Value #B"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            }
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "% Available",
+            "binary": {
+              "left": "Value #B",
+              "operator": "/",
+              "right": "Quota"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            }
+          }
+        },
+        {
           "id": "sortBy",
           "options": {
             "fields": [],
             "sort": [
               {
-                "field": "Value #A",
-                "desc": true
+                "desc": false,
+                "field": "% Available"
               }
             ]
           }
@@ -632,38 +765,28 @@
           }
         }
       ],
-      "type": "barchart"
+      "type": "table"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "cfyev22k6t79cb"
+        "uid": "victoriametrics-tf"
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "thresholds"
           },
           "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
             },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
+            "filterable": false,
+            "footer": {
+              "reducers": []
             },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -674,8 +797,12 @@
                 "value": 0
               },
               {
+                "color": "orange",
+                "value": 0.2
+              },
+              {
                 "color": "red",
-                "value": 80
+                "value": 0.1
               }
             ]
           },
@@ -693,11 +820,8 @@
                 "value": "Used"
               },
               {
-                "id": "color",
-                "value": {
-                  "fixedColor": "orange",
-                  "mode": "fixed"
-                }
+                "id": "unit",
+                "value": "decbytes"
               }
             ]
           },
@@ -709,54 +833,154 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Remaining"
+                "value": "Available"
               },
               {
-                "id": "color",
+                "id": "unit",
+                "value": "decbytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Quota"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Quota"
+              },
+              {
+                "id": "unit",
+                "value": "decbytes"
+              },
+              {
+                "id": "custom.width",
+                "value": 86
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "% Available"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "custom.cellOptions",
                 "value": {
-                  "fixedColor": "green",
-                  "mode": "fixed"
+                  "mode": "gradient",
+                  "type": "color-background"
                 }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": 0
+                    },
+                    {
+                      "color": "orange",
+                      "value": 0.1
+                    },
+                    {
+                      "color": "green",
+                      "value": 0.2
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "instance"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Node"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Node"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 359
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Used"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 82
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Available"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 83
               }
             ]
           }
         ]
       },
       "gridPos": {
-        "h": 9,
+        "h": 15,
         "w": 12,
         "x": 12,
         "y": 20
       },
       "id": 6,
       "options": {
-        "barRadius": 0,
-        "barWidth": 0.97,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
         },
-        "orientation": "horizontal",
-        "showValue": "auto",
-        "stacking": "normal",
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "% Available"
+          }
+        ]
       },
       "pluginVersion": "12.4.5",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "cfyev22k6t79cb"
+            "uid": "victoriametrics-tf"
           },
           "expr": "sum by (instance) (container_memory_working_set_bytes{container!=\"\", container!=\"POD\", cluster=~\"$cluster\", instance=~\"$node\"})",
           "format": "table",
@@ -767,9 +991,9 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "cfyev22k6t79cb"
+            "uid": "victoriametrics-tf"
           },
-          "expr": "sum by (instance) (kube_node_status_capacity{resource=\"memory\", unit=\"byte\", cluster=~\"$cluster\", instance=~\"$node\"}) - sum by (instance) (container_memory_working_set_bytes{container!=\"\", container!=\"POD\", cluster=~\"$cluster\", instance=~\"$node\"})",
+          "expr": "sum by (instance) (label_replace(kube_node_status_capacity{resource=\"memory\", unit=\"byte\", cluster=~\"$cluster\", node=~\"$node\"}, \"instance\", \"$1\", \"node\", \"(.*)\")) - sum by (instance) (container_memory_working_set_bytes{container!=\"\", container!=\"POD\", cluster=~\"$cluster\", instance=~\"$node\"})",
           "format": "table",
           "instant": true,
           "range": false,
@@ -786,13 +1010,55 @@
           }
         },
         {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time 1": true,
+              "Time 2": true
+            },
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {}
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Quota",
+            "binary": {
+              "left": "Value #A",
+              "operator": "+",
+              "right": "Value #B"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            }
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "% Available",
+            "binary": {
+              "left": "Value #B",
+              "operator": "/",
+              "right": "Quota"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            }
+          }
+        },
+        {
           "id": "sortBy",
           "options": {
             "fields": [],
             "sort": [
               {
-                "field": "Value #A",
-                "desc": true
+                "desc": false,
+                "field": "% Available"
               }
             ]
           }
@@ -804,12 +1070,12 @@
           }
         }
       ],
-      "type": "barchart"
+      "type": "table"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "cfyev22k6t79cb"
+        "uid": "victoriametrics-tf"
       },
       "fieldConfig": {
         "defaults": {
@@ -872,7 +1138,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 29
+        "y": 35
       },
       "id": 16,
       "options": {
@@ -898,7 +1164,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "cfyev22k6t79cb"
+            "uid": "victoriametrics-tf"
           },
           "expr": "topk(20, sum by (cluster, instance) (rate(container_cpu_usage_seconds_total{container!=\"\", container!=\"POD\", cluster=~\"$cluster\", instance=~\"$node\"}[5m])))",
           "instant": false,
@@ -913,7 +1179,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "cfyev22k6t79cb"
+        "uid": "victoriametrics-tf"
       },
       "fieldConfig": {
         "defaults": {
@@ -976,7 +1242,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 29
+        "y": 35
       },
       "id": 17,
       "options": {
@@ -1002,7 +1268,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "cfyev22k6t79cb"
+            "uid": "victoriametrics-tf"
           },
           "expr": "topk(20, sum by (cluster, instance) (container_memory_working_set_bytes{container!=\"\", container!=\"POD\", cluster=~\"$cluster\", instance=~\"$node\"}))",
           "instant": false,
@@ -1017,7 +1283,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "cfyev22k6t79cb"
+        "uid": "victoriametrics-tf"
       },
       "fieldConfig": {
         "defaults": {
@@ -1080,7 +1346,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 38
+        "y": 44
       },
       "id": 14,
       "options": {
@@ -1106,7 +1372,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "cfyev22k6t79cb"
+            "uid": "victoriametrics-tf"
           },
           "expr": "1 - (node_filesystem_avail_bytes{mountpoint=\"/\", cluster=~\"$cluster\", instance=~\"$node\"} / node_filesystem_size_bytes{mountpoint=\"/\", cluster=~\"$cluster\", instance=~\"$node\"})",
           "instant": false,
@@ -1121,7 +1387,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "cfyev22k6t79cb"
+        "uid": "victoriametrics-tf"
       },
       "fieldConfig": {
         "defaults": {
@@ -1184,7 +1450,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 38
+        "y": 44
       },
       "id": 15,
       "options": {
@@ -1210,7 +1476,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "cfyev22k6t79cb"
+            "uid": "victoriametrics-tf"
           },
           "expr": "sum by (cluster, instance) (rate(container_network_receive_bytes_total{cluster=~\"$cluster\", namespace=~\"$namespace\", instance=~\"$node\"}[5m]))",
           "instant": false,
@@ -1221,7 +1487,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "cfyev22k6t79cb"
+            "uid": "victoriametrics-tf"
           },
           "expr": "sum by (cluster, instance) (rate(container_network_transmit_bytes_total{cluster=~\"$cluster\", namespace=~\"$namespace\", instance=~\"$node\"}[5m]))",
           "instant": false,
@@ -1236,7 +1502,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "cfyev22k6t79cb"
+        "uid": "victoriametrics-tf"
       },
       "fieldConfig": {
         "defaults": {
@@ -1299,7 +1565,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 47
+        "y": 53
       },
       "id": 13,
       "options": {
@@ -1325,7 +1591,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "cfyev22k6t79cb"
+            "uid": "victoriametrics-tf"
           },
           "expr": "kube_node_status_condition{condition=\"Ready\", status=\"false\", cluster=~\"$cluster\"} == 1",
           "instant": false,
@@ -1336,7 +1602,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "cfyev22k6t79cb"
+            "uid": "victoriametrics-tf"
           },
           "expr": "kube_node_status_condition{condition=~\"MemoryPressure|DiskPressure|PIDPressure\", status=\"true\", cluster=~\"$cluster\"} == 1",
           "instant": false,
@@ -1354,7 +1620,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 56
+        "y": 62
       },
       "id": 202,
       "panels": [],
@@ -1364,7 +1630,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "cfyev22k6t79cb"
+        "uid": "victoriametrics-tf"
       },
       "fieldConfig": {
         "defaults": {
@@ -1427,7 +1693,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 57
+        "y": 63
       },
       "id": 7,
       "options": {
@@ -1453,7 +1719,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "cfyev22k6t79cb"
+            "uid": "victoriametrics-tf"
           },
           "expr": "kube_pod_status_ready{condition=\"false\", cluster=~\"$cluster\", namespace=~\"$namespace\"} == 1\nunless on (cluster, namespace, pod) kube_pod_status_phase{phase=\"Succeeded\", cluster=~\"$cluster\"} == 1",
           "instant": false,
@@ -1464,7 +1730,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "cfyev22k6t79cb"
+            "uid": "victoriametrics-tf"
           },
           "expr": "kube_pod_status_phase{phase=\"Pending\", cluster=~\"$cluster\", namespace=~\"$namespace\"} == 1",
           "instant": false,
@@ -1479,7 +1745,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "cfyev22k6t79cb"
+        "uid": "victoriametrics-tf"
       },
       "fieldConfig": {
         "defaults": {
@@ -1542,7 +1808,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 57
+        "y": 63
       },
       "id": 8,
       "options": {
@@ -1568,7 +1834,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "cfyev22k6t79cb"
+            "uid": "victoriametrics-tf"
           },
           "expr": "kube_pod_container_status_waiting_reason{reason=\"CrashLoopBackOff\", cluster=~\"$cluster\", namespace=~\"$namespace\"} == 1",
           "instant": false,
@@ -1583,7 +1849,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "cfyev22k6t79cb"
+        "uid": "victoriametrics-tf"
       },
       "fieldConfig": {
         "defaults": {
@@ -1646,7 +1912,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 66
+        "y": 72
       },
       "id": 12,
       "options": {
@@ -1672,7 +1938,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "cfyev22k6t79cb"
+            "uid": "victoriametrics-tf"
           },
           "expr": "kube_pod_container_status_last_terminated_reason{reason=\"OOMKilled\", cluster=~\"$cluster\", namespace=~\"$namespace\"} == 1",
           "instant": false,
@@ -1687,7 +1953,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "cfyev22k6t79cb"
+        "uid": "victoriametrics-tf"
       },
       "fieldConfig": {
         "defaults": {
@@ -1750,7 +2016,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 66
+        "y": 72
       },
       "id": 9,
       "options": {
@@ -1776,7 +2042,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "cfyev22k6t79cb"
+            "uid": "victoriametrics-tf"
           },
           "expr": "sum by (cluster, namespace, pod) (increase(kube_pod_container_status_restarts_total{cluster=~\"$cluster\", namespace=~\"$namespace\"}[1h])) > 0",
           "instant": false,
@@ -1791,7 +2057,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "cfyev22k6t79cb"
+        "uid": "victoriametrics-tf"
       },
       "fieldConfig": {
         "defaults": {
@@ -1854,7 +2120,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 75
+        "y": 81
       },
       "id": 11,
       "options": {
@@ -1880,7 +2146,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "cfyev22k6t79cb"
+            "uid": "victoriametrics-tf"
           },
           "expr": "topk(10, sum by (cluster, namespace, pod) (container_file_descriptors{cluster=~\"$cluster\", namespace=~\"$namespace\", instance=~\"$node\", pod!=\"\"}))",
           "instant": false,
@@ -1906,16 +2172,14 @@
     "list": [
       {
         "current": {
-          "text": [
-            "test18"
-          ],
+          "text": "All",
           "value": [
-            "test18"
+            "$__all"
           ]
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "cfyev22k6t79cb"
+          "uid": "victoriametrics-tf"
         },
         "includeAll": true,
         "multi": true,
@@ -1937,7 +2201,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "cfyev22k6t79cb"
+          "uid": "victoriametrics-tf"
         },
         "includeAll": true,
         "multi": true,
@@ -1959,7 +2223,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "cfyev22k6t79cb"
+          "uid": "victoriametrics-tf"
         },
         "includeAll": true,
         "multi": true,
@@ -1984,6 +2248,6 @@
   "timezone": "browser",
   "title": "CMSWEB Test Clusters - Pod Health (All, by $cluster)",
   "uid": "cmsweb-test-clusters-pod-health",
-  "version": 6,
+  "version": 16,
   "weekStart": ""
 }

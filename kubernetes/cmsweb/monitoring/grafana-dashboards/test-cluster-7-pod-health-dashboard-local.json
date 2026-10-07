@@ -36,7 +36,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "8iMTSULnk"
+        "uid": "cmsweb-test7-nodexpo"
       },
       "fieldConfig": {
         "defaults": {
@@ -125,7 +125,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "8iMTSULnk"
+            "uid": "cmsweb-test7-nodexpo"
           },
           "expr": "sum by (namespace, pod) (rate(container_cpu_usage_seconds_total{container!=\"\", container!=\"POD\", namespace=~\"$namespace\", instance=~\"$node\"}[5m]))",
           "instant": false,
@@ -140,7 +140,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "8iMTSULnk"
+        "uid": "cmsweb-test7-nodexpo"
       },
       "fieldConfig": {
         "defaults": {
@@ -229,7 +229,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "8iMTSULnk"
+            "uid": "cmsweb-test7-nodexpo"
           },
           "expr": "sum by (namespace, pod) (container_memory_working_set_bytes{container!=\"\", container!=\"POD\", namespace=~\"$namespace\", instance=~\"$node\"})",
           "instant": false,
@@ -244,7 +244,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "8iMTSULnk"
+        "uid": "cmsweb-test7-nodexpo"
       },
       "fieldConfig": {
         "defaults": {
@@ -333,7 +333,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "8iMTSULnk"
+            "uid": "cmsweb-test7-nodexpo"
           },
           "expr": "sum by (namespace) (rate(container_cpu_usage_seconds_total{container!=\"\", container!=\"POD\", namespace=~\"$namespace\", instance=~\"$node\"}[5m]))",
           "instant": false,
@@ -348,7 +348,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "8iMTSULnk"
+        "uid": "cmsweb-test7-nodexpo"
       },
       "fieldConfig": {
         "defaults": {
@@ -437,7 +437,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "8iMTSULnk"
+            "uid": "cmsweb-test7-nodexpo"
           },
           "expr": "sum by (namespace) (container_memory_working_set_bytes{container!=\"\", container!=\"POD\", namespace=~\"$namespace\", instance=~\"$node\"})",
           "instant": false,
@@ -465,7 +465,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "8iMTSULnk"
+        "uid": "cmsweb-test7-nodexpo"
       },
       "fieldConfig": {
         "defaults": {
@@ -584,7 +584,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "8iMTSULnk"
+            "uid": "cmsweb-test7-nodexpo"
           },
           "expr": "sum by (instance) (rate(container_cpu_usage_seconds_total{container!=\"\", container!=\"POD\", instance=~\"$node\"}[5m]))",
           "format": "table",
@@ -595,16 +595,16 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "8iMTSULnk"
+            "uid": "cmsweb-test7-nodexpo"
           },
-          "expr": "4 - sum by (instance) (rate(container_cpu_usage_seconds_total{container!=\"\", container!=\"POD\", instance=~\"$node\"}[5m]))",
+          "expr": "sum by (instance) (label_replace(kube_node_status_capacity{resource=\"cpu\", unit=\"core\", node=~\"$node\"}, \"instance\", \"$1\", \"node\", \"(.*)\")) - sum by (instance) (rate(container_cpu_usage_seconds_total{container!=\"\", container!=\"POD\", instance=~\"$node\"}[5m]))",
           "format": "table",
           "instant": true,
           "range": false,
           "refId": "B"
         }
       ],
-      "title": "CPU usage by Node (of 4 cores/node)",
+      "title": "CPU usage by Node",
       "transformations": [
         {
           "id": "joinByField",
@@ -619,7 +619,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "8iMTSULnk"
+        "uid": "cmsweb-test7-nodexpo"
       },
       "fieldConfig": {
         "defaults": {
@@ -738,7 +738,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "8iMTSULnk"
+            "uid": "cmsweb-test7-nodexpo"
           },
           "expr": "sum by (instance) (container_memory_working_set_bytes{container!=\"\", container!=\"POD\", instance=~\"$node\"})",
           "format": "table",
@@ -749,16 +749,16 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "8iMTSULnk"
+            "uid": "cmsweb-test7-nodexpo"
           },
-          "expr": "7597219840 - sum by (instance) (container_memory_working_set_bytes{container!=\"\", container!=\"POD\", instance=~\"$node\"})",
+          "expr": "sum by (instance) (label_replace(kube_node_status_capacity{resource=\"memory\", unit=\"byte\", node=~\"$node\"}, \"instance\", \"$1\", \"node\", \"(.*)\")) - sum by (instance) (container_memory_working_set_bytes{container!=\"\", container!=\"POD\", instance=~\"$node\"})",
           "format": "table",
           "instant": true,
           "range": false,
           "refId": "B"
         }
       ],
-      "title": "Memory usage by Node (of ~7.6GB/node)",
+      "title": "Memory usage by Node",
       "transformations": [
         {
           "id": "joinByField",
@@ -773,7 +773,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "8iMTSULnk"
+        "uid": "cmsweb-test7-nodexpo"
       },
       "fieldConfig": {
         "defaults": {
@@ -862,7 +862,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "8iMTSULnk"
+            "uid": "cmsweb-test7-nodexpo"
           },
           "expr": "1 - (node_filesystem_avail_bytes{mountpoint=\"/\", instance=~\"$node\"} / node_filesystem_size_bytes{mountpoint=\"/\", instance=~\"$node\"})",
           "instant": false,
@@ -877,7 +877,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "8iMTSULnk"
+        "uid": "cmsweb-test7-nodexpo"
       },
       "fieldConfig": {
         "defaults": {
@@ -966,7 +966,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "8iMTSULnk"
+            "uid": "cmsweb-test7-nodexpo"
           },
           "expr": "sum by (instance) (rate(container_network_receive_bytes_total{namespace=~\"$namespace\", instance=~\"$node\"}[5m]))",
           "instant": false,
@@ -977,7 +977,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "8iMTSULnk"
+            "uid": "cmsweb-test7-nodexpo"
           },
           "expr": "sum by (instance) (rate(container_network_transmit_bytes_total{namespace=~\"$namespace\", instance=~\"$node\"}[5m]))",
           "instant": false,
@@ -992,7 +992,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "8iMTSULnk"
+        "uid": "cmsweb-test7-nodexpo"
       },
       "fieldConfig": {
         "defaults": {
@@ -1081,7 +1081,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "8iMTSULnk"
+            "uid": "cmsweb-test7-nodexpo"
           },
           "expr": "kube_node_status_condition{condition=\"Ready\", status=\"false\"} == 1",
           "instant": false,
@@ -1092,7 +1092,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "8iMTSULnk"
+            "uid": "cmsweb-test7-nodexpo"
           },
           "expr": "kube_node_status_condition{condition=~\"MemoryPressure|DiskPressure|PIDPressure\", status=\"true\"} == 1",
           "instant": false,
@@ -1120,7 +1120,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "8iMTSULnk"
+        "uid": "cmsweb-test7-nodexpo"
       },
       "fieldConfig": {
         "defaults": {
@@ -1209,7 +1209,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "8iMTSULnk"
+            "uid": "cmsweb-test7-nodexpo"
           },
           "expr": "kube_pod_status_ready{condition=\"false\", namespace=~\"$namespace\"} == 1\nunless on (namespace, pod) kube_pod_status_phase{phase=\"Succeeded\"} == 1",
           "instant": false,
@@ -1220,7 +1220,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "8iMTSULnk"
+            "uid": "cmsweb-test7-nodexpo"
           },
           "expr": "kube_pod_status_phase{phase=\"Pending\", namespace=~\"$namespace\"} == 1",
           "instant": false,
@@ -1235,7 +1235,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "8iMTSULnk"
+        "uid": "cmsweb-test7-nodexpo"
       },
       "fieldConfig": {
         "defaults": {
@@ -1324,7 +1324,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "8iMTSULnk"
+            "uid": "cmsweb-test7-nodexpo"
           },
           "expr": "kube_pod_container_status_waiting_reason{reason=\"CrashLoopBackOff\", namespace=~\"$namespace\"} == 1",
           "instant": false,
@@ -1339,7 +1339,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "8iMTSULnk"
+        "uid": "cmsweb-test7-nodexpo"
       },
       "fieldConfig": {
         "defaults": {
@@ -1428,7 +1428,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "8iMTSULnk"
+            "uid": "cmsweb-test7-nodexpo"
           },
           "expr": "kube_pod_container_status_last_terminated_reason{reason=\"OOMKilled\", namespace=~\"$namespace\"} == 1",
           "instant": false,
@@ -1443,7 +1443,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "8iMTSULnk"
+        "uid": "cmsweb-test7-nodexpo"
       },
       "fieldConfig": {
         "defaults": {
@@ -1532,7 +1532,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "8iMTSULnk"
+            "uid": "cmsweb-test7-nodexpo"
           },
           "expr": "sum by (namespace, pod) (increase(kube_pod_container_status_restarts_total{namespace=~\"$namespace\"}[1h])) > 0",
           "instant": false,
@@ -1547,7 +1547,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "8iMTSULnk"
+        "uid": "cmsweb-test7-nodexpo"
       },
       "fieldConfig": {
         "defaults": {
@@ -1636,7 +1636,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "8iMTSULnk"
+            "uid": "cmsweb-test7-nodexpo"
           },
           "expr": "topk(10, sum by (namespace, pod) (container_file_descriptors{namespace=~\"$namespace\", instance=~\"$node\", pod!=\"\"}))",
           "instant": false,
@@ -1666,7 +1666,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "8iMTSULnk"
+          "uid": "cmsweb-test7-nodexpo"
         },
         "includeAll": true,
         "multi": true,
@@ -1688,7 +1688,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "8iMTSULnk"
+          "uid": "cmsweb-test7-nodexpo"
         },
         "includeAll": true,
         "multi": true,
@@ -1713,6 +1713,6 @@
   "timezone": "browser",
   "title": "CMSWEB test7 - Pod Health (CPU/Memory)",
   "uid": "cmsweb-test7-pod-health",
-  "version": 20,
+  "version": 21,
   "weekStart": ""
 }
