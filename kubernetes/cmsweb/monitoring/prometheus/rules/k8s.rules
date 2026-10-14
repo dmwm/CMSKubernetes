@@ -102,7 +102,7 @@ groups:
       description: "{{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }} is expected to fill up within four days. Currently {{ $value | humanize }}% is available.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
 
   - alert: KubernetesPersistentvolumeError
-    expr: kube_persistentvolume_status_phase{phase=~"Failed|Pending",job="kube-state-metrics"} > 0
+    expr: kube_persistentvolume_status_phase{phase=~"Failed|Pending",job="cern-magnum-kube-state-metrics"} > 0
     for: 5m
     labels:
       severity: critical
@@ -146,7 +146,7 @@ groups:
       description: "Pod {{ $labels.pod }} is crash looping\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
 
   - alert: KubernetesApiServerErrors
-    expr: sum(rate(apiserver_request_count{job="apiserver",code=~"^(?:5..)$"}[2m])) / sum(rate(apiserver_request_count{job="apiserver"}[2m])) * 100 > 3
+    expr: sum(rate(apiserver_request_total{job="kubernetes-apiservers",code=~"^(?:5..)$"}[2m])) / sum(rate(apiserver_request_total{job="kubernetes-apiservers"}[2m])) * 100 > 3
     for: 5m
     labels:
       severity: critical
@@ -168,7 +168,7 @@ groups:
       description: "Kubernetes API client is experiencing high error rate\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
 
   - alert: KubernetesApiServerLatency
-    expr: histogram_quantile(0.99, sum(apiserver_request_latencies_bucket{verb!~"CONNECT|WATCHLIST|WATCH|PROXY"}) WITHOUT (instance, resource)) / 1e+06 > 1
+    expr: histogram_quantile(0.99, sum(apiserver_request_duration_seconds_bucket{verb!~"CONNECT|WATCHLIST|WATCH|PROXY"}) WITHOUT (instance, resource)) > 1
     for: 5m
     labels:
       severity: warning
