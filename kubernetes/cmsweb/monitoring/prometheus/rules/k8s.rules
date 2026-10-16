@@ -180,8 +180,10 @@ groups:
  
 #enlist the pods and the reason why they restarted
   - alert: PodRestartReason
-    expr: kube_pod_container_status_last_terminated_reason{namespace="dmwm"} == 1
-    for: 10m
+    expr: |
+      kube_pod_container_status_last_terminated_reason{namespace="dmwm"} == 1
+      and on (namespace, pod, container)
+      (increase(kube_pod_container_status_restarts_total{namespace="dmwm"}[10m]) > 0)
     labels:
       severity: warning
       tag: cmsweb
