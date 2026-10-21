@@ -2107,29 +2107,55 @@
       },
       "fieldConfig": {
         "defaults": {
-          "decimals": 0,
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "N/A"
-                }
-              },
-              "type": "special"
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "always",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
             }
-          ],
+          },
+          "mappings": [],
           "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "#299c46",
+                "color": "green",
                 "value": 0
               },
               {
-                "color": "#d44a3a",
-                "value": 1
+                "color": "red",
+                "value": 80
               }
             ]
           },
@@ -2144,23 +2170,18 @@
         "y": 69
       },
       "id": 28,
-      "maxDataPoints": 100,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
         },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
       },
       "pluginVersion": "12.4.5",
       "targets": [
@@ -2168,15 +2189,16 @@
           "datasource": {
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "count(kube_pod_status_phase{namespace=~\"$namespace.*\", phase=~\"Pending|Failed|Unknown\"}) or vector(0)",
+          "expr": "kube_pod_status_phase{namespace=~\"$namespace.*\", phase=~\"Pending|Failed|Unknown\"} == 1",
           "format": "time_series",
-          "instant": true,
+          "instant": false,
           "intervalFactor": 1,
+          "legendFormat": "{{namespace}}/{{pod}} ({{phase}})",
           "refId": "A"
         }
       ],
       "title": "Unhealthy Pods",
-      "type": "stat"
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -2184,29 +2206,55 @@
       },
       "fieldConfig": {
         "defaults": {
-          "decimals": 0,
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "N/A"
-                }
-              },
-              "type": "special"
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "always",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
             }
-          ],
+          },
+          "mappings": [],
           "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "#299c46",
+                "color": "green",
                 "value": 0
               },
               {
-                "color": "#d44a3a",
-                "value": 1
+                "color": "red",
+                "value": 80
               }
             ]
           },
@@ -2221,23 +2269,18 @@
         "y": 69
       },
       "id": 29,
-      "maxDataPoints": 100,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
         },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
       },
       "pluginVersion": "12.4.5",
       "targets": [
@@ -2245,15 +2288,16 @@
           "datasource": {
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "count(kube_pod_container_status_waiting_reason{namespace=~\"$namespace.*\", reason=~\"CrashLoopBackOff|ImagePullBackOff|ErrImagePull|CreateContainerConfigError|CreateContainerError|RunContainerError|InvalidImageName\"}) or vector(0)",
+          "expr": "kube_pod_container_status_waiting_reason{namespace=~\"$namespace.*\", reason=~\"CrashLoopBackOff|ImagePullBackOff|ErrImagePull|CreateContainerConfigError|CreateContainerError|RunContainerError|InvalidImageName\"} == 1",
           "format": "time_series",
-          "instant": true,
+          "instant": false,
           "intervalFactor": 1,
+          "legendFormat": "{{namespace}}/{{pod}} ({{reason}})",
           "refId": "A"
         }
       ],
       "title": "Pods with Container Issues",
-      "type": "stat"
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -2261,29 +2305,55 @@
       },
       "fieldConfig": {
         "defaults": {
-          "decimals": 0,
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "N/A"
-                }
-              },
-              "type": "special"
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "always",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
             }
-          ],
+          },
+          "mappings": [],
           "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "#299c46",
+                "color": "green",
                 "value": 0
               },
               {
-                "color": "#d44a3a",
-                "value": 1
+                "color": "red",
+                "value": 80
               }
             ]
           },
@@ -2298,23 +2368,18 @@
         "y": 77
       },
       "id": 30,
-      "maxDataPoints": 100,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
         },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
       },
       "pluginVersion": "12.4.5",
       "targets": [
@@ -2322,15 +2387,16 @@
           "datasource": {
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "count(kube_pod_container_status_last_terminated_reason{namespace=~\"$namespace.*\", reason=\"OOMKilled\"}) or vector(0)",
+          "expr": "kube_pod_container_status_last_terminated_reason{namespace=~\"$namespace.*\", reason=\"OOMKilled\"} == 1",
           "format": "time_series",
-          "instant": true,
+          "instant": false,
           "intervalFactor": 1,
+          "legendFormat": "{{namespace}}/{{pod}} (OOMKilled)",
           "refId": "A"
         }
       ],
       "title": "OOMKilled Containers",
-      "type": "stat"
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -2444,8 +2510,8 @@
     "list": [
       {
         "current": {
-          "text": "cmsweb-k8s-prodsrv-nodexpo",
-          "value": "cmsweb-k8s-prodsrv-nodexpo"
+          "text": "dbs-prod-nodexpo",
+          "value": "dbs-prod-nodexpo"
         },
         "includeAll": false,
         "label": "datasource",
@@ -2500,7 +2566,7 @@
     ]
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {
@@ -2519,6 +2585,6 @@
   "timezone": "browser",
   "title": "cmsweb k8s prod BE services",
   "uid": "cmsweb-k8s-prod-be-services",
-  "version": 11,
+  "version": 14,
   "weekStart": ""
 }
