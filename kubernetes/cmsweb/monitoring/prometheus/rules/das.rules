@@ -13,7 +13,7 @@ groups:
       action: Please restart DAS and MongoDB services
     annotations:
       summary: "DAS {{ $labels.env }} is down"
-      description: "{{ $labels.env }} has been down for more than 5m"
+      description: "{{ $labels.env }} on pod {{ $labels.apod }} (node {{ $labels.host }}) has been down for more than 5m"
 
   - alert: DAS high memory usage
     expr: avg_over_time(das2go_memory_percent[5m]) > 90
@@ -26,7 +26,7 @@ groups:
       action: Please restart DAS service
     annotations:
       summary: "DAS {{ $labels.env }} has high memory usage"
-      description: "{{ $labels.env }} memory usage above 90% for more than 5m"
+      description: "{{ $labels.env }} on pod {{ $labels.apod }} (node {{ $labels.host }}) memory usage above 90% for more than 5m"
 
   - alert: DAS high cpu usage
     expr: avg_over_time(das2go_cpu_percent[5m]) > 90
@@ -38,4 +38,4 @@ groups:
       host: "{{ $labels.host }}"
     annotations:
       summary: "DAS {{ $labels.env }} has high CPU usage"
-      description: "{{ $labels.env }} CPU usage above 90% for more than 5m"
+      description: "{{ $labels.env }} on pod {{ $labels.apod }} (node {{ $labels.host }}) CPU usage above 90% for more than 5m"

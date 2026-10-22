@@ -14,4 +14,4 @@ groups:
       action: Please restart MongoDB on {{ $labels.instance }}
     annotations:
       summary: "mongodb {{ $labels.env }} is down"
-      description: "{{ $labels.env }} has been down for more than 5m"
+      description: "{{ $labels.env }} on pod {{ $labels.apod }} (node {{ $labels.host }}) has been down for more than 5m"
