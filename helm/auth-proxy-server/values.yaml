@@ -73,5 +73,5 @@ imageFilebeatResources:
 
 initContainers:
 - name: htdocs
-  image: registry.cern.ch/cmsweb/htdocs:0.0.5
+  image: registry.cern.ch/cmsweb/htdocs:0.0.6
   command: ['sh', '-c', 'cp -r /www/* /tmp/htdocs']
