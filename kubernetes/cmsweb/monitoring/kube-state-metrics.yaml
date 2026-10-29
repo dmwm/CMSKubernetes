@@ -1,0 +1,188 @@
+# kube-state-metrics.yaml
+#
+# *** TEMPORARY WORKAROUND -- NOT an official CERN-managed component. ***
+#
+# CERN's cluster-level monitoring add-on normally provides kube-state-metrics
+# data, but it is missing/disabled on several test clusters (the legacy
+# "cern-magnum-*" add-on was dropped, and its replacement, the tenant-gated
+# "cern-it-monitoring-kubernetes" Helm chart, ships disabled by default and has
+# not been requested/enabled for CMSWEB). This manifest is a stopgap: it
+# deploys standard upstream kube-state-metrics ourselves so Prometheus has
+# data to scrape in the meantime.
+#
+# DO NOT apply this on a cluster that already has a working
+# "cern-magnum-kube-state-metrics" Deployment from CERN's own add-on (e.g.
+# test7) -- the Service name below is deliberately identical and would
+# conflict. Intended to be removed/reconciled once CERN Cloud/Monitoring
+# resolves the underlying gap (tracked in docs/k8s_cluster/known_issues.md).
+#
+# The Service below is deliberately named/namespaced "cern-magnum-kube-state-metrics"
+# in kube-system to match the static target CMSWEB's own Prometheus config already
+# expects (monitoring/prometheus/*/prometheus.yaml, job "cern-magnum-kube-state-metrics",
+# target cern-magnum-kube-state-metrics.kube-system.svc.cluster.local:8080) -- no
+# prometheus.yaml change needed to pick this up.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kube-state-metrics
+  namespace: kube-system
+  labels:
+    app: kube-state-metrics
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kube-state-metrics
+  labels:
+    app: kube-state-metrics
+rules:
+- apiGroups: [""]
+  resources:
+  - configmaps
+  - endpoints
+  - events
+  - limitranges
+  - namespaces
+  - nodes
+  - persistentvolumeclaims
+  - persistentvolumes
+  - pods
+  - replicationcontrollers
+  - resourcequotas
+  - secrets
+  - services
+  - serviceaccounts
+  verbs: ["list", "watch"]
+- apiGroups: ["apps"]
+  resources:
+  - daemonsets
+  - deployments
+  - replicasets
+  - statefulsets
+  verbs: ["list", "watch"]
+- apiGroups: ["batch"]
+  resources:
+  - cronjobs
+  - jobs
+  verbs: ["list", "watch"]
+- apiGroups: ["autoscaling"]
+  resources:
+  - horizontalpodautoscalers
+  verbs: ["list", "watch"]
+- apiGroups: ["policy"]
+  resources:
+  - poddisruptionbudgets
+  verbs: ["list", "watch"]
+- apiGroups: ["storage.k8s.io"]
+  resources:
+  - storageclasses
+  - volumeattachments
+  verbs: ["list", "watch"]
+- apiGroups: ["networking.k8s.io"]
+  resources:
+  - ingressclasses
+  - ingresses
+  - networkpolicies
+  verbs: ["list", "watch"]
+- apiGroups: ["certificates.k8s.io"]
+  resources:
+  - certificatesigningrequests
+  verbs: ["list", "watch"]
+- apiGroups: ["discovery.k8s.io"]
+  resources:
+  - endpointslices
+  verbs: ["list", "watch"]
+- apiGroups: ["coordination.k8s.io"]
+  resources:
+  - leases
+  verbs: ["list", "watch"]
+- apiGroups: ["admissionregistration.k8s.io"]
+  resources:
+  - mutatingwebhookconfigurations
+  - validatingwebhookconfigurations
+  verbs: ["list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kube-state-metrics
+  labels:
+    app: kube-state-metrics
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kube-state-metrics
+subjects:
+- kind: ServiceAccount
+  name: kube-state-metrics
+  namespace: kube-system
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # Name/namespace deliberately match the static target already configured
+  # in CMSWEB's prometheus.yaml -- see note at top of this file.
+  name: cern-magnum-kube-state-metrics
+  namespace: kube-system
+  labels:
+    app: kube-state-metrics
+spec:
+  selector:
+    app: kube-state-metrics
+  ports:
+  - name: http-metrics
+    port: 8080
+    targetPort: http-metrics
+  - name: telemetry
+    port: 8081
+    targetPort: telemetry
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-state-metrics
+  namespace: kube-system
+  labels:
+    app: kube-state-metrics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-state-metrics
+  template:
+    metadata:
+      labels:
+        app: kube-state-metrics
+    spec:
+      serviceAccountName: kube-state-metrics
+      containers:
+      - name: kube-state-metrics
+        image: registry.cern.ch/kubernetes/kube-state-metrics:2.9.0
+        ports:
+        - containerPort: 8080
+          name: http-metrics
+        - containerPort: 8081
+          name: telemetry
+        livenessProbe:
+          httpGet:
+            path: /livez
+            port: http-metrics
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: telemetry
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+        resources:
+          requests:
+            cpu: 50m
+            memory: 100Mi
+          limits:
+            cpu: 200m
+            memory: 250Mi
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 65534
+          readOnlyRootFilesystem: true
