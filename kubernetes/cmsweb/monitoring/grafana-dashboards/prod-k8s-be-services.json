@@ -2504,7 +2504,9 @@
   "schemaVersion": 42,
   "tags": [
     "resources",
-    "usage"
+    "usage",
+    "cmsweb",
+    "production"
   ],
   "templating": {
     "list": [
@@ -2585,6 +2587,6 @@
   "timezone": "browser",
   "title": "cmsweb k8s prod BE services",
   "uid": "cmsweb-k8s-prod-be-services",
-  "version": 14,
+  "version": 19,
   "weekStart": ""
 }
