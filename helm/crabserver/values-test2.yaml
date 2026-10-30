@@ -1,3 +1,3 @@
 environment: test
 image:
-  tag: v3.260925-stable
+  tag: pypi-test2-1793374876
