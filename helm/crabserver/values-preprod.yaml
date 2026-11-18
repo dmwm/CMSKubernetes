@@ -1,6 +1,6 @@
 environment: preprod
 image:
-  tag: v3-261114
+  tag: v3-261118
 ciServiceAccount:
   enabled: false
 livenessProbe:
