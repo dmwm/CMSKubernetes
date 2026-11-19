@@ -1,0 +1,29 @@
+# CMSKUBERNETES-560: log share for cluster cms-compops-mcp-prod (CMS Comp-Ops MCP).
+# Manila share cms-compops-mcp-share-prod (Meyrin CephFS, 22 GB), mounted on vocms0755 at /cephfs/product/cms-compops-mcp-logs/
+# Only the PV is managed here. The PVC is owned by the Comp-Ops team (their deployment), bound via claimRef below:
+#   name: logs-cephfs-claim-prod-cms-mcp, namespace: cms-mcp-prod, storageClassName: "", volumeName: cms-compops-mcp-share
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cms-compops-mcp-share
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 22G
+  persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    namespace: cms-mcp-prod
+    name: logs-cephfs-claim-prod-cms-mcp
+  csi:
+    driver: cephfs.manila.csi.openstack.org
+    volumeHandle: 08c4eb2a-02cd-467e-89c6-a441b11672a4
+    nodeStageSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    nodePublishSecretRef:
+      name: os-trustee
+      namespace: kube-system
+    volumeAttributes:
+      shareID: 08c4eb2a-02cd-467e-89c6-a441b11672a4
+      shareAccessID: bfd2e123-8bdf-4edd-ab89-0c566b61c118
