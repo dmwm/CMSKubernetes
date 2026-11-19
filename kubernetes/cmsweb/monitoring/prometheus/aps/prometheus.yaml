@@ -1,6 +1,8 @@
 global:
   scrape_interval:     15s
   evaluation_interval: 15s
+  external_labels:
+    cluster: dev # cluster
 
 alerting:
   alertmanagers:
@@ -12,15 +14,15 @@ alerting:
 remote_write:
   - url: http://cms-monitoring-ha1.cern.ch:30428/api/v1/write
     queue_config:
-      max_samples_per_send: 10000
+      max_samples_per_send: 2000
       max_shards: 30
   - url: http://cms-monitoring-ha2.cern.ch:30428/api/v1/write
     queue_config:
-      max_samples_per_send: 10000
+      max_samples_per_send: 2000
       max_shards: 30
   - url: http://cms-monitoring-test.cern.ch:30428/api/v1/write
     queue_config:
-      max_samples_per_send: 10000
+      max_samples_per_send: 2000
       max_shards: 30
 scrape_configs:
 #first, we define all the custom jobs that we have for the services
@@ -39,11 +41,6 @@ scrape_configs:
     - source_labels: [__meta_kubernetes_pod_container_port_number]
       action: keep
       regex: ^(10254)
-  - job_name: 'quota-exporter'
-    scrape_interval: 120s
-    scrape_timeout: 110s
-    static_configs:
-      - targets: ['quota-exporter.http.svc.cluster.local:18000']
 #Then, the default job configs
 
   - job_name: "kubernetes-apiservers"
@@ -136,8 +133,6 @@ scrape_configs:
     kubernetes_sd_configs:
     - role: node
     relabel_configs:
-    - action: labelmap
-      regex: __meta_kubernetes_node_label_(.+)
     - target_label: __address__
       replacement: kubernetes.default.svc:443
     - source_labels: [__meta_kubernetes_node_name]

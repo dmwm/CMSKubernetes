@@ -1,0 +1,100 @@
+# node-exporter.yaml
+#
+# *** TEMPORARY WORKAROUND -- NOT an official CERN-managed component. ***
+#
+# CERN's cluster-level monitoring add-on normally provides node-exporter data,
+# but it is missing/disabled on several test clusters (the legacy
+# "cern-magnum-*" add-on was dropped, and its replacement, the tenant-gated
+# "cern-it-monitoring-kubernetes" Helm chart, ships disabled by default and has
+# not been requested/enabled for CMSWEB). This manifest is a stopgap: it
+# deploys the standard upstream node-exporter ourselves so Prometheus has data
+# to scrape in the meantime.
+#
+# DO NOT apply this on a cluster that already has working node-exporter data
+# from CERN's own add-on (e.g. test7, which still runs the legacy
+# "cern-magnum-*" components) -- check first, to avoid duplicate/conflicting
+# DaemonSets. Intended to be removed/reconciled once CERN Cloud/Monitoring
+# resolves the underlying gap (tracked in docs/k8s_cluster/known_issues.md).
+#
+# No Service object is needed: the "kubernetes-node-exporter" scrape job in
+# monitoring/prometheus/*/prometheus.yaml uses `role: node` discovery and talks
+# to each node's own IP on port 9100 directly, so this DaemonSet's pods just
+# need to be reachable there via hostNetwork.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: node-exporter
+  namespace: kube-system
+  labels:
+    app: node-exporter
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: node-exporter
+  namespace: kube-system
+  labels:
+    app: node-exporter
+spec:
+  selector:
+    matchLabels:
+      app: node-exporter
+  template:
+    metadata:
+      labels:
+        app: node-exporter
+    spec:
+      serviceAccountName: node-exporter
+      automountServiceAccountToken: false
+      priorityClassName: system-node-critical
+      hostNetwork: true
+      hostPID: true
+      # Run on every node, including the master -- Prometheus' kubernetes-node-exporter
+      # job discovers all nodes via `role: node` and expects data from each of them.
+      tolerations:
+      - operator: Exists
+      containers:
+      - name: node-exporter
+        image: registry.cern.ch/kubernetes/node-exporter:v1.3.1
+        args:
+        - --path.procfs=/host/proc
+        - --path.sysfs=/host/sys
+        - --path.rootfs=/host/root
+        - --web.listen-address=:9100
+        - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)
+        - --collector.filesystem.fs-types-exclude=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$
+        ports:
+        - containerPort: 9100
+          hostPort: 9100
+          name: metrics
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 180Mi
+        volumeMounts:
+        - name: proc
+          mountPath: /host/proc
+          readOnly: true
+        - name: sys
+          mountPath: /host/sys
+          readOnly: true
+        - name: root
+          mountPath: /host/root
+          mountPropagation: HostToContainer
+          readOnly: true
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 65534
+      volumes:
+      - name: proc
+        hostPath:
+          path: /proc
+      - name: sys
+        hostPath:
+          path: /sys
+      - name: root
+        hostPath:
+          path: /

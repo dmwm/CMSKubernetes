@@ -16,7 +16,7 @@ groups:
       action: Please check ReqMgr2 service on {{ $labels.instance }} and restart it if needed
     annotations:
       summary: "reqmgr2 {{ $labels.env }} is down"
-      description: "{{ $labels.env }} has been down - zero file descriptors - for more than 2m"
+      description: "{{ $labels.env }} on pod {{ $labels.apod }} (node {{ $labels.host }}) has been down - zero file descriptors - for more than 2m"
 
   - alert: ReqMgr2 high memory usage
     expr: reqmgr2_proc_mem > 70
@@ -29,7 +29,7 @@ groups:
       kind: dmwm
     annotations:
       summary: "reqmgr2 {{ $labels.env }} has large memory usage"
-      description: "{{ $labels.env }} memory usage above 70% for more than 5m"
+      description: "{{ $labels.env }} on pod {{ $labels.apod }} (node {{ $labels.host }}) memory usage above 70% for more than 5m"
 
   - alert: ReqMgr2 high cpu usage
     expr: reqmgr2_proc_cpu > 70
@@ -42,4 +42,4 @@ groups:
       kind: dmwm
     annotations:
       summary: "reqmgr2 {{ $labels.env }} has large cpu usage"
-      description: "{{ $labels.env }} cpu usage above 70% for more than 5m"
+      description: "{{ $labels.env }} on pod {{ $labels.apod }} (node {{ $labels.host }}) cpu usage above 70% for more than 5m"
