@@ -13,9 +13,7 @@ spec:
   template:
     metadata:
       annotations:
-        {{- $base := dict "configHash" (include "filebeat.configHash" .) -}}
-        {{- $merged := merge $base (.Values.podAnnotations | default dict) -}}
-        {{- toYaml $merged | nindent 8 }}
+        {{- toYaml (dict "configHash" (include "filebeat.configHash" .)) | nindent 8 }}
       labels:
         app: filebeat-crab
     spec:
