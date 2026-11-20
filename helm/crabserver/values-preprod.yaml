@@ -1,6 +1,6 @@
 environment: preprod
 image:
-  tag: v3-261119
+  tag: pypi-preprod-1795178050
 ciServiceAccount:
   enabled: false
 livenessProbe:
