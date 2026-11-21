@@ -1,4 +1,4 @@
-FROM golang:latest as go-builder
+FROM golang:1 as go-builder
 MAINTAINER Valentin Kuznetsov vkuznet@gmail.com
 ENV WDIR=/data
 WORKDIR $WDIR
