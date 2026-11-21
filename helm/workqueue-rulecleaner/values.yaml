@@ -1,0 +1,96 @@
+# Default values for workqueue-rulecleaner.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: registry.cern.ch/cmsweb/wmglobalqueue
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "2.4.4-stable"
+  command:
+  - /bin/bash
+  - /opt/setup-certs-and-run/setup-certs-and-run.sh
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+environment:
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+
+podAnnotations:
+  prometheus.io/scrape: 'true'
+  prometheus.io/port: "18241"
+
+securityContext:
+  privileged: true
+
+podSecurityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 2000
+
+imageFilebeatSecurityContext:
+  allowPrivilegeEscalation: false
+
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "200m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
+
+
+imageFilebeat:
+  name: workqueue-rulecleaner-filebeat
+  path: docker.elastic.co/beats/filebeat:7.12.0
+  env:
+  - name: MY_POD_NAME
+    valueFrom:
+      fieldRef:
+        apiVersion: v1
+        fieldPath: metadata.name
+  args: [
+  "-c", "/etc/filebeat.yml",
+  "-e",
+   ]
+
+imageFilebeatResources:
+  requests:
+    memory: "50Mi"
+    cpu: "50m"
+
+livenessProbe:
+  exec:
+    command:
+    - cmsweb-ping
+    - "--url=http://localhost:8241/workqueue/index.html"
+    - "--authz=/etc/hmac/hmac"
+    - -verbose
+    - "0"
+  initialDelaySeconds: 120
+  periodSeconds: 10
+ingress:
+  enabled: false
+  annotations: {}
+
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

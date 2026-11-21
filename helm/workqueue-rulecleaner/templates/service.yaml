@@ -1,0 +1,15 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: workqueue-rulecleaner
+  namespace: dmwm
+spec:
+  selector:
+    app: workqueue-rulecleaner
+  ports:
+    - port: 8241
+      targetPort: 8241
+      name: wq-rulecleaner
+    - port: 18241
+      targetPort: 18241
+      name: wq-rc-mon
